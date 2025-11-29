@@ -8,7 +8,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // MINI-LEAGUE STANDINGS
 function loadStandings() {
-  const leagueID = "YOUR_LEAGUE_ID";
+  const leagueID = "101712";
   const container = document.getElementById("standings-list");
   container.innerHTML = "Loading…";
 
