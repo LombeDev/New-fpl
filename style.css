@@ -1,4 +1,4 @@
-/* Root Colors - No change needed here, they are great! */
+/* Root Colors */
 :root {
     --primary: #37003C; /* Dark Purple */
     --accent: #00FF87; /* Neon Green */
@@ -6,10 +6,10 @@
     --grey: #EBEBEB;    /* Light Background */
     --text-dark: #242424;
     --shadow-light: 0 4px 12px rgba(0,0,0,0.08);
-    --shadow-hover: 0 8px 20px rgba(0,0,0,0.15); /* Slightly stronger hover shadow */
+    --shadow-hover: 0 8px 20px rgba(0,0,0,0.15);
 }
 
-/* Global Reset - No change needed here */
+/* Global Reset */
 * {
     margin: 0;
     padding: 0;
@@ -17,129 +17,289 @@
 }
 
 /* ------------------------------------------- */
-/* 🎯 IMPROVED BODY AND CENTERING */
+/* BODY AND MAIN LAYOUT (Centering) */
 /* ------------------------------------------- */
 body {
     background: var(--grey);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Slightly more modern font stack */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: var(--text-dark);
-    padding: 20px;
-    
-    /* 1. Ensure Body Fills Viewport */
     min-height: 100vh;
-    
-    /* 2. Flexbox for Centering */
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center;     /* Center vertically (if content fits) */
+    padding: 0; /* Remove padding from body */
 }
 
-/* ------------------------------------------- */
-/* 📦 CONTAINER IMPROVEMENTS */
-/* ------------------------------------------- */
-.container {
+/* Main Content Wrapper */
+#main-content {
     max-width: 1100px;
-    /* Removed 'margin: auto;' as centering is handled by the body's flexbox */
-    
-    /* Center the *content* inside the container if it's smaller than max-width */
-    width: 100%;
-    
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-
-    /* Optional: Add a subtle border/shadow to the edge of the container */
+    margin: 0 auto; /* Center main content */
     padding: 20px;
 }
 
+.hidden {
+    display: none !important;
+}
+
 /* ------------------------------------------- */
-/* 💳 CARD IMPROVEMENTS */
+/* 💳 CARD STYLES (From previous step) */
 /* ------------------------------------------- */
 .card {
     background: #fff;
     border-radius: 12px;
-    padding: 24px; /* Increased padding slightly for better spacing */
+    padding: 24px;
     box-shadow: var(--shadow-light);
-    
-    /* Use the bright accent color for a punchier FPL look */
-    border-left: 6px solid var(--accent); 
-    
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smoother transition curve */
+    border-left: 6px solid var(--accent);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex; /* Flex container for content */
+    flex-direction: column;
+    gap: 10px; /* Space between card elements */
 }
 
 .card:hover {
-    transform: translateY(-5px); /* Slightly more aggressive lift */
+    transform: translateY(-5px);
     box-shadow: var(--shadow-hover);
-    /* Optional: Accentuate the border-left on hover */
-    border-left: 6px solid var(--pink); 
+    border-left: 6px solid var(--pink);
 }
 
-/* ------------------------------------------- */
-/* 📝 TYPOGRAPHY */
-/* ------------------------------------------- */
-.card h2 {
-    font-size: 22px; /* Slightly larger heading for prominence */
-    margin-bottom: 10px;
+.card h3 {
+    font-size: 20px;
     color: var(--primary);
-    border-bottom: 2px solid var(--grey); /* Subtle separator */
-    padding-bottom: 5px;
+    margin-bottom: 5px;
 }
 
 .card p {
-    font-size: 16px; /* Slightly larger paragraph text for readability */
-    line-height: 1.7;
-    margin-bottom: 10px; /* Space out paragraphs if there are multiple */
+    font-size: 16px;
+    line-height: 1.6;
+    flex-grow: 1; /* Allows paragraph to take up available space */
+}
+
+.link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 10px;
+    transition: color 0.2s;
+}
+
+.link:hover {
+    color: var(--pink);
 }
 
 /* ------------------------------------------- */
-/* 👆 BUTTONS IMPROVEMENTS */
+/* 👆 BUTTONS AND INPUTS */
 /* ------------------------------------------- */
 .btn {
     background: var(--primary);
     color: #fff;
-    border: none;
-    padding: 12px 20px; /* More generous padding */
-    border-radius: 6px; /* Slightly less aggressive corner radius */
+    border: 2px solid var(--primary);
+    padding: 12px 20px;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     transition: background 0.25s ease, transform 0.1s;
-    
-    /* Optional: Small primary-colored border for contrast */
-    border: 2px solid var(--primary); 
+    text-decoration: none; /* For the <a> tag button */
+    display: inline-block;
 }
 
 .btn:hover {
     background: var(--pink);
-    border-color: var(--pink); /* Match border color on hover */
-    transform: scale(1.02); /* Slight scale effect */
+    border-color: var(--pink);
+    transform: scale(1.02);
+}
+
+.mini-btn {
+    background: var(--accent);
+    color: var(--primary);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.mini-btn:hover {
+    background: #00e07a;
+}
+
+input[type="number"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+}
+
+/* ------------------------------------------- */
+/* 🦸 HERO SECTION */
+/* ------------------------------------------- */
+.hero {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 0 0 15px 15px; /* Rounded bottom corners */
+}
+
+.hero h1 {
+    font-size: 48px;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+}
+
+.tagline span {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--primary);
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+    margin: 5px;
+    font-size: 14px;
+}
+
+.subtitle {
+    font-size: 18px;
+    margin: 20px 0 30px;
+    opacity: 0.9;
+}
+
+/* ------------------------------------------- */
+/* ✨ FEATURES GRID */
+/* ------------------------------------------- */
+.features {
+    padding: 40px 0;
+}
+
+.features h2, .features .desc {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.features .desc {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.features .card {
+    margin-bottom: 20px; /* Space between cards in single column mode */
+}
+
+/* Grid Layout for Cards */
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.features h2 {
+    /* To ensure h2 is not part of the grid flow */
+    grid-column: 1 / -1; 
+}
+
+/* ------------------------------------------- */
+/* 🚀 LOADER STYLES */
+/* ------------------------------------------- */
+#loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 9999;
+}
+
+.loader-content {
+    text-align: center;
+    z-index: 10000;
+}
+
+.loader-content h1 {
+    margin-top: 20px;
+    font-size: 32px;
+}
+
+/* Simple loading spinner CSS */
+.circle {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top: 5px solid var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Canvas is for particles, often used in dynamic loaders */
+#particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0.2;
+}
+
+/* ------------------------------------------- */
+/* 🦶 FOOTER */
+/* ------------------------------------------- */
+.footer {
+    padding: 30px 0;
+    text-align: center;
+    border-top: 1px solid #ccc;
+    margin-top: 40px;
+}
+
+.footer h2 {
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.socials a {
+    text-decoration: none;
+    padding: 8px 15px;
+    margin: 0 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block;
+    transition: background 0.2s, color 0.2s;
+}
+
+.twitter {
+    background: #1DA1F2;
+    color: #fff;
+}
+
+.github {
+    background: var(--text-dark);
+    color: #fff;
+}
+
+.credit {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
 }
 
 /* ------------------------------------------- */
 /* 📱 RESPONSIVE ADJUSTMENTS */
 /* ------------------------------------------- */
-@media (max-width: 600px) {
-    body {
-        /* Remove vertical centering on small screens to prevent content from being pushed off-screen */
-        align-items: flex-start;
-        padding: 10px;
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 36px;
     }
     
-    .container {
-        gap: 15px;
-    }
-    
-    .card {
-        padding: 15px;
-    }
-    
-    .card h2 {
-        font-size: 18px;
-    }
-    
-    .btn {
-        width: 100%; /* Make button full width on small screens */
-        padding: 10px 15px;
+    .features {
+        grid-template-columns: 1fr; /* Stack cards on mobile */
     }
 }
