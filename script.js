@@ -3,22 +3,24 @@ let index = 0;
 const batchSize = 20;
 let loading = false;
 
-const container = document.getElementById("sheet-data");
+const container = document.getElementById("api-data");
 const endMessage = document.getElementById("end-message");
 const backToTop = document.getElementById("back-to-top");
 
-// Replace this with your Google Sheet API URL
-const API_URL = "https://fantasy.premierleague.com/api/fixtures/";
+// YOUR API URL — any public JSON API
+const API_URL = "https://fantasy.premierleague.com/api/fixtures/"; 
 
-// Fetch data from Google Sheet API
-fetch(API_URL)
+// Optional: Use a free CORS proxy if the API blocks browser requests
+const proxy = "https://api.allorigins.win/raw?url="; 
+
+fetch(proxy + encodeURIComponent(API_URL))
   .then(res => res.json())
   .then(data => {
     allData = data;
     renderBatch();
     window.addEventListener("scroll", handleScroll);
   })
-  .catch(err => console.error("Error:", err));
+  .catch(err => console.error("Error loading API:", err));
 
 function renderBatch() {
   if (loading) return;
@@ -28,9 +30,10 @@ function renderBatch() {
   const slice = allData.slice(index, end);
 
   slice.forEach(row => {
-    const text = Object.entries(row)
-      .map(([key, value]) => `${key}: ${value}`)
-      .join(" | ");
+    // Convert object into text for display
+    const text = typeof row === "object"
+      ? Object.entries(row).map(([k,v]) => `${k}: ${v}`).join(" | ")
+      : row;
 
     const p = document.createElement("p");
     p.textContent = text;
@@ -56,14 +59,9 @@ function handleScroll() {
   }
 
   // Back to top button
-  if (window.scrollY > 300) {
-    backToTop.style.display = "block";
-  } else {
-    backToTop.style.display = "none";
-  }
+  backToTop.style.display = window.scrollY > 300 ? "block" : "none";
 }
 
-// Back to top button click
 backToTop.addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
