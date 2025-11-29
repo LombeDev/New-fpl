@@ -73,3 +73,23 @@ async function loadBPS() {
     container.textContent = "Failed to load BPS.";
   }
 }
+
+// BACK TO TOP BUTTON
+const backToTop = document.getElementById("backToTop");
+
+// Show button after scrolling down 200px
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 200) {
+    backToTop.style.display = "flex";
+  } else {
+    backToTop.style.display = "none";
+  }
+});
+
+// Smooth scroll to top
+backToTop.addEventListener("click", () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+});
