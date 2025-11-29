@@ -1,64 +1,69 @@
-// --- 1. LOADER FUNCTIONALITY ---
-document.addEventListener('DOMContentLoaded', () => {
-    const loader = document.getElementById('loader');
-    const mainContent = document.getElementById('main-content');
+let allData = [];
+let index = 0;
+const batchSize = 20;
+let loading = false;
 
-    // Simulate a data loading delay (e.g., 2.5 seconds)
-    setTimeout(() => {
-        // Fade out the loader
-        loader.style.opacity = '0';
-        
-        // Wait for the fade out to finish (0.5s transition time)
-        setTimeout(() => {
-            loader.classList.add('hidden');
-            mainContent.classList.remove('hidden');
-        }, 500);
+const container = document.getElementById("sheet-data");
+const endMessage = document.getElementById("end-message");
+const backToTop = document.getElementById("back-to-top");
 
-    }, 2500);
-});
+// Replace this with your Google Sheet API URL
+const API_URL = "YOUR_API_URL_HERE";
 
-// --- 2. MINI-LEAGUE FUNCTIONALITY ---
-/**
- * Loads a league based on the ID entered.
- * In a real application, this would fetch data from the FPL API.
- */
-function loadLeague() {
-    const leagueIdInput = document.getElementById('leagueId');
-    const leagueResultsDiv = document.getElementById('leagueResults');
-    const leagueId = leagueIdInput.value.trim();
+// Fetch data from Google Sheet API
+fetch(API_URL)
+  .then(res => res.json())
+  .then(data => {
+    allData = data;
+    renderBatch();
+    window.addEventListener("scroll", handleScroll);
+  })
+  .catch(err => console.error("Error:", err));
 
-    if (!leagueId) {
-        leagueResultsDiv.innerHTML = '<p style="color: var(--pink);">Please enter a valid League ID.</p>';
-        return;
-    }
+function renderBatch() {
+  if (loading) return;
+  loading = true;
 
-    // Clear previous results and show loading status
-    leagueResultsDiv.innerHTML = `<p>Loading data for League ID: <strong>${leagueId}</strong>...</p>`;
-    
-    // --- SIMULATED FPL API CALL ---
-    // This is where you would use fetch() to talk to the FPL API:
-    // fetch(`https://fantasy.premierleague.com/api/leagues-classic/${leagueId}/standings/`)
-    
-    setTimeout(() => {
-        // Simulate a successful API response and data rendering
-        const simulatedData = [
-            { rank: 1, name: 'Lombe (Team 1)', points: 1500 },
-            { rank: 2, name: 'Fantasy Fan (Team 2)', points: 1480 },
-            { rank: 3, name: 'The Analyst (Team 3)', points: 1450 }
-        ];
+  const end = index + batchSize;
+  const slice = allData.slice(index, end);
 
-        let html = '<h4>Top Standings:</h4>';
-        html += '<ol style="padding-left: 20px;">';
-        
-        simulatedData.forEach(team => {
-            html += `<li style="margin-bottom: 5px;"><strong>#${team.rank}</strong> - ${team.name} (${team.points} pts)</li>`;
-        });
-        
-        html += '</ol>';
-        
-        leagueResultsDiv.innerHTML = html;
-        leagueResultsDiv.style.borderTop = '1px solid #eee';
-        leagueResultsDiv.style.paddingTop = '15px';
+  slice.forEach(row => {
+    const text = Object.entries(row)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(" | ");
 
-    }, 1500);
+    const p = document.createElement("p");
+    p.textContent = text;
+    p.classList.add("fade-in");
+    container.appendChild(p);
+  });
+
+  index = end;
+  loading = false;
+
+  if (index >= allData.length) {
+    endMessage.style.display = "block";
+  }
 }
+
+function handleScroll() {
+  const scrollPosition = window.innerHeight + window.scrollY;
+  const fullHeight = document.body.offsetHeight;
+
+  // Infinite scroll
+  if (scrollPosition >= fullHeight - 200 && index < allData.length) {
+    renderBatch();
+  }
+
+  // Back to top button
+  if (window.scrollY > 300) {
+    backToTop.style.display = "block";
+  } else {
+    backToTop.style.display = "none";
+  }
+}
+
+// Back to top button click
+backToTop.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
