@@ -8,7 +8,7 @@ const endMessage = document.getElementById("end-message");
 const backToTop = document.getElementById("back-to-top");
 
 // YOUR API URL — any public JSON API
-const API_URL = "https://fantasy.premierleague.com/api/fixtures/"; 
+const API_URL = "https://fantasy.premierleague.com/api/bootstrap-static/"; 
 
 // Optional: Use a free CORS proxy if the API blocks browser requests
 const proxy = "https://api.allorigins.win/raw?url="; 
