@@ -8,7 +8,8 @@ const endMessage = document.getElementById("end-message");
 const backToTop = document.getElementById("back-to-top");
 
 // Replace this with your Google Sheet API URL
-const API_URL = "https://script.google.com/macros/s/AKfycbxc8eTqLwGTSps2lJOBNwy5z5avtjt5QDn6u1urf-3rsKlMyG4ggxEG8JQGLQLjAgAbuw/exec";
+const API_URL = "https://fantasy.premierleague.com/api/';
+  ";
 
 // Fetch data from Google Sheet API
 fetch(API_URL)
