@@ -8,7 +8,7 @@ const endMessage = document.getElementById("end-message");
 const backToTop = document.getElementById("back-to-top");
 
 // Replace this with your Google Sheet API URL
-const API_URL = "YOUR_API_URL_HERE";
+const API_URL = "https://script.google.com/macros/s/AKfycbxR3uvGTqqydQYygcIfkUskXYfH5FStpy05d_q7EfQoKBuGhPDIU0SQin28eYaOhT46LQ/exec";
 
 // Fetch data from Google Sheet API
 fetch(API_URL)
