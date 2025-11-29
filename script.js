@@ -1,5 +1,5 @@
 // Mini League ID (CHANGE THIS!)
-const LEAGUE_ID = YOUR_LEAGUE_ID_HERE;
+const LEAGUE_ID = 101712;
 
 // CORS Fix
 const proxy = "https://api.allorigins.win/raw?url=";
