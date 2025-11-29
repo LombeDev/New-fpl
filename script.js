@@ -7,123 +7,69 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 // MINI-LEAGUE STANDINGS
-function loadStandings() {
-  const leagueID = "101712";
+async function loadStandings() {
   const container = document.getElementById("standings-list");
-  container.innerHTML = "Loading…";
+  try {
+    const leagueID = "101712";
+    const response = await fetch(proxy + encodeURIComponent(`https://fantasy.premierleague.com/api/leagues-classic/${leagueID}/standings/`));
+    const data = await response.json();
 
-  fetch(proxy + encodeURIComponent(`https://fantasy.premierleague.com/api/leagues-classic/${leagueID}/standings/`))
-    .then(r => r.json())
-    .then(data => {
-      container.innerHTML = "";
-
-      const table = document.createElement("table");
-      table.innerHTML = `
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Player</th>
-            <th>Team</th>
-            <th>Points</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${data.standings.results.map(team => `
-            <tr>
-              <td>${team.rank}</td>
-              <td>${team.player_name}</td>
-              <td>${team.entry_name}</td>
-              <td>${team.total}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      `;
-      container.appendChild(table);
+    container.innerHTML = "";
+    data.standings.results.forEach((team, index) => {
+      setTimeout(() => { // lazy load each line
+        const div = document.createElement("div");
+        div.className = "fade-in";
+        div.textContent = `${team.rank}. ${team.player_name} (${team.entry_name}) - ${team.total} pts`;
+        container.appendChild(div);
+      }, index * 50); // stagger fade-in
     });
+  } catch (err) {
+    container.textContent = "Failed to load standings.";
+  }
 }
 
 // LIVE POINTS
-function loadLivePoints() {
+async function loadLivePoints() {
   const container = document.getElementById("live-list");
-  container.innerHTML = "Loading…";
+  try {
+    const bootstrap = await fetch(proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/")).then(r=>r.json());
+    const currentGW = bootstrap.events.find(e=>e.is_current).id;
+    const live = await fetch(proxy + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${currentGW}/live/`)).then(r=>r.json());
 
-  fetch(proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"))
-    .then(r => r.json())
-    .then(data => {
-      const currentGW = data.events.find(e => e.is_current).id;
-      return fetch(proxy + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${currentGW}/live/`));
-    })
-    .then(r => r.json())
-    .then(live => {
-      const container = document.getElementById("live-list");
-      container.innerHTML = "";
-
-      const table = document.createElement("table");
-      table.innerHTML = `
-        <thead>
-          <tr>
-            <th>Player ID</th>
-            <th>Points</th>
-            <th>Goals</th>
-            <th>Assists</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${live.elements.map(p => `
-            <tr>
-              <td>${p.id}</td>
-              <td>${p.stats.total_points}</td>
-              <td>${p.stats.goals_scored}</td>
-              <td>${p.stats.assists}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      `;
-      container.appendChild(table);
+    container.innerHTML = "";
+    live.elements.forEach((p, index) => {
+      setTimeout(() => {
+        const div = document.createElement("div");
+        div.className = "fade-in";
+        div.textContent = `Player ID ${p.id} - ${p.stats.total_points} pts (G:${p.stats.goals_scored} A:${p.stats.assists})`;
+        container.appendChild(div);
+      }, index * 30);
     });
+  } catch (err) {
+    container.textContent = "Failed to load live points.";
+  }
 }
 
-// BPS Breakdown
-function loadBPS() {
+// BPS BREAKDOWN
+async function loadBPS() {
   const container = document.getElementById("bps-list");
-  container.innerHTML = "Loading…";
+  try {
+    const bootstrap = await fetch(proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/")).then(r=>r.json());
+    const playerDict = {};
+    bootstrap.elements.forEach(p=>playerDict[p.id] = `${p.first_name} ${p.second_name}`);
+    const currentGW = bootstrap.events.find(e=>e.is_current).id;
+    const live = await fetch(proxy + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${currentGW}/live/`)).then(r=>r.json());
 
-  fetch(proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"))
-    .then(r => r.json())
-    .then(data => {
-      const playerDict = {};
-      data.elements.forEach(p => playerDict[p.id] = `${p.first_name} ${p.second_name}`);
-      const currentGW = data.events.find(e => e.is_current).id;
-
-      return fetch(proxy + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${currentGW}/live/`))
-        .then(r => r.json())
-        .then(live => {
-          container.innerHTML = "";
-
-          const table = document.createElement("table");
-          table.innerHTML = `
-            <thead>
-              <tr>
-                <th>Player</th>
-                <th>BPS</th>
-                <th>Points</th>
-                <th>Goals</th>
-                <th>Assists</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${live.elements.map(p => `
-                <tr>
-                  <td>${playerDict[p.id] || 'Unknown'}</td>
-                  <td>${p.stats.bps}</td>
-                  <td>${p.stats.total_points}</td>
-                  <td>${p.stats.goals_scored}</td>
-                  <td>${p.stats.assists}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          `;
-          container.appendChild(table);
-        });
+    container.innerHTML = "";
+    live.elements.forEach((p, index) => {
+      setTimeout(() => {
+        const div = document.createElement("div");
+        div.className = "fade-in";
+        div.textContent = `${playerDict[p.id] || 'Unknown'} - BPS: ${p.stats.bps} | ${p.stats.total_points} pts | G:${p.stats.goals_scored} A:${p.stats.assists}`;
+        container.appendChild(div);
+      }, index * 30);
     });
+  } catch (err) {
+    container.textContent = "Failed to load BPS.";
+  }
 }
