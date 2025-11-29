@@ -1,87 +1,145 @@
-/* Root Colors */
+/* Root Colors - No change needed here, they are great! */
 :root {
-    --primary: #37003C;
-    --accent: #00FF87;
-    --pink: #D2005F;
-    --grey: #EBEBEB;
+    --primary: #37003C; /* Dark Purple */
+    --accent: #00FF87; /* Neon Green */
+    --pink: #D2005F;    /* Pink/Magenta */
+    --grey: #EBEBEB;    /* Light Background */
     --text-dark: #242424;
+    --shadow-light: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-hover: 0 8px 20px rgba(0,0,0,0.15); /* Slightly stronger hover shadow */
 }
 
-/* Global Reset */
+/* Global Reset - No change needed here */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Body */
+/* ------------------------------------------- */
+/* 🎯 IMPROVED BODY AND CENTERING */
+/* ------------------------------------------- */
 body {
     background: var(--grey);
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Slightly more modern font stack */
     color: var(--text-dark);
     padding: 20px;
+    
+    /* 1. Ensure Body Fills Viewport */
+    min-height: 100vh;
+    
+    /* 2. Flexbox for Centering */
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center;     /* Center vertically (if content fits) */
 }
 
-/* Container */
+/* ------------------------------------------- */
+/* 📦 CONTAINER IMPROVEMENTS */
+/* ------------------------------------------- */
 .container {
     max-width: 1100px;
-    margin: auto;
+    /* Removed 'margin: auto;' as centering is handled by the body's flexbox */
+    
+    /* Center the *content* inside the container if it's smaller than max-width */
+    width: 100%;
+    
     display: flex;
     flex-direction: column;
     gap: 20px;
+
+    /* Optional: Add a subtle border/shadow to the edge of the container */
+    padding: 20px;
 }
 
-/* Card */
+/* ------------------------------------------- */
+/* 💳 CARD IMPROVEMENTS */
+/* ------------------------------------------- */
 .card {
     background: #fff;
     border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    border-left: 6px solid var(--primary);
-    transition: 0.25s ease;
+    padding: 24px; /* Increased padding slightly for better spacing */
+    box-shadow: var(--shadow-light);
+    
+    /* Use the bright accent color for a punchier FPL look */
+    border-left: 6px solid var(--accent); 
+    
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smoother transition curve */
 }
 
 .card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    transform: translateY(-5px); /* Slightly more aggressive lift */
+    box-shadow: var(--shadow-hover);
+    /* Optional: Accentuate the border-left on hover */
+    border-left: 6px solid var(--pink); 
 }
 
-/* Heading */
+/* ------------------------------------------- */
+/* 📝 TYPOGRAPHY */
+/* ------------------------------------------- */
 .card h2 {
-    font-size: 20px;
-    margin-bottom: 8px;
+    font-size: 22px; /* Slightly larger heading for prominence */
+    margin-bottom: 10px;
     color: var(--primary);
+    border-bottom: 2px solid var(--grey); /* Subtle separator */
+    padding-bottom: 5px;
 }
 
-/* Paragraph */
 .card p {
-    font-size: 15px;
-    line-height: 1.6;
+    font-size: 16px; /* Slightly larger paragraph text for readability */
+    line-height: 1.7;
+    margin-bottom: 10px; /* Space out paragraphs if there are multiple */
 }
 
-/* Buttons */
+/* ------------------------------------------- */
+/* 👆 BUTTONS IMPROVEMENTS */
+/* ------------------------------------------- */
 .btn {
     background: var(--primary);
     color: #fff;
     border: none;
-    padding: 10px 16px;
-    border-radius: 8px;
+    padding: 12px 20px; /* More generous padding */
+    border-radius: 6px; /* Slightly less aggressive corner radius */
     cursor: pointer;
     font-weight: bold;
-    transition: 0.2s;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: background 0.25s ease, transform 0.1s;
+    
+    /* Optional: Small primary-colored border for contrast */
+    border: 2px solid var(--primary); 
 }
 
 .btn:hover {
     background: var(--pink);
+    border-color: var(--pink); /* Match border color on hover */
+    transform: scale(1.02); /* Slight scale effect */
 }
 
-/* Responsive */
+/* ------------------------------------------- */
+/* 📱 RESPONSIVE ADJUSTMENTS */
+/* ------------------------------------------- */
 @media (max-width: 600px) {
+    body {
+        /* Remove vertical centering on small screens to prevent content from being pushed off-screen */
+        align-items: flex-start;
+        padding: 10px;
+    }
+    
+    .container {
+        gap: 15px;
+    }
+    
     .card {
-        padding: 16px;
+        padding: 15px;
     }
     
     .card h2 {
         font-size: 18px;
+    }
+    
+    .btn {
+        width: 100%; /* Make button full width on small screens */
+        padding: 10px 15px;
     }
 }
