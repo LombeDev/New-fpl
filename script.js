@@ -3,7 +3,6 @@ const proxy = "https://api.allorigins.win/raw?url=";
 // On page load
 window.addEventListener("DOMContentLoaded", () => {
   loadStandings();
-  loadLivePoints();
   loadBPS();
 });
 
@@ -32,34 +31,6 @@ async function loadStandings() {
   } catch (err) {
     console.error(err);
     container.textContent = "Failed to load standings.";
-  }
-}
-
-// LIVE POINTS
-async function loadLivePoints() {
-  const container = document.getElementById("live-list");
-  try {
-    const bootstrap = await fetch(proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"))
-      .then(r => r.json());
-    const currentGW = bootstrap.events.find(e => e.is_current).id;
-    const live = await fetch(proxy + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${currentGW}/live/`))
-      .then(r => r.json());
-
-    container.innerHTML = "";
-    live.elements.forEach((p, index) => {
-      setTimeout(() => {
-        const div = document.createElement("div");
-        div.textContent = `Player ID ${p.id} - ${p.stats.total_points} pts (G:${p.stats.goals_scored} A:${p.stats.assists})`;
-
-        // Highlight high points
-        if (p.stats.total_points >= 10) div.classList.add("high-points");
-
-        container.appendChild(div);
-      }, index * 20);
-    });
-  } catch (err) {
-    console.error(err);
-    container.textContent = "Failed to load live points.";
   }
 }
 
