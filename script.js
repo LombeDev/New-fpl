@@ -52,8 +52,9 @@ const observer = new IntersectionObserver((entries) => {
 lazyElements.forEach((el) => observer.observe(el));
 
 /* -----------------------------------------
-   FPL API FETCHING (UPDATED)
+   FPL API FETCHING
 ----------------------------------------- */
+// Proxy is necessary to bypass CORS restrictions for external APIs
 const proxy = "https://api.allorigins.win/raw?url=";
 
 // On page load - UPDATED to include new functions
@@ -61,6 +62,8 @@ window.addEventListener("DOMContentLoaded", () => {
   loadStandings();
   loadBPS();
   loadPriceChanges(); 
+  loadMostTransferred(); 
+  loadMostCaptained();   
   loadEPLTable();     
 });
 
@@ -174,7 +177,85 @@ async function loadPriceChanges() {
   }
 }
 
-// 🥇 CURRENT EPL TABLE (STANDINGS) - FIX APPLIED
+// ➡️ MOST TRANSFERRED IN
+async function loadMostTransferred() {
+  const container = document.getElementById("most-transferred-list");
+  if (!container) return;
+  try {
+    const data = await fetch(
+      proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/")
+    ).then((r) => r.json());
+
+    // Sort players by transfers_in_event (transfers since the last deadline)
+    const topTransferred = data.elements
+      .sort((a, b) => b.transfers_in_event - a.transfers_in_event)
+      .slice(0, 10); // Take the top 10
+
+    container.innerHTML = "<h3>Most Transferred In (This GW) ➡️</h3>";
+
+    topTransferred.forEach((p, index) => {
+      setTimeout(() => {
+        const div = document.createElement("div");
+        const transfers = p.transfers_in_event.toLocaleString(); // Add commas for readability
+        const playerPrice = (p.now_cost / 10).toFixed(1);
+
+        div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (£${playerPrice}m) - ${transfers} transfers`;
+        
+        container.appendChild(div);
+      }, index * 30);
+    });
+  } catch (err) {
+    console.error(err);
+    container.textContent = "Failed to load transfers data.";
+  }
+}
+
+// ©️ MOST CAPTAINED PLAYER
+async function loadMostCaptained() {
+  const container = document.getElementById("most-captained-list");
+  if (!container) return;
+  try {
+    const data = await fetch(
+      proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/")
+    ).then((r) => r.json());
+
+    // 1. Get the current Gameweek data (assuming the first event in events is the current/next one)
+    const currentEvent = data.events.find(e => e.is_next || e.is_current);
+
+    if (!currentEvent || !currentEvent.most_captained) {
+        container.textContent = "Captain data not yet available for this Gameweek.";
+        return;
+    }
+
+    const mostCaptainedId = currentEvent.most_captained;
+    
+    // 2. Find the player object using the ID
+    const captain = data.elements.find(p => p.id === mostCaptainedId);
+
+    if (!captain) {
+        container.textContent = "Could not find the most captained player.";
+        return;
+    }
+
+    const playerPrice = (captain.now_cost / 10).toFixed(1);
+    const captaincyPercentage = currentEvent.most_captained_percentage;
+
+    container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3>";
+
+    const div = document.createElement("div");
+    div.textContent = `${captain.first_name} ${captain.second_name} (£${playerPrice}m) - ${captaincyPercentage}%`;
+    div.classList.add("top-rank"); // Highlight the captain
+    
+    container.appendChild(div);
+
+  } catch (err) {
+    console.error(err);
+    container.textContent = "Failed to load captaincy data.";
+  }
+}
+
+
+// 🥇 CURRENT EPL TABLE (STANDINGS) - KEYLESS PUBLIC API (FIXED)
 async function loadEPLTable() {
   const container = document.getElementById("epl-table-list");
   if (!container) return;
@@ -193,9 +274,8 @@ async function loadEPLTable() {
     seasonStartYear = currentYear - 1;
   }
   const currentSeason = `${seasonStartYear}-${seasonStartYear + 1}`; 
-  // For current date (Nov 30, 2025), this results in '2025-2026'
-
-  // NOTE: This uses TheSportsDB's free API. 
+  
+  // This uses TheSportsDB's free API
   const EPL_LEAGUE_ID = "4328"; 
   const apiURL = `https://www.thesportsdb.com/api/v1/json/60130162/lookuptable.php?l=${EPL_LEAGUE_ID}&s=${currentSeason}`; 
   
@@ -204,7 +284,7 @@ async function loadEPLTable() {
     const data = await response.json();
 
     if (!data.table || data.table.length === 0) {
-        container.innerHTML = `<p>EPL Table data not available for the **${currentSeason}** season, or the API failed. Please check the season date format.</p>`;
+        container.innerHTML = `<p>EPL Table data not available for the **${currentSeason}** season, or the keyless API failed. Reliability may vary with free keyless APIs.</p>`;
         return;
     }
 
@@ -252,8 +332,8 @@ async function loadEPLTable() {
     container.appendChild(table);
 
   } catch (err) {
-    console.error(err);
-    container.textContent = "Failed to load EPL table due to a network error.";
+    console.error("Network or Fetch Error:", err);
+    container.textContent = "Failed to load EPL table due to a network or fetch error.";
   }
 }
 
