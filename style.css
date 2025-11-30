@@ -69,9 +69,7 @@ body {
   background-color: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  /* Add padding to the top of the body to prevent content from hiding 
-     behind the new fixed navigation bar */
-  padding: 80px 22px 22px 22px; 
+  padding: 22px;
   transition: background .3s, color .3s;
   display: flex;
   flex-direction: column;
@@ -344,4 +342,301 @@ li {
     border-top-right-radius: var(--radius);
     border-bottom-left-radius: 8px;
     padding: 3px 8px;
-    font-size:
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--card-bg); 
+}
+
+/* Live Match Highlight */
+.match-live {
+    border: 1px solid var(--status-live) !important; 
+}
+.match-live .match-status-tag {
+    background-color: var(--status-live);
+    color: var(--text); 
+}
+
+/* Finished Match Highlight */
+.match-finished .match-status-tag {
+    background-color: var(--status-finished);
+    color: #fff;
+}
+
+/* Upcoming Match (Default) */
+.match-pending .match-status-tag {
+    background-color: var(--status-upcoming);
+    color: #fff;
+}
+
+/* Base style for the team container */
+.fixture-team {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; 
+    flex-grow: 1;
+}
+
+/* Align home team label to the right of its container */
+.home-team {
+    justify-content: flex-end;
+}
+
+
+/* Score displays */
+.score-home, .score-away {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    padding: 0 5px;
+}
+
+.vs-label, .vs-label-time {
+    font-weight: normal;
+    color: var(--subtext);
+    font-size: 12px;
+    padding: 0 10px;
+    white-space: nowrap; 
+}
+
+
+/* --- FIXTURE DETAILS (GOALS/ASSISTS/CARDS) STYLES --- */
+.fixture-details {
+    width: 100%;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--subtext);
+    padding-bottom: 5px; 
+}
+
+.fixture-details p {
+    text-align: left;
+    margin: 0;
+    padding: 2px 0;
+    font-weight: normal;
+}
+
+.action-label {
+    font-weight: 700;
+    color: var(--text);
+    margin-right: 8px;
+}
+
+.action-goal { color: var(--action-goal); }
+.action-assist { color: var(--action-assist); }
+.action-red-card { color: var(--action-red); }
+/* --- END FIXTURE DETAILS --- */
+
+/* --- EPL TABLE STYLES --- */
+
+#epl-table-list {
+  overflow-x: auto; 
+}
+
+#epl-table-list table {
+  width: 100%;
+  border-collapse: separate; 
+  border-spacing: 0 6px;
+  font-size: 13px;
+  text-align: center;
+}
+
+#epl-table-list thead th,
+#epl-table-list tbody tr {
+    background: var(--bg);
+    border-radius: 8px;
+}
+
+#epl-table-list th, 
+#epl-table-list td {
+  padding: 10px 5px;
+  white-space: nowrap;
+}
+
+#epl-table-list thead th {
+  background-color: var(--border);
+  font-weight: 700;
+  color: var(--subtext);
+  position: sticky;
+  top: 0;
+}
+
+#epl-table-list tbody tr {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s, background 0.2s;
+}
+
+#epl-table-list tbody td:first-child {
+  font-weight: bold;
+  border-left: 4px solid transparent;
+}
+
+#epl-table-list tbody td:nth-child(2) {
+  text-align: left;
+}
+
+/* Zone Highlighting */
+.champions-league td:first-child { border-left-color: var(--blue-cl); }
+.europa-league td:first-child { border-left-color: var(--orange-el); }
+.relegation-zone td:first-child { border-left-color: var(--red-rl); }
+
+
+/* --- UTILITY ELEMENTS --- */
+
+/* BACK TO TOP BUTTON (REDUCED SIZE) */
+#backToTop {
+  position: fixed;
+  bottom: 20px; 
+  right: 20px; 
+  background: var(--accent); 
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px; 
+  height: 40px; 
+  font-size: 20px; 
+  display: none; 
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 999;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4); 
+  transition: background 0.3s, transform 0.25s, box-shadow 0.3s;
+}
+
+#backToTop:hover {
+  background: var(--accent-hover);
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+#backToTop:focus {
+    outline: 2px solid var(--accent-hover);
+    outline-offset: 3px;
+}
+
+/* THEME TOGGLE BUTTON (REDUCED SIZE) */
+#themeToggle {
+  position: fixed;
+  top: 20px;
+  right: 20px; 
+  background: var(--card-bg); 
+  color: var(--text); 
+  border: 1px solid var(--border);
+  padding: 6px 10px; 
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 13px; 
+  box-shadow: 0 1px 6px rgba(0,0,0,0.15); 
+  transition: background 0.3s, color 0.3s, border 0.3s, transform 0.25s;
+  z-index: 999;
+}
+
+#themeToggle:hover {
+  background: var(--border); 
+  transform: scale(1.05);
+}
+
+#themeToggle:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+/* LOADER - FPL COLORFUL STYLE */
+.loader {
+  width: 30px; 
+  height: 30px;
+  /* Use card background for the 'inner' part of the circle for better contrast */
+  border: 4px solid var(--card-bg); 
+  /* Initial colors using FPL primary accent */
+  border-top-color: var(--accent); 
+  border-right-color: var(--loader-color-2);
+  border-bottom-color: var(--loader-color-3); 
+  border-radius: 50%;
+  /* Using Material-style cubic-bezier for smoother acceleration/deceleration */
+  animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
+  margin: 30px auto; 
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* LAZY LOAD */
+.lazy {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .8s ease, transform .8s ease;
+}
+.lazy-loaded {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+
+/* --- NEW LOADING OVERLAY --- */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg); /* Matches site background */
+    color: var(--text);
+    z-index: 10000; /* Ensures it is on top of everything */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: opacity 0.5s ease-out; /* Smooth fade-out */
+}
+
+#loading-overlay h1 {
+    font-size: 50px;
+    margin-bottom: 5px;
+    color: var(--accent); /* Brand color */
+}
+
+#loading-overlay p {
+    font-size: 18px;
+    color: var(--subtext);
+    margin-bottom: 20px;
+}
+
+
+/* --- FOOTER STYLES --- */
+footer {
+    padding: 20px 10px;
+    margin-top: 40px;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    font-size: 0.85em;
+    color: var(--subtext);
+}
+
+footer .social-links {
+    margin: 15px 0 10px 0;
+}
+
+footer .social-links a {
+    color: var(--subtext);
+    text-decoration: none;
+    margin: 0 10px;
+    transition: color 0.3s ease;
+    /* This makes the Font Awesome icons look slightly bigger */
+    font-size: 1.5em; 
+}
+
+footer .social-links a:hover {
+    color: var(--accent-color);
+}
+
+footer .disclaimer {
+    margin-top: 10px;
+    font-size: 0.75em;
+    opacity: 0.7;
+}
