@@ -32,11 +32,48 @@ async function loadStandings() {
   }
 }
 
-// BPS BREAKDOWN
+/* --- LOAD BPS WITH TEAM AND POSITION, SORTED HIGHEST FIRST --- */
 async function loadBPS() {
-  const container = document.getElementById("bps-list");
-  try {
-    const bootstrap = await fetch(proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"))
+    const box = document.querySelector("#bps div");
+    box.innerHTML = `<div class="spinner"></div>`;
+
+    const bootstrap = await fetchJSON("https://fantasy.premierleague.com/api/bootstrap-static/");
+    const currentGW = bootstrap.events.find(e => e.is_current)?.id;
+    if (!currentGW) { box.innerHTML = "Current GW not found"; return; }
+
+    const live = await fetchJSON(`https://fantasy.premierleague.com/api/event/${currentGW}/live/`);
+    if (!live || !live.elements) { box.innerHTML = "No BPS data available"; return; }
+
+    // Map player id to name, team, and position
+    const map = {};
+    bootstrap.elements.forEach(p => {
+        const team = bootstrap.teams.find(t => t.id === p.team).name;
+        const pos = bootstrap.element_types.find(et => et.id === p.element_type).singular_name_short;
+        map[p.id] = { name: `${p.first_name} ${p.second_name}`, team, pos };
+    });
+
+    // Filter only players with bonus points > 0
+    let bonusPlayers = live.elements.filter(p => p.stats.bps > 0);
+
+    if (bonusPlayers.length === 0) {
+        box.innerHTML = "No players have bonus points yet";
+        return;
+    }
+
+    // Sort by BPS descending
+    bonusPlayers.sort((a, b) => b.stats.bps - a.stats.bps);
+
+    // Display players
+    box.innerHTML = "";
+    bonusPlayers.forEach(p => {
+        const info = map[p.id];
+        box.innerHTML += `
+          <div class="epl-row">
+            <strong>${info.name}</strong> (${info.pos} | ${info.team}) — BPS: ${p.stats.bps} | Pts: ${p.stats.total_points}
+          </div>
+        `;
+    });
+}
       .then(r => r.json());
 
     const playerDict = {};
