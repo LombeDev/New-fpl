@@ -120,7 +120,7 @@ async function loadFPLBootstrapData() {
     }
 }
 
-// 📅 CURRENT GAMEWEEK FIXTURES (WITH BADGES)
+// 📅 CURRENT GAMEWEEK FIXTURES
 async function loadCurrentGameweekFixtures() {
     const container = document.getElementById("fixtures-list");
     if (!container) return;
@@ -169,15 +169,9 @@ async function loadCurrentGameweekFixtures() {
             listItem.classList.add(statusClass);
             
             listItem.innerHTML = `
-                <span class="fixture-team home-team">
-                    <span class="team-label home-label">${homeTeamAbbr}</span> 
-                    <span class="club-badge team-${homeTeamAbbr}"></span>
-                </span> 
+                <span class="fixture-team home-team">${homeTeamAbbr}</span> 
                 ${scoreDisplay}
-                <span class="fixture-team away-team">
-                    <span class="club-badge team-${awayTeamAbbr}"></span>
-                    <span class="team-label away-label">${awayTeamAbbr}</span> 
-                </span>
+                <span class="fixture-team away-team">${awayTeamAbbr}</span>
             `;
             list.appendChild(listItem);
         });
@@ -379,4 +373,72 @@ async function loadEPLTable() {
   const currentSeason = `${seasonStartYear}-${seasonStartYear + 1}`; 
   
   const EPL_LEAGUE_ID = "4328"; 
-  const apiURL = `
+  const apiURL = `https://www.thesportsdb.com/api/v1/json/60130162/lookuptable.php?l=${EPL_LEAGUE_ID}&s=${currentSeason}`; 
+  
+  try {
+    const response = await fetch(proxy + encodeURIComponent(apiURL));
+    const data = await response.json();
+
+    if (!data.table || data.table.length === 0) {
+        container.innerHTML = `<p>EPL Table data not available for the **${currentSeason}** season, or the API call failed.</p>`;
+        return;
+    }
+
+    container.innerHTML = "<h3>Current Premier League Standings 🏆</h3>";
+
+    const table = document.createElement('table');
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Team</th>
+          <th>Pl</th>
+          <th>W</th>
+          <th>D</th>
+          <th>L</th>
+          <th>GD</th>
+          <th>Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    `;
+    const tbody = table.querySelector('tbody');
+
+    data.table.sort((a, b) => a.intRank - b.intRank).forEach((team) => {
+      const row = tbody.insertRow();
+      row.innerHTML = `
+        <td>${team.intRank}</td>
+        <td>${team.strTeam}</td>
+        <td>${team.intPlayed}</td>
+        <td>${team.intWin}</td>
+        <td>${team.intDraw}</td>
+        <td>${team.intLoss}</td>
+        <td>${team.intGoalDifference}</td>
+        <td>${team.intPoints}</td>
+      `;
+      if (team.intRank <= 4) row.classList.add("champions-league");
+      else if (team.intRank === 5) row.classList.add("europa-league");
+      else if (team.intRank >= 18) row.classList.add("relegation-zone");
+    });
+    
+    container.appendChild(table);
+
+  } catch (err) {
+    console.error("Error loading EPL table:", err);
+    container.textContent = "Failed to load EPL table due to a network or fetch error. Check proxy or API stability.";
+  }
+}
+
+/* -----------------------------------------
+   BACK TO TOP BUTTON
+----------------------------------------- */
+const backToTop = document.getElementById("backToTop");
+
+window.addEventListener("scroll", () => {
+  backToTop.style.display = window.scrollY > 200 ? "flex" : "none";
+});
+
+backToTop.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
