@@ -72,6 +72,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // Bootstrap data fetch must happen first to get team names and GW ID
   loadFPLBootstrapData();
   loadStandings();
+  loadGlobalStandings(); // 🔥 NEW: Load global leaderboard
   loadEPLTable();     
 });
 
@@ -114,11 +115,12 @@ async function loadFPLBootstrapData() {
         loadMostTransferred(data); 
         loadMostTransferredOut(data); 
         loadMostCaptained(data);
+        loadStatusList(data); // 🔥 NEW: Load player status updates
 
     } catch (err) {
         console.error("Error fetching FPL Bootstrap data:", err);
         // Display generic error message in case of failure
-        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list"];
+        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list", "status-list"];
         sections.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.textContent = "Failed to load data. Check FPL API/Proxy.";
@@ -194,7 +196,7 @@ async function loadCurrentGameweekFixtures() {
                 </div>
             `;
             
-            // --- Extract Goals, Assists, and Cards ---
+            // --- Extract Goals, Assists, Cards, AND MINUTES ---
             let actionHtml = '';
             let hasDetails = false;
             
@@ -205,15 +207,16 @@ async function loadCurrentGameweekFixtures() {
                 const extractStats = (identifier) => {
                     const stat = stats.find(s => s.identifier === identifier);
                     // The 'a' array typically holds player IDs and values
-                    // We must combine the 'a' (away) and 'h' (home) arrays if needed, but FPL generally puts all info in 'a' for fixtures
                     return stat ? (stat.a || []).concat(stat.h || []) : [];
                 };
 
                 const goalsData = extractStats('goals_scored');
                 const assistsData = extractStats('assists');
                 const redCardsData = extractStats('red_cards'); 
+                const minutesData = extractStats('minutes'); 
 
                 const allActions = [];
+                const minutesByPlayer = {}; 
 
                 // Helper to process actions
                 const processActions = (actionArray, type) => {
@@ -224,14 +227,22 @@ async function loadCurrentGameweekFixtures() {
                         }
                     });
                 };
+                
+                // Process Minutes data (to identify 90+ minute players)
+                minutesData.forEach(action => {
+                    const playerName = playerMap[action.element] || `Player ${action.element}`;
+                    minutesByPlayer[playerName] = action.value; 
+                });
+
 
                 processActions(goalsData, 'goal');
                 processActions(assistsData, 'assist');
                 processActions(redCardsData, 'red_card');
                 
-                if (allActions.length > 0) {
+                // Check if any actions or minutes were recorded
+                if (allActions.length > 0 || Object.keys(minutesByPlayer).length > 0) {
                     hasDetails = true;
-                    // Group actions by type and then list unique players for that type
+                    // Group actions by type (Goals, Assists, Cards)
                     const groupedActions = allActions.reduce((acc, action) => {
                         if (!acc[action.type]) acc[action.type] = new Set();
                         acc[action.type].add(action.name);
@@ -240,6 +251,7 @@ async function loadCurrentGameweekFixtures() {
 
                     actionHtml += '<div class="fixture-details">';
                     
+                    // Display Goals, Assists, and Cards
                     if (groupedActions.goal) {
                         actionHtml += `<p><span class="action-label action-goal">⚽ Goals:</span> ${Array.from(groupedActions.goal).join(', ')}</p>`;
                     }
@@ -248,6 +260,14 @@ async function loadCurrentGameweekFixtures() {
                     }
                      if (groupedActions.red_card) {
                         actionHtml += `<p><span class="action-label action-red-card">🟥 Red Cards:</span> ${Array.from(groupedActions.red_card).join(', ')}</p>`;
+                    }
+                    
+                    // Display Players with 90+ Minutes
+                    const ninetyMinPlayers = Object.keys(minutesByPlayer)
+                        .filter(name => minutesByPlayer[name] >= 90);
+                        
+                    if (ninetyMinPlayers.length > 0) {
+                        actionHtml += `<p><span class="action-label action-minutes">⏱️ 90+ Mins:</span> ${ninetyMinPlayers.join(', ')}</p>`;
                     }
                     
                     actionHtml += '</div>';
@@ -273,18 +293,45 @@ async function loadCurrentGameweekFixtures() {
 }
 
 
-// MINI-LEAGUE STANDINGS
+// 🏆 MINI-LEAGUE STANDINGS 
 async function loadStandings() {
   const container = document.getElementById("standings-list");
   if (!container) return; 
+  container.innerHTML = '<div class="loader"></div>';
+
   try {
     const leagueID = "101712"; 
-    const data = await fetch(
+    
+    const standingsData = await fetch(
       proxy + `https://fantasy.premierleague.com/api/leagues-classic/${leagueID}/standings/`
     ).then((r) => r.json());
 
+    const teams = standingsData.standings.results;
+    
+    // 2. Prepare concurrent requests for GW points (if currentGameweekId is available)
+    const gwPointsPromises = teams.map(team => {
+        if (!currentGameweekId) return Promise.resolve(null);
+        
+        const teamEntryID = team.entry;
+        const gwUrl = proxy + `https://fantasy.premierleague.com/api/entry/${teamEntryID}/event/${currentGameweekId}/picks/`;
+        
+        return fetch(gwUrl)
+            .then(r => r.json())
+            .then(data => data.entry_history.points) 
+            .catch(err => {
+                console.warn(`Failed to fetch GW points for entry ${teamEntryID}:`, err);
+                return null; 
+            });
+    });
+    
+    // 3. Execute all GW points requests concurrently
+    const gwPointsResults = await Promise.all(gwPointsPromises);
+    
+    // 4. Clear container and render results
     container.innerHTML = "";
-    data.standings.results.forEach((team, index) => {
+    
+    teams.forEach((team, index) => {
+      // Use setTimeout for the staggered animation effect
       setTimeout(() => {
         let rankChangeIndicator = '';
         let rankChangeClass = '';
@@ -301,8 +348,18 @@ async function loadStandings() {
             rankChangeClass = 'rank-unchanged';
         }
         
+        const gwPoints = gwPointsResults[index];
+        const gwPointsDisplay = gwPoints !== null ? `(${gwPoints} GW pts)` : '';
+        
         const div = document.createElement("div");
-        div.innerHTML = `${team.rank}. <span class="${rankChangeClass}">${rankChangeIndicator}</span> ${team.player_name} (${team.entry_name}) - ${team.total} pts`;
+        
+        // Use the structured HTML to match the CSS flex layout
+        div.innerHTML = `
+            <span class="rank-number">${team.rank}.</span>
+            <span class="manager-name">${team.player_name} (${team.entry_name})</span>
+            <span class="manager-points">${team.total} pts ${gwPointsDisplay}</span>
+            <span class="rank-change ${rankChangeClass}" title="Rank Change: ${rankChange}">${rankChangeIndicator}</span>
+        `;
         
         if (team.rank === 1) div.classList.add("top-rank");
         else if (team.rank === 2) div.classList.add("second-rank");
@@ -311,9 +368,10 @@ async function loadStandings() {
         container.appendChild(div);
       }, index * 30);
     });
+
   } catch (err) {
     console.error("Error loading standings:", err);
-    container.textContent = "Failed to load standings. Check league ID or proxy.";
+    container.textContent = "Failed to load standings. Check league ID, proxy, or FPL API.";
   }
 }
 
@@ -441,92 +499,24 @@ async function loadMostCaptained(data) {
   container.appendChild(div);
 }
 
+// 🏥 PLAYER STATUS UPDATES
+async function loadStatusList(data) {
+    const container = document.getElementById("status-list");
+    if (!container || !data) return;
 
-// 🥇 CURRENT EPL TABLE (STANDINGS) - Keyless Public API
-async function loadEPLTable() {
-  const container = document.getElementById("epl-table-list");
-  if (!container) return;
+    // Filter players based on non-available status or playing chance < 100
+    const flaggedPlayers = data.elements
+        .filter(p => p.status !== 'a' && p.chance_of_playing_this_round !== 100)
+        .sort((a, b) => {
+            // Sort by status flag: 's' (Suspended) first, then 'i' (Injured), then 'd' (Doubtful)
+            if (a.status < b.status) return -1;
+            if (a.status > b.status) return 1;
+            return b.total_points - a.total_points; 
+        });
 
-  // --- Dynamic Season Calculation ---
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth(); 
+    container.innerHTML = "<h3>Player Status Updates ⚠️</h3>";
+    const ul = document.createElement('ul');
+    ul.classList.add('status-updates-list');
 
-  let seasonStartYear;
-  if (currentMonth >= 7) { 
-    seasonStartYear = currentYear;
-  } 
-  else {
-    seasonStartYear = currentYear - 1;
-  }
-  const currentSeason = `${seasonStartYear}-${seasonStartYear + 1}`; 
-  
-  const EPL_LEAGUE_ID = "4328"; 
-  const apiURL = `https://www.thesportsdb.com/api/v1/json/60130162/lookuptable.php?l=${EPL_LEAGUE_ID}&s=${currentSeason}`; 
-  
-  try {
-    const response = await fetch(proxy + encodeURIComponent(apiURL));
-    const data = await response.json();
-
-    if (!data.table || data.table.length === 0) {
-        container.innerHTML = `<p>EPL Table data not available for the **${currentSeason}** season, or the API call failed.</p>`;
-        return;
-    }
-
-    container.innerHTML = "<h3>Current Premier League Standings 🏆</h3>";
-
-    const table = document.createElement('table');
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Team</th>
-          <th>Pl</th>
-          <th>W</th>
-          <th>D</th>
-          <th>L</th>
-          <th>GD</th>
-          <th>Pts</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    `;
-    const tbody = table.querySelector('tbody');
-
-    data.table.sort((a, b) => a.intRank - b.intRank).forEach((team) => {
-      const row = tbody.insertRow();
-      row.innerHTML = `
-        <td>${team.intRank}</td>
-        <td>${team.strTeam}</td>
-        <td>${team.intPlayed}</td>
-        <td>${team.intWin}</td>
-        <td>${team.intDraw}</td>
-        <td>${team.intLoss}</td>
-        <td>${team.intGoalDifference}</td>
-        <td>${team.intPoints}</td>
-      `;
-      if (team.intRank <= 4) row.classList.add("champions-league");
-      else if (team.intRank === 5) row.classList.add("europa-league");
-      else if (team.intRank >= 18) row.classList.add("relegation-zone");
-    });
-    
-    container.appendChild(table);
-
-  } catch (err) {
-    console.error("Error loading EPL table:", err);
-    container.textContent = "Failed to load EPL table due to a network or fetch error. Check proxy or API stability.";
-  }
-}
-
-/* -----------------------------------------
-   BACK TO TOP BUTTON
------------------------------------------ */
-const backToTop = document.getElementById("backToTop");
-
-window.addEventListener("scroll", () => {
-  backToTop.style.display = window.scrollY > 200 ? "flex" : "none";
-});
-
-backToTop.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
+    if (flaggedPlayers.length === 0) {
+        container.innerHTML += "<p style='text-align:center;'>No significant player statu
