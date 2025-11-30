@@ -54,10 +54,10 @@ lazyElements.forEach((el) => observer.observe(el));
 /* -----------------------------------------
    FPL API FETCHING
 ----------------------------------------- */
-// Proxy is necessary to bypass CORS restrictions for external APIs
-const proxy = "https://api.allorigins.win/raw?url=";
+// NEW, MORE RELIABLE PROXY USED HERE
+const proxy = "https://corsproxy.io/?";
 
-// On page load - loadBPS() removed
+// On page load 
 window.addEventListener("DOMContentLoaded", () => {
   loadStandings();
   loadPriceChanges(); 
@@ -72,8 +72,9 @@ async function loadStandings() {
   if (!container) return; 
   try {
     const leagueID = "101712"; // Replace with your league ID
+    // Note: FPL API uses a different encoding method for this endpoint, so no encodeURIComponent needed with the new proxy
     const data = await fetch(
-      proxy + encodeURIComponent(`https://fantasy.premierleague.com/api/leagues-classic/${leagueID}/standings/`)
+      proxy + `https://fantasy.premierleague.com/api/leagues-classic/${leagueID}/standings/`
     ).then((r) => r.json());
 
     container.innerHTML = "";
@@ -91,8 +92,8 @@ async function loadStandings() {
       }, index * 30);
     });
   } catch (err) {
-    console.error(err);
-    container.textContent = "Failed to load standings.";
+    console.error("Error loading standings:", err);
+    container.textContent = "Failed to load standings. Check league ID or proxy.";
   }
 }
 
@@ -102,7 +103,7 @@ async function loadPriceChanges() {
   if (!container) return;
   try {
     const data = await fetch(
-      proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/")
+      proxy + "https://fantasy.premierleague.com/api/bootstrap-static/"
     ).then((r) => r.json());
 
     // Filter players who had a price change (now_cost is not the original price)
@@ -133,18 +134,18 @@ async function loadPriceChanges() {
     });
 
   } catch (err) {
-    console.error(err);
-    container.textContent = "Failed to load price change data.";
+    console.error("Error loading price changes:", err);
+    container.textContent = "Failed to load price change data. Check proxy/FPL API.";
   }
 }
 
-// ➡️ MOST TRANSFERRED IN
+// ➡️ MOST TRANSFERRED IN (This and Captained use bootstrap-static, same fix applies)
 async function loadMostTransferred() {
   const container = document.getElementById("most-transferred-list");
   if (!container) return;
   try {
     const data = await fetch(
-      proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/")
+      proxy + "https://fantasy.premierleague.com/api/bootstrap-static/"
     ).then((r) => r.json());
 
     // Sort players by transfers_in_event (transfers since the last deadline)
@@ -166,8 +167,8 @@ async function loadMostTransferred() {
       }, index * 30);
     });
   } catch (err) {
-    console.error(err);
-    container.textContent = "Failed to load transfers data.";
+    console.error("Error loading transfers data:", err);
+    container.textContent = "Failed to load transfers data. Check proxy/FPL API.";
   }
 }
 
@@ -177,7 +178,7 @@ async function loadMostCaptained() {
   if (!container) return;
   try {
     const data = await fetch(
-      proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/")
+      proxy + "https://fantasy.premierleague.com/api/bootstrap-static/"
     ).then((r) => r.json());
 
     // 1. Get the current Gameweek data (assuming the first event in events is the current/next one)
@@ -210,42 +211,44 @@ async function loadMostCaptained() {
     container.appendChild(div);
 
   } catch (err) {
-    console.error(err);
-    container.textContent = "Failed to load captaincy data.";
+    console.error("Error loading captaincy data:", err);
+    container.textContent = "Failed to load captaincy data. Check proxy/FPL API.";
   }
 }
 
 
-// 🥇 CURRENT EPL TABLE (STANDINGS) - KEYLESS PUBLIC API (FIXED)
+// 🥇 CURRENT EPL TABLE (STANDINGS) - Keyless Public API
 async function loadEPLTable() {
   const container = document.getElementById("epl-table-list");
   if (!container) return;
 
   // --- Dynamic Season Calculation ---
+  // EPL Season is usually August to May. We calculate the current season string YYYY-YYYY+1
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth(); // 0 = Jan, 11 = Dec
 
   let seasonStartYear;
-  // If the month is Aug (7) through Dec (11), the season started this year.
+  // If month is Aug (7) or later, the season started this year.
   if (currentMonth >= 7) { 
     seasonStartYear = currentYear;
   } 
-  // If the month is Jan (0) through Jul (6), the season started last year.
+  // If month is Jan (0) to Jul (6), the season started last year.
   else {
     seasonStartYear = currentYear - 1;
   }
   const currentSeason = `${seasonStartYear}-${seasonStartYear + 1}`; 
   
-  // This uses TheSportsDB's free API
+  // This uses TheSportsDB's free API for EPL Standings (League ID 4328)
   const EPL_LEAGUE_ID = "4328"; 
   const apiURL = `https://www.thesportsdb.com/api/v1/json/60130162/lookuptable.php?l=${EPL_LEAGUE_ID}&s=${currentSeason}`; 
   
   try {
+    // TheSportsDB API can be strict about CORS, so we must use the proxy here.
     const response = await fetch(proxy + encodeURIComponent(apiURL));
     const data = await response.json();
 
     if (!data.table || data.table.length === 0) {
-        container.innerHTML = `<p>EPL Table data not available for the **${currentSeason}** season, or the keyless API failed. Reliability may vary with free keyless APIs.</p>`;
+        container.innerHTML = `<p>EPL Table data not available for the **${currentSeason}** season, or the API call failed.</p>`;
         return;
     }
 
@@ -293,8 +296,8 @@ async function loadEPLTable() {
     container.appendChild(table);
 
   } catch (err) {
-    console.error("Network or Fetch Error:", err);
-    container.textContent = "Failed to load EPL table due to a network or fetch error.";
+    console.error("Error loading EPL table:", err);
+    container.textContent = "Failed to load EPL table due to a network or fetch error. Check proxy or API stability.";
   }
 }
 
