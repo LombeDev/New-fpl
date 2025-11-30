@@ -5,7 +5,7 @@
   box-sizing: border-box;
 }
 
-/* BODY */
+/* BODY - DARK MODE BASE */
 body {
   font-family: Arial, sans-serif;
   display: flex;
@@ -15,6 +15,9 @@ body {
   padding: 20px;
   min-height: 100vh;
   font-size: 14px;
+  background-color: #121212;  /* dark background */
+  color: #ffffff;             /* white text */
+  transition: background 0.3s, color 0.3s;
 }
 
 /* MAIN CONTAINER */
@@ -31,22 +34,25 @@ section {
 }
 
 /* HEADINGS */
-h1 {
+h1, h2 {
   text-align: center;
+  color: #ffffff; /* ensure headings stay white */
+}
+
+h1 {
   font-size: 22px;
   margin-bottom: 20px;
 }
 
 h2 {
-  text-align: center;
   font-size: 26px;
   margin-bottom: 15px;
 }
 
 /* LOADING SPINNER */
 .loader {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #37003C;
+  border: 4px solid #333;       /* darker gray for dark mode */
+  border-top: 4px solid #00FF87; /* theme accent */
   border-radius: 50%;
   width: 30px;
   height: 30px;
@@ -87,12 +93,13 @@ h2 {
 
 /* WELCOME SECTION */
 #welcome {
-  font-size: 25px;  /* increased from 20px */
+  font-size: 25px;
   text-align: center;
   margin-bottom: 40px;
   padding: 20px;
-  background: none;
+  background: #1e1e1e; /* slightly lighter dark box */
   border-radius: 10px;
+  color: #ffffff;
 }
 
 #welcome h2 {
@@ -101,7 +108,7 @@ h2 {
 }
 
 #welcome p {
-  font-size: 25px;  /* increased from 20px */
+  font-size: 25px;
   margin-bottom: 10px;
   line-height: 1.8;
 }
@@ -113,25 +120,12 @@ h2 {
   max-width: 500px;
 }
 
-
 /* HIGHLIGHT TOP PLAYERS */
-.top-rank {
-  color: #00FF87; /* gold for 1st */
-  font-weight: bold;
-}
-
-.second-rank {
-  color: #00FF87; /* silver for 2nd */
-  font-weight: bold;
-}
-
-.third-rank {
-  color: #00FF87; /* bronze for 3rd */
-  font-weight: bold;
-}
-
+.top-rank,
+.second-rank,
+.third-rank,
 .high-points {
-  color: #00FF87; /* green for high scoring */
+  color: #00FF87; /* bright green accent for dark mode */
   font-weight: bold;
 }
 
@@ -140,7 +134,7 @@ h2 {
   position: fixed;
   width: 100%;
   height: 50%;
-  background: #37003C; /* same as your theme */
+  background: #37003C;
   left: 0;
   z-index: 10000;
 }
@@ -168,9 +162,19 @@ h2 {
 /* FADE IN PAGE CONTENT */
 body {
   opacity: 0;
-  animation: fadeInContent 0.5s 1s forwards; /* fade in after slits finish */
+  animation: fadeInContent 0.5s 1s forwards;
 }
 
 @keyframes fadeInContent {
   to { opacity: 1; }
+}
+
+/* OPTIONAL DARK MODE TOGGLE CLASS */
+body.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+body.dark-mode #welcome {
+  background: #1e1e1e;
 }
