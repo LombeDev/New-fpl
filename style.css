@@ -1,18 +1,26 @@
-/* ROOT THEME VARIABLES */
+/* ROOT THEME VARIABLES — LIGHT MODE (clean + simple) */
 :root {
   --bg: #ffffff;
   --text: #242424;
+  --subtext: #555;
   --card-bg: #f4f4f4;
+  --border: #e5e5e5;
   --accent: #37003C;
-  --green: #00FF87;
+  --accent-hover: #530055;
+  --green: #2EA043; /* GitHub green */
+  --radius: 12px;
 }
 
-/* DARK THEME OVERRIDES */
+/* DARK THEME — GitHub / Telegram Blue-Tinted */
 body.dark-mode {
-  --bg: #121212;
-  --text: #ffffff;
-  --card-bg: #1e1e1e;
-  --accent: #55005e;
+  --bg: #0d1117;            /* GitHub dark base */
+  --text: #c9d1d9;          /* Soft white */
+  --subtext: #8b949e;       /* Muted gray */
+  --card-bg: #161b22;       /* Cards/nav backgrounds */
+  --border: #30363d;        /* Soft border shade */
+  --accent: #238636;        /* GitHub green button color */
+  --accent-hover: #2ea043;
+  --green: #3fb950;         /* Highlight text */
 }
 
 /* RESET */
@@ -28,7 +36,7 @@ body {
   background-color: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  padding: 20px;
+  padding: 22px;
   transition: background .3s, color .3s;
   display: flex;
   flex-direction: column;
@@ -38,33 +46,68 @@ body {
 /* MAIN CONTAINER */
 main {
   width: 100%;
-  max-width: 700px;
+  max-width: 760px;
   margin: 0 auto;
-}
-
-/* SECTIONS */
-section {
-  margin-bottom: 40px;
 }
 
 /* HEADINGS */
 h1, h2 {
   text-align: center;
   color: var(--text);
-  margin-bottom: 15px;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
 }
 
-h1 { font-size: 26px; }
-h2 { font-size: 26px; }
+h1 { font-size: 28px; font-weight: 700; }
+h2 { font-size: 24px; font-weight: 600; }
 
-/* WELCOME */
-#welcome {
-  padding: 20px;
-  background: none(--card-bg);
-  border-radius: 10px;
+/* SECTIONS STANDARD CARD STYLE */
+section {
+  background: var(--card-bg);
+  padding: 22px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-bottom: 35px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  transition: background .3s, border .3s, box-shadow .3s;
 }
 
-/* TOP PLAYERS HIGHLIGHT */
+/* WELCOME SECTION */
+#welcome p,
+#welcome li {
+  color: var(--subtext);
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+/* LIST DETAILS */
+ul {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-left: 18px;
+}
+
+li {
+  margin-bottom: 6px;
+}
+
+/* STANDINGS & BPS PLAYER ROWS */
+#standings-list div,
+#bps-list div {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: background .25s, transform .25s;
+}
+
+#standings-list div:hover,
+#bps-list div:hover {
+  transform: translateY(-3px);
+}
+
+/* HIGHLIGHT RANKS */
 .top-rank,
 .second-rank,
 .third-rank,
@@ -73,54 +116,73 @@ h2 { font-size: 26px; }
   font-weight: bold;
 }
 
-/* BACK TO TOP */
+/* BACK TO TOP BUTTON */
 #backToTop {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
+  bottom: 25px;
+  right: 25px;
   background: var(--accent);
   color: white;
   border: none;
   border-radius: 50%;
-  width: 45px;
-  height: 45px;
+  width: 48px;
+  height: 48px;
   font-size: 20px;
   display: none;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 1000;
+  z-index: 999;
+  transition: background .25s, transform .25s;
 }
 
-/* THEME TOGGLE */
+#backToTop:hover {
+  background: var(--accent-hover);
+  transform: scale(1.07);
+}
+
+/* THEME TOGGLE BUTTON */
 #themeToggle {
   position: fixed;
-  top: 24px;
+  top: 20px;
   right: 22px;
   background: var(--accent);
   color: #fff;
   border: none;
-  padding: 10px 14px;
-  border-radius: 50px;
+  padding: 10px 15px;
+  border-radius: 40px;
   cursor: pointer;
-  font-size: 18px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-  transition: 0.3s;
+  font-size: 17px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+  transition: background .25s, transform .25s;
 }
 
 #themeToggle:hover {
-  opacity: 0.8;
+  background: var(--accent-hover);
+  transform: scale(1.05);
 }
 
+/* LOADER */
+.loader {
+  width: 26px;
+  height: 26px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 20px auto;
+}
 
-/* LAZY LOAD INITIAL */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* LAZY LOAD */
 .lazy {
   opacity: 0;
   transform: translateY(20px);
   transition: opacity .8s ease, transform .8s ease;
 }
-
-/* WHEN LOADED */
 .lazy-loaded {
   opacity: 1;
   transform: translateY(0);
