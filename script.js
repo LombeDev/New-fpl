@@ -59,8 +59,8 @@ const proxy = "https://corsproxy.io/?";
 
 // Global variables
 let teamMap = {}; // ID -> Abbreviation (e.g., 1 -> 'ARS')
-let teamNameMap = {}; // ID -> Full Name (e.g., 1 -> 'Arsenal')
 let currentGameweekId = null; 
+let playerMap = {}; // NEW: Player ID -> Player Name (essential for stats)
 
 // On page load 
 window.addEventListener("DOMContentLoaded", () => {
@@ -77,21 +77,22 @@ async function loadFPLBootstrapData() {
             proxy + "https://fantasy.premierleague.com/api/bootstrap-static/"
         ).then((r) => r.json());
 
-        // Create map of team ID to 3-letter abbreviation AND full name
+        // Create map of team ID to 3-letter abbreviation
         data.teams.forEach(team => {
             teamMap[team.id] = team.short_name;
-            teamNameMap[team.id] = team.name; 
+        });
+
+        // NEW: Create map of Player ID to Full Name
+        data.elements.forEach(player => {
+            playerMap[player.id] = `${player.first_name} ${player.second_name}`;
         });
         
-        // --- IMPROVED LOGIC FOR CURRENT GAMEWEEK ID ---
+        // --- LOGIC FOR CURRENT GAMEWEEK ID ---
         let currentEvent = data.events.find(e => e.is_current);
 
-        // Fallback: If no event is marked 'is_current' (e.g., between GWs), 
-        // find the event with the highest ID that has 'finished' = true.
         if (!currentEvent) {
             const finishedEvents = data.events.filter(e => e.finished);
             if (finishedEvents.length > 0) {
-                // Find the maximum ID among the finished events
                 finishedEvents.sort((a, b) => b.id - a.id);
                 currentEvent = finishedEvents[0];
             }
@@ -100,7 +101,7 @@ async function loadFPLBootstrapData() {
         if (currentEvent) {
             currentGameweekId = currentEvent.id;
         } 
-        // --- END IMPROVED LOGIC ---
+        // --- END LOGIC ---
 
         // Now that data is ready, load the dependent lists
         loadCurrentGameweekFixtures();
@@ -120,7 +121,7 @@ async function loadFPLBootstrapData() {
     }
 }
 
-// 📅 CURRENT GAMEWEEK FIXTURES
+// 📅 CURRENT GAMEWEEK FIXTURES (ENHANCED)
 async function loadCurrentGameweekFixtures() {
     const container = document.getElementById("fixtures-list");
     if (!container) return;
@@ -151,28 +152,110 @@ async function loadCurrentGameweekFixtures() {
             const homeTeamAbbr = teamMap[fixture.team_h] || `T${fixture.team_h}`;
             const awayTeamAbbr = teamMap[fixture.team_a] || `T${fixture.team_a}`;
             
-            // Determine match status and score display
+            // Determine match status, score display, and status tag text
             let scoreDisplay = `<span class="vs-label">vs</span>`;
             let statusClass = 'match-pending';
+            let statusText = 'Upcoming';
             
             if (fixture.finished) {
-                // Match completed
                 scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
                 statusClass = 'match-finished';
+                statusText = 'Finished';
             } else if (fixture.started) {
-                // Match in progress (live)
                 scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
                 statusClass = 'match-live';
+                statusText = 'Live';
+            } else {
+                // For upcoming matches, show the kickoff time
+                const kickoffTime = new Date(fixture.kickoff_time);
+                // Simple formatting, adjust locale options as needed
+                scoreDisplay = `<span class="vs-label-time">${kickoffTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
             }
 
             const listItem = document.createElement('li');
             listItem.classList.add(statusClass);
             
+            // Base fixture info
             listItem.innerHTML = `
-                <span class="fixture-team home-team">${homeTeamAbbr}</span> 
-                ${scoreDisplay}
-                <span class="fixture-team away-team">${awayTeamAbbr}</span>
+                <div class="fixture-summary">
+                    <span class="fixture-team home-team">
+                        <span class="team-label home-label">${homeTeamAbbr}</span> 
+                    </span> 
+                    ${scoreDisplay}
+                    <span class="fixture-team away-team">
+                        <span class="team-label away-label">${awayTeamAbbr}</span> 
+                    </span>
+                    <span class="match-status-tag">${statusText}</span>
+                </div>
             `;
+            
+            // --- Extract Goals, Assists, and Cards ---
+            let actionHtml = '';
+            let hasDetails = false;
+            
+            if (fixture.started) {
+                const stats = fixture.stats || [];
+
+                // Define function to safely extract stats
+                const extractStats = (identifier) => {
+                    const stat = stats.find(s => s.identifier === identifier);
+                    // The 'a' array typically holds player IDs and values
+                    // We must combine the 'a' (away) and 'h' (home) arrays if needed, but FPL generally puts all info in 'a' for fixtures
+                    return stat ? (stat.a || []).concat(stat.h || []) : [];
+                };
+
+                const goalsData = extractStats('goals_scored');
+                const assistsData = extractStats('assists');
+                const redCardsData = extractStats('red_cards'); 
+
+                const allActions = [];
+
+                // Helper to process actions
+                const processActions = (actionArray, type) => {
+                    actionArray.forEach(action => {
+                        const playerName = playerMap[action.element] || `Player ${action.element}`;
+                        for (let i = 0; i < action.value; i++) {
+                            allActions.push({ type: type, name: playerName });
+                        }
+                    });
+                };
+
+                processActions(goalsData, 'goal');
+                processActions(assistsData, 'assist');
+                processActions(redCardsData, 'red_card');
+                
+                if (allActions.length > 0) {
+                    hasDetails = true;
+                    // Group actions by type and then list unique players for that type
+                    const groupedActions = allActions.reduce((acc, action) => {
+                        if (!acc[action.type]) acc[action.type] = new Set();
+                        acc[action.type].add(action.name);
+                        return acc;
+                    }, {});
+
+                    actionHtml += '<div class="fixture-details">';
+                    
+                    if (groupedActions.goal) {
+                        actionHtml += `<p><span class="action-label action-goal">⚽ Goals:</span> ${Array.from(groupedActions.goal).join(', ')}</p>`;
+                    }
+                    if (groupedActions.assist) {
+                        actionHtml += `<p><span class="action-label action-assist">👟 Assists:</span> ${Array.from(groupedActions.assist).join(', ')}</p>`;
+                    }
+                     if (groupedActions.red_card) {
+                        actionHtml += `<p><span class="action-label action-red-card">🟥 Red Cards:</span> ${Array.from(groupedActions.red_card).join(', ')}</p>`;
+                    }
+                    
+                    actionHtml += '</div>';
+                }
+            }
+            
+            // Append actions if the match has started and has details
+            if (hasDetails) {
+                listItem.innerHTML += actionHtml;
+                listItem.classList.add('has-details');
+            }
+
+
             list.appendChild(listItem);
         });
 
