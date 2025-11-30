@@ -5,13 +5,22 @@
   --subtext: #555;
   --card-bg: #f4f4f4;
   --border: #e5e5e5;
-  --accent: #37003C;
+  --accent: #37003C; /* FPL Purple */
   --accent-hover: #530055;
   --green: #2EA043; /* GitHub green */
   --red-light: #CF3A46; /* Custom light red for fallers */
   --blue-cl: #2196F3; /* Custom blue for CL zone */
   --orange-el: #FF9800; /* Custom orange for EL zone */
   --red-rl: #F44336; /* Custom red for relegation */
+  
+  /* --- NEW: ACTION COLORS --- */
+  --action-goal: #3A8C6F; /* Dark Green for Goal */
+  --action-assist: #3F51B5; /* Indigo for Assist */
+  --action-red: #D32F2F; /* Dark Red for Red Card */
+  --status-live: #FFC107; /* Amber for Live */
+  --status-finished: #607D8B; /* Blue Grey for Finished */
+  --status-upcoming: var(--accent); /* Upcoming matches use FPL Purple */
+
   --radius: 12px;
 }
 
@@ -29,6 +38,14 @@ body.dark-mode {
   --blue-cl: #64b5f6;       /* Lighter blue for dark mode */
   --orange-el: #ffb74d;     /* Lighter orange for dark mode */
   --red-rl: #e57373;        /* Lighter red for dark mode */
+
+  /* --- NEW: DARK MODE ACTION COLORS --- */
+  --action-goal: #81C784; 
+  --action-assist: #9FA8DA; 
+  --action-red: #E57373; 
+  --status-live: #FFEB3B; /* Yellow for Live */
+  --status-finished: #B0BEC5; /* Light Blue Grey for Finished */
+  --status-upcoming: var(--accent);
 }
 
 /* RESET */
@@ -100,7 +117,6 @@ section {
 ul {
   margin-top: 10px;
   margin-bottom: 10px;
-  /* Removed padding-left: 18px; for universal list use (e.g., fixtures) */
   padding-left: 0;
 }
 
@@ -141,25 +157,22 @@ li {
 
 /* --- RANK CHANGE STYLES for Mini-League --- */
 .rank-up {
-    /* Color for players who have moved up in rank */
     color: var(--green); 
     font-weight: bold;
 }
 
 .rank-down {
-    /* Color for players who have moved down in rank */
     color: var(--red-light);
     font-weight: bold;
 }
 
 .rank-unchanged {
-    /* Color for players whose rank has not changed */
     color: var(--subtext);
 }
 /* --- END RANK CHANGE STYLES --- */
 
 
-/* --- PRICE CHANGES / TRANSFERS / CAPTAIN HEADERS --- */
+/* --- FPL DATA HEADERS --- */
 
 #price-changes-list h3,
 #most-transferred-list h3,
@@ -193,7 +206,7 @@ li {
     border-right: 5px solid var(--red-light);
 }
 
-/* --- FIXTURES SCORE/STATUS STYLES --- */
+/* --- FIXTURES SCORE/STATUS STYLES (UPDATED) --- */
 #fixtures-list p {
     text-align: center;
     color: var(--subtext);
@@ -208,34 +221,80 @@ li {
 }
 
 #fixtures-list li {
+    /* Changed to column layout to stack summary and details */
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column; 
     padding: 10px 15px;
-    margin-bottom: 6px;
+    margin-bottom: 15px; /* Increased margin for separation */
     background: var(--bg);
     border-radius: var(--radius);
     border: 1px solid var(--border);
     font-weight: 600;
     font-size: 14px;
     transition: all .2s;
+    position: relative; /* Needed for status tag */
 }
 
-/* Highlight live matches */
+/* The row containing the score and team names */
+.fixture-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Only apply extra padding if details are present */
+#fixtures-list li.has-details {
+    padding-bottom: 10px; 
+}
+
+/* Match Status Tag (NEW) */
+.match-status-tag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-top-right-radius: var(--radius);
+    border-bottom-left-radius: 8px;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--card-bg); /* Use card-bg for text color on dark backgrounds */
+}
+
+/* Live Match Highlight */
 .match-live {
-    border: 1px solid var(--accent) !important; 
-    box-shadow: 0 0 8px rgba(55, 0, 60, 0.4); /* Subtle glow for live game */
+    border: 1px solid var(--status-live) !important; 
 }
-/* Finished matches use default border */
-.match-finished {
-    /* Can add subtle grey background if needed */
+.match-live .match-status-tag {
+    background-color: var(--status-live);
+    color: var(--text); 
 }
 
-/* Style for the team names (using abbreviations now) */
+/* Finished Match Highlight */
+.match-finished .match-status-tag {
+    background-color: var(--status-finished);
+    color: #fff;
+}
+
+/* Upcoming Match (Default) */
+.match-pending .match-status-tag {
+    background-color: var(--status-upcoming);
+    color: #fff;
+}
+
+/* Base style for the team container */
 .fixture-team {
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; 
     flex-grow: 1;
 }
+
+/* Align home team label to the right of its container */
+.home-team {
+    justify-content: flex-end;
+}
+
 
 /* Score displays */
 .score-home, .score-away {
@@ -245,182 +304,18 @@ li {
     padding: 0 5px;
 }
 
-.vs-label {
+.vs-label, .vs-label-time {
     font-weight: normal;
     color: var(--subtext);
     font-size: 12px;
     padding: 0 10px;
+    white-space: nowrap; 
 }
 
 
-/* --- EPL TABLE STYLES --- */
-
-#epl-table-list {
-  overflow-x: auto; /* Allows table to scroll on small screens */
-}
-
-#epl-table-list h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-    margin: 10px 0 15px 0;
-    text-align: center;
-}
-
-#epl-table-list table {
-  width: 100%;
-  border-collapse: separate; /* Use separate for radius and spacing */
-  border-spacing: 0 6px;
-  font-size: 13px;
-  text-align: center;
-}
-
-#epl-table-list th, 
-#epl-table-list td {
-  padding: 10px 5px;
-  white-space: nowrap;
-}
-
-#epl-table-list thead th {
-  background-color: var(--border);
-  font-weight: 700;
-  color: var(--subtext);
-  position: sticky;
-  top: 0;
-}
-
-#epl-table-list tbody tr {
-  background: var(--bg);
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-  transition: transform 0.2s, background 0.2s;
-}
-
-#epl-table-list tbody tr:hover {
-  transform: scale(1.01);
-  background: var(--card-bg);
-}
-
-#epl-table-list tbody td:first-child {
-  /* Rank column */
-  font-weight: bold;
-  border-left: 4px solid transparent;
-}
-
-/* Team Name alignment */
-#epl-table-list tbody td:nth-child(2) {
-  text-align: left;
-}
-
-/* Zone Highlighting (using left border) */
-.champions-league td:first-child {
-    border-left-color: var(--blue-cl); /* Blue for 1st-4th */
-}
-.europa-league td:first-child {
-    border-left-color: var(--orange-el); /* Orange for 5th */
-}
-.relegation-zone td:first-child {
-    border-left-color: var(--red-rl); /* Red for 18th-20th */
-}
-
-/* BACK TO TOP BUTTON */
-#backToTop {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  font-size: 20px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 999;
-  transition: background .25s, transform .25s;
-}
-
-#backToTop:hover {
-  background: var(--accent-hover);
-  transform: scale(1.07);
-}
-
-/* THEME TOGGLE BUTTON */
-#themeToggle {
-  position: fixed;
-  top: 20px;
-  right: 22px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 40px;
-  cursor: pointer;
-  font-size: 17px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.35);
-  transition: background .25s, transform .25s;
-}
-
-#themeToggle:hover {
-  background: var(--accent-hover);
-  transform: scale(1.05);
-}
-
-/* LOADER */
-.loader {
-  width: 26px;
-  height: 26px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-  margin: 20px auto;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* LAZY LOAD */
-.lazy {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity .8s ease, transform .8s ease;
-}
-.lazy-loaded {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* --- Old / Unused Grid Styles (Kept for clarity) --- */
-.standings-header,
-.standings-row {
-  display: grid;
-  grid-template-columns: 1.2fr 1.2fr 0.6fr 0.8fr;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-  align-items: center;
-}
-
-.standings-header {
-  font-weight: bold;
-  background: var(--card-bg);
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-.standings-row {
-  background: var(--bg);
-  border-radius: 8px;
-  margin-bottom: 8px;
-  transition: 0.25s;
-}
-
-.standings-row:hover {
-  transform: translateY(-2px);
-  background: var(--card-bg);
-}
+/* --- FIXTURE DETAILS (GOALS/ASSISTS/CARDS) STYLES (NEW) --- */
+.fixture-details {
+    width: 100%;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top:
