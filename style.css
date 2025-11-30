@@ -134,3 +134,43 @@ h2 {
   color: #00FF87; /* green for high scoring */
   font-weight: bold;
 }
+
+/* SLIT ANIMATION OVERLAY */
+.slit {
+  position: fixed;
+  width: 100%;
+  height: 50%;
+  background: #37003C; /* same as your theme */
+  left: 0;
+  z-index: 10000;
+}
+
+.slit.top {
+  top: 0;
+  animation: slitTop 1s ease forwards;
+}
+
+.slit.bottom {
+  bottom: 0;
+  animation: slitBottom 1s ease forwards;
+}
+
+@keyframes slitTop {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+
+@keyframes slitBottom {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
+/* FADE IN PAGE CONTENT */
+body {
+  opacity: 0;
+  animation: fadeInContent 0.5s 1s forwards; /* fade in after slits finish */
+}
+
+@keyframes fadeInContent {
+  to { opacity: 1; }
+}
