@@ -153,7 +153,7 @@ ul {
   margin-top: 10px;
   margin-bottom: 10px;
   padding-left: 0;
-  list-style: none; /* Removed default bullets */
+  list-style: none; /* Removed default bullets for clean look */
 }
 
 li {
@@ -174,19 +174,23 @@ li {
   font-weight: bold;
 }
 
-
-/* STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS */
+/* --- STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS --- */
 #standings-list div,
 #price-changes-list div,
 #most-transferred-list div,
 #most-transferred-out-list div,
 #most-captained-list div {
+  /* Flexbox layout for clean spacing within the row */
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  font-size: 14px;
+  
   padding: 10px 12px;
   margin-bottom: 10px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  font-size: 12px;
   transition: background .25s, transform .25s;
 }
 
@@ -197,6 +201,30 @@ li {
 #most-captained-list div:hover {
   transform: translateY(-3px);
 }
+
+.rank-number {
+    font-weight: 700;
+    width: 30px; 
+    text-align: left;
+}
+
+.manager-name {
+    flex-grow: 1; 
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    padding: 0 10px;
+    font-weight: 500;
+}
+
+.rank-change {
+    font-weight: 700;
+    width: 45px; 
+    text-align: right;
+    font-size: 13px;
+}
+
 
 /* HIGHLIGHT RANKS (Used for top 3 and Most Captained) */
 .top-rank,
@@ -242,13 +270,11 @@ li {
 }
 
 .price-riser {
-  color: var(--green);
-  font-weight: bold;
+  /* Retained for list-item specific styling */
   border-left: 5px solid var(--green) !important;
 }
 .price-faller {
-  color: var(--red-light);
-  font-weight: bold;
+  /* Retained for list-item specific styling */
   border-left: 5px solid var(--red-light) !important;
 }
 
