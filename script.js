@@ -1,3 +1,37 @@
+
+// --- HAMBURGER MENU TOGGLE FUNCTIONALITY ---
+
+// Select all the necessary elements
+const menuToggle = document.getElementById("menuToggle");
+const menuOverlay = document.getElementById("menuOverlay");
+const menuCloseBtn = document.getElementById("menuCloseBtn"); 
+const sideMenu = document.getElementById("sideMenu");
+const body = document.body;
+
+function toggleMenu() {
+    // Toggles the 'menu-open' class on the body, which drives the CSS transitions
+    body.classList.toggle("menu-open");
+}
+
+// Attach the toggle function to all closing points
+menuToggle.addEventListener("click", toggleMenu); // 1. Hamburger Icon
+menuOverlay.addEventListener("click", toggleMenu); // 2. Overlay (Clicking outside)
+menuCloseBtn.addEventListener("click", toggleMenu); // 3. 'X' Close button
+
+// Optional: Automatically close the menu after clicking a navigation link
+sideMenu.querySelectorAll('.nav-list li a').forEach(link => {
+    link.addEventListener('click', (e) => {
+        // Check if the link is an internal section link (starting with #)
+        if (e.target.getAttribute('href').startsWith('#')) {
+            // Use a small delay to allow the browser to process the link click before closing
+            setTimeout(toggleMenu, 100); 
+        }
+    });
+});
+// --- END HAMBURGER MENU TOGGLE ---
+
+
+
 /* -----------------------------------------
    LOADING OVERLAY REMOVAL
 ----------------------------------------- */
