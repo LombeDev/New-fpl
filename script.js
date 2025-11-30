@@ -61,51 +61,106 @@ async function loadBPS() {
   }
 }
 
-// CURRENT GW FIXTURES
-async function loadFixtures() {
-  const container = document.getElementById("fixtures-list");
-  try {
-    const bootstrap = await fetch(proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"))
-      .then(r => r.json());
+/* ----------------------------------------------------
+   LIVE FIXTURES + LIVE SCORES (Scorebat API - NO KEY)
+-----------------------------------------------------*/
 
-    const currentGW = bootstrap.events.find(e => e.is_current).id;
-    const fixtures = await fetch(proxy + encodeURIComponent(`https://fantasy.premierleague.com/api/fixtures/`))
-      .then(r => r.json());
+const SCOREBAT_API = "https://www.scorebat.com/video-api/v3/feed/?token=null"; 
+// Token=null = free public access
 
-    const gwFixtures = fixtures.filter(f => f.event === currentGW);
-    container.innerHTML = "";
-    gwFixtures.forEach((f, index) => {
-      setTimeout(() => {
+async function fetchJSON(url) {
+    try {
+        const res = await fetch(url);
+        return await res.json();
+    } catch (err) {
+        console.error("Fetch failed:", err);
+        return null;
+    }
+}
+
+/* -------------------------
+   LOAD LIVE FIXTURES + SCORES
+-------------------------*/
+async function loadLiveFixtures() {
+    const box = document.getElementById("fixtures-list");
+    box.innerHTML = `<div class="loader"></div>`;
+
+    const data = await fetchJSON(SCOREBAT_API);
+    if (!data || !data.response) {
+        box.innerHTML = "Failed to load fixtures.";
+        return;
+    }
+
+    // Filter only PREMIER LEAGUE games
+    const epl = data.response.filter(item =>
+        item.competition?.toLowerCase().includes("premier league")
+    );
+
+    if (epl.length === 0) {
+        box.innerHTML = "No current EPL fixtures.";
+        return;
+    }
+
+    box.innerHTML = "";
+
+    epl.forEach(match => {
         const div = document.createElement("div");
-        div.textContent = `${f.team_h} vs ${f.team_a} - Kickoff: ${new Date(f.kickoff_time).toLocaleString()}`;
-        container.appendChild(div);
-      }, index * 20);
+        div.className = "fixture";
+
+        const home = match.title.split(" vs ")[0] || "Home";
+        const away = match.title.split(" vs ")[1] || "Away";
+
+        const status = match.matchviewUrl ? "LIVE" : "Finished";
+
+        div.innerHTML = `
+            <strong>${home} vs ${away}</strong><br>
+            <span>⏱ ${match.date}</span><br>
+            <span><b>${match.side1?.score ?? "-"} - ${match.side2?.score ?? "-"}</b></span><br>
+            <small>${status}</small>
+        `;
+
+        box.appendChild(div);
     });
-  } catch (err) {
-    console.error(err);
-    container.textContent = "Failed to load fixtures.";
-  }
 }
 
-// EPL LEAGUE TABLE
+/* -------------------------
+   EPL TABLE (Still no key)
+-------------------------*/
+
+const TABLE_URL = "https://raw.githubusercontent.com/openfootball/england/master/2024-25/en.1.standings.json";
+
 async function loadEPLTable() {
-  const container = document.getElementById("epl-table");
-  try {
-    const bootstrap = await fetch(proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"))
-      .then(r => r.json());
+    const box = document.getElementById("epl-table");
+    box.innerHTML = `<div class="loader"></div>`;
 
-    const teams = bootstrap.teams.sort((a, b) => a.position - b.position);
-    container.innerHTML = "";
-    teams.forEach(team => {
-      const div = document.createElement("div");
-      div.textContent = `${team.position}. ${team.name} - P:${team.played} W:${team.win} D:${team.draw} L:${team.loss} GF:${team.goals_for} GA:${team.goals_against} Pts:${team.points}`;
-      container.appendChild(div);
+    const data = await fetchJSON(TABLE_URL);
+    if (!data || !data.standings) {
+        box.innerHTML = "Failed to load EPL Table.";
+        return;
+    }
+
+    box.innerHTML = "";
+
+    data.standings.forEach(team => {
+        const div = document.createElement("div");
+        div.className = "epl-row";
+
+        div.innerHTML = `
+            ${team.position}. ${team.team} — ${team.points} pts 
+            (W:${team.wins} D:${team.draws} L:${team.losses})
+        `;
+
+        box.appendChild(div);
     });
-  } catch (err) {
-    console.error(err);
-    container.textContent = "Failed to load EPL table.";
-  }
 }
+
+/* -------------------------
+   INIT ON PAGE LOAD
+-------------------------*/
+window.addEventListener("DOMContentLoaded", () => {
+    loadLiveFixtures();
+    loadEPLTable();
+});
 
 // BACK TO TOP
 const backToTop = document.getElementById("backToTop");
