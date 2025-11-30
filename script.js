@@ -1,14 +1,19 @@
 /* -----------------------------------------
-   SPLIT SCREEN INTRO ANIMATION
+   LOADING OVERLAY REMOVAL
 ----------------------------------------- */
 window.addEventListener("load", () => {
   setTimeout(() => {
-    const top = document.querySelector(".split-top");
-    const bottom = document.querySelector(".split-bottom");
+    const overlay = document.getElementById("loading-overlay");
 
-    if (top) top.style.display = "none";
-    if (bottom) bottom.style.display = "none";
-  }, 900);
+    if (overlay) {
+      // Use opacity and visibility for a smooth fade-out effect
+      overlay.style.opacity = '0';
+      // Remove it from the DOM after the fade-out completes (0.5s from CSS)
+      setTimeout(() => {
+          overlay.style.display = 'none';
+      }, 500); 
+    }
+  }, 900); // Wait 900ms before starting the fade-out
 });
 
 /* -----------------------------------------
