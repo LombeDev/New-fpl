@@ -58,9 +58,9 @@ lazyElements.forEach((el) => observer.observe(el));
 const proxy = "https://corsproxy.io/?";
 
 // Global variables
-let teamMap = {}; 
-let teamNameMap = {}; 
-let currentGameweekId = null; // Changed to track CURRENT GW ID
+let teamMap = {}; // ID -> Abbreviation (e.g., 1 -> 'ARS')
+let teamNameMap = {}; // ID -> Full Name (e.g., 1 -> 'Arsenal')
+let currentGameweekId = null; 
 
 // On page load 
 window.addEventListener("DOMContentLoaded", () => {
@@ -83,14 +83,27 @@ async function loadFPLBootstrapData() {
             teamNameMap[team.id] = team.name; 
         });
         
-        // Identify the CURRENT Gameweek ID
-        const currentEvent = data.events.find(e => e.is_current || e.finished); // Use finished if no GW is current (e.g., between seasons)
-        if (currentEvent) {
-            currentGameweekId = currentEvent.id;
+        // --- IMPROVED LOGIC FOR CURRENT GAMEWEEK ID ---
+        let currentEvent = data.events.find(e => e.is_current);
+
+        // Fallback: If no event is marked 'is_current' (e.g., between GWs), 
+        // find the event with the highest ID that has 'finished' = true.
+        if (!currentEvent) {
+            const finishedEvents = data.events.filter(e => e.finished);
+            if (finishedEvents.length > 0) {
+                // Find the maximum ID among the finished events
+                finishedEvents.sort((a, b) => b.id - a.id);
+                currentEvent = finishedEvents[0];
+            }
         }
 
+        if (currentEvent) {
+            currentGameweekId = currentEvent.id;
+        } 
+        // --- END IMPROVED LOGIC ---
+
         // Now that data is ready, load the dependent lists
-        loadCurrentGameweekFixtures(); // <--- NEW CALL
+        loadCurrentGameweekFixtures();
         loadPriceChanges(data); 
         loadMostTransferred(data); 
         loadMostTransferredOut(data); 
@@ -107,13 +120,13 @@ async function loadFPLBootstrapData() {
     }
 }
 
-// 📅 CURRENT GAMEWEEK FIXTURES (MODIFIED FUNCTION)
+// 📅 CURRENT GAMEWEEK FIXTURES
 async function loadCurrentGameweekFixtures() {
     const container = document.getElementById("fixtures-list");
     if (!container) return;
     
     if (!currentGameweekId) {
-        container.textContent = "Current Gameweek information is not yet available.";
+        container.innerHTML = "<h3>Gameweek Scores</h3><p>Current Gameweek information is not yet available.</p>";
         return;
     }
 
@@ -125,7 +138,7 @@ async function loadCurrentGameweekFixtures() {
         const currentGWFixtures = data.filter(f => f.event === currentGameweekId);
         
         if (currentGWFixtures.length === 0) {
-            container.textContent = `No fixtures found for Gameweek ${currentGameweekId}.`;
+            container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3><p>No fixtures found for Gameweek ${currentGameweekId}.</p>`;
             return;
         }
         
@@ -151,7 +164,6 @@ async function loadCurrentGameweekFixtures() {
                 scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
                 statusClass = 'match-live';
             }
-            // else: pending, uses default 'vs'
 
             const listItem = document.createElement('li');
             listItem.classList.add(statusClass);
@@ -173,7 +185,7 @@ async function loadCurrentGameweekFixtures() {
 }
 
 
-// MINI-LEAGUE STANDINGS (Unchanged)
+// MINI-LEAGUE STANDINGS
 async function loadStandings() {
   const container = document.getElementById("standings-list");
   if (!container) return; 
@@ -217,7 +229,7 @@ async function loadStandings() {
   }
 }
 
-// 💰 FPL PRICE CHANGES (Uses teamMap)
+// 💰 FPL PRICE CHANGES 
 async function loadPriceChanges(data) {
   const container = document.getElementById("price-changes-list");
   if (!container || !data) return;
@@ -250,7 +262,7 @@ async function loadPriceChanges(data) {
   });
 }
 
-// ➡️ MOST TRANSFERRED IN (Uses teamMap)
+// ➡️ MOST TRANSFERRED IN 
 async function loadMostTransferred(data) {
   const container = document.getElementById("most-transferred-list");
   if (!container || !data) return;
@@ -276,7 +288,7 @@ async function loadMostTransferred(data) {
   });
 }
 
-// ⬅️ MOST TRANSFERRED OUT (Uses teamMap)
+// ⬅️ MOST TRANSFERRED OUT 
 async function loadMostTransferredOut(data) {
   const container = document.getElementById("most-transferred-out-list");
   if (!container || !data) return;
@@ -305,7 +317,7 @@ async function loadMostTransferredOut(data) {
 }
 
 
-// ©️ MOST CAPTAINED PLAYER (Uses teamMap)
+// ©️ MOST CAPTAINED PLAYER 
 async function loadMostCaptained(data) {
   const container = document.getElementById("most-captained-list");
   if (!container || !data) return;
@@ -342,7 +354,7 @@ async function loadMostCaptained(data) {
 }
 
 
-// 🥇 CURRENT EPL TABLE (STANDINGS) - Keyless Public API (Unchanged)
+// 🥇 CURRENT EPL TABLE (STANDINGS) - Keyless Public API
 async function loadEPLTable() {
   const container = document.getElementById("epl-table-list");
   if (!container) return;
