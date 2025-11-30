@@ -54,7 +54,7 @@ lazyElements.forEach((el) => observer.observe(el));
 /* -----------------------------------------
    FPL API FETCHING
 ----------------------------------------- */
-// NEW, MORE RELIABLE PROXY USED HERE
+// Using the more reliable proxy
 const proxy = "https://corsproxy.io/?";
 
 // On page load 
@@ -72,7 +72,6 @@ async function loadStandings() {
   if (!container) return; 
   try {
     const leagueID = "101712"; // Replace with your league ID
-    // Note: FPL API uses a different encoding method for this endpoint, so no encodeURIComponent needed with the new proxy
     const data = await fetch(
       proxy + `https://fantasy.premierleague.com/api/leagues-classic/${leagueID}/standings/`
     ).then((r) => r.json());
@@ -80,10 +79,34 @@ async function loadStandings() {
     container.innerHTML = "";
     data.standings.results.forEach((team, index) => {
       setTimeout(() => {
-        const div = document.createElement("div");
-        div.textContent = `${team.rank}. ${team.player_name} (${team.entry_name}) - ${team.total} pts`;
+        
+        // --- RANK CHANGE LOGIC ---
+        let rankChangeIndicator = '';
+        let rankChangeClass = '';
+        const rankChange = team.rank_change;
 
-        // Rank highlights
+        if (rankChange > 0) {
+            // Moved up (Rank number is smaller, change is positive)
+            rankChangeIndicator = `▲${rankChange}`;
+            rankChangeClass = 'rank-up';
+        } else if (rankChange < 0) {
+            // Moved down (Rank number is larger, change is negative)
+            // Use Math.abs to display the magnitude of the fall
+            rankChangeIndicator = `▼${Math.abs(rankChange)}`;
+            rankChangeClass = 'rank-down';
+        } else {
+            // No change
+            rankChangeIndicator = '—';
+            rankChangeClass = 'rank-unchanged';
+        }
+        
+        const div = document.createElement("div");
+        div.textContent = `${team.rank}. ${rankChangeIndicator} ${team.player_name} (${team.entry_name}) - ${team.total} pts`;
+        
+        // Apply rank change class
+        div.classList.add(rankChangeClass);
+
+        // Rank highlights (for top 3 positions)
         if (team.rank === 1) div.classList.add("top-rank");
         else if (team.rank === 2) div.classList.add("second-rank");
         else if (team.rank === 3) div.classList.add("third-rank");
@@ -139,7 +162,7 @@ async function loadPriceChanges() {
   }
 }
 
-// ➡️ MOST TRANSFERRED IN (This and Captained use bootstrap-static, same fix applies)
+// ➡️ MOST TRANSFERRED IN 
 async function loadMostTransferred() {
   const container = document.getElementById("most-transferred-list");
   if (!container) return;
@@ -223,27 +246,22 @@ async function loadEPLTable() {
   if (!container) return;
 
   // --- Dynamic Season Calculation ---
-  // EPL Season is usually August to May. We calculate the current season string YYYY-YYYY+1
   const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth(); // 0 = Jan, 11 = Dec
+  const currentMonth = new Date().getMonth(); 
 
   let seasonStartYear;
-  // If month is Aug (7) or later, the season started this year.
   if (currentMonth >= 7) { 
     seasonStartYear = currentYear;
   } 
-  // If month is Jan (0) to Jul (6), the season started last year.
   else {
     seasonStartYear = currentYear - 1;
   }
   const currentSeason = `${seasonStartYear}-${seasonStartYear + 1}`; 
   
-  // This uses TheSportsDB's free API for EPL Standings (League ID 4328)
   const EPL_LEAGUE_ID = "4328"; 
   const apiURL = `https://www.thesportsdb.com/api/v1/json/60130162/lookuptable.php?l=${EPL_LEAGUE_ID}&s=${currentSeason}`; 
   
   try {
-    // TheSportsDB API can be strict about CORS, so we must use the proxy here.
     const response = await fetch(proxy + encodeURIComponent(apiURL));
     const data = await response.json();
 
