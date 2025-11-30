@@ -60,7 +60,7 @@ const proxy = "https://corsproxy.io/?";
 // Global variables
 let teamMap = {}; // ID -> Abbreviation (e.g., 1 -> 'ARS')
 let currentGameweekId = null; 
-let playerMap = {}; // NEW: Player ID -> Player Name (essential for stats)
+let playerMap = {}; // Player ID -> Player Name (essential for stats)
 
 // On page load 
 window.addEventListener("DOMContentLoaded", () => {
@@ -82,7 +82,7 @@ async function loadFPLBootstrapData() {
             teamMap[team.id] = team.short_name;
         });
 
-        // NEW: Create map of Player ID to Full Name
+        // Create map of Player ID to Full Name
         data.elements.forEach(player => {
             playerMap[player.id] = `${player.first_name} ${player.second_name}`;
         });
@@ -105,6 +105,7 @@ async function loadFPLBootstrapData() {
 
         // Now that data is ready, load the dependent lists
         loadCurrentGameweekFixtures();
+        loadFDRTicker(); // NEW: Load the FDR Ticker
         loadPriceChanges(data); 
         loadMostTransferred(data); 
         loadMostTransferredOut(data); 
@@ -113,7 +114,7 @@ async function loadFPLBootstrapData() {
     } catch (err) {
         console.error("Error fetching FPL Bootstrap data:", err);
         // Display generic error message in case of failure
-        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list"];
+        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list", "fdr-ticker-list"];
         sections.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.textContent = "Failed to load data. Check FPL API/Proxy.";
@@ -168,7 +169,6 @@ async function loadCurrentGameweekFixtures() {
             } else {
                 // For upcoming matches, show the kickoff time
                 const kickoffTime = new Date(fixture.kickoff_time);
-                // Simple formatting, adjust locale options as needed
                 scoreDisplay = `<span class="vs-label-time">${kickoffTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
             }
 
@@ -196,11 +196,8 @@ async function loadCurrentGameweekFixtures() {
             if (fixture.started) {
                 const stats = fixture.stats || [];
 
-                // Define function to safely extract stats
                 const extractStats = (identifier) => {
                     const stat = stats.find(s => s.identifier === identifier);
-                    // The 'a' array typically holds player IDs and values
-                    // We must combine the 'a' (away) and 'h' (home) arrays if needed, but FPL generally puts all info in 'a' for fixtures
                     return stat ? (stat.a || []).concat(stat.h || []) : [];
                 };
 
@@ -210,7 +207,6 @@ async function loadCurrentGameweekFixtures() {
 
                 const allActions = [];
 
-                // Helper to process actions
                 const processActions = (actionArray, type) => {
                     actionArray.forEach(action => {
                         const playerName = playerMap[action.element] || `Player ${action.element}`;
@@ -226,7 +222,6 @@ async function loadCurrentGameweekFixtures() {
                 
                 if (allActions.length > 0) {
                     hasDetails = true;
-                    // Group actions by type and then list unique players for that type
                     const groupedActions = allActions.reduce((acc, action) => {
                         if (!acc[action.type]) acc[action.type] = new Set();
                         acc[action.type].add(action.name);
@@ -249,12 +244,10 @@ async function loadCurrentGameweekFixtures() {
                 }
             }
             
-            // Append actions if the match has started and has details
             if (hasDetails) {
                 listItem.innerHTML += actionHtml;
                 listItem.classList.add('has-details');
             }
-
 
             list.appendChild(listItem);
         });
@@ -264,6 +257,97 @@ async function loadCurrentGameweekFixtures() {
     } catch (err) {
         console.error("Error loading fixtures:", err);
         container.textContent = "Failed to load fixtures data. Check FPL API/Proxy.";
+    }
+}
+
+// 🗓️ FDR TICKER (NEW)
+async function loadFDRTicker() {
+    const container = document.getElementById("fdr-ticker-list");
+    if (!container) return;
+
+    try {
+        const data = await fetch(
+            proxy + "https://fantasy.premierleague.com/api/fixtures/"
+        ).then((r) => r.json());
+        
+        // Define the next 5 Gameweeks to display
+        const gwStart = currentGameweekId;
+        const gwEnd = currentGameweekId + 4;
+        const teams = Object.keys(teamMap);
+
+        // 1. Group fixtures by team for the next 5 GWs
+        const teamFixtures = {};
+        teams.forEach(id => teamFixtures[id] = new Array(5).fill(null));
+
+        data.forEach(fixture => {
+            if (fixture.event >= gwStart && fixture.event <= gwEnd) {
+                const gwIndex = fixture.event - gwStart;
+                
+                // Home Team
+                if (teamFixtures[fixture.team_h]) {
+                    teamFixtures[fixture.team_h][gwIndex] = {
+                        opponent: teamMap[fixture.team_a],
+                        difficulty: fixture.team_h_difficulty,
+                        isHome: true
+                    };
+                }
+
+                // Away Team
+                if (teamFixtures[fixture.team_a]) {
+                    teamFixtures[fixture.team_a][gwIndex] = {
+                        opponent: teamMap[fixture.team_h],
+                        difficulty: fixture.team_a_difficulty,
+                        isHome: false
+                    };
+                }
+            }
+        });
+
+        // 2. Build the HTML Table
+        container.innerHTML = "<h3>Fixture Difficulty Rating Ticker (Next 5 GWs)</h3>";
+
+        const table = document.createElement('table');
+        let headerRow = '<tr><th>Team</th>';
+        for (let i = gwStart; i <= gwEnd; i++) {
+            headerRow += `<th>GW ${i}</th>`;
+        }
+        headerRow += '</tr>';
+        table.innerHTML = `<thead>${headerRow}</thead><tbody></tbody>`;
+        const tbody = table.querySelector('tbody');
+
+        const sortedTeamIds = teams.sort((a, b) => teamMap[a].localeCompare(teamMap[b]));
+
+        sortedTeamIds.forEach(teamId => {
+            const teamAbbr = teamMap[teamId];
+            const row = tbody.insertRow();
+            
+            row.insertCell().textContent = teamAbbr;
+
+            teamFixtures[teamId].forEach(fixture => {
+                const cell = row.insertCell();
+                if (fixture) {
+                    const opponent = fixture.opponent;
+                    const location = fixture.isHome ? '(H)' : '(A)';
+                    const difficulty = fixture.difficulty;
+
+                    cell.innerHTML = `
+                        <div class="fdr-cell fdr-${difficulty}">
+                            ${opponent} ${location}
+                        </div>
+                    `;
+                } else {
+                    cell.textContent = '—';
+                    cell.style.backgroundColor = 'transparent';
+                    cell.style.color = 'var(--subtext)';
+                }
+            });
+        });
+
+        container.appendChild(table);
+
+    } catch (err) {
+        console.error("Error loading FDR Ticker:", err);
+        container.textContent = "Failed to load FDR Ticker data. Check FPL API/Proxy.";
     }
 }
 
@@ -405,7 +489,6 @@ async function loadMostCaptained(data) {
   const container = document.getElementById("most-captained-list");
   if (!container || !data) return;
 
-  // Uses is_current or is_next to find the relevant Gameweek
   const currentEvent = data.events.find(e => e.is_next || e.is_current); 
 
   if (!currentEvent || !currentEvent.most_captained) {
@@ -463,65 +546,4 @@ async function loadEPLTable() {
     const data = await response.json();
 
     if (!data.table || data.table.length === 0) {
-        container.innerHTML = `<p>EPL Table data not available for the **${currentSeason}** season, or the API call failed.</p>`;
-        return;
-    }
-
-    container.innerHTML = "<h3>Current Premier League Standings 🏆</h3>";
-
-    const table = document.createElement('table');
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Team</th>
-          <th>Pl</th>
-          <th>W</th>
-          <th>D</th>
-          <th>L</th>
-          <th>GD</th>
-          <th>Pts</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    `;
-    const tbody = table.querySelector('tbody');
-
-    data.table.sort((a, b) => a.intRank - b.intRank).forEach((team) => {
-      const row = tbody.insertRow();
-      row.innerHTML = `
-        <td>${team.intRank}</td>
-        <td>${team.strTeam}</td>
-        <td>${team.intPlayed}</td>
-        <td>${team.intWin}</td>
-        <td>${team.intDraw}</td>
-        <td>${team.intLoss}</td>
-        <td>${team.intGoalDifference}</td>
-        <td>${team.intPoints}</td>
-      `;
-      if (team.intRank <= 4) row.classList.add("champions-league");
-      else if (team.intRank === 5) row.classList.add("europa-league");
-      else if (team.intRank >= 18) row.classList.add("relegation-zone");
-    });
-    
-    container.appendChild(table);
-
-  } catch (err) {
-    console.error("Error loading EPL table:", err);
-    container.textContent = "Failed to load EPL table due to a network or fetch error. Check proxy or API stability.";
-  }
-}
-
-/* -----------------------------------------
-   BACK TO TOP BUTTON
------------------------------------------ */
-const backToTop = document.getElementById("backToTop");
-
-window.addEventListener("scroll", () => {
-  backToTop.style.display = window.scrollY > 200 ? "flex" : "none";
-});
-
-backToTop.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
+        container.innerHTML
