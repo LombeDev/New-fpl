@@ -57,42 +57,118 @@ lazyElements.forEach((el) => observer.observe(el));
 // Using the more reliable proxy
 const proxy = "https://corsproxy.io/?";
 
-// Global variable to store team map (ID -> Abbreviation)
+// Global variables
 let teamMap = {}; 
+let teamNameMap = {}; 
+let currentGameweekId = null; // Changed to track CURRENT GW ID
 
 // On page load 
 window.addEventListener("DOMContentLoaded", () => {
-  // Load initial data and team map first, then proceed to lists
+  // Bootstrap data fetch must happen first to get team names and GW ID
   loadFPLBootstrapData();
   loadStandings();
   loadEPLTable();     
 });
 
-// Function to fetch bootstrap data and create the team map
+// Function to fetch bootstrap data, create maps, and initialize dependent loads
 async function loadFPLBootstrapData() {
     try {
         const data = await fetch(
             proxy + "https://fantasy.premierleague.com/api/bootstrap-static/"
         ).then((r) => r.json());
 
-        // Create a map of team ID to 3-letter abbreviation
+        // Create map of team ID to 3-letter abbreviation AND full name
         data.teams.forEach(team => {
             teamMap[team.id] = team.short_name;
+            teamNameMap[team.id] = team.name; 
         });
+        
+        // Identify the CURRENT Gameweek ID
+        const currentEvent = data.events.find(e => e.is_current || e.finished); // Use finished if no GW is current (e.g., between seasons)
+        if (currentEvent) {
+            currentGameweekId = currentEvent.id;
+        }
 
-        // Now that teamMap is ready, load the player lists
+        // Now that data is ready, load the dependent lists
+        loadCurrentGameweekFixtures(); // <--- NEW CALL
         loadPriceChanges(data); 
         loadMostTransferred(data); 
-        loadMostTransferredOut(data); // <--- NEW CALL
+        loadMostTransferredOut(data); 
         loadMostCaptained(data);
 
     } catch (err) {
         console.error("Error fetching FPL Bootstrap data:", err);
         // Display generic error message in case of failure
-        document.getElementById("price-changes-list").textContent = "Failed to load player data.";
-        document.getElementById("most-transferred-list").textContent = "Failed to load player data.";
-        document.getElementById("most-transferred-out-list").textContent = "Failed to load player data."; // <--- NEW ERROR MSG
-        document.getElementById("most-captained-list").textContent = "Failed to load player data.";
+        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list"];
+        sections.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = "Failed to load data. Check FPL API/Proxy.";
+        });
+    }
+}
+
+// 📅 CURRENT GAMEWEEK FIXTURES (MODIFIED FUNCTION)
+async function loadCurrentGameweekFixtures() {
+    const container = document.getElementById("fixtures-list");
+    if (!container) return;
+    
+    if (!currentGameweekId) {
+        container.textContent = "Current Gameweek information is not yet available.";
+        return;
+    }
+
+    try {
+        const data = await fetch(
+            proxy + "https://fantasy.premierleague.com/api/fixtures/"
+        ).then((r) => r.json());
+
+        const currentGWFixtures = data.filter(f => f.event === currentGameweekId);
+        
+        if (currentGWFixtures.length === 0) {
+            container.textContent = `No fixtures found for Gameweek ${currentGameweekId}.`;
+            return;
+        }
+        
+        container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3>`;
+        
+        const list = document.createElement('ul');
+        list.classList.add('fixtures-list-items'); 
+
+        currentGWFixtures.forEach(fixture => {
+            const homeTeamAbbr = teamMap[fixture.team_h] || `T${fixture.team_h}`;
+            const awayTeamAbbr = teamMap[fixture.team_a] || `T${fixture.team_a}`;
+            
+            // Determine match status and score display
+            let scoreDisplay = `<span class="vs-label">vs</span>`;
+            let statusClass = 'match-pending';
+            
+            if (fixture.finished) {
+                // Match completed
+                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
+                statusClass = 'match-finished';
+            } else if (fixture.started) {
+                // Match in progress (live)
+                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
+                statusClass = 'match-live';
+            }
+            // else: pending, uses default 'vs'
+
+            const listItem = document.createElement('li');
+            listItem.classList.add(statusClass);
+            
+            listItem.innerHTML = `
+                <span class="fixture-team home-team">${homeTeamAbbr}</span> 
+                ${scoreDisplay}
+                <span class="fixture-team away-team">${awayTeamAbbr}</span>
+            `;
+            list.appendChild(listItem);
+        });
+
+        container.appendChild(list);
+
+    } catch (err) {
+        console.error("Error loading fixtures:", err);
+        container.textContent = "Failed to load fixtures data. Check FPL API/Proxy.";
     }
 }
 
@@ -102,7 +178,7 @@ async function loadStandings() {
   const container = document.getElementById("standings-list");
   if (!container) return; 
   try {
-    const leagueID = "101712"; // Replace with your league ID
+    const leagueID = "101712"; 
     const data = await fetch(
       proxy + `https://fantasy.premierleague.com/api/leagues-classic/${leagueID}/standings/`
     ).then((r) => r.json());
@@ -110,8 +186,6 @@ async function loadStandings() {
     container.innerHTML = "";
     data.standings.results.forEach((team, index) => {
       setTimeout(() => {
-        
-        // --- RANK CHANGE LOGIC ---
         let rankChangeIndicator = '';
         let rankChangeClass = '';
         const rankChange = team.rank_change;
@@ -130,7 +204,6 @@ async function loadStandings() {
         const div = document.createElement("div");
         div.innerHTML = `${team.rank}. <span class="${rankChangeClass}">${rankChangeIndicator}</span> ${team.player_name} (${team.entry_name}) - ${team.total} pts`;
         
-        // Rank highlights (for top 3 positions)
         if (team.rank === 1) div.classList.add("top-rank");
         else if (team.rank === 2) div.classList.add("second-rank");
         else if (team.rank === 3) div.classList.add("third-rank");
@@ -203,12 +276,11 @@ async function loadMostTransferred(data) {
   });
 }
 
-// ⬅️ MOST TRANSFERRED OUT (NEW FUNCTION - Duplicated and modified from Transfers In)
+// ⬅️ MOST TRANSFERRED OUT (Uses teamMap)
 async function loadMostTransferredOut(data) {
   const container = document.getElementById("most-transferred-out-list");
   if (!container || !data) return;
   
-  // *** KEY CHANGE: Sort by transfers_out_event ***
   const topTransferredOut = data.elements
     .sort((a, b) => b.transfers_out_event - a.transfers_out_event)
     .slice(0, 10); 
@@ -223,10 +295,8 @@ async function loadMostTransferredOut(data) {
 
       const teamAbbreviation = teamMap[p.team] || 'N/A';
 
-      // Note the text content change to reflect Transfers Out
       div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers out`;
       
-      // Optionally style this list differently, perhaps with a red border
       div.classList.add("transferred-out"); 
       
       container.appendChild(div);
@@ -240,8 +310,8 @@ async function loadMostCaptained(data) {
   const container = document.getElementById("most-captained-list");
   if (!container || !data) return;
 
-  // 1. Get the current Gameweek data
-  const currentEvent = data.events.find(e => e.is_next || e.is_current);
+  // Uses is_current or is_next to find the relevant Gameweek
+  const currentEvent = data.events.find(e => e.is_next || e.is_current); 
 
   if (!currentEvent || !currentEvent.most_captained) {
       container.textContent = "Captain data not yet available for this Gameweek.";
@@ -250,7 +320,6 @@ async function loadMostCaptained(data) {
 
   const mostCaptainedId = currentEvent.most_captained;
   
-  // 2. Find the player object using the ID
   const captain = data.elements.find(p => p.id === mostCaptainedId);
 
   if (!captain) {
@@ -267,7 +336,7 @@ async function loadMostCaptained(data) {
 
   const div = document.createElement("div");
   div.textContent = `${captain.first_name} ${captain.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${captaincyPercentage}%`;
-  div.classList.add("top-rank"); // Highlight the captain
+  div.classList.add("top-rank"); 
   
   container.appendChild(div);
 }
@@ -305,7 +374,6 @@ async function loadEPLTable() {
 
     container.innerHTML = "<h3>Current Premier League Standings 🏆</h3>";
 
-    // Create a simple table element
     const table = document.createElement('table');
     table.innerHTML = `
       <thead>
@@ -325,7 +393,6 @@ async function loadEPLTable() {
     `;
     const tbody = table.querySelector('tbody');
 
-    // Populate the table rows
     data.table.sort((a, b) => a.intRank - b.intRank).forEach((team) => {
       const row = tbody.insertRow();
       row.innerHTML = `
@@ -338,7 +405,6 @@ async function loadEPLTable() {
         <td>${team.intGoalDifference}</td>
         <td>${team.intPoints}</td>
       `;
-      // Apply styling for Champions League, Europa, and Relegation zones (optional)
       if (team.intRank <= 4) row.classList.add("champions-league");
       else if (team.intRank === 5) row.classList.add("europa-league");
       else if (team.intRank >= 18) row.classList.add("relegation-zone");
