@@ -8,6 +8,10 @@
   --accent: #37003C;
   --accent-hover: #530055;
   --green: #2EA043; /* GitHub green */
+  --red-light: #CF3A46; /* Custom light red for fallers */
+  --blue-cl: #2196F3; /* Custom blue for CL zone */
+  --orange-el: #FF9800; /* Custom orange for EL zone */
+  --red-rl: #F44336; /* Custom red for relegation */
   --radius: 12px;
 }
 
@@ -20,7 +24,11 @@ body.dark-mode {
   --border: #30363d;        /* Soft border shade */
   --accent: #238636;        /* GitHub green button color */
   --accent-hover: #2ea043;
-  --green: #3fb950;         /* Highlight text */
+  --green: #3fb950;         /* Highlight text (riser) */
+  --red-light: #f85149;     /* GitHub red */
+  --blue-cl: #64b5f6;       /* Lighter blue for dark mode */
+  --orange-el: #ffb74d;     /* Lighter orange for dark mode */
+  --red-rl: #e57373;        /* Lighter red for dark mode */
 }
 
 /* RESET */
@@ -48,6 +56,14 @@ main {
   width: 100%;
   max-width: 760px;
   margin: 0 auto;
+}
+
+/* HORIZONTAL RULE */
+main hr {
+  border: 0;
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0 35px 0;
 }
 
 /* HEADINGS */
@@ -91,30 +107,128 @@ li {
   margin-bottom: 6px;
 }
 
-/* STANDINGS & BPS PLAYER ROWS */
+/* STANDINGS, BPS, AND PRICE CHANGES PLAYER ROWS */
 #standings-list div,
-#bps-list div {
+#bps-list div,
+#price-changes-list div { /* <-- ADDED ID */
   padding: 10px 12px;
   margin-bottom: 10px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  font-size: 12px;   /* 👈 Reduced font size */
+  font-size: 12px;
   transition: background .25s, transform .25s;
 }
 
 #standings-list div:hover,
-#bps-list div:hover {
+#bps-list div:hover,
+#price-changes-list div:hover { /* <-- ADDED ID */
   transform: translateY(-3px);
 }
 
-/* HIGHLIGHT RANKS */
+/* HIGHLIGHT RANKS & BPS */
 .top-rank,
 .second-rank,
 .third-rank,
 .high-points {
   color: var(--green);
   font-weight: bold;
+}
+
+/* --- PRICE CHANGES STYLES --- */
+
+#price-changes-list {
+  /* Added padding-top for the new sub-heading */
+  padding-top: 5px; 
+}
+
+#price-changes-list h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 10px 0 15px 0;
+    text-align: center;
+}
+
+.price-riser {
+  color: var(--green);
+  font-weight: bold;
+  border-left: 5px solid var(--green) !important;
+}
+.price-faller {
+  color: var(--red-light);
+  font-weight: bold;
+  border-left: 5px solid var(--red-light) !important;
+}
+
+/* --- EPL TABLE STYLES --- */
+
+#epl-table-list {
+  overflow-x: auto; /* Allows table to scroll on small screens */
+}
+
+#epl-table-list h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 10px 0 15px 0;
+    text-align: center;
+}
+
+#epl-table-list table {
+  width: 100%;
+  border-collapse: separate; /* Use separate for radius and spacing */
+  border-spacing: 0 6px;
+  font-size: 13px;
+  text-align: center;
+}
+
+#epl-table-list th, 
+#epl-table-list td {
+  padding: 10px 5px;
+  white-space: nowrap;
+}
+
+#epl-table-list thead th {
+  background-color: var(--border);
+  font-weight: 700;
+  color: var(--subtext);
+  position: sticky;
+  top: 0;
+}
+
+#epl-table-list tbody tr {
+  background: var(--bg);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s, background 0.2s;
+}
+
+#epl-table-list tbody tr:hover {
+  transform: scale(1.01);
+  background: var(--card-bg);
+}
+
+#epl-table-list tbody td:first-child {
+  /* Rank column */
+  font-weight: bold;
+  border-left: 4px solid transparent;
+}
+
+/* Team Name alignment */
+#epl-table-list tbody td:nth-child(2) {
+  text-align: left;
+}
+
+/* Zone Highlighting (using left border) */
+.champions-league td:first-child {
+    border-left-color: var(--blue-cl); /* Blue for 1st-4th */
+}
+.europa-league td:first-child {
+    border-left-color: var(--orange-el); /* Orange for 5th */
+}
+.relegation-zone td:first-child {
+    border-left-color: var(--red-rl); /* Red for 18th-20th */
 }
 
 /* BACK TO TOP BUTTON */
@@ -189,6 +303,7 @@ li {
   transform: translateY(0);
 }
 
+/* --- Old / Unused Grid Styles (kept for reference but not needed for table) --- */
 .standings-header,
 .standings-row {
   display: grid;
