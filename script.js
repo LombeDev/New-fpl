@@ -1,16 +1,34 @@
+// ----------------------------------------------------------------------
+// 1. DOM Element Variables & CORE UTILITIES
+// ----------------------------------------------------------------------
 
-// --- HAMBURGER MENU TOGGLE FUNCTIONALITY ---
-
-// Select all the necessary elements
-const menuToggle = document.getElementById("menuToggle");
-const menuOverlay = document.getElementById("menuOverlay");
-const menuCloseBtn = document.getElementById("menuCloseBtn"); 
-const sideMenu = document.getElementById("sideMenu");
 const body = document.body;
+const menuToggle = document.getElementById('menuToggle');
+const sideMenu = document.getElementById('sideMenu');
+const menuCloseBtn = document.getElementById('menuCloseBtn');
+const menuOverlay = document.getElementById('menuOverlay');
+const themeToggle = document.getElementById('themeToggle');
+const loadingOverlay = document.getElementById('loading-overlay');
+const backToTop = document.getElementById('backToTop');
+
+// Using the more reliable proxy
+const proxy = "https://corsproxy.io/?";
+
+// Global variables
+let teamMap = {}; // ID -> Abbreviation (e.g., 1 -> 'ARS')
+let currentGameweekId = null; 
+let playerMap = {}; // Player ID -> Player Name (essential for stats)
+
+
+// ----------------------------------------------------------------------
+// 2. SIDE MENU FUNCTIONALITY
+// ----------------------------------------------------------------------
 
 function toggleMenu() {
-    // Toggles the 'menu-open' class on the body, which drives the CSS transitions
     body.classList.toggle("menu-open");
+    // Set aria-expanded for accessibility
+    const isMenuOpen = body.classList.contains('menu-open');
+    menuToggle.setAttribute('aria-expanded', isMenuOpen); 
 }
 
 // Attach the toggle function to all closing points
@@ -18,65 +36,83 @@ menuToggle.addEventListener("click", toggleMenu); // 1. Hamburger Icon
 menuOverlay.addEventListener("click", toggleMenu); // 2. Overlay (Clicking outside)
 menuCloseBtn.addEventListener("click", toggleMenu); // 3. 'X' Close button
 
-// Optional: Automatically close the menu after clicking a navigation link
+// Close menu when a navigation link is clicked
 sideMenu.querySelectorAll('.nav-list li a').forEach(link => {
     link.addEventListener('click', (e) => {
-        // Check if the link is an internal section link (starting with #)
         if (e.target.getAttribute('href').startsWith('#')) {
-            // Use a small delay to allow the browser to process the link click before closing
             setTimeout(toggleMenu, 100); 
         }
     });
 });
-// --- END HAMBURGER MENU TOGGLE ---
 
 
+// ----------------------------------------------------------------------
+// 3. DARK MODE TOGGLE AND PERSISTENCE
+// ----------------------------------------------------------------------
 
-/* -----------------------------------------
-   LOADING OVERLAY REMOVAL
------------------------------------------ */
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    const overlay = document.getElementById("loading-overlay");
+function updateThemeIcon() {
+    // Check if the body currently has the dark-mode class
+    const isDarkMode = body.classList.contains('dark-mode');
+    const icon = themeToggle.querySelector('i');
 
-    if (overlay) {
-      // Use opacity and visibility for a smooth fade-out effect
-      overlay.style.opacity = '0';
-      // Remove it from the DOM after the fade-out completes (0.5s from CSS)
-      setTimeout(() => {
-          overlay.style.display = 'none';
-      }, 500); 
+    if (icon) {
+        // Change the icon class (fa-moon for light, fa-sun for dark)
+        icon.classList.remove(isDarkMode ? 'fa-moon' : 'fa-sun');
+        icon.classList.add(isDarkMode ? 'fa-sun' : 'fa-moon');
+        // Update the screen reader label
+        themeToggle.setAttribute('aria-label', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
     }
-  }, 900); // Wait 900ms before starting the fade-out
-});
-
-/* -----------------------------------------
-   LIGHT / DARK MODE TOGGLE + SAVE
------------------------------------------ */
-const themeToggle = document.getElementById("themeToggle");
-
-// Load saved preference
-if (localStorage.getItem("theme") === "dark") {
-  document.body.classList.add("dark-mode");
-  themeToggle.textContent = "☀️";
 }
 
-// Toggle on click
-themeToggle.addEventListener("click", () => {
-  document.body.classList.toggle("dark-mode");
+function setInitialTheme() {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const savedTheme = localStorage.getItem('theme');
 
-  if (document.body.classList.contains("dark-mode")) {
-    themeToggle.textContent = "☀️";
-    localStorage.setItem("theme", "dark");
-  } else {
-    themeToggle.textContent = "🌙";
-    localStorage.setItem("theme", "light");
-  }
+    if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
+        body.classList.add('dark-mode');
+    }
+    updateThemeIcon();
+}
+
+function toggleTheme() {
+    body.classList.toggle('dark-mode');
+    
+    // Save preference to local storage
+    if (body.classList.contains('dark-mode')) {
+        localStorage.setItem('theme', 'dark');
+    } else {
+        localStorage.setItem('theme', 'light');
+    }
+    
+    updateThemeIcon();
+}
+
+// Initialize theme on page load
+setInitialTheme();
+
+// Event listener for theme toggle button
+themeToggle.addEventListener('click', toggleTheme);
+
+
+// ----------------------------------------------------------------------
+// 4. LOADER AND LAZY LOADING
+// ----------------------------------------------------------------------
+
+// Function to hide the loading overlay after initial content has loaded
+window.addEventListener('load', () => {
+    // Wait 900ms before starting the fade-out
+    setTimeout(() => { 
+        if (loadingOverlay) {
+            loadingOverlay.style.opacity = '0';
+            // Remove it from the DOM flow after transition is complete
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+            }, 500); 
+        }
+    }, 900);
 });
 
-/* -----------------------------------------
-   LAZY LOADING FADE-IN
------------------------------------------ */
+// Intersection Observer for Lazy Loading
 const lazyElements = document.querySelectorAll(".lazy");
 
 const observer = new IntersectionObserver((entries) => {
@@ -90,23 +126,37 @@ const observer = new IntersectionObserver((entries) => {
 
 lazyElements.forEach((el) => observer.observe(el));
 
-/* -----------------------------------------
-   FPL API FETCHING
------------------------------------------ */
-// Using the more reliable proxy
-const proxy = "https://corsproxy.io/?";
 
-// Global variables
-let teamMap = {}; // ID -> Abbreviation (e.g., 1 -> 'ARS')
-let currentGameweekId = null; 
-let playerMap = {}; // NEW: Player ID -> Player Name (essential for stats)
+// ----------------------------------------------------------------------
+// 5. BACK TO TOP BUTTON
+// ----------------------------------------------------------------------
+
+window.addEventListener('scroll', () => {
+    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+        backToTop.style.display = 'flex';
+    } else {
+        backToTop.style.display = 'none';
+    }
+});
+
+backToTop.addEventListener('click', () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
+
+
+// ----------------------------------------------------------------------
+// 6. FPL API FETCHING
+// ----------------------------------------------------------------------
 
 // On page load 
 window.addEventListener("DOMContentLoaded", () => {
   // Bootstrap data fetch must happen first to get team names and GW ID
   loadFPLBootstrapData();
   loadStandings();
-  loadEPLTable();     
+  // loadEPLTable() call has been removed.
 });
 
 // Function to fetch bootstrap data, create maps, and initialize dependent loads
@@ -121,7 +171,7 @@ async function loadFPLBootstrapData() {
             teamMap[team.id] = team.short_name;
         });
 
-        // NEW: Create map of Player ID to Full Name
+        // Create map of Player ID to Full Name
         data.elements.forEach(player => {
             playerMap[player.id] = `${player.first_name} ${player.second_name}`;
         });
@@ -336,7 +386,7 @@ async function loadStandings() {
         }
         
         const div = document.createElement("div");
-        div.innerHTML = `${team.rank}. <span class="${rankChangeClass}">${rankChangeIndicator}</span> ${team.player_name} (${team.entry_name}) - ${team.total} pts`;
+        div.innerHTML = `<span class="rank-number">${team.rank}.</span> <span class="rank-change ${rankChangeClass}">${rankChangeIndicator}</span> <span class="manager-name">${team.player_name} (${team.entry_name})</span> <span>${team.total} pts</span>`;
         
         if (team.rank === 1) div.classList.add("top-rank");
         else if (team.rank === 2) div.classList.add("second-rank");
@@ -474,93 +524,3 @@ async function loadMostCaptained(data) {
   
   container.appendChild(div);
 }
-
-
-// 🥇 CURRENT EPL TABLE (STANDINGS) - Keyless Public API
-async function loadEPLTable() {
-  const container = document.getElementById("epl-table-list");
-  if (!container) return;
-
-  // --- Dynamic Season Calculation ---
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth(); 
-
-  let seasonStartYear;
-  if (currentMonth >= 7) { 
-    seasonStartYear = currentYear;
-  } 
-  else {
-    seasonStartYear = currentYear - 1;
-  }
-  const currentSeason = `${seasonStartYear}-${seasonStartYear + 1}`; 
-  
-  const EPL_LEAGUE_ID = "4328"; 
-  const apiURL = `https://www.thesportsdb.com/api/v1/json/60130162/lookuptable.php?l=${EPL_LEAGUE_ID}&s=${currentSeason}`; 
-  
-  try {
-    const response = await fetch(proxy + encodeURIComponent(apiURL));
-    const data = await response.json();
-
-    if (!data.table || data.table.length === 0) {
-        container.innerHTML = `<p>EPL Table data not available for the **${currentSeason}** season, or the API call failed.</p>`;
-        return;
-    }
-
-    container.innerHTML = "<h3>Current Premier League Standings 🏆</h3>";
-
-    const table = document.createElement('table');
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Team</th>
-          <th>Pl</th>
-          <th>W</th>
-          <th>D</th>
-          <th>L</th>
-          <th>GD</th>
-          <th>Pts</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    `;
-    const tbody = table.querySelector('tbody');
-
-    data.table.sort((a, b) => a.intRank - b.intRank).forEach((team) => {
-      const row = tbody.insertRow();
-      row.innerHTML = `
-        <td>${team.intRank}</td>
-        <td>${team.strTeam}</td>
-        <td>${team.intPlayed}</td>
-        <td>${team.intWin}</td>
-        <td>${team.intDraw}</td>
-        <td>${team.intLoss}</td>
-        <td>${team.intGoalDifference}</td>
-        <td>${team.intPoints}</td>
-      `;
-      if (team.intRank <= 4) row.classList.add("champions-league");
-      else if (team.intRank === 5) row.classList.add("europa-league");
-      else if (team.intRank >= 18) row.classList.add("relegation-zone");
-    });
-    
-    container.appendChild(table);
-
-  } catch (err) {
-    console.error("Error loading EPL table:", err);
-    container.textContent = "Failed to load EPL table due to a network or fetch error. Check proxy or API stability.";
-  }
-}
-
-/* -----------------------------------------
-   BACK TO TOP BUTTON
------------------------------------------ */
-const backToTop = document.getElementById("backToTop");
-
-window.addEventListener("scroll", () => {
-  backToTop.style.display = window.scrollY > 200 ? "flex" : "none";
-});
-
-backToTop.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
