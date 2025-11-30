@@ -72,7 +72,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // Bootstrap data fetch must happen first to get team names and GW ID
   loadFPLBootstrapData();
   loadStandings();
-  loadGlobalStandings(); // 🔥 NEW: Load global leaderboard
+  loadGlobalStandings(); // Load global leaderboard
   loadEPLTable();     
 });
 
@@ -115,7 +115,7 @@ async function loadFPLBootstrapData() {
         loadMostTransferred(data); 
         loadMostTransferredOut(data); 
         loadMostCaptained(data);
-        loadStatusList(data); // 🔥 NEW: Load player status updates
+        loadStatusList(data); 
 
     } catch (err) {
         console.error("Error fetching FPL Bootstrap data:", err);
@@ -297,7 +297,7 @@ async function loadCurrentGameweekFixtures() {
 async function loadStandings() {
   const container = document.getElementById("standings-list");
   if (!container) return; 
-  container.innerHTML = '<div class="loader"></div>';
+  container.innerHTML = '<div class="loader"></div>'; // Ensure loader is visible
 
   try {
     const leagueID = "101712"; 
@@ -519,4 +519,4 @@ async function loadStatusList(data) {
     ul.classList.add('status-updates-list');
 
     if (flaggedPlayers.length === 0) {
-        container.innerHTML += "<p style='text-align:center;'>No significant player statu
+        container.innerHTML += "<p style='text-align:center;'>No significant player status updates current
