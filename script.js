@@ -20,6 +20,8 @@ const themeToggle = document.getElementById("themeToggle");
 if (localStorage.getItem("theme") === "dark") {
   document.body.classList.add("dark-mode");
   themeToggle.textContent = "☀️";
+} else {
+  themeToggle.textContent = "🌙";
 }
 
 // Toggle on click
@@ -52,7 +54,7 @@ const observer = new IntersectionObserver((entries) => {
 lazyElements.forEach((el) => observer.observe(el));
 
 /* -----------------------------------------
-   FPL API FETCHING (YOUR ORIGINAL CODE)
+   FPL API FETCHING
 ----------------------------------------- */
 const proxy = "https://api.allorigins.win/raw?url=";
 
@@ -62,28 +64,76 @@ window.addEventListener("DOMContentLoaded", () => {
   loadBPS();
 });
 
-// MINI-LEAGUE STANDINGS
+/* -----------------------------------------
+   MINI-LEAGUE STANDINGS
+   Now includes: Manager | Team | GW Points | Total
+----------------------------------------- */
 async function loadStandings() {
   const container = document.getElementById("standings-list");
+
   try {
-    const leagueID = "101712"; // Replace with your league ID
-    const data = await fetch(
-      proxy + encodeURIComponent(`https://fantasy.premierleague.com/api/leagues-classic/${leagueID}/standings/`)
+    const leagueID = "101712";
+
+    // Fetch league standings
+    const leagueData = await fetch(
+      proxy +
+        encodeURIComponent(
+          `https://fantasy.premierleague.com/api/leagues-classic/${leagueID}/standings/`
+        )
     ).then((r) => r.json());
 
     container.innerHTML = "";
-    data.standings.results.forEach((team, index) => {
-      setTimeout(() => {
-        const div = document.createElement("div");
-        div.textContent = `${team.rank}. ${team.player_name} (${team.entry_name}) - ${team.total} pts`;
+
+    // Fetch current GW
+    const bootstrap = await fetch(
+      proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/")
+    ).then((r) => r.json());
+
+    const currentGW = bootstrap.events.find((e) => e.is_current).id;
+
+    // Header
+    const header = document.createElement("div");
+    header.className = "standings-header";
+    header.innerHTML = `
+      <span>Manager</span>
+      <span>Team</span>
+      <span>GW</span>
+      <span>Total</span>
+    `;
+    container.appendChild(header);
+
+    // Load rows
+    leagueData.standings.results.forEach((team, index) => {
+      setTimeout(async () => {
+        // Fetch GW points for each manager
+        const gwData = await fetch(
+          proxy +
+            encodeURIComponent(
+              `https://fantasy.premierleague.com/api/entry/${team.entry}/event/${currentGW}/`
+            )
+        )
+          .then((r) => r.json())
+          .catch(() => null);
+
+        const gwPoints = gwData?.entry_history?.points || 0;
+
+        const row = document.createElement("div");
+        row.className = "standings-row";
+
+        row.innerHTML = `
+          <span>${team.player_name}</span>
+          <span>${team.entry_name}</span>
+          <span>${gwPoints}</span>
+          <span>${team.total}</span>
+        `;
 
         // Rank highlights
-        if (team.rank === 1) div.classList.add("top-rank");
-        else if (team.rank === 2) div.classList.add("second-rank");
-        else if (team.rank === 3) div.classList.add("third-rank");
+        if (team.rank === 1) row.classList.add("top-rank");
+        if (team.rank === 2) row.classList.add("second-rank");
+        if (team.rank === 3) row.classList.add("third-rank");
 
-        container.appendChild(div);
-      }, index * 30);
+        container.appendChild(row);
+      }, index * 80);
     });
   } catch (err) {
     console.error(err);
@@ -91,9 +141,12 @@ async function loadStandings() {
   }
 }
 
-// BPS BREAKDOWN
+/* -----------------------------------------
+   BPS BREAKDOWN
+----------------------------------------- */
 async function loadBPS() {
   const container = document.getElementById("bps-list");
+
   try {
     const bootstrap = await fetch(
       proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/")
@@ -107,16 +160,25 @@ async function loadBPS() {
     const currentGW = bootstrap.events.find((e) => e.is_current).id;
 
     const live = await fetch(
-      proxy + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${currentGW}/live/`)
+      proxy +
+        encodeURIComponent(
+          `https://fantasy.premierleague.com/api/event/${currentGW}/live/`
+        )
     ).then((r) => r.json());
 
     container.innerHTML = "";
+
     live.elements.forEach((p, index) => {
       setTimeout(() => {
         const div = document.createElement("div");
-        div.textContent = `${playerDict[p.id] || "Unknown"} - BPS: ${p.stats.bps} | Points: ${p.stats.total_points} | G:${p.stats.goals_scored} A:${p.stats.assists}`;
+        div.className = "bps-row";
 
-        // Highlight high BPS players
+        div.textContent = `${playerDict[p.id] || "Unknown"} - BPS: ${
+          p.stats.bps
+        } | Points: ${p.stats.total_points} | G:${p.stats.goals_scored} A:${
+          p.stats.assists
+        }`;
+
         if (p.stats.bps >= 25) div.classList.add("high-points");
 
         container.appendChild(div);
