@@ -57,10 +57,9 @@ lazyElements.forEach((el) => observer.observe(el));
 // Proxy is necessary to bypass CORS restrictions for external APIs
 const proxy = "https://api.allorigins.win/raw?url=";
 
-// On page load - UPDATED to include new functions
+// On page load - loadBPS() removed
 window.addEventListener("DOMContentLoaded", () => {
   loadStandings();
-  loadBPS();
   loadPriceChanges(); 
   loadMostTransferred(); 
   loadMostCaptained();   
@@ -94,44 +93,6 @@ async function loadStandings() {
   } catch (err) {
     console.error(err);
     container.textContent = "Failed to load standings.";
-  }
-}
-
-// BPS BREAKDOWN
-async function loadBPS() {
-  const container = document.getElementById("bps-list");
-  if (!container) return; 
-  try {
-    const bootstrap = await fetch(
-      proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/")
-    ).then((r) => r.json());
-
-    const playerDict = {};
-    bootstrap.elements.forEach((p) => {
-      playerDict[p.id] = `${p.first_name} ${p.second_name}`;
-    });
-
-    const currentGW = bootstrap.events.find((e) => e.is_current).id;
-
-    const live = await fetch(
-      proxy + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${currentGW}/live/`)
-    ).then((r) => r.json());
-
-    container.innerHTML = "";
-    live.elements.forEach((p, index) => {
-      setTimeout(() => {
-        const div = document.createElement("div");
-        div.textContent = `${playerDict[p.id] || "Unknown"} - BPS: ${p.stats.bps} | Points: ${p.stats.total_points} | G:${p.stats.goals_scored} A:${p.stats.assists}`;
-
-        // Highlight high BPS players
-        if (p.stats.bps >= 25) div.classList.add("high-points");
-
-        container.appendChild(div);
-      }, index * 20);
-    });
-  } catch (err) {
-    console.error(err);
-    container.textContent = "Failed to load BPS data.";
   }
 }
 
