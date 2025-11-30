@@ -100,7 +100,8 @@ section {
 ul {
   margin-top: 10px;
   margin-bottom: 10px;
-  padding-left: 18px;
+  /* Removed padding-left: 18px; for universal list use (e.g., fixtures) */
+  padding-left: 0;
 }
 
 li {
@@ -111,7 +112,7 @@ li {
 #standings-list div,
 #price-changes-list div,
 #most-transferred-list div,
-#most-transferred-out-list div, /* ADDED FOR TRANSFERS OUT */
+#most-transferred-out-list div,
 #most-captained-list div {
   padding: 10px 12px;
   margin-bottom: 10px;
@@ -125,7 +126,7 @@ li {
 #standings-list div:hover,
 #price-changes-list div:hover,
 #most-transferred-list div:hover,
-#most-transferred-out-list div:hover, /* ADDED FOR TRANSFERS OUT */
+#most-transferred-out-list div:hover,
 #most-captained-list div:hover {
   transform: translateY(-3px);
 }
@@ -162,8 +163,9 @@ li {
 
 #price-changes-list h3,
 #most-transferred-list h3,
-#most-transferred-out-list h3, /* ADDED FOR TRANSFERS OUT */
-#most-captained-list h3 {
+#most-transferred-out-list h3,
+#most-captained-list h3,
+#fixtures-list h3 {
     font-size: 16px;
     font-weight: 600;
     color: var(--text);
@@ -186,10 +188,70 @@ li {
   border-left: 5px solid var(--red-light) !important;
 }
 
-/* OPTIONAL: Styling for Transferred Out list items */
+/* Transfers Out styling */
 .transferred-out {
     border-right: 5px solid var(--red-light);
 }
+
+/* --- FIXTURES SCORE/STATUS STYLES --- */
+#fixtures-list p {
+    text-align: center;
+    color: var(--subtext);
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+#fixtures-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#fixtures-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    margin-bottom: 6px;
+    background: var(--bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 14px;
+    transition: all .2s;
+}
+
+/* Highlight live matches */
+.match-live {
+    border: 1px solid var(--accent) !important; 
+    box-shadow: 0 0 8px rgba(55, 0, 60, 0.4); /* Subtle glow for live game */
+}
+/* Finished matches use default border */
+.match-finished {
+    /* Can add subtle grey background if needed */
+}
+
+/* Style for the team names (using abbreviations now) */
+.fixture-team {
+    text-align: center;
+    flex-grow: 1;
+}
+
+/* Score displays */
+.score-home, .score-away {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    padding: 0 5px;
+}
+
+.vs-label {
+    font-weight: normal;
+    color: var(--subtext);
+    font-size: 12px;
+    padding: 0 10px;
+}
+
 
 /* --- EPL TABLE STYLES --- */
 
