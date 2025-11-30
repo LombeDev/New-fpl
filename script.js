@@ -61,6 +61,7 @@ const proxy = "https://corsproxy.io/?";
 let teamMap = {}; // ID -> Abbreviation (e.g., 1 -> 'ARS')
 let teamNameMap = {}; // ID -> Full Name (e.g., 1 -> 'Arsenal')
 let currentGameweekId = null; 
+let playerMap = {}; // Player ID -> Player Name (for BPS)
 
 // On page load 
 window.addEventListener("DOMContentLoaded", () => {
@@ -82,12 +83,16 @@ async function loadFPLBootstrapData() {
             teamMap[team.id] = team.short_name;
             teamNameMap[team.id] = team.name; 
         });
+
+        // Create map of Player ID to Full Name (Used for Bonus Points)
+        data.elements.forEach(player => {
+            playerMap[player.id] = `${player.first_name} ${player.second_name} (${teamMap[player.team]})`;
+        });
         
-        // --- IMPROVED LOGIC FOR CURRENT GAMEWEEK ID ---
+        // --- LOGIC FOR CURRENT GAMEWEEK ID ---
         let currentEvent = data.events.find(e => e.is_current);
 
-        // Fallback: If no event is marked 'is_current' (e.g., between GWs), 
-        // find the event with the highest ID that has 'finished' = true.
+        // Fallback: Find the most recent event that has 'finished' = true.
         if (!currentEvent) {
             const finishedEvents = data.events.filter(e => e.finished);
             if (finishedEvents.length > 0) {
@@ -104,6 +109,7 @@ async function loadFPLBootstrapData() {
 
         // Now that data is ready, load the dependent lists
         loadCurrentGameweekFixtures();
+        loadBonusPoints(); // <--- NEW CALL
         loadPriceChanges(data); 
         loadMostTransferred(data); 
         loadMostTransferredOut(data); 
@@ -112,7 +118,7 @@ async function loadFPLBootstrapData() {
     } catch (err) {
         console.error("Error fetching FPL Bootstrap data:", err);
         // Display generic error message in case of failure
-        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list"];
+        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list", "bonus-points-list"];
         sections.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.textContent = "Failed to load data. Check FPL API/Proxy.";
@@ -120,13 +126,13 @@ async function loadFPLBootstrapData() {
     }
 }
 
-// 📅 CURRENT GAMEWEEK FIXTURES
-async function loadCurrentGameweekFixtures() {
-    const container = document.getElementById("fixtures-list");
+// ⭐️ LIVE BONUS POINTS (NEW FUNCTION)
+async function loadBonusPoints() {
+    const container = document.getElementById("bonus-points-list");
     if (!container) return;
-    
+
     if (!currentGameweekId) {
-        container.innerHTML = "<h3>Gameweek Scores</h3><p>Current Gameweek information is not yet available.</p>";
+        container.innerHTML = "<h3>Live Bonus Points</h3><p>Current Gameweek information is not yet available.</p>";
         return;
     }
 
@@ -137,50 +143,74 @@ async function loadCurrentGameweekFixtures() {
 
         const currentGWFixtures = data.filter(f => f.event === currentGameweekId);
         
-        if (currentGWFixtures.length === 0) {
-            container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3><p>No fixtures found for Gameweek ${currentGameweekId}.</p>`;
-            return;
-        }
-        
-        container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3>`;
+        container.innerHTML = `<h3>Gameweek ${currentGameweekId} Bonus Points</h3>`;
         
         const list = document.createElement('ul');
-        list.classList.add('fixtures-list-items'); 
+        list.classList.add('bonus-points-items');
+        let matchesWithBonus = 0;
 
         currentGWFixtures.forEach(fixture => {
+            // Only process matches that have started or finished
+            if (!fixture.started) return;
+
             const homeTeamAbbr = teamMap[fixture.team_h] || `T${fixture.team_h}`;
             const awayTeamAbbr = teamMap[fixture.team_a] || `T${fixture.team_a}`;
-            
-            // Determine match status and score display
-            let scoreDisplay = `<span class="vs-label">vs</span>`;
-            let statusClass = 'match-pending';
-            
-            if (fixture.finished) {
-                // Match completed
-                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
-                statusClass = 'match-finished';
-            } else if (fixture.started) {
-                // Match in progress (live)
-                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
-                statusClass = 'match-live';
+            const matchName = `${homeTeamAbbr} ${fixture.team_h_score} - ${fixture.team_a_score} ${awayTeamAbbr}`;
+
+            let bonusData = [];
+
+            if (fixture.finished_data && fixture.finished_data.length > 0) {
+                // The finished_data array contains an object with the stats
+                const stats = fixture.finished_data[0].stats; 
+                const bonusStat = stats.find(stat => stat.identifier === 'bonus');
+                
+                if (bonusStat && bonusStat.a.length > 0) {
+                    bonusData = bonusStat.a;
+                }
+            } else if (fixture.stats && fixture.stats.length > 0) {
+                 // For LIVE matches, the stats are available directly under fixture.stats 
+                 const bonusStat = fixture.stats.find(stat => stat.identifier === 'bonus');
+                
+                 if (bonusStat && bonusStat.a.length > 0) {
+                     bonusData = bonusStat.a;
+                 }
             }
 
-            const listItem = document.createElement('li');
-            listItem.classList.add(statusClass);
-            
-            listItem.innerHTML = `
-                <span class="fixture-team home-team">${homeTeamAbbr}</span> 
-                ${scoreDisplay}
-                <span class="fixture-team away-team">${awayTeamAbbr}</span>
-            `;
-            list.appendChild(listItem);
+
+            if (bonusData.length > 0) {
+                matchesWithBonus++;
+                
+                const matchHeader = document.createElement('li');
+                matchHeader.classList.add('bonus-match-header');
+                matchHeader.textContent = matchName + (fixture.finished ? ' (FT)' : ' (Live)');
+                list.appendChild(matchHeader);
+
+                // Sort bonus players: 3 points, 2 points, 1 point
+                bonusData.sort((a, b) => b.value - a.value);
+
+                bonusData.forEach(playerBonus => {
+                    const playerName = playerMap[playerBonus.element] || `Player ${playerBonus.element}`;
+                    
+                    const playerItem = document.createElement('li');
+                    playerItem.classList.add('bonus-player-item');
+                    playerItem.innerHTML = `
+                        <span class="player-name">${playerName}</span>
+                        <span class="bonus-score bonus-${playerBonus.value}">+${playerBonus.value}</span>
+                    `;
+                    list.appendChild(playerItem);
+                });
+            }
         });
 
-        container.appendChild(list);
+        if (matchesWithBonus === 0) {
+            container.innerHTML += `<p>No matches are currently in progress or finished with bonus points available.</p>`;
+        } else {
+            container.appendChild(list);
+        }
 
     } catch (err) {
-        console.error("Error loading fixtures:", err);
-        container.textContent = "Failed to load fixtures data. Check FPL API/Proxy.";
+        console.error("Error loading bonus points:", err);
+        container.textContent = "Failed to load bonus points data.";
     }
 }
 
