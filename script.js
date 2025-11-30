@@ -60,14 +60,14 @@ const proxy = "https://api.allorigins.win/raw?url=";
 window.addEventListener("DOMContentLoaded", () => {
   loadStandings();
   loadBPS();
-  loadPriceChanges(); // <-- NEW: Load Price Changes
-  loadEPLTable();     // <-- NEW: Load EPL Table
+  loadPriceChanges(); 
+  loadEPLTable();     
 });
 
 // MINI-LEAGUE STANDINGS
 async function loadStandings() {
   const container = document.getElementById("standings-list");
-  if (!container) return; // Safegard
+  if (!container) return; 
   try {
     const leagueID = "101712"; // Replace with your league ID
     const data = await fetch(
@@ -97,7 +97,7 @@ async function loadStandings() {
 // BPS BREAKDOWN
 async function loadBPS() {
   const container = document.getElementById("bps-list");
-  if (!container) return; // Safegard
+  if (!container) return; 
   try {
     const bootstrap = await fetch(
       proxy + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/")
@@ -134,7 +134,7 @@ async function loadBPS() {
 
 // 💰 FPL PRICE CHANGES (RISERS AND FALLERS)
 async function loadPriceChanges() {
-  const container = document.getElementById("price-changes-list"); // Make sure this ID exists in your HTML
+  const container = document.getElementById("price-changes-list");
   if (!container) return;
   try {
     const data = await fetch(
@@ -146,7 +146,7 @@ async function loadPriceChanges() {
       .filter(p => p.cost_change_event !== 0) // Changed price since last Gameweek deadline
       .sort((a, b) => b.cost_change_event - a.cost_change_event); // Sort risers first
 
-    container.innerHTML = "### Price Risers and Fallers (Since GW Deadline) 📈📉";
+    container.innerHTML = "<h3>Price Risers and Fallers (Since GW Deadline) 📈📉</h3>";
 
     priceChangedPlayers.forEach((p, index) => {
       setTimeout(() => {
@@ -174,28 +174,43 @@ async function loadPriceChanges() {
   }
 }
 
-// 🥇 CURRENT EPL TABLE (STANDINGS)
+// 🥇 CURRENT EPL TABLE (STANDINGS) - FIX APPLIED
 async function loadEPLTable() {
-  const container = document.getElementById("epl-table-list"); // Make sure this ID exists in your HTML
+  const container = document.getElementById("epl-table-list");
   if (!container) return;
 
-  // NOTE: This uses TheSportsDB's free API for the Premier League table.
-  // You might need a more robust paid API for a production application.
-  const EPL_LEAGUE_ID = "4328"; 
-  const apiURL = `https://www.thesportsdb.com/api/v1/json/60130162/lookuptable.php?l=${EPL_LEAGUE_ID}&s=2024-2025`; // Update season if needed
+  // --- Dynamic Season Calculation ---
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth(); // 0 = Jan, 11 = Dec
 
+  let seasonStartYear;
+  // If the month is Aug (7) through Dec (11), the season started this year.
+  if (currentMonth >= 7) { 
+    seasonStartYear = currentYear;
+  } 
+  // If the month is Jan (0) through Jul (6), the season started last year.
+  else {
+    seasonStartYear = currentYear - 1;
+  }
+  const currentSeason = `${seasonStartYear}-${seasonStartYear + 1}`; 
+  // For current date (Nov 30, 2025), this results in '2025-2026'
+
+  // NOTE: This uses TheSportsDB's free API. 
+  const EPL_LEAGUE_ID = "4328"; 
+  const apiURL = `https://www.thesportsdb.com/api/v1/json/60130162/lookuptable.php?l=${EPL_LEAGUE_ID}&s=${currentSeason}`; 
+  
   try {
     const response = await fetch(proxy + encodeURIComponent(apiURL));
     const data = await response.json();
 
-    if (!data.table) {
-        container.textContent = "EPL Table data not available.";
+    if (!data.table || data.table.length === 0) {
+        container.innerHTML = `<p>EPL Table data not available for the **${currentSeason}** season, or the API failed. Please check the season date format.</p>`;
         return;
     }
 
-    container.innerHTML = "### Current Premier League Standings 🏆";
+    container.innerHTML = "<h3>Current Premier League Standings 🏆</h3>";
 
-    // Create a simple table element 
+    // Create a simple table element
     const table = document.createElement('table');
     table.innerHTML = `
       <thead>
@@ -238,7 +253,7 @@ async function loadEPLTable() {
 
   } catch (err) {
     console.error(err);
-    container.textContent = "Failed to load EPL table.";
+    container.textContent = "Failed to load EPL table due to a network error.";
   }
 }
 
