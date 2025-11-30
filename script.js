@@ -268,18 +268,52 @@ async function loadCurrentGameweekFixtures() {
 }
 
 
-// MINI-LEAGUE STANDINGS
+// 🏆 MINI-LEAGUE STANDINGS (MODIFIED FOR GW POINTS)
 async function loadStandings() {
   const container = document.getElementById("standings-list");
   if (!container) return; 
+  container.innerHTML = '<div class="loader"></div>'; // Show loader during all fetches
+
   try {
     const leagueID = "101712"; 
-    const data = await fetch(
+    
+    // 1. Fetch main league standings
+    const standingsData = await fetch(
       proxy + `https://fantasy.premierleague.com/api/leagues-classic/${leagueID}/standings/`
     ).then((r) => r.json());
 
+    const teams = standingsData.standings.results;
+    
+    if (!currentGameweekId) {
+        // Fallback for GW ID, display standings without GW points if needed
+        console.warn("Current Gameweek ID is not set. Displaying standings without GW points.");
+        // Proceed to display standings, skipping GW points fetch
+    }
+    
+    // 2. Prepare concurrent requests for GW points (if currentGameweekId is available)
+    const gwPointsPromises = teams.map(team => {
+        if (!currentGameweekId) return Promise.resolve(null);
+        
+        const teamEntryID = team.entry;
+        const gwUrl = proxy + `https://fantasy.premierleague.com/api/entry/${teamEntryID}/event/${currentGameweekId}/picks/`;
+        
+        return fetch(gwUrl)
+            .then(r => r.json())
+            .then(data => data.entry_history.points) // Extract only the points
+            .catch(err => {
+                console.warn(`Failed to fetch GW points for entry ${teamEntryID}:`, err);
+                return null; // Return null on failure
+            });
+    });
+    
+    // 3. Execute all GW points requests concurrently
+    const gwPointsResults = await Promise.all(gwPointsPromises);
+    
+    // 4. Clear container and render results
     container.innerHTML = "";
-    data.standings.results.forEach((team, index) => {
+    
+    teams.forEach((team, index) => {
+      // Use setTimeout for the staggered animation effect
       setTimeout(() => {
         let rankChangeIndicator = '';
         let rankChangeClass = '';
@@ -296,8 +330,18 @@ async function loadStandings() {
             rankChangeClass = 'rank-unchanged';
         }
         
+        const gwPoints = gwPointsResults[index];
+        const gwPointsDisplay = gwPoints !== null ? `(${gwPoints} GW pts)` : '';
+        
         const div = document.createElement("div");
-        div.innerHTML = `${team.rank}. <span class="${rankChangeClass}">${rankChangeIndicator}</span> ${team.player_name} (${team.entry_name}) - ${team.total} pts`;
+        
+        // Use the structured HTML to match the CSS flex layout
+        div.innerHTML = `
+            <span class="rank-number">${team.rank}.</span>
+            <span class="manager-name">${team.player_name} (${team.entry_name})</span>
+            <span class="manager-points">${team.total} pts ${gwPointsDisplay}</span>
+            <span class="rank-change ${rankChangeClass}" title="Rank Change: ${rankChange}">${rankChangeIndicator}</span>
+        `;
         
         if (team.rank === 1) div.classList.add("top-rank");
         else if (team.rank === 2) div.classList.add("second-rank");
@@ -306,9 +350,10 @@ async function loadStandings() {
         container.appendChild(div);
       }, index * 30);
     });
+
   } catch (err) {
     console.error("Error loading standings:", err);
-    container.textContent = "Failed to load standings. Check league ID or proxy.";
+    container.textContent = "Failed to load standings. Check league ID, proxy, or FPL API.";
   }
 }
 
@@ -494,34 +539,4 @@ async function loadEPLTable() {
         <td>${team.intRank}</td>
         <td>${team.strTeam}</td>
         <td>${team.intPlayed}</td>
-        <td>${team.intWin}</td>
-        <td>${team.intDraw}</td>
-        <td>${team.intLoss}</td>
-        <td>${team.intGoalDifference}</td>
-        <td>${team.intPoints}</td>
-      `;
-      if (team.intRank <= 4) row.classList.add("champions-league");
-      else if (team.intRank === 5) row.classList.add("europa-league");
-      else if (team.intRank >= 18) row.classList.add("relegation-zone");
-    });
-    
-    container.appendChild(table);
-
-  } catch (err) {
-    console.error("Error loading EPL table:", err);
-    container.textContent = "Failed to load EPL table due to a network or fetch error. Check proxy or API stability.";
-  }
-}
-
-/* -----------------------------------------
-   BACK TO TOP BUTTON
------------------------------------------ */
-const backToTop = document.getElementById("backToTop");
-
-window.addEventListener("scroll", () => {
-  backToTop.style.display = window.scrollY > 200 ? "flex" : "none";
-});
-
-backToTop.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
+        <td>${team.intWi
