@@ -68,7 +68,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadEPLTable();     
 });
 
-// **NEW:** Function to fetch bootstrap data and create the team map
+// Function to fetch bootstrap data and create the team map
 async function loadFPLBootstrapData() {
     try {
         const data = await fetch(
@@ -83,6 +83,7 @@ async function loadFPLBootstrapData() {
         // Now that teamMap is ready, load the player lists
         loadPriceChanges(data); 
         loadMostTransferred(data); 
+        loadMostTransferredOut(data); // <--- NEW CALL
         loadMostCaptained(data);
 
     } catch (err) {
@@ -90,12 +91,13 @@ async function loadFPLBootstrapData() {
         // Display generic error message in case of failure
         document.getElementById("price-changes-list").textContent = "Failed to load player data.";
         document.getElementById("most-transferred-list").textContent = "Failed to load player data.";
+        document.getElementById("most-transferred-out-list").textContent = "Failed to load player data."; // <--- NEW ERROR MSG
         document.getElementById("most-captained-list").textContent = "Failed to load player data.";
     }
 }
 
 
-// MINI-LEAGUE STANDINGS (Unchanged logic, kept for completeness)
+// MINI-LEAGUE STANDINGS (Unchanged)
 async function loadStandings() {
   const container = document.getElementById("standings-list");
   if (!container) return; 
@@ -126,7 +128,6 @@ async function loadStandings() {
         }
         
         const div = document.createElement("div");
-        // Note: We use the rankChangeClass only for the color, the text is combined.
         div.innerHTML = `${team.rank}. <span class="${rankChangeClass}">${rankChangeIndicator}</span> ${team.player_name} (${team.entry_name}) - ${team.total} pts`;
         
         // Rank highlights (for top 3 positions)
@@ -143,12 +144,11 @@ async function loadStandings() {
   }
 }
 
-// 💰 FPL PRICE CHANGES (Now accepts data object)
+// 💰 FPL PRICE CHANGES (Uses teamMap)
 async function loadPriceChanges(data) {
   const container = document.getElementById("price-changes-list");
   if (!container || !data) return;
   
-  // Data processing logic using the received data object
   const priceChangedPlayers = data.elements
     .filter(p => p.cost_change_event !== 0) 
     .sort((a, b) => b.cost_change_event - a.cost_change_event); 
@@ -162,7 +162,6 @@ async function loadPriceChanges(data) {
       const changeFormatted = change > 0 ? `+£${change.toFixed(1)}m` : `-£${Math.abs(change).toFixed(1)}m`;
       const playerPrice = (p.now_cost / 10).toFixed(1);
       
-      // *** NEW: Insert team abbreviation ***
       const teamAbbreviation = teamMap[p.team] || 'N/A';
       
       div.textContent = `${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${changeFormatted}`;
@@ -178,12 +177,11 @@ async function loadPriceChanges(data) {
   });
 }
 
-// ➡️ MOST TRANSFERRED IN (Now accepts data object)
+// ➡️ MOST TRANSFERRED IN (Uses teamMap)
 async function loadMostTransferred(data) {
   const container = document.getElementById("most-transferred-list");
   if (!container || !data) return;
   
-  // Data processing logic using the received data object
   const topTransferred = data.elements
     .sort((a, b) => b.transfers_in_event - a.transfers_in_event)
     .slice(0, 10); 
@@ -196,7 +194,6 @@ async function loadMostTransferred(data) {
       const transfers = p.transfers_in_event.toLocaleString();
       const playerPrice = (p.now_cost / 10).toFixed(1);
 
-      // *** NEW: Insert team abbreviation ***
       const teamAbbreviation = teamMap[p.team] || 'N/A';
 
       div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers`;
@@ -206,7 +203,39 @@ async function loadMostTransferred(data) {
   });
 }
 
-// ©️ MOST CAPTAINED PLAYER (Now accepts data object)
+// ⬅️ MOST TRANSFERRED OUT (NEW FUNCTION - Duplicated and modified from Transfers In)
+async function loadMostTransferredOut(data) {
+  const container = document.getElementById("most-transferred-out-list");
+  if (!container || !data) return;
+  
+  // *** KEY CHANGE: Sort by transfers_out_event ***
+  const topTransferredOut = data.elements
+    .sort((a, b) => b.transfers_out_event - a.transfers_out_event)
+    .slice(0, 10); 
+
+  container.innerHTML = "<h3>Most Transferred Out (This GW) ⬅️</h3>";
+
+  topTransferredOut.forEach((p, index) => {
+    setTimeout(() => {
+      const div = document.createElement("div");
+      const transfers = p.transfers_out_event.toLocaleString();
+      const playerPrice = (p.now_cost / 10).toFixed(1);
+
+      const teamAbbreviation = teamMap[p.team] || 'N/A';
+
+      // Note the text content change to reflect Transfers Out
+      div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers out`;
+      
+      // Optionally style this list differently, perhaps with a red border
+      div.classList.add("transferred-out"); 
+      
+      container.appendChild(div);
+    }, index * 30);
+  });
+}
+
+
+// ©️ MOST CAPTAINED PLAYER (Uses teamMap)
 async function loadMostCaptained(data) {
   const container = document.getElementById("most-captained-list");
   if (!container || !data) return;
@@ -232,7 +261,6 @@ async function loadMostCaptained(data) {
   const playerPrice = (captain.now_cost / 10).toFixed(1);
   const captaincyPercentage = currentEvent.most_captained_percentage;
 
-  // *** NEW: Insert team abbreviation ***
   const teamAbbreviation = teamMap[captain.team] || 'N/A';
 
   container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3>";
