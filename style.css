@@ -15,8 +15,8 @@ body {
   padding: 20px;
   min-height: 100vh;
   font-size: 14px;
-  background-color: #121212;  /* dark background */
-  color: #ffffff;             /* white text */
+  background-color: #121212;
+  color: #ffffff;
   transition: background 0.3s, color 0.3s;
 }
 
@@ -36,7 +36,7 @@ section {
 /* HEADINGS */
 h1, h2 {
   text-align: center;
-  color: #ffffff; /* ensure headings stay white */
+  color: #ffffff;
 }
 
 h1 {
@@ -49,10 +49,10 @@ h2 {
   margin-bottom: 15px;
 }
 
-/* LOADING SPINNER */
+/* LOADING SPINNER (KEEPING IT) */
 .loader {
-  border: 4px solid #333;       /* darker gray for dark mode */
-  border-top: 4px solid #00FF87; /* theme accent */
+  border: 4px solid #333;
+  border-top: 4px solid #00FF87;
   border-radius: 50%;
   width: 30px;
   height: 30px;
@@ -94,17 +94,8 @@ h2 {
 /* WELCOME SECTION */
 #welcome {
   font-size: 23px;
-  text-align: justified;
   margin-bottom: 40px;
   padding: 20px;
-  background: none; /* 
-  border-radius: 10px;
-  color: #ffffff;
-}
-
-#welcome h2 {
-  font-size: 23px;
-  margin-bottom: 15px;
 }
 
 #welcome p {
@@ -113,68 +104,63 @@ h2 {
   line-height: 2.0;
 }
 
-#welcome ul {
-  text-align: left;
-  margin: 0 auto 10px auto;
-  padding-left: 20px;
-  max-width: 500px;
-}
-
 /* HIGHLIGHT TOP PLAYERS */
 .top-rank,
 .second-rank,
 .third-rank,
 .high-points {
-  color: #00FF87; /* bright green accent for dark mode */
+  color: #00FF87;
   font-weight: bold;
 }
 
-/* SLIT ANIMATION OVERLAY */
-.slit {
+/* ------------------------------------------------------ */
+/*            SPLIT PAGE OPENING ANIMATION               */
+/* ------------------------------------------------------ */
+.split-screen {
   position: fixed;
   width: 100%;
   height: 50%;
-  background: #37003C;
   left: 0;
-  z-index: 10000;
+  background: #37003C;
+  z-index: 9999;
 }
 
-.slit.top {
+.split-top {
   top: 0;
-  animation: slitTop 1s ease forwards;
+  animation: splitTop 0.9s ease forwards;
 }
 
-.slit.bottom {
+.split-bottom {
   bottom: 0;
-  animation: slitBottom 1s ease forwards;
+  animation: splitBottom 0.9s ease forwards;
 }
 
-@keyframes slitTop {
+@keyframes splitTop {
   0% { transform: translateY(0); }
   100% { transform: translateY(-100%); }
 }
 
-@keyframes slitBottom {
+@keyframes splitBottom {
   0% { transform: translateY(0); }
   100% { transform: translateY(100%); }
 }
 
-/* FADE IN PAGE CONTENT */
-body {
+/* ------------------------------------------------------ */
+/*                LAZY LOADING FADE-IN                   */
+/* ------------------------------------------------------ */
+.lazy {
   opacity: 0;
-  animation: fadeInContent 0.5s 1s forwards;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
-@keyframes fadeInContent {
-  to { opacity: 1; }
+.lazy-loaded {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-/* OPTIONAL DARK MODE TOGGLE CLASS */
+/* DARK MODE SUPPORT */
 body.dark-mode {
   background-color: #121212;
   color: #ffffff;
-}
-
-body.dark-mode #welcome {
-  background: #1e1e1e;
 }
