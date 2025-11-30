@@ -57,16 +57,45 @@ lazyElements.forEach((el) => observer.observe(el));
 // Using the more reliable proxy
 const proxy = "https://corsproxy.io/?";
 
+// Global variable to store team map (ID -> Abbreviation)
+let teamMap = {}; 
+
 // On page load 
 window.addEventListener("DOMContentLoaded", () => {
+  // Load initial data and team map first, then proceed to lists
+  loadFPLBootstrapData();
   loadStandings();
-  loadPriceChanges(); 
-  loadMostTransferred(); 
-  loadMostCaptained();   
   loadEPLTable();     
 });
 
-// MINI-LEAGUE STANDINGS
+// **NEW:** Function to fetch bootstrap data and create the team map
+async function loadFPLBootstrapData() {
+    try {
+        const data = await fetch(
+            proxy + "https://fantasy.premierleague.com/api/bootstrap-static/"
+        ).then((r) => r.json());
+
+        // Create a map of team ID to 3-letter abbreviation
+        data.teams.forEach(team => {
+            teamMap[team.id] = team.short_name;
+        });
+
+        // Now that teamMap is ready, load the player lists
+        loadPriceChanges(data); 
+        loadMostTransferred(data); 
+        loadMostCaptained(data);
+
+    } catch (err) {
+        console.error("Error fetching FPL Bootstrap data:", err);
+        // Display generic error message in case of failure
+        document.getElementById("price-changes-list").textContent = "Failed to load player data.";
+        document.getElementById("most-transferred-list").textContent = "Failed to load player data.";
+        document.getElementById("most-captained-list").textContent = "Failed to load player data.";
+    }
+}
+
+
+// MINI-LEAGUE STANDINGS (Unchanged logic, kept for completeness)
 async function loadStandings() {
   const container = document.getElementById("standings-list");
   if (!container) return; 
@@ -86,26 +115,20 @@ async function loadStandings() {
         const rankChange = team.rank_change;
 
         if (rankChange > 0) {
-            // Moved up (Rank number is smaller, change is positive)
             rankChangeIndicator = `▲${rankChange}`;
             rankChangeClass = 'rank-up';
         } else if (rankChange < 0) {
-            // Moved down (Rank number is larger, change is negative)
-            // Use Math.abs to display the magnitude of the fall
             rankChangeIndicator = `▼${Math.abs(rankChange)}`;
             rankChangeClass = 'rank-down';
         } else {
-            // No change
             rankChangeIndicator = '—';
             rankChangeClass = 'rank-unchanged';
         }
         
         const div = document.createElement("div");
-        div.textContent = `${team.rank}. ${rankChangeIndicator} ${team.player_name} (${team.entry_name}) - ${team.total} pts`;
+        // Note: We use the rankChangeClass only for the color, the text is combined.
+        div.innerHTML = `${team.rank}. <span class="${rankChangeClass}">${rankChangeIndicator}</span> ${team.player_name} (${team.entry_name}) - ${team.total} pts`;
         
-        // Apply rank change class
-        div.classList.add(rankChangeClass);
-
         // Rank highlights (for top 3 positions)
         if (team.rank === 1) div.classList.add("top-rank");
         else if (team.rank === 2) div.classList.add("second-rank");
@@ -120,127 +143,109 @@ async function loadStandings() {
   }
 }
 
-// 💰 FPL PRICE CHANGES (RISERS AND FALLERS)
-async function loadPriceChanges() {
+// 💰 FPL PRICE CHANGES (Now accepts data object)
+async function loadPriceChanges(data) {
   const container = document.getElementById("price-changes-list");
-  if (!container) return;
-  try {
-    const data = await fetch(
-      proxy + "https://fantasy.premierleague.com/api/bootstrap-static/"
-    ).then((r) => r.json());
+  if (!container || !data) return;
+  
+  // Data processing logic using the received data object
+  const priceChangedPlayers = data.elements
+    .filter(p => p.cost_change_event !== 0) 
+    .sort((a, b) => b.cost_change_event - a.cost_change_event); 
 
-    // Filter players who had a price change (now_cost is not the original price)
-    const priceChangedPlayers = data.elements
-      .filter(p => p.cost_change_event !== 0) // Changed price since last Gameweek deadline
-      .sort((a, b) => b.cost_change_event - a.cost_change_event); // Sort risers first
+  container.innerHTML = "<h3>Price Risers and Fallers (Since GW Deadline) 📈📉</h3>";
 
-    container.innerHTML = "<h3>Price Risers and Fallers (Since GW Deadline) 📈📉</h3>";
+  priceChangedPlayers.forEach((p, index) => {
+    setTimeout(() => {
+      const div = document.createElement("div");
+      const change = p.cost_change_event / 10; 
+      const changeFormatted = change > 0 ? `+£${change.toFixed(1)}m` : `-£${Math.abs(change).toFixed(1)}m`;
+      const playerPrice = (p.now_cost / 10).toFixed(1);
+      
+      // *** NEW: Insert team abbreviation ***
+      const teamAbbreviation = teamMap[p.team] || 'N/A';
+      
+      div.textContent = `${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${changeFormatted}`;
+      
+      if (change > 0) {
+        div.classList.add("price-riser"); 
+      } else {
+        div.classList.add("price-faller"); 
+      }
 
-    priceChangedPlayers.forEach((p, index) => {
-      setTimeout(() => {
-        const div = document.createElement("div");
-        const change = p.cost_change_event / 10; // FPL API stores price in tenths of a million
-        const changeFormatted = change > 0 ? `+£${change.toFixed(1)}m` : `-£${Math.abs(change).toFixed(1)}m`;
-        const playerPrice = (p.now_cost / 10).toFixed(1);
-
-        div.textContent = `${p.first_name} ${p.second_name} (£${playerPrice}m) - ${changeFormatted}`;
-        
-        // Apply class for styling
-        if (change > 0) {
-          div.classList.add("price-riser"); // Risers in green/up arrow
-        } else {
-          div.classList.add("price-faller"); // Fallers in red/down arrow
-        }
-
-        container.appendChild(div);
-      }, index * 20);
-    });
-
-  } catch (err) {
-    console.error("Error loading price changes:", err);
-    container.textContent = "Failed to load price change data. Check proxy/FPL API.";
-  }
+      container.appendChild(div);
+    }, index * 20);
+  });
 }
 
-// ➡️ MOST TRANSFERRED IN 
-async function loadMostTransferred() {
+// ➡️ MOST TRANSFERRED IN (Now accepts data object)
+async function loadMostTransferred(data) {
   const container = document.getElementById("most-transferred-list");
-  if (!container) return;
-  try {
-    const data = await fetch(
-      proxy + "https://fantasy.premierleague.com/api/bootstrap-static/"
-    ).then((r) => r.json());
+  if (!container || !data) return;
+  
+  // Data processing logic using the received data object
+  const topTransferred = data.elements
+    .sort((a, b) => b.transfers_in_event - a.transfers_in_event)
+    .slice(0, 10); 
 
-    // Sort players by transfers_in_event (transfers since the last deadline)
-    const topTransferred = data.elements
-      .sort((a, b) => b.transfers_in_event - a.transfers_in_event)
-      .slice(0, 10); // Take the top 10
+  container.innerHTML = "<h3>Most Transferred In (This GW) ➡️</h3>";
 
-    container.innerHTML = "<h3>Most Transferred In (This GW) ➡️</h3>";
+  topTransferred.forEach((p, index) => {
+    setTimeout(() => {
+      const div = document.createElement("div");
+      const transfers = p.transfers_in_event.toLocaleString();
+      const playerPrice = (p.now_cost / 10).toFixed(1);
 
-    topTransferred.forEach((p, index) => {
-      setTimeout(() => {
-        const div = document.createElement("div");
-        const transfers = p.transfers_in_event.toLocaleString(); // Add commas for readability
-        const playerPrice = (p.now_cost / 10).toFixed(1);
+      // *** NEW: Insert team abbreviation ***
+      const teamAbbreviation = teamMap[p.team] || 'N/A';
 
-        div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (£${playerPrice}m) - ${transfers} transfers`;
-        
-        container.appendChild(div);
-      }, index * 30);
-    });
-  } catch (err) {
-    console.error("Error loading transfers data:", err);
-    container.textContent = "Failed to load transfers data. Check proxy/FPL API.";
-  }
+      div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers`;
+      
+      container.appendChild(div);
+    }, index * 30);
+  });
 }
 
-// ©️ MOST CAPTAINED PLAYER
-async function loadMostCaptained() {
+// ©️ MOST CAPTAINED PLAYER (Now accepts data object)
+async function loadMostCaptained(data) {
   const container = document.getElementById("most-captained-list");
-  if (!container) return;
-  try {
-    const data = await fetch(
-      proxy + "https://fantasy.premierleague.com/api/bootstrap-static/"
-    ).then((r) => r.json());
+  if (!container || !data) return;
 
-    // 1. Get the current Gameweek data (assuming the first event in events is the current/next one)
-    const currentEvent = data.events.find(e => e.is_next || e.is_current);
+  // 1. Get the current Gameweek data
+  const currentEvent = data.events.find(e => e.is_next || e.is_current);
 
-    if (!currentEvent || !currentEvent.most_captained) {
-        container.textContent = "Captain data not yet available for this Gameweek.";
-        return;
-    }
-
-    const mostCaptainedId = currentEvent.most_captained;
-    
-    // 2. Find the player object using the ID
-    const captain = data.elements.find(p => p.id === mostCaptainedId);
-
-    if (!captain) {
-        container.textContent = "Could not find the most captained player.";
-        return;
-    }
-
-    const playerPrice = (captain.now_cost / 10).toFixed(1);
-    const captaincyPercentage = currentEvent.most_captained_percentage;
-
-    container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3>";
-
-    const div = document.createElement("div");
-    div.textContent = `${captain.first_name} ${captain.second_name} (£${playerPrice}m) - ${captaincyPercentage}%`;
-    div.classList.add("top-rank"); // Highlight the captain
-    
-    container.appendChild(div);
-
-  } catch (err) {
-    console.error("Error loading captaincy data:", err);
-    container.textContent = "Failed to load captaincy data. Check proxy/FPL API.";
+  if (!currentEvent || !currentEvent.most_captained) {
+      container.textContent = "Captain data not yet available for this Gameweek.";
+      return;
   }
+
+  const mostCaptainedId = currentEvent.most_captained;
+  
+  // 2. Find the player object using the ID
+  const captain = data.elements.find(p => p.id === mostCaptainedId);
+
+  if (!captain) {
+      container.textContent = "Could not find the most captained player.";
+      return;
+  }
+
+  const playerPrice = (captain.now_cost / 10).toFixed(1);
+  const captaincyPercentage = currentEvent.most_captained_percentage;
+
+  // *** NEW: Insert team abbreviation ***
+  const teamAbbreviation = teamMap[captain.team] || 'N/A';
+
+  container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3>";
+
+  const div = document.createElement("div");
+  div.textContent = `${captain.first_name} ${captain.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${captaincyPercentage}%`;
+  div.classList.add("top-rank"); // Highlight the captain
+  
+  container.appendChild(div);
 }
 
 
-// 🥇 CURRENT EPL TABLE (STANDINGS) - Keyless Public API
+// 🥇 CURRENT EPL TABLE (STANDINGS) - Keyless Public API (Unchanged)
 async function loadEPLTable() {
   const container = document.getElementById("epl-table-list");
   if (!container) return;
