@@ -1,49 +1,21 @@
-/* ROOT THEME VARIABLES — LIGHT MODE (clean + simple) */
+/* ROOT THEME VARIABLES — BRIGHT GRADIENT THEME (Default) */
 :root {
-    --bg: #ffffff;
-    --text: #242424;
-    --subtext: #555;
-    --card-bg: #f4f4f4;
-    --border: #e5e5e5;
-    --accent: #37003C; /* FPL Purple */
-    --accent-hover: #530055;
-    --green: #2EA043; /* GitHub green */
-    --red-light: #CF3A46; /* Custom light red for fallers */
-    --blue-cl: #2196F3; /* Custom blue for CL zone */
-    --orange-el: #FF9800; /* Custom orange for EL zone */
-    --red-rl: #F44336; /* Custom red for relegation */
+    /* --- THEME COLORS ADJUSTED FOR BRIGHT BACKGROUND --- */
+    --bg-fallback: #00C6FF; /* New: Fallback for gradient */
+    --text: #ffffff; /* White text for contrast against gradient */
+    --subtext: #e0e0e0; /* Light gray subtext */
+    --card-bg: rgba(13, 17, 23, 0.85); /* Slightly transparent dark card for contrast */
+    --border: #30363d; /* Soft dark border */
     
-    /* --- ACTION & STATUS COLORS --- */
-    --action-goal: #3A8C6F; /* Dark Green for Goal */
-    --action-assist: #3F51B5; /* Indigo for Assist */
-    --action-red: #D32F2F; /* Dark Red for Red Card */
-    --status-live: #FFC107; /* Amber for Live */
-    --status-finished: #607D8B; /* Blue Grey for Finished */
-    --status-upcoming: var(--accent); /* Upcoming matches use FPL Purple */
+    --accent: #FF00E0; /* Bright Pink/Purple for better contrast on Blue/Cyan */
+    --accent-hover: #D300BD;
+    --green: #00ff85; /* FPL Bright Green */
+    --red-light: #f85149;
+    --blue-cl: #64b5f6;
+    --orange-el: #ffb74d;
+    --red-rl: #e57373; 
     
-    /* --- NEW LOADER COLORS --- */
-    --loader-color-2: #00FF85; /* FPL Bright Green/Cyan */
-    --loader-color-3: #B3B3D9; /* Light secondary FPL color */
-
-    --radius: 12px;
-}
-
-/* DARK THEME — GitHub / Telegram Blue-Tinted */
-body.dark-mode {
-    --bg: #0d1117;           /* GitHub dark base */
-    --text: #c9d1d9;           /* Soft white */
-    --subtext: #8b949e;        /* Muted gray */
-    --card-bg: #161b22;        /* Cards/nav backgrounds */
-    --border: #30363d;         /* Soft border shade */
-    --accent: #238636;         /* GitHub green button color */
-    --accent-hover: #2ea043;
-    --green: #3fb950;          /* Highlight text (riser) */
-    --red-light: #f85149;      /* GitHub red */
-    --blue-cl: #64b5f6;        /* Lighter blue for dark mode */
-    --orange-el: #ffb74d;      /* Lighter orange for dark mode */
-    --red-rl: #e57373;         /* Lighter red for dark mode */
-
-    /* --- DARK MODE ACTION & STATUS COLORS --- */
+    /* --- ACTION & STATUS COLORS (adjusted for dark card contrast) --- */
     --action-goal: #81C784; 
     --action-assist: #9FA8DA; 
     --action-red: #E57373; 
@@ -51,9 +23,39 @@ body.dark-mode {
     --status-finished: #B0BEC5; 
     --status-upcoming: var(--accent);
     
-    /* --- DARK MODE LOADER COLORS --- */
-    --loader-color-2: #64ffda; /* Brighter Cyan for dark mode */
-    --loader-color-3: #9575CD; /* Brighter Purple/Indigo for dark mode */
+    /* --- LOADER COLORS --- */
+    --loader-color-2: #64ffda; 
+    --loader-color-3: #9575CD; 
+
+    --radius: 12px;
+}
+
+/* DARK THEME — This now serves as a LIGHT mode alternative/toggle */
+body.dark-mode {
+    --bg: #ffffff;           /* White base */
+    --text: #242424;           /* Dark text */
+    --subtext: #555;        /* Muted gray */
+    --card-bg: #f4f4f4;        /* Cards/nav backgrounds */
+    --border: #e5e5e5;         /* Soft border shade */
+    --accent: #37003C;         /* FPL purple */
+    --accent-hover: #530055;
+    --green: #2EA043;          /* Highlight text (riser) */
+    --red-light: #CF3A46;      /* Faller red */
+    --blue-cl: #2196F3;        
+    --orange-el: #FF9800;      
+    --red-rl: #F44336;         
+
+    /* --- LIGHT MODE ACTION & STATUS COLORS --- */
+    --action-goal: #3A8C6F; 
+    --action-assist: #3F51B5; 
+    --action-red: #D32F2F; 
+    --status-live: #FFC107; 
+    --status-finished: #607D8B; 
+    --status-upcoming: var(--accent);
+    
+    /* --- LIGHT MODE LOADER COLORS --- */
+    --loader-color-2: #00FF85; 
+    --loader-color-3: #B3B3D9; 
 }
 
 /* RESET */
@@ -66,7 +68,13 @@ body.dark-mode {
 /* BODY */
 body {
     font-family: Arial, sans-serif;
-    background-color: var(--bg);
+    
+    /* ------------------------------------------------------------------- */
+    /* *** MODIFIED FOR GRADIENT BACKGROUND *** */
+    background: linear-gradient(90deg, #00C6FF, #AA00FF); /* Apply the Gradient */
+    background-color: var(--bg-fallback); /* Fallback color variable */
+    /* ------------------------------------------------------------------- */
+    
     color: var(--text);
     min-height: 100vh;
     /* CHANGE: Use padding-left/right to keep main content centered,
@@ -131,7 +139,7 @@ section {
     border-radius: var(--radius);
     border: 1px solid var(--border);
     margin-bottom: 35px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4); /* Stronger shadow for contrast on bright BG */
     transition: background .3s, border .3s, box-shadow .3s;
 }
 
@@ -202,7 +210,7 @@ li {
     
     padding: 10px 12px;
     margin-bottom: 10px;
-    background: var(--bg);
+    background: var(--card-bg); /* Use card-bg for contrast */
     border: 1px solid var(--border);
     border-radius: var(--radius);
     transition: background .25s, transform .25s;
@@ -300,7 +308,7 @@ li {
     flex-direction: column; 
     padding: 10px 15px;
     margin-bottom: 15px; 
-    background: var(--bg);
+    background: var(--card-bg); /* Use card-bg for contrast */
     border-radius: var(--radius);
     border: 1px solid var(--border);
     font-weight: 600;
@@ -332,7 +340,7 @@ li {
     padding: 3px 8px;
     font-size: 10px;
     font-weight: 700;
-    color: var(--card-bg); 
+    color: var(--card-bg); /* This will be the dark color for contrast */
 }
 
 /* Live Match Highlight */
@@ -341,7 +349,7 @@ li {
 }
 .match-live .match-status-tag {
     background-color: var(--status-live);
-    color: var(--text); 
+    color: var(--text); /* White text */
 }
 
 /* Finished Match Highlight */
@@ -433,7 +441,7 @@ li {
 
 #epl-table-list thead th,
 #epl-table-list tbody tr {
-    background: var(--bg);
+    background: var(--card-bg); /* Use card-bg for contrast */
     border-radius: 8px;
 }
 
@@ -517,7 +525,7 @@ li {
     border-radius: 40px;
     cursor: pointer;
     font-size: 13px; 
-    box-shadow: 0 1px 6px rgba(0,0,0,0.15); 
+    box-shadow: 0 1px 6px rgba(0,0,0,0.4); /* Stronger shadow */
     transition: background 0.3s, color 0.3s, border 0.3s, transform 0.25s;
     z-index: 999;
 }
@@ -572,7 +580,9 @@ li {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: var(--bg); /* Matches site background */
+    /* Use the gradient for the overlay as well */
+    background: linear-gradient(90deg, #00C6FF, #AA00FF); 
+    background-color: var(--bg-fallback); 
     color: var(--text);
     z-index: 10000; /* Ensures it is on top of everything */
     display: flex;
@@ -600,7 +610,7 @@ li {
 footer {
     padding: 20px 10px;
     margin-top: 40px;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--border); /* Changed to use variable */
     text-align: center;
     font-size: 0.85em;
     color: var(--subtext);
@@ -620,7 +630,7 @@ footer .social-links a {
 }
 
 footer .social-links a:hover {
-    color: var(--accent-color);
+    color: var(--accent); /* Changed to use variable */
 }
 
 footer .disclaimer {
@@ -640,7 +650,7 @@ footer .disclaimer {
     border-left: none;
     border-right: none;
     border: 1px solid var(--border); /* Keep top/bottom border */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4); /* Stronger shadow */
     padding: 0;
     position: sticky; 
     top: 0;
