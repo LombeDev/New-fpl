@@ -63,52 +63,66 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // 🌙☀️ THEME TOGGLE
 function initializeThemeToggle() {
-    const themeToggle = document.getElementById("themeToggle");
+    const themeToggle = document.getElementById("themeToggle");
 
-    if (!themeToggle) return;
+    if (!themeToggle) return;
 
-    // Load saved preference
-    if (localStorage.getItem("theme") === "dark") {
-        document.body.classList.add("dark-mode");
-        themeToggle.textContent = "☀️";
-    }
+    // Load saved preference
+    if (localStorage.getItem("theme") === "dark") {
+        document.body.classList.add("dark-mode");
+        themeToggle.textContent = "☀️";
+    }
 
-    // Toggle on click
-    themeToggle.addEventListener("click", () => {
-        document.body.classList.toggle("dark-mode");
+    // Toggle on click
+    themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
 
-        if (document.body.classList.contains("dark-mode")) {
-            themeToggle.textContent = "☀️";
-            localStorage.setItem("theme", "dark");
-        } else {
-            themeToggle.textContent = "🌙";
-            localStorage.setItem("theme", "light");
-        }
-    });
+        if (document.body.classList.contains("dark-mode")) {
+            themeToggle.textContent = "☀️";
+            localStorage.setItem("theme", "dark");
+        } else {
+            themeToggle.textContent = "🌙";
+            localStorage.setItem("theme", "light");
+        }
+    });
 }
 
 
-// ☰ MOBILE NAVIGATION TOGGLE
+// ☰ MOBILE NAVIGATION TOGGLE (UPDATED)
 function initializeNavigationToggle() {
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.nav-links');
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
 
-    if (!hamburger || !navLinks) return;
+    if (!hamburger || !navLinks) return;
+    
+    // Set initial icon if not already set in HTML
+    if (hamburger.innerHTML.trim() === '') {
+        hamburger.innerHTML = '&#x2261;'; // Menu icon (☰)
+    }
 
-    // 1. Toggle menu visibility on hamburger click
-    hamburger.addEventListener('click', () => {
-        navLinks.classList.toggle('active');
-    });
+    // 1. Toggle menu visibility on hamburger click
+    hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+        
+        // **NEW ICON TOGGLE LOGIC**
+        if (navLinks.classList.contains('active')) {
+            hamburger.innerHTML = '&#x2715;'; // Close icon (✕)
+        } else {
+            hamburger.innerHTML = '&#x2261;'; // Menu icon (☰)
+        }
+    });
 
-    // 2. Close menu when a navigation link is clicked (improves mobile UX)
-    navLinks.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            // Only close if the menu is active
-            if (navLinks.classList.contains('active')) {
-                navLinks.classList.remove('active');
-            }
-        });
-    });
+    // 2. Close menu when a navigation link is clicked (improves mobile UX)
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            // Only close if the menu is active
+            if (navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+                // **NEW: Reset icon when a link is clicked**
+                hamburger.innerHTML = '&#x2261;';
+            }
+        });
+    });
 }
 
 
@@ -345,12 +359,12 @@ async function loadStandings() {
         
         const div = document.createElement("div");
         // Using span tags to target specific elements with CSS for better styling
-        div.innerHTML = `
-            <span class="rank-number">${team.rank}.</span>
-            <span class="${rankChangeClass} rank-change-icon">${rankChangeIndicator}</span>
-            <span class="manager-name">${team.player_name} (${team.entry_name})</span>
-            <span class="total-points">${team.total} pts</span>
-        `;
+        div.innerHTML = `
+            <span class="rank-number">${team.rank}.</span>
+            <span class="${rankChangeClass} rank-change-icon">${rankChangeIndicator}</span>
+            <span class="manager-name">${team.player_name} (${team.entry_name})</span>
+            <span class="total-points">${team.total} pts</span>
+        `;
         
         if (team.rank === 1) div.classList.add("top-rank");
         else if (team.rank === 2) div.classList.add("second-rank");
@@ -387,11 +401,11 @@ async function loadPriceChanges(data) {
       
       // Using span tags for better CSS control
       div.innerHTML = `
-        <span class="player-name">${p.first_name} ${p.second_name}</span>
-        <span class="player-team">(${teamAbbreviation})</span>
-        <span class="player-price">£${playerPrice}m</span>
-        <span class="price-change-value">${changeFormatted}</span>
-      `;
+        <span class="player-name">${p.first_name} ${p.second_name}</span>
+        <span class="player-team">(${teamAbbreviation})</span>
+        <span class="player-price">£${playerPrice}m</span>
+        <span class="price-change-value">${changeFormatted}</span>
+      `;
       
       if (change > 0) {
         div.classList.add("price-riser"); 
@@ -424,12 +438,12 @@ async function loadMostTransferred(data) {
       const teamAbbreviation = teamMap[p.team] || 'N/A';
 
       div.innerHTML = `
-        <span class="rank-number">${index + 1}.</span>
-        <span class="player-name">${p.first_name} ${p.second_name}</span>
-        <span class="player-team">(${teamAbbreviation})</span>
-        <span class="player-price">£${playerPrice}m</span>
-        <span class="transfer-count">${transfers} transfers</span>
-      `;
+        <span class="rank-number">${index + 1}.</span>
+        <span class="player-name">${p.first_name} ${p.second_name}</span>
+        <span class="player-team">(${teamAbbreviation})</span>
+        <span class="player-price">£${playerPrice}m</span>
+        <span class="transfer-count">${transfers} transfers</span>
+      `;
       
       container.appendChild(div);
     }, index * 30);
@@ -456,12 +470,12 @@ async function loadMostTransferredOut(data) {
       const teamAbbreviation = teamMap[p.team] || 'N/A';
 
       div.innerHTML = `
-        <span class="rank-number">${index + 1}.</span>
-        <span class="player-name">${p.first_name} ${p.second_name}</span>
-        <span class="player-team">(${teamAbbreviation})</span>
-        <span class="player-price">£${playerPrice}m</span>
-        <span class="transfer-count transferred-out-count">${transfers} transfers out</span>
-      `;
+        <span class="rank-number">${index + 1}.</span>
+        <span class="player-name">${p.first_name} ${p.second_name}</span>
+        <span class="player-team">(${teamAbbreviation})</span>
+        <span class="player-price">£${playerPrice}m</span>
+        <span class="transfer-count transferred-out-count">${transfers} transfers out</span>
+      `;
       
       div.classList.add("transferred-out"); 
       
@@ -502,11 +516,11 @@ async function loadMostCaptained(data) {
 
   const div = document.createElement("div");
   div.innerHTML = `
-    <span class="player-name">${captain.first_name} ${captain.second_name}</span>
-    <span class="player-team">(${teamAbbreviation})</span>
-    <span class="player-price">£${playerPrice}m</span>
-    <span class="captaincy-percentage">${captaincyPercentage}% captained</span>
-  `;
+    <span class="player-name">${captain.first_name} ${captain.second_name}</span>
+    <span class="player-team">(${teamAbbreviation})</span>
+    <span class="player-price">£${playerPrice}m</span>
+    <span class="captaincy-percentage">${captaincyPercentage}% captained</span>
+  `;
   div.classList.add("top-rank"); 
   
   container.appendChild(div);
