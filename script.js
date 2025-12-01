@@ -19,9 +19,7 @@ let teamMap = {}; // ID -> Abbreviation (e.g., 1 -> 'ARS')
 let currentGameweekId = null; 
 let playerMap = {}; // Player ID -> Player Name (essential for stats)
 
-// --- YOUR FPL MANAGER ID ---
-const MY_ENTRY_ID = "182437"; // *** IMPORTANT: REPLACE WITH YOUR ACTUAL FPL ENTRY ID ***
-// ---------------------------
+// Note: MY_ENTRY_ID has been removed.
 
 // ----------------------------------------------------------------------
 // 2. SIDE MENU FUNCTIONALITY
@@ -33,12 +31,10 @@ function toggleMenu() {
     menuToggle.setAttribute('aria-expanded', isMenuOpen); 
 }
 
-// Attach the toggle function to all closing points
-menuToggle.addEventListener("click", toggleMenu);
-menuOverlay.addEventListener("click", toggleMenu);
-menuCloseBtn.addEventListener("click", toggleMenu);
+if (menuToggle) menuToggle.addEventListener("click", toggleMenu);
+if (menuOverlay) menuOverlay.addEventListener("click", toggleMenu);
+if (menuCloseBtn) menuCloseBtn.addEventListener("click", toggleMenu);
 
-// Close menu when a navigation link is clicked
 if (sideMenu) {
     sideMenu.querySelectorAll('.nav-list li a').forEach(link => {
         link.addEventListener('click', (e) => {
@@ -49,9 +45,8 @@ if (sideMenu) {
     });
 }
 
-
 // ----------------------------------------------------------------------
-// 3. DARK MODE TOGGLE AND PERSISTENCE (FIXED ICON LOGIC)
+// 3. DARK MODE TOGGLE AND PERSISTENCE
 // ----------------------------------------------------------------------
 
 function updateThemeIcon() {
@@ -59,7 +54,6 @@ function updateThemeIcon() {
     const icon = themeToggle ? themeToggle.querySelector('i') : null;
 
     if (icon) {
-        // Change the icon class: fa-moon for light mode, fa-sun for dark mode
         icon.classList.remove(isDarkMode ? 'fa-moon' : 'fa-sun');
         icon.classList.add(isDarkMode ? 'fa-sun' : 'fa-moon');
         themeToggle.setAttribute('aria-label', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
@@ -88,18 +82,17 @@ function toggleTheme() {
     updateThemeIcon();
 }
 
-// Initialize theme on page load
 setInitialTheme();
 
-// Event listener for theme toggle button
 if (themeToggle) {
     themeToggle.addEventListener('click', toggleTheme);
 }
 
+// ----------------------------------------------------------------------
+// 4. LOADER, LAZY LOADING & BACK TO TOP
+// ----------------------------------------------------------------------
 
-/* -----------------------------------------
-   4. LOADER AND LAZY LOADING
------------------------------------------ */
+// Hides the initial loading overlay
 window.addEventListener("load", () => {
     setTimeout(() => { 
         if (loadingOverlay) {
@@ -111,8 +104,8 @@ window.addEventListener("load", () => {
     }, 900);
 });
 
+// Lazy Loading Intersection Observer
 const lazyElements = document.querySelectorAll(".lazy");
-
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
@@ -121,56 +114,44 @@ const observer = new IntersectionObserver((entries) => {
     }
   });
 }, { threshold: 0.1 });
-
 lazyElements.forEach((el) => observer.observe(el));
 
-
-/* -----------------------------------------
-   5. BACK TO TOP BUTTON
------------------------------------------ */
+// Back to Top button
 if (backToTop) {
     window.addEventListener('scroll', () => {
-        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-            backToTop.style.display = 'flex';
-        } else {
-            backToTop.style.display = 'none';
-        }
+        backToTop.style.display = window.scrollY > 300 ? 'flex' : 'none';
     });
-
     backToTop.addEventListener('click', () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 }
 
 
-/* -----------------------------------------
-   6. FPL API FETCHING
------------------------------------------ */
+// ----------------------------------------------------------------------
+// 5. FPL API FETCHING
+// ----------------------------------------------------------------------
+
 window.addEventListener("DOMContentLoaded", () => {
+  // Start the chain of data loading
   loadFPLBootstrapData();
-  loadStandings(); 
-  // loadEPLTable() removed as requested.
+  loadStandings(); // Doesn't rely on bootstrap data
 });
 
+/**
+ * Fetches core FPL data, creates maps, and triggers dependent functions.
+ */
 async function loadFPLBootstrapData() {
     try {
         const data = await fetch(
             proxy + "https://fantasy.premierleague.com/api/bootstrap-static/"
         ).then((r) => r.json());
 
-        data.teams.forEach(team => {
-            teamMap[team.id] = team.short_name;
-        });
-
-        data.elements.forEach(player => {
-            playerMap[player.id] = `${player.first_name} ${player.second_name}`;
-        });
+        // Create essential maps
+        data.teams.forEach(team => { teamMap[team.id] = team.short_name; });
+        data.elements.forEach(player => { playerMap[player.id] = `${player.first_name} ${player.second_name}`; });
         
+        // Determine current Gameweek ID
         let currentEvent = data.events.find(e => e.is_current);
-
         if (!currentEvent) {
             const finishedEvents = data.events.filter(e => e.finished);
             if (finishedEvents.length > 0) {
@@ -178,103 +159,85 @@ async function loadFPLBootstrapData() {
                 currentEvent = finishedEvents[0];
             }
         }
-
         if (currentEvent) {
             currentGameweekId = currentEvent.id;
         } 
         
+        // Trigger all dependent loads
         loadCurrentGameweekFixtures();
         loadPriceChanges(data); 
         loadMostTransferred(data); 
         loadMostTransferredOut(data); 
         loadMostCaptained(data);
-        
-        // --- NEW: Load My Team Selection ---
-        loadMyTeamSelection(); 
+        loadPlayerStatusUpdates(data); // Player status is still included
 
     } catch (err) {
         console.error("Error fetching FPL Bootstrap data:", err);
-        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list"];
+        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list", "player-status-list"];
         sections.forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.textContent = "Failed to load data. Check FPL API/Proxy.";
+            if (el) el.textContent = "Failed to load data. Check FPL API/Proxy/Network.";
         });
     }
 }
 
-// ⚽ MY TEAM SELECTION FOR CURRENT GAMEWEEK (NEW FUNCTION)
-async function loadMyTeamSelection() {
-    const container = document.getElementById("my-team-list"); 
-    if (!container || !currentGameweekId || !MY_ENTRY_ID) return;
-    
-    container.innerHTML = `<p>Loading team selection for GW ${currentGameweekId}...</p>`;
+// 🚨 PLAYER STATUS UPDATES (INJURY/SUSPENSIONS)
+async function loadPlayerStatusUpdates(data) {
+    const container = document.getElementById("player-status-list");
+    if (!container || !data || !data.elements) return;
 
-    try {
-        const teamData = await fetch(
-            proxy + `https://fantasy.premierleague.com/api/entry/${MY_ENTRY_ID}/event/${currentGameweekId}/picks/`
-        ).then((r) => r.json());
+    // Filter players who are not 100% likely to play AND have news attached.
+    const flaggedPlayers = data.elements
+        .filter(p => p.chance_of_playing_next_event < 100 && p.news)
+        .sort((a, b) => a.chance_of_playing_next_event - b.chance_of_playing_next_event);
 
-        const eventData = await fetch(
-            proxy + `https://fantasy.premierleague.com/api/entry/${MY_ENTRY_ID}/event/${currentGameweekId}/`
-        ).then((r) => r.json());
+    container.innerHTML = "<h3>Player Status Updates 🚨</h3>";
 
-        const totalPoints = eventData.entry_history.points;
-        const chipsUsed = eventData.automatic_subs.length > 0 ? "Auto Subs" : (teamData.active_chip || 'None');
-        
-        container.innerHTML = `<h3>My Team (GW ${currentGameweekId}) - <span class="highlight-accent">${totalPoints} Pts</span></h3>
-                               <p class="chips-info">Chip Used: **${chipsUsed}**</p>`;
-        
-        const teamList = document.createElement('ul');
-        teamList.classList.add('my-team-selection');
-
-        teamData.picks.sort((a, b) => a.position - b.position).forEach(pick => {
-            const playerId = pick.element;
-            const isCaptain = pick.is_captain;
-            const isViceCaptain = pick.is_vice_captain;
-            const isBench = pick.position > 11;
-            
-            const playerName = playerMap[playerId] || `Unknown Player ID: ${playerId}`;
-            
-            let statusIcon = '';
-            if (isCaptain) {
-                statusIcon = ' ©️';
-            } else if (isViceCaptain) {
-                statusIcon = ' (vc)';
-            }
-            
-            const listItem = document.createElement('li');
-            listItem.classList.add(isBench ? 'bench-player' : 'starting-player');
-            
-            listItem.innerHTML = `
-                <span class="player-name">
-                    ${isBench ? '🪑 (B)' : ''} ${playerName}${statusIcon}
-                </span>
-                <span class="player-points">
-                    <span class="loader-small"></span>
-                </span>
-            `;
-            
-            teamList.appendChild(listItem);
-        });
-
-        container.appendChild(teamList);
-
-    } catch (err) {
-        console.error("Error loading my team selection:", err);
-        container.innerHTML = "<p>Failed to load your team selection. Check your Entry ID or API status.</p>";
-    }
-}
-
-// 📅 CURRENT GAMEWEEK FIXTURES
-async function loadCurrentGameweekFixtures() {
-    const container = document.getElementById("fixtures-list");
-    if (!container) return;
-    
-    if (!currentGameweekId) {
-        container.innerHTML = "<h3>Gameweek Scores</h3><p>Current Gameweek information is not yet available.</p>";
+    if (flaggedPlayers.length === 0) {
+        container.innerHTML += "<p>No major flags or injury news reported for the next Gameweek.</p>";
         return;
     }
 
+    const list = document.createElement('ul');
+    list.classList.add('player-status-items');
+
+    flaggedPlayers.forEach((p, index) => {
+        setTimeout(() => {
+            const teamAbbreviation = teamMap[p.team] || 'N/A';
+            const status = p.news;
+            const chance = p.chance_of_playing_next_event; // 0, 25, 50, 75, 100
+
+            let statusClass = 'status-unknown';
+            if (chance === 0) statusClass = 'status-out';
+            else if (chance <= 50) statusClass = 'status-doubtful';
+            else if (chance < 100) statusClass = 'status-slight-doubt';
+
+            const listItem = document.createElement('li');
+            listItem.classList.add(statusClass);
+
+            listItem.innerHTML = `
+                <span class="player-name-flagged">
+                    ${p.first_name} ${p.second_name} (${teamAbbreviation})
+                </span>
+                <span class="player-status-info">
+                    <span class="status-chance">Chance: ${chance}%</span>
+                    — ${status}
+                </span>
+            `;
+            list.appendChild(listItem);
+        }, index * 40); // Stagger the display
+    });
+    
+    container.appendChild(list);
+}
+
+// Note: loadMyTeamSelection function has been removed.
+
+// 📅 CURRENT GAMEWEEK FIXTURES 
+async function loadCurrentGameweekFixtures() {
+    const container = document.getElementById("fixtures-list");
+    if (!container || !currentGameweekId) return;
+    
     try {
         const data = await fetch(
             proxy + "https://fantasy.premierleague.com/api/fixtures/"
@@ -436,7 +399,7 @@ async function loadStandings() {
 // 💰 FPL PRICE CHANGES 
 async function loadPriceChanges(data) {
   const container = document.getElementById("price-changes-list");
-  if (!container || !data) return;
+  if (!container || !data || !data.elements) return;
   
   const priceChangedPlayers = data.elements
     .filter(p => p.cost_change_event !== 0) 
@@ -469,7 +432,7 @@ async function loadPriceChanges(data) {
 // ➡️ MOST TRANSFERRED IN 
 async function loadMostTransferred(data) {
   const container = document.getElementById("most-transferred-list");
-  if (!container || !data) return;
+  if (!container || !data || !data.elements) return;
   
   const topTransferred = data.elements
     .sort((a, b) => b.transfers_in_event - a.transfers_in_event)
@@ -495,7 +458,7 @@ async function loadMostTransferred(data) {
 // ⬅️ MOST TRANSFERRED OUT 
 async function loadMostTransferredOut(data) {
   const container = document.getElementById("most-transferred-out-list");
-  if (!container || !data) return;
+  if (!container || !data || !data.elements) return;
   
   const topTransferredOut = data.elements
     .sort((a, b) => b.transfers_out_event - a.transfers_out_event)
@@ -524,7 +487,7 @@ async function loadMostTransferredOut(data) {
 // ©️ MOST CAPTAINED PLAYER 
 async function loadMostCaptained(data) {
   const container = document.getElementById("most-captained-list");
-  if (!container || !data) return;
+  if (!container || !data || !data.events || !data.elements) return;
 
   const currentEvent = data.events.find(e => e.is_next || e.is_current); 
 
@@ -538,4 +501,20 @@ async function loadMostCaptained(data) {
   const captain = data.elements.find(p => p.id === mostCaptainedId);
 
   if (!captain) {
-      container.textContent = "Could not find the most captai
+      container.textContent = "Could not find the most captained player.";
+      return;
+  }
+
+  const playerPrice = (captain.now_cost / 10).toFixed(1);
+  const captaincyPercentage = currentEvent.most_captained_percentage;
+
+  const teamAbbreviation = teamMap[captain.team] || 'N/A';
+
+  container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3>";
+
+  const div = document.createElement("div");
+  div.textContent = `${captain.first_name} ${captain.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${captaincyPercentage}%`;
+  div.classList.add("top-rank"); 
+  
+  container.appendChild(div);
+}
