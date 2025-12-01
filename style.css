@@ -184,8 +184,7 @@ li {
 }
 /* --- END NEW UTILITY CLASS --- */
 
-/* --- STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS --- */
-#standings-list div,
+/* --- STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS (General Styling) --- */
 #price-changes-list div,
 #most-transferred-list div,
 #most-transferred-out-list div,
@@ -204,7 +203,6 @@ li {
   transition: background .25s, transform .25s;
 }
 
-#standings-list div:hover,
 #price-changes-list div:hover,
 #most-transferred-list div:hover,
 #most-transferred-out-list div:hover,
@@ -236,7 +234,7 @@ li {
 }
 
 
-/* HIGHLIGHT RANKS (Used for top 3 and Most Captained) */
+/* HIGHLIGHT RANKS (Used for top 3 and Most Captained) - NOTE: Overridden for standings by new CSS below */
 .top-rank,
 .second-rank,
 .third-rank {
@@ -244,19 +242,103 @@ li {
   font-weight: bold;
 }
 
-/* --- RANK CHANGE STYLES for Mini-League --- */
+/* --- MINI-LEAGUE STANDINGS (BEAUTIFIED) --- */
+
+#standings-list div {
+  /* Overrides for a modern card look */
+  background: var(--bg); 
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 12px; 
+  padding: 12px 18px; 
+  box-shadow: 0 1px 8px rgba(0,0,0,0.08); 
+  transition: all .3s ease-in-out;
+  font-size: 15px; 
+}
+
+#standings-list div:hover {
+  transform: translateY(-4px); 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
+}
+
+/* Standings Components */
+#standings-list .rank-number {
+    font-weight: 800;
+    width: 30px; 
+    text-align: center;
+    font-size: 1.1em;
+}
+
+.standings-points {
+    font-weight: 900; 
+    font-size: 1.4em; 
+    color: var(--accent); 
+    padding-left: 10px;
+    width: 70px; 
+    text-align: right;
+}
+
+/* --- ELEVATED TOP RANKS (TROPHY EFFECT) --- */
+
+/* 1ST PLACE - Gold Look */
+#standings-list div:first-child {
+    border: 2px solid #FFD700; 
+    background: linear-gradient(135deg, var(--card-bg), #fff); 
+    border-top: 6px solid #FFD700; 
+    box-shadow: 0 3px 15px rgba(255, 215, 0, 0.4);
+}
+body.dark-mode #standings-list div:first-child {
+    background: linear-gradient(135deg, var(--card-bg), #1c2633); 
+    box-shadow: 0 3px 15px rgba(255, 215, 0, 0.2);
+}
+#standings-list div:first-child .rank-number {
+    color: #FFD700; 
+    font-size: 1.3em;
+}
+
+/* 2ND PLACE - Silver Look */
+#standings-list div:nth-child(2) {
+    border: 2px solid #C0C0C0; 
+    border-top: 5px solid #C0C0C0;
+    box-shadow: 0 2px 10px rgba(192, 192, 192, 0.3);
+}
+#standings-list div:nth-child(2) .rank-number {
+    color: #C0C0C0; 
+}
+
+/* 3RD PLACE - Bronze Look */
+#standings-list div:nth-child(3) {
+    border: 2px solid #CD7F32; 
+    border-top: 4px solid #CD7F32;
+    box-shadow: 0 1px 8px rgba(205, 127, 50, 0.2);
+}
+#standings-list div:nth-child(3) .rank-number {
+    color: #CD7F32; 
+}
+
+
+/* --- RANK CHANGE STYLES for Mini-League (with symbols) --- */
 .rank-up {
     color: var(--green); 
     font-weight: bold;
+}
+.rank-up::before {
+    content: '▲ '; 
 }
 
 .rank-down {
     color: var(--red-light);
     font-weight: bold;
 }
+.rank-down::before {
+    content: '▼ ';
+}
 
 .rank-unchanged {
     color: var(--subtext);
+}
+.rank-unchanged::before {
+    content: '- ';
 }
 /* --- END RANK CHANGE STYLES --- */
 
