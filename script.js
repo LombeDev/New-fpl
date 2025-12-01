@@ -97,7 +97,7 @@ function initializeNavigationToggle() {
     
     // Set initial icon if not already set in HTML
     if (hamburger.innerHTML.trim() === '') {
-        hamburger.innerHTML = '<i class="fa-solid fa-bars"></i>';
+        hamburger.innerHTML = '&#x2261;'; // Menu icon (☰)
     }
 
     // 1. Toggle menu visibility on hamburger click
@@ -106,9 +106,9 @@ function initializeNavigationToggle() {
         
         // **NEW ICON TOGGLE LOGIC**
         if (navLinks.classList.contains('active')) {
-            hamburger.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            hamburger.innerHTML = '&#x2715;'; // Close icon (✕)
         } else {
-            hamburger.innerHTML = '<i class="fa-solid fa-bars"></i>';
+            hamburger.innerHTML = '&#x2261;'; // Menu icon (☰)
         }
     });
 
@@ -119,7 +119,7 @@ function initializeNavigationToggle() {
             if (navLinks.classList.contains('active')) {
                 navLinks.classList.remove('active');
                 // **NEW: Reset icon when a link is clicked**
-                hamburger.innerHTML = '<i class="fa-solid fa-bars"></i>';
+                hamburger.innerHTML = '&#x2261;';
             }
         });
     });
@@ -182,194 +182,150 @@ async function loadFPLBootstrapData() {
     }
 }
 
-// 📅 CURRENT GAMEWEEK FIXTURES (ENHANCED WITH BONUS POINTS)
+// 📅 CURRENT GAMEWEEK FIXTURES (ENHANCED)
 async function loadCurrentGameweekFixtures() {
-    const container = document.getElementById("fixtures-list");
-    if (!container) return;
-    
-    if (!currentGameweekId) {
-        container.innerHTML = "<h3>Gameweek Scores</h3><p>Current Gameweek information is not yet available.</p>";
-        return;
-    }
+    const container = document.getElementById("fixtures-list");
+    if (!container) return;
+    
+    if (!currentGameweekId) {
+        container.innerHTML = "<h3>Gameweek Scores</h3><p>Current Gameweek information is not yet available.</p>";
+        return;
+    }
 
-    try {
-        // Fetch the main fixture data
-        const data = await fetch(
-            proxy + "https://fantasy.premierleague.com/api/fixtures/"
-        ).then((r) => r.json());
+    try {
+        const data = await fetch(
+            proxy + "https://fantasy.premierleague.com/api/fixtures/"
+        ).then((r) => r.json());
 
-        const currentGWFixtures = data.filter(f => f.event === currentGameweekId);
-        
-        if (currentGWFixtures.length === 0) {
-            container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3><p>No fixtures found for Gameweek ${currentGameweekId}.</p>`;
-            return;
-        }
-        
-        container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3>`;
-        
-        const list = document.createElement('ul');
-        list.classList.add('fixtures-list-items'); 
+        const currentGWFixtures = data.filter(f => f.event === currentGameweekId);
+        
+        if (currentGWFixtures.length === 0) {
+            container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3><p>No fixtures found for Gameweek ${currentGameweekId}.</p>`;
+            return;
+        }
+        
+        container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3>`;
+        
+        const list = document.createElement('ul');
+        list.classList.add('fixtures-list-items'); 
 
-        currentGWFixtures.forEach(fixture => {
-            const homeTeamAbbr = teamMap[fixture.team_h] || `T${fixture.team_h}`;
-            const awayTeamAbbr = teamMap[fixture.team_a] || `T${fixture.team_a}`;
-            
-            // Determine match status, score display, and status tag text
-            let scoreDisplay = `<span class="vs-label">vs</span>`;
-            let statusClass = 'match-pending';
-            let statusText = 'Upcoming';
-            
-            if (fixture.finished) {
-                // Fixed the score display to use the separator span
-                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span><span class="vs-label">|</span><span class="score-away">${fixture.team_a_score}</span>`;
-                statusClass = 'match-finished';
-                statusText = 'FT';
-            } else if (fixture.started) {
-                // Fixed the score display to use the separator span
-                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span><span class="vs-label">|</span><span class="score-away">${fixture.team_a_score}</span>`;
-                statusClass = 'match-live';
-                statusText = 'Live';
-            } else {
-                // For upcoming matches, show the kickoff time
-                const kickoffTime = new Date(fixture.kickoff_time);
-                scoreDisplay = `<span class="vs-label-time">${kickoffTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>`; // Added 24-hour format
-                statusText = 'Upcoming';
-            }
+        currentGWFixtures.forEach(fixture => {
+            const homeTeamAbbr = teamMap[fixture.team_h] || `T${fixture.team_h}`;
+            const awayTeamAbbr = teamMap[fixture.team_a] || `T${fixture.team_a}`;
+            
+            // Determine match status, score display, and status tag text
+            let scoreDisplay = `<span class="vs-label">vs</span>`;
+            let statusClass = 'match-pending';
+            let statusText = 'Upcoming';
+            
+            if (fixture.finished) {
+                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
+                statusClass = 'match-finished';
+                statusText = 'Finished';
+            } else if (fixture.started) {
+                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
+                statusClass = 'match-live';
+                statusText = 'Live';
+            } else {
+                // For upcoming matches, show the kickoff time
+                const kickoffTime = new Date(fixture.kickoff_time);
+                // Simple formatting, adjust locale options as needed
+                scoreDisplay = `<span class="vs-label-time">${kickoffTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
+            }
 
-            const listItem = document.createElement('li');
-            listItem.classList.add(statusClass);
-            
-            // Base fixture info (Top Row)
-            let innerHTML = `
-                <div class="fixture-summary">
-                    <span class="fixture-team home-team">
-                        ${homeTeamAbbr}
-                    </span> 
-                    <div style="display: flex; align-items: center; padding: 0 10px;">
-                        ${scoreDisplay}
-                    </div>
-                    <span class="fixture-team away-team">
-                        ${awayTeamAbbr}
-                    </span>
-                    <span class="match-status-tag">${statusText}</span>
-                </div>
-            `;
-            
-            // --- NEW: Detailed Fixture Content (Actions + Bonus) ---
-            let detailsHtml = '';
-            let hasDetails = false;
+            const listItem = document.createElement('li');
+            listItem.classList.add(statusClass);
+            
+            // Base fixture info
+            listItem.innerHTML = `
+                <div class="fixture-summary">
+                    <span class="fixture-team home-team">
+                        <span class="team-label home-label">${homeTeamAbbr}</span> 
+                    </span> 
+                    ${scoreDisplay}
+                    <span class="fixture-team away-team">
+                        <span class="team-label away-label">${awayTeamAbbr}</span> 
+                    </span>
+                    <span class="match-status-tag">${statusText}</span>
+                </div>
+            `;
+            
+            // --- Extract Goals, Assists, and Cards ---
+            let actionHtml = '';
+            let hasDetails = false;
+            
+            if (fixture.started) {
+                const stats = fixture.stats || [];
 
-            // Only attempt to process stats for matches that have started or finished
-            if (fixture.started) {
-                const stats = fixture.stats || [];
+                // Define function to safely extract stats
+                const extractStats = (identifier) => {
+                    const stat = stats.find(s => s.identifier === identifier);
+                    // The 'a' array typically holds player IDs and values
+                    // We must combine the 'a' (away) and 'h' (home) arrays if needed, but FPL generally puts all info in 'a' for fixtures
+                    return stat ? (stat.a || []).concat(stat.h || []) : [];
+                };
 
-                // Helper function to safely extract stats
-                const extractStats = (identifier) => {
-                    const stat = stats.find(s => s.identifier === identifier);
-                    // Combine home 'h' and away 'a' arrays
-                    return stat ? (stat.a || []).concat(stat.h || []) : [];
-                };
-                
-                // Extract BPS data for bonus point calculation (Top 3 BPS)
-                const bpsData = extractStats('bps').sort((a, b) => b.value - a.value); 
-                const topBPS = bpsData.slice(0, 3);
-                
-                // ----------------------------------------------------
-                // 1. Build ACTIONS (Goals, Assists, Cards) - LEFT COLUMN
-                // ----------------------------------------------------
-                let actionsListHtml = '';
-                
-                const goalsData = extractStats('goals_scored');
-                const assistsData = extractStats('assists');
-                const redCardsData = extractStats('red_cards');
-                
-                // Helper to format individual player actions for the detailed list
-                const formatActions = (actionArray, icon, colorClass) => {
-                    const actions = [];
-                    actionArray.forEach(action => {
-                        const playerName = playerMap[action.element] || `Player ${action.element}`;
-                        for (let i = 0; i < action.value; i++) {
-                            // Using last name only for compactness in the list
-                            const lastName = playerName.split(' ').pop();
-                            actions.push(`<p>${lastName} <span class="${colorClass}">${icon}</span></p>`);
-                        }
-                    });
-                    return actions.join('');
-                };
+                const goalsData = extractStats('goals_scored');
+                const assistsData = extractStats('assists');
+                const redCardsData = extractStats('red_cards'); 
 
-                const goalsHtml = formatActions(goalsData, '⚽', 'action-goal');
-                const assistsHtml = formatActions(assistsData, 'A', 'action-assist');
-                const redCardsHtml = formatActions(redCardsData, 'R', 'action-red-card');
-                
-                actionsListHtml = goalsHtml + assistsHtml + redCardsHtml;
-                
-                if (actionsListHtml.length > 0) {
-                    hasDetails = true;
-                    detailsHtml = `<div class="fixture-details">${actionsListHtml}</div>`;
-                }
+                const allActions = [];
 
-                // ----------------------------------------------------
-                // 2. Build BONUS POINTS - RIGHT COLUMN
-                // ----------------------------------------------------
-                let bonusHtml = '';
-                
-                if (topBPS.length > 0) {
-                    hasDetails = true;
-                    let bonusPlayersHtml = '';
-                    
-                    topBPS.forEach((player, index) => {
-                        const rank = 3 - index;
-                        const playerName = playerMap[player.element] || `Player ${player.element}`;
-                        const bpsValue = player.value;
-                        const lastName = playerName.split(' ').pop();
-                        
-                        bonusPlayersHtml += `
-                            <div class="bonus-player">
-                                <span class="bonus-player-name">${lastName}</span>
-                                <span class="bonus-points-value">${bpsValue}</span>
-                                <span class="bonus-rank-badge bonus-rank-${rank}">${rank}</span>
-                            </div>
-                        `;
-                    });
+                // Helper to process actions
+                const processActions = (actionArray, type) => {
+                    actionArray.forEach(action => {
+                        const playerName = playerMap[action.element] || `Player ${action.element}`;
+                        for (let i = 0; i < action.value; i++) {
+                            allActions.push({ type: type, name: playerName });
+                        }
+                    });
+                };
 
-                    bonusHtml = `
-                        <div class="bonus-container">
-                            <div class="bonus-header">🏆 Bonus</div>
-                            ${bonusPlayersHtml}
-                        </div>
-                    `;
-                }
+                processActions(goalsData, 'goal');
+                processActions(assistsData, 'assist');
+                processActions(redCardsData, 'red_card');
+                
+                if (allActions.length > 0) {
+                    hasDetails = true;
+                    // Group actions by type and then list unique players for that type
+                    const groupedActions = allActions.reduce((acc, action) => {
+                        if (!acc[action.type]) acc[action.type] = new Set();
+                        acc[action.type].add(action.name);
+                        return acc;
+                    }, {});
+
+                    actionHtml += '<div class="fixture-details">';
+                    
+                    if (groupedActions.goal) {
+                        actionHtml += `<p><span class="action-label action-goal">⚽ Goals:</span> ${Array.from(groupedActions.goal).join(', ')}</p>`;
+                    }
+                    if (groupedActions.assist) {
+                        actionHtml += `<p><span class="action-label action-assist">👟 Assists:</span> ${Array.from(groupedActions.assist).join(', ')}</p>`;
+                    }
+                     if (groupedActions.red_card) {
+                        actionHtml += `<p><span class="action-label action-red-card">🟥 Red Cards:</span> ${Array.from(groupedActions.red_card).join(', ')}</p>`;
+                    }
+                    
+                    actionHtml += '</div>';
+                }
+            }
+            
+            // Append actions if the match has started and has details
+            if (hasDetails) {
+                listItem.innerHTML += actionHtml;
+                listItem.classList.add('has-details');
+            }
 
 
-                // ----------------------------------------------------
-                // 3. Assemble Footer Content
-                // ----------------------------------------------------
-                if (hasDetails) {
-                    listItem.classList.add('has-details');
-                    
-                    // We must ensure the fixture-details and bonus-container are wrapped in the flex container
-                    const combinedFooter = `
-                        <div class="fixture-footer-content">
-                            ${detailsHtml}
-                            ${bonusHtml}
-                        </div>
-                    `;
-                    
-                    innerHTML += combinedFooter;
-                }
-            }
+            list.appendChild(listItem);
+        });
 
+        container.appendChild(list);
 
-            listItem.innerHTML = innerHTML;
-            list.appendChild(listItem);
-        });
-
-        container.appendChild(list);
-
-    } catch (err) {
-        console.error("Error loading fixtures:", err);
-        container.textContent = "Failed to load fixtures data. Check FPL API/Proxy.";
-    }
+    } catch (err) {
+        console.error("Error loading fixtures:", err);
+        container.textContent = "Failed to load fixtures data. Check FPL API/Proxy.";
+    }
 }
 
 
@@ -518,4 +474,76 @@ async function loadMostTransferredOut(data) {
         <span class="player-name">${p.first_name} ${p.second_name}</span>
         <span class="player-team">(${teamAbbreviation})</span>
         <span class="player-price">£${playerPrice}m</span>
-        <span class="transfer-count transferred-out
+        <span class="transfer-count transferred-out-count">${transfers} transfers out</span>
+      `;
+      
+      div.classList.add("transferred-out"); 
+      
+      container.appendChild(div);
+    }, index * 30);
+  });
+}
+
+
+// ©️ MOST CAPTAINED PLAYER 
+async function loadMostCaptained(data) {
+  const container = document.getElementById("most-captained-list");
+  if (!container || !data) return;
+
+  // Uses is_current or is_next to find the relevant Gameweek
+  const currentEvent = data.events.find(e => e.is_next || e.is_current); 
+
+  if (!currentEvent || !currentEvent.most_captained) {
+      container.textContent = "Captain data not yet available for this Gameweek.";
+      return;
+  }
+
+  const mostCaptainedId = currentEvent.most_captained;
+  
+  const captain = data.elements.find(p => p.id === mostCaptainedId);
+
+  if (!captain) {
+      container.textContent = "Could not find the most captained player.";
+      return;
+  }
+
+  const playerPrice = (captain.now_cost / 10).toFixed(1);
+  const captaincyPercentage = currentEvent.most_captained_percentage;
+
+  const teamAbbreviation = teamMap[captain.team] || 'N/A';
+
+  container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3>";
+
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <span class="player-name">${captain.first_name} ${captain.second_name}</span>
+    <span class="player-team">(${teamAbbreviation})</span>
+    <span class="player-price">£${playerPrice}m</span>
+    <span class="captaincy-percentage">${captaincyPercentage}% captained</span>
+  `;
+  div.classList.add("top-rank"); 
+  
+  container.appendChild(div);
+}
+
+
+// 🥇 CURRENT EPL TABLE (STANDINGS) - Keyless Public API
+async function loadEPLTable() {
+  const container = document.getElementById("global-standings-list"); // Changed to match HTML ID
+  if (!container) return;
+
+  // --- Dynamic Season Calculation ---
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth(); 
+
+  let seasonStartYear;
+  if (currentMonth >= 7) { 
+    seasonStartYear = currentYear;
+  } 
+  else {
+    seasonStartYear = currentYear - 1;
+  }
+  const currentSeason = `${seasonStartYear}-${seasonStartYear + 1}`; 
+  
+  const EPL_LEAGUE_ID = "4328"; 
+  const apiURL = `https://www.thesportsdb.com/api/v1
