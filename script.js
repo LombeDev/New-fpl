@@ -353,7 +353,7 @@ async function loadStandings() {
             rankChangeIndicator = `▼${Math.abs(rankChange)}`;
             rankChangeClass = 'rank-down';
         } else {
-            rankChangeIndicator = '—';
+            rankChangeIndicator = '';
             rankChangeClass = 'rank-unchanged';
         }
         
