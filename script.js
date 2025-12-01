@@ -353,7 +353,7 @@ async function loadStandings() {
             rankChangeIndicator = `▼${Math.abs(rankChange)}`;
             rankChangeClass = 'rank-down';
         } else {
-            rankChangeIndicator = '—';
+            rankChangeIndicator = '';
             rankChangeClass = 'rank-unchanged';
         }
         
@@ -546,4 +546,4 @@ async function loadEPLTable() {
   const currentSeason = `${seasonStartYear}-${seasonStartYear + 1}`; 
   
   const EPL_LEAGUE_ID = "4328"; 
-  const apiURL = `https://www.thesportsdb.com/api/v
+  const apiURL = `https://www.thesportsdb.com/api/v1
