@@ -1,3 +1,118 @@
+/* --- NEW NAVIGATION STYLES --- */
+#main-nav {
+    width: 100%;
+    /* Use the main container max-width to center the nav */
+    max-width: 760px; 
+    margin: 0 auto 35px auto; /* Add space below the nav */
+    background-color: var(--card-bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 0;
+    position: sticky; /* Keep the nav visible when scrolling */
+    top: 0;
+    z-index: 900;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: center; /* Center links on desktop */
+    align-items: center;
+    padding: 0 10px;
+}
+
+/* 1. Desktop Links (Default) */
+.nav-links {
+    list-style: none;
+    display: flex; /* Horizontal layout for desktop */
+    padding: 0;
+    margin: 0;
+}
+
+.nav-links li a {
+    display: block;
+    padding: 15px 18px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 14px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-links li a:hover {
+    color: var(--accent);
+    background-color: var(--border);
+}
+
+/* 2. Hamburger Button (Hidden on Desktop) */
+.hamburger {
+    display: none; /* Hide the hamburger icon by default on desktop */
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 24px;
+    padding: 10px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* --- MEDIA QUERY FOR MOBILE VIEW (e.g., screens under 600px) --- */
+@media (max-width: 600px) {
+    
+    #main-nav {
+        margin: 0 auto 25px auto;
+        padding: 5px 0; /* Add a little vertical padding */
+    }
+
+    .nav-container {
+        justify-content: flex-start; /* Move hamburger to the left */
+        position: relative;
+    }
+
+    /* 2. Show Hamburger Icon */
+    .hamburger {
+        display: block; 
+    }
+
+    /* 1. Stack Links Vertically (Hidden by default) */
+    .nav-links {
+        /* This is the key: collapse the menu */
+        display: none; 
+        
+        position: absolute;
+        top: 100%; /* Position below the nav container */
+        left: 0;
+        width: 100%;
+        flex-direction: column; /* Stack vertically */
+        background-color: var(--card-bg);
+        border-top: 1px solid var(--border);
+        padding-top: 5px;
+        z-index: 950;
+    }
+    
+    .nav-links.active {
+        display: flex; /* Show menu when 'active' class is added via JS */
+    }
+
+    .nav-links li {
+        width: 100%;
+        border-bottom: 1px solid var(--border);
+    }
+    .nav-links li:last-child {
+        border-bottom: none;
+    }
+
+    .nav-links li a {
+        padding: 12px 20px;
+        font-size: 16px;
+        font-weight: 500;
+    }
+    
+}
+
+
+
+
 /* ROOT THEME VARIABLES — LIGHT MODE (clean + simple) */
 :root {
   --bg: #ffffff;
