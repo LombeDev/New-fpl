@@ -236,21 +236,32 @@ li {
 
 /* --- MINI-LEAGUE STANDINGS: Single Card Leaderboard Design --- */
 
+/* **CRITICAL OVERRIDE:** Removes the section padding for edge-to-edge list */
+#standings {
+    padding: 0; 
+    overflow: hidden; /* Ensures borders/shadows are clipped nicely */
+}
+
+/* Center the H2 title inside the standings section */
+#standings h2 {
+    padding: 22px 22px 10px; /* Restore vertical padding above the title */
+    margin-bottom: 0;
+}
+
 /* 1. Remove the standard card styling for the list wrapper */
 #standings-list {
-  /* This container now acts as the list wrapper within the existing 'section' card */
-  padding: 0; /* Remove padding from the list itself */
-  margin: 0; /* Remove default margin */
+  padding: 0; 
+  margin: 0; 
 }
 
 /* 2. Style for individual standing items */
 #standings-list div {
-  background: var(--card-bg); /* Use the section's background for consistency */
+  background: var(--bg); /* Use main BG for rows to contrast with the border/hover */
   border: none;
   border-bottom: 1px solid var(--border); /* Use subtle dividers instead of full borders */
   border-radius: 0;
   margin-bottom: 0; 
-  padding: 14px 0; /* Increased vertical padding for space */
+  padding: 14px 15px; /* Added horizontal padding here for the content */
   box-shadow: none; 
   transition: background .2s, transform .05s;
   
@@ -263,7 +274,7 @@ li {
 /* 3. Hover effect for list items */
 #standings-list div:hover {
   transform: none; 
-  background: var(--border); /* Subtle background change on hover */
+  background: var(--card-bg); /* Use card-bg on hover for better contrast */
   box-shadow: none;
 }
 
@@ -278,7 +289,6 @@ li {
     width: 30px; 
     text-align: center;
     font-size: 1.1em;
-    padding-left: 5px; 
     color: var(--subtext); 
 }
 
@@ -286,7 +296,6 @@ li {
     font-weight: 900; 
     font-size: 1.3em; 
     color: var(--accent); 
-    padding-right: 15px; 
     width: 70px; 
     text-align: right;
 }
@@ -296,11 +305,11 @@ li {
 
 /* 1ST PLACE - Gold Look */
 #standings-list div:first-child {
-    background: linear-gradient(90deg, #FFD70010 0%, var(--card-bg) 5%); 
+    background: linear-gradient(90deg, #FFD70010 0%, var(--bg) 5%); 
     border-left: 4px solid #FFD700; 
 }
 body.dark-mode #standings-list div:first-child {
-    background: linear-gradient(90deg, #FFD70020 0%, var(--card-bg) 5%);
+    background: linear-gradient(90deg, #FFD70020 0%, var(--bg) 5%);
 }
 
 #standings-list div:first-child .rank-number {
@@ -701,7 +710,7 @@ body.dark-mode #standings-list div:first-child {
 footer {
     padding: 20px 10px;
     margin-top: 40px;
-    border-top: 1px solid var(--border); /* Fixed variable name */
+    border-top: 1px solid var(--border); 
     text-align: center;
     font-size: 0.85em;
     color: var(--subtext);
@@ -721,7 +730,7 @@ footer .social-links a {
 }
 
 footer .social-links a:hover {
-    color: var(--accent); /* Fixed variable name */
+    color: var(--accent); 
 }
 
 footer .disclaimer {
