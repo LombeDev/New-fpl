@@ -1,292 +1,177 @@
-/* --- NEW NAVIGATION STYLES --- */
-#main-nav {
-    width: 100%;
-    /* Use the main container max-width to center the nav */
-    max-width: 760px; 
-    margin: 0 auto 35px auto; /* Add space below the nav */
-    background-color: var(--card-bg);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    padding: 0;
-    position: sticky; /* Keep the nav visible when scrolling */
-    top: 0;
-    z-index: 900;
-}
-
-.nav-container {
-    display: flex;
-    justify-content: center; /* Center links on desktop */
-    align-items: center;
-    padding: 0 10px;
-}
-
-/* 1. Desktop Links (Default) */
-.nav-links {
-    list-style: none;
-    display: flex; /* Horizontal layout for desktop */
-    padding: 0;
-    margin: 0;
-}
-
-.nav-links li a {
-    display: block;
-    padding: 15px 18px;
-    text-decoration: none;
-    color: var(--text);
-    font-weight: 600;
-    font-size: 14px;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.nav-links li a:hover {
-    color: var(--accent);
-    background-color: var(--border);
-}
-
-/* 2. Hamburger Button (Hidden on Desktop) */
-.hamburger {
-    display: none; /* Hide the hamburger icon by default on desktop */
-    background: none;
-    border: none;
-    color: var(--text);
-    font-size: 24px;
-    padding: 10px;
-    cursor: pointer;
-    line-height: 1;
-}
-
-/* --- MEDIA QUERY FOR MOBILE VIEW (e.g., screens under 600px) --- */
-@media (max-width: 600px) {
-    
-    #main-nav {
-        margin: 0 auto 25px auto;
-        padding: 5px 0; /* Add a little vertical padding */
-    }
-
-    .nav-container {
-        justify-content: flex-start; /* Move hamburger to the left */
-        position: relative;
-    }
-
-    /* 2. Show Hamburger Icon */
-    .hamburger {
-        display: block; 
-    }
-
-    /* 1. Stack Links Vertically (Hidden by default) */
-    .nav-links {
-        /* This is the key: collapse the menu */
-        display: none; 
-        
-        position: absolute;
-        top: 100%; /* Position below the nav container */
-        left: 0;
-        width: 100%;
-        flex-direction: column; /* Stack vertically */
-        background-color: var(--card-bg);
-        border-top: 1px solid var(--border);
-        padding-top: 5px;
-        z-index: 950;
-    }
-    
-    .nav-links.active {
-        display: flex; /* Show menu when 'active' class is added via JS */
-    }
-
-    .nav-links li {
-        width: 100%;
-        border-bottom: 1px solid var(--border);
-    }
-    .nav-links li:last-child {
-        border-bottom: none;
-    }
-
-    .nav-links li a {
-        padding: 12px 20px;
-        font-size: 16px;
-        font-weight: 500;
-    }
-    
-}
-
-
-
-
 /* ROOT THEME VARIABLES — LIGHT MODE (clean + simple) */
 :root {
-  --bg: #ffffff;
-  --text: #242424;
-  --subtext: #555;
-  --card-bg: #f4f4f4;
-  --border: #e5e5e5;
-  --accent: #37003C; /* FPL Purple */
-  --accent-hover: #530055;
-  --green: #2EA043; /* GitHub green */
-  --red-light: #CF3A46; /* Custom light red for fallers */
-  --blue-cl: #2196F3; /* Custom blue for CL zone */
-  --orange-el: #FF9800; /* Custom orange for EL zone */
-  --red-rl: #F44336; /* Custom red for relegation */
-  
-  /* --- ACTION & STATUS COLORS --- */
-  --action-goal: #3A8C6F; /* Dark Green for Goal */
-  --action-assist: #3F51B5; /* Indigo for Assist */
-  --action-red: #D32F2F; /* Dark Red for Red Card */
-  --status-live: #FFC107; /* Amber for Live */
-  --status-finished: #607D8B; /* Blue Grey for Finished */
-  --status-upcoming: var(--accent); /* Upcoming matches use FPL Purple */
-  
-  /* --- NEW LOADER COLORS --- */
-  --loader-color-2: #00FF85; /* FPL Bright Green/Cyan */
-  --loader-color-3: #B3B3D9; /* Light secondary FPL color */
+    --bg: #ffffff;
+    --text: #242424;
+    --subtext: #555;
+    --card-bg: #f4f4f4;
+    --border: #e5e5e5;
+    --accent: #37003C; /* FPL Purple */
+    --accent-hover: #530055;
+    --green: #2EA043; /* GitHub green */
+    --red-light: #CF3A46; /* Custom light red for fallers */
+    --blue-cl: #2196F3; /* Custom blue for CL zone */
+    --orange-el: #FF9800; /* Custom orange for EL zone */
+    --red-rl: #F44336; /* Custom red for relegation */
+    
+    /* --- ACTION & STATUS COLORS --- */
+    --action-goal: #3A8C6F; /* Dark Green for Goal */
+    --action-assist: #3F51B5; /* Indigo for Assist */
+    --action-red: #D32F2F; /* Dark Red for Red Card */
+    --status-live: #FFC107; /* Amber for Live */
+    --status-finished: #607D8B; /* Blue Grey for Finished */
+    --status-upcoming: var(--accent); /* Upcoming matches use FPL Purple */
+    
+    /* --- NEW LOADER COLORS --- */
+    --loader-color-2: #00FF85; /* FPL Bright Green/Cyan */
+    --loader-color-3: #B3B3D9; /* Light secondary FPL color */
 
-  --radius: 12px;
+    --radius: 12px;
 }
 
 /* DARK THEME — GitHub / Telegram Blue-Tinted */
 body.dark-mode {
-  --bg: #0d1117;            /* GitHub dark base */
-  --text: #c9d1d9;          /* Soft white */
-  --subtext: #8b949e;       /* Muted gray */
-  --card-bg: #161b22;       /* Cards/nav backgrounds */
-  --border: #30363d;        /* Soft border shade */
-  --accent: #238636;        /* GitHub green button color */
-  --accent-hover: #2ea043;
-  --green: #3fb950;         /* Highlight text (riser) */
-  --red-light: #f85149;     /* GitHub red */
-  --blue-cl: #64b5f6;       /* Lighter blue for dark mode */
-  --orange-el: #ffb74d;     /* Lighter orange for dark mode */
-  --red-rl: #e57373;        /* Lighter red for dark mode */
+    --bg: #0d1117;           /* GitHub dark base */
+    --text: #c9d1d9;           /* Soft white */
+    --subtext: #8b949e;        /* Muted gray */
+    --card-bg: #161b22;        /* Cards/nav backgrounds */
+    --border: #30363d;         /* Soft border shade */
+    --accent: #238636;         /* GitHub green button color */
+    --accent-hover: #2ea043;
+    --green: #3fb950;          /* Highlight text (riser) */
+    --red-light: #f85149;      /* GitHub red */
+    --blue-cl: #64b5f6;        /* Lighter blue for dark mode */
+    --orange-el: #ffb74d;      /* Lighter orange for dark mode */
+    --red-rl: #e57373;         /* Lighter red for dark mode */
 
-  /* --- DARK MODE ACTION & STATUS COLORS --- */
-  --action-goal: #81C784; 
-  --action-assist: #9FA8DA; 
-  --action-red: #E57373; 
-  --status-live: #FFEB3B; 
-  --status-finished: #B0BEC5; 
-  --status-upcoming: var(--accent);
-  
-  /* --- DARK MODE LOADER COLORS --- */
-  --loader-color-2: #64ffda; /* Brighter Cyan for dark mode */
-  --loader-color-3: #9575CD; /* Brighter Purple/Indigo for dark mode */
+    /* --- DARK MODE ACTION & STATUS COLORS --- */
+    --action-goal: #81C784; 
+    --action-assist: #9FA8DA; 
+    --action-red: #E57373; 
+    --status-live: #FFEB3B; 
+    --status-finished: #B0BEC5; 
+    --status-upcoming: var(--accent);
+    
+    /* --- DARK MODE LOADER COLORS --- */
+    --loader-color-2: #64ffda; /* Brighter Cyan for dark mode */
+    --loader-color-3: #9575CD; /* Brighter Purple/Indigo for dark mode */
 }
 
 /* RESET */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 /* BODY */
 body {
-  font-family: Arial, sans-serif;
-  background-color: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  padding: 22px;
-  transition: background .3s, color .3s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    font-family: Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 22px;
+    transition: background .3s, color .3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* MAIN CONTAINER */
 main {
-  width: 100%;
-  max-width: 760px;
-  margin: 0 auto;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
 }
 
 /* HORIZONTAL RULE */
 main hr {
-  border: 0;
-  height: 1px;
-  background: var(--border);
-  margin: 20px 0 35px 0;
+    border: 0;
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0 35px 0;
 }
 
 /* HEADINGS */
 h1, h2 {
-  text-align: center;
-  color: var(--text);
-  margin-bottom: 16px;
-  letter-spacing: 0.5px;
+    text-align: center;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
 }
 
 /* IMPROVED H1 SIZE AND WEIGHT */
 h1 { 
-  font-size: 38px; 
-  font-weight: 800; 
-  line-height: 1.1; 
+    font-size: 38px; 
+    font-weight: 800; 
+    line-height: 1.1; 
 }
 /* Standard H2 */
 h2 { 
-  font-size: 24px; 
-  font-weight: 600; 
+    font-size: 24px; 
+    font-weight: 600; 
 }
 
 /* HEADER SPECIFIC H2 (Value Proposition) */
 header h2 {
-  font-size: 18px; 
-  font-weight: 600; 
-  color: var(--accent); /* Draw attention to the value prop */
-  margin-top: 0px;
-  margin-bottom: 30px; /* Space before the welcome card */
+    font-size: 18px; 
+    font-weight: 600; 
+    color: var(--accent); /* Draw attention to the value prop */
+    margin-top: 0px;
+    margin-bottom: 30px; /* Space before the welcome card */
 }
 
 /* SECTIONS STANDARD CARD STYLE */
 section {
-  background: var(--card-bg);
-  padding: 22px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  margin-bottom: 35px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-  transition: background .3s, border .3s, box-shadow .3s;
+    background: var(--card-bg);
+    padding: 22px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 35px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    transition: background .3s, border .3s, box-shadow .3s;
 }
 
 /* WELCOME SECTION - Elevated with Accent Ribbon */
 #welcome {
-  border-top: 6px solid var(--accent); /* Ribbon effect */
-  padding-top: 18px; 
+    border-top: 6px solid var(--accent); /* Ribbon effect */
+    padding-top: 18px; 
 }
 
 /* WELCOME SECTION TEXT */
 #welcome p {
-  margin-bottom: 15px; /* Better spacing between paragraphs */
+    margin-bottom: 15px; /* Better spacing between paragraphs */
 }
 #welcome p,
 #welcome li {
-  color: var(--subtext);
-  line-height: 1.7;
-  font-size: 15px;
+    color: var(--subtext);
+    line-height: 1.7;
+    font-size: 15px;
 }
 
 /* LIST DETAILS */
 ul {
-  margin-top: 10px;
-  margin-bottom: 10px;
-  padding-left: 0;
-  list-style: none; /* Removed default bullets for clean look */
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-left: 0;
+    list-style: none; /* Removed default bullets for clean look */
 }
 
 li {
-  margin-bottom: 8px; /* Slightly more space for readability */
+    margin-bottom: 8px; /* Slightly more space for readability */
 }
 
 /* UTILITY CLASSES */
 .highlight-accent {
-  color: var(--accent);
-  font-weight: bold;
+    color: var(--accent);
+    font-weight: bold;
 }
 .price-riser {
-  color: var(--green);
-  font-weight: bold;
+    color: var(--green);
+    font-weight: bold;
 }
 .price-faller {
-  color: var(--red-light);
-  font-weight: bold;
+    color: var(--red-light);
+    font-weight: bold;
 }
 
 /* --- NEW UTILITY CLASS FOR MINUTES PLAYED --- */
@@ -305,18 +190,18 @@ li {
 #most-transferred-list div,
 #most-transferred-out-list div,
 #most-captained-list div {
-  /* Flexbox layout for clean spacing within the row */
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center;
-  font-size: 14px;
-  
-  padding: 10px 12px;
-  margin-bottom: 10px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  transition: background .25s, transform .25s;
+    /* Flexbox layout for clean spacing within the row */
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    font-size: 14px;
+    
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: background .25s, transform .25s;
 }
 
 #standings-list div:hover,
@@ -324,7 +209,7 @@ li {
 #most-transferred-list div:hover,
 #most-transferred-out-list div:hover,
 #most-captained-list div:hover {
-  transform: translateY(-3px);
+    transform: translateY(-3px);
 }
 
 .rank-number {
@@ -355,8 +240,8 @@ li {
 .top-rank,
 .second-rank,
 .third-rank {
-  color: var(--green);
-  font-weight: bold;
+    color: var(--green);
+    font-weight: bold;
 }
 
 /* --- RANK CHANGE STYLES for Mini-League --- */
@@ -391,16 +276,16 @@ li {
 }
 
 #price-changes-list {
-  padding-top: 5px; 
+    padding-top: 5px; 
 }
 
 .price-riser {
-  /* Retained for list-item specific styling */
-  border-left: 5px solid var(--green) !important;
+    /* Retained for list-item specific styling */
+    border-left: 5px solid var(--green) !important;
 }
 .price-faller {
-  /* Retained for list-item specific styling */
-  border-left: 5px solid var(--red-light) !important;
+    /* Retained for list-item specific styling */
+    border-left: 5px solid var(--red-light) !important;
 }
 
 /* Transfers Out styling */
@@ -547,15 +432,15 @@ li {
 /* --- EPL TABLE STYLES --- */
 
 #epl-table-list {
-  overflow-x: auto; 
+    overflow-x: auto; 
 }
 
 #epl-table-list table {
-  width: 100%;
-  border-collapse: separate; 
-  border-spacing: 0 6px;
-  font-size: 13px;
-  text-align: center;
+    width: 100%;
+    border-collapse: separate; 
+    border-spacing: 0 6px;
+    font-size: 13px;
+    text-align: center;
 }
 
 #epl-table-list thead th,
@@ -566,30 +451,30 @@ li {
 
 #epl-table-list th, 
 #epl-table-list td {
-  padding: 10px 5px;
-  white-space: nowrap;
+    padding: 10px 5px;
+    white-space: nowrap;
 }
 
 #epl-table-list thead th {
-  background-color: var(--border);
-  font-weight: 700;
-  color: var(--subtext);
-  position: sticky;
-  top: 0;
+    background-color: var(--border);
+    font-weight: 700;
+    color: var(--subtext);
+    position: sticky;
+    top: 0;
 }
 
 #epl-table-list tbody tr {
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-  transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s, background 0.2s;
 }
 
 #epl-table-list tbody td:first-child {
-  font-weight: bold;
-  border-left: 4px solid transparent;
+    font-weight: bold;
+    border-left: 4px solid transparent;
 }
 
 #epl-table-list tbody td:nth-child(2) {
-  text-align: left;
+    text-align: left;
 }
 
 /* Zone Highlighting */
@@ -602,29 +487,29 @@ li {
 
 /* BACK TO TOP BUTTON (REDUCED SIZE) */
 #backToTop {
-  position: fixed;
-  bottom: 20px; 
-  right: 20px; 
-  background: var(--accent); 
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 40px; 
-  height: 40px; 
-  font-size: 20px; 
-  display: none; 
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 999;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.4); 
-  transition: background 0.3s, transform 0.25s, box-shadow 0.3s;
+    position: fixed;
+    bottom: 20px; 
+    right: 20px; 
+    background: var(--accent); 
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 40px; 
+    height: 40px; 
+    font-size: 20px; 
+    display: none; 
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 999;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4); 
+    transition: background 0.3s, transform 0.25s, box-shadow 0.3s;
 }
 
 #backToTop:hover {
-  background: var(--accent-hover);
-  transform: scale(1.1);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    background: var(--accent-hover);
+    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
 #backToTop:focus {
@@ -634,24 +519,24 @@ li {
 
 /* THEME TOGGLE BUTTON (REDUCED SIZE) */
 #themeToggle {
-  position: fixed;
-  top: 20px;
-  right: 20px; 
-  background: var(--card-bg); 
-  color: var(--text); 
-  border: 1px solid var(--border);
-  padding: 6px 10px; 
-  border-radius: 40px;
-  cursor: pointer;
-  font-size: 13px; 
-  box-shadow: 0 1px 6px rgba(0,0,0,0.15); 
-  transition: background 0.3s, color 0.3s, border 0.3s, transform 0.25s;
-  z-index: 999;
+    position: fixed;
+    top: 20px;
+    right: 20px; 
+    background: var(--card-bg); 
+    color: var(--text); 
+    border: 1px solid var(--border);
+    padding: 6px 10px; 
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 13px; 
+    box-shadow: 0 1px 6px rgba(0,0,0,0.15); 
+    transition: background 0.3s, color 0.3s, border 0.3s, transform 0.25s;
+    z-index: 999;
 }
 
 #themeToggle:hover {
-  background: var(--border); 
-  transform: scale(1.05);
+    background: var(--border); 
+    transform: scale(1.05);
 }
 
 #themeToggle:focus {
@@ -661,33 +546,33 @@ li {
 
 /* LOADER - FPL COLORFUL STYLE */
 .loader {
-  width: 30px; 
-  height: 30px;
-  /* Use card background for the 'inner' part of the circle for better contrast */
-  border: 4px solid var(--card-bg); 
-  /* Initial colors using FPL primary accent */
-  border-top-color: var(--accent); 
-  border-right-color: var(--loader-color-2);
-  border-bottom-color: var(--loader-color-3); 
-  border-radius: 50%;
-  /* Using Material-style cubic-bezier for smoother acceleration/deceleration */
-  animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
-  margin: 30px auto; 
+    width: 30px; 
+    height: 30px;
+    /* Use card background for the 'inner' part of the circle for better contrast */
+    border: 4px solid var(--card-bg); 
+    /* Initial colors using FPL primary accent */
+    border-top-color: var(--accent); 
+    border-right-color: var(--loader-color-2);
+    border-bottom-color: var(--loader-color-3); 
+    border-radius: 50%;
+    /* Using Material-style cubic-bezier for smoother acceleration/deceleration */
+    animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
+    margin: 30px auto; 
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* LAZY LOAD */
 .lazy {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity .8s ease, transform .8s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity .8s ease, transform .8s ease;
 }
 .lazy-loaded {
-  opacity: 1;
-  transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
 }
 
 
@@ -754,4 +639,118 @@ footer .disclaimer {
     margin-top: 10px;
     font-size: 0.75em;
     opacity: 0.7;
+}
+
+/* --- NEW NAVIGATION STYLES --- */
+#main-nav {
+    width: 100%;
+    /* Use the main container max-width to center the nav */
+    max-width: 760px; 
+    margin: 0 auto 35px auto; /* Add space below the nav */
+    background-color: var(--card-bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 0;
+    position: sticky; /* Keep the nav visible when scrolling */
+    top: 0;
+    z-index: 900;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: center; /* Center links on desktop */
+    align-items: center;
+    padding: 0 10px;
+}
+
+/* 1. Desktop Links (Default) */
+.nav-links {
+    list-style: none;
+    display: flex; /* Horizontal layout for desktop */
+    padding: 0;
+    margin: 0;
+}
+
+.nav-links li a {
+    display: block;
+    /* REDUCED DESKTOP PADDING */
+    padding: 10px 18px; 
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 14px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-links li a:hover {
+    color: var(--accent);
+    background-color: var(--border);
+}
+
+/* 2. Hamburger Button (Hidden on Desktop) */
+.hamburger {
+    display: none; /* Hide the hamburger icon by default on desktop */
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 24px;
+    padding: 10px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* --- MEDIA QUERY FOR MOBILE VIEW (e.g., screens under 600px) --- */
+@media (max-width: 600px) {
+    
+    #main-nav {
+        margin: 0 auto 25px auto;
+        padding: 5px 0; /* Add a little vertical padding */
+    }
+
+    .nav-container {
+        justify-content: flex-start; /* Move hamburger to the left */
+        position: relative;
+    }
+
+    /* 2. Show Hamburger Icon */
+    .hamburger {
+        display: block; 
+    }
+
+    /* 1. Stack Links Vertically (Hidden by default) */
+    .nav-links {
+        /* This is the key: collapse the menu */
+        display: none; 
+        
+        position: absolute;
+        top: 100%; /* Position below the nav container */
+        left: 0;
+        width: 100%;
+        flex-direction: column; /* Stack vertically */
+        background-color: var(--card-bg);
+        border-top: 1px solid var(--border);
+        padding-top: 5px;
+        z-index: 950;
+    }
+    
+    .nav-links.active {
+        display: flex; /* Show menu when 'active' class is added via JS */
+    }
+
+    .nav-links li {
+        width: 100%;
+        border-bottom: 1px solid var(--border);
+    }
+    .nav-links li:last-child {
+        border-bottom: none;
+    }
+
+    .nav-links li a {
+        /* REDUCED MOBILE PADDING */
+        padding: 8px 20px;
+        font-size: 16px;
+        font-weight: 500;
+    }
+    
 }
