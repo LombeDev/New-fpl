@@ -7,7 +7,8 @@
     --border: #e5e5e5;
     --accent: #37003C; /* FPL Purple */
     --accent-hover: #530055;
-    --green: #2EA043; /* GitHub green */
+    --green: #2EA043; /* GitHub green - used for price risers */
+    --nav-green-dark: #1E824C; /* NEW: Slightly darker green for the nav bar */
     --red-light: #CF3A46; /* Custom light red for fallers */
     --blue-cl: #2196F3; /* Custom blue for CL zone */
     --orange-el: #FF9800; /* Custom orange for EL zone */
@@ -38,6 +39,7 @@ body.dark-mode {
     --accent: #238636;         /* GitHub green button color */
     --accent-hover: #2ea043;
     --green: #3fb950;          /* Highlight text (riser) */
+    --nav-green-dark: #238636; /* NEW: Dark green for nav bar in dark mode */
     --red-light: #f85149;      /* GitHub red */
     --blue-cl: #64b5f6;        /* Lighter blue for dark mode */
     --orange-el: #ffb74d;      /* Lighter orange for dark mode */
@@ -69,8 +71,6 @@ body {
     background-color: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    /* CHANGE: Use padding-left/right to keep main content centered,
-       and remove padding-top so the full-width nav can stick to the very top. */
     padding-top: 0;
     padding-left: 22px;
     padding-right: 22px;
@@ -119,9 +119,9 @@ h2 {
 header h2 {
     font-size: 18px; 
     font-weight: 600; 
-    color: var(--accent); /* Draw attention to the value prop */
+    color: var(--accent); 
     margin-top: 0px;
-    margin-bottom: 30px; /* Space before the welcome card */
+    margin-bottom: 30px; 
 }
 
 /* SECTIONS STANDARD CARD STYLE */
@@ -137,13 +137,13 @@ section {
 
 /* WELCOME SECTION - Elevated with Accent Ribbon */
 #welcome {
-    border-top: 6px solid var(--accent); /* Ribbon effect */
+    border-top: 6px solid var(--accent); 
     padding-top: 18px; 
 }
 
 /* WELCOME SECTION TEXT */
 #welcome p {
-    margin-bottom: 15px; /* Better spacing between paragraphs */
+    margin-bottom: 15px; 
 }
 #welcome p,
 #welcome li {
@@ -157,11 +157,11 @@ ul {
     margin-top: 10px;
     margin-bottom: 10px;
     padding-left: 0;
-    list-style: none; /* Removed default bullets for clean look */
+    list-style: none; 
 }
 
 li {
-    margin-bottom: 8px; /* Slightly more space for readability */
+    margin-bottom: 8px; 
 }
 
 /* UTILITY CLASSES */
@@ -180,11 +180,11 @@ li {
 
 /* --- NEW UTILITY CLASS FOR MINUTES PLAYED --- */
 .minutes-played {
-    font-weight: 500; /* Less bold than score/points */
-    color: var(--subtext); /* Muted color */
+    font-weight: 500; 
+    color: var(--subtext); 
     font-size: 12px;
-    white-space: nowrap; /* Keep it on one line */
-    margin-left: 8px; /* Slight separation from player name/price */
+    white-space: nowrap; 
+    margin-left: 8px; 
 }
 /* --- END NEW UTILITY CLASS --- */
 
@@ -194,7 +194,6 @@ li {
 #most-transferred-list div,
 #most-transferred-out-list div,
 #most-captained-list div {
-    /* Flexbox layout for clean spacing within the row */
     display: flex; 
     justify-content: space-between; 
     align-items: center;
@@ -268,11 +267,9 @@ li {
 }
 
 .price-riser {
-    /* Retained for list-item specific styling */
     border-left: 5px solid var(--green) !important;
 }
 .price-faller {
-    /* Retained for list-item specific styling */
     border-left: 5px solid var(--red-light) !important;
 }
 
@@ -536,14 +533,11 @@ li {
 .loader {
     width: 30px; 
     height: 30px;
-    /* Use card background for the 'inner' part of the circle for better contrast */
     border: 4px solid var(--card-bg); 
-    /* Initial colors using FPL primary accent */
     border-top-color: var(--accent); 
     border-right-color: var(--loader-color-2);
     border-bottom-color: var(--loader-color-3); 
     border-radius: 50%;
-    /* Using Material-style cubic-bezier for smoother acceleration/deceleration */
     animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
     margin: 30px auto; 
 }
@@ -572,21 +566,21 @@ li {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: var(--bg); /* Matches site background */
+    background-color: var(--bg); 
     color: var(--text);
-    z-index: 10000; /* Ensures it is on top of everything */
+    z-index: 10000; 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    transition: opacity 0.5s ease-out; /* Smooth fade-out */
+    transition: opacity 0.5s ease-out; 
 }
 
 #loading-overlay h1 {
     font-size: 50px;
     margin-bottom: 5px;
-    color: var(--accent); /* Brand color */
+    color: var(--accent); 
 }
 
 #loading-overlay p {
@@ -615,7 +609,6 @@ footer .social-links a {
     text-decoration: none;
     margin: 0 10px;
     transition: color 0.3s ease;
-    /* This makes the Font Awesome icons look slightly bigger */
     font-size: 1.5em; 
 }
 
@@ -636,10 +629,10 @@ footer .disclaimer {
 #main-nav {
     width: 100%;
     margin-bottom: 35px;
-    /* MODIFIED: Green background from the image */
-    background-color: var(--green); 
+    /* USING THE DARKER GREEN VARIABLE */
+    background-color: var(--nav-green-dark); 
     border-radius: 0; 
-    border: none; /* Remove border for solid color block */
+    border: none; 
     box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
     padding: 0;
     position: sticky; 
@@ -652,31 +645,30 @@ footer .disclaimer {
     margin: 0 auto;
     
     display: flex;
-    /* Pushes left and right sections to the edges */
     justify-content: space-between; 
     align-items: center; 
     padding: 0; 
-    height: 50px; /* Define the height of the bar */
+    height: 50px; 
 }
 
 /* 1. LEFT AND RIGHT SECTIONS (Icon Containers) */
 .nav-left, 
 .nav-right {
-    width: 60px; /* Fixed width for the icon box */
+    width: 60px; 
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* Specific styling for the right-hand icon background (Black from the image) */
+/* Specific styling for the right-hand icon background (Black) */
 .nav-right {
     background-color: #242424; 
 }
 
 /* 2. CENTER SECTION (Logo) */
 .nav-logo {
-    flex-grow: 1; /* Takes up all remaining horizontal space */
+    flex-grow: 1; 
     text-align: center; 
     height: 100%; 
     display: flex; 
@@ -685,7 +677,6 @@ footer .disclaimer {
 }
 
 .nav-logo .logo-image {
-    /* Adjust logo height to fit the bar, maintaining aspect ratio */
     max-height: 80%; 
     width: auto;
 }
@@ -699,8 +690,8 @@ footer .disclaimer {
     font-size: 24px;
     cursor: pointer;
     line-height: 1;
-    width: 100%; /* Fill the container width */
-    height: 100%; /* Fill the container height */
+    width: 100%; 
+    height: 100%; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -718,41 +709,33 @@ footer .disclaimer {
     
     #main-nav {
         margin: 0 auto 25px auto;
-        /* Vertical padding was reduced previously, kept tight */
-        padding: 0; /* Changed to 0 as height is fixed */
+        padding: 0; 
     }
 
     .nav-container {
-        /* Mobile layout keeps the three-part structure, which is common for mobile apps */
         justify-content: space-between; 
         position: relative;
     }
 
-    /* 2. Show Hamburger Icon */
-    /* This rule is now redundant as .hamburger is always visible in the new structure */
     .hamburger {
         display: flex; 
     }
 
     /* 1. Stack Links Vertically (Hidden by default) */
     .nav-links {
-        /* This is the key: collapse the menu below the nav bar */
         display: none; 
         
         position: absolute;
-        /* Position below the main nav bar */
         top: 50px; 
         left: 0;
         width: 100%;
-        flex-direction: column; /* Stack vertically */
-        /* Use card-bg for the dropdown menu background */
+        flex-direction: column; 
         background-color: var(--card-bg); 
         border-top: 1px solid var(--border);
         padding-top: 5px;
         z-index: 950;
     }
     
-    /* When 'active' class is added via JS, show the links */
     .nav-links.active {
         display: flex; 
     }
@@ -766,11 +749,10 @@ footer .disclaimer {
     }
 
     .nav-links li a {
-        /* TIGHTEST MOBILE PADDING & SIZE: 4px vertical, 6px horizontal, 14px font */
         padding: 4px 6px;
         font-size: 14px;
         font-weight: 500;
-        color: var(--text); /* Ensure links are readable against card-bg */
+        color: var(--text); 
     }
     
 }
