@@ -19,8 +19,6 @@ let teamMap = {}; // ID -> Abbreviation (e.g., 1 -> 'ARS')
 let currentGameweekId = null; 
 let playerMap = {}; // Player ID -> Player Name (essential for stats)
 
-// Note: MY_ENTRY_ID has been removed.
-
 // ----------------------------------------------------------------------
 // 2. SIDE MENU FUNCTIONALITY
 // ----------------------------------------------------------------------
@@ -169,17 +167,93 @@ async function loadFPLBootstrapData() {
         loadMostTransferred(data); 
         loadMostTransferredOut(data); 
         loadMostCaptained(data);
-        loadPlayerStatusUpdates(data); // Player status is still included
+        loadPlayerStatusUpdates(data); 
+        
+        // --- NEW: Load Dream Team (uses the latest finished GW data) ---
+        loadDreamTeam(data);
 
     } catch (err) {
         console.error("Error fetching FPL Bootstrap data:", err);
-        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list", "player-status-list"];
+        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list", "player-status-list", "dream-team-list"];
         sections.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.textContent = "Failed to load data. Check FPL API/Proxy/Network.";
         });
     }
 }
+
+// 👑 FPL DREAM TEAM (NEW FUNCTION)
+async function loadDreamTeam(data) {
+    const container = document.getElementById("dream-team-list");
+    if (!container || !data || !data.events || !data.elements) return;
+
+    // 1. Find the latest FINISHED Gameweek
+    const finishedEvents = data.events.filter(e => e.finished).sort((a, b) => b.id - a.id);
+    const lastFinishedEvent = finishedEvents.length > 0 ? finishedEvents[0] : null;
+
+    if (!lastFinishedEvent || !lastFinishedEvent.top_element_info) {
+        container.innerHTML = "<h3>Dream Team</h3><p>Dream Team data is not available yet (no Gameweek has finished).</p>";
+        return;
+    }
+
+    const dreamTeamGW = lastFinishedEvent.id;
+    const topPlayerId = lastFinishedEvent.top_element;
+    const dreamTeamId = lastFinishedEvent.top_element_info;
+    const maxPoints = data.elements.find(p => p.id === topPlayerId)?.event_points || 'N/A';
+
+    // 2. Prepare the list of dream team player IDs
+    const dreamTeamPlayers = Object.entries(dreamTeamId)
+        .map(([playerId, _]) => parseInt(playerId)); // Extract and parse player IDs
+
+    // 3. Populate the list
+    container.innerHTML = `<h3>Dream Team (GW ${dreamTeamGW})</h3>`;
+    const list = document.createElement('ul');
+    list.classList.add('dream-team-list-items');
+    
+    // Position ordering: GK (1), DEF (2), MID (3), FWD (4)
+    const positionOrder = { 1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD' };
+
+    const playerDetails = data.elements
+        .filter(p => dreamTeamPlayers.includes(p.id))
+        .map(p => ({
+            name: `${p.first_name} ${p.second_name}`,
+            team: teamMap[p.team] || 'N/A',
+            position: p.element_type, // 1=GK, 2=DEF, 3=MID, 4=FWD
+            points: p.event_points,
+            isStarMan: p.id === topPlayerId
+        }))
+        // Sort by position and then by points descending
+        .sort((a, b) => a.position - b.position || b.points - a.points);
+    
+    playerDetails.forEach((p, index) => {
+        setTimeout(() => {
+            const listItem = document.createElement('li');
+            listItem.classList.add(p.isStarMan ? 'star-player' : 'team-player');
+            
+            // Get position abbreviation
+            const posAbbr = positionOrder[p.position] || 'N/A';
+
+            listItem.innerHTML = `
+                <span class="player-position ${posAbbr.toLowerCase()}">${posAbbr}</span>
+                <span class="player-name-dream">${p.name} (${p.team})</span>
+                <span class="player-points-dream ${p.isStarMan ? 'highlight-points' : ''}">
+                    ${p.points} Pts ${p.isStarMan ? '⭐' : ''}
+                </span>
+            `;
+            list.appendChild(listItem);
+        }, index * 40);
+    });
+
+    container.appendChild(list);
+    container.innerHTML += `<p class="max-points-info">Total Points Scored by Dream Team: <span class="highlight-accent">${maxPoints}</span></p>`;
+
+
+} catch (err) {
+    console.error("Error loading Dream Team:", err);
+    container.innerHTML = "<h3>Dream Team</h3><p>Failed to load Dream Team data.</p>";
+}
+}
+
 
 // 🚨 PLAYER STATUS UPDATES (INJURY/SUSPENSIONS)
 async function loadPlayerStatusUpdates(data) {
@@ -230,8 +304,6 @@ async function loadPlayerStatusUpdates(data) {
     
     container.appendChild(list);
 }
-
-// Note: loadMyTeamSelection function has been removed.
 
 // 📅 CURRENT GAMEWEEK FIXTURES 
 async function loadCurrentGameweekFixtures() {
@@ -435,86 +507,4 @@ async function loadMostTransferred(data) {
   if (!container || !data || !data.elements) return;
   
   const topTransferred = data.elements
-    .sort((a, b) => b.transfers_in_event - a.transfers_in_event)
-    .slice(0, 10); 
-
-  container.innerHTML = "<h3>Most Transferred In (This GW) ➡️</h3>";
-
-  topTransferred.forEach((p, index) => {
-    setTimeout(() => {
-      const div = document.createElement("div");
-      const transfers = p.transfers_in_event.toLocaleString();
-      const playerPrice = (p.now_cost / 10).toFixed(1);
-
-      const teamAbbreviation = teamMap[p.team] || 'N/A';
-
-      div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers`;
-      
-      container.appendChild(div);
-    }, index * 30);
-  });
-}
-
-// ⬅️ MOST TRANSFERRED OUT 
-async function loadMostTransferredOut(data) {
-  const container = document.getElementById("most-transferred-out-list");
-  if (!container || !data || !data.elements) return;
-  
-  const topTransferredOut = data.elements
-    .sort((a, b) => b.transfers_out_event - a.transfers_out_event)
-    .slice(0, 10); 
-
-  container.innerHTML = "<h3>Most Transferred Out (This GW) ⬅️</h3>";
-
-  topTransferredOut.forEach((p, index) => {
-    setTimeout(() => {
-      const div = document.createElement("div");
-      const transfers = p.transfers_out_event.toLocaleString();
-      const playerPrice = (p.now_cost / 10).toFixed(1);
-
-      const teamAbbreviation = teamMap[p.team] || 'N/A';
-
-      div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers out`;
-      
-      div.classList.add("transferred-out"); 
-      
-      container.appendChild(div);
-    }, index * 30);
-  });
-}
-
-
-// ©️ MOST CAPTAINED PLAYER 
-async function loadMostCaptained(data) {
-  const container = document.getElementById("most-captained-list");
-  if (!container || !data || !data.events || !data.elements) return;
-
-  const currentEvent = data.events.find(e => e.is_next || e.is_current); 
-
-  if (!currentEvent || !currentEvent.most_captained) {
-      container.textContent = "Captain data not yet available for this Gameweek.";
-      return;
-  }
-
-  const mostCaptainedId = currentEvent.most_captained;
-  
-  const captain = data.elements.find(p => p.id === mostCaptainedId);
-
-  if (!captain) {
-      container.textContent = "Could not find the most captained player.";
-      return;
-  }
-
-  const playerPrice = (captain.now_cost / 10).toFixed(1);
-  const captaincyPercentage = currentEvent.most_captained_percentage;
-
-  const teamAbbreviation = teamMap[captain.team] || 'N/A';
-
-  container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3>";
-
-  const div = document.createElement("div");
-  div.textContent = `${captain.first_name} ${captain.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${captaincyPercentage}%`;
-  div.classList.add("top-rank"); 
-  
-  container.appendChild(div);
-}
+    .sort((a, b) => b.transfers_in_event - a.transfe
