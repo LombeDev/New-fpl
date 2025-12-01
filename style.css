@@ -190,7 +190,9 @@ li {
 }
 /* --- END NEW UTILITY CLASS --- */
 
-/* --- STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- MODIFIED: STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS (Making them look like a list, not inner cards) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
 #standings-list div,
 #price-changes-list div,
 #most-transferred-list div,
@@ -201,20 +203,34 @@ li {
     align-items: center;
     font-size: 14px;
     
-    padding: 10px 12px;
-    margin-bottom: 10px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    transition: background .25s, transform .25s;
+    padding: 10px 0; /* Reduced vertical padding, removed horizontal padding */
+    margin-bottom: 0; /* Remove margin between rows */
+    background: transparent; /* Remove background color (use parent card background) */
+    border: none; /* Remove border */
+    border-radius: 0; /* Remove border radius */
+    
+    border-bottom: 1px solid var(--border); /* Add a separator line at the bottom */
+    transition: none; /* Remove transition */
 }
 
+/* Remove the hover effect */
 #standings-list div:hover,
 #price-changes-list div:hover,
 #most-transferred-list div:hover,
 #most-transferred-out-list div:hover,
 #most-captained-list div:hover {
-    transform: translateY(-3px);
+    transform: none;
+    background: rgba(0, 0, 0, 0.05); /* Add a subtle background on hover */
+}
+
+/* Remove the bottom border from the last item in each list */
+#standings-list div:last-child,
+#price-changes-list div:last-child,
+#most-transferred-list div:last-child,
+#most-transferred-out-list div:last-child,
+#most-captained-list div:last-child {
+    border-bottom: none;
+    padding-bottom: 0; 
 }
 
 .rank-number {
@@ -222,6 +238,7 @@ li {
     width: 30px; 
     text-align: left;
 }
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
 
 .manager-name {
     flex-grow: 1; 
@@ -268,6 +285,7 @@ li {
     padding-top: 5px; 
 }
 
+/* MODIFIED: Remove inner card border overrides and rely on border-bottom for lines */
 .price-riser {
     border-left: 5px solid var(--green) !important;
 }
@@ -294,18 +312,25 @@ li {
     margin: 0;
 }
 
+/* MODIFIED: Fixtures look also needs to be simplified */
 #fixtures-list li {
     display: flex;
     flex-direction: column; 
     padding: 10px 15px;
-    margin-bottom: 15px; 
-    background: var(--bg);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
+    margin-bottom: 0; /* Remove margin between fixture rows */
+    background: transparent; /* Remove background */
+    border-radius: 0; /* Remove radius */
+    border: none; /* Remove border */
+    border-bottom: 1px solid var(--border); /* Add separator */
     font-weight: 600;
     font-size: 14px;
     transition: all .2s;
     position: relative; 
+}
+
+/* Remove bottom border from last fixture */
+#fixtures-list li:last-child {
+    border-bottom: none;
 }
 
 /* The row containing the score and team names */
@@ -326,7 +351,8 @@ li {
     position: absolute;
     top: 0;
     right: 0;
-    border-top-right-radius: var(--radius);
+    /* Removed custom border-radius to keep it square */
+    border-top-right-radius: 0; 
     border-bottom-left-radius: 8px;
     padding: 3px 8px;
     font-size: 10px;
@@ -336,7 +362,7 @@ li {
 
 /* Live Match Highlight */
 .match-live {
-    border: 1px solid var(--status-live) !important; 
+    border: none !important; /* Remove inner card border */
 }
 .match-live .match-status-tag {
     background-color: var(--status-live);
@@ -416,7 +442,7 @@ li {
 .action-red-card { color: var(--action-red); }
 /* --- END FIXTURE DETAILS --- */
 
-/* --- EPL TABLE STYLES --- */
+/* --- EPL TABLE STYLES (No changes needed here as it uses table styling) --- */
 
 #epl-table-list {
     overflow-x: auto; 
@@ -629,6 +655,7 @@ footer .disclaimer {
 /* ------------------------------------------------ */
 
 #main-nav {
+    /* MODIFIED IN MEDIA QUERY FOR MOBILE */
     width: 100%;
     margin-bottom: 35px;
     /* USING THE DARKER GREEN VARIABLE */
@@ -649,7 +676,6 @@ footer .disclaimer {
     display: flex;
     justify-content: space-between; 
     align-items: center; 
-    /* NOTE: Default padding is 0 here, which will be overridden in the media query */
     padding: 0; 
     height: 50px; 
 }
@@ -718,15 +744,21 @@ footer .disclaimer {
         padding-right: 10px;
     }
     
-    /* NEW: Apply the same reduced padding to the inner navigation container */
-    .nav-container {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-
     #main-nav {
         margin: 0 auto 25px auto;
         padding: 0; 
+        
+        /* NEW CHANGE: Pull the nav bar out to cover the body padding */
+        margin-left: -10px;
+        margin-right: -10px;
+        width: calc(100% + 20px); 
+    }
+
+    /* Keep the inner container padding to ensure the logo and icons are not touching the edge */
+    .nav-container {
+        padding-left: 10px;
+        padding-right: 10px;
+        max-width: none; /* Allows the container to stretch the full width of the #main-nav */
     }
 
     .nav-container {
@@ -744,9 +776,9 @@ footer .disclaimer {
         
         position: absolute;
         top: 50px; 
-        /* The left position needs to account for the padding added to .nav-container */
+        /* The left position needs to align with the 10px padding of the .nav-container */
         left: 10px; 
-        width: calc(100% - 20px); /* 100% minus 10px left and 10px right padding */
+        width: calc(100% - 20px); /* 100% minus 10px left and 10px right padding of .nav-container */
         flex-direction: column; 
         background-color: var(--card-bg); 
         border-top: 1px solid var(--border);
