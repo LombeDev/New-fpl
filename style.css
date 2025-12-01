@@ -69,14 +69,18 @@ body {
     background-color: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding: 22px;
+    /* CHANGE: Use padding-left/right to keep main content centered,
+       and remove padding-top so the full-width nav can stick to the very top. */
+    padding-top: 0;
+    padding-left: 22px;
+    padding-right: 22px;
     transition: background .3s, color .3s;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* MAIN CONTAINER */
+/* MAIN CONTAINER (The main content area) */
 main {
     width: 100%;
     max-width: 760px;
@@ -644,20 +648,26 @@ footer .disclaimer {
 /* --- NEW NAVIGATION STYLES --- */
 #main-nav {
     width: 100%;
-    /* Use the main container max-width to center the nav */
-    max-width: 760px; 
-    margin: 0 auto 35px auto; /* Add space below the nav */
+    /* REMOVED: max-width: 760px; */
+    /* REMOVED: margin: 0 auto 35px auto; */
+    margin-bottom: 35px; /* Keep space below the nav */
     background-color: var(--card-bg);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
+    border-radius: 0; /* REMOVED: var(--radius) for full width edge-to-edge */
+    border-left: none;
+    border-right: none;
+    border: 1px solid var(--border); /* Keep top/bottom border */
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     padding: 0;
-    position: sticky; /* Keep the nav visible when scrolling */
+    position: sticky; 
     top: 0;
     z-index: 900;
 }
 
 .nav-container {
+    /* NEW: Add max-width here to contain the links */
+    max-width: 760px; 
+    margin: 0 auto;
+    
     display: flex;
     justify-content: center; /* Center links on desktop */
     align-items: center;
@@ -674,7 +684,7 @@ footer .disclaimer {
 
 .nav-links li a {
     display: block;
-    /* FURTHER REDUCED DESKTOP PADDING (6px top/bottom) */
+    /* REDUCED DESKTOP PADDING */
     padding: 6px 18px; 
     text-decoration: none;
     color: var(--text);
@@ -705,7 +715,6 @@ footer .disclaimer {
     
     #main-nav {
         margin: 0 auto 25px auto;
-        /* Slightly reduced padding here as well */
         padding: 3px 0; 
     }
 
@@ -748,7 +757,7 @@ footer .disclaimer {
     }
 
     .nav-links li a {
-        /* FURTHER REDUCED MOBILE PADDING (5px top/bottom) */
+        /* REDUCED MOBILE PADDING */
         padding: 5px 20px;
         font-size: 16px;
         font-weight: 500;
