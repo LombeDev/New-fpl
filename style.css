@@ -629,18 +629,18 @@ footer .disclaimer {
     opacity: 0.7;
 }
 
-/* --- NEW NAVIGATION STYLES --- */
+/* ------------------------------------------------ */
+/* --- MODIFIED NAVIGATION STYLES FOR CENTERED LOGO --- */
+/* ------------------------------------------------ */
+
 #main-nav {
     width: 100%;
-    /* REMOVED: max-width: 760px; */
-    /* REMOVED: margin: 0 auto 35px auto; */
-    margin-bottom: 35px; /* Keep space below the nav */
-    background-color: var(--card-bg);
-    border-radius: 0; /* REMOVED: var(--radius) for full width edge-to-edge */
-    border-left: none;
-    border-right: none;
-    border: 1px solid var(--border); /* Keep top/bottom border */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: 35px;
+    /* MODIFIED: Green background from the image */
+    background-color: var(--green); 
+    border-radius: 0; 
+    border: none; /* Remove border for solid color block */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
     padding: 0;
     position: sticky; 
     top: 0;
@@ -648,89 +648,113 @@ footer .disclaimer {
 }
 
 .nav-container {
-    /* NEW: Add max-width here to contain the links */
     max-width: 760px; 
     margin: 0 auto;
     
     display: flex;
-    justify-content: center; /* Center links on desktop */
+    /* Pushes left and right sections to the edges */
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 0; 
+    height: 50px; /* Define the height of the bar */
+}
+
+/* 1. LEFT AND RIGHT SECTIONS (Icon Containers) */
+.nav-left, 
+.nav-right {
+    width: 60px; /* Fixed width for the icon box */
+    height: 100%;
+    display: flex;
     align-items: center;
-    padding: 0 10px;
+    justify-content: center;
 }
 
-/* 1. Desktop Links (Default) */
-.nav-links {
-    list-style: none;
-    display: flex; /* Horizontal layout for desktop */
-    padding: 0;
-    margin: 0;
+/* Specific styling for the right-hand icon background (Black from the image) */
+.nav-right {
+    background-color: #242424; 
 }
 
-.nav-links li a {
-    display: block;
-    /* TIGHTEST DESKTOP PADDING: 6px vertical, 8px horizontal */
-    padding: 6px 8px; 
-    text-decoration: none;
-    color: var(--text);
-    font-weight: 600;
-    font-size: 14px;
-    transition: background-color 0.2s, color 0.2s;
+/* 2. CENTER SECTION (Logo) */
+.nav-logo {
+    flex-grow: 1; /* Takes up all remaining horizontal space */
+    text-align: center; 
+    height: 100%; 
+    display: flex; 
+    justify-content: center;
+    align-items: center;
 }
 
-.nav-links li a:hover {
-    color: var(--accent);
-    background-color: var(--border);
+.nav-logo .logo-image {
+    /* Adjust logo height to fit the bar, maintaining aspect ratio */
+    max-height: 80%; 
+    width: auto;
 }
 
-/* 2. Hamburger Button (Hidden on Desktop) */
-.hamburger {
-    display: none; /* Hide the hamburger icon by default on desktop */
+/* 3. ICON STYLING (Hamburger & Three Dots) */
+.hamburger, 
+.nav-dots {
     background: none;
     border: none;
-    color: var(--text);
+    color: #fff; /* White icon color */
     font-size: 24px;
-    padding: 10px;
     cursor: pointer;
     line-height: 1;
+    width: 100%; /* Fill the container width */
+    height: 100%; /* Fill the container height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* --- MEDIA QUERY FOR MOBILE VIEW (e.g., screens under 600px) --- */
+/* Hiding desktop links, as the design uses the logo-centric bar */
+.nav-links {
+    display: none; 
+}
+/* --- END MODIFIED NAVIGATION STYLES --- */
+
+
+/* --- ORIGINAL MEDIA QUERY FOR MOBILE VIEW (e.g., screens under 600px) --- */
 @media (max-width: 600px) {
     
     #main-nav {
         margin: 0 auto 25px auto;
         /* Vertical padding was reduced previously, kept tight */
-        padding: 3px 0; 
+        padding: 0; /* Changed to 0 as height is fixed */
     }
 
     .nav-container {
-        justify-content: flex-start; /* Move hamburger to the left */
+        /* Mobile layout keeps the three-part structure, which is common for mobile apps */
+        justify-content: space-between; 
         position: relative;
     }
 
     /* 2. Show Hamburger Icon */
+    /* This rule is now redundant as .hamburger is always visible in the new structure */
     .hamburger {
-        display: block; 
+        display: flex; 
     }
 
     /* 1. Stack Links Vertically (Hidden by default) */
     .nav-links {
-        /* This is the key: collapse the menu */
+        /* This is the key: collapse the menu below the nav bar */
         display: none; 
         
         position: absolute;
-        top: 100%; /* Position below the nav container */
+        /* Position below the main nav bar */
+        top: 50px; 
         left: 0;
         width: 100%;
         flex-direction: column; /* Stack vertically */
-        background-color: var(--card-bg);
+        /* Use card-bg for the dropdown menu background */
+        background-color: var(--card-bg); 
         border-top: 1px solid var(--border);
         padding-top: 5px;
         z-index: 950;
     }
     
+    /* When 'active' class is added via JS, show the links */
     .nav-links.active {
-        display: flex; /* Show menu when 'active' class is added via JS */
+        display: flex; 
     }
 
     .nav-links li {
@@ -746,6 +770,7 @@ footer .disclaimer {
         padding: 4px 6px;
         font-size: 14px;
         font-weight: 500;
+        color: var(--text); /* Ensure links are readable against card-bg */
     }
     
 }
