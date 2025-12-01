@@ -237,6 +237,11 @@ li {
     font-weight: 700;
     width: 30px; 
     text-align: left;
+    
+    /* --- FIX: Attempt to crop the dash line by hiding text overflow (If dash is hardcoded in HTML/JS) --- */
+    overflow: hidden; 
+    white-space: nowrap;
+    /* --- END FIX --- */
 }
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
@@ -412,12 +417,25 @@ li {
 }
 
 
-/* --- FIXTURE DETAILS (GOALS/ASSISTS/CARDS) STYLES --- */
-.fixture-details {
+/* --- FIXTURE DETAILS & BONUS CONTAINER (NEW LAYOUT) --- */
+
+/* Parent container for details and bonus points */
+.fixture-footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     width: 100%;
-    margin-top: 10px;
+    margin-top: 10px; 
     padding-top: 8px;
-    border-top: 1px dashed var(--border);
+    border-top: 1px dashed var(--border); /* Dashed separator line */
+}
+
+.fixture-details {
+    /* Set details to take up the majority of the space (Goals/Assists) */
+    width: 65%; 
+    margin: 0; /* Remove old margin/padding */
+    padding: 0; 
+    border-top: none; /* Remove old dashed border */
     font-size: 12px;
     line-height: 1.6;
     color: var(--subtext);
@@ -440,7 +458,76 @@ li {
 .action-goal { color: var(--action-goal); }
 .action-assist { color: var(--action-assist); }
 .action-red-card { color: var(--action-red); }
-/* --- END FIXTURE DETAILS --- */
+
+/* --- BONUS POINTS CONTAINER STYLES (RIGHT COLUMN) --- */
+.bonus-container {
+    width: 30%; /* Allocate about 1/3 of the space */
+    background: transparent;
+    padding: 0 0 5px 10px;
+    text-align: right;
+    font-size: 12px;
+}
+
+.bonus-header {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--subtext);
+    margin-bottom: 5px;
+    text-align: right;
+}
+
+/* Individual Bonus Player Row */
+.bonus-player {
+    display: flex;
+    justify-content: flex-end; /* Aligns content to the right */
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+/* Bonus Rank Circle (3, 2, 1) */
+.bonus-rank-badge {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--card-bg); /* White text color */
+    font-weight: 700;
+    font-size: 10px;
+    margin-left: 5px;
+}
+
+/* 3 Bonus Points */
+.bonus-rank-3 {
+    background-color: #f39c12; /* Amber/Orange */
+}
+
+/* 2 Bonus Points */
+.bonus-rank-2 {
+    background-color: #95a5a6; /* Silver/Grey */
+}
+
+/* 1 Bonus Point */
+.bonus-rank-1 {
+    background-color: #c0392b; /* Bronze/Red */
+}
+
+.bonus-points-value {
+    font-weight: 700;
+    margin-left: 3px;
+    color: var(--text);
+}
+
+.bonus-player-name {
+    margin-right: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
+/* --- END BONUS POINTS CONTAINER STYLES --- */
+/* --- END FIXTURE DETAILS & BONUS CONTAINER --- */
 
 /* --- EPL TABLE STYLES (No changes needed here as it uses table styling) --- */
 
@@ -724,7 +811,17 @@ footer .disclaimer {
     display: flex;
     justify-content: center;
     align-items: center;
+    
+    /* --- FIX: Added transition for smooth effect and scale(1) for no shrink --- */
+    transition: color 0.2s, transform 0.2s; 
 }
+
+/* FIX: Prevents the button from reducing in size/scaling down on click/tap */
+.hamburger:active,
+.nav-dots:active {
+    transform: scale(1);
+}
+/* --- END FIX --- */
 
 /* Hiding desktop links, as the design uses the logo-centric bar */
 .nav-links {
@@ -750,59 +847,4 @@ footer .disclaimer {
         
         /* NEW CHANGE: Pull the nav bar out to cover the body padding */
         margin-left: -10px;
-        margin-right: -10px;
-        width: calc(100% + 20px); 
-    }
-
-    /* Keep the inner container padding to ensure the logo and icons are not touching the edge */
-    .nav-container {
-        padding-left: 10px;
-        padding-right: 10px;
-        max-width: none; /* Allows the container to stretch the full width of the #main-nav */
-    }
-
-    .nav-container {
-        justify-content: space-between; 
-        position: relative;
-    }
-
-    .hamburger {
-        display: flex; 
-    }
-
-    /* 1. Stack Links Vertically (Hidden by default) */
-    .nav-links {
-        display: none; 
-        
-        position: absolute;
-        top: 50px; 
-        /* The left position needs to align with the 10px padding of the .nav-container */
-        left: 10px; 
-        width: calc(100% - 20px); /* 100% minus 10px left and 10px right padding of .nav-container */
-        flex-direction: column; 
-        background-color: var(--card-bg); 
-        border-top: 1px solid var(--border);
-        padding-top: 5px;
-        z-index: 950;
-    }
-    
-    .nav-links.active {
-        display: flex; 
-    }
-
-    .nav-links li {
-        width: 100%;
-        border-bottom: 1px solid var(--border);
-    }
-    .nav-links li:last-child {
-        border-bottom: none;
-    }
-
-    .nav-links li a {
-        padding: 4px 6px;
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--text); 
-    }
-    
-}
+        margin-right
