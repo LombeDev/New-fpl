@@ -1,4 +1,13 @@
 /* -----------------------------------------
+   FPL CONSTANTS
+----------------------------------------- */
+const LEAGUE_ID = "101712"; // <-- Your Mini-League ID
+const FPL_BASE_URL = 'https://fantasy.premierleague.com/api/';
+// Using the more reliable proxy
+const proxy = "https://corsproxy.io/?";
+
+
+/* -----------------------------------------
    LOADING OVERLAY REMOVAL
 ----------------------------------------- */
 window.addEventListener("load", () => {
@@ -59,8 +68,6 @@ lazyElements.forEach((el) => observer.observe(el));
 /* -----------------------------------------
    FPL API FETCHING
 ----------------------------------------- */
-// Using the more reliable proxy
-const proxy = "https://corsproxy.io/?";
 
 // Global variables
 let teamMap = {}; // ID -> Abbreviation (e.g., 1 -> 'ARS')
@@ -79,7 +86,7 @@ window.addEventListener("DOMContentLoaded", () => {
 async function loadFPLBootstrapData() {
     try {
         const data = await fetch(
-            proxy + "https://fantasy.premierleague.com/api/bootstrap-static/"
+            proxy + FPL_BASE_URL + "bootstrap-static/"
         ).then((r) => r.json());
 
         // Create map of team ID to 3-letter abbreviation
@@ -138,7 +145,7 @@ async function loadCurrentGameweekFixtures() {
 
     try {
         const data = await fetch(
-            proxy + "https://fantasy.premierleague.com/api/fixtures/"
+            proxy + FPL_BASE_URL + "fixtures/"
         ).then((r) => r.json());
 
         const currentGWFixtures = data.filter(f => f.event === currentGameweekId);
@@ -273,44 +280,60 @@ async function loadCurrentGameweekFixtures() {
 }
 
 
-// MINI-LEAGUE STANDINGS
+// MINI-LEAGUE STANDINGS (FIXED FOR NEW CSS STRUCTURE)
 async function loadStandings() {
   const container = document.getElementById("standings-list");
   if (!container) return; 
+  
   try {
-    const leagueID = "101712"; 
+    const STANDINGS_ENDPOINT = `leagues-classic/${LEAGUE_ID}/standings/`;
+
     const data = await fetch(
-      proxy + `https://fantasy.premierleague.com/api/leagues-classic/${leagueID}/standings/`
+      proxy + FPL_BASE_URL + STANDINGS_ENDPOINT
     ).then((r) => r.json());
 
+    // Clear the loading content/placeholders from the HTML
     container.innerHTML = "";
-    data.standings.results.forEach((team, index) => {
-      setTimeout(() => {
-        let rankChangeIndicator = '';
-        let rankChangeClass = '';
-        const rankChange = team.rank_change;
+    
+    // Sort results by rank before processing (though the API usually returns them sorted)
+    data.standings.results.sort((a, b) => a.rank - b.rank);
 
-        if (rankChange > 0) {
-            rankChangeIndicator = `▲${rankChange}`;
-            rankChangeClass = 'rank-up';
-        } else if (rankChange < 0) {
-            rankChangeIndicator = `▼${Math.abs(rankChange)}`;
-            rankChangeClass = 'rank-down';
-        } else {
-            rankChangeIndicator = '—';
-            rankChangeClass = 'rank-unchanged';
+    data.standings.results.forEach((team, index) => {
+      // Small delay for staggered fade-in effect
+      setTimeout(() => {
+        
+        let rankChangeValue = team.rank_change;
+        let rankChangeClass = 'rank-unchanged';
+        
+        // Determine the class for the arrow/color styling
+        // FPL API: positive value means dropped rank (down arrow)
+        if (rankChangeValue > 0) {
+            rankChangeClass = 'rank-down'; 
+        // FPL API: negative value means improved rank (up arrow)
+        } else if (rankChangeValue < 0) {
+            rankChangeClass = 'rank-up'; 
         }
         
-        const div = document.createElement("div");
-        div.innerHTML = `${team.rank}. <span class="${rankChangeClass}">${rankChangeIndicator}</span> ${team.player_name} (${team.entry_name}) - ${team.total} pts`;
-        
-        if (team.rank === 1) div.classList.add("top-rank");
-        else if (team.rank === 2) div.classList.add("second-rank");
-        else if (team.rank === 3) div.classList.add("third-rank");
+        // Use Math.abs for the value to display (the CSS handles the arrow/symbol)
+        const rankChangeDisplay = Math.abs(rankChangeValue);
 
+        // 1. Create the main list item (the single card row)
+        const div = document.createElement("div");
+        div.classList.add("manager-row");
+        
+        // 2. Build the inner content using the required CSS classes
+        div.innerHTML = `
+            <span class="rank-number">${team.rank}</span>
+            <span class="manager-name">${team.player_name} (${team.entry_name})</span>
+            <span class="rank-change ${rankChangeClass}">${rankChangeDisplay}</span> 
+            <span class="standings-points">${team.total.toLocaleString()}</span>
+        `;
+        
+        // Append the new row to the container
         container.appendChild(div);
       }, index * 30);
     });
+    
   } catch (err) {
     console.error("Error loading standings:", err);
     container.textContent = "Failed to load standings. Check league ID or proxy.";
