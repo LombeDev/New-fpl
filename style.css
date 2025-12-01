@@ -72,6 +72,7 @@ body {
     color: var(--text);
     min-height: 100vh;
     padding-top: 0;
+    /* BASE PADDING: Used on large screens when max-width is hit */
     padding-left: 22px;
     padding-right: 22px;
     transition: background .3s, color .3s;
@@ -506,7 +507,6 @@ li {
 /* THEME TOGGLE BUTTON (REDUCED SIZE) */
 #themeToggle {
     position: fixed;
-    /* MODIFIED: Moved down to 70px to clear the 50px high nav bar */
     top: 70px; 
     right: 20px; 
     background: var(--card-bg); 
@@ -643,12 +643,13 @@ footer .disclaimer {
 }
 
 .nav-container {
-    max-width: 760px; 
+    max-width: 980px; /* Aligns with the new main content width */
     margin: 0 auto;
     
     display: flex;
     justify-content: space-between; 
     align-items: center; 
+    /* NOTE: Default padding is 0 here, which will be overridden in the media query */
     padding: 0; 
     height: 50px; 
 }
@@ -706,9 +707,23 @@ footer .disclaimer {
 /* --- END MODIFIED NAVIGATION STYLES --- */
 
 
-/* --- ORIGINAL MEDIA QUERY FOR MOBILE VIEW (e.g., screens under 600px) --- */
+/* ------------------------------------------------ */
+/* --- MODIFIED MEDIA QUERY FOR MOBILE VIEW (e.g., screens under 600px) --- */
+/* ------------------------------------------------ */
 @media (max-width: 600px) {
     
+    /* MODIFIED: Reduce side padding on the BODY for a fuller screen look on mobile */
+    body {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    /* NEW: Apply the same reduced padding to the inner navigation container */
+    .nav-container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
     #main-nav {
         margin: 0 auto 25px auto;
         padding: 0; 
@@ -729,8 +744,9 @@ footer .disclaimer {
         
         position: absolute;
         top: 50px; 
-        left: 0;
-        width: 100%;
+        /* The left position needs to account for the padding added to .nav-container */
+        left: 10px; 
+        width: calc(100% - 20px); /* 100% minus 10px left and 10px right padding */
         flex-direction: column; 
         background-color: var(--card-bg); 
         border-top: 1px solid var(--border);
