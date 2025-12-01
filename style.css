@@ -237,6 +237,11 @@ li {
     font-weight: 700;
     width: 30px; 
     text-align: left;
+    
+    /* --- FIX: Attempt to crop the dash line by hiding text overflow --- */
+    overflow: hidden; 
+    white-space: nowrap;
+    /* --- END FIX --- */
 }
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
@@ -724,7 +729,17 @@ footer .disclaimer {
     display: flex;
     justify-content: center;
     align-items: center;
+    
+    /* --- FIX: Added transition for smooth effect and scale(1) for no shrink --- */
+    transition: color 0.2s, transform 0.2s; 
 }
+
+/* FIX: Prevents the button from reducing in size/scaling down on click/tap */
+.hamburger:active,
+.nav-dots:active {
+    transform: scale(1);
+}
+/* --- END FIX --- */
 
 /* Hiding desktop links, as the design uses the logo-centric bar */
 .nav-links {
