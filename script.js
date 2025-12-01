@@ -1,109 +1,50 @@
-// ----------------------------------------------------------------------
-// 1. DOM Element Variables & CORE UTILITIES
-// ----------------------------------------------------------------------
-
-const body = document.body;
-const menuToggle = document.getElementById('menuToggle');
-const sideMenu = document.getElementById('sideMenu');
-const menuCloseBtn = document.getElementById('menuCloseBtn');
-const menuOverlay = document.getElementById('menuOverlay');
-const themeToggle = document.getElementById('themeToggle');
-const loadingOverlay = document.getElementById('loading-overlay');
-const backToTop = document.getElementById('backToTop');
-
-// Using the more reliable proxy
-const proxy = "https://corsproxy.io/?";
-
-// Global variables
-let teamMap = {}; // ID -> Abbreviation (e.g., 1 -> 'ARS')
-let currentGameweekId = null; 
-let playerMap = {}; // Player ID -> Player Name (essential for stats)
-
-// ----------------------------------------------------------------------
-// 2. SIDE MENU FUNCTIONALITY
-// ----------------------------------------------------------------------
-
-function toggleMenu() {
-    body.classList.toggle("menu-open");
-    const isMenuOpen = body.classList.contains('menu-open');
-    menuToggle.setAttribute('aria-expanded', isMenuOpen); 
-}
-
-if (menuToggle) menuToggle.addEventListener("click", toggleMenu);
-if (menuOverlay) menuOverlay.addEventListener("click", toggleMenu);
-if (menuCloseBtn) menuCloseBtn.addEventListener("click", toggleMenu);
-
-if (sideMenu) {
-    sideMenu.querySelectorAll('.nav-list li a').forEach(link => {
-        link.addEventListener('click', (e) => {
-            if (e.target.getAttribute('href').startsWith('#')) {
-                setTimeout(toggleMenu, 100); 
-            }
-        });
-    });
-}
-
-// ----------------------------------------------------------------------
-// 3. DARK MODE TOGGLE AND PERSISTENCE
-// ----------------------------------------------------------------------
-
-function updateThemeIcon() {
-    const isDarkMode = body.classList.contains('dark-mode');
-    const icon = themeToggle ? themeToggle.querySelector('i') : null;
-
-    if (icon) {
-        icon.classList.remove(isDarkMode ? 'fa-moon' : 'fa-sun');
-        icon.classList.add(isDarkMode ? 'fa-sun' : 'fa-moon');
-        themeToggle.setAttribute('aria-label', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
-    }
-}
-
-function setInitialTheme() {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const savedTheme = localStorage.getItem('theme');
-
-    if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
-        body.classList.add('dark-mode');
-    }
-    updateThemeIcon();
-}
-
-function toggleTheme() {
-    body.classList.toggle('dark-mode');
-    
-    if (body.classList.contains('dark-mode')) {
-        localStorage.setItem('theme', 'dark');
-    } else {
-        localStorage.setItem('theme', 'light');
-    }
-    
-    updateThemeIcon();
-}
-
-setInitialTheme();
-
-if (themeToggle) {
-    themeToggle.addEventListener('click', toggleTheme);
-}
-
-// ----------------------------------------------------------------------
-// 4. LOADER, LAZY LOADING & BACK TO TOP
-// ----------------------------------------------------------------------
-
-// Hides the initial loading overlay
+/* -----------------------------------------
+   LOADING OVERLAY REMOVAL
+----------------------------------------- */
 window.addEventListener("load", () => {
-    setTimeout(() => { 
-        if (loadingOverlay) {
-            loadingOverlay.style.opacity = '0';
-            setTimeout(() => {
-                loadingOverlay.style.display = 'none';
-            }, 500); 
-        }
-    }, 900);
+  setTimeout(() => {
+    const overlay = document.getElementById("loading-overlay");
+
+    if (overlay) {
+      // Use opacity and visibility for a smooth fade-out effect
+      overlay.style.opacity = '0';
+      // Remove it from the DOM after the fade-out completes (0.5s from CSS)
+      setTimeout(() => {
+          overlay.style.display = 'none';
+      }, 500); 
+    }
+  }, 900); // Wait 900ms before starting the fade-out
 });
 
-// Lazy Loading Intersection Observer
+/* -----------------------------------------
+   LIGHT / DARK MODE TOGGLE + SAVE
+----------------------------------------- */
+const themeToggle = document.getElementById("themeToggle");
+
+// Load saved preference
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark-mode");
+  themeToggle.textContent = "☀️";
+}
+
+// Toggle on click
+themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("dark-mode");
+
+  if (document.body.classList.contains("dark-mode")) {
+    themeToggle.textContent = "☀️";
+    localStorage.setItem("theme", "dark");
+  } else {
+    themeToggle.textContent = "🌙";
+    localStorage.setItem("theme", "light");
+  }
+});
+
+/* -----------------------------------------
+   LAZY LOADING FADE-IN
+----------------------------------------- */
 const lazyElements = document.querySelectorAll(".lazy");
+
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
@@ -112,44 +53,48 @@ const observer = new IntersectionObserver((entries) => {
     }
   });
 }, { threshold: 0.1 });
+
 lazyElements.forEach((el) => observer.observe(el));
 
-// Back to Top button
-if (backToTop) {
-    window.addEventListener('scroll', () => {
-        backToTop.style.display = window.scrollY > 300 ? 'flex' : 'none';
-    });
-    backToTop.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-}
+/* -----------------------------------------
+   FPL API FETCHING
+----------------------------------------- */
+// Using the more reliable proxy
+const proxy = "https://corsproxy.io/?";
 
+// Global variables
+let teamMap = {}; // ID -> Abbreviation (e.g., 1 -> 'ARS')
+let currentGameweekId = null; 
+let playerMap = {}; // NEW: Player ID -> Player Name (essential for stats)
 
-// ----------------------------------------------------------------------
-// 5. FPL API FETCHING
-// ----------------------------------------------------------------------
-
+// On page load 
 window.addEventListener("DOMContentLoaded", () => {
-  // Start the chain of data loading
+  // Bootstrap data fetch must happen first to get team names and GW ID
   loadFPLBootstrapData();
-  loadStandings(); // Doesn't rely on bootstrap data
+  loadStandings();
+  loadEPLTable();     
 });
 
-/**
- * Fetches core FPL data, creates maps, and triggers dependent functions.
- */
+// Function to fetch bootstrap data, create maps, and initialize dependent loads
 async function loadFPLBootstrapData() {
     try {
         const data = await fetch(
             proxy + "https://fantasy.premierleague.com/api/bootstrap-static/"
         ).then((r) => r.json());
 
-        // Create essential maps
-        data.teams.forEach(team => { teamMap[team.id] = team.short_name; });
-        data.elements.forEach(player => { playerMap[player.id] = `${player.first_name} ${player.second_name}`; });
+        // Create map of team ID to 3-letter abbreviation
+        data.teams.forEach(team => {
+            teamMap[team.id] = team.short_name;
+        });
+
+        // NEW: Create map of Player ID to Full Name
+        data.elements.forEach(player => {
+            playerMap[player.id] = `${player.first_name} ${player.second_name}`;
+        });
         
-        // Determine current Gameweek ID
+        // --- LOGIC FOR CURRENT GAMEWEEK ID ---
         let currentEvent = data.events.find(e => e.is_current);
+
         if (!currentEvent) {
             const finishedEvents = data.events.filter(e => e.finished);
             if (finishedEvents.length > 0) {
@@ -157,159 +102,40 @@ async function loadFPLBootstrapData() {
                 currentEvent = finishedEvents[0];
             }
         }
+
         if (currentEvent) {
             currentGameweekId = currentEvent.id;
         } 
-        
-        // Trigger all dependent loads
+        // --- END LOGIC ---
+
+        // Now that data is ready, load the dependent lists
         loadCurrentGameweekFixtures();
         loadPriceChanges(data); 
         loadMostTransferred(data); 
         loadMostTransferredOut(data); 
         loadMostCaptained(data);
-        loadPlayerStatusUpdates(data); 
-        
-        // --- NEW: Load Dream Team (uses the latest finished GW data) ---
-        loadDreamTeam(data);
 
     } catch (err) {
         console.error("Error fetching FPL Bootstrap data:", err);
-        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list", "player-status-list", "dream-team-list"];
+        // Display generic error message in case of failure
+        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list"];
         sections.forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.textContent = "Failed to load data. Check FPL API/Proxy/Network.";
+            if (el) el.textContent = "Failed to load data. Check FPL API/Proxy.";
         });
     }
 }
 
-// 👑 FPL DREAM TEAM (NEW FUNCTION)
-async function loadDreamTeam(data) {
-    const container = document.getElementById("dream-team-list");
-    if (!container || !data || !data.events || !data.elements) return;
-
-    // 1. Find the latest FINISHED Gameweek
-    const finishedEvents = data.events.filter(e => e.finished).sort((a, b) => b.id - a.id);
-    const lastFinishedEvent = finishedEvents.length > 0 ? finishedEvents[0] : null;
-
-    if (!lastFinishedEvent || !lastFinishedEvent.top_element_info) {
-        container.innerHTML = "<h3>Dream Team</h3><p>Dream Team data is not available yet (no Gameweek has finished).</p>";
-        return;
-    }
-
-    const dreamTeamGW = lastFinishedEvent.id;
-    const topPlayerId = lastFinishedEvent.top_element;
-    const dreamTeamId = lastFinishedEvent.top_element_info;
-    const maxPoints = data.elements.find(p => p.id === topPlayerId)?.event_points || 'N/A';
-
-    // 2. Prepare the list of dream team player IDs
-    const dreamTeamPlayers = Object.entries(dreamTeamId)
-        .map(([playerId, _]) => parseInt(playerId)); // Extract and parse player IDs
-
-    // 3. Populate the list
-    container.innerHTML = `<h3>Dream Team (GW ${dreamTeamGW})</h3>`;
-    const list = document.createElement('ul');
-    list.classList.add('dream-team-list-items');
-    
-    // Position ordering: GK (1), DEF (2), MID (3), FWD (4)
-    const positionOrder = { 1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD' };
-
-    const playerDetails = data.elements
-        .filter(p => dreamTeamPlayers.includes(p.id))
-        .map(p => ({
-            name: `${p.first_name} ${p.second_name}`,
-            team: teamMap[p.team] || 'N/A',
-            position: p.element_type, // 1=GK, 2=DEF, 3=MID, 4=FWD
-            points: p.event_points,
-            isStarMan: p.id === topPlayerId
-        }))
-        // Sort by position and then by points descending
-        .sort((a, b) => a.position - b.position || b.points - a.points);
-    
-    playerDetails.forEach((p, index) => {
-        setTimeout(() => {
-            const listItem = document.createElement('li');
-            listItem.classList.add(p.isStarMan ? 'star-player' : 'team-player');
-            
-            // Get position abbreviation
-            const posAbbr = positionOrder[p.position] || 'N/A';
-
-            listItem.innerHTML = `
-                <span class="player-position ${posAbbr.toLowerCase()}">${posAbbr}</span>
-                <span class="player-name-dream">${p.name} (${p.team})</span>
-                <span class="player-points-dream ${p.isStarMan ? 'highlight-points' : ''}">
-                    ${p.points} Pts ${p.isStarMan ? '⭐' : ''}
-                </span>
-            `;
-            list.appendChild(listItem);
-        }, index * 40);
-    });
-
-    container.appendChild(list);
-    container.innerHTML += `<p class="max-points-info">Total Points Scored by Dream Team: <span class="highlight-accent">${maxPoints}</span></p>`;
-
-
-} catch (err) {
-    console.error("Error loading Dream Team:", err);
-    container.innerHTML = "<h3>Dream Team</h3><p>Failed to load Dream Team data.</p>";
-}
-}
-
-
-// 🚨 PLAYER STATUS UPDATES (INJURY/SUSPENSIONS)
-async function loadPlayerStatusUpdates(data) {
-    const container = document.getElementById("player-status-list");
-    if (!container || !data || !data.elements) return;
-
-    // Filter players who are not 100% likely to play AND have news attached.
-    const flaggedPlayers = data.elements
-        .filter(p => p.chance_of_playing_next_event < 100 && p.news)
-        .sort((a, b) => a.chance_of_playing_next_event - b.chance_of_playing_next_event);
-
-    container.innerHTML = "<h3>Player Status Updates 🚨</h3>";
-
-    if (flaggedPlayers.length === 0) {
-        container.innerHTML += "<p>No major flags or injury news reported for the next Gameweek.</p>";
-        return;
-    }
-
-    const list = document.createElement('ul');
-    list.classList.add('player-status-items');
-
-    flaggedPlayers.forEach((p, index) => {
-        setTimeout(() => {
-            const teamAbbreviation = teamMap[p.team] || 'N/A';
-            const status = p.news;
-            const chance = p.chance_of_playing_next_event; // 0, 25, 50, 75, 100
-
-            let statusClass = 'status-unknown';
-            if (chance === 0) statusClass = 'status-out';
-            else if (chance <= 50) statusClass = 'status-doubtful';
-            else if (chance < 100) statusClass = 'status-slight-doubt';
-
-            const listItem = document.createElement('li');
-            listItem.classList.add(statusClass);
-
-            listItem.innerHTML = `
-                <span class="player-name-flagged">
-                    ${p.first_name} ${p.second_name} (${teamAbbreviation})
-                </span>
-                <span class="player-status-info">
-                    <span class="status-chance">Chance: ${chance}%</span>
-                    — ${status}
-                </span>
-            `;
-            list.appendChild(listItem);
-        }, index * 40); // Stagger the display
-    });
-    
-    container.appendChild(list);
-}
-
-// 📅 CURRENT GAMEWEEK FIXTURES 
+// 📅 CURRENT GAMEWEEK FIXTURES (ENHANCED)
 async function loadCurrentGameweekFixtures() {
     const container = document.getElementById("fixtures-list");
-    if (!container || !currentGameweekId) return;
+    if (!container) return;
     
+    if (!currentGameweekId) {
+        container.innerHTML = "<h3>Gameweek Scores</h3><p>Current Gameweek information is not yet available.</p>";
+        return;
+    }
+
     try {
         const data = await fetch(
             proxy + "https://fantasy.premierleague.com/api/fixtures/"
@@ -331,6 +157,7 @@ async function loadCurrentGameweekFixtures() {
             const homeTeamAbbr = teamMap[fixture.team_h] || `T${fixture.team_h}`;
             const awayTeamAbbr = teamMap[fixture.team_a] || `T${fixture.team_a}`;
             
+            // Determine match status, score display, and status tag text
             let scoreDisplay = `<span class="vs-label">vs</span>`;
             let statusClass = 'match-pending';
             let statusText = 'Upcoming';
@@ -344,13 +171,16 @@ async function loadCurrentGameweekFixtures() {
                 statusClass = 'match-live';
                 statusText = 'Live';
             } else {
+                // For upcoming matches, show the kickoff time
                 const kickoffTime = new Date(fixture.kickoff_time);
+                // Simple formatting, adjust locale options as needed
                 scoreDisplay = `<span class="vs-label-time">${kickoffTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
             }
 
             const listItem = document.createElement('li');
             listItem.classList.add(statusClass);
             
+            // Base fixture info
             listItem.innerHTML = `
                 <div class="fixture-summary">
                     <span class="fixture-team home-team">
@@ -364,21 +194,28 @@ async function loadCurrentGameweekFixtures() {
                 </div>
             `;
             
+            // --- Extract Goals, Assists, and Cards ---
             let actionHtml = '';
             let hasDetails = false;
             
             if (fixture.started) {
                 const stats = fixture.stats || [];
+
+                // Define function to safely extract stats
                 const extractStats = (identifier) => {
                     const stat = stats.find(s => s.identifier === identifier);
+                    // The 'a' array typically holds player IDs and values
+                    // We must combine the 'a' (away) and 'h' (home) arrays if needed, but FPL generally puts all info in 'a' for fixtures
                     return stat ? (stat.a || []).concat(stat.h || []) : [];
                 };
 
                 const goalsData = extractStats('goals_scored');
                 const assistsData = extractStats('assists');
                 const redCardsData = extractStats('red_cards'); 
+
                 const allActions = [];
 
+                // Helper to process actions
                 const processActions = (actionArray, type) => {
                     actionArray.forEach(action => {
                         const playerName = playerMap[action.element] || `Player ${action.element}`;
@@ -394,6 +231,7 @@ async function loadCurrentGameweekFixtures() {
                 
                 if (allActions.length > 0) {
                     hasDetails = true;
+                    // Group actions by type and then list unique players for that type
                     const groupedActions = allActions.reduce((acc, action) => {
                         if (!acc[action.type]) acc[action.type] = new Set();
                         acc[action.type].add(action.name);
@@ -401,17 +239,28 @@ async function loadCurrentGameweekFixtures() {
                     }, {});
 
                     actionHtml += '<div class="fixture-details">';
-                    if (groupedActions.goal) actionHtml += `<p><span class="action-label action-goal">⚽ Goals:</span> ${Array.from(groupedActions.goal).join(', ')}</p>`;
-                    if (groupedActions.assist) actionHtml += `<p><span class="action-label action-assist">👟 Assists:</span> ${Array.from(groupedActions.assist).join(', ')}</p>`;
-                    if (groupedActions.red_card) actionHtml += `<p><span class="action-label action-red-card">🟥 Red Cards:</span> ${Array.from(groupedActions.red_card).join(', ')}</p>`;
+                    
+                    if (groupedActions.goal) {
+                        actionHtml += `<p><span class="action-label action-goal">⚽ Goals:</span> ${Array.from(groupedActions.goal).join(', ')}</p>`;
+                    }
+                    if (groupedActions.assist) {
+                        actionHtml += `<p><span class="action-label action-assist">👟 Assists:</span> ${Array.from(groupedActions.assist).join(', ')}</p>`;
+                    }
+                     if (groupedActions.red_card) {
+                        actionHtml += `<p><span class="action-label action-red-card">🟥 Red Cards:</span> ${Array.from(groupedActions.red_card).join(', ')}</p>`;
+                    }
+                    
                     actionHtml += '</div>';
                 }
             }
             
+            // Append actions if the match has started and has details
             if (hasDetails) {
                 listItem.innerHTML += actionHtml;
                 listItem.classList.add('has-details');
             }
+
+
             list.appendChild(listItem);
         });
 
@@ -453,7 +302,7 @@ async function loadStandings() {
         }
         
         const div = document.createElement("div");
-        div.innerHTML = `<span class="rank-number">${team.rank}.</span> <span class="rank-change ${rankChangeClass}">${rankChangeIndicator}</span> <span class="manager-name">${team.player_name} (${team.entry_name})</span> <span>${team.total} pts</span>`;
+        div.innerHTML = `${team.rank}. <span class="${rankChangeClass}">${rankChangeIndicator}</span> ${team.player_name} (${team.entry_name}) - ${team.total} pts`;
         
         if (team.rank === 1) div.classList.add("top-rank");
         else if (team.rank === 2) div.classList.add("second-rank");
@@ -471,7 +320,7 @@ async function loadStandings() {
 // 💰 FPL PRICE CHANGES 
 async function loadPriceChanges(data) {
   const container = document.getElementById("price-changes-list");
-  if (!container || !data || !data.elements) return;
+  if (!container || !data) return;
   
   const priceChangedPlayers = data.elements
     .filter(p => p.cost_change_event !== 0) 
@@ -504,7 +353,180 @@ async function loadPriceChanges(data) {
 // ➡️ MOST TRANSFERRED IN 
 async function loadMostTransferred(data) {
   const container = document.getElementById("most-transferred-list");
-  if (!container || !data || !data.elements) return;
+  if (!container || !data) return;
   
   const topTransferred = data.elements
-    .sort((a, b) => b.transfers_in_event - a.transfe
+    .sort((a, b) => b.transfers_in_event - a.transfers_in_event)
+    .slice(0, 10); 
+
+  container.innerHTML = "<h3>Most Transferred In (This GW) ➡️</h3>";
+
+  topTransferred.forEach((p, index) => {
+    setTimeout(() => {
+      const div = document.createElement("div");
+      const transfers = p.transfers_in_event.toLocaleString();
+      const playerPrice = (p.now_cost / 10).toFixed(1);
+
+      const teamAbbreviation = teamMap[p.team] || 'N/A';
+
+      div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers`;
+      
+      container.appendChild(div);
+    }, index * 30);
+  });
+}
+
+// ⬅️ MOST TRANSFERRED OUT 
+async function loadMostTransferredOut(data) {
+  const container = document.getElementById("most-transferred-out-list");
+  if (!container || !data) return;
+  
+  const topTransferredOut = data.elements
+    .sort((a, b) => b.transfers_out_event - a.transfers_out_event)
+    .slice(0, 10); 
+
+  container.innerHTML = "<h3>Most Transferred Out (This GW) ⬅️</h3>";
+
+  topTransferredOut.forEach((p, index) => {
+    setTimeout(() => {
+      const div = document.createElement("div");
+      const transfers = p.transfers_out_event.toLocaleString();
+      const playerPrice = (p.now_cost / 10).toFixed(1);
+
+      const teamAbbreviation = teamMap[p.team] || 'N/A';
+
+      div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers out`;
+      
+      div.classList.add("transferred-out"); 
+      
+      container.appendChild(div);
+    }, index * 30);
+  });
+}
+
+
+// ©️ MOST CAPTAINED PLAYER 
+async function loadMostCaptained(data) {
+  const container = document.getElementById("most-captained-list");
+  if (!container || !data) return;
+
+  // Uses is_current or is_next to find the relevant Gameweek
+  const currentEvent = data.events.find(e => e.is_next || e.is_current); 
+
+  if (!currentEvent || !currentEvent.most_captained) {
+      container.textContent = "Captain data not yet available for this Gameweek.";
+      return;
+  }
+
+  const mostCaptainedId = currentEvent.most_captained;
+  
+  const captain = data.elements.find(p => p.id === mostCaptainedId);
+
+  if (!captain) {
+      container.textContent = "Could not find the most captained player.";
+      return;
+  }
+
+  const playerPrice = (captain.now_cost / 10).toFixed(1);
+  const captaincyPercentage = currentEvent.most_captained_percentage;
+
+  const teamAbbreviation = teamMap[captain.team] || 'N/A';
+
+  container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3>";
+
+  const div = document.createElement("div");
+  div.textContent = `${captain.first_name} ${captain.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${captaincyPercentage}%`;
+  div.classList.add("top-rank"); 
+  
+  container.appendChild(div);
+}
+
+
+// 🥇 CURRENT EPL TABLE (STANDINGS) - Keyless Public API
+async function loadEPLTable() {
+  const container = document.getElementById("epl-table-list");
+  if (!container) return;
+
+  // --- Dynamic Season Calculation ---
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth(); 
+
+  let seasonStartYear;
+  if (currentMonth >= 7) { 
+    seasonStartYear = currentYear;
+  } 
+  else {
+    seasonStartYear = currentYear - 1;
+  }
+  const currentSeason = `${seasonStartYear}-${seasonStartYear + 1}`; 
+  
+  const EPL_LEAGUE_ID = "4328"; 
+  const apiURL = `https://www.thesportsdb.com/api/v1/json/60130162/lookuptable.php?l=${EPL_LEAGUE_ID}&s=${currentSeason}`; 
+  
+  try {
+    const response = await fetch(proxy + encodeURIComponent(apiURL));
+    const data = await response.json();
+
+    if (!data.table || data.table.length === 0) {
+        container.innerHTML = `<p>EPL Table data not available for the **${currentSeason}** season, or the API call failed.</p>`;
+        return;
+    }
+
+    container.innerHTML = "<h3>Current Premier League Standings 🏆</h3>";
+
+    const table = document.createElement('table');
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Team</th>
+          <th>Pl</th>
+          <th>W</th>
+          <th>D</th>
+          <th>L</th>
+          <th>GD</th>
+          <th>Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    `;
+    const tbody = table.querySelector('tbody');
+
+    data.table.sort((a, b) => a.intRank - b.intRank).forEach((team) => {
+      const row = tbody.insertRow();
+      row.innerHTML = `
+        <td>${team.intRank}</td>
+        <td>${team.strTeam}</td>
+        <td>${team.intPlayed}</td>
+        <td>${team.intWin}</td>
+        <td>${team.intDraw}</td>
+        <td>${team.intLoss}</td>
+        <td>${team.intGoalDifference}</td>
+        <td>${team.intPoints}</td>
+      `;
+      if (team.intRank <= 4) row.classList.add("champions-league");
+      else if (team.intRank === 5) row.classList.add("europa-league");
+      else if (team.intRank >= 18) row.classList.add("relegation-zone");
+    });
+    
+    container.appendChild(table);
+
+  } catch (err) {
+    console.error("Error loading EPL table:", err);
+    container.textContent = "Failed to load EPL table due to a network or fetch error. Check proxy or API stability.";
+  }
+}
+
+/* -----------------------------------------
+   BACK TO TOP BUTTON
+----------------------------------------- */
+const backToTop = document.getElementById("backToTop");
+
+window.addEventListener("scroll", () => {
+  backToTop.style.display = window.scrollY > 200 ? "flex" : "none";
+});
+
+backToTop.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
