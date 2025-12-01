@@ -20,7 +20,7 @@ let currentGameweekId = null;
 let playerMap = {}; // Player ID -> Player Name (essential for stats)
 
 // --- YOUR FPL MANAGER ID ---
-const MY_ENTRY_ID = "2463721"; // *** IMPORTANT: REPLACE WITH YOUR ACTUAL FPL ENTRY ID ***
+const MY_ENTRY_ID = "182437"; // *** IMPORTANT: REPLACE WITH YOUR ACTUAL FPL ENTRY ID ***
 // ---------------------------
 
 // ----------------------------------------------------------------------
