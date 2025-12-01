@@ -184,7 +184,8 @@ li {
 }
 /* --- END NEW UTILITY CLASS --- */
 
-/* --- PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS (Retained Standard Card Styling) --- */
+/* --- STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS --- */
+#standings-list div,
 #price-changes-list div,
 #most-transferred-list div,
 #most-transferred-out-list div,
@@ -203,6 +204,7 @@ li {
   transition: background .25s, transform .25s;
 }
 
+#standings-list div:hover,
 #price-changes-list div:hover,
 #most-transferred-list div:hover,
 #most-transferred-out-list div:hover,
@@ -210,7 +212,6 @@ li {
   transform: translateY(-3px);
 }
 
-/* Shared Components */
 .rank-number {
     font-weight: 700;
     width: 30px; 
@@ -234,127 +235,28 @@ li {
     font-size: 13px;
 }
 
-/* --- MINI-LEAGUE STANDINGS: Single Card Leaderboard Design --- */
 
-/* **CRITICAL OVERRIDE:** Removes the section padding for edge-to-edge list */
-#standings {
-    padding: 0; 
-    overflow: hidden; /* Ensures borders/shadows are clipped nicely */
+/* HIGHLIGHT RANKS (Used for top 3 and Most Captained) */
+.top-rank,
+.second-rank,
+.third-rank {
+  color: var(--green);
+  font-weight: bold;
 }
 
-/* Center the H2 title inside the standings section */
-#standings h2 {
-    padding: 22px 22px 10px; /* Restore vertical padding above the title */
-    margin-bottom: 0;
-}
-
-/* 1. Remove the standard card styling for the list wrapper */
-#standings-list {
-  padding: 0; 
-  margin: 0; 
-}
-
-/* 2. Style for individual standing items */
-#standings-list div {
-  background: var(--bg); /* Use main BG for rows to contrast with the border/hover */
-  border: none;
-  border-bottom: 1px solid var(--border); /* Use subtle dividers instead of full borders */
-  border-radius: 0;
-  margin-bottom: 0; 
-  padding: 14px 15px; /* Added horizontal padding here for the content */
-  box-shadow: none; 
-  transition: background .2s, transform .05s;
-  
-  font-size: 15px;
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center;
-}
-
-/* 3. Hover effect for list items */
-#standings-list div:hover {
-  transform: none; 
-  background: var(--card-bg); /* Use card-bg on hover for better contrast */
-  box-shadow: none;
-}
-
-/* Ensure the last item has no bottom border */
-#standings-list div:last-child {
-  border-bottom: none;
-}
-
-/* Standings Components */
-#standings-list .rank-number {
-    font-weight: 700; 
-    width: 30px; 
-    text-align: center;
-    font-size: 1.1em;
-    color: var(--subtext); 
-}
-
-.standings-points {
-    font-weight: 900; 
-    font-size: 1.3em; 
-    color: var(--accent); 
-    width: 70px; 
-    text-align: right;
-}
-
-
-/* --- ELEVATED TOP RANKS (Simplified for List) --- */
-
-/* 1ST PLACE - Gold Look */
-#standings-list div:first-child {
-    background: linear-gradient(90deg, #FFD70010 0%, var(--bg) 5%); 
-    border-left: 4px solid #FFD700; 
-}
-body.dark-mode #standings-list div:first-child {
-    background: linear-gradient(90deg, #FFD70020 0%, var(--bg) 5%);
-}
-
-#standings-list div:first-child .rank-number {
-    color: #FFD700; 
-}
-
-/* 2ND PLACE - Silver Look */
-#standings-list div:nth-child(2) {
-    border-left: 4px solid #C0C0C0; 
-}
-#standings-list div:nth-child(2) .rank-number {
-    color: #C0C0C0; 
-}
-
-/* 3RD PLACE - Bronze Look */
-#standings-list div:nth-child(3) {
-    border-left: 4px solid #CD7F32; 
-}
-#standings-list div:nth-child(3) .rank-number {
-    color: #CD7F32; 
-}
-
-/* --- RANK CHANGE STYLES for Mini-League (with symbols) --- */
-
+/* --- RANK CHANGE STYLES for Mini-League --- */
 .rank-up {
     color: var(--green); 
     font-weight: bold;
-}
-.rank-up::before {
-    content: '▲ '; 
 }
 
 .rank-down {
     color: var(--red-light);
     font-weight: bold;
 }
-.rank-down::before {
-    content: '▼ ';
-}
 
 .rank-unchanged {
     color: var(--subtext);
-}
-.rank-unchanged::before {
-    content: '— '; 
 }
 /* --- END RANK CHANGE STYLES --- */
 
@@ -710,7 +612,7 @@ body.dark-mode #standings-list div:first-child {
 footer {
     padding: 20px 10px;
     margin-top: 40px;
-    border-top: 1px solid var(--border); 
+    border-top: 1px solid var(--border-color);
     text-align: center;
     font-size: 0.85em;
     color: var(--subtext);
@@ -730,7 +632,7 @@ footer .social-links a {
 }
 
 footer .social-links a:hover {
-    color: var(--accent); 
+    color: var(--accent-color);
 }
 
 footer .disclaimer {
