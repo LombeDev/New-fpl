@@ -708,3 +708,93 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+
+
+
+// 🌟 BONUS POINTS SCORERS (Current Gameweek)
+async function loadTopBonusPoints(data) {
+    const container = document.getElementById("bps-list");
+    if (!container || !data) return;
+
+    // --- Check for Current Gameweek Fixtures and Data ---
+    if (!currentGameweekId) {
+        container.innerHTML = "<h3>Bonus Points (Current GW) 🌟</h3><p>Gameweek information is not yet available.</p>";
+        return;
+    }
+
+    // Attempt to fetch current Gameweek data which contains per-player stats
+    try {
+        const gwDataResponse = await fetch(
+            proxy + `https://fantasy.premierleague.com/api/event/${currentGameweekId}/live/`
+        );
+        const gwData = await gwDataResponse.json();
+
+        // 1. Get the player stats from the live GW data
+        const playerStats = gwData.elements;
+
+        // 2. Map the element data and **FILTER STRICTLY by actual bonus points awarded**
+        const bonusPlayers = playerStats
+            .map(stat => {
+                // Bonus is the actual bonus points awarded (0-3)
+                const bonusAwarded = stat.stats.find(s => s.identifier === 'bonus')?.value || 0;
+                
+                // --- STRICT FILTER: Only include players who received 1, 2, or 3 bonus points ---
+                if (bonusAwarded > 0) {
+                    const fullPlayer = data.elements.find(p => p.id === stat.id);
+                    if (fullPlayer) {
+                        // Also get the raw BPS score for context/sorting
+                        const bpsValue = stat.stats.find(s => s.identifier === 'bps')?.value || 0;
+                        
+                        return {
+                            ...fullPlayer,
+                            gw_bps: bpsValue,
+                            gw_bonus: bonusAwarded
+                        };
+                    }
+                }
+                return null;
+            })
+            .filter(p => p !== null); // Remove players who didn't get bonus points or are null
+
+        // 3. Sort: Primary sort by Bonus (3, 2, 1), Secondary sort by BPS score
+        bonusPlayers.sort((a, b) => {
+            if (b.gw_bonus !== a.gw_bonus) {
+                return b.gw_bonus - a.gw_bonus; 
+            }
+            return b.gw_bps - a.gw_bps;
+        });
+
+        container.innerHTML = `<h3>Bonus Points (GW ${currentGameweekId}) 🌟</h3>`;
+
+        if (bonusPlayers.length === 0) {
+            container.innerHTML += `<p>No bonus points have been awarded yet for GW ${currentGameweekId}.</p>`;
+            return;
+        }
+
+        bonusPlayers.forEach((p, index) => {
+            setTimeout(() => {
+                const div = document.createElement("div");
+                const teamAbbreviation = teamMap[p.team] || 'N/A';
+                
+                // Display the actual bonus points awarded prominently
+                div.innerHTML = `
+                    <span class="bonus-icon">⭐</span>
+                    <span class="bonus-awarded-value">${p.gw_bonus}</span> 
+                    Pts - 
+                    <strong>${p.first_name} ${p.second_name}</strong> (${teamAbbreviation})
+                    <span class="bps-score">(${p.gw_bps} BPS)</span>
+                `;
+                
+                // Highlight players who received 3 points
+                if (p.gw_bonus === 3) div.classList.add("top-rank"); 
+
+                container.appendChild(div);
+            }, index * 30);
+        });
+
+    } catch (err) {
+        console.error(`Error loading GW ${currentGameweekId} live data:`, err);
+        container.innerHTML = `<h3>Bonus Points (GW ${currentGameweekId}) 🌟</h3><p>Failed to load live Gameweek data.</p>`;
+    }
+}
