@@ -1,877 +1,615 @@
-/* ROOT THEME VARIABLES — LIGHT MODE (clean + simple) */
-:root {
-    --bg: #ffffff;
-    --text: #242424;
-    --subtext: #555;
-    --card-bg: #f4f4f4;
-    --border: #e5e5e5;
-    --accent: #37003C; /* FPL Purple */
-    --accent-hover: #530055;
-    --green: #2EA043; /* GitHub green - used for price risers */
-    --nav-green-dark: #1E824C; /* NEW: Slightly darker green for the nav bar */
-    --red-light: #CF3A46; /* Custom light red for fallers */
-    --blue-cl: #2196F3; /* Custom blue for CL zone */
-    --orange-el: #FF9800; /* Custom orange for EL zone */
-    --red-rl: #F44336; /* Custom red for relegation */
-    
-    /* --- ACTION & STATUS COLORS --- */
-    --action-goal: #3A8C6F; /* Dark Green for Goal */
-    --action-assist: #3F51B5; /* Indigo for Assist */
-    --action-red: #D32F2F; /* Dark Red for Red Card */
-    --status-live: #FFC107; /* Amber for Live */
-    --status-finished: #607D8B; /* Blue Grey for Finished */
-    --status-upcoming: var(--accent); /* Upcoming matches use FPL Purple */
-    
-    /* --- NEW LOADER COLORS --- */
-    --loader-color-2: #00FF85; /* FPL Bright Green/Cyan */
-    --loader-color-3: #B3B3D9; /* Light secondary FPL color */
-
-    --radius: 12px;
-}
-
-/* DARK THEME — GitHub / Telegram Blue-Tinted */
-body.dark-mode {
-    --bg: #0d1117;           /* GitHub dark base */
-    --text: #c9d1d9;           /* Soft white */
-    --subtext: #8b949e;        /* Muted gray */
-    --card-bg: #161b22;        /* Cards/nav backgrounds */
-    --border: #30363d;         /* Soft border shade */
-    --accent: #238636;         /* GitHub green button color */
-    --accent-hover: #2ea043;
-    --green: #3fb950;          /* Highlight text (riser) */
-    --nav-green-dark: #238636; /* NEW: Dark green for nav bar in dark mode */
-    --red-light: #f85149;      /* GitHub red */
-    --blue-cl: #64b5f6;        /* Lighter blue for dark mode */
-    --orange-el: #ffb74d;      /* Lighter orange for dark mode */
-    --red-rl: #e57373;         /* Lighter red for dark mode */
-
-    /* --- DARK MODE ACTION & STATUS COLORS --- */
-    --action-goal: #81C784; 
-    --action-assist: #9FA8DA; 
-    --action-red: #E57373; 
-    --status-live: #FFEB3B; 
-    --status-finished: #B0BEC5; 
-    --status-upcoming: var(--accent);
-    
-    /* --- DARK MODE LOADER COLORS --- */
-    --loader-color-2: #64ffda; /* Brighter Cyan for dark mode */
-    --loader-color-3: #9575CD; /* Brighter Purple/Indigo for dark mode */
-}
-
-/* RESET */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-/* BODY */
-body {
-    font-family: Arial, sans-serif;
-    background-color: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding-top: 0;
-    /* BASE PADDING: Used on large screens when max-width is hit */
-    padding-left: 22px;
-    padding-right: 22px;
-    transition: background .3s, color .3s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* MAIN CONTAINER (The main content area) */
-main {
-    width: 100%;
-    /* MODIFIED: Increased max-width for wider content on desktops/tablets */
-    max-width: 980px;
-    margin: 0 auto;
-}
-
-/* HORIZONTAL RULE */
-main hr {
-    border: 0;
-    height: 1px;
-    background: var(--border);
-    margin: 20px 0 35px 0;
-}
-
-/* HEADINGS */
-h1, h2 {
-    text-align: center;
-    color: var(--text);
-    margin-bottom: 16px;
-    letter-spacing: 0.5px;
-}
-
-/* IMPROVED H1 SIZE AND WEIGHT */
-h1 { 
-    font-size: 38px; 
-    font-weight: 800; 
-    line-height: 1.1; 
-}
-/* Standard H2 */
-h2 { 
-    font-size: 24px; 
-    font-weight: 600; 
-}
-
-/* HEADER SPECIFIC H2 (Value Proposition) */
-header h2 {
-    font-size: 18px; 
-    font-weight: 600; 
-    color: var(--accent); 
-    margin-top: 0px;
-    margin-bottom: 30px; 
-}
-
-/* SECTIONS STANDARD CARD STYLE */
-section {
-    background: var(--card-bg);
-    padding: 22px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    margin-bottom: 35px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-    transition: background .3s, border .3s, box-shadow .3s;
-}
-
-/* WELCOME SECTION - Elevated with Accent Ribbon */
-#welcome {
-    border-top: 6px solid var(--accent); 
-    padding-top: 18px; 
-}
-
-/* WELCOME SECTION TEXT */
-#welcome p {
-    margin-bottom: 15px; 
-}
-#welcome p,
-#welcome li {
-    color: var(--subtext);
-    line-height: 1.7;
-    font-size: 15px;
-}
-
-/* LIST DETAILS */
-ul {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    padding-left: 0;
-    list-style: none; 
-}
-
-li {
-    margin-bottom: 8px; 
-}
-
-/* UTILITY CLASSES */
-.highlight-accent {
-    color: var(--accent);
-    font-weight: bold;
-}
-.price-riser {
-    color: var(--green);
-    font-weight: bold;
-}
-.price-faller {
-    color: var(--red-light);
-    font-weight: bold;
-}
-
-/* --- NEW UTILITY CLASS FOR MINUTES PLAYED --- */
-.minutes-played {
-    font-weight: 500; 
-    color: var(--subtext); 
-    font-size: 12px;
-    white-space: nowrap; 
-    margin-left: 8px; 
-}
-/* --- END NEW UTILITY CLASS --- */
-
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- MODIFIED: STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS (Making them look like a list, not inner cards) --- */
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-#standings-list div,
-#price-changes-list div,
-#most-transferred-list div,
-#most-transferred-out-list div,
-#most-captained-list div {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    font-size: 14px;
-    
-    padding: 10px 0; /* Reduced vertical padding, removed horizontal padding */
-    margin-bottom: 0; /* Remove margin between rows */
-    background: transparent; /* Remove background color (use parent card background) */
-    border: none; /* Remove border */
-    border-radius: 0; /* Remove border radius */
-    
-    border-bottom: 1px solid var(--border); /* Add a separator line at the bottom */
-    transition: none; /* Remove transition */
-}
-
-/* Remove the hover effect */
-#standings-list div:hover,
-#price-changes-list div:hover,
-#most-transferred-list div:hover,
-#most-transferred-out-list div:hover,
-#most-captained-list div:hover {
-    transform: none;
-    background: rgba(0, 0, 0, 0.05); /* Add a subtle background on hover */
-}
-
-/* Remove the bottom border from the last item in each list */
-#standings-list div:last-child,
-#price-changes-list div:last-child,
-#most-transferred-list div:last-child,
-#most-transferred-out-list div:last-child,
-#most-captained-list div:last-child {
-    border-bottom: none;
-    padding-bottom: 0; 
-}
-
-.rank-number {
-    font-weight: 700;
-    width: 30px; 
-    text-align: left;
-}
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-
-.manager-name {
-    flex-grow: 1; 
-    text-align: left;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; 
-    padding: 0 10px;
-    font-weight: 500;
-}
-
-.rank-change {
-    font-weight: 700;
-    width: 45px; 
-    text-align: right;
-    font-size: 13px;
-}
-
-
-/* HIGHLIGHT RANKS (Used for top 3 and Most Captained) */
-.top-rank,
-.second-rank,
-.third-rank {
-    color: var(--green);
-    font-weight: bold;
-}
-
-
-/* --- FPL DATA HEADERS --- */
-
-#price-changes-list h3,
-#most-transferred-list h3,
-#most-transferred-out-list h3,
-#most-captained-list h3,
-#fixtures-list h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-    margin: 10px 0 15px 0;
-    text-align: center;
-}
-
-#price-changes-list {
-    padding-top: 5px; 
-}
-
-/* MODIFIED: Remove inner card border overrides and rely on border-bottom for lines */
-.price-riser {
-    border-left: 5px solid var(--green) !important;
-}
-.price-faller {
-    border-left: 5px solid var(--red-light) !important;
-}
-
-/* Transfers Out styling */
-.transferred-out {
-    border-right: 5px solid var(--red-light);
-}
-
-/* --- FIXTURES SCORE/STATUS STYLES --- */
-#fixtures-list p {
-    text-align: center;
-    color: var(--subtext);
-    font-size: 13px;
-    margin-bottom: 15px;
-}
-
-#fixtures-list ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-/* MODIFIED: Fixtures look also needs to be simplified */
-#fixtures-list li {
-    display: flex;
-    flex-direction: column; 
-    padding: 10px 15px;
-    margin-bottom: 0; /* Remove margin between fixture rows */
-    background: transparent; /* Remove background */
-    border-radius: 0; /* Remove radius */
-    border: none; /* Remove border */
-    border-bottom: 1px solid var(--border); /* Add separator */
-    font-weight: 600;
-    font-size: 14px;
-    transition: all .2s;
-    position: relative; 
-}
-
-/* Remove bottom border from last fixture */
-#fixtures-list li:last-child {
-    border-bottom: none;
-}
-
-/* The row containing the score and team names */
-.fixture-summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-
-/* Only apply extra padding if details are present */
-#fixtures-list li.has-details {
-    padding-bottom: 10px; 
-}
-
-/* Match Status Tag (NEW) */
-.match-status-tag {
-    position: absolute;
-    top: 0;
-    right: 0;
-    /* Removed custom border-radius to keep it square */
-    border-top-right-radius: 0; 
-    border-bottom-left-radius: 8px;
-    padding: 3px 8px;
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--card-bg); 
-}
-
-/* Live Match Highlight */
-.match-live {
-    border: none !important; /* Remove inner card border */
-}
-.match-live .match-status-tag {
-    background-color: var(--status-live);
-    color: var(--text); 
-}
-
-/* Finished Match Highlight */
-.match-finished .match-status-tag {
-    background-color: var(--status-finished);
-    color: #fff;
-}
-
-/* Upcoming Match (Default) */
-.match-pending .match-status-tag {
-    background-color: var(--status-upcoming);
-    color: #fff;
-}
-
-/* Base style for the team container */
-.fixture-team {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start; 
-    flex-grow: 1;
-}
-
-/* Align home team label to the right of its container */
-.home-team {
-    justify-content: flex-end;
-}
-
-
-/* Score displays */
-.score-home, .score-away {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text);
-    padding: 0 5px;
-}
-
-.vs-label, .vs-label-time {
-    font-weight: normal;
-    color: var(--subtext);
-    font-size: 12px;
-    padding: 0 10px;
-    white-space: nowrap; 
-}
-
-
-/* --- FIXTURE DETAILS (GOALS/ASSISTS/CARDS) STYLES --- */
-.fixture-details {
-    width: 100%;
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px dashed var(--border);
-    font-size: 12px;
-    line-height: 1.6;
-    color: var(--subtext);
-    padding-bottom: 5px; 
-}
-
-.fixture-details p {
-    text-align: left;
-    margin: 0;
-    padding: 2px 0;
-    font-weight: normal;
-}
-
-.action-label {
-    font-weight: 700;
-    color: var(--text);
-    margin-right: 8px;
-}
-
-.action-goal { color: var(--action-goal); }
-.action-assist { color: var(--action-assist); }
-.action-red-card { color: var(--action-red); }
-/* --- END FIXTURE DETAILS --- */
-
-/* --- EPL TABLE STYLES --- */
-
-#epl-table-list {
-    overflow-x: auto; 
-}
-
-#epl-table-list h3 {
-    text-align: left;
-    margin-bottom: 10px;
-}
-
-#epl-table-list table {
-    width: 100%;
-    border-collapse: separate; 
-    border-spacing: 0 6px;
-    font-size: 13px;
-    text-align: center;
-}
-
-#epl-table-list thead th,
-#epl-table-list tbody tr {
-    background: var(--card-bg); /* Changed from --bg to --card-bg for contrast */
-    border-radius: 8px;
-}
-
-#epl-table-list th, 
-#epl-table-list td {
-    padding: 10px 5px;
-    white-space: nowrap;
-}
-
-#epl-table-list thead th {
-    background-color: var(--border);
-    font-weight: 700;
-    color: var(--subtext);
-    position: sticky;
-    top: 0;
-}
-
-#epl-table-list tbody tr {
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    transition: transform 0.2s, background 0.2s;
-}
-
-#epl-table-list tbody td:first-child {
-    font-weight: bold;
-    border-left: 4px solid transparent;
-}
-
-#epl-table-list tbody td:nth-child(2) {
-    text-align: left;
-}
-
-/* Zone Highlighting */
-.champions-league td:first-child { border-left-color: var(--blue-cl); }
-.europa-league td:first-child { border-left-color: var(--orange-el); }
-.relegation-zone td:first-child { border-left-color: var(--red-rl); }
-
-
-/* --- UTILITY ELEMENTS --- */
-
-/* BACK TO TOP BUTTON (REDUCED SIZE) */
-#backToTop {
-    position: fixed;
-    bottom: 20px; 
-    right: 20px; 
-    background: var(--accent); 
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 40px; 
-    height: 40px; 
-    font-size: 20px; 
-    display: none; 
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 999;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.4); 
-    transition: background 0.3s, transform 0.25s, box-shadow 0.3s;
-}
-
-#backToTop:hover {
-    background: var(--accent-hover);
-    transform: scale(1.1);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-
-#backToTop:focus {
-    outline: 2px solid var(--accent-hover);
-    outline-offset: 3px;
-}
-
-/* THEME TOGGLE BUTTON (REDUCED SIZE) */
-#themeToggle {
-    position: fixed;
-    top: 70px; 
-    right: 20px; 
-    background: var(--card-bg); 
-    color: var(--text); 
-    border: 1px solid var(--border);
-    padding: 6px 10px; 
-    border-radius: 40px;
-    cursor: pointer;
-    font-size: 13px; 
-    box-shadow: 0 1px 6px rgba(0,0,0,0.15); 
-    transition: background 0.3s, color 0.3s, border 0.3s, transform 0.25s;
-    z-index: 999;
-}
-
-#themeToggle:hover {
-    background: var(--border); 
-    transform: scale(1.05);
-}
-
-#themeToggle:focus {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
-}
-
-/* LOADER - FPL COLORFUL STYLE */
-.loader {
-    width: 30px; 
-    height: 30px;
-    border: 4px solid var(--card-bg); 
-    border-top-color: var(--accent); 
-    border-right-color: var(--loader-color-2);
-    border-bottom-color: var(--loader-color-3); 
-    border-radius: 50%;
-    animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
-    margin: 30px auto; 
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* LAZY LOAD */
-.lazy {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity .8s ease, transform .8s ease;
-}
-.lazy-loaded {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-
-
-/* --- NEW LOADING OVERLAY --- */
-#loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--bg); 
-    color: var(--text);
-    z-index: 10000; 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    transition: opacity 0.5s ease-out; 
-}
-
-#loading-overlay h1 {
-    font-size: 50px;
-    margin-bottom: 5px;
-    color: var(--accent); 
-}
-
-#loading-overlay p {
-    font-size: 18px;
-    color: var(--subtext);
-    margin-bottom: 20px;
-}
-
-
-/* --- FOOTER STYLES --- */
-footer {
-    padding: 20px 10px;
-    margin-top: 40px;
-    /* Use --border variable for consistency */
-    border-top: 1px solid var(--border); 
-    text-align: center;
-    font-size: 0.85em;
-    color: var(--subtext);
-}
-
-footer .social-links {
-    margin: 15px 0 10px 0;
-}
-
-footer .social-links a {
-    color: var(--subtext);
-    text-decoration: none;
-    margin: 0 10px;
-    transition: color 0.3s ease;
-    font-size: 1.5em; 
-}
-
-/* Use --accent variable for consistency */
-footer .social-links a:hover {
-    color: var(--accent);
-}
-
-footer .disclaimer {
-    margin-top: 10px;
-    font-size: 0.75em;
-    opacity: 0.7;
-}
-
-/* ------------------------------------------------ */
-/* --- UPDATED NAVIGATION STYLES FOR HAMBURGER & KEBAZ (FLEX LAYOUT) --- */
-/* ------------------------------------------------ */
-
-#main-nav {
-    /* Ensure the nav bar sticks to the top */
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    /* Using your existing nav color variable */
-    background-color: var(--nav-green-dark); 
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    margin-bottom: 35px; /* Keep consistent with your original layout */
-}
-
-.nav-container {
-    display: flex;
-    /* Uses main's max-width for alignment */
-    max-width: 980px; 
-    margin: 0 auto;
-    /* Use the same side padding as your body default for large screens */
-    padding: 10px 22px; 
-    align-items: center;
-    justify-content: space-between; 
-    height: 50px; 
-}
-
-.nav-branding .logo-image {
-    max-height: 80%;
-    width: auto;
-    height: 40px; /* Explicit height */
-}
-
-/* Desktop Navigation Links */
-.nav-links {
-    display: none; /* Hidden by default; only shown on desktop or when active on mobile */
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    /* Links centered on desktop */
-    flex-grow: 1; 
-    justify-content: center; 
-}
-
-.nav-links li {
-    margin: 0 12px;
-}
-
-.nav-links a {
-    text-decoration: none;
-    /* Links in the dark nav bar are white */
-    color: #fff; 
-    font-weight: 500;
-    font-size: 15px;
-    transition: color 0.3s;
-}
-
-.nav-links a:hover {
-    color: var(--loader-color-2); /* Use a bright color for hover */
-}
-
-/* Right-side menu icons container (Hamburger and Kebab) */
-.nav-menu-icons {
-    display: flex; 
-    gap: 10px; /* Space between icons */
-}
-
-/* Styling for Menu Buttons (Hamburger and Kebab) */
-.hamburger, .kebab {
-    background: none;
-    border: none;
-    color: #fff; /* White icons */
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 5px;
-    /* Default: visible on mobile */
-    display: block; 
-    transition: color 0.2s;
-}
-
-.hamburger:hover, .kebab:hover {
-    color: var(--loader-color-2);
-}
-
-
-/* Kebab Menu Dropdown Styling */
-.kebab-menu-dropdown {
-    position: absolute;
-    /* Position right below the nav bar, aligned to the right edge of the container */
-    top: 50px; 
-    right: 22px; 
-    
-    background-color: var(--card-bg); /* Use card background for the menu */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    border-radius: var(--radius);
-    padding: 8px 0;
-    min-width: 160px;
-    z-index: 1010;
-    /* IMPORTANT: Initially hide the dropdown */
-    display: none; 
-}
-
-.kebab-menu-dropdown.active {
-    display: block; /* Show when 'active' class is added by JS */
-}
-
-.kebab-menu-dropdown ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.kebab-menu-dropdown li a {
-    display: block;
-    padding: 8px 15px;
-    text-decoration: none;
-    color: var(--text); /* Use default text color for menu items */
-    font-size: 14px;
-}
-
-.kebab-menu-dropdown li a:hover {
-    background-color: var(--border);
-}
-
-
-/* ------------------------------------------------ */
-/* --- MODIFIED MEDIA QUERY FOR MOBILE VIEW (e.g., screens under 768px) --- */
-/* ------------------------------------------------ */
-@media (max-width: 768px) {
-    
-    /* MODIFIED: Reduce side padding on the BODY for a fuller screen look on mobile */
-    body {
-        /* Align with the nav bar negative margin */
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-    
-    #main-nav {
-        margin-bottom: 25px;
-        /* Pull the nav bar out to cover the body padding */
-        margin-left: -10px;
-        margin-right: -10px;
-        width: calc(100% + 20px); 
+/* -----------------------------------------
+    LOADING OVERLAY REMOVAL
+----------------------------------------- */
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    const overlay = document.getElementById("loading-overlay");
+
+    if (overlay) {
+      // Use opacity and visibility for a smooth fade-out effect
+      overlay.style.opacity = '0';
+      // Remove it from the DOM after the fade-out completes (0.5s from CSS)
+      setTimeout(() => {
+          overlay.style.display = 'none';
+      }, 500); 
+    }
+  }, 900); // Wait 900ms before starting the fade-out
+});
+
+/* -----------------------------------------
+    LIGHT / DARK MODE TOGGLE + SAVE
+----------------------------------------- */
+const themeToggle = document.getElementById("themeToggle");
+
+// Load saved preference
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark-mode");
+  themeToggle.textContent = "☀️";
+}
+
+// Toggle on click
+themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("dark-mode");
+
+  if (document.body.classList.contains("dark-mode")) {
+    themeToggle.textContent = "☀️";
+    localStorage.setItem("theme", "dark");
+  } else {
+    themeToggle.textContent = "🌙";
+    localStorage.setItem("theme", "light");
+  }
+});
+
+/* -----------------------------------------
+    NAVIGATION MENU TOGGLES (NEW SECTION)
+----------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+    const kebab = document.querySelector('.kebab');
+    const kebabMenu = document.querySelector('.kebab-menu-dropdown');
+
+    // 1. Hamburger Menu Toggle Logic
+    if (hamburger && navLinks) {
+        hamburger.addEventListener('click', () => {
+            // Toggle the 'active' class on the navigation links list (mobile menu)
+            navLinks.classList.toggle('active');
+            
+            // Ensure the kebab menu is closed if the main menu is opened
+            if (kebabMenu) {
+                kebabMenu.classList.remove('active');
+            }
+
+            // Optional: Change the icon (bars to X)
+            const hamburgerIcon = hamburger.querySelector('i');
+            if (hamburgerIcon) {
+                if (navLinks.classList.contains('active')) {
+                    hamburgerIcon.classList.remove('fa-bars');
+                    hamburgerIcon.classList.add('fa-xmark');
+                    hamburger.setAttribute('aria-label', 'Close Main Menu');
+                } else {
+                    hamburgerIcon.classList.remove('fa-xmark');
+                    hamburgerIcon.classList.add('fa-bars');
+                    hamburger.setAttribute('aria-label', 'Open Main Menu');
+                }
+            }
+        });
     }
 
-    /* Keep the inner container padding to ensure the logo and icons are not touching the edge */
-    .nav-container {
-        padding-left: 10px;
-        padding-right: 10px;
-        max-width: none; 
+    // 2. Kebab Menu Toggle Logic
+    if (kebab && kebabMenu) {
+        kebab.addEventListener('click', (event) => {
+            // Toggle the 'active' class on the kebab menu dropdown
+            kebabMenu.classList.toggle('active');
+            
+            // Ensure the main navigation menu is closed if the kebab menu is opened
+            if (navLinks) {
+                navLinks.classList.remove('active');
+                
+                // Reset hamburger icon if main menu was open
+                const hamburgerIcon = hamburger.querySelector('i');
+                if (hamburgerIcon) {
+                    hamburgerIcon.classList.remove('fa-xmark');
+                    hamburgerIcon.classList.add('fa-bars');
+                    hamburger.setAttribute('aria-label', 'Open Main Menu');
+                }
+            }
+            
+            // Stop the click event from propagating to the document listener below
+            event.stopPropagation(); 
+        });
     }
-    
-    /* 1. Stack Links Vertically (Hamburger Menu Content) */
-    .nav-links {
-        display: none; /* Hidden by default */
+
+    // 3. Close menus when clicking outside
+    document.addEventListener('click', (event) => {
+        // Close the kebab menu if the click is outside the button or the menu
+        if (kebabMenu && !kebabMenu.contains(event.target) && event.target !== kebab && !kebab.contains(event.target)) {
+            kebabMenu.classList.remove('active');
+        }
         
-        position: absolute;
-        top: 50px; /* Below the nav bar */
-        /* Aligns with the 10px padding of the .nav-container */
-        left: 10px; 
-        width: calc(100% - 20px); 
-        flex-direction: column; 
-        
-        /* Use card background for the menu, not the dark nav background */
-        background-color: var(--card-bg); 
-        border: 1px solid var(--border);
-        border-top: none;
-        border-radius: 0 0 var(--radius) var(--radius);
-        padding: 10px 0;
-        z-index: 950;
-    }
-    
-    .nav-links.active {
-        display: flex; /* Show when active */
-    }
+        // Close main menu when clicking a link (on mobile)
+        if (navLinks && event.target.closest('.nav-links a')) {
+             navLinks.classList.remove('active');
+             
+             // Reset hamburger icon if a link was clicked
+             const hamburgerIcon = hamburger.querySelector('i');
+             if (hamburgerIcon) {
+                 hamburgerIcon.classList.remove('fa-xmark');
+                 hamburgerIcon.classList.add('fa-bars');
+                 hamburger.setAttribute('aria-label', 'Open Main Menu');
+             }
+        }
+    });
+});
 
-    .nav-links li {
-        width: 100%;
-        margin: 0;
-        border-bottom: 1px solid var(--border);
-    }
-    .nav-links li:last-child {
-        border-bottom: none;
-    }
 
-    .nav-links li a {
-        padding: 10px 15px;
-        font-size: 14px;
-        font-weight: 500;
-        /* Use default text color for menu items */
-        color: var(--text); 
-    }
-    
-    /* Kebab Menu Position Adjustment for Mobile */
-    .kebab-menu-dropdown {
-        /* Align with the right edge of the expanded nav bar */
-        right: 10px; 
-    }
+/* -----------------------------------------
+    LAZY LOADING FADE-IN
+----------------------------------------- */
+const lazyElements = document.querySelectorAll(".lazy");
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("lazy-loaded");
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+lazyElements.forEach((el) => observer.observe(el));
+
+/* -----------------------------------------
+    FPL API FETCHING
+----------------------------------------- */
+// Using the more reliable proxy
+const proxy = "https://corsproxy.io/?";
+
+// Global variables
+let teamMap = {}; // ID -> Abbreviation (e.g., 1 -> 'ARS')
+let currentGameweekId = null; 
+let playerMap = {}; // NEW: Player ID -> Player Name (essential for stats)
+
+// On page load 
+window.addEventListener("DOMContentLoaded", () => {
+  // Bootstrap data fetch must happen first to get team names and GW ID
+  loadFPLBootstrapData();
+  loadStandings();
+  loadEPLTable();     
+});
+
+// Function to fetch bootstrap data, create maps, and initialize dependent loads
+async function loadFPLBootstrapData() {
+    try {
+        const data = await fetch(
+            proxy + "https://fantasy.premierleague.com/api/bootstrap-static/"
+        ).then((r) => r.json());
+
+        // Create map of team ID to 3-letter abbreviation
+        data.teams.forEach(team => {
+            teamMap[team.id] = team.short_name;
+        });
+
+        // NEW: Create map of Player ID to Full Name
+        data.elements.forEach(player => {
+            playerMap[player.id] = `${player.first_name} ${player.second_name}`;
+        });
+        
+        // --- LOGIC FOR CURRENT GAMEWEEK ID ---
+        let currentEvent = data.events.find(e => e.is_current);
+
+        if (!currentEvent) {
+            const finishedEvents = data.events.filter(e => e.finished);
+            if (finishedEvents.length > 0) {
+                finishedEvents.sort((a, b) => b.id - a.id);
+                currentEvent = finishedEvents[0];
+            }
+        }
+
+        if (currentEvent) {
+            currentGameweekId = currentEvent.id;
+        } 
+        // --- END LOGIC ---
+
+        // Now that data is ready, load the dependent lists
+        loadCurrentGameweekFixtures();
+        loadPriceChanges(data); 
+        loadMostTransferred(data); 
+        loadMostTransferredOut(data); 
+        loadMostCaptained(data);
+
+    } catch (err) {
+        console.error("Error fetching FPL Bootstrap data:", err);
+        // Display generic error message in case of failure
+        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list"];
+        sections.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = "Failed to load data. Check FPL API/Proxy.";
+        });
+    }
+}
+
+// 📅 CURRENT GAMEWEEK FIXTURES (ENHANCED)
+async function loadCurrentGameweekFixtures() {
+    const container = document.getElementById("fixtures-list");
+    if (!container) return;
+    
+    if (!currentGameweekId) {
+        container.innerHTML = "<h3>Gameweek Scores</h3><p>Current Gameweek information is not yet available.</p>";
+        return;
+    }
+
+    try {
+        const data = await fetch(
+            proxy + "https://fantasy.premierleague.com/api/fixtures/"
+        ).then((r) => r.json());
+
+        const currentGWFixtures = data.filter(f => f.event === currentGameweekId);
+        
+        if (currentGWFixtures.length === 0) {
+            container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3><p>No fixtures found for Gameweek ${currentGameweekId}.</p>`;
+            return;
+        }
+        
+        container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3>`;
+        
+        const list = document.createElement('ul');
+        list.classList.add('fixtures-list-items'); 
+
+        currentGWFixtures.forEach(fixture => {
+            const homeTeamAbbr = teamMap[fixture.team_h] || `T${fixture.team_h}`;
+            const awayTeamAbbr = teamMap[fixture.team_a] || `T${fixture.team_a}`;
+            
+            // Determine match status, score display, and status tag text
+            let scoreDisplay = `<span class="vs-label">vs</span>`;
+            let statusClass = 'match-pending';
+            let statusText = 'Upcoming';
+            
+            if (fixture.finished) {
+                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
+                statusClass = 'match-finished';
+                statusText = 'Finished';
+            } else if (fixture.started) {
+                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
+                statusClass = 'match-live';
+                statusText = 'Live';
+            } else {
+                // For upcoming matches, show the kickoff time
+                const kickoffTime = new Date(fixture.kickoff_time);
+                // Simple formatting, adjust locale options as needed
+                scoreDisplay = `<span class="vs-label-time">${kickoffTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
+            }
+
+            const listItem = document.createElement('li');
+            listItem.classList.add(statusClass);
+            
+            // Base fixture info
+            listItem.innerHTML = `
+                <div class="fixture-summary">
+                    <span class="fixture-team home-team">
+                        <span class="team-label home-label">${homeTeamAbbr}</span> 
+                    </span> 
+                    ${scoreDisplay}
+                    <span class="fixture-team away-team">
+                        <span class="team-label away-label">${awayTeamAbbr}</span> 
+                    </span>
+                    <span class="match-status-tag">${statusText}</span>
+                </div>
+            `;
+            
+            // --- Extract Goals, Assists, and Cards ---
+            let actionHtml = '';
+            let hasDetails = false;
+            
+            if (fixture.started) {
+                const stats = fixture.stats || [];
+
+                // Define function to safely extract stats
+                const extractStats = (identifier) => {
+                    const stat = stats.find(s => s.identifier === identifier);
+                    // The 'a' array typically holds player IDs and values
+                    // We must combine the 'a' (away) and 'h' (home) arrays if needed, but FPL generally puts all info in 'a' for fixtures
+                    return stat ? (stat.a || []).concat(stat.h || []) : [];
+                };
+
+                const goalsData = extractStats('goals_scored');
+                const assistsData = extractStats('assists');
+                const redCardsData = extractStats('red_cards'); 
+
+                const allActions = [];
+
+                // Helper to process actions
+                const processActions = (actionArray, type) => {
+                    actionArray.forEach(action => {
+                        const playerName = playerMap[action.element] || `Player ${action.element}`;
+                        for (let i = 0; i < action.value; i++) {
+                            allActions.push({ type: type, name: playerName });
+                        }
+                    });
+                };
+
+                processActions(goalsData, 'goal');
+                processActions(assistsData, 'assist');
+                processActions(redCardsData, 'red_card');
+                
+                if (allActions.length > 0) {
+                    hasDetails = true;
+                    // Group actions by type and then list unique players for that type
+                    const groupedActions = allActions.reduce((acc, action) => {
+                        if (!acc[action.type]) acc[action.type] = new Set();
+                        acc[action.type].add(action.name);
+                        return acc;
+                    }, {});
+
+                    actionHtml += '<div class="fixture-details">';
+                    
+                    if (groupedActions.goal) {
+                        actionHtml += `<p><span class="action-label action-goal">⚽ Goals:</span> ${Array.from(groupedActions.goal).join(', ')}</p>`;
+                    }
+                    if (groupedActions.assist) {
+                        actionHtml += `<p><span class="action-label action-assist">👟 Assists:</span> ${Array.from(groupedActions.assist).join(', ')}</p>`;
+                    }
+                     if (groupedActions.red_card) {
+                        actionHtml += `<p><span class="action-label action-red-card">🟥 Red Cards:</span> ${Array.from(groupedActions.red_card).join(', ')}</p>`;
+                    }
+                    
+                    actionHtml += '</div>';
+                }
+            }
+            
+            // Append actions if the match has started and has details
+            if (hasDetails) {
+                listItem.innerHTML += actionHtml;
+                listItem.classList.add('has-details');
+            }
+
+
+            list.appendChild(listItem);
+        });
+
+        container.appendChild(list);
+
+    } catch (err) {
+        console.error("Error loading fixtures:", err);
+        container.textContent = "Failed to load fixtures data. Check FPL API/Proxy.";
+    }
 }
 
 
-/* --- Desktop adjustments (769px and up) --- */
-@media (min-width: 769px) {
-    /* Show desktop navigation links */
-    .nav-links {
-        display: flex;
-    }
-    
-    /* Hide the hamburger button on desktop (since links are visible) */
-    .hamburger {
-        display: none;
-    }
-    
-    /* Move the theme toggle down since the nav bar is now wider */
-    #themeToggle {
-        top: 15px;
-    }
+// MINI-LEAGUE STANDINGS
+async function loadStandings() {
+  const container = document.getElementById("standings-list");
+  if (!container) return; 
+  try {
+    const leagueID = "101712"; 
+    const data = await fetch(
+      proxy + `https://fantasy.premierleague.com/api/leagues-classic/${leagueID}/standings/`
+    ).then((r) => r.json());
+
+    container.innerHTML = "";
+    data.standings.results.forEach((team, index) => {
+      setTimeout(() => {
+        let rankChangeIndicator = '';
+        let rankChangeClass = '';
+        const rankChange = team.rank_change;
+
+        if (rankChange > 0) {
+            rankChangeIndicator = `▲${rankChange}`;
+            rankChangeClass = 'rank-up';
+        } else if (rankChange < 0) {
+            rankChangeIndicator = `▼${Math.abs(rankChange)}`;
+            rankChangeClass = 'rank-down';
+        } else {
+            rankChangeIndicator = '';
+            rankChangeClass = 'rank-unchanged';
+        }
+        
+        const div = document.createElement("div");
+        div.innerHTML = `<span class="rank-number">${team.rank}.</span> <span class="manager-name">${team.player_name} (${team.entry_name})</span> <span class="rank-change ${rankChangeClass}">${rankChangeIndicator}</span> <span>${team.total} pts</span>`;
+        
+        if (team.rank === 1) div.classList.add("top-rank");
+        else if (team.rank === 2) div.classList.add("second-rank");
+        else if (team.rank === 3) div.classList.add("third-rank");
+
+        container.appendChild(div);
+      }, index * 30);
+    });
+  } catch (err) {
+    console.error("Error loading standings:", err);
+    container.textContent = "Failed to load standings. Check league ID or proxy.";
+  }
 }
+
+// 💰 FPL PRICE CHANGES 
+async function loadPriceChanges(data) {
+  const container = document.getElementById("price-changes-list");
+  if (!container || !data) return;
+  
+  const priceChangedPlayers = data.elements
+    .filter(p => p.cost_change_event !== 0) 
+    .sort((a, b) => b.cost_change_event - a.cost_change_event); 
+
+  container.innerHTML = "<h3>Price Risers and Fallers (Since GW Deadline) 📈📉</h3>";
+
+  priceChangedPlayers.forEach((p, index) => {
+    setTimeout(() => {
+      const div = document.createElement("div");
+      const change = p.cost_change_event / 10; 
+      const changeFormatted = change > 0 ? `+£${change.toFixed(1)}m` : `-£${Math.abs(change).toFixed(1)}m`;
+      const playerPrice = (p.now_cost / 10).toFixed(1);
+      
+      const teamAbbreviation = teamMap[p.team] || 'N/A';
+      
+      div.textContent = `${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${changeFormatted}`;
+      
+      if (change > 0) {
+        div.classList.add("price-riser"); 
+      } else {
+        div.classList.add("price-faller"); 
+      }
+
+      container.appendChild(div);
+    }, index * 20);
+  });
+}
+
+// ➡️ MOST TRANSFERRED IN 
+async function loadMostTransferred(data) {
+  const container = document.getElementById("most-transferred-list");
+  if (!container || !data) return;
+  
+  const topTransferred = data.elements
+    .sort((a, b) => b.transfers_in_event - a.transfers_in_event)
+    .slice(0, 10); 
+
+  container.innerHTML = "<h3>Most Transferred In (This GW) ➡️</h3>";
+
+  topTransferred.forEach((p, index) => {
+    setTimeout(() => {
+      const div = document.createElement("div");
+      const transfers = p.transfers_in_event.toLocaleString();
+      const playerPrice = (p.now_cost / 10).toFixed(1);
+
+      const teamAbbreviation = teamMap[p.team] || 'N/A';
+
+      div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers`;
+      
+      container.appendChild(div);
+    }, index * 30);
+  });
+}
+
+// ⬅️ MOST TRANSFERRED OUT 
+async function loadMostTransferredOut(data) {
+  const container = document.getElementById("most-transferred-out-list");
+  if (!container || !data) return;
+  
+  const topTransferredOut = data.elements
+    .sort((a, b) => b.transfers_out_event - a.transfers_out_event)
+    .slice(0, 10); 
+
+  container.innerHTML = "<h3>Most Transferred Out (This GW) ⬅️</h3>";
+
+  topTransferredOut.forEach((p, index) => {
+    setTimeout(() => {
+      const div = document.createElement("div");
+      const transfers = p.transfers_out_event.toLocaleString();
+      const playerPrice = (p.now_cost / 10).toFixed(1);
+
+      const teamAbbreviation = teamMap[p.team] || 'N/A';
+
+      div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers out`;
+      
+      div.classList.add("transferred-out"); 
+      
+      container.appendChild(div);
+    }, index * 30);
+  });
+}
+
+
+// ©️ MOST CAPTAINED PLAYER 
+async function loadMostCaptained(data) {
+  const container = document.getElementById("most-captained-list");
+  if (!container || !data) return;
+
+  // Uses is_current or is_next to find the relevant Gameweek
+  const currentEvent = data.events.find(e => e.is_next || e.is_current); 
+
+  if (!currentEvent || !currentEvent.most_captained) {
+      container.textContent = "Captain data not yet available for this Gameweek.";
+      return;
+  }
+
+  const mostCaptainedId = currentEvent.most_captained;
+  
+  const captain = data.elements.find(p => p.id === mostCaptainedId);
+
+  if (!captain) {
+      container.textContent = "Could not find the most captained player.";
+      return;
+  }
+
+  const playerPrice = (captain.now_cost / 10).toFixed(1);
+  const captaincyPercentage = currentEvent.most_captained_percentage;
+
+  const teamAbbreviation = teamMap[captain.team] || 'N/A';
+
+  container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3>";
+
+  const div = document.createElement("div");
+  div.textContent = `${captain.first_name} ${captain.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${captaincyPercentage}%`;
+  div.classList.add("top-rank"); 
+  
+  container.appendChild(div);
+}
+
+
+// 🥇 CURRENT EPL TABLE (STANDINGS) - Keyless Public API
+async function loadEPLTable() {
+  const container = document.getElementById("epl-table-list");
+  if (!container) return;
+
+  // --- Dynamic Season Calculation ---
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth(); 
+
+  let seasonStartYear;
+  if (currentMonth >= 7) { 
+    seasonStartYear = currentYear;
+  } 
+  else {
+    seasonStartYear = currentYear - 1;
+  }
+  const currentSeason = `${seasonStartYear}-${seasonStartYear + 1}`; 
+  
+  const EPL_LEAGUE_ID = "4328"; 
+  const apiURL = `https://www.thesportsdb.com/api/v1/json/60130162/lookuptable.php?l=${EPL_LEAGUE_ID}&s=${currentSeason}`; 
+  
+  try {
+    const response = await fetch(proxy + encodeURIComponent(apiURL));
+    const data = await response.json();
+
+    if (!data.table || data.table.length === 0) {
+        container.innerHTML = `<p>EPL Table data not available for the **${currentSeason}** season, or the API call failed.</p>`;
+        return;
+    }
+
+    container.innerHTML = "<h3>Current Premier League Standings 🏆</h3>";
+
+    const table = document.createElement('table');
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Team</th>
+          <th>Pl</th>
+          <th>W</th>
+          <th>D</th>
+          <th>L</th>
+          <th>GD</th>
+          <th>Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    `;
+    const tbody = table.querySelector('tbody');
+
+    data.table.sort((a, b) => a.intRank - b.intRank).forEach((team) => {
+      const row = tbody.insertRow();
+      row.innerHTML = `
+        <td>${team.intRank}</td>
+        <td>${team.strTeam}</td>
+        <td>${team.intPlayed}</td>
+        <td>${team.intWin}</td>
+        <td>${team.intDraw}</td>
+        <td>${team.intLoss}</td>
+        <td>${team.intGoalDifference}</td>
+        <td>${team.intPoints}</td>
+      `;
+      if (team.intRank <= 4) row.classList.add("champions-league");
+      else if (team.intRank === 5) row.classList.add("europa-league");
+      else if (team.intRank >= 18) row.classList.add("relegation-zone");
+    });
+    
+    container.appendChild(table);
+
+  } catch (err) {
+    console.error("Error loading EPL table:", err);
+    container.textContent = "Failed to load EPL table due to a network or fetch error. Check proxy or API stability.";
+  }
+}
+
+/* -----------------------------------------
+    BACK TO TOP BUTTON
+----------------------------------------- */
+const backToTop = document.getElementById("backToTop");
+
+window.addEventListener("scroll", () => {
+  backToTop.style.display = window.scrollY > 200 ? "flex" : "none";
+});
+
+backToTop.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
