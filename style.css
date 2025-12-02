@@ -8,11 +8,15 @@
     --accent: #37003C; /* FPL Purple */
     --accent-hover: #530055;
     --green: #2EA043; /* GitHub green - used for price risers */
-    --nav-green-dark: #1E824C; /* NEW: Slightly darker green for the nav bar */
+    /* Updated for the bottom bar green */
+    --nav-green-dark: #1E824C; 
     --red-light: #CF3A46; /* Custom light red for fallers */
     --blue-cl: #2196F3; /* Custom blue for CL zone */
     --orange-el: #FF9800; /* Custom orange for EL zone */
     --red-rl: #F44336; /* Custom red for relegation */
+    /* NEW: Custom colors for the top nav bar */
+    --top-nav-bg: #31554A; 
+    --top-nav-search-bg: #4D766C; 
     
     /* --- ACTION & STATUS COLORS --- */
     --action-goal: #3A8C6F; /* Dark Green for Goal */
@@ -33,17 +37,19 @@
 body.dark-mode {
     --bg: #0d1117;           /* GitHub dark base */
     --text: #c9d1d9;           /* Soft white */
-    --subtext: #8b949e;        /* Muted gray */
-    --card-bg: #161b22;        /* Cards/nav backgrounds */
-    --border: #30363d;         /* Soft border shade */
-    --accent: #238636;         /* GitHub green button color */
+    --subtext: #8b949e;          /* Muted gray */
+    --card-bg: #161b22;          /* Cards/nav backgrounds */
+    --border: #30363d;          /* Soft border shade */
+    --accent: #238636;          /* GitHub green button color */
     --accent-hover: #2ea043;
-    --green: #3fb950;          /* Highlight text (riser) */
-    --nav-green-dark: #238636; /* NEW: Dark green for nav bar in dark mode */
-    --red-light: #f85149;      /* GitHub red */
-    --blue-cl: #64b5f6;        /* Lighter blue for dark mode */
-    --orange-el: #ffb74d;      /* Lighter orange for dark mode */
-    --red-rl: #e57373;         /* Lighter red for dark mode */
+    --green: #3fb950;           /* Highlight text (riser) */
+    --nav-green-dark: #238636; /* Dark green for nav bar in dark mode */
+    --top-nav-bg: #222933; /* Darker background for contrast in dark mode */
+    --top-nav-search-bg: #333d48; /* Slightly lighter search button */
+    --red-light: #f85149;       /* GitHub red */
+    --blue-cl: #64b5f6;         /* Lighter blue for dark mode */
+    --orange-el: #ffb74d;       /* Lighter orange for dark mode */
+    --red-rl: #e57373;          /* Lighter red for dark mode */
 
     /* --- DARK MODE ACTION & STATUS COLORS --- */
     --action-goal: #81C784; 
@@ -71,7 +77,8 @@ body {
     background-color: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding-top: 0;
+    /* IMPORTANT: padding-top removed to allow sticky nav to sit flush at the top */
+    padding-top: 0; 
     /* BASE PADDING: Used on large screens when max-width is hit */
     padding-left: 22px;
     padding-right: 22px;
@@ -533,7 +540,7 @@ li {
 /* THEME TOGGLE BUTTON (REDUCED SIZE) */
 #themeToggle {
     position: fixed;
-    top: 70px; 
+    top: 100px; /* Adjusted to sit below the two nav bars */
     right: 20px; 
     background: var(--card-bg); 
     color: var(--text); 
@@ -622,7 +629,8 @@ li {
 footer {
     padding: 20px 10px;
     margin-top: 40px;
-    border-top: 1px solid var(--border-color);
+    /* Removed border-color variable not defined, using --border */
+    border-top: 1px solid var(--border); 
     text-align: center;
     font-size: 0.85em;
     color: var(--subtext);
@@ -641,7 +649,8 @@ footer .social-links a {
 }
 
 footer .social-links a:hover {
-    color: var(--accent-color);
+    /* Removed accent-color variable not defined, using --accent */
+    color: var(--accent);
 }
 
 footer .disclaimer {
@@ -651,51 +660,155 @@ footer .disclaimer {
 }
 
 /* ------------------------------------------------ */
-/* --- MODIFIED NAVIGATION STYLES FOR CENTERED LOGO --- */
+/* --- MODIFIED NAVIGATION STYLES FOR TWO-TIER BAR --- */
 /* ------------------------------------------------ */
 
-#main-nav {
-    /* MODIFIED IN MEDIA QUERY FOR MOBILE */
+/* Base Styles for the two bars */
+#top-nav-bar,
+#bottom-nav-bar {
     width: 100%;
-    margin-bottom: 35px;
-    /* USING THE DARKER GREEN VARIABLE */
-    background-color: var(--nav-green-dark); 
-    border-radius: 0; 
-    border: none; 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
-    padding: 0;
+    /* Ensure the sticky property is set on both */
     position: sticky; 
-    top: 0;
     z-index: 900;
+    margin-bottom: 0; /* Remove gap between main content and nav */
+    border-radius: 0;
+    border: none;
+    padding: 0;
 }
 
+/* Sticky Positioning */
+#top-nav-bar {
+    top: 0;
+}
+#bottom-nav-bar {
+    top: 40px; /* Aligned right below the top bar (approx. 40px height) */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+}
+
+/* Shared Container */
 .nav-container {
     max-width: 1000px; /* Aligns with the new main content width */
     margin: 0 auto;
-    
     display: flex;
     justify-content: space-between; 
     align-items: center; 
-    padding: 0; 
-    height: 50px; 
+    padding-left: 22px; 
+    padding-right: 22px;
 }
 
-/* 1. LEFT AND RIGHT SECTIONS (Icon Containers) */
-.nav-left, 
-.nav-right {
-    width: 60px; 
-    height: 100%;
+/* --- 1. TOP BAR STYLES (DARK GREEN/OLIVE) --- */
+#top-nav-bar {
+    background-color: var(--top-nav-bg); 
+    padding: 8px 0; 
+    height: 40px; 
+}
+
+.social-icons {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 15px; 
+    font-size: 1.1em; 
+}
+
+.social-icons a {
+    color: #fff;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.search-login-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-btn, .signin-btn {
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 13px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.search-btn {
+    background-color: var(--top-nav-search-bg); 
+    color: #fff;
+}
+/* Sign in button uses the main FPL green */
+.signin-btn {
+    background-color: var(--nav-green-dark); 
+    color: #fff;
 }
 
 
-/* Hiding desktop links, as the design uses the logo-centric bar */
-.nav-links {
-    display: none; 
+/* --- 2. BOTTOM BAR STYLES (MAIN GREEN) --- */
+#bottom-nav-bar {
+    background-color: var(--nav-green-dark); 
+    height: 50px;
 }
-/* --- END MODIFIED NAVIGATION STYLES --- */
+
+#bottom-nav-bar .nav-container {
+    justify-content: flex-start; /* Aligns logo to the left */
+    gap: 30px;
+}
+
+.fpl-logo {
+    color: #fff;
+    /* Assuming you replace this placeholder text with the actual logo image */
+    font-size: 18px; 
+    font-weight: 900;
+    line-height: 1.1;
+    text-transform: uppercase;
+}
+
+/* Main Links - Replaces your old .nav-links */
+.main-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto; 
+    flex-grow: 1; /* Allows links to take up available space */
+    
+    /* Hide scrollbar for consistency across browsers */
+    -ms-overflow-style: none;  
+    scrollbar-width: none;  
+}
+.main-links::-webkit-scrollbar {
+    display: none;
+}
+
+.main-links li {
+    margin-right: 20px; 
+    white-space: nowrap;
+}
+
+.main-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 0; 
+    display: block;
+    transition: opacity 0.2s;
+}
+
+.main-links a:hover {
+    opacity: 0.8;
+}
+
+/* Hiding old elements that are replaced by the new structure */
+#main-nav, /* Your old nav element name */
+.nav-links, /* Your old links class */
+.nav-left,
+.nav-right {
+    display: none !important;
+}
 
 
 /* ------------------------------------------------ */
@@ -709,26 +822,50 @@ footer .disclaimer {
         padding-right: 10px;
     }
     
-    #main-nav {
-        margin: 0 auto 25px auto;
-        padding: 0; 
-        
-        /* NEW CHANGE: Pull the nav bar out to cover the body padding */
+    /* NEW: Pull the nav bars out to cover the body padding and stretch full width */
+    #top-nav-bar,
+    #bottom-nav-bar {
         margin-left: -10px;
         margin-right: -10px;
         width: calc(100% + 20px); 
     }
 
     /* Keep the inner container padding to ensure the logo and icons are not touching the edge */
-    .nav-container {
+    #top-nav-bar .nav-container,
+    #bottom-nav-bar .nav-container {
         padding-left: 10px;
         padding-right: 10px;
-        max-width: none; /* Allows the container to stretch the full width of the #main-nav */
+        max-width: none; 
     }
 
-    .nav-container {
-        justify-content: space-between; 
-        position: relative;
+    /* Adjustments for the links bar on mobile */
+    #bottom-nav-bar .nav-container {
+        justify-content: flex-start;
+        gap: 15px;
+    }
+    
+    /* Shrink the search/sign-in buttons on mobile and hide 'Search' text */
+    .search-login-actions {
+        gap: 5px;
+    }
+    .search-btn, .signin-btn {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+    .search-btn {
+        width: auto; /* Allow the button to shrink */
+    }
+    /* Hide the word 'Search' to save space, keeping only the icon */
+    .search-btn {
+        font-size: 0; /* Hide text */
+        padding: 5px 8px; /* Compact padding */
+    }
+    .search-btn i {
+        font-size: 14px; /* Show icon */
+        margin: 0;
     }
 
-   
+    .fpl-logo {
+        font-size: 16px; /* Smaller logo text/image */
+    }
+}
