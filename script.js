@@ -663,3 +663,48 @@ window.addEventListener("scroll", () => {
 backToTop.addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
 });
+
+
+
+/* -----------------------------------------
+    PLAYER STATUS SEARCH/FILTER
+----------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('statusSearch');
+    const statusList = document.getElementById('status-list');
+
+    if (searchInput && statusList) {
+        searchInput.addEventListener('input', (event) => {
+            const searchTerm = event.target.value.toLowerCase();
+            const items = statusList.querySelectorAll('.player-news-item');
+
+            items.forEach(item => {
+                // Get all text content from the item for comprehensive searching
+                const itemText = item.textContent.toLowerCase();
+
+                if (itemText.includes(searchTerm)) {
+                    item.style.display = 'block'; // Show the item
+                } else {
+                    item.style.display = 'none'; // Hide the item
+                }
+            });
+            
+            // Optional: Show a "No results found" message
+            const visibleItems = Array.from(items).filter(item => item.style.display !== 'none');
+            const noResults = document.getElementById('status-no-results');
+
+            if (visibleItems.length === 0 && searchTerm.length > 0) {
+                 if (!noResults) {
+                     const message = document.createElement('p');
+                     message.id = 'status-no-results';
+                     message.classList.add('error-message');
+                     message.textContent = '🔍 No matching players found.';
+                     statusList.appendChild(message);
+                 }
+            } else if (noResults) {
+                // Remove message if results are visible or search is empty
+                noResults.remove();
+            }
+        });
+    }
+});
