@@ -717,33 +717,42 @@ async function loadTopBonusPoints(data) {
     const container = document.getElementById("bps-list");
     if (!container || !data) return;
 
-    // --- Check for Current Gameweek Fixtures and Data ---
+    // Check 1: Ensure we have a Gameweek ID
     if (!currentGameweekId) {
         container.innerHTML = "<h3>Bonus Points (Current GW) 🌟</h3><p>Gameweek information is not yet available.</p>";
         return;
     }
+    
+    // Clear content and show loader while waiting for the secondary fetch
+    container.innerHTML = `<div style="text-align: center; padding: 20px 0;"><div class="loader"></div><p style="color: var(--subtext); margin-top: 15px; font-size: 14px;">Fetching live GW ${currentGameweekId} bonus data...</p></div>`;
 
-    // Attempt to fetch current Gameweek data which contains per-player stats
+
     try {
         const gwDataResponse = await fetch(
             proxy + `https://fantasy.premierleague.com/api/event/${currentGameweekId}/live/`
         );
+        
+        // Check 2: Ensure the secondary fetch was successful
+        if (!gwDataResponse.ok) {
+             throw new Error(`API returned status ${gwDataResponse.status}`);
+        }
+        
         const gwData = await gwDataResponse.json();
 
         // 1. Get the player stats from the live GW data
         const playerStats = gwData.elements;
 
-        // 2. Map the element data and **FILTER STRICTLY by actual bonus points awarded**
+        // 2. Map the element data and FILTER STRICTLY by actual bonus points awarded
         const bonusPlayers = playerStats
             .map(stat => {
-                // Bonus is the actual bonus points awarded (0-3)
+                // Find the actual bonus points awarded (0-3)
                 const bonusAwarded = stat.stats.find(s => s.identifier === 'bonus')?.value || 0;
                 
-                // --- STRICT FILTER: Only include players who received 1, 2, or 3 bonus points ---
+                // Only include players who received 1, 2, or 3 bonus points
                 if (bonusAwarded > 0) {
                     const fullPlayer = data.elements.find(p => p.id === stat.id);
                     if (fullPlayer) {
-                        // Also get the raw BPS score for context/sorting
+                        // Get the raw BPS score for context/sorting
                         const bpsValue = stat.stats.find(s => s.identifier === 'bps')?.value || 0;
                         
                         return {
@@ -765,10 +774,11 @@ async function loadTopBonusPoints(data) {
             return b.gw_bps - a.gw_bps;
         });
 
+        // 4. Render the list
         container.innerHTML = `<h3>Bonus Points (GW ${currentGameweekId}) 🌟</h3>`;
 
         if (bonusPlayers.length === 0) {
-            container.innerHTML += `<p>No bonus points have been awarded yet for GW ${currentGameweekId}.</p>`;
+            container.innerHTML += `<p>No bonus points have been finalized yet for GW ${currentGameweekId}.</p>`;
             return;
         }
 
@@ -777,7 +787,6 @@ async function loadTopBonusPoints(data) {
                 const div = document.createElement("div");
                 const teamAbbreviation = teamMap[p.team] || 'N/A';
                 
-                // Display the actual bonus points awarded prominently
                 div.innerHTML = `
                     <span class="bonus-icon">⭐</span>
                     <span class="bonus-awarded-value">${p.gw_bonus}</span> 
@@ -786,7 +795,6 @@ async function loadTopBonusPoints(data) {
                     <span class="bps-score">(${p.gw_bps} BPS)</span>
                 `;
                 
-                // Highlight players who received 3 points
                 if (p.gw_bonus === 3) div.classList.add("top-rank"); 
 
                 container.appendChild(div);
@@ -795,6 +803,6 @@ async function loadTopBonusPoints(data) {
 
     } catch (err) {
         console.error(`Error loading GW ${currentGameweekId} live data:`, err);
-        container.innerHTML = `<h3>Bonus Points (GW ${currentGameweekId}) 🌟</h3><p>Failed to load live Gameweek data.</p>`;
+        container.innerHTML = `<h3>Bonus Points (GW ${currentGameweekId}) 🌟</h3><p>Failed to load live Gameweek data. (Network/API Error)</p>`;
     }
 }
