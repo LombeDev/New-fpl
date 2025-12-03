@@ -35,21 +35,21 @@
 
 /* DARK THEME — GitHub / Telegram Blue-Tinted */
 body.dark-mode {
-    --bg: #0d1117;           /* GitHub dark base */
-    --text: #c9d1d9;           /* Soft white */
-    --subtext: #8b949e;          /* Muted gray */
-    --card-bg: #161b22;          /* Cards/nav backgrounds */
-    --border: #30363d;          /* Soft border shade */
-    --accent: #238636;          /* GitHub green button color */
+    --bg: #0d1117;          /* GitHub dark base */
+    --text: #c9d1d9;        /* Soft white */
+    --subtext: #8b949e;      /* Muted gray */
+    --card-bg: #161b22;      /* Cards/nav backgrounds */
+    --border: #30363d;      /* Soft border shade */
+    --accent: #238636;      /* GitHub green button color */
     --accent-hover: #2ea043;
-    --green: #3fb950;           /* Highlight text (riser) */
+    --green: #3fb950;       /* Highlight text (riser) */
     --nav-green-dark: #238636; /* Dark green for nav bar in dark mode */
     --top-nav-bg: #222933; /* Darker background for contrast in dark mode */
     --top-nav-search-bg: #333d48; /* Slightly lighter search button */
-    --red-light: #f85149;       /* GitHub red */
-    --blue-cl: #64b5f6;         /* Lighter blue for dark mode */
-    --orange-el: #ffb74d;       /* Lighter orange for dark mode */
-    --red-rl: #e57373;          /* Lighter red for dark mode */
+    --red-light: #f85149;      /* GitHub red */
+    --blue-cl: #64b5f6;      /* Lighter blue for dark mode */
+    --orange-el: #ffb74d;      /* Lighter orange for dark mode */
+    --red-rl: #e57373;       /* Lighter red for dark mode */
 
     /* --- DARK MODE ACTION & STATUS COLORS --- */
     --action-goal: #81C784; 
@@ -629,7 +629,7 @@ li {
 footer {
     padding: 20px 10px;
     margin-top: 40px;
-    /* Removed border-color variable not defined, using --border */
+    /* Using --border */
     border-top: 1px solid var(--border); 
     text-align: center;
     font-size: 0.85em;
@@ -649,7 +649,6 @@ footer .social-links a {
 }
 
 footer .social-links a:hover {
-    /* Removed accent-color variable not defined, using --accent */
     color: var(--accent);
 }
 
@@ -811,6 +810,68 @@ footer .disclaimer {
 }
 
 
+/* --- DROP-DOWN MENU STYLES --- */
+
+/* 1. Define the parent link item as relative for absolute positioning */
+.main-links .dropdown-item {
+    position: relative;
+    padding: 0; 
+}
+
+/* 2. Hide the actual dropdown menu (Updated hiding method for click support) */
+.dropdown-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    /* Positioning */
+    position: absolute;
+    top: 100%; 
+    left: 0;
+    z-index: 100; 
+    
+    /* Look and Feel */
+    min-width: 160px; 
+    /* Using card-bg for dropdown background */
+    background-color: var(--card-bg); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    border-top: 3px solid var(--accent); 
+    
+    /* Initial state: Hidden using visibility and opacity */
+    visibility: hidden; 
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease; 
+}
+
+/* 3. Style the links inside the dropdown */
+.dropdown-menu li a {
+    display: block; 
+    padding: 10px 15px;
+    white-space: nowrap; 
+    text-decoration: none;
+    color: var(--text); /* Use main text color for links in the dropdown */
+}
+
+/* 4. Hover effect for dropdown links */
+.dropdown-menu li a:hover {
+    background-color: var(--border); /* Use a slight background change for hover */
+    color: var(--accent);
+}
+
+/* 5. Show the dropdown using the 'active' class (FOR CLICK/MOBILE) */
+.dropdown-menu.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* 6. Show the dropdown on hover of the parent list item (FOR DESKTOP HOVER) */
+.dropdown-item:hover .dropdown-menu {
+    visibility: visible;
+    opacity: 1;
+}
+
+
 /* ------------------------------------------------ */
 /* --- MODIFIED MEDIA QUERY FOR MOBILE VIEW (e.g., screens under 600px) --- */
 /* ------------------------------------------------ */
@@ -945,27 +1006,40 @@ footer .disclaimer {
 }
 
 
-
-/* --- SEARCH BAR STYLES --- */
+/* ------------------------------------------------ */
+/* --- SEARCH BAR STYLES (MATCHES TOP NAV BAR) --- */
+/* ------------------------------------------------ */
 .search-container {
     margin-bottom: 20px;
+    position: relative; 
 }
 
 #statusSearch {
     width: 100%;
     padding: 10px 15px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
     font-size: 16px;
-    /* Match background and text color to your theme */
-    background-color: var(--input-bg); /* Use a slightly different background if possible */
-    color: var(--text);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    transition: border-color 0.2s;
+    font-weight: 500;
+    
+    /* Styling to match top nav search button */
+    background-color: var(--top-nav-search-bg); 
+    color: #fff;
+    border: 1px solid var(--top-nav-bg); 
+    border-radius: 4px; 
+    box-shadow: none; 
+    transition: background-color 0.2s, border-color 0.2s;
 }
 
+/* Placeholder text visibility */
+#statusSearch::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 400;
+}
+
+/* Focus/Active state */
 #statusSearch:focus {
-    border-color: var(--primary-color); /* Highlight color on focus */
+    /* Use the accent color on focus, just like a button hover */
+    background-color: var(--accent);
+    border-color: var(--accent-hover); 
     outline: none;
 }
 
@@ -982,7 +1056,7 @@ footer .disclaimer {
 
 .bonus-awarded-value {
     font-weight: bold;
-    color: var(--primary-color); /* e.g., Green or Blue */
+    color: var(--accent); /* Using accent color, replaces undefined --primary-color */
 }
 
 .bps-score {
@@ -1062,4 +1136,3 @@ footer .disclaimer {
     color: #ff3c3c; /* Red alert color */
     padding: 10px;
 }
-
