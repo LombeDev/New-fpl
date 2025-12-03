@@ -1143,27 +1143,35 @@ footer .disclaimer {
 /* --- YouTube Carousel Styles --- */
 
 #youtube-carousel {
-    padding: 20px 0; /* Adjusted padding for full-width look */
+    /* Full width container with minimal vertical padding */
+    padding: 30px 0; 
     text-align: center;
-    background-color: var(--background-color-light); 
+    background-color: var(--background-color-light, #f7f7f7); /* Use light background, default to light gray */
 }
 
 #youtube-carousel h2 {
-    margin-bottom: 30px;
-    font-size: 2em;
-    color: var(--text-color-dark); 
+    /* Updated Title Style */
+    margin-bottom: 40px;
+    font-size: 2.2em;
+    font-weight: 700;
+    color: var(--text-color-dark, #222);
+    /* Adding a subtle accent under the title */
+    border-bottom: 3px solid var(--highlight-accent, #007bff);
+    display: inline-block;
+    padding-bottom: 5px;
 }
 
 .carousel-container {
     position: relative;
-    /* --- ✨ KEY CHANGE 1: Increase max-width to fill the screen more ✨ --- */
-    max-width: 90%; /* Use 90% of the viewport width */
-    /* or you can use a fixed large value like: max-width: 1200px; */
-    /* --------------------------------------------------------------------- */
+    /* Full screen width (as previously requested) */
+    max-width: 90%; 
     margin: 0 auto;
     overflow: hidden; 
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    
+    /* --- 🗑️ KEY CHANGE: REMOVING THE "CARD" EFFECT --- */
+    border-radius: 0; /* Remove border radius */
+    box-shadow: none; /* Remove box shadow */
+    /* ---------------------------------------------------- */
 }
 
 .carousel-slides {
@@ -1174,7 +1182,7 @@ footer .disclaimer {
 .carousel-item {
     min-width: 100%; 
     box-sizing: border-box;
-    padding: 10px;
+    padding: 0 20px; /* Adjusted padding to separate videos slightly */
     text-align: center;
 }
 
@@ -1184,13 +1192,17 @@ footer .disclaimer {
     aspect-ratio: 16 / 9; 
     height: auto;
     border: none;
-    border-radius: 6px;
+    /* Adding a subtle shadow directly to the video iframe for definition */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); 
+    border-radius: 8px; /* Slightly rounded corners for the video itself */
 }
 
 .video-caption {
-    margin-top: 10px;
-    font-style: italic;
-    color: var(--text-color);
+    /* Caption/Title below the video */
+    margin-top: 15px;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-color, #333);
 }
 
 /* Carousel Navigation Buttons */
@@ -1198,20 +1210,25 @@ footer .disclaimer {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.5);
+    
+    /* Improved Button Design */
+    background-color: var(--highlight-accent, #007bff); /* Use an accent color */
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 15px 20px; /* Larger click area */
     cursor: pointer;
     z-index: 10;
-    font-size: 1.5em;
+    font-size: 1.8em; /* Larger arrow */
     line-height: 1;
     border-radius: 50%;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
+    opacity: 0.8; /* Slightly transparent when not hovered */
 }
 
 .prev-btn:hover, .next-btn:hover {
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: var(--hover-color, #0056b3); 
+    transform: translateY(-50%) scale(1.05); /* Slight grow effect on hover */
+    opacity: 1;
 }
 
 .prev-btn {
@@ -1225,20 +1242,21 @@ footer .disclaimer {
 /* Carousel Dots/Indicators */
 .carousel-dots {
     text-align: center;
-    margin-top: 15px;
+    margin-top: 25px; /* More space below the video */
 }
 
 .dot {
-    height: 10px;
-    width: 10px;
-    margin: 0 5px;
+    height: 12px; /* Slightly larger dot */
+    width: 12px;
+    margin: 0 6px;
     background-color: #bbb;
     border-radius: 50%;
     display: inline-block;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 .dot.active {
-    background-color: #717171;
+    background-color: var(--highlight-accent, #007bff); /* Use accent color for active dot */
+    transform: scale(1.2);
 }
