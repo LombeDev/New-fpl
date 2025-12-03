@@ -806,3 +806,73 @@ async function loadTopBonusPoints(data) {
         container.innerHTML = `<h3>Bonus Points (GW ${currentGameweekId}) 🌟</h3><p>Failed to load live Gameweek data. (Network/API Error)</p>`;
     }
 }
+
+
+
+
+
+
+const API_URL = 'https://fantasy.premierleague.com/api/bootstrap-static/';
+
+// Function to run the actual 1-second interval countdown
+function startCountdown(deadlineTime, gameweek) {
+    document.querySelector(".countdown-title").innerHTML = `Gameweek ${gameweek} Deadline`;
+
+    const countdownInterval = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = deadlineTime - now;
+
+        // Calculate remaining time
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Helper to pad single digits (e.g., 5 -> 05)
+        const pad = (num) => num < 10 ? "0" + num : num;
+
+        // Update the HTML elements using their IDs
+        document.getElementById("days").innerHTML = pad(days);
+        document.getElementById("hours").innerHTML = pad(hours);
+        document.getElementById("minutes").innerHTML = pad(minutes);
+        document.getElementById("seconds").innerHTML = pad(seconds);
+
+        // If the deadline is passed 
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            // Target the main container ID to replace the countdown display
+            document.getElementById("countdown-timer").innerHTML = "<p class='deadline-passed'>DEADLINE PASSED! Transfers locked.</p>";
+            document.querySelector(".countdown-title").innerHTML = `Gameweek ${gameweek} is LIVE!`;
+
+            // Reload the page after 10 seconds to fetch the *next* Gameweek's deadline
+            setTimeout(() => location.reload(), 10000);
+        }
+    }, 1000);
+}
+
+// Function to fetch the deadline from the FPL API
+function fetchDeadline() {
+    fetch(API_URL)
+        .then(response => response.json())
+        .then(data => {
+            // Find the first Gameweek (event) that is NOT yet finished
+            const nextGameweek = data.events.find(event => event.finished === false);
+
+            if (nextGameweek) {
+                const deadlineString = nextGameweek.deadline_time;
+                const deadlineTime = new Date(deadlineString).getTime();
+                const gameweek = nextGameweek.id;
+
+                startCountdown(deadlineTime, gameweek);
+            } else {
+                document.getElementById("countdown-timer").innerHTML = "<p>FPL Season Concluded.</p>";
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching FPL data:', error);
+            document.getElementById("countdown-timer").innerHTML = "<p>Error loading deadline. Check API connection.</p>";
+        });
+}
+
+// Start the process automatically when the script loads
+fetchDeadline();
