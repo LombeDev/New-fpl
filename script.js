@@ -837,7 +837,7 @@ function formatDeadlineTime(deadlineTimeString) {
 
 /**
  * Finds the next deadline and displays its date and time statically.
- * This replaces the countdown logic.
+ * This is updated to specifically look for the "is_next" event (GW+1) to avoid showing the current GW's passed deadline.
  */
 function processDeadlineDisplay(data) {
     const countdownTimerEl = document.getElementById("countdown-timer");
@@ -845,9 +845,15 @@ function processDeadlineDisplay(data) {
 
     if (!countdownTimerEl || !countdownTitleEl) return; 
 
-    // Find the next Gameweek that is NOT finished
-    const nextGameweek = data.events.find(event => event.finished === false);
+    // ⭐ CORRECTED LOGIC: Find the Gameweek that is officially flagged as the next one.
+    let nextGameweek = data.events.find(event => event.is_next === true);
 
+    // Fallback: If no event has is_next=true (e.g., season end or early data stage), 
+    // find the first one that hasn't finished.
+    if (!nextGameweek) {
+         nextGameweek = data.events.find(event => event.finished === false);
+    }
+    
     if (nextGameweek) {
         const deadlineText = formatDeadlineTime(nextGameweek.deadline_time);
         
@@ -858,11 +864,10 @@ function processDeadlineDisplay(data) {
                 ${deadlineText}
             </div>
         `;
-        // Ensure you remove any old countdown CSS class like 'deadline-passed' if they exist
         countdownTimerEl.classList.remove('deadline-passed');
 
     } else {
-        // FPL Season is over
+        // This covers the edge case where the season is over (all finished=true)
         countdownTitleEl.innerHTML = `Season Complete! 🎉`;
         countdownTimerEl.innerHTML = "<p>FPL Season Concluded.</p>";
     }
