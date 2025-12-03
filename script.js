@@ -873,3 +873,90 @@ function processDeadlineDisplay(data) {
     }
 }
 
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Select all necessary elements
+    const carouselSlides = document.querySelector('.carousel-slides');
+    const carouselItems = document.querySelectorAll('.carousel-item');
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
+    const dotsContainer = document.querySelector('.carousel-dots');
+    
+    // Initialize state variables
+    let currentIndex = 0;
+    const totalSlides = carouselItems.length;
+    const slideIntervalTime = 5000; // 5000ms = 5 seconds
+
+    // 1. Create Dots for Navigation
+    for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('span');
+        dot.classList.add('dot');
+        if (i === 0) {
+            dot.classList.add('active');
+        }
+        dot.addEventListener('click', () => {
+            goToSlide(i);
+            resetAutoSlide();
+        });
+        dotsContainer.appendChild(dot);
+    }
+
+    const dots = document.querySelectorAll('.dot'); 
+
+    // 2. Function to Update Carousel View
+    function updateCarousel() {
+        const offset = -currentIndex * 100;
+        carouselSlides.style.transform = `translateX(${offset}%)`;
+
+        // Update the active dot indicator
+        dots.forEach((dot, index) => {
+            dot.classList.remove('active');
+            if (index === currentIndex) {
+                dot.classList.add('active');
+            }
+        });
+    }
+
+    // 3. Navigation Functions
+    function goToSlide(index) {
+        currentIndex = index;
+        updateCarousel();
+    }
+
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % totalSlides;
+        updateCarousel();
+    }
+
+    function prevSlide() {
+        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+        updateCarousel();
+    }
+
+    // 4. Automatic Sliding Logic
+    let slideTimer;
+
+    function startAutoSlide() {
+        slideTimer = setInterval(nextSlide, slideIntervalTime);
+    }
+
+    function resetAutoSlide() {
+        clearInterval(slideTimer); 
+        startAutoSlide();          
+    }
+
+    // 5. Attach Event Listeners and Initial Start
+    
+    startAutoSlide(); 
+
+    prevBtn.addEventListener('click', () => {
+        prevSlide();
+        resetAutoSlide();
+    });
+    nextBtn.addEventListener('click', () => {
+        nextSlide();
+        resetAutoSlide();
+    });
+});
