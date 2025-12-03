@@ -598,7 +598,6 @@ async function loadSimpleEPLTable(data) {
 
     const table = document.createElement('table');
     table.classList.add('simple-epl-table');
-    // Using the same column headers but relying on FPL data keys
     table.innerHTML = `
         <thead>
             <tr>
