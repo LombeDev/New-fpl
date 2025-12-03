@@ -145,7 +145,6 @@ window.addEventListener("DOMContentLoaded", () => {
     loadFPLBootstrapData(); // Initializes all FPL-dependent data
     loadStandings();
     loadEPLTable();
-    // initDeadlineCountdown is now called automatically via DOMContentLoaded listener below
 });
 
 /**
@@ -188,11 +187,13 @@ async function loadFPLBootstrapData() {
         loadMostTransferred(data);
         loadMostTransferredOut(data);
         loadMostCaptained(data);
-        loadPlayerStatusUpdates(data); // ⭐ NEW: Player Status
+        loadPlayerStatusUpdates(data);
+        // ⭐ NEW: Display the deadline time using the fetched data
+        processDeadlineDisplay(data); 
 
     } catch (err) {
         console.error("Error fetching FPL Bootstrap data:", err);
-        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list", "status-list"];
+        const sections = ["price-changes-list", "most-transferred-list", "most-transferred-out-list", "most-captained-list", "fixtures-list", "status-list", "countdown-timer"];
         sections.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.textContent = "Failed to load data. Check FPL API/Proxy.";
@@ -809,95 +810,60 @@ async function loadTopBonusPoints(data) {
 }
 
 /* -----------------------------------------
-    AUTOMATIC GW DEADLINE COUNTDOWN (NON-RELOADING)
+    GW DEADLINE DATE/TIME DISPLAY (REPLACES COUNTDOWN)
 ----------------------------------------- */
-const FPL_BOOTSTRAP = "https://fantasy.premierleague.com/api/bootstrap-static/";
 
-function pad(num) {
-    return num < 10 ? "0" + num : num;
+// Function to format the date and time string
+function formatDeadlineTime(deadlineTimeString) {
+    const deadlineDate = new Date(deadlineTimeString);
+
+    // Format the date (e.g., Sunday, Dec 7)
+    const dateOptions = { 
+        weekday: 'long', 
+        month: 'short', 
+        day: 'numeric' 
+    };
+    const datePart = deadlineDate.toLocaleDateString(undefined, dateOptions);
+
+    // Format the time (e.g., 11:30 AM local time)
+    const timeOptions = { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    };
+    const timePart = deadlineDate.toLocaleTimeString(undefined, timeOptions);
+
+    return `${datePart} @ ${timePart} (Local Time)`;
 }
 
-function startCountdown(deadlineTime, gameweek) {
-    document.querySelector(".countdown-title").innerHTML = `Gameweek ${gameweek} Deadline`;
+/**
+ * Finds the next deadline and displays its date and time statically.
+ * This replaces the countdown logic.
+ */
+function processDeadlineDisplay(data) {
     const countdownTimerEl = document.getElementById("countdown-timer");
+    const countdownTitleEl = document.querySelector(".countdown-title");
 
-    // Clear any existing intervals to prevent multiple timers running
-    if (window.activeCountdownInterval) {
-        clearInterval(window.activeCountdownInterval);
-    }
+    if (!countdownTimerEl || !countdownTitleEl) return; 
 
-    const countdownInterval = setInterval(function() {
-        const distance = deadlineTime - new Date().getTime();
+    // Find the next Gameweek that is NOT finished
+    const nextGameweek = data.events.find(event => event.finished === false);
 
-        // Calculate time components
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        // Update display elements
-        document.getElementById("days").innerHTML = pad(days);
-        document.getElementById("hours").innerHTML = pad(hours);
-        document.getElementById("minutes").innerHTML = pad(minutes);
-        document.getElementById("seconds").innerHTML = pad(seconds);
-
-        if (distance < 0) {
-            clearInterval(countdownInterval);
-            if (countdownTimerEl) {
-                countdownTimerEl.innerHTML = "<p class='deadline-passed'>DEADLINE PASSED! Transfers locked.</p>";
-                document.querySelector(".countdown-title").innerHTML = `Gameweek ${gameweek} is LIVE!`;
-                
-                // Wait 10 seconds (for FPL API to update 'is_next' flag) then fetch the next deadline
-                setTimeout(() => {
-                    // Temporarily reset the display to show loading
-                    countdownTimerEl.innerHTML = `
-                        <div class="countdown-unit"><span class="countdown-time">--</span><span class="countdown-label">Days</span></div>
-                        <div class="countdown-separator">:</div>
-                        <div class="countdown-unit"><span class="countdown-time">--</span><span class="countdown-label">Hours</span></div>
-                        <div class="countdown-separator">:</div>
-                        <div class="countdown-unit"><span class="countdown-time">--</span><span class="countdown-label">Mins</span></div>
-                        <div class="countdown-separator">:</div>
-                        <div class="countdown-unit"><span class="countdown-time">--</span><span class="countdown-label">Secs</span></div>
-                    `; 
-                    document.querySelector(".countdown-title").innerHTML = `Loading Next Gameweek...`;
-
-                    // Call the initialization function to find the *next* gameweek without reloading the page
-                    initDeadlineCountdown();
-                }, 10000); 
-            }
-        }
-    }, 1000);
-    
-    // Store the interval ID globally so it can be cleared next time
-    window.activeCountdownInterval = countdownInterval;
-}
-
-async function initDeadlineCountdown() {
-    const countdownTimerEl = document.getElementById("countdown-timer");
-    if (!countdownTimerEl) return; 
-
-    try {
-        const response = await fetch(proxy + FPL_BOOTSTRAP);
-        const data = await response.json();
+    if (nextGameweek) {
+        const deadlineText = formatDeadlineTime(nextGameweek.deadline_time);
         
-        // Find the next Gameweek that is NOT finished (either 'is_next' or simply the earliest unfinished one)
-        const nextGameweek = data.events.find(event => event.finished === false);
+        // Update the title and display elements
+        countdownTitleEl.innerHTML = `Gameweek ${nextGameweek.id} Deadline`;
+        countdownTimerEl.innerHTML = `
+            <div class="deadline-time-static">
+                ${deadlineText}
+            </div>
+        `;
+        // Ensure you remove any old countdown CSS class like 'deadline-passed' if they exist
+        countdownTimerEl.classList.remove('deadline-passed');
 
-        if (nextGameweek) {
-            const deadlineTime = new Date(nextGameweek.deadline_time).getTime();
-            startCountdown(deadlineTime, nextGameweek.id);
-        } else {
-            // FPL Season is over
-            countdownTimerEl.innerHTML = "<p>FPL Season Concluded.</p>";
-            document.querySelector(".countdown-title").innerHTML = `Season Complete! 🎉`;
-        }
-
-    } catch (error) {
-        console.error('Failed to load deadline data:', error);
-        countdownTimerEl.innerHTML = "<p class='error-message'>Error loading deadline. Check API/Proxy connection.</p>";
-        document.querySelector(".countdown-title").innerHTML = `Countdown Failed`;
+    } else {
+        // FPL Season is over
+        countdownTitleEl.innerHTML = `Season Complete! 🎉`;
+        countdownTimerEl.innerHTML = "<p>FPL Season Concluded.</p>";
     }
 }
-
-// Ensure the countdown starts as soon as the relevant element is available
-document.addEventListener('DOMContentLoaded', initDeadlineCountdown);
