@@ -872,3 +872,35 @@ function processDeadlineDisplay(data) {
         countdownTimerEl.innerHTML = "<p>FPL Season Concluded.</p>";
     }
 }
+
+
+
+
+/* -----------------------------------------
+    CLICKABLE DROPDOWN MENU
+----------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+    const dropdownToggle = document.querySelector('.dropdown-toggle');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    const dropdownItem = document.querySelector('.dropdown-item');
+
+    if (dropdownToggle && dropdownMenu) {
+        dropdownToggle.addEventListener('click', (event) => {
+            // Prevent the default action (like jumping to the top of the page because of href="#")
+            event.preventDefault(); 
+            
+            // Stop the click event from propagating to the document body
+            event.stopPropagation(); 
+            
+            // Toggle the 'active' class on the menu
+            dropdownMenu.classList.toggle('active');
+        });
+
+        // Close the dropdown if the user clicks anywhere else on the document
+        document.addEventListener('click', (event) => {
+            if (dropdownMenu.classList.contains('active') && !dropdownItem.contains(event.target)) {
+                dropdownMenu.classList.remove('active');
+            }
+        });
+    }
+});
