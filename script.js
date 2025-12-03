@@ -873,39 +873,3 @@ function processDeadlineDisplay(data) {
     }
 }
 
-
-
-/* -----------------------------------------
-    CLICKABLE DROPDOWN MENU
------------------------------------------ */
-document.addEventListener('DOMContentLoaded', () => {
-    // Select the main link that is clicked
-    const dropdownToggle = document.querySelector('.dropdown-toggle');
-    
-    // Select the actual menu (the UL) that needs to be shown/hidden
-    const dropdownMenu = document.querySelector('.dropdown-menu'); 
-    
-    // Select the parent LI, which contains both the link and the menu
-    const dropdownItem = document.querySelector('.dropdown-item'); 
-
-    if (dropdownToggle && dropdownMenu) {
-        dropdownToggle.addEventListener('click', (event) => {
-            // 1. Crucial: Prevents the link from jumping the page to the top
-            event.preventDefault(); 
-            
-            // 2. Crucial: Prevents the click from immediately propagating to the document listener below
-            event.stopPropagation(); 
-            
-            // 3. Toggle the 'active' class
-            dropdownMenu.classList.toggle('active');
-        });
-
-        // 4. Close the dropdown if the user clicks anywhere else on the document
-        document.addEventListener('click', (event) => {
-            // Check if the dropdown is open AND the click target is OUTSIDE the entire dropdown container
-            if (dropdownMenu.classList.contains('active') && !dropdownItem.contains(event.target)) {
-                dropdownMenu.classList.remove('active');
-            }
-        });
-    }
-});
