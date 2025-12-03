@@ -807,3 +807,73 @@ async function loadTopBonusPoints(data) {
     }
 }
 
+/* -----------------------------------------
+    AUTOMATIC GW DEADLINE COUNTDOWN
+----------------------------------------- */
+const FPL_BOOTSTRAP = "https://fantasy.premierleague.com/api/bootstrap-static/";
+
+function pad(num) {
+    return num < 10 ? "0" + num : num;
+}
+
+function startCountdown(deadlineTime, gameweek) {
+    document.querySelector(".countdown-title").innerHTML = `Gameweek ${gameweek} Deadline`;
+    const countdownTimerEl = document.getElementById("countdown-timer");
+
+    const countdownInterval = setInterval(function() {
+        const distance = deadlineTime - new Date().getTime();
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById("days").innerHTML = pad(days);
+        document.getElementById("hours").innerHTML = pad(hours);
+        document.getElementById("minutes").innerHTML = pad(minutes);
+        document.getElementById("seconds").innerHTML = pad(seconds);
+
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            if (countdownTimerEl) {
+                countdownTimerEl.innerHTML = "<p class='deadline-passed'>DEADLINE PASSED! Transfers locked.</p>";
+                document.querySelector(".countdown-title").innerHTML = `Gameweek ${gameweek} is LIVE!`;
+                
+                // Reload after 10 seconds to fetch the NEXT deadline
+                setTimeout(() => location.reload(), 10000);
+            }
+        }
+    }, 1000);
+}
+
+async function initDeadlineCountdown() {
+    const countdownTimerEl = document.getElementById("countdown-timer");
+    if (!countdownTimerEl) return; // Exit if the HTML element isn't found
+
+    try {
+        // NOTE: Uses your existing 'proxy' variable defined earlier in your script
+        const response = await fetch(proxy + FPL_BOOTSTRAP);
+        const data = await response.json();
+        
+        // Find the next Gameweek that is NOT finished
+        const nextGameweek = data.events.find(event => event.finished === false);
+
+        if (nextGameweek) {
+            const deadlineTime = new Date(nextGameweek.deadline_time).getTime();
+            startCountdown(deadlineTime, nextGameweek.id);
+        } else {
+            countdownTimerEl.innerHTML = "<p>FPL Season Concluded.</p>";
+        }
+
+    } catch (error) {
+        console.error('Failed to load deadline data:', error);
+        countdownTimerEl.innerHTML = "<p>Error loading deadline. Check API/Proxy connection.</p>";
+    }
+}
+
+// Call the initialization function when the document content is fully loaded
+document.addEventListener('DOMContentLoaded', initDeadlineCountdown);
+
+
+
+
