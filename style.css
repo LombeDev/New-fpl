@@ -67,8 +67,9 @@ body.dark-mode {
 /* RESET */
 * {
     margin: 0;
-    padding: 2;
-    box-sizing: border-box;
+    padding: 0; /* Changed from 2 to 0 for a true reset */
+    /* 💥 CRUCIAL FIX: box-sizing ensures padding doesn't cause overflow */
+    box-sizing: border-box; 
 }
 
 /* BODY */
@@ -77,15 +78,19 @@ body {
     background-color: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    /* IMPORTANT: padding-top removed to allow sticky nav to sit flush at the top */
     padding-top: 0; 
-    /* BASE PADDING: Used on large screens when max-width is hit */
-    padding-left: 22px;
-    padding-right: 22px;
+    
+    /* 💥 FIX: Removed fixed horizontal padding from body */
+    /* padding-left: 22px; */
+    /* padding-right: 22px; */
+    
     transition: background .3s, color .3s;
     display: flex;
     flex-direction: column;
     align-items: center;
+    
+    /* 💥 FIX: Prevents accidental horizontal scrolling */
+    overflow-x: hidden; 
 }
 
 
@@ -95,17 +100,22 @@ main {
     /* 1. ENABLE FLEXBOX */
     display: flex;
 
-    /* 2. STACK CHILDREN VERTICALLY (Default for wide screens is usually row, but column ensures widgets stack correctly on small screens) */
+    /* 2. STACK CHILDREN VERTICALLY */
     flex-direction: column;
 
+    /* 💥 FIX: Added width constraints */
+    max-width: 1000px; /* Control max width on large screens */
+    width: 100%;       /* Ensure it always takes 100% of available space up to max-width */
+    margin: 0 auto;    /* Centers the main container */
+
     /* 3. ENSURE CHILDREN TAKE FULL WIDTH */
-    align-items: center; /* This centers the column content horizontally */
+    align-items: center; 
 
     /* 4. SPACE BETWEEN ITEMS (Sets the gap between your <section> elements) */
-    gap: 20px; /* Use 'gap' property for spacing */
+    gap: 20px; 
 
-    /* 5. MINIMAL PADDING for breathing room on the edges */
-    padding: 20px 10px; 
+    /* 5. PADDING: Added horizontal padding for mobile spacing */
+    padding: 20px 15px; 
 }
 
 
@@ -146,9 +156,13 @@ section {
     padding: 22px;
     border-radius: var(--radius);
     border: 1px solid var(--border);
-    margin-bottom: 35px;
+    /* 💥 FIX: Removed fixed margin-bottom, rely on main's gap */
+    margin-bottom: 0; 
     box-shadow: 0 2px 12px rgba(0,0,0,0.1);
     transition: background .3s, border .3s, box-shadow .3s;
+    
+    /* 💥 FIX: Ensure sections always fill the width of the main container */
+    width: 100%;
 }
 
 /* WELCOME SECTION - Elevated with Accent Ribbon */
@@ -694,7 +708,8 @@ footer .disclaimer {
 /* Shared Container */
 .nav-container {
     max-width: 1000px; /* Aligns with the new main content width */
-    margin: 0;
+    /* 💥 FIX: Added margin auto to center the internal container */
+    margin: 0 auto; 
     display: flex;
     justify-content: space-between; 
     align-items: center; 
@@ -833,437 +848,4 @@ footer .disclaimer {
     
     /* Positioning */
     position: absolute;
-    top: 100%; 
-    left: 0;
-    z-index: 100; 
     
-    /* Look and Feel */
-    min-width: 160px; 
-    /* Using card-bg for dropdown background */
-    background-color: var(--card-bg); 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-    border-top: 3px solid var(--accent); 
-    
-    /* Initial state: Hidden using visibility and opacity */
-    visibility: hidden; 
-    opacity: 0;
-    transition: opacity 0.3s ease, visibility 0.3s ease; 
-}
-
-/* 3. Style the links inside the dropdown */
-.dropdown-menu li a {
-    display: block; 
-    padding: 10px 15px;
-    white-space: nowrap; 
-    text-decoration: none;
-    color: var(--text); /* Use main text color for links in the dropdown */
-}
-
-/* 4. Hover effect for dropdown links */
-.dropdown-menu li a:hover {
-    background-color: var(--border); /* Use a slight background change for hover */
-    color: var(--accent);
-}
-
-/* 5. Show the dropdown using the 'active' class (FOR CLICK/MOBILE) */
-.dropdown-menu.active {
-    visibility: visible;
-    opacity: 1;
-}
-
-/* 6. Show the dropdown on hover of the parent list item (FOR DESKTOP HOVER) */
-.dropdown-item:hover .dropdown-menu {
-    visibility: visible;
-    opacity: 1;
-}
-
-
-/* ------------------------------------------------ */
-/* --- MODIFIED MEDIA QUERY FOR MOBILE VIEW (e.g., screens under 600px) --- */
-/* ------------------------------------------------ */
-@media (max-width: 600px) {
-    
-    /* MODIFIED: Reduce side padding on the BODY for a fuller screen look on mobile */
-    body {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-    
-    /* NEW: Pull the nav bars out to cover the body padding and stretch full width */
-    #top-nav-bar,
-    #bottom-nav-bar {
-        margin-left: -10px;
-        margin-right: -10px;
-        width: calc(100% + 20px); 
-    }
-
-    /* Keep the inner container padding to ensure the logo and icons are not touching the edge */
-    #top-nav-bar .nav-container,
-    #bottom-nav-bar .nav-container {
-        padding-left: 10px;
-        padding-right: 10px;
-        max-width: none; 
-    }
-
-    /* Adjustments for the links bar on mobile */
-    #bottom-nav-bar .nav-container {
-        justify-content: flex-start;
-        gap: 15px;
-    }
-    
-    /* Shrink the search/sign-in buttons on mobile and hide 'Search' text */
-    .search-login-actions {
-        gap: 5px;
-    }
-    .search-btn, .signin-btn {
-        padding: 5px 8px;
-        font-size: 12px;
-    }
-    .search-btn {
-        width: auto; /* Allow the button to shrink */
-    }
-    /* Hide the word 'Search' to save space, keeping only the icon */
-    .search-btn {
-        font-size: 0; /* Hide text */
-        padding: 5px 8px; /* Compact padding */
-    }
-    .search-btn i {
-        font-size: 14px; /* Show icon */
-        margin: 0;
-    }
-
-    .fpl-logo {
-        font-size: 16px; /* Smaller logo text/image */
-    }
-}
-
-
-
-
-
-/* --- PLAYER STATUS LIST STYLES --- */
-#status-list {
-    display: grid;
-    gap: 15px;
-    padding-top: 5px;
-}
-
-.player-news-item {
-    padding: 12px 15px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg); 
-    border-radius: 8px;
-    transition: background 0.2s;
-}
-
-.player-news-item:hover {
-    background: var(--card-bg); 
-}
-
-.player-info {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-    font-size: 15px;
-    color: var(--text);
-}
-
-.news-detail {
-    font-size: 13px;
-    color: var(--subtext);
-    line-height: 1.5;
-    margin: 0;
-    padding-left: 5px; 
-}
-
-/* Status Badges */
-.status-badge {
-    display: inline-block;
-    padding: 3px 8px;
-    margin-left: 10px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-/* Color Coding based on FPL status */
-.status-doubtful {
-    color: #FFC107; /* Amber/Live color */
-    border: 1px solid #FFC107;
-}
-
-.status-unavailable {
-    color: var(--blue-cl); 
-    border: 1px solid var(--blue-cl);
-}
-
-.status-injured,
-.status-suspended {
-    color: var(--red-light); 
-    border: 1px solid var(--red-light);
-}
-
-.no-data, .error-message {
-    text-align: center;
-    padding: 20px;
-    font-style: italic;
-    color: var(--subtext);
-}
-
-
-/* ------------------------------------------------ */
-/* --- SEARCH BAR STYLES (MATCHES TOP NAV BAR) --- */
-/* ------------------------------------------------ */
-.search-container {
-    margin-bottom: 15px; /* Slightly reduced margin */
-    position: relative; 
-}
-
-#statusSearch {
-    width: 100%;
-    /* Reduced padding for a smaller visual height */
-    padding: 8px 12px; 
-    font-size: 14px; /* Reduced font size */
-    font-weight: 500;
-    
-    /* Styling to match top nav search button */
-    background-color: var(--top-nav-search-bg); 
-    color: #fff;
-    border: 1px solid var(--top-nav-bg); 
-    border-radius: 4px; 
-    box-shadow: none; 
-    transition: background-color 0.2s, border-color 0.2s;
-}
-
-/* Placeholder text visibility */
-#statusSearch::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-    font-weight: 400;
-}
-
-/* Focus/Active state */
-#statusSearch:focus {
-    /* Use the accent color on focus, just like a button hover */
-    background-color: var(--accent);
-    border-color: var(--accent-hover); 
-    outline: none;
-}
-
-
-
-
-/* Added to your existing CSS file */
-
-.bonus-icon {
-    color: gold; 
-    margin-right: 5px;
-    font-size: 1.2em;
-}
-
-.bonus-awarded-value {
-    font-weight: bold;
-    color: var(--accent); /* Using accent color */
-}
-
-.bps-score {
-    font-size: 0.85em;
-    color: var(--subtext);
-    margin-left: 10px;
-    font-style: italic;
-}
-
-
-
-
-.fpl-countdown-wrapper {
-    text-align: center;
-    padding: 20px;
-    /* FPL Dark Blue */
-    background-color: #0d2745; 
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    color: #fff;
-    max-width: 550px;
-    margin: 30px auto;
-}
-
-.countdown-title {
-    font-size: 1.2rem; /* Changed from 1.5rem to make it a bit smaller */
-    font-weight: 700;
-    margin-bottom: 15px;
-    /* FPL red Accent */
-    color: #e90052; 
-    text-transform: uppercase;
-}
-
-.countdown-display {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-
-.countdown-unit {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 60px;
-}
-
-.countdown-time {
-    font-size: 2.5rem;
-    font-weight: 900;
-    line-height: 1;
-}
-
-.countdown-label {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: #99aab5;
-    text-transform: uppercase;
-}
-
-.countdown-separator {
-    font-size: 2rem;
-    color: #00ff85;
-    padding-bottom: 15px;
-}
-
-.countdown-note {
-    font-size: 0.8rem;
-    margin-top: 15px;
-    color: #99aab5;
-}
-
-/* Style for the "Deadline Passed" message */
-.deadline-passed {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #ff3c3c; /* Red alert color */
-    padding: 10px;
-}
-
-
-
-/* --- YouTube Carousel Styles --- */
-
-#youtube-carousel {
-    /* Full width container with minimal vertical padding */
-    padding: 30px 0; 
-    text-align: center;
-    background-color: var(--background-color-light, #f7f7f7); /* Use light background, default to light gray */
-}
-
-#youtube-carousel h2 {
-    /* Updated Title Style */
-    margin-bottom: 40px;
-    font-size: 2.2em;
-    font-weight: 700;
-    color: var(--text-color-dark, #222);
-    /* Adding a subtle accent under the title */
-    border-bottom: 3px solid var(--highlight-accent, #007bff);
-    display: inline-block;
-    padding-bottom: 5px;
-}
-
-.carousel-container {
-    position: relative;
-    /* Full screen width (as previously requested) */
-    max-width: 90%; 
-    margin: 0 auto;
-    overflow: hidden; 
-    
-    /* --- 🗑️ KEY CHANGE: REMOVING THE "CARD" EFFECT --- */
-    border-radius: 0; /* Remove border radius */
-    box-shadow: none; /* Remove box shadow */
-    /* ---------------------------------------------------- */
-}
-
-.carousel-slides {
-    display: flex;
-    transition: transform 0.5s ease-in-out; 
-}
-
-.carousel-item {
-    min-width: 100%; 
-    box-sizing: border-box;
-    padding: 0 20px; /* Adjusted padding to separate videos slightly */
-    text-align: center;
-}
-
-/* Make the embedded YouTube video responsive */
-.carousel-item iframe {
-    width: 100%;
-    aspect-ratio: 16 / 9; 
-    height: auto;
-    border: none;
-    /* Adding a subtle shadow directly to the video iframe for definition */
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); 
-    border-radius: 8px; /* Slightly rounded corners for the video itself */
-}
-
-.video-caption {
-    /* Caption/Title below the video */
-    margin-top: 15px;
-    font-size: 1.1em;
-    font-weight: 600;
-    color: var(--text-color, #333);
-}
-
-/* Carousel Navigation Buttons */
-.prev-btn, .next-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    
-    /* Improved Button Design */
-    background-color: var(--highlight-accent, #007bff); /* Use an accent color */
-    color: white;
-    border: none;
-    padding: 15px 20px; /* Larger click area */
-    cursor: pointer;
-    z-index: 10;
-    font-size: 1.8em; /* Larger arrow */
-    line-height: 1;
-    border-radius: 50%;
-    transition: background-color 0.3s, transform 0.2s;
-    opacity: 0.8; /* Slightly transparent when not hovered */
-}
-
-.prev-btn:hover, .next-btn:hover {
-    background-color: var(--hover-color, #0056b3); 
-    transform: translateY(-50%) scale(1.05); /* Slight grow effect on hover */
-    opacity: 1;
-}
-
-.prev-btn {
-    left: 10px;
-}
-
-.next-btn {
-    right: 10px;
-}
-
-/* Carousel Dots/Indicators */
-.carousel-dots {
-    text-align: center;
-    margin-top: 25px; /* More space below the video */
-}
-
-.dot {
-    height: 12px; /* Slightly larger dot */
-    width: 12px;
-    margin: 0 6px;
-    background-color: #bbb;
-    border-radius: 50%;
-    display: inline-block;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-}
-
-.dot.active {
-    background-color: var(--highlight-accent, #007bff); /* Use accent color for active dot */
-    transform: scale(1.2);
-}
