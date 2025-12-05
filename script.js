@@ -546,7 +546,8 @@ async function loadCurrentGameweekFixtures() {
                 processActions(goalsData, 'goal');
                 processActions(assistsData, 'assist');
                 processActions(redCardsData, 'red_card');
-
+                processActions(yellowCardsData, 'yellow_card');
+                processActions(minutesplayedData, 'minutes');
                 if (allActions.length > 0) {
                     hasDetails = true;
                     const groupedActions = allActions.reduce((acc, action) => {
@@ -878,18 +879,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-
-
-// 🌟 BONUS POINTS SCORERS (Current Gameweek)
-async function loadTopBonusPoints(data) {
-    const container = document.getElementById("bps-list");
-    if (!container || !data) return;
-
-    // Check 1: Ensure we have a Gameweek ID
-    if (!currentGameweekId) {
-        container.innerHTML = "<h3>Bonus Points (Current GW) 🌟</h3><p>Gameweek information is not yet available.</p>";
-        return;
-    }
     
     // Clear content and show loader while waiting for the secondary fetch
     container.innerHTML = `<div style="text-align: center; padding: 20px 0;"><div class="loader"></div><p style="color: var(--subtext); margin-top: 15px; font-size: 14px;">Fetching live GW ${currentGameweekId} bonus data...</p></div>`;
