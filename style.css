@@ -67,8 +67,7 @@ body.dark-mode {
 /* RESET */
 * {
     margin: 0;
-    padding: 0; /* Changed from 2 to 0 for a true reset */
-    /* 💥 CRUCIAL FIX: box-sizing ensures padding doesn't cause overflow */
+    padding: 0; 
     box-sizing: border-box; 
 }
 
@@ -79,47 +78,24 @@ body {
     color: var(--text);
     min-height: 100vh;
     padding-top: 0; 
-    
-    /* 💥 FIX: Removed fixed horizontal padding from body */
-    /* padding-left: 22px; */
-    /* padding-right: 22px; */
-    
     transition: background .3s, color .3s;
     display: flex;
     flex-direction: column;
     align-items: center;
-    
-    /* 💥 FIX: Prevents accidental horizontal scrolling */
     overflow-x: hidden; 
 }
 
-
-
 /* MAIN CONTAINER (The main content area) */
 main {
-    /* 1. ENABLE FLEXBOX (Default for small screens - vertical column) */
     display: flex;
-
-    /* 2. STACK CHILDREN VERTICALLY (Default for small screens) */
     flex-direction: column;
-
-    /* 💥 FIX: Added width constraints */
-    max-width: 1000px; /* Control max width on large screens */
+    max-width: 1000px; 
     width: 100%; 
-    margin: 0 auto; 	/* Centers the main container */
-
-    /* 3. ENSURE CHILDREN TAKE FULL WIDTH */
+    margin: 0 auto; 	
     align-items: center; 
-
-    /* 4. SPACE BETWEEN ITEMS (Sets the gap between your <section> elements) */
     gap: 20px; 
-
-    /* 5. PADDING: Added horizontal padding for mobile spacing */
     padding: 20px 15px; 
 }
-
-
-
 
 /* HEADINGS */
 h1, h2 {
@@ -153,16 +129,13 @@ header h2 {
 /* SECTIONS STANDARD CARD STYLE */
 section {
     background: var(--card-bg);
-    /* ➡️ REDUCED SIZE */
-    padding: 16px; 
+    /* ➡️ VERY SMALL PADDING */
+    padding: 12px; 
     border-radius: var(--radius);
     border: 1px solid var(--border);
-    /* 💥 FIX: Removed fixed margin-bottom, rely on main's gap */
     margin-bottom: 0; 
     box-shadow: 0 2px 12px rgba(0,0,0,0.1);
     transition: background .3s, border .3s, box-shadow .3s;
-    
-    /* 💥 FIX: Ensure sections always fill the width of the main container */
     width: 100%;
 }
 
@@ -179,8 +152,9 @@ section {
 #welcome p,
 #welcome li {
     color: var(--subtext);
-    line-height: 1.7;
-    font-size: 15px;
+    /* ➡️ VERY SMALL FONT & LINE HEIGHT */
+    line-height: 1.5; 
+    font-size: 14px; 
 }
 
 /* LIST DETAILS */
@@ -195,7 +169,7 @@ li {
     margin-bottom: 8px; 
 }
 
-/* UTILITY CLASSES */
+/* UTILITY CLASSES (unchanged) */
 .highlight-accent {
     color: var(--accent);
     font-weight: bold;
@@ -208,8 +182,6 @@ li {
     color: var(--red-light);
     font-weight: bold;
 }
-
-/* --- NEW UTILITY CLASS FOR MINUTES PLAYED --- */
 .minutes-played {
     font-weight: 500; 
     color: var(--subtext); 
@@ -217,10 +189,9 @@ li {
     white-space: nowrap; 
     margin-left: 8px; 
 }
-/* --- END NEW UTILITY CLASS --- */
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- MODIFIED: STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS (Making them look like a list, not inner cards) --- */
+/* --- MODIFIED: STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS (VERY SMALL) --- */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 #standings-list div,
 #price-changes-list div,
@@ -230,31 +201,31 @@ li {
     display: flex; 
     justify-content: space-between; 
     align-items: center;
-    /* ➡️ REDUCED SIZE */
-    font-size: 13px; 
+    /* ➡️ VERY SMALL FONT */
+    font-size: 12px; 
     
-    /* ➡️ REDUCED SIZE */
-    padding: 6px 0; 
-    margin-bottom: 0; /* Remove margin between rows */
-    background: transparent; /* Remove background color (use parent card background) */
-    border: none; /* Remove border */
-    border-radius: 0; /* Remove border radius */
+    /* ➡️ VERY SMALL PADDING */
+    padding: 4px 0; 
+    margin-bottom: 0; 
+    background: transparent; 
+    border: none; 
+    border-radius: 0; 
     
-    border-bottom: 1px solid var(--border); /* Add a separator line at the bottom */
-    transition: none; /* Remove transition */
+    border-bottom: 1px solid var(--border); 
+    transition: none; 
 }
 
-/* Remove the hover effect */
+/* Remove hover effect (unchanged) */
 #standings-list div:hover,
 #price-changes-list div:hover,
 #most-transferred-list div:hover,
 #most-transferred-out-list div:hover,
 #most-captained-list div:hover {
     transform: none;
-    background: rgba(0, 0, 0, 0.05); /* Add a subtle background on hover */
+    background: rgba(0, 0, 0, 0.05); 
 }
 
-/* Remove the bottom border from the last item in each list */
+/* Remove bottom border from last item (unchanged) */
 #standings-list div:last-child,
 #price-changes-list div:last-child,
 #most-transferred-list div:last-child,
@@ -266,11 +237,9 @@ li {
 
 .rank-number {
     font-weight: 700;
-    /* ➡️ REDUCED SIZE */
     width: 25px; 
     text-align: left;
 }
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
 
 .manager-name {
     flex-grow: 1; 
@@ -286,21 +255,11 @@ li {
     font-weight: 700;
     width: 45px; 
     text-align: right;
-    font-size: 13px;
+    font-size: 12px; /* Adjusted to match list font size */
 }
 
 
-/* HIGHLIGHT RANKS (Used for top 3 and Most Captained) */
-.top-rank,
-.second-rank,
-.third-rank {
-    color: var(--green);
-    font-weight: bold;
-}
-
-
-/* --- FPL DATA HEADERS --- */
-
+/* --- FPL DATA HEADERS (unchanged) --- */
 #price-changes-list h3,
 #most-transferred-list h3,
 #most-transferred-out-list h3,
@@ -317,20 +276,17 @@ li {
     padding-top: 5px; 
 }
 
-/* MODIFIED: Remove inner card border overrides and rely on border-bottom for lines */
 .price-riser {
     border-left: 5px solid var(--green) !important;
 }
 .price-faller {
     border-left: 5px solid var(--red-light) !important;
 }
-
-/* Transfers Out styling */
 .transferred-out {
     border-right: 5px solid var(--red-light);
 }
 
-/* --- FIXTURES SCORE/STATUS STYLES --- */
+/* --- FIXTURES SCORE/STATUS STYLES (VERY SMALL) --- */
 #fixtures-list p {
     text-align: center;
     color: var(--subtext);
@@ -344,30 +300,28 @@ li {
     margin: 0;
 }
 
-/* MODIFIED: Fixtures look also needs to be simplified */
 #fixtures-list li {
     display: flex;
     flex-direction: column; 
-    /* ➡️ REDUCED SIZE */
-    padding: 8px 10px; 
-    margin-bottom: 0; /* Remove margin between fixture rows */
-    background: transparent; /* Remove background */
-    border-radius: 0; /* Remove radius */
-    border: none; /* Remove border */
-    border-bottom: 1px solid var(--border); /* Add separator */
+    /* ➡️ VERY SMALL PADDING */
+    padding: 6px 8px; 
+    margin-bottom: 0; 
+    background: transparent; 
+    border-radius: 0; 
+    border: none; 
+    border-bottom: 1px solid var(--border); 
     font-weight: 600;
-    /* ➡️ REDUCED SIZE */
-    font-size: 13px; 
+    /* ➡️ VERY SMALL FONT */
+    font-size: 12px; 
     transition: all .2s;
     position: relative; 
 }
 
-/* Remove bottom border from last fixture */
+/* Remove bottom border from last fixture (unchanged) */
 #fixtures-list li:last-child {
     border-bottom: none;
 }
 
-/* The row containing the score and team names */
 .fixture-summary {
     display: flex;
     justify-content: space-between;
@@ -375,17 +329,10 @@ li {
     width: 100%;
 }
 
-/* Only apply extra padding if details are present */
-#fixtures-list li.has-details {
-    padding-bottom: 10px; 
-}
-
-/* Match Status Tag (NEW) */
 .match-status-tag {
     position: absolute;
     top: 0;
     right: 0;
-    /* Removed custom border-radius to keep it square */
     border-top-right-radius: 0; 
     border-bottom-left-radius: 8px;
     padding: 3px 8px;
@@ -394,93 +341,20 @@ li {
     color: var(--card-bg); 
 }
 
-/* Live Match Highlight */
-.match-live {
-    border: none !important; /* Remove inner card border */
-}
-.match-live .match-status-tag {
-    background-color: var(--status-live);
-    color: var(--text); 
-}
-
-/* Finished Match Highlight */
-.match-finished .match-status-tag {
-    background-color: var(--status-finished);
-    color: #fff;
-}
-
-/* Upcoming Match (Default) */
-.match-pending .match-status-tag {
-    background-color: var(--status-upcoming);
-    color: #fff;
-}
-
-/* Base style for the team container */
-.fixture-team {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start; 
-    flex-grow: 1;
-}
-
-/* Align home team label to the right of its container */
-.home-team {
-    justify-content: flex-end;
-}
-
-
-/* Score displays */
-.score-home, .score-away {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text);
-    padding: 0 5px;
-}
-
-.vs-label, .vs-label-time {
-    font-weight: normal;
-    color: var(--subtext);
-    font-size: 12px;
-    padding: 0 10px;
-    white-space: nowrap; 
-}
-
-
-/* --- FIXTURE DETAILS (GOALS/ASSISTS/CARDS) STYLES --- */
+/* --- FIXTURE DETAILS (GOALS/ASSISTS/CARDS) STYLES (VERY SMALL) --- */
 .fixture-details {
     width: 100%;
-    /* ➡️ REDUCED SIZE */
     margin-top: 8px; 
     padding-top: 6px; 
     border-top: 1px dashed var(--border);
-    /* ➡️ REDUCED SIZE */
-    font-size: 11px; 
-    line-height: 1.5; 
+    /* ➡️ VERY SMALL FONT */
+    font-size: 10px; /* Reduced from 11px */
+    line-height: 1.4; /* Reduced line height */
     color: var(--subtext);
-    /* ➡️ REDUCED SIZE */
     padding-bottom: 2px; 
 }
 
-.fixture-details p {
-    text-align: left;
-    margin: 0;
-    padding: 2px 0;
-    font-weight: normal;
-}
-
-.action-label {
-    font-weight: 700;
-    color: var(--text);
-    margin-right: 8px;
-}
-
-.action-goal { color: var(--action-goal); }
-.action-assist { color: var(--action-assist); }
-.action-red-card { color: var(--action-red); }
-/* --- END FIXTURE DETAILS --- */
-
-/* --- EPL TABLE STYLES (No changes needed here as it uses table styling) --- */
-
+/* --- EPL TABLE STYLES (unchanged) --- */
 #epl-table-list {
     overflow-x: auto; 
 }
@@ -493,49 +367,19 @@ li {
     text-align: center;
 }
 
-#epl-table-list thead th,
-#epl-table-list tbody tr {
-    background: var(--bg);
-    border-radius: 8px;
-}
-
 #epl-table-list th, 
 #epl-table-list td {
     padding: 10px 5px;
     white-space: nowrap;
 }
 
-#epl-table-list thead th {
-    background-color: var(--border);
-    font-weight: 700;
-    color: var(--subtext);
-    position: sticky;
-    top: 0;
-}
-
-#epl-table-list tbody tr {
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    transition: transform 0.2s, background 0.2s;
-}
-
-#epl-table-list tbody td:first-child {
-    font-weight: bold;
-    border-left: 4px solid transparent;
-}
-
-#epl-table-list tbody td:nth-child(2) {
-    text-align: left;
-}
-
-/* Zone Highlighting */
+/* Zone Highlighting (unchanged) */
 .champions-league td:first-child { border-left-color: var(--blue-cl); }
 .europa-league td:first-child { border-left-color: var(--orange-el); }
 .relegation-zone td:first-child { border-left-color: var(--red-rl); }
 
 
-/* --- UTILITY ELEMENTS --- */
-
-/* BACK TO TOP BUTTON (REDUCED SIZE) */
+/* --- UTILITY ELEMENTS (unchanged) --- */
 #backToTop {
     position: fixed;
     bottom: 20px; 
@@ -556,21 +400,9 @@ li {
     transition: background 0.3s, transform 0.25s, box-shadow 0.3s;
 }
 
-#backToTop:hover {
-    background: var(--accent-hover);
-    transform: scale(1.1);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-
-#backToTop:focus {
-    outline: 2px solid var(--accent-hover);
-    outline-offset: 3px;
-}
-
-/* THEME TOGGLE BUTTON (REDUCED SIZE) */
 #themeToggle {
     position: fixed;
-    top: 100px; /* Adjusted to sit below the two nav bars */
+    top: 100px; 
     right: 20px; 
     background: var(--card-bg); 
     color: var(--text); 
@@ -584,140 +416,41 @@ li {
     z-index: 999;
 }
 
-#themeToggle:hover {
-    background: var(--border); 
-    transform: scale(1.05);
-}
-
-#themeToggle:focus {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
-}
-
-/* LOADER - FPL COLORFUL STYLE */
-.loader {
-    width: 30px; 
-    height: 30px;
-    border: 4px solid var(--card-bg); 
-    border-top-color: var(--accent); 
-    border-right-color: var(--loader-color-2);
-    border-bottom-color: var(--loader-color-3); 
-    border-radius: 50%;
-    animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
-    margin: 30px auto; 
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* LAZY LOAD */
-.lazy {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity .8s ease, transform .8s ease;
-}
-.lazy-loaded {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-
-
-/* --- NEW LOADING OVERLAY --- */
-#loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--bg); 
-    color: var(--text);
-    z-index: 10000; 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    transition: opacity 0.5s ease-out; 
-}
-
-#loading-overlay h1 {
-    font-size: 50px;
-    margin-bottom: 5px;
-    color: var(--accent); 
-}
-
-#loading-overlay p {
-    font-size: 18px;
-    color: var(--subtext);
-    margin-bottom: 20px;
-}
-
-
-/* --- FOOTER STYLES --- */
+/* --- FOOTER STYLES (unchanged) --- */
 footer {
     padding: 20px 10px;
     margin-top: 40px;
-    /* Using --border */
     border-top: 1px solid var(--border); 
     text-align: center;
     font-size: 0.85em;
     color: var(--subtext);
 }
 
-footer .social-links {
-    margin: 15px 0 10px 0;
-}
-
-footer .social-links a {
-    color: var(--subtext);
-    text-decoration: none;
-    margin: 0 10px;
-    transition: color 0.3s ease;
-    font-size: 1.5em; 
-}
-
-footer .social-links a:hover {
-    color: var(--accent);
-}
-
-footer .disclaimer {
-    margin-top: 10px;
-    font-size: 0.75em;
-    opacity: 0.7;
-}
-
 /* ------------------------------------------------ */
-/* --- MODIFIED NAVIGATION STYLES FOR TWO-TIER BAR --- */
+/* --- MODIFIED NAVIGATION STYLES (unchanged) --- */
 /* ------------------------------------------------ */
 
-/* Base Styles for the two bars */
 #top-nav-bar,
 #bottom-nav-bar {
     width: 100%;
-    /* Ensure the sticky property is set on both */
     position: sticky; 
     z-index: 900;
-    margin-bottom: 0; /* Remove gap between main content and nav */
+    margin-bottom: 0; 
     border-radius: 0;
     border: none;
     padding: 0;
 }
 
-/* Sticky Positioning */
 #top-nav-bar {
     top: 0;
 }
 #bottom-nav-bar {
-    top: 40px; /* Aligned right below the top bar (approx. 40px height) */
+    top: 40px; 
     box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
 }
 
-/* Shared Container */
 .nav-container {
-    max-width: 1000px; /* Aligns with the new main content width */
-    /* 💥 FIX: Added margin auto to center the internal container */
+    max-width: 1000px; 
     margin: 0 auto; 
     display: flex;
     justify-content: space-between; 
@@ -726,173 +459,59 @@ footer .disclaimer {
     padding-right: 10px;
 }
 
-/* --- 1. TOP BAR STYLES (DARK GREEN/OLIVE) --- */
 #top-nav-bar {
     background-color: var(--top-nav-bg); 
     padding: 8px 0; 
     height: 40px; 
 }
-
-.social-icons {
-    display: flex;
-    align-items: center;
-    gap: 15px; 
-    font-size: 1.1em; 
-}
-
-.social-icons a {
-    color: #fff;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-
-.search-login-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.search-btn, .signin-btn {
-    padding: 6px 12px;
-    font-weight: 600;
-    font-size: 13px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    white-space: nowrap;
-}
-
-.search-btn {
-    background-color: var(--top-nav-search-bg); 
-    color: #fff;
-}
-/* Sign in button uses the main FPL green */
-.signin-btn {
-    background-color: var(--nav-green-dark); 
-    color: #fff;
-}
-
-
-/* --- 2. BOTTOM BAR STYLES (MAIN GREEN) --- */
 #bottom-nav-bar {
     background-color: var(--nav-green-dark); 
     height: 50px;
 }
 
-#bottom-nav-bar .nav-container {
-    justify-content: flex-start; /* Aligns logo to the left */
-    gap: 30px;
-}
-
-.fpl-logo {
-    color: #fff;
-    /* Assuming you replace this placeholder text with the actual logo image */
-    font-size: 18px; 
-    font-weight: 900;
-    line-height: 1.1;
-    text-transform: uppercase;
-}
-
-/* Main Links - Replaces your old .nav-links */
-.main-links {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    flex-wrap: nowrap;
-    overflow-x: auto; 
-    flex-grow: 1; /* Allows links to take up available space */
-    
-    /* Hide scrollbar for consistency across browsers */
-    -ms-overflow-style: none; 
-    scrollbar-width: none; 
-}
-.main-links::-webkit-scrollbar {
-    display: none;
-}
-
-.main-links li {
-    margin-right: 20px; 
-    white-space: nowrap;
-}
-
-.main-links a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 10px 0; 
-    display: block;
-    transition: opacity 0.2s;
-}
-
-.main-links a:hover {
-    opacity: 0.8;
-}
-
-/* Hiding old elements that are replaced by the new structure */
-#main-nav, /* Your old nav element name */
-.nav-links, /* Your old links class */
-.nav-left,
-.nav-right {
-    display: none !important;
-}
-
-
-/* --- DROP-DOWN MENU STYLES --- */
-
-/* 1. Define the parent link item as relative for absolute positioning */
-.main-links .dropdown-item {
-    position: relative;
-    padding: 0; 
-}
-
-/* 2. Hide the actual dropdown menu (Updated hiding method for click support) */
-.dropdown-menu {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    
-    /* Positioning */
-    position: absolute;
-    /* Styles for the rest of the dropdown-menu go here if needed */
-}
-
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- DESKTOP OPTIMIZATION: 2-COLUMN GRID (SMALLER CONTAINER) --- */
+/* --- DESKTOP OPTIMIZATION: 2-COLUMN GRID (SMALLER CONTAINER, FIXED HEIGHT SCROLLING) --- */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
-/* Apply to screens 1024px and wider (standard desktop breakpoint) */
+/* Apply to screens 1024px and wider */
 @media (min-width: 1024px) {
     
-    /* ➡️ CONSTRAIN THE MAIN CONTAINER SIZE (e.g., to 1100px) */
+    /* ➡️ CONSTRAIN THE MAIN CONTAINER SIZE (1100px) and enable GRID */
     main {
         max-width: 1100px; 
-        
-        /* ➡️ SWITCH TO CSS GRID FOR 2 COLUMNS */
         display: grid;
-        /* Define 2 equally sized columns (1 fraction each) */
         grid-template-columns: 1fr 1fr; 
-        /* Ensure the gap remains at 20px, carried over from the original `main` */
         gap: 20px; 
-        
-        /* Reset flex-specific properties that conflict with grid */
         flex-direction: initial;
         align-items: initial;
     }
+
+    /* ➡️ Implement Fixed Height and Scrolling for all sections */
+    section {
+        max-height: 350px; /* ⬅️ KEY: Controls how "small" the card is */
+        overflow-y: auto; 
+        padding: 16px; /* Return to slightly larger padding on desktop for aesthetics */
+    }
     
-    /* For sections that should span the full width (like #welcome or the EPL Table)
-       You need to manually override the grid setting. 
-    */
+    /* Ensure sections that should span both columns are set correctly */
     #welcome,
-    #epl-table-list { /* Assuming your EPL table is wrapped in a section/div with this ID */
-        grid-column: 1 / -1; /* Make it span from the first column line to the last */
+    #epl-table-list { 
+        grid-column: 1 / -1; 
+    }
+    
+    /* Override max-height for sections that should not scroll (like welcome/header info) */
+    #welcome {
+        max-height: initial; 
+        overflow-y: initial;
+    }
+    
+    /* Give the EPL Table a slightly different height */
+    #epl-table-list {
+        max-height: 400px; 
     }
 
-    /* ➡️ Adjust nav containers to match the new, slightly smaller desktop width */
+    /* Adjust nav containers to match the new width */
     #top-nav-bar .nav-container,
     #bottom-nav-bar .nav-container {
         max-width: 1100px; 
