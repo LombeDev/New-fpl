@@ -1,1 +1,521 @@
+/* ROOT THEME VARIABLES — LIGHT MODE (clean + simple) */
+:root {
+    --bg: #ffffff;
+    --text: #242424;
+    --subtext: #555;
+    --card-bg: #f4f4f4;
+    --border: #e5e5e5;
+    --accent: #37003C; /* FPL Purple */
+    --accent-hover: #530055;
+    --green: #2EA043; /* GitHub green - used for price risers */
+    /* Updated for the bottom bar green */
+    --nav-green-dark: #1E824C; 
+    --red-light: #CF3A46; /* Custom light red for fallers */
+    --blue-cl: #2196F3; /* Custom blue for CL zone */
+    --orange-el: #FF9800; /* Custom orange for EL zone */
+    --red-rl: #F44336; /* Custom red for relegation */
+    /* NEW: Custom colors for the top nav bar */
+    --top-nav-bg: #31554A; 
+    --top-nav-search-bg: #4D766C; 
+    
+    /* --- ACTION & STATUS COLORS --- */
+    --action-goal: #3A8C6F; /* Dark Green for Goal */
+    --action-assist: #3F51B5; /* Indigo for Assist */
+    --action-red: #D32F2F; /* Dark Red for Red Card */
+    --status-live: #FFC107; /* Amber for Live */
+    --status-finished: #607D8B; /* Blue Grey for Finished */
+    --status-upcoming: var(--accent); /* Upcoming matches use FPL Purple */
+    
+    /* --- NEW LOADER COLORS --- */
+    --loader-color-2: #00FF85; /* FPL Bright Green/Cyan */
+    --loader-color-3: #B3B3D9; /* Light secondary FPL color */
 
+    --radius: 12px;
+}
+
+/* DARK THEME — GitHub / Telegram Blue-Tinted */
+body.dark-mode {
+    --bg: #0d1117; 
+    --text: #c9d1d9; 
+    --subtext: #8b949e; 
+    --card-bg: #161b22; 
+    --border: #30363d; 
+    --accent: #238636; 
+    --accent-hover: #2ea043;
+    --green: #3fb950; 
+    --nav-green-dark: #238636; 
+    --top-nav-bg: #222933; 
+    --top-nav-search-bg: #333d48; 
+    --red-light: #f85149; 
+    --blue-cl: #64b5f6; 
+    --orange-el: #ffb74d; 
+    --red-rl: #e57373; 
+
+    /* --- DARK MODE ACTION & STATUS COLORS --- */
+    --action-goal: #81C784; 
+    --action-assist: #9FA8DA; 
+    --action-red: #E57373; 
+    --status-live: #FFEB3B; 
+    --status-finished: #B0BEC5; 
+    --status-upcoming: var(--accent);
+    
+    /* --- DARK MODE LOADER COLORS --- */
+    --loader-color-2: #64ffda; 
+    --loader-color-3: #9575CD; 
+}
+
+/* RESET */
+* {
+    margin: 0;
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
+/* BODY */
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-top: 0; 
+    transition: background .3s, color .3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden; 
+}
+
+/* MAIN CONTAINER (The main content area) */
+main {
+    display: flex;
+    flex-direction: column;
+    max-width: 1000px; 
+    width: 100%; 
+    margin: 0 auto; 	
+    align-items: center; 
+    gap: 20px; 
+    padding: 20px 15px; 
+}
+
+/* HEADINGS */
+h1, h2 {
+    text-align: center;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+}
+
+/* IMPROVED H1 SIZE AND WEIGHT */
+h1 { 
+    font-size: 38px; 
+    font-weight: 800; 
+    line-height: 1.1; 
+}
+/* Standard H2 */
+h2 { 
+    font-size: 24px; 
+    font-weight: 600; 
+}
+
+/* HEADER SPECIFIC H2 (Value Proposition) */
+header h2 {
+    font-size: 18px; 
+    font-weight: 600; 
+    color: var(--accent); 
+    margin-top: 0px;
+    margin-bottom: 30px; 
+}
+
+/* SECTIONS STANDARD CARD STYLE */
+section {
+    background: var(--card-bg);
+    /* ➡️ VERY SMALL PADDING (Base size for mobile) */
+    padding: 12px; 
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 0; 
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    transition: background .3s, border .3s, box-shadow .3s;
+    width: 100%;
+}
+
+/* WELCOME SECTION - Elevated with Accent Ribbon */
+#welcome {
+    border-top: 6px solid var(--accent); 
+    padding-top: 18px; 
+}
+
+/* WELCOME SECTION TEXT */
+#welcome p {
+    margin-bottom: 15px; 
+}
+#welcome p,
+#welcome li {
+    color: var(--subtext);
+    /* ➡️ VERY SMALL FONT & LINE HEIGHT */
+    line-height: 1.5; 
+    font-size: 14px; 
+}
+
+/* LIST DETAILS */
+ul {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-left: 0;
+    list-style: none; 
+}
+
+li {
+    margin-bottom: 8px; 
+}
+
+/* UTILITY CLASSES */
+.highlight-accent {
+    color: var(--accent);
+    font-weight: bold;
+}
+.price-riser {
+    color: var(--green);
+    font-weight: bold;
+}
+.price-faller {
+    color: var(--red-light);
+    font-weight: bold;
+}
+.minutes-played {
+    font-weight: 500; 
+    color: var(--subtext); 
+    font-size: 12px;
+    white-space: nowrap; 
+    margin-left: 8px; 
+}
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- MODIFIED: STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS (VERY SMALL) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+#standings-list div,
+#price-changes-list div,
+#most-transferred-list div,
+#most-transferred-out-list div,
+#most-captained-list div {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    /* ➡️ VERY SMALL FONT */
+    font-size: 12px; 
+    
+    /* ➡️ VERY SMALL PADDING */
+    padding: 4px 0; 
+    margin-bottom: 0; 
+    background: transparent; 
+    border: none; 
+    border-radius: 0; 
+    
+    border-bottom: 1px solid var(--border); 
+    transition: none; 
+}
+
+/* Remove hover effect */
+#standings-list div:hover,
+#price-changes-list div:hover,
+#most-transferred-list div:hover,
+#most-transferred-out-list div:hover,
+#most-captained-list div:hover {
+    transform: none;
+    background: rgba(0, 0, 0, 0.05); 
+}
+
+/* Remove bottom border from last item */
+#standings-list div:last-child,
+#price-changes-list div:last-child,
+#most-transferred-list div:last-child,
+#most-transferred-out-list div:last-child,
+#most-captained-list div:last-child {
+    border-bottom: none;
+    padding-bottom: 0; 
+}
+
+.rank-number {
+    font-weight: 700;
+    width: 25px; 
+    text-align: left;
+}
+
+.manager-name {
+    flex-grow: 1; 
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    padding: 0 10px;
+    font-weight: 500;
+}
+
+.rank-change {
+    font-weight: 700;
+    width: 45px; 
+    text-align: right;
+    font-size: 12px; 
+}
+
+
+/* --- FPL DATA HEADERS --- */
+#price-changes-list h3,
+#most-transferred-list h3,
+#most-transferred-out-list h3,
+#most-captained-list h3,
+#fixtures-list h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 10px 0 15px 0;
+    text-align: center;
+}
+
+#price-changes-list {
+    padding-top: 5px; 
+}
+
+.price-riser {
+    border-left: 5px solid var(--green) !important;
+}
+.price-faller {
+    border-left: 5px solid var(--red-light) !important;
+}
+.transferred-out {
+    border-right: 5px solid var(--red-light);
+}
+
+/* --- FIXTURES SCORE/STATUS STYLES (VERY SMALL) --- */
+#fixtures-list p {
+    text-align: center;
+    color: var(--subtext);
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+#fixtures-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#fixtures-list li {
+    display: flex;
+    flex-direction: column; 
+    /* ➡️ VERY SMALL PADDING */
+    padding: 6px 8px; 
+    margin-bottom: 0; 
+    background: transparent; 
+    border-radius: 0; 
+    border: none; 
+    border-bottom: 1px solid var(--border); 
+    font-weight: 600;
+    /* ➡️ VERY SMALL FONT */
+    font-size: 12px; 
+    transition: all .2s;
+    position: relative; 
+}
+
+/* Remove bottom border from last fixture */
+#fixtures-list li:last-child {
+    border-bottom: none;
+}
+
+.fixture-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.match-status-tag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-top-right-radius: 0; 
+    border-bottom-left-radius: 8px;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--card-bg); 
+}
+
+/* --- FIXTURE DETAILS (GOALS/ASSISTS/CARDS) STYLES (VERY SMALL) --- */
+.fixture-details {
+    width: 100%;
+    margin-top: 8px; 
+    padding-top: 6px; 
+    border-top: 1px dashed var(--border);
+    /* ➡️ VERY SMALL FONT */
+    font-size: 10px; 
+    line-height: 1.4; 
+    color: var(--subtext);
+    padding-bottom: 2px; 
+}
+
+/* --- EPL TABLE STYLES --- */
+#epl-table-list {
+    overflow-x: auto; 
+}
+
+#epl-table-list table {
+    width: 100%;
+    border-collapse: separate; 
+    border-spacing: 0 6px;
+    font-size: 13px;
+    text-align: center;
+}
+
+#epl-table-list th, 
+#epl-table-list td {
+    padding: 10px 5px;
+    white-space: nowrap;
+}
+
+/* Zone Highlighting */
+.champions-league td:first-child { border-left-color: var(--blue-cl); }
+.europa-league td:first-child { border-left-color: var(--orange-el); }
+.relegation-zone td:first-child { border-left-color: var(--red-rl); }
+
+
+/* --- UTILITY ELEMENTS --- */
+#backToTop {
+    position: fixed;
+    bottom: 20px; 
+    right: 20px; 
+    background: var(--accent); 
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 40px; 
+    height: 40px; 
+    font-size: 20px; 
+    display: none; 
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 999;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4); 
+    transition: background 0.3s, transform 0.25s, box-shadow 0.3s;
+}
+
+#themeToggle {
+    position: fixed;
+    top: 100px; 
+    right: 20px; 
+    background: var(--card-bg); 
+    color: var(--text); 
+    border: 1px solid var(--border);
+    padding: 6px 10px; 
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 13px; 
+    box-shadow: 0 1px 6px rgba(0,0,0,0.15); 
+    transition: background 0.3s, color 0.3s, border 0.3s, transform 0.25s;
+    z-index: 999;
+}
+
+/* --- FOOTER STYLES --- */
+footer {
+    padding: 20px 10px;
+    margin-top: 40px;
+    border-top: 1px solid var(--border); 
+    text-align: center;
+    font-size: 0.85em;
+    color: var(--subtext);
+}
+
+/* ------------------------------------------------ */
+/* --- MODIFIED NAVIGATION STYLES --- */
+/* ------------------------------------------------ */
+
+#top-nav-bar,
+#bottom-nav-bar {
+    width: 100%;
+    position: sticky; 
+    z-index: 900;
+    margin-bottom: 0; 
+    border-radius: 0;
+    border: none;
+    padding: 0;
+}
+
+#top-nav-bar {
+    top: 0;
+}
+#bottom-nav-bar {
+    top: 40px; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+}
+
+.nav-container {
+    max-width: 1000px; 
+    margin: 0 auto; 
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    padding-left: 10px; 
+    padding-right: 10px;
+}
+
+#top-nav-bar {
+    background-color: var(--top-nav-bg); 
+    padding: 8px 0; 
+    height: 40px; 
+}
+#bottom-nav-bar {
+    background-color: var(--nav-green-dark); 
+    height: 50px;
+}
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- DESKTOP OPTIMIZATION: 3-COLUMN GRID (SMALLER CONTAINER, FIXED HEIGHT SCROLLING) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+/* Apply to screens 1024px and wider */
+@media (min-width: 1024px) {
+    
+    /* ➡️ CONSTRAIN THE MAIN CONTAINER SIZE (1100px) and enable 3-COLUMN GRID */
+    main {
+        max-width: 1100px; 
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr; 
+        gap: 20px; 
+        flex-direction: initial;
+        align-items: initial;
+    }
+
+    /* ➡️ Implement Fixed Height and Scrolling for all sections */
+    section {
+        max-height: 320px; /* Base card height */
+        overflow-y: auto; 
+        padding: 16px; 
+    }
+    
+    /* Ensure sections that should span all three columns are set correctly */
+    #welcome,
+    #epl-table-list { 
+        grid-column: 1 / -1; /* Make it span all three columns */
+    }
+    
+    /* Give the EPL Table a slightly different height if it needs to scroll (OPTIONAL) */
+    #epl-table-list {
+        max-height: 400px; 
+    }
+    
+    /* ⚠️ NOTE: #welcome now uses the base section max-height: 320px and will scroll if content exceeds it. */
+    /* Remove the old exclusion:
+    #welcome {
+        max-height: initial; 
+        overflow-y: initial;
+    } 
+    */
+
+    /* Adjust nav containers to match the new width */
+    #top-nav-bar .nav-container,
+    #bottom-nav-bar .nav-container {
+        max-width: 1100px; 
+    }
+}
