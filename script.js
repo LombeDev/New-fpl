@@ -267,6 +267,119 @@ async function loadFPLBootstrapData() {
     }
 }
 
+// 🌍 GENERAL LEAGUE STANDINGS (Collapsible Section Content)
+/**
+ * Loads and displays standings for a list of general leagues.
+ * The content for these leagues will be collapsible/expandable.
+ */
+async function loadGeneralLeagueStandings() {
+    const container = document.getElementById("general-leagues-list");
+    if (!container) return;
+
+    // --- 1. Define the leagues to load (IDs provided by the user) ---
+    const leaguesToLoad = [
+        { id: "258", name: "Zambia", type: "Classic" }, 
+        { id: "315", name: "Overall", type: "Classic" }, 
+        { id: "276", name: "Gameweek 1", type: "Classic" }, 
+        { id: "333", name: "Second Chance", type: "H2H" }, 
+    ];
+
+    container.innerHTML = ""; // Clear the initial loading content
+
+    for (const leagueConfig of leaguesToLoad) {
+        // Create a dedicated sub-container for this league
+        const leagueItem = document.createElement('div');
+        leagueItem.classList.add('general-league-item');
+
+        // Create the header for this specific league list
+        const leagueHeader = document.createElement('div');
+        leagueHeader.classList.add('general-league-header');
+        leagueHeader.innerHTML = `
+            <h4>${leagueConfig.name} League Standings</h4>
+            <span class="league-type">(${leagueConfig.type})</span>
+            <span class="loader-small"></span>
+        `;
+        
+        // This is where the actual standings will go
+        const standingsContent = document.createElement('div');
+        standingsContent.classList.add('league-standings-content');
+        
+        leagueItem.appendChild(leagueHeader);
+        leagueItem.appendChild(standingsContent);
+        container.appendChild(leagueItem);
+
+        // Add click listener to toggle the individual league standing content
+        leagueHeader.addEventListener('click', () => {
+            // Simple toggle for individual leagues
+            standingsContent.classList.toggle('visible');
+            leagueHeader.classList.toggle('active');
+        });
+
+
+        try {
+            // Determine API endpoint based on league type (Classic or H2H)
+            const apiEndpoint = leagueConfig.type === "H2H" 
+                ? `https://fantasy.premierleague.com/api/leagues-h2h/${leagueConfig.id}/standings/`
+                : `https://fantasy.premierleague.com/api/leagues-classic/${leagueConfig.id}/standings/`;
+
+            const data = await fetch(
+                proxy + apiEndpoint
+            ).then((r) => r.json());
+
+            // Check if the league has results
+            const results = data.standings?.results;
+            const loader = leagueHeader.querySelector('.loader-small');
+            if (loader) loader.remove(); // Remove loader on success
+
+            if (!results || results.length === 0) {
+                standingsContent.innerHTML = `<p class="error-message">No teams found in this league.</p>`;
+                continue; // Move to the next league in the loop
+            }
+
+            // --- 2. Render Standings Table ---
+            const list = document.createElement('ul');
+            list.classList.add('standings-list-general'); // Use a specific class for styling
+
+            results.forEach((team) => {
+                let rankChangeIndicator = '';
+                let rankChangeClass = '';
+                const rankChange = team.rank_change;
+
+                if (rankChange > 0) {
+                    rankChangeIndicator = `▲${rankChange}`;
+                    rankChangeClass = 'rank-up';
+                } else if (rankChange < 0) {
+                    rankChangeIndicator = `▼${Math.abs(rankChange)}`;
+                    rankChangeClass = 'rank-down';
+                } else {
+                    rankChangeIndicator = '';
+                    rankChangeClass = 'rank-unchanged';
+                }
+
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `
+                    <span class="rank-number">${team.rank}.</span> 
+                    <span class="manager-name">${team.player_name} (${team.entry_name})</span> 
+                    <span class="rank-change ${rankChangeClass}">${rankChangeIndicator}</span> 
+                    <span><strong>${team.total}</strong> pts</span>
+                `;
+
+                if (team.rank === 1) listItem.classList.add("top-rank-general"); 
+                
+                list.appendChild(listItem);
+            });
+
+            standingsContent.appendChild(list);
+
+        } catch (err) {
+            console.error(`Error loading standings for ${leagueConfig.name}:`, err);
+            const loader = leagueHeader.querySelector('.loader-small');
+            if (loader) loader.remove();
+            standingsContent.innerHTML = `<p class="error-message">❌ Failed to load standings for ${leagueConfig.name}.</p>`;
+        }
+    }
+}
+
 /**
  * Loads and displays player status updates (Injured, Doubtful, Suspended)
  */
