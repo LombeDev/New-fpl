@@ -10,7 +10,7 @@
     --green: #2EA043; /* GitHub green - used for price risers */
     /* Updated for the bottom bar green */
     --nav-green-dark: #1E824C; 
-    --red-light: #CF3A46; /* Custom light red for fallers */
+    --red-light: #CF3A46; /* Custom light red for fallers/scrollbar hover */
     --blue-cl: #2196F3; /* Custom blue for CL zone */
     --orange-el: #FF9800; /* Custom orange for EL zone */
     --red-rl: #F44336; /* Custom red for relegation */
@@ -461,7 +461,7 @@ footer {
     /* ➡️ CRUCIAL: Ensure vertical alignment for all children */
     align-items: center; 
     padding-left: 10px; 
-    padding-right: 10px; /* Default desktop/larger mobile padding */
+    padding-right: 10px; 
     height: 100%; /* Ensure container fills the height of the nav bar */
 }
 
@@ -591,6 +591,39 @@ footer {
     #top-nav-bar .nav-container,
     #bottom-nav-bar .nav-container {
         max-width: 1100px; 
+    }
+    
+    /* ---------------------------------------------------------------------------------- */
+    /* 🎨 CUSTOM SCROLLBAR STYLES (DESKTOP ONLY) */
+    /* ---------------------------------------------------------------------------------- */
+    
+    /* 1. Hide the up/down scroll buttons (arrows) */
+    section::-webkit-scrollbar-button {
+        display: none;
+    }
+
+    /* 2. Define the general appearance of the scrollbar (width/color) */
+    section::-webkit-scrollbar {
+        width: 8px;
+        height: 8px; 
+    }
+
+    /* 3. Define the scrollbar track color (the background of the scrollbar) */
+    section::-webkit-scrollbar-track {
+        background: var(--card-bg); 
+    }
+    
+    /* 4. Define the scrollbar thumb (the moveable part) and apply hover color change */
+    section::-webkit-scrollbar-thumb {
+        background: var(--subtext); 
+        border-radius: 10px;
+        border: 2px solid var(--card-bg); 
+        transition: background-color 0.2s ease;
+    }
+
+    /* 5. Apply the FPL Red hover color */
+    section::-webkit-scrollbar-thumb:hover {
+        background: var(--red-light); /* FPL red light on hover */
     }
 }
 
