@@ -427,7 +427,7 @@ footer {
 }
 
 /* ------------------------------------------------ */
-/* --- MODIFIED NAVIGATION STYLES --- */
+/* --- MODIFIED NAVIGATION STYLES (FIXED) --- */
 /* ------------------------------------------------ */
 
 #top-nav-bar,
@@ -443,10 +443,15 @@ footer {
 
 #top-nav-bar {
     top: 0;
+    background-color: var(--top-nav-bg); 
+    padding: 8px 0; 
+    height: 40px; 
 }
 #bottom-nav-bar {
     top: 40px; 
     box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+    background-color: var(--nav-green-dark); 
+    height: 50px;
 }
 
 .nav-container {
@@ -454,19 +459,48 @@ footer {
     margin: 0 auto; 
     display: flex;
     justify-content: space-between; 
+    /* ➡️ FIX: Ensure vertical alignment for all children */
     align-items: center; 
     padding-left: 10px; 
     padding-right: 10px;
 }
 
-#top-nav-bar {
-    background-color: var(--top-nav-bg); 
-    padding: 8px 0; 
-    height: 40px; 
+/* ➡️ FIX: Search and Sign-in Action Group Alignment */
+.search-login-actions {
+    display: flex;
+    align-items: center; 
+    gap: 10px;
 }
-#bottom-nav-bar {
+
+.search-btn, .signin-btn {
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 13px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+    /* ➡️ FIX: Explicit height and line-height for vertical text centering */
+    height: 30px; 
+    line-height: 1; 
+}
+
+.search-btn {
+    background-color: var(--top-nav-search-bg); 
+    color: #fff;
+}
+.signin-btn {
     background-color: var(--nav-green-dark); 
-    height: 50px;
+    color: #fff;
+}
+
+.fpl-logo {
+    color: #fff;
+    font-size: 18px; 
+    font-weight: 900;
+    line-height: 1.1;
+    text-transform: uppercase;
 }
 
 
@@ -505,14 +539,6 @@ footer {
         max-height: 400px; 
     }
     
-    /* ⚠️ NOTE: #welcome now uses the base section max-height: 320px and will scroll if content exceeds it. */
-    /* Remove the old exclusion:
-    #welcome {
-        max-height: initial; 
-        overflow-y: initial;
-    } 
-    */
-
     /* Adjust nav containers to match the new width */
     #top-nav-bar .nav-container,
     #bottom-nav-bar .nav-container {
