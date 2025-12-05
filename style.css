@@ -139,23 +139,7 @@ section {
     width: 100%;
 }
 
-/* WELCOME SECTION - Elevated with Accent Ribbon */
-#welcome {
-    border-top: 6px solid var(--accent); 
-    padding-top: 18px; 
-}
 
-/* WELCOME SECTION TEXT */
-#welcome p {
-    margin-bottom: 15px; 
-}
-#welcome p,
-#welcome li {
-    color: var(--subtext);
-    /* ➡️ VERY SMALL FONT & LINE HEIGHT */
-    line-height: 1.5; 
-    font-size: 14px; 
-}
 
 /* LIST DETAILS */
 ul {
@@ -694,4 +678,84 @@ footer {
     .social-icons {
         gap: 6px; 
     }
+}
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 🔄 LOADER OVERLAY STYLES (Fixed Position, Full Screen) */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+/* 1. The Full-Screen Overlay Container */
+#loading-overlay {
+    /* CRITICAL: Fixed position, full coverage, high z-index */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000; 
+    
+    /* Overlay background: slightly transparent version of the main background */
+    background-color: var(--bg);
+    
+    /* Centering content (h1, p, loader) */
+    display: flex;
+    flex-direction: column; /* Stack h1, p, loader vertically */
+    justify-content: center;
+    align-items: center;
+    
+    /* Ensure text is visible and styled */
+    color: var(--text);
+    text-align: center;
+    
+    /* Smooth transition for hiding/showing (controlled by JS) */
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease-out, visibility 0.5s;
+}
+
+/* 1b. Style the text within the overlay */
+#loading-overlay h1 {
+    /* Use an accent color for the main title */
+    color: var(--accent);
+    margin-bottom: 5px;
+}
+
+
+#loading-overlay p {
+    color: var(--subtext);
+    margin-bottom: 30px; /* Space between text and loader */
+}
+
+
+/* Class to hide the loader when content is ready (controlled by JavaScript) */
+#loading-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    /* Optional: prevents interaction with the area once faded */
+    pointer-events: none; 
+}
+
+
+/* 2. The Actual Loader Spinner Element (Your class is .loader) */
+.loader {
+    /* FPL Themed Spinner using your custom colors */
+    width: 60px;
+    height: 60px;
+    border: 6px solid transparent;
+    border-radius: 50%;
+    
+    /* Use custom loader colors from your :root variables */
+    border-top-color: var(--accent);
+    border-right-color: var(--loader-color-2);
+    border-bottom-color: var(--loader-color-3);
+    
+    /* Start the animation */
+    animation: spin-complex 1.5s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+}
+
+/* 3. Keyframes for the Spinning Animation */
+@keyframes spin-complex {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
