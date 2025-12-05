@@ -559,9 +559,10 @@ footer {
 /* Apply to screens 1024px and wider */
 @media (min-width: 1024px) {
     
-    /* ➡️ CONSTRAIN THE MAIN CONTAINER SIZE (1100px) and enable 3-COLUMN GRID */
+    /* ➡️ FIX: RE-CENTER THE MAIN CONTENT AND DEFINE THE GRID HERE */
     main {
-        max-width: 1100px; 
+        max-width: 1100px; /* Re-apply max-width for centering the grid */
+        margin: 0 auto; /* Re-center the grid */
         display: grid;
         grid-template-columns: 1fr 1fr 1fr; 
         gap: 20px; 
@@ -569,9 +570,10 @@ footer {
         align-items: initial;
     }
 
-    /* ➡️ Implement Fixed Height and Scrolling for all sections */
+    /* ➡️ FIX: Remove max-width constraint from section in desktop view */
     section {
-        max-height: 320px; /* Base card height */
+        max-width: initial;
+        max-height: 320px;
         overflow-y: auto; 
         padding: 16px; 
     }
@@ -579,17 +581,7 @@ footer {
     /* Ensure sections that should span all three columns are set correctly */
     #welcome,
     #epl-table-list { 
-        grid-column: 1 / -1; /* Make it span all three columns */
+        grid-column: 1 / -1; 
     }
-    
-    /* Give the EPL Table a slightly different height if it needs to scroll (OPTIONAL) */
-    #epl-table-list {
-        max-height: 400px; 
-    }
-    
-    /* Adjust nav containers to match the new width */
-    #top-nav-bar .nav-container,
-    #bottom-nav-bar .nav-container {
-        max-width: 1100px; 
-    }
+    /* ... rest of the media query ... */
 }
