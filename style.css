@@ -94,7 +94,7 @@ main {
     margin: 0 auto; 	
     align-items: center; 
     gap: 20px; 
-    padding: 20px 15px; 
+    padding: 20px 15px; /* Default desktop/larger mobile padding */
 }
 
 /* HEADINGS */
@@ -461,7 +461,7 @@ footer {
     /* ➡️ CRUCIAL: Ensure vertical alignment for all children */
     align-items: center; 
     padding-left: 10px; 
-    padding-right: 10px;
+    padding-right: 10px; /* Default desktop/larger mobile padding */
     height: 100%; /* Ensure container fills the height of the nav bar */
 }
 
@@ -595,43 +595,53 @@ footer {
 }
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* 🚀 REVISED MOBILE OPTIMIZATION TO PREVENT OVERFLOW (MAX-WIDTH 600px) 🚀 */
+/* 🚀 CRITICAL MOBILE OPTIMIZATION TO ELIMINATE OVERFLOW (MAX-WIDTH 600px) 🚀 */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
 @media (max-width: 600px) {
     
-    /* 1. Tighten Bottom Nav Link Padding and Font Size */
+    /* 1. Eliminate Main Content Padding */
+    main {
+        padding: 20px 0; 
+    }
+
+    /* 2. Tighten Navigation Container Padding */
+    .nav-container {
+        padding-left: 5px; 
+        padding-right: 5px;
+    }
+    
+    /* 3. Tighten Bottom Nav Link Padding and Font Size */
     .main-links {
-        /* Introduce gap to help space out elements cleanly */
         gap: 2px; 
     }
     .main-links a {
-        padding: 0 4px; /* Reduced to 4px to squeeze in the last few pixels */
-        font-size: 12px; /* Smallest comfortable font size for links */
+        padding: 0 4px;
+        font-size: 12px;
     }
 
-    /* 2. Make Logo Smaller to save space */
+    /* 4. Make Logo Smaller to save space */
     .fpl-logo {
         font-size: 16px; 
     }
     
-    /* 3. Compact Top Nav Buttons (Search/Sign up) */
+    /* 5. Compact Top Nav Buttons (Search/Sign up) */
     .search-btn, .signin-btn {
-        padding: 4px 6px; /* Reduced button padding */
+        padding: 4px 6px;
         height: 25px; 
         font-size: 12px; 
     }
     
-    /* 4. Hide 'Search' text on smaller phones (up to 400px) to save space */
+    /* 6. Hide 'Search' text on smaller phones (up to 400px) */
     .search-btn span {
         display: none;
     }
     
     .search-btn {
-        padding: 4px 6px; /* Icon-only padding */
+        padding: 4px 6px; 
     }
     .search-btn i {
-        margin-right: 0; /* Remove icon margin */
+        margin-right: 0; 
     }
     
     /* Re-introduce 'Search' text for slightly larger phones (400px+) */
@@ -647,8 +657,8 @@ footer {
         }
     }
     
-    /* 5. Reduce gap between social icons */
+    /* 7. Reduce gap between social icons */
     .social-icons {
-        gap: 6px; /* Reduced gap */
+        gap: 6px; 
     }
 }
