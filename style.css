@@ -82,7 +82,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-x: hidden; 
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 /* MAIN CONTAINER (The main content area) */
@@ -540,7 +540,7 @@ footer {
 .main-links a {
     color: #fff;
     text-decoration: none;
-    padding: 0 15px; /* Spacing between links */
+    padding: 0 15px; /* Original spacing between links */
     font-size: 14px;
     font-weight: 600;
     height: 100%; /* Make the clickable area full height */
@@ -591,5 +591,60 @@ footer {
     #top-nav-bar .nav-container,
     #bottom-nav-bar .nav-container {
         max-width: 1100px; 
+    }
+}
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 🚀 NEW MOBILE OPTIMIZATION TO PREVENT OVERFLOW (MAX-WIDTH 600px) 🚀 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+@media (max-width: 600px) {
+    
+    /* 1. Reduce Bottom Nav Link Padding and Font Size */
+    .main-links a {
+        padding: 0 6px; /* Reduced from 15px */
+        font-size: 12px; /* Reduced from 14px */
+    }
+
+    /* 2. Make Logo Smaller to save space */
+    .fpl-logo {
+        font-size: 16px; /* Reduced from 18px */
+    }
+    
+    /* 3. Compact Top Nav Buttons (Search/Sign up) */
+    .search-btn, .signin-btn {
+        padding: 4px 8px; 
+        height: 25px; 
+        font-size: 12px; 
+    }
+    
+    /* 4. Hide 'Search' text on smaller phones (up to 400px) to save space */
+    .search-btn span {
+        display: none;
+    }
+    
+    .search-btn {
+        padding: 4px 6px; /* Icon-only padding */
+    }
+    .search-btn i {
+        margin-right: 0; /* Remove icon margin */
+    }
+    
+    /* Re-introduce 'Search' text for slightly larger phones (400px+) */
+    @media (min-width: 400px) {
+        .search-btn span {
+            display: inline;
+        }
+        .search-btn {
+             padding: 4px 8px; /* Reset padding for text + icon */
+        }
+        .search-btn i {
+            margin-right: 5px;
+        }
+    }
+    
+    /* 5. Reduce gap between social icons */
+    .social-icons {
+        gap: 8px; /* Reduced from 12px */
     }
 }
