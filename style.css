@@ -1022,3 +1022,148 @@ section::-webkit-scrollbar-thumb:hover {
     font-size: 0.8em;
     color: var(--subtext-color, #777);
 }
+
+
+
+
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 📱 NEW: DYNAMIC MOBILE BOTTOM NAV BAR STYLES 📱 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+/* Default: Hide the new bottom nav on desktop screens */
+#bottom-nav {
+    display: none; 
+}
+/* Ensure the scroll to bottom/top buttons are not hidden by the new nav */
+#backToTop, #scrollToBottom {
+    /* Move up from the default 20px bottom position */
+    bottom: 80px; 
+    z-index: 1000;
+}
+
+
+@media (max-width: 1023px) {
+    /* --- MOBILE NAV HIDING --- */
+    
+    /* 1. Hide the desktop/tablet navigation bars */
+    #top-nav-bar,
+    #bottom-nav-bar {
+        display: none !important;
+    }
+    
+    /* 2. Adjust body padding for the fixed mobile bottom bar (60px height) */
+    body {
+        /* Add padding to the bottom equal to the nav height */
+        padding-bottom: 60px; 
+        /* Since the old top nav was 40px, we keep padding-top at 0 
+           as we are not implementing the separate mobile top header yet. 
+           If you implement the fixed mobile top header later, change this to: */
+        /* padding-top: 40px; */ 
+    }
+    
+    /* --- FIXED BOTTOM NAV STYLES --- */
+    
+    #bottom-nav {
+        display: flex; /* Show the new bottom nav on mobile */
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        justify-content: space-around;
+        align-items: center;
+        height: 60px;
+        /* Using your FPL Purple accent color for the base bar */
+        background-color: var(--accent); 
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
+        z-index: 999;
+        padding: 0 5px;
+    }
+
+    .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #fff; /* White text on dark background */
+        padding: 5px 0;
+        width: 25%;
+        margin: 0 2px; 
+        transition: color 0.3s, opacity 0.3s;
+        position: relative; 
+        overflow: visible; 
+    }
+
+    .nav-item i {
+        font-size: 18px;
+        margin-bottom: 2px;
+        z-index: 10;
+        transition: opacity 0.2s;
+    }
+
+    .nav-text {
+        font-size: 10px;
+        font-weight: 600;
+        z-index: 10;
+        transition: opacity 0.2s;
+    }
+
+    /* Active State Styling */
+    .nav-item.active {
+        /* The pill will define the visible content */
+        color: var(--card-bg); 
+    }
+
+
+    /* --- PILL HIGHLIGHT STYLING --- */
+
+    .nav-highlight {
+        /* Position the pill container */
+        position: absolute;
+        top: 5px; /* Pushes the pill down slightly from the top */
+        left: 50%;
+        transform: translateX(-50%); /* Center the pill horizontally */
+        
+        /* Pill Appearance */
+        height: 50px; 
+        width: 90%; 
+        /* Use card background for a clean, contrasting pill */
+        background-color: var(--card-bg); 
+        border-radius: 30px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+        /* Start position: Hidden and slightly scaled down */
+        opacity: 0;
+        transform: translateX(-50%) scale(0.8);
+        transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+        z-index: 5;
+    }
+
+    .nav-item.active .nav-highlight {
+        /* Active position: Fade in and scale up */
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+
+    /* Content inside the pill */
+    .highlight-info {
+        font-size: 11px;
+        font-weight: 700;
+        /* Use the standard text color for contrast against the card background */
+        color: var(--text); 
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    /* Hide the original icon/text when the pill is active */
+    .nav-item.active i,
+    .nav-item.active .nav-text {
+        opacity: 0;
+    }
+}
