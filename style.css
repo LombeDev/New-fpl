@@ -569,6 +569,7 @@ footer {
     }
 
 }
+
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 /* --- DESKTOP OPTIMIZATION: 3-COLUMN GRID (SMALLER CONTAINER, FIXED HEIGHT SCROLLING) --- */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
@@ -589,10 +590,27 @@ footer {
     /* ➡️ Implement Fixed Height and Scrolling for all sections */
     section {
         max-height: 320px; /* Base card height for desktop */
-        overflow-y: auto; /* <-- RE-INTRODUCED FOR DESKTOP SCROLLING */
+        overflow-y: auto; /* CRITICAL: Enables vertical scrolling */
         padding: 16px;
     }
 
+    /* Ensure sections that should span all three columns are set correctly */
+    #welcome,
+    #epl-table-list {
+        grid-column: 1 / -1; /* Make it span all three columns */
+    }
+
+    /* Give the EPL Table a slightly different height if it needs to scroll (OPTIONAL) */
+    #epl-table-list {
+        max-height: 400px;
+    }
+
+    /* Adjust nav containers to match the new width */
+    #top-nav-bar .nav-container,
+    #bottom-nav-bar .nav-container {
+        max-width: 1100px;
+    }
+}
     /* Ensure sections that should span all three columns are set correctly */
     #welcome,
     #epl-table-list {
