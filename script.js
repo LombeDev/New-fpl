@@ -356,11 +356,9 @@ async function loadGeneralLeagueStandings() {
         // Create the header for this specific league list
         const leagueHeader = document.createElement('div');
         leagueHeader.classList.add('general-league-header');
-        // Add an icon or arrow for visual feedback
         leagueHeader.innerHTML = `
             <h4>${leagueConfig.name} League Standings</h4>
             <span class="league-type">(${leagueConfig.type})</span>
-            <span class="arrow-icon">▶</span>
             <span class="loader-small"></span>
         `;
         
@@ -377,12 +375,6 @@ async function loadGeneralLeagueStandings() {
             // Simple toggle for individual leagues
             standingsContent.classList.toggle('visible');
             leagueHeader.classList.toggle('active');
-            
-            // Toggle the arrow icon
-            const arrowIcon = leagueHeader.querySelector('.arrow-icon');
-            if (arrowIcon) {
-                arrowIcon.textContent = standingsContent.classList.contains('visible') ? '▼' : '▶';
-            }
         });
 
 
@@ -414,21 +406,15 @@ async function loadGeneralLeagueStandings() {
                 // Get the HTML for rank change indicator using the helper function
                 const rankChangeHtml = getChangeIconHtml(team.rank_change, false); 
 
-                // Create a container DIV for styling which matches the CSS style for other standings
-                const rowContainer = document.createElement("div"); 
-                rowContainer.classList.add("standing-row-general");
-
-                rowContainer.innerHTML = `
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `
                     <span class="rank-number">${team.rank}.</span> 
                     <span class="manager-name">${team.player_name} (${team.entry_name})</span> 
                     ${rankChangeHtml} <span><strong>${team.total}</strong> pts</span>
                 `;
 
-                if (team.rank === 1) rowContainer.classList.add("top-rank-general"); 
+                if (team.rank === 1) listItem.classList.add("top-rank-general"); 
                 
-                const listItem = document.createElement("li");
-                listItem.appendChild(rowContainer); // Wrap the DIV in an LI
-
                 list.appendChild(listItem);
             });
 
@@ -857,5 +843,84 @@ async function loadSimpleEPLTable(data) {
             rowClass = "champions-league";
         } else if (team.position === 5) {
             rowClass = "europa-league";
+        } else if (team.position >= 18) {
+            rowClass = "relegation-zone";
         }
-        // ... rest of the EPL table function ...
+
+        if(rowClass) row.classList.add(rowClass);
+
+        row.innerHTML = `
+            <td>${team.position}</td>
+            <td class="team-name">${team.name}</td>
+            <td>${team.played}</td>
+            <td>${team.win}</td>
+            <td>${team.loss}</td>
+            <td><strong>${team.points}</strong></td>
+        `;
+    });
+
+    container.appendChild(table);
+}
+
+
+/* -----------------------------------------
+    DEADLINE COUNTDOWN
+----------------------------------------- */
+/**
+ * Processes the FPL event data to find the next deadline and display a countdown.
+ * @param {object} data - The full FPL bootstrap-static data.
+ */
+function processDeadlineDisplay(data) {
+    const deadlineSection = document.getElementById("deadline-section");
+    const titleElement = deadlineSection?.querySelector(".countdown-title");
+    const timerElement = document.getElementById("countdown-timer");
+    
+    if (!titleElement || !timerElement) return;
+
+    // Find the NEXT event (Gameweek) that is NOT finished.
+    const nextEvent = data.events.find(e => e.is_next);
+
+    if (!nextEvent) {
+        titleElement.textContent = "Deadline Info Unavailable";
+        timerElement.innerHTML = `<p>No upcoming gameweek found.</p>`;
+        return;
+    }
+
+    const deadlineTime = new Date(nextEvent.deadline_time);
+    const gameweekNumber = nextEvent.id;
+
+    titleElement.textContent = `⏳ Gameweek ${gameweekNumber} Deadline`;
+    timerElement.innerHTML = `
+        <div class="countdown-label">Time Remaining:</div>
+        <div class="countdown-display-time" id="countdown-time-value">Loading...</div>
+        <div class="countdown-kickoff">Kickoff: ${deadlineTime.toLocaleDateString()} at ${deadlineTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+    `;
+
+    const countdownValueElement = document.getElementById('countdown-time-value');
+
+    // Update the countdown every second
+    const updateCountdown = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = deadlineTime.getTime() - now;
+
+        if (distance < 0) {
+            clearInterval(updateCountdown);
+            countdownValueElement.innerHTML = "DEADLINE PASSED!";
+            titleElement.textContent = `✅ Gameweek ${gameweekNumber} Started!`;
+            return;
+        }
+
+        // Calculations for days, hours, minutes and seconds
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        countdownValueElement.innerHTML = `
+            <span class="countdown-days">${days}d</span> 
+            <span class="countdown-hours">${hours}h</span> 
+            <span class="countdown-minutes">${minutes}m</span> 
+            <span class="countdown-seconds">${seconds}s</span>
+        `;
+    }, 1000);
+}
