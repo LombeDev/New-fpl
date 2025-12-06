@@ -33,11 +33,11 @@ const body = document.body;
 
 // Define the list of theme classes in the desired cycle order
 const themes = [
-    '',              // 1. Light Mode (No class)
-    'dark-mode',     // 2. Dark Mode
-    'cyan-theme',    // 3. Cyan/Green Theme
-    'red-theme',     // 4. Red/Black Theme
-    'blue-theme'     // 5. FPL Blue Theme
+    '',             // 1. Light Mode (No class)
+    'dark-mode',    // 2. Dark Mode
+    'cyan-theme',   // 3. Cyan/Green Theme
+    'red-theme',    // 4. Red/Black Theme
+    'blue-theme'    // 5. FPL Blue Theme
 ];
 
 /**
@@ -208,7 +208,6 @@ lazyElements.forEach((el) => observer.observe(el));
 window.addEventListener("DOMContentLoaded", () => {
     loadFPLBootstrapData(); // Initializes all FPL-dependent data (and now loads the simple table)
     loadStandings();
-    loadGeneralLeagueStandings(); // Ensure this is loaded (even if collapsible)
 });
 
 /**
@@ -342,14 +341,27 @@ async function loadGeneralLeagueStandings() {
             list.classList.add('standings-list-general'); // Use a specific class for styling
 
             results.forEach((team) => {
-                // Get the HTML for rank change indicator using the helper function
-                const rankChangeHtml = getChangeIconHtml(team.rank_change, false); 
+                let rankChangeIndicator = '';
+                let rankChangeClass = '';
+                const rankChange = team.rank_change;
+
+                if (rankChange > 0) {
+                    rankChangeIndicator = `▲${rankChange}`;
+                    rankChangeClass = 'rank-up';
+                } else if (rankChange < 0) {
+                    rankChangeIndicator = `▼${Math.abs(rankChange)}`;
+                    rankChangeClass = 'rank-down';
+                } else {
+                    rankChangeIndicator = '';
+                    rankChangeClass = 'rank-unchanged';
+                }
 
                 const listItem = document.createElement("li");
                 listItem.innerHTML = `
                     <span class="rank-number">${team.rank}.</span> 
                     <span class="manager-name">${team.player_name} (${team.entry_name})</span> 
-                    ${rankChangeHtml} <span><strong>${team.total}</strong> pts</span>
+                    <span class="rank-change ${rankChangeClass}">${rankChangeIndicator}</span> 
+                    <span><strong>${team.total}</strong> pts</span>
                 `;
 
                 if (team.rank === 1) listItem.classList.add("top-rank-general"); 
@@ -518,12 +530,4 @@ async function loadCurrentGameweekFixtures() {
 
                 const goalsData = extractStats('goals_scored');
                 const assistsData = extractStats('assists');
-                const redCardsData = extractStats('red_cards');
-
-                const allActions = [];
-
-                const processActions = (actionArray, type) => {
-                    actionArray.forEach(action => {
-                        const playerName = playerMap[action.element] || `Player ${action.element}`;
-                        for (let i = 0; i < action.value; i++) {
-                            allActions.push({ type: type, name: playerName }
+                const redCardsData = e
