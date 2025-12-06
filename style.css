@@ -582,6 +582,122 @@ footer {
     /* Exception: The General Leagues section often requires a little more space */
     #general-leagues {
         max-height: 400px;
+
+
+
+        @media (max-width: 1023px) {
+    /* ... (Existing styles for #top-nav-bar, #mobile-header, etc.) ... */
+
+    /* 3. Sidebar Menu Styling (Off-Canvas) */
+    #mobile-sidebar {
+        /* Fixed position, full height */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 80%; /* Takes up 80% of the screen width */
+        max-width: 300px; /* Max width to prevent it from getting too wide on tablets */
+        height: 100vh;
+        
+        /* Appearance */
+        background: var(--card-bg); /* Use the card background color */
+        box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+        z-index: 1010; /* Higher than the header (1000) and overlay (1005) */
+        
+        /* Start position: Off-screen to the left */
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-out; /* Smooth slide-in/out transition */
+        
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    /* Active state: Slide into view */
+    #mobile-sidebar.active {
+        transform: translateX(0);
+    }
+    
+    /* Sidebar Header and Close Button */
+    .sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: var(--text);
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    /* Sidebar Links */
+    .sidebar-links {
+        list-style: none;
+        padding: 0;
+        flex-grow: 1; /* Pushes the actions to the bottom */
+    }
+
+    .sidebar-links a {
+        display: block;
+        padding: 12px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text);
+        text-decoration: none;
+        border-bottom: 1px dashed var(--border);
+        transition: color 0.2s;
+    }
+
+    .sidebar-links a:hover {
+        color: var(--accent);
+    }
+    
+    .sidebar-links li:last-child a {
+        border-bottom: none;
+    }
+
+    /* Sidebar Actions (Theme Toggle, Sign In, etc.) */
+    .sidebar-actions {
+        padding-top: 15px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* 4. Overlay Styling */
+    #menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7); /* Dark, semi-transparent background */
+        z-index: 1005; /* Below the sidebar but above the content */
+        
+        /* Initially hidden and fully transparent */
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+    }
+
+    /* Active state: Show overlay */
+    #menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+}
     }
 
 }
