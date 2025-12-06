@@ -8,15 +8,15 @@
     --accent: #37003C; /* FPL Purple */
     --accent-hover: #530055;
     --green: #2EA043; /* GitHub green - used for price risers */
-    /* Updated for the bottom bar green */
-    --nav-green-dark: #1E824C;
+    /* Updated for the bottom bar green -> NOW CARD BACKGROUND */
+    --nav-green-dark: var(--card-bg);
     --red-light: #CF3A46; /* Custom light red for fallers/scrollbar hover */
     --blue-cl: #2196F3; /* Custom blue for CL zone */
     --orange-el: #FF9800; /* Custom orange for EL zone */
     --red-rl: #F44336; /* Custom red for relegation */
-    /* NEW: Custom colors for the top nav bar */
-    --top-nav-bg: #31554A;
-    --top-nav-search-bg: #4D766C;
+    /* NEW: Custom colors for the top nav bar -> NOW CARD BACKGROUND */
+    --top-nav-bg: var(--card-bg);
+    --top-nav-search-bg: #e0e0e0; /* Slightly darker than card for contrast/buttons */
 
     /* --- ACTION & STATUS COLORS --- */
     --action-goal: #3A8C6F; /* Dark Green for Goal */
@@ -43,9 +43,9 @@ body.dark-mode {
     --accent: #238636;
     --accent-hover: #2ea043;
     --green: #3fb950;
-    --nav-green-dark: #238636;
-    --top-nav-bg: #222933;
-    --top-nav-search-bg: #333d48;
+    --nav-green-dark: var(--card-bg); /* Use dark card color for bottom nav */
+    --top-nav-bg: var(--card-bg); /* Use dark card color for top nav */
+    --top-nav-search-bg: #222933; /* Slightly darker than card for contrast/buttons */
     --red-light: #f85149;
     --blue-cl: #64b5f6;
     --orange-el: #ffb74d;
@@ -429,12 +429,16 @@ footer {
     background-color: var(--top-nav-bg);
     padding: 8px 0;
     height: 40px;
+    /* ADD BORDER TO SEPARATE FROM CONTENT */
+    border-bottom: 1px solid var(--border);
 }
 #bottom-nav-bar {
     top: 40px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     background-color: var(--nav-green-dark);
     height: 50px;
+    /* ADD BORDER TO SEPARATE FROM CONTENT */
+    border-bottom: 1px solid var(--border);
 }
 
 .nav-container {
@@ -459,7 +463,7 @@ footer {
 }
 
 .social-icons a {
-    color: #fff; /* White icons */
+    color: var(--text); /* CHANGED TO DARK TEXT FOR CONTRAST */
     font-size: 16px;
     text-decoration: none;
     line-height: 1; /* Helps vertical centering */
@@ -476,8 +480,8 @@ footer {
     display: flex;
     align-items: center;
     background-color: var(--top-nav-search-bg);
-    color: #fff;
-    border: none;
+    color: var(--text); /* CHANGED TO DARK TEXT FOR CONTRAST */
+    border: 1px solid var(--border); /* ADD BORDER FOR DEFINITION */
     border-radius: 4px;
     padding: 5px 10px;
     font-size: 13px;
@@ -489,7 +493,10 @@ footer {
 
 /* Separate style for the Sign Up button, if needed to be distinct */
 .signin-btn {
-    background-color: var(--accent); /* Using FPL Purple for contrast on the top bar */
+    /* Keeping the accent color here to make it stand out as a call to action */
+    background-color: var(--accent);
+    color: #fff; /* White text on the accent color */
+    border: none;
 }
 
 .search-btn i {
@@ -499,7 +506,7 @@ footer {
 /* --- BOTTOM BAR ELEMENTS --- */
 
 .fpl-logo {
-    color: #fff;
+    color: var(--text); /* CHANGED TO DARK TEXT FOR CONTRAST */
     font-size: 18px;
     font-weight: 900;
     line-height: 1.1;
@@ -522,7 +529,7 @@ footer {
 }
 
 .main-links a {
-    color: #fff;
+    color: var(--text); /* CHANGED TO DARK TEXT FOR CONTRAST */
     text-decoration: none;
     padding: 0 15px; /* Original spacing between links */
     font-size: 14px;
@@ -534,7 +541,7 @@ footer {
 }
 
 .main-links a:hover {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--border); /* Using a slightly darker neutral color for hover */
 }
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
@@ -569,7 +576,6 @@ footer {
     }
 
 }
-
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 /* --- DESKTOP OPTIMIZATION: 3-COLUMN GRID (SMALLER CONTAINER, FIXED HEIGHT SCROLLING) --- */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
@@ -611,24 +617,6 @@ footer {
         max-width: 1100px;
     }
 }
-    /* Ensure sections that should span all three columns are set correctly */
-    #welcome,
-    #epl-table-list {
-        grid-column: 1 / -1; /* Make it span all three columns */
-    }
-
-    /* Give the EPL Table a slightly different height if it needs to scroll (OPTIONAL) */
-    #epl-table-list {
-        max-height: 400px;
-    }
-
-    /* Adjust nav containers to match the new width */
-    #top-nav-bar .nav-container,
-    #bottom-nav-bar .nav-container {
-        max-width: 1100px;
-    }
-}
-
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 /* 🎨 CUSTOM SCROLLBAR STYLES (APPLIED GLOBALLY WHERE OVERFLOW IS AUTO) */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
@@ -687,6 +675,7 @@ section::-webkit-scrollbar-thumb:hover {
     .main-links a {
         padding: 0 4px;
         font-size: 12px;
+        color: var(--text); /* Ensure mobile links are dark on light background */
     }
 
     /* 4. Make Logo Smaller to save space */
@@ -873,9 +862,9 @@ section::-webkit-scrollbar-thumb:hover {
     color: #fff;
     border: none;
     border-radius: 50%;
-    width: 20px; /* Increased size for better touch target */
-    height: 20px; /* Increased size for better touch target */
-    font-size: 10px; /* Adjusted icon size */
+    width: 40px; /* Increased size for better touch target */
+    height: 40px; /* Increased size for better touch target */
+    font-size: 16px; /* Adjusted icon size */
     align-items: center;
     justify-content: center;
     cursor: pointer;
