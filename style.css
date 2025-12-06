@@ -735,10 +735,10 @@ section::-webkit-scrollbar-thumb:hover {
 
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* 🔄 LOADER OVERLAY STYLES (Fixed Position, Full Screen) */
+/* 🔄 LOADER OVERLAY STYLES (Fixed Position, Full Screen) - Material You Style */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
-/* 1. The Full-Screen Overlay Container */
+/* 1. The Full-Screen Overlay Container (No Change Here) */
 #loading-overlay {
     /* CRITICAL: Fixed position, full coverage, high z-index */
     position: fixed;
@@ -767,21 +767,19 @@ section::-webkit-scrollbar-thumb:hover {
     transition: opacity 0.5s ease-out, visibility 0.5s;
 }
 
-/* 1b. Style the text within the overlay */
+/* 1b. Style the text within the overlay (No Change Here) */
 #loading-overlay h1 {
     /* Use an accent color for the main title */
     color: var(--accent);
     margin-bottom: 5px;
 }
 
-
 #loading-overlay p {
     color: var(--subtext);
-    margin-bottom: 30px; /* Space between text and loader */
+    margin-bottom: 40px; /* Increased space between text and loader */
 }
 
-
-/* Class to hide the loader when content is ready (controlled by JavaScript) */
+/* Class to hide the loader when content is ready (controlled by JavaScript) (No Change Here) */
 #loading-overlay.hidden {
     opacity: 0;
     visibility: hidden;
@@ -790,29 +788,48 @@ section::-webkit-scrollbar-thumb:hover {
 }
 
 
-/* 2. The Actual Loader Spinner Element (Your class is .loader) */
-.loader {
-    /* FPL Themed Spinner using your custom colors */
-    width: 20px;
-    height: 20px;
-    border: 2px solid transparent;
+/* 2. The Actual Material Loader Spinner Element */
+.material-loader {
+    width: 50px; /* Larger size */
+    height: 50px; /* Larger size */
+    border: 5px solid transparent; /* Increased border size for a thicker ring */
     border-radius: 50%;
-
-    /* Use custom loader colors from your :root variables */
-    border-top-color: var(--accent);
-    border-right-color: var(--loader-color-2);
-    border-bottom-color: var(--loader-color-3);
-
-    /* Start the animation */
-    animation: spin-complex 1.5s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+    
+    /* Initially set the border-top to the first color */
+    border-top-color: var(--accent); 
+    
+    /* Start the complex Material spin animation */
+    animation: 
+        material-spin 1.5s linear infinite, /* Main rotation */
+        material-color-cycle 6s ease-in-out infinite; /* Color cycling */
 }
 
-/* 3. Keyframes for the Spinning Animation */
-@keyframes spin-complex {
+/* 3. Keyframes for the Material Spinning Animation */
+@keyframes material-spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
+/* 4. Keyframes for the Color Cycling (The Material You effect) */
+@keyframes material-color-cycle {
+    /* Cycle through the three custom loader colors you defined */
+    0% {
+        border-top-color: var(--accent);
+        border-left-color: var(--loader-color-3);
+    }
+    33% {
+        border-top-color: var(--loader-color-2);
+        border-left-color: var(--accent);
+    }
+    66% {
+        border-top-color: var(--loader-color-3);
+        border-left-color: var(--loader-color-2);
+    }
+    100% {
+        border-top-color: var(--accent);
+        border-left-color: var(--loader-color-3);
+    }
+}
 
 /* Styling for the list of individual leagues within the General Leagues section */
 .general-league-item {
