@@ -10,20 +10,53 @@ let playerMap = {};  // Player ID -> Full Name
 let currentGameweekId = null;
 
 /* -----------------------------------------
-    LOADING OVERLAY REMOVAL
+    NEW: LOADER MANAGEMENT
 ----------------------------------------- */
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        const overlay = document.getElementById("loading-overlay");
+/**
+ * Hides the loading overlay with a smooth fade-out.
+ * Called ONLY after all critical data loading functions complete.
+ */
+function hideLoadingOverlay() {
+    const overlay = document.getElementById("loading-overlay");
+    if (overlay) {
+        // Assume you have CSS for the .hidden class to handle opacity transition
+        overlay.classList.add('hidden'); 
+        
+        // Remove it from the DOM completely after the CSS transition completes (500ms)
+        setTimeout(() => {
+            overlay.remove();
+        }, 500); 
+    }
+}
 
-        if (overlay) {
-            overlay.style.opacity = '0';
-            setTimeout(() => {
-                overlay.style.display = 'none';
-            }, 500);
-        }
-    }, 900);
-});
+/**
+ * NEW: Manages all critical data fetching and hides the loader when complete.
+ */
+async function startDataLoadingAndTrackCompletion() {
+    try {
+        // 1. Start the crucial bootstrap data load first.
+        await loadFPLBootstrapData();
+
+        // 2. Start all other independent loads simultaneously and wait for ALL.
+        await Promise.all([
+            loadStandings(),
+            loadGeneralLeagueStandings(),
+            // All other dependent functions are now called inside loadFPLBootstrapData and should complete
+            // before the loader is hidden.
+        ]);
+
+        // 3. Ensure a minimum display time for the loader (e.g., 500ms) before hiding.
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        hideLoadingOverlay();
+
+    } catch (err) {
+        console.error("Critical loading failed:", err);
+        // Ensure the loader is hidden even if the load fails, so the error messages are visible.
+        hideLoadingOverlay();
+    }
+}
+
 
 /* -----------------------------------------
     LIGHT / DARK / MULTI-COLOR MODE TOGGLE + SAVE
@@ -106,12 +139,15 @@ let currentThemeIndex = getCurrentThemeIndex();
 applyTheme(currentThemeIndex); // Apply the saved theme on load
 
 // --- Toggle Logic ---
-themeToggle.addEventListener("click", () => {
-    // Increment the index, looping back to 0 (Light Mode) when exceeding the array length
-    currentThemeIndex = (currentThemeIndex + 1) % themes.length;
-    
-    applyTheme(currentThemeIndex);
-});
+if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+        // Increment the index, looping back to 0 (Light Mode) when exceeding the array length
+        currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+        
+        applyTheme(currentThemeIndex);
+    });
+}
+
 
 /* -----------------------------------------
     NAVIGATION MENU TOGGLES
@@ -206,13 +242,35 @@ lazyElements.forEach((el) => observer.observe(el));
 
 // On page load 
 window.addEventListener("DOMContentLoaded", () => {
-    loadFPLBootstrapData(); // Initializes all FPL-dependent data (and now loads the simple table)
-    loadStandings();
-    loadGeneralLeagueStandings(); // Ensure this is loaded (even if collapsible)
+    // We now call the loading manager instead of individual functions.
+    startDataLoadingAndTrackCompletion();
 });
+
+
+/**
+ * Helper function to create the HTML for rank/price change icons.
+ * @param {number} changeValue - The magnitude of the change.
+ * @param {boolean} isPriceChange - True if the icon is for a price change (uses different arrows/colors).
+ * @returns {string} HTML span tag with the appropriate icon.
+ */
+function getChangeIconHtml(changeValue, isPriceChange) {
+    if (changeValue > 0) {
+        const icon = isPriceChange ? '▲' : '⬆️';
+        const colorClass = isPriceChange ? 'change-up price-up' : 'change-up';
+        return `<span class="${colorClass}">${icon}</span>`;
+    } else if (changeValue < 0) {
+        const icon = isPriceChange ? '▼' : '⬇️';
+        const colorClass = isPriceChange ? 'change-down price-down' : 'change-down';
+        return `<span class="${colorClass}">${icon}</span>`;
+    } else {
+        return `<span class="change-no-change">━</span>`;
+    }
+}
+
 
 /**
  * Fetches FPL bootstrap data, creates maps, and initializes dependent loads.
+ * @returns {Promise<object>} The raw bootstrap data.
  */
 async function loadFPLBootstrapData() {
     try {
@@ -245,18 +303,20 @@ async function loadFPLBootstrapData() {
             currentGameweekId = currentEvent.id;
         }
 
-        // 3. Load dependent lists
+        // 3. Load dependent lists - we don't need to await them here, 
+        // as the parent function awaits Promise.all on the critical, independent functions.
+        // For robustness, ensure all these return the promise object, which they do as async functions.
         loadCurrentGameweekFixtures();
         loadPriceChanges(data);
         loadMostTransferred(data);
         loadMostTransferredOut(data);
         loadMostCaptained(data);
         loadPlayerStatusUpdates(data);
-        // ⭐ NEW: Display the deadline time using the fetched data
         processDeadlineDisplay(data); 
-
-        // 🏆 SIMPLIFIED EPL TABLE CALL (New Function)
         loadSimpleEPLTable(data); 
+
+        // CRITICAL: Return the data for parent function logic
+        return data;
 
     } catch (err) {
         console.error("Error fetching FPL Bootstrap data:", err);
@@ -265,6 +325,7 @@ async function loadFPLBootstrapData() {
             const el = document.getElementById(id);
             if (el) el.textContent = "Failed to load data. Check FPL API/Proxy.";
         });
+        throw err; // Re-throw to be caught by startDataLoadingAndTrackCompletion
     }
 }
 
@@ -287,7 +348,7 @@ async function loadGeneralLeagueStandings() {
 
     container.innerHTML = ""; // Clear the initial loading content
 
-    for (const leagueConfig of leaguesToLoad) {
+    const loadPromises = leaguesToLoad.map(async (leagueConfig) => {
         // Create a dedicated sub-container for this league
         const leagueItem = document.createElement('div');
         leagueItem.classList.add('general-league-item');
@@ -334,7 +395,7 @@ async function loadGeneralLeagueStandings() {
 
             if (!results || results.length === 0) {
                 standingsContent.innerHTML = `<p class="error-message">No teams found in this league.</p>`;
-                continue; // Move to the next league in the loop
+                return; // Exit this map iteration
             }
 
             // --- 2. Render Standings Table ---
@@ -365,7 +426,10 @@ async function loadGeneralLeagueStandings() {
             if (loader) loader.remove();
             standingsContent.innerHTML = `<p class="error-message">❌ Failed to load standings for ${leagueConfig.name}.</p>`;
         }
-    }
+    });
+    
+    // Wait for all league loads to finish before returning the overall promise
+    await Promise.all(loadPromises);
 }
 
 /**
@@ -588,6 +652,7 @@ async function loadStandings() {
 
         container.innerHTML = "";
         data.standings.results.forEach((team, index) => {
+            // Using setTimeout for staggered reveal, but note this doesn't block the loader
             setTimeout(() => {
                 // Use the helper function for dynamic rank change arrows
                 const rankChangeHtml = getChangeIconHtml(team.rank_change, false);
@@ -722,7 +787,7 @@ async function loadMostCaptained(data) {
     }
 
     const playerPrice = (captain.now_cost / 10).toFixed(1);
-    const captaincyPercentage = captain.selected_by_percent; // Use player-specific data if event-specific data is missing
+    const captaincyPercentage = captain.selected_by_percent; 
 
     const teamAbbreviation = teamMap[captain.team] || 'N/A';
 
@@ -807,9 +872,11 @@ async function loadSimpleEPLTable(data) {
  */
 function processDeadlineDisplay(data) {
     const deadlineSection = document.getElementById("deadline-section");
-    const titleElement = deadlineSection.querySelector(".countdown-title");
+    const titleElement = deadlineSection?.querySelector(".countdown-title");
     const timerElement = document.getElementById("countdown-timer");
     
+    if (!titleElement || !timerElement) return;
+
     // Find the NEXT event (Gameweek) that is NOT finished.
     const nextEvent = data.events.find(e => e.is_next);
 
@@ -850,148 +917,10 @@ function processDeadlineDisplay(data) {
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
         countdownValueElement.innerHTML = `
-            <span class="countdown-unit">${days}d</span> 
-            <span class="countdown-unit">${hours}h</span> 
-            <span class="countdown-unit">${minutes}m</span> 
-            <span class="countdown-unit">${seconds}s</span>
+            <span class="countdown-days">${days}d</span> 
+            <span class="countdown-hours">${hours}h</span> 
+            <span class="countdown-minutes">${minutes}m</span> 
+            <span class="countdown-seconds">${seconds}s</span>
         `;
     }, 1000);
 }
-
-
-/* -----------------------------------------
-    RANK/PRICE CHANGE ARROW UTILITY (NEW)
------------------------------------------ */
-/**
- * Generates the HTML string for a rank/price change icon and value, 
- * incorporating the up/down arrows based on the change value.
- * @param {number} changeValue - The magnitude of the change (e.g., 5, -2, 0).
- * @param {boolean} isPriceChange - If true, formats the value as currency (£X.Xm).
- * @returns {string} The complete HTML string for the rank change span.
- */
-function getChangeIconHtml(changeValue, isPriceChange = false) {
-    const magnitude = Math.abs(changeValue); 
-    
-    let displayValue = '';
-    let iconHtml = '';
-    let containerClass = 'rank-change'; 
-    
-    if (changeValue > 0) {
-        // Rank Up / Price Riser
-        displayValue = isPriceChange ? `£${magnitude.toFixed(1)}m` : magnitude;
-        // Unicode UPWARDS ARROW: &#x2191;
-        iconHtml = `<span class="rank-change-icon rank-up-arrow">&#x2191;</span>`;
-        if (isPriceChange) {
-            containerClass += ' price-riser';
-        }
-    } else if (changeValue < 0) {
-        // Rank Down / Price Faller
-        displayValue = isPriceChange ? `£${magnitude.toFixed(1)}m` : magnitude; 
-        // Unicode DOWNWARDS ARROW: &#x2193;
-        iconHtml = `<span class="rank-change-icon rank-down-arrow">&#x2193;</span>`;
-        if (isPriceChange) {
-            containerClass += ' price-faller';
-        }
-    } else {
-        // No Change
-        displayValue = isPriceChange ? `£0.0m` : ''; 
-        // Unicode EM DASH: &#x2014;
-        iconHtml = `<span class="rank-change-icon rank-no-change">&#x2014;</span>`;
-    }
-
-    // Return the combined HTML structure
-    return `<span class="${containerClass}">${displayValue} ${iconHtml}</span>`;
-}
-
-
-/* -----------------------------------------
-    SCROLL UP / SCROLL DOWN BUTTONS (MODIFIED)
------------------------------------------ */
-// IMPORTANT: These assume you updated your HTML with both buttons and Font Awesome icons.
-const backToTopBtn = document.getElementById("backToTop");
-const scrollToBottomBtn = document.getElementById("scrollToBottom"); 
-
-// --- Event Listeners ---
-if (backToTopBtn) {
-    backToTopBtn.addEventListener("click", () => {
-        // Scrolls smoothly to the very top (y=0)
-        window.scrollTo({ 
-            top: 0, 
-            behavior: "smooth" 
-        });
-    });
-}
-
-if (scrollToBottomBtn) {
-    scrollToBottomBtn.addEventListener("click", () => {
-        // Scrolls smoothly to the very bottom of the document
-        window.scrollTo({ 
-            top: document.body.scrollHeight || document.documentElement.scrollHeight, 
-            behavior: "smooth" 
-        });
-    });
-}
-
-
-// --- Visibility Logic on Scroll ---
-window.addEventListener("scroll", () => {
-    // 1. Logic for SCROLL UP / BACK TO TOP
-    if (backToTopBtn) {
-        // Show button if the user has scrolled more than 200px down
-        if (window.scrollY > 200) {
-            backToTopBtn.style.display = "flex";
-        } else {
-            backToTopBtn.style.display = "none";
-        }
-    }
-
-    // 2. Logic for SCROLL TO BOTTOM
-    if (scrollToBottomBtn) {
-        const scrollHeight = document.documentElement.scrollHeight; // Total document height
-        const clientHeight = document.documentElement.clientHeight; // Viewport height
-        const scrollTop = document.documentElement.scrollTop;      // Distance scrolled from top
-
-        // Determine how far from the bottom the user is
-        const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
-        
-        // Hide 'Scroll Down' button if the user is within 150px of the bottom
-        if (distanceFromBottom < 150) {
-            scrollToBottomBtn.style.display = "none";
-        } else {
-            // Show the 'Scroll Down' button if it's currently hidden and not near the top
-            // Also ensure it is visible if the Scroll Up button is visible (optional check)
-            scrollToBottomBtn.style.display = "flex"; 
-        }
-    }
-});
-
-
-
-/* -----------------------------------------
-    PLAYER STATUS SEARCH/FILTER
------------------------------------------ */
-document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('statusSearch');
-    const statusList = document.getElementById('status-list');
-
-    if (searchInput && statusList) {
-        searchInput.addEventListener('input', (event) => {
-            const searchTerm = event.target.value.toLowerCase();
-            const items = statusList.querySelectorAll('.player-news-item');
-
-            items.forEach(item => {
-                // Get all text content from the item for comprehensive searching
-                const itemText = item.textContent.toLowerCase();
-
-                if (itemText.includes(searchTerm)) {
-                    item.style.display = 'block'; // Show the item
-                } else {
-                    item.style.display = 'none'; // Hide the item
-                }
-            });
-             
-             // The rest of your code here:
-             // ...
-        });
-    }
-});
