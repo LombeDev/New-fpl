@@ -10,7 +10,119 @@ let playerMap = {};  // Player ID -> Full Name
 let currentGameweekId = null;
 
 /* -----------------------------------------
-    NEW: LOADER MANAGEMENT
+    NEW: TEAM ID CHECKER ELEMENTS
+----------------------------------------- */
+const teamIdInput = document.getElementById('team-id-input');
+const goButton = document.getElementById('go-btn');
+const resetButton = document.getElementById('reset-btn');
+const teamPlayerName = document.getElementById('team-player-name');
+const netPointsDisplay = document.getElementById('net-points');
+const transfersMadeDisplay = document.getElementById('transfers-made');
+const liveRankDisplay = document.getElementById('live-rank');
+
+
+/* -----------------------------------------
+    NEW: TEAM ID CHECKER LOGIC
+----------------------------------------- */
+
+/**
+ * Resets the display fields for the Player Data Checker section.
+ */
+function resetCheckerDisplay() {
+    if (teamIdInput) teamIdInput.value = '';
+    if (teamPlayerName) teamPlayerName.innerText = 'Team name (Player name)';
+    if (netPointsDisplay) netPointsDisplay.innerText = '-';
+    if (transfersMadeDisplay) transfersMadeDisplay.innerText = '-';
+    if (liveRankDisplay) liveRankDisplay.innerText = '-';
+}
+
+/**
+ * Fetches and displays the FPL manager's data (Team Name, GW Points, Transfers).
+ * @param {number} managerId - The FPL manager's team ID.
+ */
+async function fetchManagerData(managerId) {
+    if (!currentGameweekId) {
+        alert('Gameweek data is not yet loaded. Please wait for the dashboard to finish loading.');
+        return;
+    }
+
+    // Clear previous results and show loading state
+    teamPlayerName.innerText = 'Loading...';
+    netPointsDisplay.innerText = '...';
+    transfersMadeDisplay.innerText = '...';
+    liveRankDisplay.innerText = '...';
+
+    try {
+        // 1. Fetch Manager's general info (Team Name and Player Name)
+        const entryUrl = `https://fantasy.premierleague.com/api/entry/${managerId}/`;
+        const entryResponse = await fetch(proxy + entryUrl);
+        const entryData = await entryResponse.json();
+
+        const teamName = entryData.name || 'Unknown Team';
+        const playerName = entryData.player_first_name + ' ' + entryData.player_last_name || 'Unknown Player';
+        teamPlayerName.innerText = `${teamName} (${playerName})`;
+
+
+        // 2. Fetch Manager's Picks for the Current Gameweek to get points/transfers
+        // We use the dynamically fetched currentGameweekId here
+        const picksUrl = `https://fantasy.premierleague.com/api/entry/${managerId}/event/${currentGameweekId}/picks/`;
+        const picksResponse = await fetch(proxy + picksUrl);
+        const picksData = await picksResponse.json();
+
+        // Gameweek specific data is under entry_history
+        const gwData = picksData.entry_history;
+        
+        // points: Points scored in this current Gameweek
+        const points = gwData.points || 0; 
+        // event_transfers: Number of transfers made for this Gameweek
+        const transfers = gwData.event_transfers || 0; 
+
+        netPointsDisplay.innerText = points;
+        transfersMadeDisplay.innerText = transfers;
+        
+        // Note: Live Rank requires complex calculation or third-party service.
+        liveRankDisplay.innerText = '-'; 
+
+    } catch (error) {
+        console.error(`Error fetching FPL data for ID ${managerId}:`, error);
+        teamPlayerName.innerText = 'Error (Check ID)';
+        netPointsDisplay.innerText = 'N/A';
+        transfersMadeDisplay.innerText = 'N/A';
+        liveRankDisplay.innerText = 'N/A';
+        alert('Could not fetch data. Please ensure the FPL Team ID is correct or the API is available.');
+    }
+}
+
+/**
+ * Sets up event listeners for the new checker feature.
+ */
+function initializeChecker() {
+    if (goButton && resetButton && teamIdInput) {
+        // Initially disable button until currentGameweekId is available
+        goButton.disabled = true;
+        goButton.innerText = 'Loading...';
+
+        // Listener for the 'Go' button
+        goButton.addEventListener('click', () => {
+            const teamId = teamIdInput.value.trim();
+            
+            if (teamId && !isNaN(parseInt(teamId))) {
+                fetchManagerData(parseInt(teamId));
+            } else {
+                alert('Please enter a valid FPL Team ID (a number).');
+                resetCheckerDisplay();
+            }
+        });
+
+        // Listener for the 'Reset' button
+        resetButton.addEventListener('click', resetCheckerDisplay);
+    }
+    // Initialize display state
+    resetCheckerDisplay();
+}
+
+/* -----------------------------------------
+    LOADER MANAGEMENT
 ----------------------------------------- */
 /**
  * Hides the loading overlay with a smooth fade-out.
@@ -36,13 +148,18 @@ async function startDataLoadingAndTrackCompletion() {
     try {
         // 1. Start the crucial bootstrap data load first.
         await loadFPLBootstrapData();
+        
+        // NEW: Now that currentGameweekId is set, enable the checker button.
+        if (goButton) {
+            goButton.disabled = false;
+            goButton.innerText = 'Go';
+        }
 
         // 2. Start all other independent loads simultaneously and wait for ALL.
         await Promise.all([
             loadStandings(),
             loadGeneralLeagueStandings(),
-            // All other dependent functions are now called inside loadFPLBootstrapData and should complete
-            // before the loader is hidden.
+            // All other dependent functions (like price changes, etc.) are called and started inside loadFPLBootstrapData
         ]);
 
         // 3. Ensure a minimum display time for the loader (e.g., 500ms) before hiding.
@@ -54,6 +171,11 @@ async function startDataLoadingAndTrackCompletion() {
         console.error("Critical loading failed:", err);
         // Ensure the loader is hidden even if the load fails, so the error messages are visible.
         hideLoadingOverlay();
+        // Disable checker button on failure
+        if (goButton) {
+            goButton.disabled = true;
+            goButton.innerText = 'Error';
+        }
     }
 }
 
@@ -66,11 +188,11 @@ const body = document.body;
 
 // Define the list of theme classes in the desired cycle order
 const themes = [
-    '',              // 1. Light Mode (No class)
-    'dark-mode',     // 2. Dark Mode
-    'cyan-theme',    // 3. Cyan/Green Theme
-    'red-theme',     // 4. Red/Black Theme
-    'blue-theme'     // 5. FPL Blue Theme
+    '',          // 1. Light Mode (No class)
+    'dark-mode',    // 2. Dark Mode
+    'cyan-theme',   // 3. Cyan/Green Theme
+    'red-theme',    // 4. Red/Black Theme
+    'blue-theme'    // 5. FPL Blue Theme
 ];
 
 /**
@@ -242,6 +364,9 @@ lazyElements.forEach((el) => observer.observe(el));
 
 // On page load 
 window.addEventListener("DOMContentLoaded", () => {
+    // NEW: Initialize the checker feature listeners
+    initializeChecker();
+    
     // We now call the loading manager instead of individual functions.
     startDataLoadingAndTrackCompletion();
 });
@@ -800,7 +925,6 @@ async function loadMostCaptained(data) {
     container.appendChild(div);
 }
 
-
 // 🥇 CURRENT EPL TABLE (STANDINGS) - Simplified FPL Data Only
 /**
  * Loads and displays a simplified EPL Table using only FPL Bootstrap data.
@@ -844,83 +968,136 @@ async function loadSimpleEPLTable(data) {
         } else if (team.position === 5) {
             rowClass = "europa-league";
         } else if (team.position >= 18) {
-            rowClass = "relegation-zone";
+             rowClass = "relegation";
         }
 
-        if(rowClass) row.classList.add(rowClass);
-
+        row.classList.add(rowClass);
+        
         row.innerHTML = `
             <td>${team.position}</td>
-            <td class="team-name">${team.name}</td>
+            <td class="team-name-cell">${team.name}</td>
             <td>${team.played}</td>
             <td>${team.win}</td>
             <td>${team.loss}</td>
             <td><strong>${team.points}</strong></td>
         `;
+        tbody.appendChild(row);
     });
 
     container.appendChild(table);
 }
 
-
-/* -----------------------------------------
-    DEADLINE COUNTDOWN
------------------------------------------ */
+// ⏳ DEADLINE COUNTDOWN LOGIC
 /**
- * Processes the FPL event data to find the next deadline and display a countdown.
- * @param {object} data - The full FPL bootstrap-static data.
+ * Processes the FPL deadlines and initiates the countdown timer.
+ * @param {object} data - The full data object from FPL bootstrap-static.
  */
 function processDeadlineDisplay(data) {
-    const deadlineSection = document.getElementById("deadline-section");
-    const titleElement = deadlineSection?.querySelector(".countdown-title");
-    const timerElement = document.getElementById("countdown-timer");
-    
-    if (!titleElement || !timerElement) return;
+    const countdownElement = document.getElementById('countdown-timer');
+    const titleElement = document.querySelector('.countdown-title');
+    if (!countdownElement || !titleElement || !data) return;
 
-    // Find the NEXT event (Gameweek) that is NOT finished.
     const nextEvent = data.events.find(e => e.is_next);
 
     if (!nextEvent) {
-        titleElement.textContent = "Deadline Info Unavailable";
-        timerElement.innerHTML = `<p>No upcoming gameweek found.</p>`;
+        titleElement.textContent = "Season Finished!";
+        countdownElement.textContent = "Waiting for next season start.";
         return;
     }
 
     const deadlineTime = new Date(nextEvent.deadline_time);
-    const gameweekNumber = nextEvent.id;
+    titleElement.textContent = `⏳ Deadline for Gameweek ${nextEvent.id}:`;
 
-    titleElement.textContent = `⏳ Gameweek ${gameweekNumber} Deadline`;
-    timerElement.innerHTML = `
-        <div class="countdown-label">Time Remaining:</div>
-        <div class="countdown-display-time" id="countdown-time-value">Loading...</div>
-        <div class="countdown-kickoff">Kickoff: ${deadlineTime.toLocaleDateString()} at ${deadlineTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-    `;
-
-    const countdownValueElement = document.getElementById('countdown-time-value');
-
-    // Update the countdown every second
-    const updateCountdown = setInterval(() => {
+    // Start the countdown interval
+    const updateCountdown = () => {
         const now = new Date().getTime();
-        const distance = deadlineTime.getTime() - now;
+        const distance = deadlineTime - now;
 
-        if (distance < 0) {
-            clearInterval(updateCountdown);
-            countdownValueElement.innerHTML = "DEADLINE PASSED!";
-            titleElement.textContent = `✅ Gameweek ${gameweekNumber} Started!`;
-            return;
-        }
-
-        // Calculations for days, hours, minutes and seconds
+        // Time calculations
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        countdownValueElement.innerHTML = `
-            <span class="countdown-days">${days}d</span> 
-            <span class="countdown-hours">${hours}h</span> 
-            <span class="countdown-minutes">${minutes}m</span> 
-            <span class="countdown-seconds">${seconds}s</span>
-        `;
-    }, 1000);
+        if (distance < 0) {
+            clearInterval(interval);
+            countdownElement.innerHTML = "<strong>DEADLINE PASSED!</strong>";
+        } else {
+            countdownElement.innerHTML = `
+                <span>${days}d</span>
+                <span>${hours}h</span>
+                <span>${minutes}m</span>
+                <span>${seconds}s</span>
+            `;
+        }
+    };
+
+    updateCountdown(); // Initial call
+    const interval = setInterval(updateCountdown, 1000);
+}
+
+
+/* -----------------------------------------
+    SCROLL BUTTONS (BACK TO TOP / BOTTOM)
+----------------------------------------- */
+const backToTopButton = document.getElementById("backToTop");
+const scrollToBottomButton = document.getElementById("scrollToBottom");
+
+// Show/hide button based on scroll position
+window.onscroll = function() {
+    if (backToTopButton) {
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            backToTopButton.style.display = "block";
+        } else {
+            backToTopButton.style.display = "none";
+        }
+    }
+    if (scrollToBottomButton) {
+         // Hide scroll to bottom when near bottom
+         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
+            scrollToBottomButton.style.display = "none";
+        } else {
+            scrollToBottomButton.style.display = "block";
+        }
+    }
+};
+
+// Scroll to the top of the document
+if (backToTopButton) {
+    backToTopButton.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+// Scroll to the bottom of the document
+if (scrollToBottomButton) {
+    scrollToBottomButton.addEventListener("click", () => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    });
+}
+
+
+/* -----------------------------------------
+    COLLAPSIBLE SECTIONS
+----------------------------------------- */
+const toggleGeneralLeagues = document.getElementById('toggleGeneralLeagues');
+const generalLeaguesList = document.getElementById('general-leagues-list');
+
+if (toggleGeneralLeagues && generalLeaguesList) {
+    toggleGeneralLeagues.addEventListener('click', () => {
+        const icon = toggleGeneralLeagues.querySelector('.toggle-icon');
+        
+        generalLeaguesList.classList.toggle('hidden');
+        toggleGeneralLeagues.classList.toggle('active');
+
+        if (icon) {
+            if (generalLeaguesList.classList.contains('hidden')) {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            } else {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
+        }
+    });
 }
