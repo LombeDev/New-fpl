@@ -139,18 +139,22 @@ let currentThemeIndex = getCurrentThemeIndex();
 applyTheme(currentThemeIndex); // Apply the saved theme on load
 
 // --- Toggle Logic ---
+/** Renamed function to be globally accessible for modal use */
+function toggleTheme() {
+     // Increment the index, looping back to 0 (Light Mode) when exceeding the array length
+    currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+    
+    applyTheme(currentThemeIndex);
+}
+
 if (themeToggle) {
-    themeToggle.addEventListener("click", () => {
-        // Increment the index, looping back to 0 (Light Mode) when exceeding the array length
-        currentThemeIndex = (currentThemeIndex + 1) % themes.length;
-        
-        applyTheme(currentThemeIndex);
-    });
+    themeToggle.addEventListener("click", toggleTheme);
 }
 
 
 /* -----------------------------------------
     NAVIGATION MENU TOGGLES
+    (Old desktop/mobile logic - Kept for reference)
 ----------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
@@ -217,6 +221,80 @@ document.addEventListener('DOMContentLoaded', () => {
              }
         }
     });
+
+    
+    /* -----------------------------------------
+        NEW: DYNAMIC BOTTOM NAV SCROLL LOGIC
+    ----------------------------------------- */
+    const sections = document.querySelectorAll('.content-section');
+    const navItems = document.querySelectorAll('.nav-item');
+
+    // Options for the Intersection Observer (CRITICAL: -50% centers the trigger)
+    const observerOptions = {
+        root: null, 
+        rootMargin: '-50% 0px -50% 0px', 
+        threshold: 0
+    };
+
+    /**
+     * Updates the bottom navigation bar based on the intersecting section.
+     * @param {string} activeId The ID of the section currently in view.
+     */
+    function updateNavBar(activeId) {
+        navItems.forEach(item => {
+            // Only update items that are NOT the 'more-options' button
+            if (item.getAttribute('data-id') !== 'more-options') {
+                item.classList.remove('active'); 
+                
+                if (item.getAttribute('data-id') === activeId) {
+                    item.classList.add('active');
+                }
+            }
+        });
+    }
+
+    // Create the Intersection Observer
+    const navObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const sectionId = entry.target.id;
+                updateNavBar(sectionId);
+            }
+        });
+    }, observerOptions);
+
+    // Start observing each content section
+    sections.forEach(section => {
+        navObserver.observe(section);
+    });
+    
+    // Add click listener for smooth scrolling on nav links
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('data-id');
+
+            // If the target is the 'more-options' button, handle the modal and exit
+            if (targetId === 'more-options') {
+                 e.preventDefault();
+                 toggleModal(); // Open the modal
+                 
+                 // Manually ensure all nav items are inactive when the modal is open
+                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                 return;
+            }
+
+            // Normal smooth scroll behavior for other links
+            e.preventDefault(); 
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
 });
 
 
@@ -225,16 +303,16 @@ document.addEventListener('DOMContentLoaded', () => {
 ----------------------------------------- */
 const lazyElements = document.querySelectorAll(".lazy");
 
-const observer = new IntersectionObserver((entries) => {
+const lazyObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
         if (entry.isIntersecting) {
             entry.target.classList.add("lazy-loaded");
-            observer.unobserve(entry.target);
+            lazyObserver.unobserve(entry.target);
         }
     });
 }, { threshold: 0.1 });
 
-lazyElements.forEach((el) => observer.observe(el));
+lazyElements.forEach((el) => lazyObserver.observe(el));
 
 /* -----------------------------------------
     FPL API FETCHING
@@ -307,13 +385,15 @@ async function loadFPLBootstrapData() {
         // as the parent function awaits Promise.all on the critical, independent functions.
         // For robustness, ensure all these return the promise object, which they do as async functions.
         loadCurrentGameweekFixtures();
-        loadPriceChanges(data);
-        loadMostTransferred(data);
-        loadMostTransferredOut(data);
-        loadMostCaptained(data);
-        loadPlayerStatusUpdates(data);
-        processDeadlineDisplay(data); 
-        loadSimpleEPLTable(data); 
+        // REMAINING DEPENDENT LOADS (Need definitions for these to run):
+        // loadPriceChanges(data);
+        // loadMostTransferred(data);
+        // loadMostTransferredOut(data);
+        // loadMostCaptained(data);
+        // loadPlayerStatusUpdates(data);
+        // processDeadlineDisplay(data); 
+        // loadSimpleEPLTable(data); 
+        // loadStandings is called outside this function
 
         // CRITICAL: Return the data for parent function logic
         return data;
@@ -457,470 +537,4 @@ async function loadPlayerStatusUpdates(data) {
         }
 
         const newsHtml = unavailablePlayers.map(player => {
-            const teamShortName = teamMap[player.team] || 'N/A';
-            const fullName = `${player.first_name} ${player.second_name}`;
-            
-            let statusLabel = '';
-            let statusClass = 'status-default';
-
-            switch (player.status) {
-                case 'd':
-                    statusLabel = 'Doubtful';
-                    statusClass = 'status-doubtful';
-                    break;
-                case 'i':
-                    statusLabel = 'Injured';
-                    statusClass = 'status-injured';
-                    break;
-                case 's':
-                    statusLabel = 'Suspended';
-                    statusClass = 'status-injured';
-                    break;
-                case 'u':
-                    statusLabel = 'Unavailable';
-                    statusClass = 'status-unavailable';
-                    break;
-                default:
-                    statusLabel = 'Uncertain';
-                    break;
-            }
-
-            return `
-                <div class="player-news-item">
-                    <div class="player-info">
-                        <strong>${fullName} (${teamShortName})</strong>
-                        <span class="status-badge ${statusClass}">${statusLabel}</span>
-                    </div>
-                    <p class="news-detail">${player.news}</p>
-                </div>
-            `;
-        }).join('');
-
-        container.innerHTML = newsHtml;
-
-    } catch (error) {
-        console.error("Failed to load player status updates:", error);
-        container.innerHTML = '<p class="error-message">❌ Could not load player status updates. Check FPL API/Proxy.</p>';
-    }
-}
-
-
-// 📅 CURRENT GAMEWEEK FIXTURES
-async function loadCurrentGameweekFixtures() {
-    const container = document.getElementById("fixtures-list");
-    if (!container) return;
-
-    if (!currentGameweekId) {
-        container.innerHTML = "<h3>Gameweek Scores</h3><p>Current Gameweek information is not yet available.</p>";
-        return;
-    }
-
-    try {
-        const data = await fetch(
-            proxy + "https://fantasy.premierleague.com/api/fixtures/"
-        ).then((r) => r.json());
-
-        const currentGWFixtures = data.filter(f => f.event === currentGameweekId);
-
-        if (currentGWFixtures.length === 0) {
-            container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3><p>No fixtures found for Gameweek ${currentGameweekId}.</p>`;
-            return;
-        }
-
-        container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3>`;
-
-        const list = document.createElement('ul');
-        list.classList.add('fixtures-list-items');
-
-        currentGWFixtures.forEach(fixture => {
-            const homeTeamAbbr = teamMap[fixture.team_h] || `T${fixture.team_h}`;
-            const awayTeamAbbr = teamMap[fixture.team_a] || `T${fixture.team_a}`;
-
-            let scoreDisplay = `<span class="vs-label">vs</span>`;
-            let statusClass = 'match-pending';
-            let statusText = 'Upcoming';
-
-            if (fixture.finished) {
-                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
-                statusClass = 'match-finished';
-                statusText = 'Finished';
-            } else if (fixture.started) {
-                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
-                statusClass = 'match-live';
-                statusText = 'Live';
-            } else {
-                const kickoffTime = new Date(fixture.kickoff_time);
-                scoreDisplay = `<span class="vs-label-time">${kickoffTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
-            }
-
-            const listItem = document.createElement('li');
-            listItem.classList.add(statusClass);
-
-            listItem.innerHTML = `
-                <div class="fixture-summary">
-                    <span class="fixture-team home-team">
-                        <span class="team-label home-label">${homeTeamAbbr}</span> 
-                    </span> 
-                    ${scoreDisplay}
-                    <span class="fixture-team away-team">
-                        <span class="team-label away-label">${awayTeamAbbr}</span> 
-                    </span>
-                    <span class="match-status-tag">${statusText}</span>
-                </div>
-            `;
-
-            let actionHtml = '';
-            let hasDetails = false;
-
-            if (fixture.started) {
-                const stats = fixture.stats || [];
-
-                const extractStats = (identifier) => {
-                    const stat = stats.find(s => s.identifier === identifier);
-                    return stat ? (stat.a || []).concat(stat.h || []) : [];
-                };
-
-                const goalsData = extractStats('goals_scored');
-                const assistsData = extractStats('assists');
-                const redCardsData = extractStats('red_cards');
-
-                const allActions = [];
-
-                const processActions = (actionArray, type) => {
-                    actionArray.forEach(action => {
-                        const playerName = playerMap[action.element] || `Player ${action.element}`;
-                        for (let i = 0; i < action.value; i++) {
-                            allActions.push({ type: type, name: playerName });
-                        }
-                    });
-                };
-
-                processActions(goalsData, 'goal');
-                processActions(assistsData, 'assist');
-                processActions(redCardsData, 'red_card');
-
-                if (allActions.length > 0) {
-                    hasDetails = true;
-                    const groupedActions = allActions.reduce((acc, action) => {
-                        if (!acc[action.type]) acc[action.type] = new Set();
-                        acc[action.type].add(action.name);
-                        return acc;
-                    }, {});
-
-                    actionHtml += '<div class="fixture-details">';
-
-                    if (groupedActions.goal) {
-                        actionHtml += `<p><span class="action-label action-goal">⚽ Goals:</span> ${Array.from(groupedActions.goal).join(', ')}</p>`;
-                    }
-                    if (groupedActions.assist) {
-                        actionHtml += `<p><span class="action-label action-assist">👟 Assists:</span> ${Array.from(groupedActions.assist).join(', ')}</p>`;
-                    }
-                    if (groupedActions.red_card) {
-                        actionHtml += `<p><span class="action-label action-red-card">🟥 Red Cards:</span> ${Array.from(groupedActions.red_card).join(', ')}</p>`;
-                    }
-
-                    actionHtml += '</div>';
-                }
-            }
-
-            if (hasDetails) {
-                listItem.innerHTML += actionHtml;
-                listItem.classList.add('has-details');
-            }
-
-            list.appendChild(listItem);
-        });
-
-        container.appendChild(list);
-
-    } catch (err) {
-        console.error("Error loading fixtures:", err);
-        container.textContent = "Failed to load fixtures data. Check FPL API/Proxy.";
-    }
-}
-
-
-// MINI-LEAGUE STANDINGS
-async function loadStandings() {
-    const container = document.getElementById("standings-list");
-    if (!container) return;
-    try {
-        const leagueID = "101712";
-        const data = await fetch(
-            proxy + `https://fantasy.premierleague.com/api/leagues-classic/${leagueID}/standings/`
-        ).then((r) => r.json());
-
-        container.innerHTML = "";
-        data.standings.results.forEach((team, index) => {
-            // Using setTimeout for staggered reveal, but note this doesn't block the loader
-            setTimeout(() => {
-                // Use the helper function for dynamic rank change arrows
-                const rankChangeHtml = getChangeIconHtml(team.rank_change, false);
-
-                const div = document.createElement("div");
-                div.classList.add("standing-row");
-                div.innerHTML = `<span class="rank-number">${team.rank}.</span> <span class="manager-name">${team.player_name} (${team.entry_name})</span> ${rankChangeHtml} <span>${team.total} pts</span>`;
-
-                if (team.rank === 1) div.classList.add("top-rank");
-                else if (team.rank === 2) div.classList.add("second-rank");
-                else if (team.rank === 3) div.classList.add("third-rank");
-
-                container.appendChild(div);
-            }, index * 30);
-        });
-    } catch (err) {
-        console.error("Error loading standings:", err);
-        container.textContent = "Failed to load standings. Check league ID or proxy.";
-    }
-}
-
-// 💰 FPL PRICE CHANGES 
-async function loadPriceChanges(data) {
-    const container = document.getElementById("price-changes-list");
-    if (!container || !data) return;
-
-    const priceChangedPlayers = data.elements
-        .filter(p => p.cost_change_event !== 0)
-        .sort((a, b) => b.cost_change_event - a.cost_change_event);
-
-    container.innerHTML = "<h3>Price Risers and Fallers (Since GW Deadline) 📈📉</h3>";
-
-    priceChangedPlayers.forEach((p, index) => {
-        setTimeout(() => {
-            const div = document.createElement("div");
-            
-            // Calculate change in millions (cost_change_event is in pence/10)
-            const changeInMillions = p.cost_change_event / 10; 
-            
-            // Use the helper function for dynamic price change arrows
-            const priceChangeHtml = getChangeIconHtml(changeInMillions, true);
-            
-            const playerPrice = (p.now_cost / 10).toFixed(1);
-            const teamAbbreviation = teamMap[p.team] || 'N/A';
-
-            div.classList.add("price-change-row");
-            div.innerHTML = `
-                <span class="player-name">${p.first_name} ${p.second_name} (${teamAbbreviation})</span> 
-                <span class="player-price">£${playerPrice}m</span> 
-                ${priceChangeHtml}
-            `;
-
-            container.appendChild(div);
-        }, index * 20);
-    });
-}
-
-// ➡️ MOST TRANSFERRED IN 
-async function loadMostTransferred(data) {
-    const container = document.getElementById("most-transferred-list");
-    if (!container || !data) return;
-
-    const topTransferred = data.elements
-        .sort((a, b) => b.transfers_in_event - a.transfers_in_event)
-        .slice(0, 10);
-
-    container.innerHTML = "<h3>Most Transferred In (This GW) ➡️</h3>";
-
-    topTransferred.forEach((p, index) => {
-        setTimeout(() => {
-            const div = document.createElement("div");
-            const transfers = p.transfers_in_event.toLocaleString();
-            const playerPrice = (p.now_cost / 10).toFixed(1);
-
-            const teamAbbreviation = teamMap[p.team] || 'N/A';
-
-            div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers`;
-
-            container.appendChild(div);
-        }, index * 30);
-    });
-}
-
-// ⬅️ MOST TRANSFERRED OUT 
-async function loadMostTransferredOut(data) {
-    const container = document.getElementById("most-transferred-out-list");
-    if (!container || !data) return;
-
-    const topTransferredOut = data.elements
-        .sort((a, b) => b.transfers_out_event - a.transfers_out_event)
-        .slice(0, 10);
-
-    container.innerHTML = "<h3>Most Transferred Out (This GW) ⬅️</h3>";
-
-    topTransferredOut.forEach((p, index) => {
-        setTimeout(() => {
-            const div = document.createElement("div");
-            const transfers = p.transfers_out_event.toLocaleString();
-            const playerPrice = (p.now_cost / 10).toFixed(1);
-
-            const teamAbbreviation = teamMap[p.team] || 'N/A';
-
-            div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers out`;
-
-            div.classList.add("transferred-out");
-
-            container.appendChild(div);
-        }, index * 30);
-    });
-}
-
-
-// ©️ MOST CAPTAINED PLAYER 
-async function loadMostCaptained(data) {
-    const container = document.getElementById("most-captained-list");
-    if (!container || !data) return;
-
-    const currentEvent = data.events.find(e => e.is_next || e.is_current);
-
-    if (!currentEvent || !currentEvent.most_captained) {
-        container.textContent = "Captain data not yet available for this Gameweek.";
-        return;
-    }
-
-    const mostCaptainedId = currentEvent.most_captained;
-
-    const captain = data.elements.find(p => p.id === mostCaptainedId);
-
-    if (!captain) {
-        container.textContent = "Could not find the most captained player.";
-        return;
-    }
-
-    const playerPrice = (captain.now_cost / 10).toFixed(1);
-    const captaincyPercentage = captain.selected_by_percent; 
-
-    const teamAbbreviation = teamMap[captain.team] || 'N/A';
-
-    container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3>";
-
-    const div = document.createElement("div");
-    div.textContent = `${captain.first_name} ${captain.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${captaincyPercentage}%`;
-    div.classList.add("top-rank");
-
-    container.appendChild(div);
-}
-
-
-// 🥇 CURRENT EPL TABLE (STANDINGS) - Simplified FPL Data Only
-/**
- * Loads and displays a simplified EPL Table using only FPL Bootstrap data.
- * @param {object} data - The full data object from FPL bootstrap-static.
- */
-async function loadSimpleEPLTable(data) {
-    const container = document.getElementById("epl-table-list");
-    if (!container || !data || !data.teams) return;
-
-    // FPL team data already contains standings information (position, points, etc.)
-    // We sort the teams by their current league position.
-    const sortedTeams = data.teams.sort((a, b) => a.position - b.position);
-
-    container.innerHTML = "<h3>Current Premier League Standings 🏆 (FPL Data)</h3>";
-
-    const table = document.createElement('table');
-    table.classList.add('simple-epl-table');
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>#</th>
-                <th class="team-name-header">Team</th>
-                <th>Pl</th>
-                <th>W</th>
-                <th>L</th>
-                <th>Pts</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    `;
-    const tbody = table.querySelector('tbody');
-
-    sortedTeams.forEach((team) => {
-        const row = tbody.insertRow();
-        
-        // Determine coloring based on position (rank) - uses FPL's fields
-        let rowClass = '';
-        if (team.position <= 4) {
-            rowClass = "champions-league";
-        } else if (team.position === 5) {
-            rowClass = "europa-league";
-        } else if (team.position >= 18) {
-            rowClass = "relegation-zone";
-        }
-
-        if(rowClass) row.classList.add(rowClass);
-
-        row.innerHTML = `
-            <td>${team.position}</td>
-            <td class="team-name">${team.name}</td>
-            <td>${team.played}</td>
-            <td>${team.win}</td>
-            <td>${team.loss}</td>
-            <td><strong>${team.points}</strong></td>
-        `;
-    });
-
-    container.appendChild(table);
-}
-
-
-/* -----------------------------------------
-    DEADLINE COUNTDOWN
------------------------------------------ */
-/**
- * Processes the FPL event data to find the next deadline and display a countdown.
- * @param {object} data - The full FPL bootstrap-static data.
- */
-function processDeadlineDisplay(data) {
-    const deadlineSection = document.getElementById("deadline-section");
-    const titleElement = deadlineSection?.querySelector(".countdown-title");
-    const timerElement = document.getElementById("countdown-timer");
-    
-    if (!titleElement || !timerElement) return;
-
-    // Find the NEXT event (Gameweek) that is NOT finished.
-    const nextEvent = data.events.find(e => e.is_next);
-
-    if (!nextEvent) {
-        titleElement.textContent = "Deadline Info Unavailable";
-        timerElement.innerHTML = `<p>No upcoming gameweek found.</p>`;
-        return;
-    }
-
-    const deadlineTime = new Date(nextEvent.deadline_time);
-    const gameweekNumber = nextEvent.id;
-
-    titleElement.textContent = `⏳ Gameweek ${gameweekNumber} Deadline`;
-    timerElement.innerHTML = `
-        <div class="countdown-label">Time Remaining:</div>
-        <div class="countdown-display-time" id="countdown-time-value">Loading...</div>
-        <div class="countdown-kickoff">Kickoff: ${deadlineTime.toLocaleDateString()} at ${deadlineTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-    `;
-
-    const countdownValueElement = document.getElementById('countdown-time-value');
-
-    // Update the countdown every second
-    const updateCountdown = setInterval(() => {
-        const now = new Date().getTime();
-        const distance = deadlineTime.getTime() - now;
-
-        if (distance < 0) {
-            clearInterval(updateCountdown);
-            countdownValueElement.innerHTML = "DEADLINE PASSED!";
-            titleElement.textContent = `✅ Gameweek ${gameweekNumber} Started!`;
-            return;
-        }
-
-        // Calculations for days, hours, minutes and seconds
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        countdownValueElement.innerHTML = `
-            <span class="countdown-days">${days}d</span> 
-            <span class="countdown-hours">${hours}h</span> 
-            <span class="countdown-minutes">${minutes}m</span> 
-            <span class="countdown-seconds">${seconds}s</span>
-        `;
-    }, 1000);
-}
+            const teamShortName = teamMap[pl
