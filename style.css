@@ -540,6 +540,262 @@ footer {
 .main-links a:hover {
     background-color: rgba(0, 0, 0, 0.2);
 }
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 📱 NEW: DYNAMIC MOBILE BOTTOM NAV BAR STYLES (PILL EFFECT) 📱 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+/* Default: Hide the new bottom nav on desktop screens */
+#bottom-nav {
+    display: none; 
+}
+
+/* Ensure the scroll to top button is not hidden by the new nav */
+#backToTop {
+    bottom: 80px; 
+    z-index: 1000;
+}
+
+/* MODAL STYLES */
+#more-options-modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1001; /* Above everything else */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8); /* Dark semi-transparent backdrop */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    backdrop-filter: blur(5px);
+}
+
+#more-options-modal.open {
+    display: flex; /* Show the modal container */
+    opacity: 1;
+    align-items: flex-end; /* Drop down from the bottom */
+    justify-content: center;
+}
+
+body.modal-open {
+    overflow: hidden; /* Prevents background scrolling when modal is open */
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    width: 90%;
+    max-width: 500px;
+    border-radius: var(--radius) var(--radius) 0 0; /* Rounded top corners */
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: var(--text);
+}
+
+.modal-options-list {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+}
+
+.modal-options-list li {
+    border-bottom: 1px solid var(--border);
+    margin: 0;
+}
+
+.modal-options-list a {
+    display: block;
+    padding: 15px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.modal-options-list a i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+    color: var(--accent);
+}
+
+.modal-options-list a:hover {
+    background-color: var(--border);
+}
+
+.modal-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+}
+
+.close-btn, .close-btn-lg {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--subtext);
+    font-size: 1.2em;
+    padding: 5px;
+    transition: color 0.2s;
+}
+
+.close-btn-lg {
+    background-color: var(--accent);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: bold;
+}
+/* END OF MODAL STYLES */
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 📱 NEW: DYNAMIC MOBILE BOTTOM NAV BAR STYLES (PILL EFFECT) - ONLY ACTIVE BELOW 1024px 📱 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+@media (max-width: 1023px) {
+    /* --- MOBILE NAV HIDING --- */
+    
+    /* 1. Hide the old top and bottom navigation bars on mobile/tablet */
+    #top-nav-bar,
+    #bottom-nav-bar {
+        display: none !important;
+    }
+    
+    /* 2. Adjust body padding for the fixed mobile bottom bar (60px height) */
+    body {
+        /* Add padding to the bottom equal to the nav height */
+        padding-bottom: 60px; 
+    }
+    
+    /* --- FIXED BOTTOM NAV STYLES --- */
+    
+    #bottom-nav {
+        display: flex; /* Show the new bottom nav on mobile */
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        justify-content: space-around;
+        align-items: center;
+        height: 60px;
+        /* Using your FPL Purple accent color for the base bar */
+        background-color: var(--accent); 
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
+        z-index: 999;
+        padding: 0 5px;
+    }
+
+    .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #fff; /* White text on dark background */
+        padding: 5px 0;
+        /* Set width for 5 items: 100% / 5 = 20% */
+        width: 20%; 
+        margin: 0 2px; 
+        transition: color 0.3s, opacity 0.3s;
+        position: relative; 
+        overflow: visible; 
+        /* Tighter font for smaller screens */
+        line-height: 1.1; 
+    }
+
+    .nav-item i {
+        font-size: 18px;
+        margin-bottom: 2px;
+        z-index: 10;
+        transition: opacity 0.2s;
+    }
+
+    .nav-text {
+        font-size: 10px;
+        font-weight: 600;
+        z-index: 10;
+        transition: opacity 0.2s;
+    }
+
+    /* Active State Styling */
+    .nav-item.active {
+        /* The pill will define the visible content, text hides to make pill content visible */
+        color: var(--card-bg); 
+    }
+
+
+    /* --- PILL HIGHLIGHT STYLING --- */
+
+    .nav-highlight {
+        /* Position the pill container */
+        position: absolute;
+        top: 5px; /* Pushes the pill down slightly from the top */
+        left: 50%;
+        transform: translateX(-50%); /* Center the pill horizontally */
+        
+        /* Pill Appearance */
+        height: 50px; 
+        width: 90%; 
+        /* Use card background for a clean, contrasting pill */
+        background-color: var(--card-bg); 
+        border-radius: 30px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+        /* Start position: Hidden and slightly scaled down */
+        opacity: 0;
+        transform: translateX(-50%) scale(0.8);
+        transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+        z-index: 5;
+    }
+
+    .nav-item.active .nav-highlight {
+        /* Active position: Fade in and scale up */
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+
+    /* Content inside the pill */
+    .highlight-info {
+        font-size: 11px;
+        font-weight: 700;
+        /* Use the standard text color for contrast against the card background */
+        color: var(--text); 
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    /* Hide the original icon/text when the pill is active */
+    .nav-item.active i,
+    .nav-item.active .nav-text {
+        opacity: 0;
+    }
+}
+
+
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 /* --- DESKTOP OPTIMIZATION: 3-COLUMN GRID (SMALLER CONTAINER, FIXED HEIGHT SCROLLING) --- */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
@@ -643,6 +899,8 @@ footer {
     }
     
     /* 3. Tighten Bottom Nav Link Padding and Font Size */
+    /* NOTE: This block only affects the old, hidden #bottom-nav-bar. 
+       The new #bottom-nav uses its own mobile styles above. */
     .main-links {
         gap: 2px; 
     }
@@ -809,4 +1067,12 @@ footer {
 }
 
 /* Class to make the standings visible */
-.leagu
+.league-standings-content.visible {
+    max-height: 500px; /* Adjust this value as needed, must be large enough to contain all content */
+    padding: 10px 15px;
+}
+
+/* Remove bottom border from the provided content section */
+.league-standings-content.visible .standings-list-general li:last-child {
+    border-bottom: none;
+}
