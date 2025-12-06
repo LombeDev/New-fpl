@@ -1,6 +1,7 @@
 /* ROOT THEME VARIABLES — LIGHT MODE (clean + simple) */
 :root {
-    --bg: #ffffff;
+    /* ➡️ UPDATED: Replaced solid color with the blue-to-purple gradient */
+    --bg: linear-gradient(135deg, #5C7DFF, #9C60FF); 
     --text: #242424;
     --subtext: #555;
     --card-bg: #f4f4f4;
@@ -35,7 +36,8 @@
 
 /* DARK THEME — GitHub / Telegram Blue-Tinted */
 body.dark-mode {
-    --bg: #0d1117;
+    /* ➡️ UPDATED: Replaced solid color with a darker gradient version */
+    --bg: linear-gradient(135deg, #2D4099, #5533AA); 
     --text: #c9d1d9;
     --subtext: #8b949e;
     --card-bg: #161b22;
@@ -74,7 +76,14 @@ body.dark-mode {
 /* BODY */
 body {
     font-family: Arial, sans-serif;
-    background-color: var(--bg);
+    /* ➡️ CRITICAL CHANGE: Need to use 'var(--bg)' directly in background-image,
+       and set background-size to cover the entire viewport. 
+       Note: The original CSS already applies 'background-color: var(--bg);' which
+       will now be interpreted as applying the gradient as the background image. */
+    background-image: var(--bg); /* Set the gradient as the background image */
+    background-attachment: fixed; /* Ensures the gradient covers the entire background and doesn't scroll with content */
+    background-size: cover;
+    
     color: var(--text);
     min-height: 100vh;
     padding-top: 0;
