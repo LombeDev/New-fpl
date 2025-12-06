@@ -9,8 +9,17 @@ let teamMap = {};    // Team ID -> Abbreviation (e.g., 1 -> 'ARS')
 let playerMap = {};  // Player ID -> Full Name
 let currentGameweekId = null;
 
-// The following elements are NO LONGER global constants.
-// They will be looked up locally inside the functions below.
+/* -----------------------------------------
+    NEW: TEAM ID CHECKER ELEMENTS
+----------------------------------------- */
+const teamIdInput = document.getElementById('team-id-input');
+const goButton = document.getElementById('go-btn');
+const resetButton = document.getElementById('reset-btn');
+const teamPlayerName = document.getElementById('team-player-name');
+const netPointsDisplay = document.getElementById('net-points');
+const transfersMadeDisplay = document.getElementById('transfers-made');
+const liveRankDisplay = document.getElementById('live-rank');
+
 
 /* -----------------------------------------
     NEW: TEAM ID CHECKER LOGIC
@@ -20,13 +29,6 @@ let currentGameweekId = null;
  * Resets the display fields for the Player Data Checker section.
  */
 function resetCheckerDisplay() {
-    // Lookup elements locally (safely)
-    const teamIdInput = document.getElementById('team-id-input');
-    const teamPlayerName = document.getElementById('team-player-name');
-    const netPointsDisplay = document.getElementById('net-points');
-    const transfersMadeDisplay = document.getElementById('transfers-made');
-    const liveRankDisplay = document.getElementById('live-rank');
-
     if (teamIdInput) teamIdInput.value = '';
     if (teamPlayerName) teamPlayerName.innerText = 'Team name (Player name)';
     if (netPointsDisplay) netPointsDisplay.innerText = '-';
@@ -43,18 +45,12 @@ async function fetchManagerData(managerId) {
         alert('Gameweek data is not yet loaded. Please wait for the dashboard to finish loading.');
         return;
     }
-    
-    // Lookup elements locally (safely)
-    const teamPlayerName = document.getElementById('team-player-name');
-    const netPointsDisplay = document.getElementById('net-points');
-    const transfersMadeDisplay = document.getElementById('transfers-made');
-    const liveRankDisplay = document.getElementById('live-rank');
 
     // Clear previous results and show loading state
-    if (teamPlayerName) teamPlayerName.innerText = 'Loading...';
-    if (netPointsDisplay) netPointsDisplay.innerText = '...';
-    if (transfersMadeDisplay) transfersMadeDisplay.innerText = '...';
-    if (liveRankDisplay) liveRankDisplay.innerText = '...';
+    teamPlayerName.innerText = 'Loading...';
+    netPointsDisplay.innerText = '...';
+    transfersMadeDisplay.innerText = '...';
+    liveRankDisplay.innerText = '...';
 
     try {
         // 1. Fetch Manager's general info (Team Name and Player Name)
@@ -64,44 +60,44 @@ async function fetchManagerData(managerId) {
 
         const teamName = entryData.name || 'Unknown Team';
         const playerName = entryData.player_first_name + ' ' + entryData.player_last_name || 'Unknown Player';
-        if (teamPlayerName) teamPlayerName.innerText = `${teamName} (${playerName})`;
+        teamPlayerName.innerText = `${teamName} (${playerName})`;
+
 
         // 2. Fetch Manager's Picks for the Current Gameweek to get points/transfers
+        // We use the dynamically fetched currentGameweekId here
         const picksUrl = `https://fantasy.premierleague.com/api/entry/${managerId}/event/${currentGameweekId}/picks/`;
         const picksResponse = await fetch(proxy + picksUrl);
         const picksData = await picksResponse.json();
 
+        // Gameweek specific data is under entry_history
         const gwData = picksData.entry_history;
+        
+        // points: Points scored in this current Gameweek
         const points = gwData.points || 0; 
+        // event_transfers: Number of transfers made for this Gameweek
         const transfers = gwData.event_transfers || 0; 
 
-        if (netPointsDisplay) netPointsDisplay.innerText = points;
-        if (transfersMadeDisplay) transfersMadeDisplay.innerText = transfers;
-        if (liveRankDisplay) liveRankDisplay.innerText = '-'; 
+        netPointsDisplay.innerText = points;
+        transfersMadeDisplay.innerText = transfers;
+        
+        // Note: Live Rank requires complex calculation or third-party service.
+        liveRankDisplay.innerText = '-'; 
 
     } catch (error) {
         console.error(`Error fetching FPL data for ID ${managerId}:`, error);
-        if (teamPlayerName) teamPlayerName.innerText = 'Error (Check ID)';
-        if (netPointsDisplay) netPointsDisplay.innerText = 'N/A';
-        if (transfersMadeDisplay) transfersMadeDisplay.innerText = 'N/A';
-        if (liveRankDisplay) liveRankDisplay.innerText = 'N/A';
+        teamPlayerName.innerText = 'Error (Check ID)';
+        netPointsDisplay.innerText = 'N/A';
+        transfersMadeDisplay.innerText = 'N/A';
+        liveRankDisplay.innerText = 'N/A';
         alert('Could not fetch data. Please ensure the FPL Team ID is correct or the API is available.');
     }
 }
 
 /**
  * Sets up event listeners for the new checker feature.
- * CRITICAL FIX: Elements are looked up here when the DOM is guaranteed to be ready.
  */
 function initializeChecker() {
-    // Lookup elements locally (safely)
-    const teamIdInput = document.getElementById('team-id-input');
-    const goButton = document.getElementById('go-btn');
-    const resetButton = document.getElementById('reset-btn');
-    
-    // resetCheckerDisplay(); // Called at the end of this function now
-
-    if (goButton && teamIdInput) { // Note: Removed 'resetButton' from check since it might not exist in HTML
+    if (goButton && resetButton && teamIdInput) {
         // Initially disable button until currentGameweekId is available
         goButton.disabled = true;
         goButton.innerText = 'Loading...';
@@ -118,10 +114,8 @@ function initializeChecker() {
             }
         });
 
-        // Listener for the 'Reset' button (if it exists)
-        if (resetButton) {
-            resetButton.addEventListener('click', resetCheckerDisplay);
-        }
+        // Listener for the 'Reset' button
+        resetButton.addEventListener('click', resetCheckerDisplay);
     }
     // Initialize display state
     resetCheckerDisplay();
@@ -138,12 +132,12 @@ function hideLoadingOverlay() {
     const overlay = document.getElementById("loading-overlay");
     if (overlay) {
         // Assume you have CSS for the .hidden class to handle opacity transition
-        overlay.classList.add('hidden');    
+        overlay.classList.add('hidden'); 
         
         // Remove it from the DOM completely after the CSS transition completes (500ms)
         setTimeout(() => {
             overlay.remove();
-        }, 500);    
+        }, 500); 
     }
 }
 
@@ -151,14 +145,11 @@ function hideLoadingOverlay() {
  * NEW: Manages all critical data fetching and hides the loader when complete.
  */
 async function startDataLoadingAndTrackCompletion() {
-    // Look up the button here (safely) before the initial load logic
-    const goButton = document.getElementById('go-btn');
-    
     try {
         // 1. Start the crucial bootstrap data load first.
         await loadFPLBootstrapData();
         
-        // FIX: Now that currentGameweekId is set, enable the checker button.
+        // NEW: Now that currentGameweekId is set, enable the checker button.
         if (goButton) {
             goButton.disabled = false;
             goButton.innerText = 'Go';
@@ -197,7 +188,7 @@ const body = document.body;
 
 // Define the list of theme classes in the desired cycle order
 const themes = [
-    '',             // 1. Light Mode (No class)
+    '',          // 1. Light Mode (No class)
     'dark-mode',    // 2. Dark Mode
     'cyan-theme',   // 3. Cyan/Green Theme
     'red-theme',    // 4. Red/Black Theme
@@ -214,7 +205,7 @@ function getCurrentThemeIndex() {
     const index = themes.indexOf(savedTheme);
     
     // Return the index if found, otherwise default to 0 (Light Mode)
-    return index !== -1 ? index : 0;    
+    return index !== -1 ? index : 0; 
 }
 
 /**
@@ -236,7 +227,7 @@ function applyTheme(index) {
         localStorage.setItem("theme", newTheme);
     } else {
         // If theme is '' (Light Mode)
-        localStorage.removeItem("theme");    
+        localStorage.removeItem("theme"); 
     }
 
     // 3. Update the button icon for better visual feedback
@@ -246,20 +237,20 @@ function applyTheme(index) {
 
     switch (nextTheme) {
         case 'dark-mode':
-            if (themeToggle) themeToggle.textContent = "🌙"; // Next is Dark Mode
+            themeToggle.textContent = "🌙"; // Next is Dark Mode
             break;
         case 'cyan-theme':
-            if (themeToggle) themeToggle.textContent = "✨"; // Next is Cyan Theme
+            themeToggle.textContent = "✨"; // Next is Cyan Theme
             break;
         case 'red-theme':
-            if (themeToggle) themeToggle.textContent = "🔴"; // Next is Red Theme
+            themeToggle.textContent = "🔴"; // Next is Red Theme
             break;
         case 'blue-theme':
-            if (themeToggle) themeToggle.textContent = "🔵"; // Next is Blue Theme
+            themeToggle.textContent = "🔵"; // Next is Blue Theme
             break;
         case '': // Next is Light Mode
         default:
-            if (themeToggle) themeToggle.textContent = "☀️"; // Next is Light Mode
+            themeToggle.textContent = "☀️"; // Next is Light Mode
             break;
     }
 }
@@ -348,42 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
              }
         }
     });
-
-    // Back to Top/Bottom Buttons
-    const backToTop = document.getElementById('backToTop');
-    const scrollToBottom = document.getElementById('scrollToBottom');
-
-    const toggleVisibility = () => {
-        if (window.scrollY > 300) {
-            if (backToTop) backToTop.style.display = 'flex';
-        } else {
-            if (backToTop) backToTop.style.display = 'none';
-        }
-        
-        // Show scroll-to-bottom only if we are not already near the bottom
-        const nearBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50;
-        if (nearBottom) {
-             if (scrollToBottom) scrollToBottom.style.display = 'none';
-        } else {
-             if (scrollToBottom) scrollToBottom.style.display = 'flex';
-        }
-    };
-
-    window.addEventListener('scroll', toggleVisibility);
-    toggleVisibility(); // Initial check
-
-    if (backToTop) {
-        backToTop.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    }
-    
-    if (scrollToBottom) {
-        scrollToBottom.addEventListener('click', () => {
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        });
-    }
-
 });
 
 
@@ -409,7 +364,7 @@ lazyElements.forEach((el) => observer.observe(el));
 
 // On page load 
 window.addEventListener("DOMContentLoaded", () => {
-    // NEW: Initialize the checker feature listeners (which looks up the elements safely)
+    // NEW: Initialize the checker feature listeners
     initializeChecker();
     
     // We now call the loading manager instead of individual functions.
@@ -473,15 +428,17 @@ async function loadFPLBootstrapData() {
             currentGameweekId = currentEvent.id;
         }
 
-        // 3. Load dependent lists
+        // 3. Load dependent lists - we don't need to await them here, 
+        // as the parent function awaits Promise.all on the critical, independent functions.
+        // For robustness, ensure all these return the promise object, which they do as async functions.
         loadCurrentGameweekFixtures();
         loadPriceChanges(data);
         loadMostTransferred(data);
         loadMostTransferredOut(data);
         loadMostCaptained(data);
         loadPlayerStatusUpdates(data);
-        processDeadlineDisplay(data);    
-        loadSimpleEPLTable(data);    
+        processDeadlineDisplay(data); 
+        loadSimpleEPLTable(data); 
 
         // CRITICAL: Return the data for parent function logic
         return data;
@@ -508,10 +465,10 @@ async function loadGeneralLeagueStandings() {
 
     // --- 1. Define the leagues to load (IDs provided by the user) ---
     const leaguesToLoad = [
-        { id: "258", name: "Zambia", type: "Classic" },    
-        { id: "315", name: "Overall", type: "Classic" },    
-        { id: "276", name: "Gameweek 1", type: "Classic" },    
-        { id: "333", name: "Second Chance", type: "H2H" },    
+        { id: "258", name: "Zambia", type: "Classic" }, 
+        { id: "315", name: "Overall", type: "Classic" }, 
+        { id: "276", name: "Gameweek 1", type: "Classic" }, 
+        { id: "333", name: "Second Chance", type: "H2H" }, 
     ];
 
     container.innerHTML = ""; // Clear the initial loading content
@@ -548,7 +505,7 @@ async function loadGeneralLeagueStandings() {
 
         try {
             // Determine API endpoint based on league type (Classic or H2H)
-            const apiEndpoint = leagueConfig.type === "H2H"    
+            const apiEndpoint = leagueConfig.type === "H2H" 
                 ? `https://fantasy.premierleague.com/api/leagues-h2h/${leagueConfig.id}/standings/`
                 : `https://fantasy.premierleague.com/api/leagues-classic/${leagueConfig.id}/standings/`;
 
@@ -572,16 +529,16 @@ async function loadGeneralLeagueStandings() {
 
             results.forEach((team) => {
                 // Get the HTML for rank change indicator using the helper function
-                const rankChangeHtml = getChangeIconHtml(team.rank_change, false);    
+                const rankChangeHtml = getChangeIconHtml(team.rank_change, false); 
 
                 const listItem = document.createElement("li");
                 listItem.innerHTML = `
-                    <span class="rank-number">${team.rank}.</span>    
-                    <span class="manager-name">${team.player_name} (${team.entry_name})</span>    
+                    <span class="rank-number">${team.rank}.</span> 
+                    <span class="manager-name">${team.player_name} (${team.entry_name})</span> 
                     ${rankChangeHtml} <span><strong>${team.total}</strong> pts</span>
                 `;
 
-                if (team.rank === 1) listItem.classList.add("top-rank-general");    
+                if (team.rank === 1) listItem.classList.add("top-rank-general"); 
                 
                 list.appendChild(listItem);
             });
@@ -727,11 +684,11 @@ async function loadCurrentGameweekFixtures() {
             listItem.innerHTML = `
                 <div class="fixture-summary">
                     <span class="fixture-team home-team">
-                        <span class="team-label home-label">${homeTeamAbbr}</span>    
-                    </span>    
+                        <span class="team-label home-label">${homeTeamAbbr}</span> 
+                    </span> 
                     ${scoreDisplay}
                     <span class="fixture-team away-team">
-                        <span class="team-label away-label">${awayTeamAbbr}</span>    
+                        <span class="team-label away-label">${awayTeamAbbr}</span> 
                     </span>
                     <span class="match-status-tag">${statusText}</span>
                 </div>
@@ -858,7 +815,7 @@ async function loadPriceChanges(data) {
             const div = document.createElement("div");
             
             // Calculate change in millions (cost_change_event is in pence/10)
-            const changeInMillions = p.cost_change_event / 10;    
+            const changeInMillions = p.cost_change_event / 10; 
             
             // Use the helper function for dynamic price change arrows
             const priceChangeHtml = getChangeIconHtml(changeInMillions, true);
@@ -868,182 +825,130 @@ async function loadPriceChanges(data) {
 
             div.classList.add("price-change-row");
             div.innerHTML = `
-                <span class="player-name">${p.first_name} ${p.second_name} (${teamAbbreviation})</span>    
-                <span class="price-change-value">${priceChangeHtml} ${Math.abs(changeInMillions).toFixed(1)}m</span>
-                <span class="player-price">£${playerPrice}m</span>
+                <span class="player-name">${p.first_name} ${p.second_name} (${teamAbbreviation})</span> 
+                <span class="player-price">£${playerPrice}m</span> 
+                ${priceChangeHtml}
             `;
 
-            if (changeInMillions > 0) {
-                div.classList.add("riser");
-            } else {
-                div.classList.add("faller");
-            }
-            
             container.appendChild(div);
-        }, index * 30);
+        }, index * 20);
     });
 }
 
-
-// MOST TRANSFERRED IN PLAYERS
+// ➡️ MOST TRANSFERRED IN 
 async function loadMostTransferred(data) {
     const container = document.getElementById("most-transferred-list");
     if (!container || !data) return;
 
-    // Filter and sort by transfers_in_event (transfers made for the current GW)
-    const topTransfers = data.elements
+    const topTransferred = data.elements
         .sort((a, b) => b.transfers_in_event - a.transfers_in_event)
-        .slice(0, 5); // Get top 5
+        .slice(0, 10);
 
-    container.innerHTML = "<h3>Most Transferred **IN** This Gameweek ⬆️</h3>";
+    container.innerHTML = "<h3>Most Transferred In (This GW) ➡️</h3>";
 
-    topTransfers.forEach((p, index) => {
+    topTransferred.forEach((p, index) => {
         setTimeout(() => {
             const div = document.createElement("div");
-            const teamAbbreviation = teamMap[p.team] || 'N/A';
-            const transfers = (p.transfers_in_event / 1000).toFixed(1); // Convert to thousands
+            const transfers = p.transfers_in_event.toLocaleString();
+            const playerPrice = (p.now_cost / 10).toFixed(1);
 
-            div.classList.add("transfer-row");
-            div.innerHTML = `
-                <span class="rank-number">${index + 1}.</span> 
-                <span class="player-name">${p.web_name} (${teamAbbreviation})</span> 
-                <span class="transfer-count">${transfers}k</span>
-            `;
+            const teamAbbreviation = teamMap[p.team] || 'N/A';
+
+            div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers`;
+
             container.appendChild(div);
         }, index * 30);
     });
 }
 
-// MOST TRANSFERRED OUT PLAYERS
+// ⬅️ MOST TRANSFERRED OUT 
 async function loadMostTransferredOut(data) {
     const container = document.getElementById("most-transferred-out-list");
     if (!container || !data) return;
 
-    // Filter and sort by transfers_out_event
-    const topTransfersOut = data.elements
+    const topTransferredOut = data.elements
         .sort((a, b) => b.transfers_out_event - a.transfers_out_event)
-        .slice(0, 5); // Get top 5
+        .slice(0, 10);
 
-    container.innerHTML = "<h3>Most Transferred **OUT** This Gameweek ⬇️</h3>";
+    container.innerHTML = "<h3>Most Transferred Out (This GW) ⬅️</h3>";
 
-    topTransfersOut.forEach((p, index) => {
+    topTransferredOut.forEach((p, index) => {
         setTimeout(() => {
             const div = document.createElement("div");
-            const teamAbbreviation = teamMap[p.team] || 'N/A';
-            const transfers = (p.transfers_out_event / 1000).toFixed(1); // Convert to thousands
+            const transfers = p.transfers_out_event.toLocaleString();
+            const playerPrice = (p.now_cost / 10).toFixed(1);
 
-            div.classList.add("transfer-row");
-            div.innerHTML = `
-                <span class="rank-number">${index + 1}.</span> 
-                <span class="player-name">${p.web_name} (${teamAbbreviation})</span> 
-                <span class="transfer-count">${transfers}k</span>
-            `;
+            const teamAbbreviation = teamMap[p.team] || 'N/A';
+
+            div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers out`;
+
+            div.classList.add("transferred-out");
+
             container.appendChild(div);
         }, index * 30);
     });
 }
 
-// MOST CAPTAINED PLAYERS
+
+// ©️ MOST CAPTAINED PLAYER 
 async function loadMostCaptained(data) {
     const container = document.getElementById("most-captained-list");
     if (!container || !data) return;
 
-    // Filter and sort by selected_by_percent
-    const topCaptains = data.elements
-        .sort((a, b) => b.selected_by_percent - a.selected_by_percent)
-        .slice(0, 5); // Get top 5
+    const currentEvent = data.events.find(e => e.is_next || e.is_current);
 
-    container.innerHTML = "<h3>Most Captained (Ownership %) 👑</h3>";
-
-    topCaptains.forEach((p, index) => {
-        setTimeout(() => {
-            const div = document.createElement("div");
-            const teamAbbreviation = teamMap[p.team] || 'N/A';
-
-            div.classList.add("captain-row");
-            div.innerHTML = `
-                <span class="rank-number">${index + 1}.</span> 
-                <span class="player-name">${p.web_name} (${teamAbbreviation})</span> 
-                <span class="ownership-percent">${p.selected_by_percent}%</span>
-            `;
-            container.appendChild(div);
-        }, index * 30);
-    });
-}
-
-// DEADLINE COUNTDOWN TIMER
-function processDeadlineDisplay(data) {
-    const container = document.getElementById("deadline-section");
-    const title = container ? container.querySelector(".countdown-title") : null;
-    const timerDisplay = document.getElementById("countdown-timer");
-
-    if (!timerDisplay || !data || !data.events) return;
-
-    // Find the next upcoming deadline
-    const nextEvent = data.events.find(e => !e.finished);
-
-    if (!nextEvent) {
-        if (title) title.textContent = "Season Finished!";
-        timerDisplay.innerHTML = `<p>The Premier League season has concluded.</p>`;
+    if (!currentEvent || !currentEvent.most_captained) {
+        container.textContent = "Captain data not yet available for this Gameweek.";
         return;
     }
 
-    const deadlineTime = new Date(nextEvent.deadline_time);
-    const deadlineString = deadlineTime.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) + " " +
-                           deadlineTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const mostCaptainedId = currentEvent.most_captained;
 
-    if (title) title.textContent = `⏳ GW ${nextEvent.id} Deadline: ${deadlineString}`;
+    const captain = data.elements.find(p => p.id === mostCaptainedId);
 
-    // Update the countdown every second
-    const updateCountdown = () => {
-        const now = new Date().getTime();
-        const distance = deadlineTime.getTime() - now;
+    if (!captain) {
+        container.textContent = "Could not find the most captained player.";
+        return;
+    }
 
-        if (distance < 0) {
-            timerDisplay.innerHTML = `<p class="deadline-passed">🔴 DEADLINE PASSED</p>`;
-            clearInterval(timerInterval);
-            // Optionally, reload data after a period if deadline just passed
-            return;
-        }
+    const playerPrice = (captain.now_cost / 10).toFixed(1);
+    const captaincyPercentage = captain.selected_by_percent; 
 
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    const teamAbbreviation = teamMap[captain.team] || 'N/A';
 
-        timerDisplay.innerHTML = `
-            <div><span class="countdown-value">${days}</span><span class="countdown-label">Days</span></div>
-            <div><span class="countdown-value">${hours}</span><span class="countdown-label">Hours</span></div>
-            <div><span class="countdown-value">${minutes}</span><span class="countdown-label">Mins</span></div>
-            <div><span class="countdown-value">${seconds}</span><span class="countdown-label">Secs</span></div>
-        `;
-    };
+    container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3>";
 
-    updateCountdown(); // Call immediately to avoid initial flicker
-    const timerInterval = setInterval(updateCountdown, 1000);
+    const div = document.createElement("div");
+    div.textContent = `${captain.first_name} ${captain.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${captaincyPercentage}%`;
+    div.classList.add("top-rank");
+
+    container.appendChild(div);
 }
 
-
-// SIMPLE EPL TABLE (using team stats from bootstrap)
-function loadSimpleEPLTable(data) {
+// 🥇 CURRENT EPL TABLE (STANDINGS) - Simplified FPL Data Only
+/**
+ * Loads and displays a simplified EPL Table using only FPL Bootstrap data.
+ * @param {object} data - The full data object from FPL bootstrap-static.
+ */
+async function loadSimpleEPLTable(data) {
     const container = document.getElementById("epl-table-list");
     if (!container || !data || !data.teams) return;
 
-    const tableTeams = data.teams
-        .sort((a, b) => b.points - a.points); // Sort by total points (this is standard)
+    // FPL team data already contains standings information (position, points, etc.)
+    // We sort the teams by their current league position.
+    const sortedTeams = data.teams.sort((a, b) => a.position - b.position);
 
-    container.innerHTML = "<h3>EPL Table (Quick Glance) 🏟️</h3>";
-    
+    container.innerHTML = "<h3>Current Premier League Standings 🏆 (FPL Data)</h3>";
+
     const table = document.createElement('table');
-    table.classList.add('epl-table');
+    table.classList.add('simple-epl-table');
     table.innerHTML = `
         <thead>
             <tr>
                 <th>#</th>
-                <th>Team</th>
-                <th>P</th>
+                <th class="team-name-header">Team</th>
+                <th>Pl</th>
                 <th>W</th>
-                <th>D</th>
                 <th>L</th>
                 <th>Pts</th>
             </tr>
@@ -1053,19 +958,146 @@ function loadSimpleEPLTable(data) {
     `;
     const tbody = table.querySelector('tbody');
 
-    tableTeams.forEach((team, index) => {
-        const row = document.createElement('tr');
+    sortedTeams.forEach((team) => {
+        const row = tbody.insertRow();
+        
+        // Determine coloring based on position (rank) - uses FPL's fields
+        let rowClass = '';
+        if (team.position <= 4) {
+            rowClass = "champions-league";
+        } else if (team.position === 5) {
+            rowClass = "europa-league";
+        } else if (team.position >= 18) {
+             rowClass = "relegation";
+        }
+
+        row.classList.add(rowClass);
+        
         row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${team.name}</td>
+            <td>${team.position}</td>
+            <td class="team-name-cell">${team.name}</td>
             <td>${team.played}</td>
             <td>${team.win}</td>
-            <td>${team.draw}</td>
             <td>${team.loss}</td>
-            <td>${team.points}</td>
+            <td><strong>${team.points}</strong></td>
         `;
         tbody.appendChild(row);
     });
 
     container.appendChild(table);
+}
+
+// ⏳ DEADLINE COUNTDOWN LOGIC
+/**
+ * Processes the FPL deadlines and initiates the countdown timer.
+ * @param {object} data - The full data object from FPL bootstrap-static.
+ */
+function processDeadlineDisplay(data) {
+    const countdownElement = document.getElementById('countdown-timer');
+    const titleElement = document.querySelector('.countdown-title');
+    if (!countdownElement || !titleElement || !data) return;
+
+    const nextEvent = data.events.find(e => e.is_next);
+
+    if (!nextEvent) {
+        titleElement.textContent = "Season Finished!";
+        countdownElement.textContent = "Waiting for next season start.";
+        return;
+    }
+
+    const deadlineTime = new Date(nextEvent.deadline_time);
+    titleElement.textContent = `⏳ Deadline for Gameweek ${nextEvent.id}:`;
+
+    // Start the countdown interval
+    const updateCountdown = () => {
+        const now = new Date().getTime();
+        const distance = deadlineTime - now;
+
+        // Time calculations
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        if (distance < 0) {
+            clearInterval(interval);
+            countdownElement.innerHTML = "<strong>DEADLINE PASSED!</strong>";
+        } else {
+            countdownElement.innerHTML = `
+                <span>${days}d</span>
+                <span>${hours}h</span>
+                <span>${minutes}m</span>
+                <span>${seconds}s</span>
+            `;
+        }
+    };
+
+    updateCountdown(); // Initial call
+    const interval = setInterval(updateCountdown, 1000);
+}
+
+
+/* -----------------------------------------
+    SCROLL BUTTONS (BACK TO TOP / BOTTOM)
+----------------------------------------- */
+const backToTopButton = document.getElementById("backToTop");
+const scrollToBottomButton = document.getElementById("scrollToBottom");
+
+// Show/hide button based on scroll position
+window.onscroll = function() {
+    if (backToTopButton) {
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            backToTopButton.style.display = "block";
+        } else {
+            backToTopButton.style.display = "none";
+        }
+    }
+    if (scrollToBottomButton) {
+         // Hide scroll to bottom when near bottom
+         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
+            scrollToBottomButton.style.display = "none";
+        } else {
+            scrollToBottomButton.style.display = "block";
+        }
+    }
+};
+
+// Scroll to the top of the document
+if (backToTopButton) {
+    backToTopButton.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+// Scroll to the bottom of the document
+if (scrollToBottomButton) {
+    scrollToBottomButton.addEventListener("click", () => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    });
+}
+
+
+/* -----------------------------------------
+    COLLAPSIBLE SECTIONS
+----------------------------------------- */
+const toggleGeneralLeagues = document.getElementById('toggleGeneralLeagues');
+const generalLeaguesList = document.getElementById('general-leagues-list');
+
+if (toggleGeneralLeagues && generalLeaguesList) {
+    toggleGeneralLeagues.addEventListener('click', () => {
+        const icon = toggleGeneralLeagues.querySelector('.toggle-icon');
+        
+        generalLeaguesList.classList.toggle('hidden');
+        toggleGeneralLeagues.classList.toggle('active');
+
+        if (icon) {
+            if (generalLeaguesList.classList.contains('hidden')) {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            } else {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
+        }
+    });
 }
