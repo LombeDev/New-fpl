@@ -139,18 +139,22 @@ let currentThemeIndex = getCurrentThemeIndex();
 applyTheme(currentThemeIndex); // Apply the saved theme on load
 
 // --- Toggle Logic ---
+/** Renamed function to be globally accessible for modal use */
+function toggleTheme() {
+     // Increment the index, looping back to 0 (Light Mode) when exceeding the array length
+    currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+    
+    applyTheme(currentThemeIndex);
+}
+
 if (themeToggle) {
-    themeToggle.addEventListener("click", () => {
-        // Increment the index, looping back to 0 (Light Mode) when exceeding the array length
-        currentThemeIndex = (currentThemeIndex + 1) % themes.length;
-        
-        applyTheme(currentThemeIndex);
-    });
+    themeToggle.addEventListener("click", toggleTheme);
 }
 
 
 /* -----------------------------------------
     NAVIGATION MENU TOGGLES
+    (Old desktop/mobile logic - Kept for reference)
 ----------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
@@ -217,6 +221,80 @@ document.addEventListener('DOMContentLoaded', () => {
              }
         }
     });
+
+    
+    /* -----------------------------------------
+        NEW: DYNAMIC BOTTOM NAV SCROLL LOGIC
+    ----------------------------------------- */
+    const sections = document.querySelectorAll('.content-section');
+    const navItems = document.querySelectorAll('.nav-item');
+
+    // Options for the Intersection Observer (CRITICAL: -50% centers the trigger)
+    const observerOptions = {
+        root: null, 
+        rootMargin: '-50% 0px -50% 0px', 
+        threshold: 0
+    };
+
+    /**
+     * Updates the bottom navigation bar based on the intersecting section.
+     * @param {string} activeId The ID of the section currently in view.
+     */
+    function updateNavBar(activeId) {
+        navItems.forEach(item => {
+            // Only update items that are NOT the 'more-options' button
+            if (item.getAttribute('data-id') !== 'more-options') {
+                item.classList.remove('active'); 
+                
+                if (item.getAttribute('data-id') === activeId) {
+                    item.classList.add('active');
+                }
+            }
+        });
+    }
+
+    // Create the Intersection Observer
+    const navObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const sectionId = entry.target.id;
+                updateNavBar(sectionId);
+            }
+        });
+    }, observerOptions);
+
+    // Start observing each content section
+    sections.forEach(section => {
+        navObserver.observe(section);
+    });
+    
+    // Add click listener for smooth scrolling on nav links
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('data-id');
+
+            // If the target is the 'more-options' button, handle the modal and exit
+            if (targetId === 'more-options') {
+                 e.preventDefault();
+                 toggleModal(); // Open the modal
+                 
+                 // Manually ensure all nav items are inactive when the modal is open
+                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                 return;
+            }
+
+            // Normal smooth scroll behavior for other links
+            e.preventDefault(); 
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
 });
 
 
@@ -225,16 +303,16 @@ document.addEventListener('DOMContentLoaded', () => {
 ----------------------------------------- */
 const lazyElements = document.querySelectorAll(".lazy");
 
-const observer = new IntersectionObserver((entries) => {
+const lazyObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
         if (entry.isIntersecting) {
             entry.target.classList.add("lazy-loaded");
-            observer.unobserve(entry.target);
+            lazyObserver.unobserve(entry.target);
         }
     });
 }, { threshold: 0.1 });
 
-lazyElements.forEach((el) => observer.observe(el));
+lazyElements.forEach((el) => lazyObserver.observe(el));
 
 /* -----------------------------------------
     FPL API FETCHING
@@ -307,13 +385,15 @@ async function loadFPLBootstrapData() {
         // as the parent function awaits Promise.all on the critical, independent functions.
         // For robustness, ensure all these return the promise object, which they do as async functions.
         loadCurrentGameweekFixtures();
-        loadPriceChanges(data);
-        loadMostTransferred(data);
-        loadMostTransferredOut(data);
-        loadMostCaptained(data);
-        loadPlayerStatusUpdates(data);
-        processDeadlineDisplay(data); 
-        loadSimpleEPLTable(data); 
+        // REMAINING DEPENDENT LOADS (Need definitions for these to run):
+        // loadPriceChanges(data);
+        // loadMostTransferred(data);
+        // loadMostTransferredOut(data);
+        // loadMostCaptained(data);
+        // loadPlayerStatusUpdates(data);
+        // processDeadlineDisplay(data); 
+        // loadSimpleEPLTable(data); 
+        // loadStandings is called outside this function
 
         // CRITICAL: Return the data for parent function logic
         return data;
@@ -457,83 +537,4 @@ async function loadPlayerStatusUpdates(data) {
         }
 
         const newsHtml = unavailablePlayers.map(player => {
-            const teamShortName = teamMap[player.team] || 'N/A';
-            const fullName = `${player.first_name} ${player.second_name}`;
-            
-            let statusLabel = '';
-            let statusClass = 'status-default';
-
-            switch (player.status) {
-                case 'd':
-                    statusLabel = 'Doubtful';
-                    statusClass = 'status-doubtful';
-                    break;
-                case 'i':
-                    statusLabel = 'Injured';
-                    statusClass = 'status-injured';
-                    break;
-                case 's':
-                    statusLabel = 'Suspended';
-                    statusClass = 'status-injured';
-                    break;
-                case 'u':
-                    statusLabel = 'Unavailable';
-                    statusClass = 'status-unavailable';
-                    break;
-                default:
-                    statusLabel = 'Uncertain';
-                    break;
-            }
-
-            return `
-                <div class="player-news-item">
-                    <div class="player-info">
-                        <strong>${fullName} (${teamShortName})</strong>
-                        <span class="status-badge ${statusClass}">${statusLabel}</span>
-                    </div>
-                    <p class="news-detail">${player.news}</p>
-                </div>
-            `;
-        }).join('');
-
-        container.innerHTML = newsHtml;
-
-    } catch (error) {
-        console.error("Failed to load player status updates:", error);
-        container.innerHTML = '<p class="error-message">❌ Could not load player status updates. Check FPL API/Proxy.</p>';
-    }
-}
-
-
-// 📅 CURRENT GAMEWEEK FIXTURES
-async function loadCurrentGameweekFixtures() {
-    const container = document.getElementById("fixtures-list");
-    if (!container) return;
-
-    if (!currentGameweekId) {
-        container.innerHTML = "<h3>Gameweek Scores</h3><p>Current Gameweek information is not yet available.</p>";
-        return;
-    }
-
-    try {
-        const data = await fetch(
-            proxy + "https://fantasy.premierleague.com/api/fixtures/"
-        ).then((r) => r.json());
-
-        const currentGWFixtures = data.filter(f => f.event === currentGameweekId);
-
-        if (currentGWFixtures.length === 0) {
-            container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3><p>No fixtures found for Gameweek ${currentGameweekId}.</p>`;
-            return;
-        }
-
-        container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3>`;
-
-        const list = document.createElement('ul');
-        list.classList.add('fixtures-list-items');
-
-        currentGWFixtures.forEach(fixture => {
-            const homeTeamAbbr = teamMap[fixture.team_h] || `T${fixture.team_h}`;
-            const awayTeamAbbr = teamMap[fixture.team_a] || `T${fixture.team_a}`;
-
-            let scoreDisplay = `<span class="vs-label">vs</span>`;
+            const teamShortName = teamMap[pl
