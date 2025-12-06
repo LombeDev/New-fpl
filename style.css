@@ -137,6 +137,10 @@ section {
     box-shadow: 0 2px 12px rgba(0,0,0,0.1);
     transition: background .3s, border .3s, box-shadow .3s;
     width: 100%;
+
+    /* 🚀 CRITICAL MOBILE CHANGE: Apply fixed height and scrolling by default */
+    max-height: 280px; /* Base height for mobile cards */
+    overflow-y: auto; 
 }
 
 
@@ -553,10 +557,9 @@ footer {
         align-items: initial;
     }
 
-    /* ➡️ Implement Fixed Height and Scrolling for all sections */
+    /* ➡️ Increase Fixed Height for desktop */
     section {
-        max-height: 320px; /* Base card height */
-        overflow-y: auto; 
+        max-height: 320px; /* Taller card height for desktop */
         padding: 16px; 
     }
     
@@ -610,6 +613,17 @@ footer {
         background: var(--red-light); /* FPL red light on hover */
     }
 }
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 📱 MOBILE EXCEPTION: PREVENT SCROLLING ON WELCOME CARD (For screens smaller than desktop grid) */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+@media (max-width: 1023px) {
+    #welcome {
+        max-height: initial; /* Allow the content to define the height on mobile */
+        overflow-y: initial; /* Remove the scrollbar */
+    }
+}
+
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 /* 🚀 CRITICAL MOBILE OPTIMIZATION TO ELIMINATE OVERFLOW (MAX-WIDTH 600px) 🚀 */
