@@ -33,11 +33,11 @@ const body = document.body;
 
 // Define the list of theme classes in the desired cycle order
 const themes = [
-    '',             // 1. Light Mode (No class)
-    'dark-mode',    // 2. Dark Mode
-    'cyan-theme',   // 3. Cyan/Green Theme
-    'red-theme',    // 4. Red/Black Theme
-    'blue-theme'    // 5. FPL Blue Theme
+    '',              // 1. Light Mode (No class)
+    'dark-mode',     // 2. Dark Mode
+    'cyan-theme',    // 3. Cyan/Green Theme
+    'red-theme',     // 4. Red/Black Theme
+    'blue-theme'     // 5. FPL Blue Theme
 ];
 
 /**
@@ -208,6 +208,7 @@ lazyElements.forEach((el) => observer.observe(el));
 window.addEventListener("DOMContentLoaded", () => {
     loadFPLBootstrapData(); // Initializes all FPL-dependent data (and now loads the simple table)
     loadStandings();
+    loadGeneralLeagueStandings(); // Ensure this is loaded (even if collapsible)
 });
 
 /**
@@ -341,27 +342,14 @@ async function loadGeneralLeagueStandings() {
             list.classList.add('standings-list-general'); // Use a specific class for styling
 
             results.forEach((team) => {
-                let rankChangeIndicator = '';
-                let rankChangeClass = '';
-                const rankChange = team.rank_change;
-
-                if (rankChange > 0) {
-                    rankChangeIndicator = `▲${rankChange}`;
-                    rankChangeClass = 'rank-up';
-                } else if (rankChange < 0) {
-                    rankChangeIndicator = `▼${Math.abs(rankChange)}`;
-                    rankChangeClass = 'rank-down';
-                } else {
-                    rankChangeIndicator = '';
-                    rankChangeClass = 'rank-unchanged';
-                }
+                // Get the HTML for rank change indicator using the helper function
+                const rankChangeHtml = getChangeIconHtml(team.rank_change, false); 
 
                 const listItem = document.createElement("li");
                 listItem.innerHTML = `
                     <span class="rank-number">${team.rank}.</span> 
                     <span class="manager-name">${team.player_name} (${team.entry_name})</span> 
-                    <span class="rank-change ${rankChangeClass}">${rankChangeIndicator}</span> 
-                    <span><strong>${team.total}</strong> pts</span>
+                    ${rankChangeHtml} <span><strong>${team.total}</strong> pts</span>
                 `;
 
                 if (team.rank === 1) listItem.classList.add("top-rank-general"); 
@@ -601,23 +589,12 @@ async function loadStandings() {
         container.innerHTML = "";
         data.standings.results.forEach((team, index) => {
             setTimeout(() => {
-                let rankChangeIndicator = '';
-                let rankChangeClass = '';
-                const rankChange = team.rank_change;
-
-                if (rankChange > 0) {
-                    rankChangeIndicator = `▲${rankChange}`;
-                    rankChangeClass = 'rank-up';
-                } else if (rankChange < 0) {
-                    rankChangeIndicator = `▼${Math.abs(rankChange)}`;
-                    rankChangeClass = 'rank-down';
-                } else {
-                    rankChangeIndicator = '';
-                    rankChangeClass = 'rank-unchanged';
-                }
+                // Use the helper function for dynamic rank change arrows
+                const rankChangeHtml = getChangeIconHtml(team.rank_change, false);
 
                 const div = document.createElement("div");
-                div.innerHTML = `<span class="rank-number">${team.rank}.</span> <span class="manager-name">${team.player_name} (${team.entry_name})</span> <span class="rank-change ${rankChangeClass}">${rankChangeIndicator}</span> <span>${team.total} pts</span>`;
+                div.classList.add("standing-row");
+                div.innerHTML = `<span class="rank-number">${team.rank}.</span> <span class="manager-name">${team.player_name} (${team.entry_name})</span> ${rankChangeHtml} <span>${team.total} pts</span>`;
 
                 if (team.rank === 1) div.classList.add("top-rank");
                 else if (team.rank === 2) div.classList.add("second-rank");
@@ -646,19 +623,22 @@ async function loadPriceChanges(data) {
     priceChangedPlayers.forEach((p, index) => {
         setTimeout(() => {
             const div = document.createElement("div");
-            const change = p.cost_change_event / 10;
-            const changeFormatted = change > 0 ? `+£${change.toFixed(1)}m` : `-£${Math.abs(change).toFixed(1)}m`;
+            
+            // Calculate change in millions (cost_change_event is in pence/10)
+            const changeInMillions = p.cost_change_event / 10; 
+            
+            // Use the helper function for dynamic price change arrows
+            const priceChangeHtml = getChangeIconHtml(changeInMillions, true);
+            
             const playerPrice = (p.now_cost / 10).toFixed(1);
-
             const teamAbbreviation = teamMap[p.team] || 'N/A';
 
-            div.textContent = `${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${changeFormatted}`;
-
-            if (change > 0) {
-                div.classList.add("price-riser");
-            } else {
-                div.classList.add("price-faller");
-            }
+            div.classList.add("price-change-row");
+            div.innerHTML = `
+                <span class="player-name">${p.first_name} ${p.second_name} (${teamAbbreviation})</span> 
+                <span class="player-price">£${playerPrice}m</span> 
+                ${priceChangeHtml}
+            `;
 
             container.appendChild(div);
         }, index * 20);
@@ -759,7 +739,6 @@ async function loadMostCaptained(data) {
 // 🥇 CURRENT EPL TABLE (STANDINGS) - Simplified FPL Data Only
 /**
  * Loads and displays a simplified EPL Table using only FPL Bootstrap data.
- * This is faster and simpler than using a second external API.
  * @param {object} data - The full data object from FPL bootstrap-static.
  */
 async function loadSimpleEPLTable(data) {
@@ -820,16 +799,170 @@ async function loadSimpleEPLTable(data) {
 
 
 /* -----------------------------------------
-    BACK TO TOP BUTTON
+    DEADLINE COUNTDOWN
 ----------------------------------------- */
-const backToTop = document.getElementById("backToTop");
+/**
+ * Processes the FPL event data to find the next deadline and display a countdown.
+ * @param {object} data - The full FPL bootstrap-static data.
+ */
+function processDeadlineDisplay(data) {
+    const deadlineSection = document.getElementById("deadline-section");
+    const titleElement = deadlineSection.querySelector(".countdown-title");
+    const timerElement = document.getElementById("countdown-timer");
+    
+    // Find the NEXT event (Gameweek) that is NOT finished.
+    const nextEvent = data.events.find(e => e.is_next);
 
+    if (!nextEvent) {
+        titleElement.textContent = "Deadline Info Unavailable";
+        timerElement.innerHTML = `<p>No upcoming gameweek found.</p>`;
+        return;
+    }
+
+    const deadlineTime = new Date(nextEvent.deadline_time);
+    const gameweekNumber = nextEvent.id;
+
+    titleElement.textContent = `⏳ Gameweek ${gameweekNumber} Deadline`;
+    timerElement.innerHTML = `
+        <div class="countdown-label">Time Remaining:</div>
+        <div class="countdown-display-time" id="countdown-time-value">Loading...</div>
+        <div class="countdown-kickoff">Kickoff: ${deadlineTime.toLocaleDateString()} at ${deadlineTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+    `;
+
+    const countdownValueElement = document.getElementById('countdown-time-value');
+
+    // Update the countdown every second
+    const updateCountdown = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = deadlineTime.getTime() - now;
+
+        if (distance < 0) {
+            clearInterval(updateCountdown);
+            countdownValueElement.innerHTML = "DEADLINE PASSED!";
+            titleElement.textContent = `✅ Gameweek ${gameweekNumber} Started!`;
+            return;
+        }
+
+        // Calculations for days, hours, minutes and seconds
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        countdownValueElement.innerHTML = `
+            <span class="countdown-unit">${days}d</span> 
+            <span class="countdown-unit">${hours}h</span> 
+            <span class="countdown-unit">${minutes}m</span> 
+            <span class="countdown-unit">${seconds}s</span>
+        `;
+    }, 1000);
+}
+
+
+/* -----------------------------------------
+    RANK/PRICE CHANGE ARROW UTILITY (NEW)
+----------------------------------------- */
+/**
+ * Generates the HTML string for a rank/price change icon and value, 
+ * incorporating the up/down arrows based on the change value.
+ * @param {number} changeValue - The magnitude of the change (e.g., 5, -2, 0).
+ * @param {boolean} isPriceChange - If true, formats the value as currency (£X.Xm).
+ * @returns {string} The complete HTML string for the rank change span.
+ */
+function getChangeIconHtml(changeValue, isPriceChange = false) {
+    const magnitude = Math.abs(changeValue); 
+    
+    let displayValue = '';
+    let iconHtml = '';
+    let containerClass = 'rank-change'; 
+    
+    if (changeValue > 0) {
+        // Rank Up / Price Riser
+        displayValue = isPriceChange ? `£${magnitude.toFixed(1)}m` : magnitude;
+        // Unicode UPWARDS ARROW: &#x2191;
+        iconHtml = `<span class="rank-change-icon rank-up-arrow">&#x2191;</span>`;
+        if (isPriceChange) {
+            containerClass += ' price-riser';
+        }
+    } else if (changeValue < 0) {
+        // Rank Down / Price Faller
+        displayValue = isPriceChange ? `£${magnitude.toFixed(1)}m` : magnitude; 
+        // Unicode DOWNWARDS ARROW: &#x2193;
+        iconHtml = `<span class="rank-change-icon rank-down-arrow">&#x2193;</span>`;
+        if (isPriceChange) {
+            containerClass += ' price-faller';
+        }
+    } else {
+        // No Change
+        displayValue = isPriceChange ? `£0.0m` : ''; 
+        // Unicode EM DASH: &#x2014;
+        iconHtml = `<span class="rank-change-icon rank-no-change">&#x2014;</span>`;
+    }
+
+    // Return the combined HTML structure
+    return `<span class="${containerClass}">${displayValue} ${iconHtml}</span>`;
+}
+
+
+/* -----------------------------------------
+    SCROLL UP / SCROLL DOWN BUTTONS (MODIFIED)
+----------------------------------------- */
+// IMPORTANT: These assume you updated your HTML with both buttons and Font Awesome icons.
+const backToTopBtn = document.getElementById("backToTop");
+const scrollToBottomBtn = document.getElementById("scrollToBottom"); 
+
+// --- Event Listeners ---
+if (backToTopBtn) {
+    backToTopBtn.addEventListener("click", () => {
+        // Scrolls smoothly to the very top (y=0)
+        window.scrollTo({ 
+            top: 0, 
+            behavior: "smooth" 
+        });
+    });
+}
+
+if (scrollToBottomBtn) {
+    scrollToBottomBtn.addEventListener("click", () => {
+        // Scrolls smoothly to the very bottom of the document
+        window.scrollTo({ 
+            top: document.body.scrollHeight || document.documentElement.scrollHeight, 
+            behavior: "smooth" 
+        });
+    });
+}
+
+
+// --- Visibility Logic on Scroll ---
 window.addEventListener("scroll", () => {
-    backToTop.style.display = window.scrollY > 200 ? "flex" : "none";
-});
+    // 1. Logic for SCROLL UP / BACK TO TOP
+    if (backToTopBtn) {
+        // Show button if the user has scrolled more than 200px down
+        if (window.scrollY > 200) {
+            backToTopBtn.style.display = "flex";
+        } else {
+            backToTopBtn.style.display = "none";
+        }
+    }
 
-backToTop.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // 2. Logic for SCROLL TO BOTTOM
+    if (scrollToBottomBtn) {
+        const scrollHeight = document.documentElement.scrollHeight; // Total document height
+        const clientHeight = document.documentElement.clientHeight; // Viewport height
+        const scrollTop = document.documentElement.scrollTop;      // Distance scrolled from top
+
+        // Determine how far from the bottom the user is
+        const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+        
+        // Hide 'Scroll Down' button if the user is within 150px of the bottom
+        if (distanceFromBottom < 150) {
+            scrollToBottomBtn.style.display = "none";
+        } else {
+            // Show the 'Scroll Down' button if it's currently hidden and not near the top
+            // Also ensure it is visible if the Scroll Up button is visible (optional check)
+            scrollToBottomBtn.style.display = "flex"; 
+        }
+    }
 });
 
 
@@ -856,176 +989,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     item.style.display = 'none'; // Hide the item
                 }
             });
-            
-            // Optional: Show a "No results found" message
-            const visibleItems = Array.from(items).filter(item => item.style.display !== 'none');
-            let noResults = document.getElementById('status-no-results');
-
-            if (visibleItems.length === 0 && searchTerm.length > 0) {
-                 if (!noResults) {
-                     const message = document.createElement('p');
-                     message.id = 'status-no-results';
-                     message.classList.add('error-message');
-                     message.textContent = '🔍 No matching players found.';
-                     statusList.appendChild(message);
-                 }
-            } else if (noResults) {
-                // Remove message if results are visible or search is empty
-                noResults.remove();
-            }
+             
+             // The rest of your code here:
+             // ...
         });
     }
 });
-
-
-
-
-// 🌟 BONUS POINTS SCORERS (Current Gameweek)
-async function loadTopBonusPoints(data) {
-    const container = document.getElementById("bps-list");
-    if (!container || !data) return;
-
-    // Check 1: Ensure we have a Gameweek ID
-    if (!currentGameweekId) {
-        container.innerHTML = "<h3>Bonus Points (Current GW) 🌟</h3><p>Gameweek information is not yet available.</p>";
-        return;
-    }
-    
-    // Clear content and show loader while waiting for the secondary fetch
-    container.innerHTML = `<div style="text-align: center; padding: 20px 0;"><div class="loader"></div><p style="color: var(--subtext); margin-top: 15px; font-size: 14px;">Fetching live GW ${currentGameweekId} bonus data...</p></div>`;
-
-
-    try {
-        const gwDataResponse = await fetch(
-            proxy + `https://fantasy.premierleague.com/api/event/${currentGameweekId}/live/`
-        );
-        
-        // Check 2: Ensure the secondary fetch was successful
-        if (!gwDataResponse.ok) {
-            throw new Error(`API returned status ${gwDataResponse.status}`);
-        }
-        
-        const gwData = await gwDataResponse.json();
-
-        // 1. Get the player stats from the live GW data
-        const playerStats = gwData.elements;
-
-        // 2. Map the element data and FILTER STRICTLY by actual bonus points awarded
-        const bonusPlayers = playerStats
-            .map(stat => {
-                // Find the actual bonus points awarded (0-3)
-                const bonusAwarded = stat.stats.find(s => s.identifier === 'bonus')?.value || 0;
-                
-                // Only include players who received 1, 2, or 3 bonus points
-                if (bonusAwarded > 0) {
-                    const fullPlayer = data.elements.find(p => p.id === stat.id);
-                    if (fullPlayer) {
-                        // Get the raw BPS score for context/sorting
-                        const bpsValue = stat.stats.find(s => s.identifier === 'bps')?.value || 0;
-                        
-                        return {
-                            ...fullPlayer,
-                            gw_bps: bpsValue,
-                            gw_bonus: bonusAwarded
-                        };
-                    }
-                }
-                return null;
-            })
-            .filter(p => p !== null); // Remove players who didn't get bonus points or are null
-
-        // 3. Sort: Primary sort by Bonus (3, 2, 1), Secondary sort by BPS score
-        bonusPlayers.sort((a, b) => {
-            if (b.gw_bonus !== a.gw_bonus) {
-                return b.gw_bonus - a.gw_bonus; 
-            }
-            return b.gw_bps - a.gw_bps;
-        });
-
-        // 4. Render the list
-        container.innerHTML = `<h3>Bonus Points (GW ${currentGameweekId}) 🌟</h3>`;
-
-        if (bonusPlayers.length === 0) {
-            container.innerHTML += `<p>No bonus points have been finalized yet for GW ${currentGameweekId}.</p>`;
-            return;
-        }
-
-        bonusPlayers.forEach((p, index) => {
-            setTimeout(() => {
-                const div = document.createElement("div");
-                const teamAbbreviation = teamMap[p.team] || 'N/A';
-                
-                div.innerHTML = `
-                    <span class="bonus-icon">⭐</span>
-                    <span class="bonus-awarded-value">${p.gw_bonus}</span> 
-                    Pts - 
-                    <strong>${p.first_name} ${p.second_name}</strong> (${teamAbbreviation})
-                    <span class="bps-score">(${p.gw_bps} BPS)</span>
-                `;
-                
-                if (p.gw_bonus === 3) div.classList.add("top-rank"); 
-
-                container.appendChild(div);
-            }, index * 30);
-        });
-
-    } catch (err) {
-        console.error(`Error loading GW ${currentGameweekId} live data:`, err);
-        container.innerHTML = `<h3>Bonus Points (GW ${currentGameweekId}) 🌟</h3><p>Failed to load live Gameweek data. (Network/API Error)</p>`;
-    }
-}
-
-/* -----------------------------------------
-    GW DEADLINE DATE/TIME DISPLAY (REPLACES COUNTDOWN)
------------------------------------------ */
-
-// Function to format the date and time string
-function formatDeadlineTime(deadlineTimeString) {
-    const deadlineDate = new Date(deadlineTimeString);
-
-    // Format the date (e.g., Sunday, Dec 7)
-    const dateOptions = { 
-        weekday: 'long', 
-        month: 'short', 
-        day: 'numeric' 
-    };
-    const datePart = deadlineDate.toLocaleDateString(undefined, dateOptions);
-
-    // Format the time (e.g., 11:30 AM local time)
-    const timeOptions = { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-    };
-    const timePart = deadlineDate.toLocaleTimeString(undefined, timeOptions);
-
-    return `${datePart} @ ${timePart} (Local Time)`;
-}
-
-/**
- * Finds the next deadline and displays its date and time statically.
- * This is updated to specifically look for the "is_next" event (GW+1) to avoid showing the current GW's passed deadline.
- */
-function processDeadlineDisplay(data) {
-    const countdownTimerEl = document.getElementById("countdown-timer");
-    const countdownTitleEl = document.querySelector(".countdown-title");
-
-    if (!countdownTimerEl || !countdownTitleEl) return; 
-
-    // ⭐ CORRECTED LOGIC: Find the Gameweek that is officially flagged as the next one.
-    let nextGameweek = data.events.find(event => event.is_next === true);
-
-    // Fallback: If no event has is_next=true (e.g., season end or early data stage), 
-    // find the first one that hasn't finished.
-    if (!nextGameweek) {
-         nextGameweek = data.events.find(event => event.finished === false);
-    }
-    
-    if (nextGameweek) {
-        const formattedTime = formatDeadlineTime(nextGameweek.deadline_time);
-        countdownTitleEl.textContent = `GW ${nextGameweek.id} Deadline:`;
-        countdownTimerEl.textContent = formattedTime;
-    } else {
-        countdownTitleEl.textContent = `FPL Deadline Status`;
-        countdownTimerEl.textContent = "Season concluded or data unavailable.";
-    }
-}
