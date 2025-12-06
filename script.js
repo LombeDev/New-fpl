@@ -10,53 +10,20 @@ let playerMap = {};  // Player ID -> Full Name
 let currentGameweekId = null;
 
 /* -----------------------------------------
-    NEW: LOADER MANAGEMENT
+    LOADING OVERLAY REMOVAL
 ----------------------------------------- */
-/**
- * Hides the loading overlay with a smooth fade-out.
- * Called ONLY after all critical data loading functions complete.
- */
-function hideLoadingOverlay() {
-    const overlay = document.getElementById("loading-overlay");
-    if (overlay) {
-        // Assume you have CSS for the .hidden class to handle opacity transition
-        overlay.classList.add('hidden'); 
-        
-        // Remove it from the DOM completely after the CSS transition completes (500ms)
-        setTimeout(() => {
-            overlay.remove();
-        }, 500); 
-    }
-}
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        const overlay = document.getElementById("loading-overlay");
 
-/**
- * NEW: Manages all critical data fetching and hides the loader when complete.
- */
-async function startDataLoadingAndTrackCompletion() {
-    try {
-        // 1. Start the crucial bootstrap data load first.
-        await loadFPLBootstrapData();
-
-        // 2. Start all other independent loads simultaneously and wait for ALL.
-        await Promise.all([
-            loadStandings(),
-            loadGeneralLeagueStandings(),
-            // All other dependent functions are now called inside loadFPLBootstrapData and should complete
-            // before the loader is hidden.
-        ]);
-
-        // 3. Ensure a minimum display time for the loader (e.g., 500ms) before hiding.
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        hideLoadingOverlay();
-
-    } catch (err) {
-        console.error("Critical loading failed:", err);
-        // Ensure the loader is hidden even if the load fails, so the error messages are visible.
-        hideLoadingOverlay();
-    }
-}
-
+        if (overlay) {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 500);
+        }
+    }, 900);
+});
 
 /* -----------------------------------------
     LIGHT / DARK / MULTI-COLOR MODE TOGGLE + SAVE
@@ -139,15 +106,12 @@ let currentThemeIndex = getCurrentThemeIndex();
 applyTheme(currentThemeIndex); // Apply the saved theme on load
 
 // --- Toggle Logic ---
-if (themeToggle) {
-    themeToggle.addEventListener("click", () => {
-        // Increment the index, looping back to 0 (Light Mode) when exceeding the array length
-        currentThemeIndex = (currentThemeIndex + 1) % themes.length;
-        
-        applyTheme(currentThemeIndex);
-    });
-}
-
+themeToggle.addEventListener("click", () => {
+    // Increment the index, looping back to 0 (Light Mode) when exceeding the array length
+    currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+    
+    applyTheme(currentThemeIndex);
+});
 
 /* -----------------------------------------
     NAVIGATION MENU TOGGLES
@@ -242,35 +206,13 @@ lazyElements.forEach((el) => observer.observe(el));
 
 // On page load 
 window.addEventListener("DOMContentLoaded", () => {
-    // We now call the loading manager instead of individual functions.
-    startDataLoadingAndTrackCompletion();
+    loadFPLBootstrapData(); // Initializes all FPL-dependent data (and now loads the simple table)
+    loadStandings();
+    loadGeneralLeagueStandings(); // Ensure this is loaded (even if collapsible)
 });
-
-
-/**
- * Helper function to create the HTML for rank/price change icons.
- * @param {number} changeValue - The magnitude of the change.
- * @param {boolean} isPriceChange - True if the icon is for a price change (uses different arrows/colors).
- * @returns {string} HTML span tag with the appropriate icon.
- */
-function getChangeIconHtml(changeValue, isPriceChange) {
-    if (changeValue > 0) {
-        const icon = isPriceChange ? '▲' : '⬆️';
-        const colorClass = isPriceChange ? 'change-up price-up' : 'change-up';
-        return `<span class="${colorClass}">${icon}</span>`;
-    } else if (changeValue < 0) {
-        const icon = isPriceChange ? '▼' : '⬇️';
-        const colorClass = isPriceChange ? 'change-down price-down' : 'change-down';
-        return `<span class="${colorClass}">${icon}</span>`;
-    } else {
-        return `<span class="change-no-change">━</span>`;
-    }
-}
-
 
 /**
  * Fetches FPL bootstrap data, creates maps, and initializes dependent loads.
- * @returns {Promise<object>} The raw bootstrap data.
  */
 async function loadFPLBootstrapData() {
     try {
@@ -303,20 +245,18 @@ async function loadFPLBootstrapData() {
             currentGameweekId = currentEvent.id;
         }
 
-        // 3. Load dependent lists - we don't need to await them here, 
-        // as the parent function awaits Promise.all on the critical, independent functions.
-        // For robustness, ensure all these return the promise object, which they do as async functions.
+        // 3. Load dependent lists
         loadCurrentGameweekFixtures();
         loadPriceChanges(data);
         loadMostTransferred(data);
         loadMostTransferredOut(data);
         loadMostCaptained(data);
         loadPlayerStatusUpdates(data);
+        // ⭐ NEW: Display the deadline time using the fetched data
         processDeadlineDisplay(data); 
-        loadSimpleEPLTable(data); 
 
-        // CRITICAL: Return the data for parent function logic
-        return data;
+        // 🏆 SIMPLIFIED EPL TABLE CALL (New Function)
+        loadSimpleEPLTable(data); 
 
     } catch (err) {
         console.error("Error fetching FPL Bootstrap data:", err);
@@ -325,7 +265,6 @@ async function loadFPLBootstrapData() {
             const el = document.getElementById(id);
             if (el) el.textContent = "Failed to load data. Check FPL API/Proxy.";
         });
-        throw err; // Re-throw to be caught by startDataLoadingAndTrackCompletion
     }
 }
 
@@ -348,7 +287,7 @@ async function loadGeneralLeagueStandings() {
 
     container.innerHTML = ""; // Clear the initial loading content
 
-    const loadPromises = leaguesToLoad.map(async (leagueConfig) => {
+    for (const leagueConfig of leaguesToLoad) {
         // Create a dedicated sub-container for this league
         const leagueItem = document.createElement('div');
         leagueItem.classList.add('general-league-item');
@@ -395,7 +334,7 @@ async function loadGeneralLeagueStandings() {
 
             if (!results || results.length === 0) {
                 standingsContent.innerHTML = `<p class="error-message">No teams found in this league.</p>`;
-                return; // Exit this map iteration
+                continue; // Move to the next league in the loop
             }
 
             // --- 2. Render Standings Table ---
@@ -426,10 +365,7 @@ async function loadGeneralLeagueStandings() {
             if (loader) loader.remove();
             standingsContent.innerHTML = `<p class="error-message">❌ Failed to load standings for ${leagueConfig.name}.</p>`;
         }
-    });
-    
-    // Wait for all league loads to finish before returning the overall promise
-    await Promise.all(loadPromises);
+    }
 }
 
 /**
@@ -537,3 +473,57 @@ async function loadCurrentGameweekFixtures() {
             const awayTeamAbbr = teamMap[fixture.team_a] || `T${fixture.team_a}`;
 
             let scoreDisplay = `<span class="vs-label">vs</span>`;
+            let statusClass = 'match-pending';
+            let statusText = 'Upcoming';
+
+            if (fixture.finished) {
+                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
+                statusClass = 'match-finished';
+                statusText = 'Finished';
+            } else if (fixture.started) {
+                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
+                statusClass = 'match-live';
+                statusText = 'Live';
+            } else {
+                const kickoffTime = new Date(fixture.kickoff_time);
+                scoreDisplay = `<span class="vs-label-time">${kickoffTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
+            }
+
+            const listItem = document.createElement('li');
+            listItem.classList.add(statusClass);
+
+            listItem.innerHTML = `
+                <div class="fixture-summary">
+                    <span class="fixture-team home-team">
+                        <span class="team-label home-label">${homeTeamAbbr}</span> 
+                    </span> 
+                    ${scoreDisplay}
+                    <span class="fixture-team away-team">
+                        <span class="team-label away-label">${awayTeamAbbr}</span> 
+                    </span>
+                    <span class="match-status-tag">${statusText}</span>
+                </div>
+            `;
+
+            let actionHtml = '';
+            let hasDetails = false;
+
+            if (fixture.started) {
+                const stats = fixture.stats || [];
+
+                const extractStats = (identifier) => {
+                    const stat = stats.find(s => s.identifier === identifier);
+                    return stat ? (stat.a || []).concat(stat.h || []) : [];
+                };
+
+                const goalsData = extractStats('goals_scored');
+                const assistsData = extractStats('assists');
+                const redCardsData = extractStats('red_cards');
+
+                const allActions = [];
+
+                const processActions = (actionArray, type) => {
+                    actionArray.forEach(action => {
+                        const playerName = playerMap[action.element] || `Player ${action.element}`;
+                        for (let i = 0; i < action.value; i++) {
+                            allActions.push({ type: type, name: playerName }
