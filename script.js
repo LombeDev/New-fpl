@@ -523,8 +523,7 @@ async function loadCurrentGameweekFixtures() {
         const currentGWFixtures = data.filter(f => f.event === currentGameweekId);
 
         if (currentGWFixtures.length === 0) {
-            container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3><p>No fixtures found for Game
-week ${currentGameweekId}.</p>`;
+            container.innerHTML = `<h3>Gameweek ${currentGameweekId} Scores</h3><p>No fixtures found for Gameweek ${currentGameweekId}.</p>`;
             return;
         }
 
@@ -537,4 +536,4 @@ week ${currentGameweekId}.</p>`;
             const homeTeamAbbr = teamMap[fixture.team_h] || `T${fixture.team_h}`;
             const awayTeamAbbr = teamMap[fixture.team_a] || `T${fixture.team_a}`;
 
-            let scoreDisplay = `<span class="
+            let scoreDisplay = `<span class="vs-label">vs</span>`;
