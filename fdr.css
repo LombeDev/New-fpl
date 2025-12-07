@@ -1,4 +1,4 @@
-/* General Styling */
+/* General Styling (No change needed here) */
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #f8f8f8;
@@ -22,7 +22,7 @@ header {
     padding: 0 10px;
 }
 
-/* --- Filter Styling --- */
+/* --- Filter Styling (No change needed here) --- */
 #filter-container {
     max-width: 1000px;
     margin: 0 auto;
@@ -121,7 +121,7 @@ header {
     margin: 0 auto; 
 }
 
-/* --- OFFICIAL FPL Color Coding --- */
+/* --- OFFICIAL FPL Color Coding (No change needed here) --- */
 
 /* 1 (Easiest - Very Light Green) */
 .fdr-1 { 
@@ -154,42 +154,66 @@ header {
 }
 
 
-/* --- Media Query for Mobile Scrollability (Screen width <= 768px) --- */
+/* --- Media Query for Mobile (Screen width <= 768px) --- */
 @media (max-width: 768px) {
     
     #filter-container {
         margin: 15px 5px; 
     }
 
-    /* Create a wrapper that allows the table to exceed the screen width */
+    /* 🛑 Remove the responsive wrapper if you used it before. 
+       If you keep it, remove the overflow-x: auto; property. */
     .table-responsive-wrapper {
-        overflow-x: auto; 
-        -webkit-overflow-scrolling: touch; 
-        padding-bottom: 10px; 
+        /* If this wrapper is present, make sure it does not set overflow-x: auto; */
+        width: 100%;
     }
 
-    /* Force the table to take up the full available width to prevent shrinking */
+    /* 🔑 KEY CHANGE: Force the table to take up exactly the available width. */
     .fixture-ticker {
-        width: 150%; 
-        min-width: 700px; 
+        width: 100%;
+        /* Remove min-width to allow shrinking */
+        min-width: unset; 
     }
     
-    /* Sticky positioning for the Team column */
-    .team-header {
-        position: sticky; 
-        left: 0;
-        z-index: 10;
-        background-color: #f0f0f0; 
-        border-right: 2px solid #ccc; 
-        box-shadow: 2px 0 3px rgba(0, 0, 0, 0.1); 
+    /* 🔑 KEY CHANGE: Reduce padding and font size for all cells */
+    .fixture-ticker th, .fixture-ticker td {
+        padding: 4px 1px; /* Very small padding */
+        font-size: 0.7em; /* Small font size for column headers/data */
+        height: 25px; /* Reduced height */
     }
 
-    /* Make the Team Name cell also sticky */
+    /* 🔑 KEY CHANGE: Reduce the size of the core FDR block */
+    .fdr-block {
+        padding: 1px 0; 
+        font-size: 0.6em; /* Extremely small font for the difficulty score */
+        border-radius: 2px;
+    }
+
+    /* Keep team name cell slightly larger for readability */
     .team-name-cell {
-        position: sticky;
-        left: 0;
-        z-index: 5;
-        background-color: inherit; /* Inherits background for row striping */
-        border-right: 2px solid #ccc; 
+        min-width: 75px; /* Keep a minimal width for the team name */
+        padding-left: 4px;
+        font-size: 0.8em;
+        /* Sticky positioning is no longer relevant if table doesn't scroll, 
+           but keep these properties in case you decide to add scrolling back: */
+        position: static; 
+        left: unset; 
+        z-index: unset;
+        background-color: unset; 
+        border-right: unset;
+    }
+
+    .team-header {
+        min-width: 75px;
+        position: static;
+        left: unset;
+        z-index: unset;
+        background-color: unset; 
+        border-right: unset;
+    }
+
+    .remove-btn {
+        font-size: 1em; /* Smaller X button */
+        padding: 0 2px;
     }
 }
