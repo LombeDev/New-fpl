@@ -98,6 +98,8 @@ body {
     flex-direction: column;
     align-items: center;
     overflow-x: hidden;
+    /* Default desktop state */
+    padding-bottom: 0;
 }
 
 /* MAIN CONTAINER (The main content area) */
@@ -392,7 +394,7 @@ li {
     box-shadow: var(--shadow-subtle);
     
     /* 🍏 ANIMATION: subtle lift on hover, press down on active */
-    transition: background 0.3s, transform 0.2s ease-out, box-shadow 0.3s;
+    transition: background 0.3s, transform 0.2s ease-out, box-shadow 0.3s, bottom 0.3s;
 }
 
 #backToTop:hover {
@@ -475,6 +477,12 @@ footer {
     background-color: var(--nav-green-dark);
     height: 50px;
 }
+
+/* ➡️ CRUCIAL FIX: Default: Hide the new mobile bottom nav on desktop screens */
+#bottom-nav {
+    display: none; 
+}
+
 
 .nav-container {
     max-width: 1000px;
@@ -716,6 +724,11 @@ body.modal-open {
     body {
         padding-bottom: 60px;
     }
+
+    /* 3. Adjust backToTop button for the fixed mobile nav */
+    #backToTop {
+        bottom: 80px; 
+    }
     
     /* --- FIXED BOTTOM NAV STYLES --- */
     
@@ -847,6 +860,7 @@ body.modal-open {
         gap: 20px;
         flex-direction: initial;
         align-items: initial;
+        padding-bottom: 20px;
     }
 
     /* ➡️ Increase Fixed Height for desktop */
@@ -869,6 +883,19 @@ body.modal-open {
     #top-nav-bar .nav-container,
     #bottom-nav-bar .nav-container {
         max-width: 1100px;
+    }
+    
+    /* ➡️ CRUCIAL DESKTOP RESET RULES */
+    #bottom-nav {
+        display: none !important;
+    }
+
+    body {
+        padding-bottom: 0;
+    }
+
+    #backToTop {
+        bottom: 20px; /* Reset to desktop position */
     }
     
     /* ---------------------------------------------------------------------------------- */
