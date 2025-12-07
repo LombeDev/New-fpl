@@ -795,3 +795,164 @@ body.modal-open {
         
         /* Default State: Subtle Dark Gray */
         color: var
+
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 🚀 WELCOME QUIZ SCREEN STYLES 🚀 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+#welcome-quiz-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--bg);
+    z-index: 2000; /* Ensure it covers everything */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease-out; /* For smooth exit fade */
+}
+
+.quiz-card {
+    background: var(--card-bg);
+    padding: 30px 20px;
+    border-radius: var(--radius);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    
+    /* 🌟 NEUMORPHISM: Impressed (Press-in) Look for the card itself */
+    box-shadow: 
+        inset 10px 10px 20px var(--neumorphic-shadow-dark), 
+        inset -10px -10px 20px var(--neumorphic-shadow-light);
+    
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.quiz-card header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--accent);
+}
+
+.quiz-card header p {
+    font-size: 14px;
+    color: var(--subtext);
+    margin-bottom: 25px;
+}
+
+.question-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 20px;
+}
+
+/* --- OPTION BUTTONS (Neumorphic) --- */
+
+.options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.option-btn {
+    background: var(--card-bg);
+    color: var(--text);
+    padding: 12px 15px;
+    border-radius: var(--radius);
+    border: none;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    
+    /* 🌟 NEUMORPHIC: Extruded look for interactive buttons */
+    box-shadow: 
+        5px 5px 10px var(--neumorphic-shadow-dark), 
+        -5px -5px 10px var(--neumorphic-shadow-light);
+        
+    transition: all 0.2s ease-out;
+}
+
+.option-btn:hover {
+    /* Slight lift on hover */
+    transform: translateY(-1px);
+}
+
+.option-btn:active, .option-btn.selected {
+    /* 🌟 NEUMORPHIC: Impressed (Press-in) Look on selection/click */
+    box-shadow: 
+        inset 3px 3px 6px var(--neumorphic-shadow-dark), 
+        inset -3px -3px 6px var(--neumorphic-shadow-light);
+    transform: scale(0.98);
+}
+
+/* --- Submit Button (Reusing the Neumorphic Button class) --- */
+
+.neumorphic-button {
+    background-color: var(--accent);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 40px; /* Pill shape */
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 15px;
+    
+    /* 🌟 NEUMORPHIC: Accent-colored Extruded look */
+    box-shadow: 
+        5px 5px 10px rgba(0, 0, 0, 0.4), /* Stronger shadow for accent color */
+        -5px -5px 10px var(--neumorphic-shadow-light); 
+        
+    transition: all 0.2s ease-out;
+}
+
+.neumorphic-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none; /* Disable Neumorphic press effect when disabled */
+}
+
+.neumorphic-button:active:not(:disabled) {
+    /* 🌟 NEUMORPHIC: Impressed (Press-in) Look */
+    box-shadow: 
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6), 
+        inset -3px -3px 6px rgba(255, 255, 255, 0.2); 
+    transform: scale(0.98);
+}
+
+/* --- Feedback --- */
+
+.feedback-text {
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 20px;
+    color: transparent; /* Initially hidden */
+}
+
+.feedback-text.correct {
+    color: var(--green);
+}
+
+.feedback-text.incorrect {
+    color: var(--red-light);
+}
+
+/* --- Exit Transition --- */
+
+.exit-screen {
+    /* When the user succeeds, shrink and fade the screen */
+    opacity: 0 !important;
+    transform: scale(0.9);
+    pointer-events: none;
+}
