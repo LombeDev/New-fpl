@@ -801,154 +801,160 @@ body.modal-open {
 
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* 🚀 REVISED WELCOME QUIZ SCREEN STYLES (Vibrant Neumorphic Look) 🚀 */
+/* 🚀 REVISED WELCOME/PREMIUM SCREEN STYLES (Vibrant Neumorphic Look) 🚀 */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
-#welcome-quiz-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background-color: var(--bg);
-    z-index: 2000; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* Use a combined transition for a smoother, more complex exit animation */
-    transition: opacity 0.5s ease-out, transform 0.6s cubic-bezier(0.5, 0, 0.5, 1); 
-}
+/*
+  Keep your existing #welcome-quiz-screen styles for centering and exit transition.
+  The .exit-screen class remains important for animation.
+*/
 
-/* --- THE MAIN CARD CONTAINER --- */
+/* --- THE MAIN CARD CONTAINER (Refined) --- */
 .quiz-card {
     background: var(--card-bg);
-    padding: 30px 20px;
-    border-radius: 20px; /* Slightly more rounded */
+    padding: 30px 20px; /* Base padding */
+    border-radius: 20px;
     max-width: 400px;
     width: 90%;
-    text-align: center;
+    /* text-align: center; -- Removed, we want left alignment for the list */
     
-    /* 🌟 NEUMORPHISM: Extruded (Pop-out) Look for the card itself */
+    /* 🌟 NEUMORPHISM: Extruded (Pop-out) Look */
     box-shadow: 
         15px 15px 30px var(--neumorphic-shadow-dark), 
         -15px -15px 30px var(--neumorphic-shadow-light);
     
     transition: transform 0.3s, box-shadow 0.3s;
+    
+    /* 🌟 ANIMATION: Fade in and subtle bounce for the card */
+    animation: fadeIn 0.5s ease-out forwards, cardBounce 0.6s 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    opacity: 0; /* Start hidden for animation */
 }
 
-.quiz-card header h1 {
-    font-size: 28px;
-    font-weight: 800;
-    margin-bottom: 5px;
-    color: var(--accent); /* Keep FPL Purple */
+/* --- FEATURE LIST STYLES (Core of the new look) --- */
+.premium-features-list {
+    list-style: none; /* Remove default list style */
+    padding: 0;
+    margin: 0;
+    margin-bottom: 30px; /* Space before the unlock CTA */
 }
 
-.quiz-card header p {
-    font-size: 14px;
-    color: var(--subtext);
-    margin-bottom: 25px;
-}
-
-.question-text {
+.feature-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
     font-size: 18px;
     font-weight: 600;
     color: var(--text);
+    border-bottom: 1px solid var(--neumorphic-shadow-dark); /* Subtle separator */
+    
+    /* 🌟 ANIMATION: Staggered slide-in for each feature */
+    opacity: 0; 
+    transform: translateX(-10px);
+    animation: slideIn 0.4s ease-out forwards;
+}
+
+/* Delay the animation for each item */
+.feature-item:nth-child(1) { animation-delay: 0.4s; }
+.feature-item:nth-child(2) { animation-delay: 0.5s; }
+.feature-item:nth-child(3) { animation-delay: 0.6s; }
+.feature-item:nth-child(4) { animation-delay: 0.7s; }
+
+.feature-item:last-child {
+    border-bottom: none; /* No border for the last item */
+}
+
+.feature-icon {
+    font-size: 24px;
+    margin-right: 15px;
+    min-width: 30px; /* Ensure alignment */
+}
+
+/* --- UNLOCK ALL PREMIUM CTA (The final list item style) --- */
+.unlock-premium-cta {
+    display: flex;
+    align-items: center;
+    background: var(--card-bg); /* Use card background for a subtle neumorphic item feel */
+    color: var(--text);
+    padding: 15px 15px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    
+    /* 🌟 NEUMORPHISM: Slightly impressed look, as if highlighted */
+    box-shadow: 
+        inset 2px 2px 4px var(--neumorphic-shadow-dark), 
+        inset -2px -2px 4px var(--neumorphic-shadow-light);
+        
+    /* 🌟 ANIMATION: Slight pop-out for the final CTA */
+    opacity: 0;
+    transform: scale(0.95);
+    animation: popIn 0.4s 0.8s ease-out forwards;
+}
+
+.unlock-icon {
+    font-size: 26px;
+    margin-right: 15px;
+    min-width: 30px;
+}
+
+/* --- CARD FOOTER & BUTTON --- */
+.card-footer-cta {
+    text-align: center;
+}
+
+.trusted-by {
+    font-size: 14px;
+    color: var(--subtext);
     margin-bottom: 20px;
 }
 
-/* --- OPTION BUTTONS (Using the same style, which is good UX) --- */
-.options-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.option-btn {
-    background: var(--card-bg);
-    color: var(--text);
-    padding: 12px 15px;
-    border-radius: var(--radius);
-    border: none;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    width: 100%;
-    text-align: left;
-    
-    /* 🌟 NEUMORPHIC: Extruded look for interactive buttons */
-    box-shadow: 
-        5px 5px 10px var(--neumorphic-shadow-dark), 
-        -5px -5px 10px var(--neumorphic-shadow-light);
-        
-    transition: all 0.2s ease-out;
-}
-
-.option-btn:hover {
-    transform: translateY(-1px);
-}
-
-.option-btn:active, .option-btn.selected {
-    /* 🌟 NEUMORPHIC: Impressed (Press-in) Look on selection/click */
-    box-shadow: 
-        inset 3px 3px 6px var(--neumorphic-shadow-dark), 
-        inset -3px -3px 6px var(--neumorphic-shadow-light);
-    transform: scale(0.98);
+.trusted-by strong {
+    color: var(--accent); /* Highlight the community name */
+    font-weight: 700;
 }
 
 /* --- Submit Button (Vibrant Pink/Accent Color) --- */
-/* We will define a new vibrant pink accent for the submit button specifically */
-:root {
-    --vibrant-pink: #E91E63; /* Use a strong pink for contrast, similar to image */
-    /* ... keep existing variables ... */
-}
-body.dark-mode {
-    --vibrant-pink: #FF4081; 
-    /* ... keep existing variables ... */
-}
-
-.neumorphic-button {
-    background-color: var(--vibrant-pink); /* Use the new vibrant pink */
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 40px; 
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    width: 100%;
-    margin-bottom: 15px;
+/* The .neumorphic-button class should be kept as is, but we add a small size adjustment */
+.neumorphic-button.subscribe-btn {
+    width: 80%; /* Make it slightly narrower for a punchier look */
+    margin: 0 auto; /* Center the button */
+    padding: 15px 20px; /* Taller button */
     
-    /* 🌟 NEUMORPHIC: Accent-colored Extruded look */
-    box-shadow: 
-        5px 5px 10px rgba(233, 30, 99, 0.5), /* Custom shadow for the pink color */
-        -5px -5px 10px var(--neumorphic-shadow-light); 
-        
-    transition: all 0.2s ease-out;
+    /* 🌟 ANIMATION: Subtle wiggle to draw attention */
+    animation: wiggle 1s 1s ease-in-out infinite alternate;
 }
 
-/* ... (Keep existing button:disabled and button:active styles) ... */
+/* ----------------- KEYFRAME ANIMATIONS ----------------- */
 
-/* --- Feedback --- */
-.feedback-text {
-    font-size: 14px;
-    font-weight: 600;
-    min-height: 20px;
-    color: transparent; 
+/* Card overall fade in and subtle bounce */
+@keyframes fadeIn {
+    to { opacity: 1; }
 }
 
-.feedback-text.correct {
-    color: var(--green);
+@keyframes cardBounce {
+    0% { transform: scale(0.9); }
+    100% { transform: scale(1); }
 }
 
-.feedback-text.incorrect {
-    color: var(--red-light);
+/* Feature list staggered slide-in */
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
-/* 🌟 REVISED EXIT TRANSITION (Dramatic Lift and Fade) 🌟 */
-.exit-screen {
-    /* Lift the screen up and away with a slight rotation */
-    opacity: 0 !important;
-    transform: translateY(-100vh) rotateX(10deg);
-    pointer-events: none;
+/* Unlock CTA pop-in */
+@keyframes popIn {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Subtle wiggle for the subscribe button */
+@keyframes wiggle {
+    0% { transform: translateX(0) scale(1.0); }
+    100% { transform: translateX(2px) scale(1.02); }
 }
