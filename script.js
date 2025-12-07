@@ -117,9 +117,7 @@ function applyTheme(index) {
         case 'dark-mode':
             themeToggle.textContent = "🌙"; // Next is Dark Mode
             break;
-        case 'cyan-theme':
-            themeToggle.textContent = "✨"; // Next is Cyan Theme
-            break;
+        
 
         case '': // Next is Light Mode
         default:
