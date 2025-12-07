@@ -920,11 +920,13 @@ function processDeadlineDisplay(data) {
 
 
 
-
-
-
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* 💻 REVISED JAVASCRIPT: FPL QUIZ LOGIC & TRANSITION (Allows entry on incorrect answer) 💻 */
+/* 💻 COMPLETE JAVASCRIPT: FPL QUIZ LOGIC & TRANSITION 💻 */
+/*
+    - Handles quiz rendering and user selection.
+    - Transitions to main screen after submission (correct or incorrect).
+    - Reveals the hidden main content and navigation bars.
+*/
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -935,6 +937,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtn = document.getElementById('submit-answer-btn');
     const feedbackText = document.getElementById('feedback-text');
     const mainContent = document.querySelector('main');
+    const bottomNav = document.getElementById('bottom-nav'); // NEW: Mobile Nav
+    const topNav = document.getElementById('top-nav-bar');    // NEW: Desktop Nav
     
     // Quiz Data
     const quiz = {
@@ -1014,17 +1018,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Start the exit animation for the quiz screen
         quizScreen.classList.add('exit-screen');
 
-        // 2. Start the fade-in for the main content
-        mainContent.style.pointerEvents = 'auto'; // Re-enable interaction
-        mainContent.style.opacity = '1';
+        // 2. REVEAL NAVIGATION AND MAIN CONTENT
+        topNav.style.display = 'block';     // Reveal desktop nav
+        bottomNav.style.display = 'flex';   // Reveal mobile nav
+
+        mainContent.style.pointerEvents = 'auto'; // Re-enable interaction on main content
+        mainContent.style.opacity = '1';          // Fade in main content
 
         // 3. Completely hide/remove the quiz screen after the animation finishes (0.5s CSS transition)
         setTimeout(() => {
-            // Optional: for memory/performance, remove the element
             quizScreen.style.display = 'none'; 
         }, 500);
     }
     
-    // Start the quiz
+    // Start the quiz when the page loads
     renderQuiz();
 });
