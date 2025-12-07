@@ -1,3 +1,7 @@
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 🍏 FULL CSS: ROOT VARIABLES & THEMES (WITH SHADOWS & FONT UPDATE) 🍏 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
 /* ROOT THEME VARIABLES — LIGHT MODE (clean + simple) */
 :root {
     --bg: #ffffff;
@@ -8,93 +12,104 @@
     --accent: #37003C; /* FPL Purple */
     --accent-hover: #530055;
     --green: #2EA043; /* GitHub green - used for price risers */
-    /* Updated for the bottom bar green */
-    --nav-green-dark: #1E824C; 
+    --nav-green-dark: #1E824C;
     --red-light: #CF3A46; /* Custom light red for fallers/scrollbar hover */
     --blue-cl: #2196F3; /* Custom blue for CL zone */
     --orange-el: #FF9800; /* Custom orange for EL zone */
     --red-rl: #F44336; /* Custom red for relegation */
-    /* NEW: Custom colors for the top nav bar */
-    --top-nav-bg: #31554A; 
-    --top-nav-search-bg: #4D766C; 
+    --top-nav-bg: #f4f4f4; /* Changed for cleaner look */
+    --top-nav-search-bg: #4D766C;
     
     /* --- ACTION & STATUS COLORS --- */
-    --action-goal: #3A8C6F; /* Dark Green for Goal */
-    --action-assist: #3F51B5; /* Indigo for Assist */
-    --action-red: #D32F2F; /* Dark Red for Red Card */
-    --status-live: #FFC107; /* Amber for Live */
-    --status-finished: #607D8B; /* Blue Grey for Finished */
-    --status-upcoming: var(--accent); /* Upcoming matches use FPL Purple */
+    --action-goal: #3A8C6F;
+    --action-assist: #3F51B5;
+    --action-red: #D32F2F;
+    --status-live: #FFC107;
+    --status-finished: #607D8B;
+    --status-upcoming: var(--accent);
     
-    /* --- NEW LOADER COLORS --- */
-    --loader-color-2: #00FF85; /* FPL Bright Green/Cyan */
-    --loader-color-3: #B3B3D9; /* Light secondary FPL color */
+    /* --- LOADER COLORS --- */
+    --loader-color-2: #00FF85;
+    --loader-color-3: #B3B3D9;
 
     --radius: 12px;
+    
+    /* 🍏 NEW: Apple-Style Shadow Variables */
+    --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05), 0 5px 15px rgba(0, 0, 0, 0.05);
+    --shadow-active: 0 1px 3px rgba(0, 0, 0, 0.05), 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
 /* DARK THEME — GitHub / Telegram Blue-Tinted */
 body.dark-mode {
-    --bg: #0d1117; 
-    --text: #c9d1d9; 
-    --subtext: #8b949e; 
-    --card-bg: #161b22; 
-    --border: #30363d; 
-    --accent: #238636; 
+    --bg: #0d1117;
+    --text: #c9d1d9;
+    --subtext: #8b949e;
+    --card-bg: #161b22;
+    --border: #30363d;
+    --accent: #238636;
     --accent-hover: #2ea043;
-    --green: #3fb950; 
-    --nav-green-dark: #238636; 
-    --top-nav-bg: #222933; 
-    --top-nav-search-bg: #333d48; 
-    --red-light: #f85149; 
-    --blue-cl: #64b5f6; 
-    --orange-el: #ffb74d; 
-    --red-rl: #e57373; 
+    --green: #3fb950;
+    --nav-green-dark: #238636;
+    --top-nav-bg: #161b22; /* Changed for cleaner look */
+    --top-nav-search-bg: #333d48;
+    --red-light: #f85149;
+    --blue-cl: #64b5f6;
+    --orange-el: #ffb74d;
+    --red-rl: #e57373;
 
     /* --- DARK MODE ACTION & STATUS COLORS --- */
-    --action-goal: #81C784; 
-    --action-assist: #9FA8DA; 
-    --action-red: #E57373; 
-    --status-live: #FFEB3B; 
-    --status-finished: #B0BEC5; 
+    --action-goal: #81C784;
+    --action-assist: #9FA8DA;
+    --action-red: #E57373;
+    --status-live: #FFEB3B;
+    --status-finished: #B0BEC5;
     --status-upcoming: var(--accent);
     
     /* --- DARK MODE LOADER COLORS --- */
-    --loader-color-2: #64ffda; 
-    --loader-color-3: #9575CD; 
+    --loader-color-2: #64ffda;
+    --loader-color-3: #9575CD;
+    
+    /* 🍏 DARK MODE SHADOWS: Subtle but visible against the dark background */
+    --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.2);
+    --shadow-active: 0 1px 3px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.4);
 }
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 🍏 RESET & BASE STYLES 🍏 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
 
 /* RESET */
 * {
     margin: 0;
-    padding: 0; 
-    box-sizing: border-box; 
+    padding: 0;
+    box-sizing: border-box;
 }
 
 /* BODY */
 body {
-    font-family: Arial, sans-serif;
+    /* 🍏 UI/UX: Apple system font stack */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
     background-color: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding-top: 0; 
+    padding-top: 0;
     transition: background .3s, color .3s;
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-x: hidden; /* Prevent horizontal scrolling */
+    overflow-x: hidden;
 }
 
 /* MAIN CONTAINER (The main content area) */
 main {
     display: flex;
     flex-direction: column;
-    max-width: 1000px; 
-    width: 100%; 
-    margin: 0 auto; 	
-    align-items: center; 
-    gap: 20px; 
-    padding: 20px 15px; /* Default desktop/larger mobile padding */
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 15px;
 }
 
 /* HEADINGS */
@@ -104,57 +119,51 @@ h1, h2 {
     margin-bottom: 16px;
     letter-spacing: 0.5px;
 }
-
-/* IMPROVED H1 SIZE AND WEIGHT */
-h1 { 
-    font-size: 38px; 
-    font-weight: 800; 
-    line-height: 1.1; 
+h1 {
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.1;
 }
-/* Standard H2 */
-h2 { 
-    font-size: 24px; 
-    font-weight: 600; 
+h2 {
+    font-size: 24px;
+    font-weight: 600;
 }
-
-/* HEADER SPECIFIC H2 (Value Proposition) */
 header h2 {
-    font-size: 18px; 
-    font-weight: 600; 
-    color: var(--accent); 
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent);
     margin-top: 0px;
-    margin-bottom: 30px; 
+    margin-bottom: 30px;
 }
 
-/* SECTIONS STANDARD CARD STYLE */
+/* 🍏 SECTION STANDARD CARD STYLE (With subtle hover animation) 🍏 */
 section {
     background: var(--card-bg);
-    /* ➡️ VERY SMALL PADDING (Base size for mobile) */
-    padding: 12px; 
-    border-radius: var(--radius);
+    padding: 16px; /* Increased base padding */
+    border-radius: 16px; /* Softer rounded corners */
     border: 1px solid var(--border);
-    margin-bottom: 0; 
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-    transition: background .3s, border .3s, box-shadow .3s;
+    margin-bottom: 0;
+    
+    /* 🍏 UI/UX: Apply new subtle shadow */
+    box-shadow: var(--shadow-subtle);
+    
+    /* 🍏 ANIMATION: Enable transitions for smooth lift effect */
+    transition: background .3s, border .3s, box-shadow .3s, transform 0.2s ease-out;
+    
     width: 100%;
-
-    /* 🚀 CRITICAL MOBILE CHANGE: Apply fixed height and scrolling by default */
-    max-height: 280px; /* Base height for mobile cards */
-    overflow-y: auto; 
+    max-height: 280px;
+    overflow-y: auto;
 }
-
-
 
 /* LIST DETAILS */
 ul {
     margin-top: 10px;
     margin-bottom: 10px;
     padding-left: 0;
-    list-style: none; 
+    list-style: none;
 }
-
 li {
-    margin-bottom: 8px; 
+    margin-bottom: 8px;
 }
 
 /* UTILITY CLASSES */
@@ -171,46 +180,42 @@ li {
     font-weight: bold;
 }
 .minutes-played {
-    font-weight: 500; 
-    color: var(--subtext); 
+    font-weight: 500;
+    color: var(--subtext);
     font-size: 12px;
-    white-space: nowrap; 
-    margin-left: 8px; 
+    white-space: nowrap;
+    margin-left: 8px;
 }
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- MODIFIED: STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS (VERY SMALL) --- */
+/* --- MODIFIED: STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS --- */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 #standings-list div,
 #price-changes-list div,
 #most-transferred-list div,
 #most-transferred-out-list div,
 #most-captained-list div {
-    display: flex; 
-    justify-content: space-between; 
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    /* ➡️ VERY SMALL FONT */
-    font-size: 12px; 
-    
-    /* ➡️ VERY SMALL PADDING */
-    padding: 4px 0; 
-    margin-bottom: 0; 
-    background: transparent; 
-    border: none; 
-    border-radius: 0; 
-    
-    border-bottom: 1px solid var(--border); 
-    transition: none; 
+    font-size: 12px;
+    padding: 4px 0;
+    margin-bottom: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid var(--border);
+    transition: none;
 }
 
-/* Remove hover effect */
+/* Remove hover effect on list rows, keep the animation for the container section */
 #standings-list div:hover,
 #price-changes-list div:hover,
 #most-transferred-list div:hover,
 #most-transferred-out-list div:hover,
 #most-captained-list div:hover {
     transform: none;
-    background: rgba(0, 0, 0, 0.05); 
+    background: transparent;
 }
 
 /* Remove bottom border from last item */
@@ -220,32 +225,31 @@ li {
 #most-transferred-out-list div:last-child,
 #most-captained-list div:last-child {
     border-bottom: none;
-    padding-bottom: 0; 
+    padding-bottom: 0;
 }
 
 .rank-number {
     font-weight: 700;
-    width: 25px; 
+    width: 25px;
     text-align: left;
 }
 
 .manager-name {
-    flex-grow: 1; 
+    flex-grow: 1;
     text-align: left;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; 
+    text-overflow: ellipsis;
     padding: 0 10px;
     font-weight: 500;
 }
 
 .rank-change {
     font-weight: 700;
-    width: 45px; 
+    width: 45px;
     text-align: right;
-    font-size: 12px; 
+    font-size: 12px;
 }
-
 
 /* --- FPL DATA HEADERS --- */
 #price-changes-list h3,
@@ -261,7 +265,7 @@ li {
 }
 
 #price-changes-list {
-    padding-top: 5px; 
+    padding-top: 5px;
 }
 
 .price-riser {
@@ -274,7 +278,7 @@ li {
     border-right: 5px solid var(--red-light);
 }
 
-/* --- FIXTURES SCORE/STATUS STYLES (VERY SMALL) --- */
+/* --- FIXTURES SCORE/STATUS STYLES --- */
 #fixtures-list p {
     text-align: center;
     color: var(--subtext);
@@ -290,19 +294,17 @@ li {
 
 #fixtures-list li {
     display: flex;
-    flex-direction: column; 
-    /* ➡️ VERY SMALL PADDING */
-    padding: 6px 8px; 
-    margin-bottom: 0; 
-    background: transparent; 
-    border-radius: 0; 
-    border: none; 
-    border-bottom: 1px solid var(--border); 
+    flex-direction: column;
+    padding: 6px 8px;
+    margin-bottom: 0;
+    background: transparent;
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid var(--border);
     font-weight: 600;
-    /* ➡️ VERY SMALL FONT */
-    font-size: 12px; 
+    font-size: 12px;
     transition: all .2s;
-    position: relative; 
+    position: relative;
 }
 
 /* Remove bottom border from last fixture */
@@ -321,41 +323,40 @@ li {
     position: absolute;
     top: 0;
     right: 0;
-    border-top-right-radius: 0; 
+    border-top-right-radius: 0;
     border-bottom-left-radius: 8px;
     padding: 3px 8px;
     font-size: 10px;
     font-weight: 700;
-    color: var(--card-bg); 
+    color: var(--card-bg);
 }
 
-/* --- FIXTURE DETAILS (GOALS/ASSISTS/CARDS) STYLES (VERY SMALL) --- */
+/* --- FIXTURE DETAILS (GOALS/ASSISTS/CARDS) STYLES --- */
 .fixture-details {
     width: 100%;
-    margin-top: 8px; 
-    padding-top: 6px; 
+    margin-top: 8px;
+    padding-top: 6px;
     border-top: 1px dashed var(--border);
-    /* ➡️ VERY SMALL FONT */
-    font-size: 10px; 
-    line-height: 1.4; 
+    font-size: 10px;
+    line-height: 1.4;
     color: var(--subtext);
-    padding-bottom: 2px; 
+    padding-bottom: 2px;
 }
 
 /* --- EPL TABLE STYLES --- */
 #epl-table-list {
-    overflow-x: auto; 
+    overflow-x: auto;
 }
 
 #epl-table-list table {
     width: 100%;
-    border-collapse: separate; 
+    border-collapse: separate;
     border-spacing: 0 6px;
     font-size: 13px;
     text-align: center;
 }
 
-#epl-table-list th, 
+#epl-table-list th,
 #epl-table-list td {
     padding: 10px 5px;
     white-space: nowrap;
@@ -366,63 +367,94 @@ li {
 .europa-league td:first-child { border-left-color: var(--orange-el); }
 .relegation-zone td:first-child { border-left-color: var(--red-rl); }
 
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 🍏 UTILITY ELEMENTS (With Press and Lift Animations) 🍏 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
 
-/* --- UTILITY ELEMENTS --- */
 #backToTop {
     position: fixed;
-    bottom: 20px; 
-    right: 20px; 
-    background: var(--accent); 
+    bottom: 80px; /* Adjusted for new mobile bottom nav */
+    right: 20px;
+    background: var(--accent);
     color: #fff;
     border: none;
     border-radius: 50%;
-    width: 40px; 
-    height: 40px; 
-    font-size: 20px; 
-    display: none; 
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    display: none;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 999;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.4); 
-    transition: background 0.3s, transform 0.25s, box-shadow 0.3s;
+    z-index: 1000;
+    
+    /* 🍏 UI/UX: Apply new shadow */
+    box-shadow: var(--shadow-subtle);
+    
+    /* 🍏 ANIMATION: subtle lift on hover, press down on active */
+    transition: background 0.3s, transform 0.2s ease-out, box-shadow 0.3s;
+}
+
+#backToTop:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-active);
+}
+
+#backToTop:active {
+    transform: scale(0.95);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
 #themeToggle {
     position: fixed;
-    top: 100px; 
-    right: 20px; 
-    background: var(--card-bg); 
-    color: var(--text); 
+    top: 100px;
+    right: 20px;
+    background: var(--card-bg);
+    color: var(--text);
     border: 1px solid var(--border);
-    padding: 6px 10px; 
+    padding: 6px 10px;
     border-radius: 40px;
     cursor: pointer;
-    font-size: 13px; 
-    box-shadow: 0 1px 6px rgba(0,0,0,0.15); 
-    transition: background 0.3s, color 0.3s, border 0.3s, transform 0.25s;
+    font-size: 13px;
+    
+    /* 🍏 UI/UX: Apply new shadow */
+    box-shadow: var(--shadow-subtle);
+    
+    /* 🍏 ANIMATION: subtle lift on hover, press down on active */
+    transition: background 0.3s, color 0.3s, border 0.3s, transform 0.2s ease-out, box-shadow 0.3s;
     z-index: 999;
+}
+
+#themeToggle:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-active);
+}
+
+#themeToggle:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
 /* --- FOOTER STYLES --- */
 footer {
     padding: 20px 10px;
     margin-top: 40px;
-    border-top: 1px solid var(--border); 
+    border-top: 1px solid var(--border);
     text-align: center;
     font-size: 0.85em;
     color: var(--subtext);
 }
-/* ------------------------------------------------ */
-/* --- MODIFIED NAVIGATION STYLES (RE-FIXED) --- */
-/* ------------------------------------------------ */
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 🍏 NAVIGATION STYLES (Cleaned Up Top Bar, Animated Links) 🍏 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
 
 #top-nav-bar,
 #bottom-nav-bar {
     width: 100%;
-    position: sticky; 
+    position: sticky;
     z-index: 900;
-    margin-bottom: 0; 
+    margin-bottom: 0;
     border-radius: 0;
     border: none;
     padding: 0;
@@ -430,32 +462,32 @@ footer {
 
 #top-nav-bar {
     top: 0;
-    background-color: var(--top-nav-bg); 
-    padding: 8px 0; 
-    height: 40px; 
+    /* 🍏 UI/UX: Lighter background for a cleaner desktop header */
+    background-color: var(--card-bg);
+    padding: 8px 0;
+    height: 40px;
+    border-bottom: 1px solid var(--border); /* Clean separator */
 }
 #bottom-nav-bar {
-    top: 40px; 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
-    background-color: var(--nav-green-dark); 
+    top: 40px;
+    /* 🍏 UI/UX: Use subtle shadow for a floating effect */
+    box-shadow: var(--shadow-subtle);
+    background-color: var(--nav-green-dark);
     height: 50px;
 }
 
 .nav-container {
-    max-width: 1000px; 
-    margin: 0 auto; 
+    max-width: 1000px;
+    margin: 0 auto;
     display: flex;
-    justify-content: space-between; 
-    /* ➡️ CRUCIAL: Ensure vertical alignment for all children */
-    align-items: center; 
-    padding-left: 10px; 
-    padding-right: 10px; 
-    height: 100%; /* Ensure container fills the height of the nav bar */
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 100%;
 }
 
 /* --- TOP BAR ELEMENTS --- */
-
-/* ➡️ FIX: Ensure social icons are aligned */
 .social-icons {
     display: flex;
     align-items: center;
@@ -463,37 +495,50 @@ footer {
 }
 
 .social-icons a {
-    color: #fff; /* White icons */
+    /* 🍏 UI/UX: Use text color for clean contrast */
+    color: var(--text);
     font-size: 16px;
     text-decoration: none;
-    line-height: 1; /* Helps vertical centering */
+    line-height: 1;
+    /* 🍏 ANIMATION: subtle color change */
+    transition: color 0.2s ease;
 }
 
-/* ➡️ FIX: Ensure search and sign-up buttons are aligned */
-.search-login-actions { 
+.social-icons a:hover {
+    color: var(--accent); /* Accent color on hover */
+}
+
+.search-login-actions {
     display: flex;
     align-items: center;
-    gap: 8px; /* Small gap between buttons */
+    gap: 8px;
 }
 
+/* 🍏 ANIMATION: Search/Sign-in buttons (Press effect) */
 .search-btn, .signin-btn {
     display: flex;
     align-items: center;
-    background-color: var(--top-nav-search-bg); 
+    background-color: var(--top-nav-search-bg);
     color: #fff;
     border: none;
-    border-radius: 4px;
-    padding: 5px 10px;
+    border-radius: 8px; /* Softer rounded corners */
+    padding: 5px 12px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    height: 28px; /* Consistent height for alignment */
+    height: 32px;
+    
+    /* 🍏 ANIMATION: Scale down on click/active for a "press" effect */
+    transition: background-color 0.2s, transform 0.1s ease-out;
 }
 
-/* Separate style for the Sign Up button, if needed to be distinct */
+.search-btn:active, .signin-btn:active {
+    transform: scale(0.95);
+}
+
 .signin-btn {
-    background-color: var(--accent); /* Using FPL Purple for contrast on the top bar */
+    background-color: var(--accent);
 }
 
 .search-btn i {
@@ -501,93 +546,81 @@ footer {
 }
 
 /* --- BOTTOM BAR ELEMENTS --- */
-
 .fpl-logo {
     color: #fff;
-    font-size: 18px; 
+    font-size: 18px;
     font-weight: 900;
     line-height: 1.1;
     text-transform: uppercase;
     white-space: nowrap;
 }
 
-/* ➡️ FIX: Ensure links are horizontal and aligned */
 .main-links {
     display: flex;
     list-style: none;
     padding: 0;
     margin: 0;
-    height: 100%; /* Fill the nav bar height */
-    align-items: center; /* Vertical alignment */
+    height: 100%;
+    align-items: center;
 }
 
 .main-links li {
-    margin: 0; /* Remove vertical margin from list items */
+    margin: 0;
 }
 
+/* 🍏 ANIMATION: Link Hover Effect */
 .main-links a {
     color: #fff;
     text-decoration: none;
-    padding: 0 15px; /* Original spacing between links */
+    padding: 0 15px;
     font-size: 14px;
     font-weight: 600;
-    height: 100%; /* Make the clickable area full height */
+    height: 100%;
     display: flex;
-    align-items: center; /* Center link text vertically */
-    transition: background-color 0.2s;
+    align-items: center;
+    transition: background-color 0.2s ease;
 }
 
 .main-links a:hover {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* 📱 NEW: DYNAMIC MOBILE BOTTOM NAV BAR STYLES (PILL EFFECT) 📱 */
+/* 📱 MODAL STYLES 📱 */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
-/* Default: Hide the new bottom nav on desktop screens */
-#bottom-nav {
-    display: none; 
-}
-
-/* Ensure the scroll to top button is not hidden by the new nav */
-#backToTop {
-    bottom: 80px; 
-    z-index: 1000;
-}
-
-/* MODAL STYLES */
 #more-options-modal {
-    display: none; /* Hidden by default */
+    display: none;
     position: fixed;
-    z-index: 1001; /* Above everything else */
+    z-index: 1001;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0, 0, 0, 0.8); /* Dark semi-transparent backdrop */
+    background-color: rgba(0, 0, 0, 0.8);
     opacity: 0;
+    /* 🍏 UI/UX: Frosted glass effect for backdrop */
+    backdrop-filter: blur(8px); 
     transition: opacity 0.3s ease-in-out;
-    backdrop-filter: blur(5px);
 }
 
 #more-options-modal.open {
-    display: flex; /* Show the modal container */
+    display: flex;
     opacity: 1;
-    align-items: flex-end; /* Drop down from the bottom */
+    align-items: flex-end;
     justify-content: center;
 }
 
 body.modal-open {
-    overflow: hidden; /* Prevents background scrolling when modal is open */
+    overflow: hidden;
 }
 
 .modal-content {
     background-color: var(--card-bg);
     width: 90%;
     max-width: 500px;
-    border-radius: var(--radius) var(--radius) 0 0; /* Rounded top corners */
+    border-radius: var(--radius) var(--radius) 0 0;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
     animation: slideUp 0.3s ease-out;
 }
@@ -666,7 +699,6 @@ body.modal-open {
     font-size: 1em;
     font-weight: bold;
 }
-/* END OF MODAL STYLES */
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 /* 📱 NEW: DYNAMIC MOBILE BOTTOM NAV BAR STYLES (PILL EFFECT) - ONLY ACTIVE BELOW 1024px 📱 */
@@ -675,7 +707,6 @@ body.modal-open {
 @media (max-width: 1023px) {
     /* --- MOBILE NAV HIDING --- */
     
-    /* 1. Hide the old top and bottom navigation bars on mobile/tablet */
     #top-nav-bar,
     #bottom-nav-bar {
         display: none !important;
@@ -683,14 +714,13 @@ body.modal-open {
     
     /* 2. Adjust body padding for the fixed mobile bottom bar (60px height) */
     body {
-        /* Add padding to the bottom equal to the nav height */
-        padding-bottom: 60px; 
+        padding-bottom: 60px;
     }
     
     /* --- FIXED BOTTOM NAV STYLES --- */
     
     #bottom-nav {
-        display: flex; /* Show the new bottom nav on mobile */
+        display: flex;
         position: fixed;
         bottom: 0;
         left: 0;
@@ -698,11 +728,14 @@ body.modal-open {
         justify-content: space-around;
         align-items: center;
         height: 60px;
-        /* Using your FPL Purple accent color for the base bar */
-        background-color: var(--accent); 
+        background-color: var(--accent);
         box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
         z-index: 999;
         padding: 0 5px;
+        
+        /* 🍏 UI/UX: Frosted Glass effect for the mobile nav */
+        backdrop-filter: blur(5px);
+        background-color: rgba(var(--accent-rgb, 55, 0, 60), 0.9); /* Requires defining RGB in JS */
     }
 
     .nav-item {
@@ -711,16 +744,20 @@ body.modal-open {
         align-items: center;
         justify-content: center;
         text-decoration: none;
-        color: #fff; /* White text on dark background */
+        color: #fff;
         padding: 5px 0;
-        /* Set width for 5 items: 100% / 5 = 20% */
-        width: 20%; 
-        margin: 0 2px; 
-        transition: color 0.3s, opacity 0.3s;
-        position: relative; 
-        overflow: visible; 
-        /* Tighter font for smaller screens */
-        line-height: 1.1; 
+        width: 20%;
+        margin: 0 2px;
+        line-height: 1.1;
+        position: relative;
+        overflow: visible;
+        
+        /* 🍏 ANIMATION: Subtle press effect on tap */
+        transition: color 0.3s, opacity 0.3s, transform 0.1s ease-out;
+    }
+    
+    .nav-item:active {
+        transform: scale(0.95);
     }
 
     .nav-item i {
@@ -737,38 +774,34 @@ body.modal-open {
         transition: opacity 0.2s;
     }
 
-    /* Active State Styling */
     .nav-item.active {
-        /* The pill will define the visible content, text hides to make pill content visible */
-        color: var(--card-bg); 
+        color: var(--card-bg);
     }
 
 
     /* --- PILL HIGHLIGHT STYLING --- */
 
     .nav-highlight {
-        /* Position the pill container */
         position: absolute;
-        top: 5px; /* Pushes the pill down slightly from the top */
+        top: 5px;
         left: 50%;
-        transform: translateX(-50%); /* Center the pill horizontally */
-        
-        /* Pill Appearance */
-        height: 50px; 
-        width: 90%; 
-        /* Use card background for a clean, contrasting pill */
-        background-color: var(--card-bg); 
-        border-radius: 30px; 
+        transform: translateX(-50%);
+        height: 50px;
+        width: 90%;
+        background-color: var(--card-bg);
+        border-radius: 30px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        
         display: flex;
         justify-content: center;
         align-items: center;
         
-        /* Start position: Hidden and slightly scaled down */
+        /* Start position */
         opacity: 0;
         transform: translateX(-50%) scale(0.8);
-        transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+        
+        /* 🍏 ANIMATION: Bouncy pop-in effect */
+        transition: opacity 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                    transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         z-index: 5;
     }
 
@@ -778,12 +811,10 @@ body.modal-open {
         transform: translateX(-50%) scale(1);
     }
 
-    /* Content inside the pill */
     .highlight-info {
         font-size: 11px;
         font-weight: 700;
-        /* Use the standard text color for contrast against the card background */
-        color: var(--text); 
+        color: var(--text);
         white-space: nowrap;
         text-align: center;
     }
@@ -797,86 +828,85 @@ body.modal-open {
 
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- DESKTOP OPTIMIZATION: 3-COLUMN GRID (SMALLER CONTAINER, FIXED HEIGHT SCROLLING) --- */
+/* 🖥️ DESKTOP OPTIMIZATION: 3-COLUMN GRID & HOVER ANIMATIONS 🖥️ */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
-/* Apply to screens 1024px and wider */
 @media (min-width: 1024px) {
     
+    /* 🍏 ANIMATION: Card Lift on Hover */
+    section:hover {
+        transform: translateY(-2px); /* Slight lift */
+        box-shadow: var(--shadow-active); /* Slightly stronger shadow on lift */
+    }
+
     /* ➡️ CONSTRAIN THE MAIN CONTAINER SIZE (1100px) and enable 3-COLUMN GRID */
     main {
-        max-width: 1100px; 
+        max-width: 1100px;
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr; 
-        gap: 20px; 
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
         flex-direction: initial;
         align-items: initial;
     }
 
     /* ➡️ Increase Fixed Height for desktop */
     section {
-        max-height: 320px; /* Taller card height for desktop */
-        padding: 16px; 
+        max-height: 320px;
+        padding: 16px;
     }
     
     /* Ensure sections that should span all three columns are set correctly */
     #welcome,
-    #epl-table-list { 
-        grid-column: 1 / -1; /* Make it span all three columns */
+    #epl-table-list {
+        grid-column: 1 / -1;
     }
     
-    /* Give the EPL Table a slightly different height if it needs to scroll (OPTIONAL) */
     #epl-table-list {
-        max-height: 400px; 
+        max-height: 400px;
     }
     
     /* Adjust nav containers to match the new width */
     #top-nav-bar .nav-container,
     #bottom-nav-bar .nav-container {
-        max-width: 1100px; 
+        max-width: 1100px;
     }
     
     /* ---------------------------------------------------------------------------------- */
     /* 🎨 CUSTOM SCROLLBAR STYLES (DESKTOP ONLY) */
     /* ---------------------------------------------------------------------------------- */
     
-    /* 1. Hide the up/down scroll buttons (arrows) */
     section::-webkit-scrollbar-button {
         display: none;
     }
 
-    /* 2. Define the general appearance of the scrollbar (width/color) */
     section::-webkit-scrollbar {
         width: 8px;
-        height: 8px; 
+        height: 8px;
     }
 
-    /* 3. Define the scrollbar track color (the background of the scrollbar) */
     section::-webkit-scrollbar-track {
-        background: var(--card-bg); 
+        background: var(--card-bg);
     }
     
-    /* 4. Define the scrollbar thumb (the moveable part) and apply hover color change */
     section::-webkit-scrollbar-thumb {
-        background: var(--subtext); 
+        background: var(--subtext);
         border-radius: 10px;
-        border: 2px solid var(--card-bg); 
+        border: 2px solid var(--card-bg);
         transition: background-color 0.2s ease;
     }
 
-    /* 5. Apply the FPL Red hover color */
     section::-webkit-scrollbar-thumb:hover {
-        background: var(--red-light); /* FPL red light on hover */
+        background: var(--red-light);
     }
 }
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* 📱 MOBILE EXCEPTION: PREVENT SCROLLING ON WELCOME CARD (For screens smaller than desktop grid) */
+/* 📱 MOBILE EXCEPTION: PREVENT SCROLLING ON WELCOME CARD */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 @media (max-width: 1023px) {
     #welcome {
-        max-height: initial; /* Allow the content to define the height on mobile */
-        overflow-y: initial; /* Remove the scrollbar */
+        max-height: initial;
+        overflow-y: initial;
     }
 }
 
@@ -889,20 +919,18 @@ body.modal-open {
     
     /* 1. Eliminate Main Content Padding */
     main {
-        padding: 20px 0; 
+        padding: 20px 0;
     }
 
     /* 2. Tighten Navigation Container Padding */
     .nav-container {
-        padding-left: 5px; 
+        padding-left: 5px;
         padding-right: 5px;
     }
     
-    /* 3. Tighten Bottom Nav Link Padding and Font Size */
-    /* NOTE: This block only affects the old, hidden #bottom-nav-bar. 
-       The new #bottom-nav uses its own mobile styles above. */
+    /* 3. Tighten Bottom Nav Link Padding and Font Size (Old Nav) */
     .main-links {
-        gap: 2px; 
+        gap: 2px;
     }
     .main-links a {
         padding: 0 4px;
@@ -911,14 +939,14 @@ body.modal-open {
 
     /* 4. Make Logo Smaller to save space */
     .fpl-logo {
-        font-size: 16px; 
+        font-size: 16px;
     }
     
     /* 5. Compact Top Nav Buttons (Search/Sign up) */
     .search-btn, .signin-btn {
         padding: 4px 6px;
-        height: 25px; 
-        font-size: 12px; 
+        height: 25px;
+        font-size: 12px;
     }
     
     /* 6. Hide 'Search' text on smaller phones (up to 400px) */
@@ -927,10 +955,10 @@ body.modal-open {
     }
     
     .search-btn {
-        padding: 4px 6px; 
+        padding: 4px 6px;
     }
     .search-btn i {
-        margin-right: 0; 
+        margin-right: 0;
     }
     
     /* Re-introduce 'Search' text for slightly larger phones (400px+) */
@@ -939,7 +967,7 @@ body.modal-open {
             display: inline;
         }
         .search-btn {
-             padding: 4px 8px; 
+             padding: 4px 8px;
         }
         .search-btn i {
             margin-right: 5px;
@@ -948,76 +976,62 @@ body.modal-open {
     
     /* 7. Reduce gap between social icons */
     .social-icons {
-        gap: 6px; 
+        gap: 6px;
     }
 }
 
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* 🔄 LOADER OVERLAY STYLES (Fixed Position, Full Screen) */
+/* 🔄 LOADER OVERLAY STYLES 🔄 */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
 /* 1. The Full-Screen Overlay Container */
 #loading-overlay {
-    /* CRITICAL: Fixed position, full coverage, high z-index */
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1000; 
-    
-    /* Overlay background: slightly transparent version of the main background */
+    z-index: 1000;
     background-color: var(--bg);
-    
-    /* Centering content (h1, p, loader) */
     display: flex;
-    flex-direction: column; /* Stack h1, p, loader vertically */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    
-    /* Ensure text is visible and styled */
     color: var(--text);
     text-align: center;
-    
-    /* Smooth transition for hiding/showing (controlled by JS) */
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.5s ease-out, visibility 0.5s;
+    
+    /* 🍏 ANIMATION: Smooth fade-out */
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s;
 }
 
 /* 1b. Style the text within the overlay */
 #loading-overlay h1 {
-    /* Use an accent color for the main title */
     color: var(--accent);
     margin-bottom: 5px;
 }
 
-
 #loading-overlay p {
     color: var(--subtext);
-    margin-bottom: 30px; /* Space between text and loader */
+    margin-bottom: 30px;
 }
-
 
 /* Class to hide the loader when content is ready (controlled by JavaScript) */
 #loading-overlay.hidden {
     opacity: 0;
     visibility: hidden;
-    /* Optional: prevents interaction with the area once faded */
-    pointer-events: none; 
+    pointer-events: none;
 }
 
 
 /* 2. The Actual Loader Spinner Element (Your class is .loader) */
 .loader {
-    /* FPL Themed Spinner using your custom colors */
     width: 15px;
     height: 15px;
     border: 3px solid transparent;
     border-radius: 50%;
-    
-    /* Use custom loader colors from your :root variables */
     border-top-color: var(--accent);
     border-right-color: var(--loader-color-2);
     border-bottom-color: var(--loader-color-3);
@@ -1032,47 +1046,56 @@ body.modal-open {
     100% { transform: rotate(360deg); }
 }
 
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* ➡️ General Leagues Styles (Accordion UI) ➡️ */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
 
-
-/* Styling for the list of individual leagues within the General Leagues section */
 .general-league-item {
     margin-bottom: 10px;
-    border-radius: 8px;
-    background-color: var(--secondary-card-background, #f0f0f0);
+    /* 🍏 UI/UX: Softer corners for the accordion item */
+    border-radius: 12px;
+    background-color: var(--card-bg); 
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Very light shadow */
 }
 
-/* Header for each individual league (clickable) */
 .general-league-header {
     padding: 10px 15px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-radius: 8px;
+    /* Only top corners are rounded by default */
+    border-radius: inherit; 
     font-size: 1.1em;
     font-weight: bold;
-    color: var(--text-color);
+    color: var(--text);
+    /* 🍏 ANIMATION: Smooth color transition */
     transition: background-color 0.2s ease;
 }
 
 .general-league-header:hover {
-    background-color: var(--hover-background, #e5e5e5);
+    background-color: var(--border);
 }
 
-/* Container for the actual standing list - initially hidden */
 .league-standings-content {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+    /* 🍏 ANIMATION: Smooth accordion slide */
+    transition: max-height 0.4s cubic-bezier(0.65, 0.05, 0.36, 1), padding 0.4s cubic-bezier(0.65, 0.05, 0.36, 1);
 }
 
-/* Class to make the standings visible */
 .league-standings-content.visible {
-    max-height: 500px; /* Adjust this value as needed, must be large enough to contain all content */
+    max-height: 500px; /* Must be large enough */
     padding: 10px 15px;
+    
+    /* Remove bottom rounded corners on the header if content is visible */
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
-/* Remove bottom border from the provided content section */
 .league-standings-content.visible .standings-list-general li:last-child {
     border-bottom: none;
 }
