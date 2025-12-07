@@ -673,7 +673,7 @@ body.modal-open {
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
 @media (max-width: 1023px) {
-    /* --- MOBILE NAV HIDING / BODY PADDING --- */
+    /* --- MOBILE NAV HIDING --- */
     
     /* 1. Hide the old top and bottom navigation bars on mobile/tablet */
     #top-nav-bar,
@@ -698,14 +698,9 @@ body.modal-open {
         justify-content: space-around;
         align-items: center;
         height: 60px;
-        
-        /* 🎨 UPDATED: Use the card background color for consistency */
-        background-color: var(--card-bg); 
-        
-        /* Using the accent border color */
-        border-top: 1px solid var(--border); 
-        
-        box-shadow: 0 -2px 8px rgba(0,0,0,0.1); /* Reduced shadow for lighter bar */
+        /* Using your FPL Purple accent color for the base bar */
+        background-color: var(--accent); 
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
         z-index: 999;
         padding: 0 5px;
     }
@@ -716,14 +711,10 @@ body.modal-open {
         align-items: center;
         justify-content: center;
         text-decoration: none;
-        
-        /* 🎨 UPDATED: Use subtext color for the default icons/text on the card background */
-        color: var(--subtext); 
-        
+        color: #fff; /* White text on dark background */
         padding: 5px 0;
-        /* ➡️ CRITICAL UPDATE: Set width for 6 items (100% / 6 = 16.66%) */
-        width: 16.6%; 
-        
+        /* Set width for 5 items: 100% / 5 = 20% */
+        width: 20%; 
         margin: 0 2px; 
         transition: color 0.3s, opacity 0.3s;
         position: relative; 
@@ -746,14 +737,14 @@ body.modal-open {
         transition: opacity 0.2s;
     }
 
-    /* Active State Styling: Icon/text change color */
+    /* Active State Styling */
     .nav-item.active {
-        /* 🎨 UPDATED: Use accent color for the active icon/text that is visible before the pill */
-        color: var(--accent); 
+        /* The pill will define the visible content, text hides to make pill content visible */
+        color: var(--card-bg); 
     }
 
 
-    /* --- PILL HIGHLIGHT STYLING (FOR NON-HOME TABS) --- */
+    /* --- PILL HIGHLIGHT STYLING --- */
 
     .nav-highlight {
         /* Position the pill container */
@@ -765,10 +756,8 @@ body.modal-open {
         /* Pill Appearance */
         height: 50px; 
         width: 90%; 
-        
-        /* 🎨 UPDATED: Use the main background color for a pill that pops out against the card-bg nav bar */
-        background-color: var(--bg); 
-        
+        /* Use card background for a clean, contrasting pill */
+        background-color: var(--card-bg); 
         border-radius: 30px; 
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         
@@ -793,22 +782,297 @@ body.modal-open {
     .highlight-info {
         font-size: 11px;
         font-weight: 700;
-        /* Use the accent color for the text inside the pill for emphasis */
-        color: var(--accent); 
+        /* Use the standard text color for contrast against the card background */
+        color: var(--text); 
         white-space: nowrap;
         text-align: center;
     }
 
-    /* Hide the original icon/text when the pill is active (except for Home) */
+    /* Hide the original icon/text when the pill is active */
     .nav-item.active i,
     .nav-item.active .nav-text {
         opacity: 0;
     }
+}
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- DESKTOP OPTIMIZATION: 3-COLUMN GRID (SMALLER CONTAINER, FIXED HEIGHT SCROLLING) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+/* Apply to screens 1024px and wider */
+@media (min-width: 1024px) {
     
-    /* ------------------------------------------------------------- */
-    /* 💥 NEW: REMOVE PILL/CIRCLE EFFECT ON HOME BUTTON 💥 */
-    /* ------------------------------------------------------------- */
+    /* ➡️ CONSTRAIN THE MAIN CONTAINER SIZE (1100px) and enable 3-COLUMN GRID */
+    main {
+        max-width: 1100px; 
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr; 
+        gap: 20px; 
+        flex-direction: initial;
+        align-items: initial;
+    }
+
+    /* ➡️ Increase Fixed Height for desktop */
+    section {
+        max-height: 320px; /* Taller card height for desktop */
+        padding: 16px; 
+    }
     
-    /* 1. Re-show the Home icon/text when it is active */
-    .nav-item[data-id="home"].active i,
-    .nav
+    /* Ensure sections that should span all three columns are set correctly */
+    #welcome,
+    #epl-table-list { 
+        grid-column: 1 / -1; /* Make it span all three columns */
+    }
+    
+    /* Give the EPL Table a slightly different height if it needs to scroll (OPTIONAL) */
+    #epl-table-list {
+        max-height: 400px; 
+    }
+    
+    /* Adjust nav containers to match the new width */
+    #top-nav-bar .nav-container,
+    #bottom-nav-bar .nav-container {
+        max-width: 1100px; 
+    }
+    
+    /* ---------------------------------------------------------------------------------- */
+    /* 🎨 CUSTOM SCROLLBAR STYLES (DESKTOP ONLY) */
+    /* ---------------------------------------------------------------------------------- */
+    
+    /* 1. Hide the up/down scroll buttons (arrows) */
+    section::-webkit-scrollbar-button {
+        display: none;
+    }
+
+    /* 2. Define the general appearance of the scrollbar (width/color) */
+    section::-webkit-scrollbar {
+        width: 8px;
+        height: 8px; 
+    }
+
+    /* 3. Define the scrollbar track color (the background of the scrollbar) */
+    section::-webkit-scrollbar-track {
+        background: var(--card-bg); 
+    }
+    
+    /* 4. Define the scrollbar thumb (the moveable part) and apply hover color change */
+    section::-webkit-scrollbar-thumb {
+        background: var(--subtext); 
+        border-radius: 10px;
+        border: 2px solid var(--card-bg); 
+        transition: background-color 0.2s ease;
+    }
+
+    /* 5. Apply the FPL Red hover color */
+    section::-webkit-scrollbar-thumb:hover {
+        background: var(--red-light); /* FPL red light on hover */
+    }
+}
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 📱 MOBILE EXCEPTION: PREVENT SCROLLING ON WELCOME CARD (For screens smaller than desktop grid) */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+@media (max-width: 1023px) {
+    #welcome {
+        max-height: initial; /* Allow the content to define the height on mobile */
+        overflow-y: initial; /* Remove the scrollbar */
+    }
+}
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 🚀 CRITICAL MOBILE OPTIMIZATION TO ELIMINATE OVERFLOW (MAX-WIDTH 600px) 🚀 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+@media (max-width: 600px) {
+    
+    /* 1. Eliminate Main Content Padding */
+    main {
+        padding: 20px 0; 
+    }
+
+    /* 2. Tighten Navigation Container Padding */
+    .nav-container {
+        padding-left: 5px; 
+        padding-right: 5px;
+    }
+    
+    /* 3. Tighten Bottom Nav Link Padding and Font Size */
+    /* NOTE: This block only affects the old, hidden #bottom-nav-bar. 
+       The new #bottom-nav uses its own mobile styles above. */
+    .main-links {
+        gap: 2px; 
+    }
+    .main-links a {
+        padding: 0 4px;
+        font-size: 12px;
+    }
+
+    /* 4. Make Logo Smaller to save space */
+    .fpl-logo {
+        font-size: 16px; 
+    }
+    
+    /* 5. Compact Top Nav Buttons (Search/Sign up) */
+    .search-btn, .signin-btn {
+        padding: 4px 6px;
+        height: 25px; 
+        font-size: 12px; 
+    }
+    
+    /* 6. Hide 'Search' text on smaller phones (up to 400px) */
+    .search-btn span {
+        display: none;
+    }
+    
+    .search-btn {
+        padding: 4px 6px; 
+    }
+    .search-btn i {
+        margin-right: 0; 
+    }
+    
+    /* Re-introduce 'Search' text for slightly larger phones (400px+) */
+    @media (min-width: 400px) {
+        .search-btn span {
+            display: inline;
+        }
+        .search-btn {
+             padding: 4px 8px; 
+        }
+        .search-btn i {
+            margin-right: 5px;
+        }
+    }
+    
+    /* 7. Reduce gap between social icons */
+    .social-icons {
+        gap: 6px; 
+    }
+}
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 🔄 LOADER OVERLAY STYLES (Fixed Position, Full Screen) */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+/* 1. The Full-Screen Overlay Container */
+#loading-overlay {
+    /* CRITICAL: Fixed position, full coverage, high z-index */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000; 
+    
+    /* Overlay background: slightly transparent version of the main background */
+    background-color: var(--bg);
+    
+    /* Centering content (h1, p, loader) */
+    display: flex;
+    flex-direction: column; /* Stack h1, p, loader vertically */
+    justify-content: center;
+    align-items: center;
+    
+    /* Ensure text is visible and styled */
+    color: var(--text);
+    text-align: center;
+    
+    /* Smooth transition for hiding/showing (controlled by JS) */
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease-out, visibility 0.5s;
+}
+
+/* 1b. Style the text within the overlay */
+#loading-overlay h1 {
+    /* Use an accent color for the main title */
+    color: var(--accent);
+    margin-bottom: 5px;
+}
+
+
+#loading-overlay p {
+    color: var(--subtext);
+    margin-bottom: 30px; /* Space between text and loader */
+}
+
+
+/* Class to hide the loader when content is ready (controlled by JavaScript) */
+#loading-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    /* Optional: prevents interaction with the area once faded */
+    pointer-events: none; 
+}
+
+
+/* 2. The Actual Loader Spinner Element (Your class is .loader) */
+.loader {
+    /* FPL Themed Spinner using your custom colors */
+    width: 15px;
+    height: 15px;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    
+    /* Use custom loader colors from your :root variables */
+    border-top-color: var(--accent);
+    border-right-color: var(--loader-color-2);
+    border-bottom-color: var(--loader-color-3);
+    
+    /* Start the animation */
+    animation: spin-complex 1.5s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+}
+
+/* 3. Keyframes for the Spinning Animation */
+@keyframes spin-complex {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+
+/* Styling for the list of individual leagues within the General Leagues section */
+.general-league-item {
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background-color: var(--secondary-card-background, #f0f0f0);
+}
+
+/* Header for each individual league (clickable) */
+.general-league-header {
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--text-color);
+    transition: background-color 0.2s ease;
+}
+
+.general-league-header:hover {
+    background-color: var(--hover-background, #e5e5e5);
+}
+
+/* Container for the actual standing list - initially hidden */
+.league-standings-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+}
+
+/* Class to make the standings visible */
+.league-standings-content.visible {
+    max-height: 500px; /* Adjust this value as needed, must be large enough to contain all content */
+    padding: 10px 15px;
+}
+
+/* Remove bottom border from the provided content section */
+.league-standings-content.visible .standings-list-general li:last-child {
+    border-bottom: none;
+}
