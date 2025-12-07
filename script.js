@@ -120,12 +120,7 @@ function applyTheme(index) {
         case 'cyan-theme':
             themeToggle.textContent = "✨"; // Next is Cyan Theme
             break;
-        case 'red-theme':
-            themeToggle.textContent = "🔴"; // Next is Red Theme
-            break;
-        case 'blue-theme':
-            themeToggle.textContent = "🔵"; // Next is Blue Theme
-            break;
+
         case '': // Next is Light Mode
         default:
             themeToggle.textContent = "☀️"; // Next is Light Mode
