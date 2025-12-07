@@ -917,3 +917,114 @@ function processDeadlineDisplay(data) {
         `;
     }, 1000);
 }
+
+
+
+
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 💻 REVISED JAVASCRIPT: FPL QUIZ LOGIC & TRANSITION (Allows entry on incorrect answer) 💻 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
+    const quizScreen = document.getElementById('welcome-quiz-screen');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const submitBtn = document.getElementById('submit-answer-btn');
+    const feedbackText = document.getElementById('feedback-text');
+    const mainContent = document.querySelector('main');
+    
+    // Quiz Data
+    const quiz = {
+        question: "Which FPL chip allows a manager to use the highest score of their two substitute players, provided the starting 11 did not score higher?",
+        options: [
+            "Triple Captain", 
+            "Free Hit", 
+            "Bench Boost", 
+            "Wildcard"
+        ],
+        correctAnswer: "Bench Boost"
+    };
+
+    let selectedAnswer = null;
+
+    // --- 1. QUIZ RENDERING ---
+
+    function renderQuiz() {
+        questionText.textContent = quiz.question;
+        optionsContainer.innerHTML = '';
+        
+        quiz.options.forEach(option => {
+            const button = document.createElement('button');
+            button.className = 'option-btn';
+            button.textContent = option;
+            button.dataset.answer = option;
+            button.addEventListener('click', handleOptionSelect);
+            optionsContainer.appendChild(button);
+        });
+    }
+
+    // --- 2. HANDLE SELECTION ---
+
+    function handleOptionSelect(e) {
+        // Clear previous selection highlight
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        
+        // Apply highlight to current selection
+        e.target.classList.add('selected');
+        selectedAnswer = e.target.dataset.answer;
+        submitBtn.disabled = false;
+        
+        // Clear feedback
+        feedbackText.textContent = '';
+        feedbackText.className = 'feedback-text';
+    }
+
+    // --- 3. HANDLE SUBMISSION ---
+
+    submitBtn.addEventListener('click', () => {
+        if (!selectedAnswer) return;
+
+        const isCorrect = selectedAnswer === quiz.correctAnswer;
+        submitBtn.disabled = true; // Prevent re-submission during feedback
+        
+        let transitionDelay = 1500; // Default delay (1.5 seconds)
+
+        if (isCorrect) {
+            feedbackText.textContent = "Correct! Welcome to the dashboard.";
+            feedbackText.classList.add('correct');
+        } else {
+            feedbackText.textContent = "Welcome anyway! The correct answer was 'Bench Boost'.";
+            feedbackText.classList.add('incorrect');
+            // Slight longer delay for the user to read the correct answer
+            transitionDelay = 2500; 
+        }
+        
+        // Trigger the transition after the delay, regardless of the answer
+        setTimeout(transitionToMainScreen, transitionDelay);
+    });
+
+    // --- 4. TRANSITION LOGIC (UI/UX) ---
+    
+    function transitionToMainScreen() {
+        // 1. Start the exit animation for the quiz screen
+        quizScreen.classList.add('exit-screen');
+
+        // 2. Start the fade-in for the main content
+        mainContent.style.pointerEvents = 'auto'; // Re-enable interaction
+        mainContent.style.opacity = '1';
+
+        // 3. Completely hide/remove the quiz screen after the animation finishes (0.5s CSS transition)
+        setTimeout(() => {
+            // Optional: for memory/performance, remove the element
+            quizScreen.style.display = 'none'; 
+        }, 500);
+    }
+    
+    // Start the quiz
+    renderQuiz();
+});
