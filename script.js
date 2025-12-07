@@ -920,117 +920,61 @@ function processDeadlineDisplay(data) {
 
 
 
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* 💻 COMPLETE JAVASCRIPT: FPL QUIZ LOGIC & TRANSITION 💻 */
-/*
-    - Handles quiz rendering and user selection.
-    - Transitions to main screen after submission (correct or incorrect).
-    - Reveals the hidden main content and navigation bars.
-*/
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
-    const quizScreen = document.getElementById('welcome-quiz-screen');
-    const questionText = document.getElementById('question-text');
-    const optionsContainer = document.getElementById('options-container');
-    const submitBtn = document.getElementById('submit-answer-btn');
-    const feedbackText = document.getElementById('feedback-text');
-    const mainContent = document.querySelector('main');
-    const bottomNav = document.getElementById('bottom-nav'); // NEW: Mobile Nav
-    const topNav = document.getElementById('top-nav-bar');    // NEW: Desktop Nav
+    const inputField = document.getElementById('answer-input');
+    const continueButton = document.getElementById('continue-button');
+    const feedbackMessage = document.getElementById('feedback-message');
     
-    // Quiz Data
-    const quiz = {
-        question: "Which FPL chip allows a manager to use the highest score of their two substitute players, provided the starting 11 did not score higher?",
-        options: [
-            "Triple Captain", 
-            "Free Hit", 
-            "Bench Boost", 
-            "Wildcard"
-        ],
-        correctAnswer: "Bench Boost"
+    // --- Configuration ---
+    const CORRECT_ANSWER = 'Haaland'; 
+    // *** UPDATED TARGET HERE ***
+    const REDIRECT_URL = 'main.html'; // <--- Now set to your main application file
+    const REDIRECT_DELAY_MS = 3000;      
+    // **************************
+
+    const handleSubmission = () => {
+        // Disable the button to prevent multiple submissions
+        continueButton.disabled = true;
+        
+        // 1. Get and normalize the input
+        const userAnswer = inputField.value.trim();
+        const normalizedAnswer = userAnswer.toLowerCase();
+        const normalizedCorrect = CORRECT_ANSWER.toLowerCase();
+
+        let message = '';
+        let className = '';
+
+        // 2. Determine feedback message and style
+        if (normalizedAnswer === normalizedCorrect) {
+            message = "⚽ Correct! You're a true FPL Manager.";
+            className = 'correct';
+        } else if (userAnswer.length > 0) {
+            message = `❌ Nice try! The answer is ${CORRECT_ANSWER}.`;
+            className = 'incorrect';
+        } else {
+            message = '✅ Question skipped. Loading your squad...';
+            className = 'correct';
+        }
+
+        // 3. Display feedback
+        feedbackMessage.textContent = message;
+        feedbackMessage.className = className;
+        inputField.disabled = true;
+
+        // 4. Redirect after a delay
+        setTimeout(() => {
+            window.location.href = REDIRECT_URL; // This will now go to 'main.html'
+        }, REDIRECT_DELAY_MS);
     };
 
-    let selectedAnswer = null;
+    // Add event listeners
+    continueButton.addEventListener('click', handleSubmission);
 
-    // --- 1. QUIZ RENDERING ---
-
-    function renderQuiz() {
-        questionText.textContent = quiz.question;
-        optionsContainer.innerHTML = '';
-        
-        quiz.options.forEach(option => {
-            const button = document.createElement('button');
-            button.className = 'option-btn';
-            button.textContent = option;
-            button.dataset.answer = option;
-            button.addEventListener('click', handleOptionSelect);
-            optionsContainer.appendChild(button);
-        });
-    }
-
-    // --- 2. HANDLE SELECTION ---
-
-    function handleOptionSelect(e) {
-        // Clear previous selection highlight
-        document.querySelectorAll('.option-btn').forEach(btn => {
-            btn.classList.remove('selected');
-        });
-        
-        // Apply highlight to current selection
-        e.target.classList.add('selected');
-        selectedAnswer = e.target.dataset.answer;
-        submitBtn.disabled = false;
-        
-        // Clear feedback
-        feedbackText.textContent = '';
-        feedbackText.className = 'feedback-text';
-    }
-
-    // --- 3. HANDLE SUBMISSION ---
-
-    submitBtn.addEventListener('click', () => {
-        if (!selectedAnswer) return;
-
-        const isCorrect = selectedAnswer === quiz.correctAnswer;
-        submitBtn.disabled = true; // Prevent re-submission during feedback
-        
-        let transitionDelay = 1500; // Default delay (1.5 seconds)
-
-        if (isCorrect) {
-            feedbackText.textContent = "Correct! Welcome to the dashboard.";
-            feedbackText.classList.add('correct');
-        } else {
-            feedbackText.textContent = "Welcome anyway! The correct answer was 'Bench Boost'.";
-            feedbackText.classList.add('incorrect');
-            // Slight longer delay for the user to read the correct answer
-            transitionDelay = 2500; 
+    // Allow submission via 'Enter' key press
+    inputField.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleSubmission();
         }
-        
-        // Trigger the transition after the delay, regardless of the answer
-        setTimeout(transitionToMainScreen, transitionDelay);
     });
-
-    // --- 4. TRANSITION LOGIC (UI/UX) ---
-    
-    function transitionToMainScreen() {
-        // 1. Start the exit animation for the quiz screen
-        quizScreen.classList.add('exit-screen');
-
-        // 2. REVEAL NAVIGATION AND MAIN CONTENT
-        topNav.style.display = 'block';     // Reveal desktop nav
-        bottomNav.style.display = 'flex';   // Reveal mobile nav
-
-        mainContent.style.pointerEvents = 'auto'; // Re-enable interaction on main content
-        mainContent.style.opacity = '1';          // Fade in main content
-
-        // 3. Completely hide/remove the quiz screen after the animation finishes (0.5s CSS transition)
-        setTimeout(() => {
-            quizScreen.style.display = 'none'; 
-        }, 500);
-    }
-    
-    // Start the quiz when the page loads
-    renderQuiz();
 });
