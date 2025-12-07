@@ -1,19 +1,26 @@
-/* General Styling (No change needed here) */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 🍏 BASE STYLES & TYPOGRAPHY 🍏 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+/* General Styling (Refined Typography) */
 body {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: #f8f8f8;
+    /* 🍏 UI/UX: Apple system font stack */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background-color: #f0f2f5; /* Slightly softer background */
     color: #333;
     margin: 0;
     padding: 0;
 }
 
 header {
-  /*   background-color: #01ff70; FPL green */
+    background-color: #01ff70; /* FPL green */
     color: #000;
     padding: 20px;
     text-align: center;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px; /* Increased margin for better separation */
+    
+    /* 🍏 UI/UX: Subtle, floating header shadow */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 #fixtures-container {
@@ -22,86 +29,140 @@ header {
     padding: 0 10px;
 }
 
-/* --- Filter Styling (No change needed here) --- */
+/* --- Filter Styling --- */
 #filter-container {
     max-width: 1000px;
-    margin: 0 auto;
+    margin: 0 auto 20px; /* Added bottom margin */
     padding: 0 15px;
 }
 
+/* 🍏 UI/UX: Rounded Input and Focus Animation */
 #team-search {
     width: 100%;
-    padding: 10px;
+    padding: 12px; /* Slightly more padding */
     margin-top: 5px;
     margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid #ddd;
+    border-radius: 10px; /* More rounded corners */
     font-size: 1em;
+    outline: none;
+    
+    /* 🍏 ANIMATION: Smooth border/shadow on focus */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#team-search:focus {
+    border-color: #007aff; /* iOS blue on focus */
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
 }
 
 #filter-container label {
-    font-weight: bold;
-    color: #333;
+    font-weight: 600; /* Slightly refined weight */
+    color: #1c1c1c;
     display: block;
+    margin-bottom: 5px;
 }
 
-/* --- Ticker Table Styles (Compact) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 🍏 Ticker Table Styles (Apple Card Look) 🍏 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
 .fixture-ticker {
     width: 100%;
-    border-collapse: collapse; 
+    border-collapse: separate; /* Use separate borders for corner rounding */
+    border-spacing: 0; /* Remove default spacing */
     background-color: #fff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
-    font-size: 0.9em; 
+    
+    /* 🍏 UI/UX: Subtle, rounded card look */
+    border-radius: 12px; 
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); 
+    
+    font-size: 0.9em;
+    overflow: hidden; /* Important for containing rounded corners */
+    border: 1px solid #e5e5e5;
 }
 
 /* Header Styles */
-.fixture-ticker th {
-    padding: 8px 3px; 
+.fixture-ticker thead th {
+    /* 🍏 UI/UX: Cleaner header background */
+    background-color: #f9f9f9; 
+    color: #555;
+    padding: 12px 6px; /* Increased top/bottom padding */
     text-align: center;
-    border: 1px solid #ddd;
-    font-weight: 600;
-    font-size: 0.85em; 
+    border: none; /* Remove inner cell borders from header */
+    font-weight: 700;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
+
+/* Round the header corners */
+.fixture-ticker thead th:first-child { border-top-left-radius: 12px; }
+.fixture-ticker thead th:last-child { border-top-right-radius: 12px; }
 
 .team-header {
     text-align: left;
-    min-width: 100px; 
+    min-width: 120px; /* Slightly wider team name column */
 }
 
 /* Row and Cell Styles */
+/* 🍏 UI/UX: Striping is subtle */
 .fixture-ticker tbody tr:nth-child(even) {
-    background-color: #fafafa;
+    background-color: #fefefe;
+}
+
+.fixture-ticker tbody tr:hover {
+    /* 🍏 ANIMATION: Subtle highlight on hover */
+    background-color: #f0f8ff; 
+    transition: background-color 0.2s ease;
 }
 
 .fixture-ticker td {
-    padding: 1px; 
-    border: 1px solid #eee;
-    height: 35px; 
+    padding: 1px;
+    border-top: 1px solid #eee; /* Only top border for a clean look */
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    height: 40px; /* Slightly increased height */
     text-align: center;
     vertical-align: middle;
 }
 
+/* Remove border from first row's cells (as header provides the top border) */
+.fixture-ticker tbody tr:first-child td {
+    border-top: none;
+}
+
+
 /* Team Name Cell */
 .team-name-cell {
-    font-weight: bold;
-    padding-left: 8px; 
-    font-size: 0.9em;
+    font-weight: 600;
+    padding-left: 15px; /* More left padding */
+    font-size: 1em;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-right: 1px solid #f0f0f0; /* Soft vertical separator */
 }
 
 /* Remove button (The 'x' icon) */
 .remove-btn {
     color: #999;
     font-weight: normal;
-    font-size: 1.2em;
+    font-size: 1.4em;
     cursor: pointer;
-    padding: 0 5px;
+    padding: 0 10px;
     line-height: 1;
+    
+    /* 🍏 ANIMATION: Smooth color change */
+    transition: color 0.2s ease, transform 0.1s ease-out;
 }
 .remove-btn:hover {
-    color: #f00;
+    color: #d32f2f; /* Darker red on hover */
+    transform: rotate(5deg);
+}
+.remove-btn:active {
+    transform: scale(0.9);
 }
 
 
@@ -110,110 +171,88 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    height: 100%;
-    padding: 3px 0; 
-    box-sizing: border-box; 
-    font-weight: 600;
-    font-size: 0.8em; 
-    border-radius: 3px; 
+    width: 90%; /* Smaller block to give more white space */
+    max-width: 30px; /* Ensure small size */
+    height: 80%; /* Takes up most of the cell height */
+    padding: 0; /* Remove padding */
+    box-sizing: border-box;
+    font-weight: 700;
+    font-size: 0.85em;
+    
+    /* 🍏 UI/UX: Nicer rounding and subtle inset shadow */
+    border-radius: 6px; 
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); 
+    
     text-align: center;
-    margin: 0 auto; 
+    margin: 0 auto;
 }
 
 /* --- OFFICIAL FPL Color Coding (No change needed here) --- */
-
-/* 1 (Easiest - Very Light Green) */
-.fdr-1 { 
-    background-color: #00ff85; 
-    color: #000; 
-} 
-
-/* 2 (Easier - Medium Green) */
-.fdr-2 { 
-    background-color: #00f3ff;
-    color: #000; 
-} 
-
-/* 3 (Neutral - Yellow/Grayish) */
-.fdr-3 { 
-    background-color: #ffe800;
-    color: #000; 
-} 
-
-/* 4 (Harder - Orange) */
-.fdr-4 { 
-    background-color: #ff9300;
-    color: #fff; 
-} 
-
-/* 5 (Hardest - Red) */
-.fdr-5 { 
-    background-color: #ff0000;
-    color: #fff; 
-}
+/* The colors are fine, they define the visual meaning */
+.fdr-1 { background-color: #00ff85; color: #000; }
+.fdr-2 { background-color: #00f3ff; color: #000; }
+.fdr-3 { background-color: #ffe800; color: #000; }
+.fdr-4 { background-color: #ff9300; color: #fff; }
+.fdr-5 { background-color: #ff0000; color: #fff; }
 
 
-/* --- Media Query for Mobile (Screen width <= 768px) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 📱 Media Query for Mobile (Screen width <= 768px) 📱 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
 @media (max-width: 768px) {
     
     #filter-container {
-        margin: 15px 5px; 
+        margin: 15px 5px 15px;
     }
 
-    /* 🛑 Remove the responsive wrapper if you used it before. 
-       If you keep it, remove the overflow-x: auto; property. */
-    .table-responsive-wrapper {
-        /* If this wrapper is present, make sure it does not set overflow-x: auto; */
-        width: 100%;
-    }
-
-    /* 🔑 KEY CHANGE: Force the table to take up exactly the available width. */
     .fixture-ticker {
         width: 100%;
-        /* Remove min-width to allow shrinking */
-        min-width: unset; 
-    }
-    
-    /* 🔑 KEY CHANGE: Reduce padding and font size for all cells */
-    .fixture-ticker th, .fixture-ticker td {
-        padding: 4px 1px; /* Very small padding */
-        font-size: 0.7em; /* Small font size for column headers/data */
-        height: 25px; /* Reduced height */
+        /* Remove shadow and border on mobile for a tighter fit */
+        box-shadow: none; 
+        border: none;
+        border-radius: 0;
     }
 
-    /* 🔑 KEY CHANGE: Reduce the size of the core FDR block */
+    /* Remove border radius from header on mobile */
+    .fixture-ticker thead th:first-child { border-top-left-radius: 0; }
+    .fixture-ticker thead th:last-child { border-top-right-radius: 0; }
+
+    
+    /* Reduced padding and font size for all cells */
+    .fixture-ticker thead th {
+        padding: 8px 1px;
+        font-size: 0.7em;
+    }
+
+    .fixture-ticker td {
+        padding: 2px 1px; /* Slightly increased padding for tap target */
+        font-size: 0.75em; 
+        height: 30px; /* Reduced height */
+    }
+
+    /* Reduce the size of the core FDR block */
     .fdr-block {
-        padding: 1px 0; 
-        font-size: 0.6em; /* Extremely small font for the difficulty score */
-        border-radius: 2px;
+        width: 90%;
+        max-width: 25px; 
+        height: 75%;
+        font-size: 0.6em;
+        border-radius: 4px; /* Reduced rounding */
     }
 
     /* Keep team name cell slightly larger for readability */
     .team-name-cell {
-        min-width: 75px; /* Keep a minimal width for the team name */
-        padding-left: 4px;
-        font-size: 0.8em;
-        /* Sticky positioning is no longer relevant if table doesn't scroll, 
-           but keep these properties in case you decide to add scrolling back: */
-        position: static; 
-        left: unset; 
-        z-index: unset;
-        background-color: unset; 
-        border-right: unset;
+        min-width: 75px;
+        padding-left: 8px;
+        font-size: 0.85em;
+        border-right: 1px solid #f0f0f0;
     }
-
+    
     .team-header {
         min-width: 75px;
-        position: static;
-        left: unset;
-        z-index: unset;
-        background-color: unset; 
-        border-right: unset;
     }
 
     .remove-btn {
-        font-size: 1em; /* Smaller X button */
-        padding: 0 2px;
+        font-size: 1em;
+        padding: 0 4px;
     }
 }
