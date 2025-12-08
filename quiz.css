@@ -10,11 +10,10 @@ body {
     background: linear-gradient(135deg, #f0f4f8 0%, #e0e7ed 100%);
     color: #333;
     text-align: center;
-    /* NEW: Smooth scroll for any potential internal links/anchors */
     scroll-behavior: smooth;
 }
 
-/* Container for Centering - Keep as is */
+/* Container for Centering */
 .container {
     width: 100%;
     max-width: 450px;
@@ -27,7 +26,7 @@ body {
     padding: 40px;
     /* IMPROVEMENT: Smoother, slightly larger border-radius */
     border-radius: 25px;
-    /* IMPROVEMENT: Refined, dual shadow for greater depth (Subtle lift + prominent cast) */
+    /* IMPROVEMENT: Refined, dual shadow for greater depth */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 20px 40px rgba(0, 0, 0, 0.15);
     /* NEW: Animation on load for the box itself */
     animation: zoomIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
@@ -46,15 +45,22 @@ body {
     }
 }
 
-/* --- 3. Animation Definition for Header (Keep as is) --- */
+/* --- 3. Animation Definition for Header --- */
 @keyframes fadeInUp {
-    /* ... existing keyframes ... */
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* --- 4. Typography (Focus and Clarity) --- */
 h1 {
     font-size: 28px;
-    color: #4A148C;
+    color: #4A148C; /* Deep Purple */
     margin-bottom: 20px;
     animation: fadeInUp 0.8s ease-out 0.2s forwards;
     opacity: 0;
@@ -78,7 +84,7 @@ h1 {
 #slider-value-label {
     display: block;
     font-size: 3.5rem;
-    font-weight: 800; /* IMPROVEMENT: Bolder font-weight */
+    font-weight: 800; /* Bolder font-weight */
     color: #6A1B9A;
     margin-bottom: 10px;
     /* IMPROVEMENT: Transition on scale for micro-bounce on update */
@@ -89,10 +95,10 @@ h1 {
 .slider {
     -webkit-appearance: none;
     width: 100%;
-    height: 12px; /* IMPROVEMENT: Slightly thicker track */
+    height: 12px; /* Slightly thicker track */
     /* NEW: Track will be styled dynamically by JS (linear-gradient) */
     background: #E0E0E0;
-    border-radius: 6px; /* IMPROVEMENT: Matches new height */
+    border-radius: 6px;
     outline: none;
     transition: opacity .2s;
 }
@@ -101,26 +107,25 @@ h1 {
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 32px; /* IMPROVEMENT: Slightly larger thumb for better touch target */
+    width: 32px; /* Slightly larger thumb for better touch target */
     height: 32px;
     border-radius: 50%;
     background: #6A1B9A;
     cursor: grab;
-    border: 5px solid #ffffff; /* IMPROVEMENT: Thicker border for better contrast */
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3); /* IMPROVEMENT: More prominent thumb shadow */
+    border: 5px solid #ffffff; /* Thicker border for better contrast */
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3); /* More prominent thumb shadow */
     transition: all 0.2s ease-in-out;
 }
 
 /* Slider Active Feedback (Micro-interaction) */
 .slider::-webkit-slider-thumb:active {
     cursor: grabbing;
-    transform: scale(1.15); /* IMPROVEMENT: Slightly bigger active scale */
+    transform: scale(1.15);
     border-color: #A569BD;
-    /* IMPROVEMENT: More noticeable glow */
-    box-shadow: 0 0 0 8px rgba(106, 27, 154, 0.35); 
+    box-shadow: 0 0 0 8px rgba(106, 27, 154, 0.35);
 }
 
-/* Firefox Thumb and Active states (similar improvements) */
+/* Firefox Thumb */
 .slider::-moz-range-thumb {
     width: 32px;
     height: 32px;
@@ -132,6 +137,7 @@ h1 {
     transition: all 0.2s ease-in-out;
 }
 
+/* Firefox Slider Active Feedback */
 .slider::-moz-range-thumb:active {
     cursor: grabbing;
     transform: scale(1.15);
@@ -139,7 +145,7 @@ h1 {
 }
 
 .slider:focus::-webkit-slider-thumb {
-    box-shadow: 0 0 0 6px rgba(106, 27, 154, 0.6); /* IMPROVEMENT: Stronger focus glow */
+    box-shadow: 0 0 0 6px rgba(106, 27, 154, 0.6);
 }
 
 
@@ -148,39 +154,101 @@ h1 {
     width: 100%;
     padding: 16px;
     border: none;
-    border-radius: 12px; /* IMPROVEMENT: Slightly rounder edges */
+    border-radius: 12px;
     /* IMPROVEMENT: Use a subtle gradient for a richer look */
     background: linear-gradient(90deg, #6A1B9A 0%, #7B1FA2 100%); 
     color: white;
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 5px 15px rgba(106, 27, 154, 0.3); /* NEW: Button shadow */
+    box-shadow: 0 5px 15px rgba(106, 27, 154, 0.3);
     transition: background 0.3s, transform 0.1s, box-shadow 0.3s;
     margin-top: 30px;
+    
+    /* ADDED for Checkmark Positioning */
+    position: relative; 
+    overflow: hidden;
 }
 
 #continue-button:hover {
-    /* IMPROVEMENT: Darker gradient on hover */
     background: linear-gradient(90deg, #4A148C 0%, #6A1B9A 100%);
-    box-shadow: 0 8px 20px rgba(106, 27, 154, 0.4); /* Lift shadow on hover */
+    box-shadow: 0 8px 20px rgba(106, 27, 154, 0.4);
 }
 
 #continue-button:active {
-    transform: scale(0.98); /* Less scale down, feels smoother */
+    transform: scale(0.98);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* --- Success State Animation (Keep as is, ensures consistent transition) --- */
-/* The keyframes are excellent, no change needed here */
+/* Button Text Styling (Needed for fade-out) */
+#continue-button .button-text {
+    display: block;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Checkmark Icon Styling (Starts Hidden) */
+.checkmark-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0); /* Starts hidden and tiny */
+    font-size: 24px;
+    font-weight: 900;
+    color: white;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Smooth, springy transition */
+}
+
+
+/* --- Success State Animation & Checkmark Trigger --- */
+
+#continue-button.success-state {
+    background-color: #4CAF50; /* Success Green */
+    animation: successPulse 0.6s ease-out;
+}
+
+/* Hide the text in the success state */
+#continue-button.success-state .button-text {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.9); /* Subtle fade/shrink effect on the text */
+}
+
+/* Show and animate the checkmark in the success state */
+#continue-button.success-state .checkmark-icon {
+    opacity: 1;
+    /* Center, expand, and rotate for flair */
+    transform: translate(-50%, -50%) scale(1) rotate(360deg); 
+}
+
+#continue-button.success-state:hover {
+    /* Prevent state changes on hover once success is triggered */
+    background-color: #4CAF50;
+}
+
+/* Define the animation keyframes for the pulse */
+@keyframes successPulse {
+    0% {
+        background-color: #6A1B9A;
+        transform: scale(1);
+    }
+    30% {
+        background-color: #8BC34A; /* Lighter green */
+        transform: scale(0.97);
+    }
+    100% {
+        background-color: #4CAF50;
+        transform: scale(1);
+    }
+}
 
 
 /* --- 7. Feedback/Small Text Styling --- */
 small {
     display: block;
-    color: #777; /* IMPROVEMENT: Slightly darker for better contrast */
+    color: #777;
     font-size: 0.85rem;
-    line-height: 1.5; /* IMPROVEMENT: Slightly more line height for readability */
+    line-height: 1.5;
     font-weight: 400;
 }
 
@@ -188,14 +256,14 @@ small:first-of-type {
     margin-top: 25px;
 }
 
-/* Optional Feedback Message Styles */
+/* Optional Feedback Message Styles (for JS use) */
 #feedback-message {
     font-size: 16px;
     font-weight: 600;
     margin: 15px 0;
-    padding: 12px; /* IMPROVEMENT: Slightly more padding */
-    border-radius: 10px; /* IMPROVEMENT: Matches box radius */
-    transition: all 0.5s ease-in-out; /* NEW: Use 'all' for smoother transition of height/padding/opacity */
+    padding: 12px;
+    border-radius: 10px;
+    transition: all 0.5s ease-in-out;
 }
 
 .hidden {
@@ -204,23 +272,23 @@ small:first-of-type {
     max-height: 0; 
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Prevent content from being visible during transition */
+    overflow: hidden;
 }
 
 .correct {
     background-color: #e8f5e9;
-    color: #2E7D32; /* IMPROVEMENT: Darker green for better contrast */
-    border: 1px solid #C8E6C9; /* NEW: Subtle border */
+    color: #2E7D32;
+    border: 1px solid #C8E6C9;
     opacity: 1;
-    max-height: 100px; /* NEW: Set a max-height */
+    max-height: 100px; /* Set a max-height for smooth expansion */
     padding: 12px;
 }
 
 .incorrect {
     background-color: #ffebee;
-    color: #C62828; /* IMPROVEMENT: Darker red for better contrast */
-    border: 1px solid #FFCDD2; /* NEW: Subtle border */
+    color: #C62828;
+    border: 1px solid #FFCDD2;
     opacity: 1;
-    max-height: 100px; /* NEW: Set a max-height */
+    max-height: 100px;
     padding: 12px;
 }
