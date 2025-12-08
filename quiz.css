@@ -40,25 +40,67 @@ h1 {
     margin-bottom: 30px;
 }
 
-/* Input Field Styling */
-#answer-input {
-    width: 100%;
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 2px solid #E0E0E0;
-    border-radius: 10px;
-    font-size: 16px;
+/* --- SLIDER STYLES (New Interactive Input) --- */
+
+/* Slider Container and Label Styles */
+.slider-container {
     text-align: center;
-    transition: border-color 0.3s;
-    box-sizing: border-box; /* Include padding in the element's total width and height */
+    margin: 20px 0 35px 0; /* Adjust margin for spacing */
 }
 
-#answer-input:focus {
-    border-color: #6A1B9A; /* Primary Purple on focus */
+#slider-value-label {
+    display: block;
+    font-size: 3.5rem; /* Make the number big and impressive! */
+    font-weight: 700;
+    color: #6A1B9A; /* Primary Purple for emphasis */
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+/* Base Slider Styles (The Track) */
+.slider {
+    -webkit-appearance: none; /* Required for custom styling in WebKit browsers */
+    width: 100%;
+    height: 10px;
+    background: #E0E0E0; /* Light grey track background (will be overwritten by JS linear-gradient) */
+    border-radius: 5px;
     outline: none;
+    transition: opacity .2s;
 }
 
-/* Button Styling */
+/* WebKit (Chrome, Safari, Opera) Thumb */
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px; /* Slightly larger thumb */
+    height: 28px;
+    border-radius: 50%; 
+    background: #6A1B9A; /* Primary Purple thumb */
+    cursor: grab;
+    border: 4px solid #ffffff; /* White border to stand out against the track */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.15s;
+}
+
+.slider::-webkit-slider-thumb:active {
+    cursor: grabbing;
+}
+
+/* Firefox Thumb */
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #6A1B9A; 
+    cursor: grab;
+    border: none; 
+}
+
+.slider:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 4px rgba(106, 27, 154, 0.4); /* Add a subtle glow on focus */
+}
+
+/* --- BUTTON STYLING --- */
 #continue-button {
     width: 100%;
     padding: 16px;
@@ -80,7 +122,39 @@ h1 {
     transform: scale(0.99);
 }
 
-/* Feedback Styling */
+/* --- Success State Animation --- */
+#continue-button.success-state {
+    /* Set the background to a success color (Green) */
+    background-color: #4CAF50; 
+    /* Immediately start the animation */
+    animation: successPulse 0.6s ease-out;
+}
+
+#continue-button.success-state:hover {
+    background-color: #4CAF50; /* Lock color during animation */
+}
+
+/* Define the animation keyframes */
+@keyframes successPulse {
+    0% {
+        /* Start at the normal purple and size */
+        background-color: #6A1B9A;
+        transform: scale(1);
+    }
+    30% {
+        /* Quickly transition to green and slightly shrink/pulse */
+        background-color: #8BC34A; 
+        transform: scale(0.97);
+    }
+    100% {
+        /* End at the final green and normal size */
+        background-color: #4CAF50;
+        transform: scale(1);
+    }
+}
+
+
+/* --- Feedback/Small Text Styling --- */
 #feedback-message {
     font-size: 16px;
     font-weight: 600;
@@ -97,18 +171,17 @@ h1 {
     padding: 0;
 }
 
-/* Contextual feedback styles (set by JS) */
 .correct {
-    background-color: #e8f5e9; /* Light green */
-    color: #4CAF50; /* Darker green */
+    background-color: #e8f5e9; 
+    color: #4CAF50; 
     opacity: 1;
     height: auto;
     padding: 10px;
 }
 
 .incorrect {
-    background-color: #ffebee; /* Light red */
-    color: #E53935; /* Darker red */
+    background-color: #ffebee; 
+    color: #E53935; 
     opacity: 1;
     height: auto;
     padding: 10px;
