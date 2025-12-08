@@ -798,10 +798,8 @@ body.modal-open {
 
 
 
-
-
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* 🚀 REVISED WELCOME QUIZ SCREEN STYLES (Vibrant Neumorphic Look) 🚀 */
+/* 🚀 WELCOME QUIZ SCREEN STYLES 🚀 */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
 #welcome-quiz-screen {
@@ -811,36 +809,34 @@ body.modal-open {
     width: 100%;
     height: 100vh;
     background-color: var(--bg);
-    z-index: 2000; 
+    z-index: 2000; /* Ensure it covers everything */
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Use a combined transition for a smoother, more complex exit animation */
-    transition: opacity 0.5s ease-out, transform 0.6s cubic-bezier(0.5, 0, 0.5, 1); 
+    transition: opacity 0.5s ease-out; /* For smooth exit fade */
 }
 
-/* --- THE MAIN CARD CONTAINER --- */
 .quiz-card {
     background: var(--card-bg);
     padding: 30px 20px;
-    border-radius: 20px; /* Slightly more rounded */
+    border-radius: var(--radius);
     max-width: 400px;
     width: 90%;
     text-align: center;
     
-    /* 🌟 NEUMORPHISM: Extruded (Pop-out) Look for the card itself */
+    /* 🌟 NEUMORPHISM: Impressed (Press-in) Look for the card itself */
     box-shadow: 
-        15px 15px 30px var(--neumorphic-shadow-dark), 
-        -15px -15px 30px var(--neumorphic-shadow-light);
+        inset 10px 10px 20px var(--neumorphic-shadow-dark), 
+        inset -10px -10px 20px var(--neumorphic-shadow-light);
     
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .quiz-card header h1 {
     font-size: 28px;
-    font-weight: 800;
+    font-weight: 700;
     margin-bottom: 5px;
-    color: var(--accent); /* Keep FPL Purple */
+    color: var(--accent);
 }
 
 .quiz-card header p {
@@ -856,7 +852,8 @@ body.modal-open {
     margin-bottom: 20px;
 }
 
-/* --- OPTION BUTTONS (Using the same style, which is good UX) --- */
+/* --- OPTION BUTTONS (Neumorphic) --- */
+
 .options-container {
     display: flex;
     flex-direction: column;
@@ -885,6 +882,7 @@ body.modal-open {
 }
 
 .option-btn:hover {
+    /* Slight lift on hover */
     transform: translateY(-1px);
 }
 
@@ -896,23 +894,14 @@ body.modal-open {
     transform: scale(0.98);
 }
 
-/* --- Submit Button (Vibrant Pink/Accent Color) --- */
-/* We will define a new vibrant pink accent for the submit button specifically */
-:root {
-    --vibrant-pink: #E91E63; /* Use a strong pink for contrast, similar to image */
-    /* ... keep existing variables ... */
-}
-body.dark-mode {
-    --vibrant-pink: #FF4081; 
-    /* ... keep existing variables ... */
-}
+/* --- Submit Button (Reusing the Neumorphic Button class) --- */
 
 .neumorphic-button {
-    background-color: var(--vibrant-pink); /* Use the new vibrant pink */
+    background-color: var(--accent);
     color: white;
     padding: 12px 20px;
     border: none;
-    border-radius: 40px; 
+    border-radius: 40px; /* Pill shape */
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
@@ -921,20 +910,34 @@ body.dark-mode {
     
     /* 🌟 NEUMORPHIC: Accent-colored Extruded look */
     box-shadow: 
-        5px 5px 10px rgba(233, 30, 99, 0.5), /* Custom shadow for the pink color */
+        5px 5px 10px rgba(0, 0, 0, 0.4), /* Stronger shadow for accent color */
         -5px -5px 10px var(--neumorphic-shadow-light); 
         
     transition: all 0.2s ease-out;
 }
 
-/* ... (Keep existing button:disabled and button:active styles) ... */
+.neumorphic-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none; /* Disable Neumorphic press effect when disabled */
+}
+
+.neumorphic-button:active:not(:disabled) {
+    /* 🌟 NEUMORPHIC: Impressed (Press-in) Look */
+    box-shadow: 
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6), 
+        inset -3px -3px 6px rgba(255, 255, 255, 0.2); 
+    transform: scale(0.98);
+}
 
 /* --- Feedback --- */
+
 .feedback-text {
     font-size: 14px;
     font-weight: 600;
     min-height: 20px;
-    color: transparent; 
+    color: transparent; /* Initially hidden */
 }
 
 .feedback-text.correct {
@@ -945,10 +948,25 @@ body.dark-mode {
     color: var(--red-light);
 }
 
-/* 🌟 REVISED EXIT TRANSITION (Dramatic Lift and Fade) 🌟 */
+/* --- Exit Transition --- */
+
 .exit-screen {
-    /* Lift the screen up and away with a slight rotation */
+    /* When the user succeeds, shrink and fade the screen */
     opacity: 0 !important;
-    transform: translateY(-100vh) rotateX(10deg);
+    transform: scale(0.9);
     pointer-events: none;
+}
+
+
+
+
+/* --- HIDE NAVIGATIONS BY DEFAULT --- */
+
+/* Hide the fixed bottom navigation on load */
+#bottom-nav {
+    display: none !important; /* Temporarily hide it until the quiz is completed */
+}
+/* Hide the top navigation (desktop only) on load */
+#top-nav-bar {
+    display: none !important;
 }
