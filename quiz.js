@@ -4,18 +4,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const sliderValueLabel = document.getElementById('slider-value-label');
     const continueButton = document.getElementById('continue-button');
     
-    // Define the target URL and animation timing
-    const REDIRECT_URL = 'main.html';
-    const ANIMATION_DURATION_MS = 600; // Must match the CSS animation duration (0.6s)
+    // YOUR DEPLOYED APPS SCRIPT URL:
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxO2nOGjgIPK6YmDlFdIjP5WoemHAc2N1meEu3h7cEtJPgEGkg2zBHSGl8MxLwDfTzR/exec'; 
+    
+    // The base URL for the dashboard page (used for URL parameter redirect)
+    const DASHBOARD_BASE_URL = 'main.html';
+    const ANIMATION_DURATION_MS = 600; 
 
-    // Check if slider elements exist (safety check)
+    // Safety check for required elements
     if (!pointSlider || !sliderValueLabel || !continueButton) {
-        console.error("Required elements for quiz.js not found in HTML.");
+        console.error("Required elements for quiz.js not found in HTML. Check IDs.");
         return;
     }
 
     // --- 2. Slider UI Handling Function ---
-    // This function updates the large number and the color of the slider track.
+    // This function updates the large number label and the color of the slider track.
     const updateSliderUI = () => {
         const currentValue = pointSlider.value;
         sliderValueLabel.textContent = currentValue; // Update the large number label
@@ -28,45 +31,63 @@ document.addEventListener('DOMContentLoaded', () => {
         const percentage = range > 0 ? ((currentValue - min) / range) * 100 : 0;
         
         // Use CSS linear-gradient to color the track up to the thumb's position
-        // This makes the slider look filled as the user drags it.
         // Colors: #6A1B9A (Purple) and #E0E0E0 (Light Grey)
         pointSlider.style.background = `linear-gradient(to right, #6A1B9A ${percentage}%, #E0E0E0 ${percentage}%)`;
     }
 
     // Initialize the UI on page load
     updateSliderUI();
-    continueButton.disabled = false; // Button is enabled since we start with a default prediction
+    // Button is enabled since we start with a default prediction (value="2000")
+    continueButton.disabled = false; 
     
     // Listen for slider interaction
     pointSlider.addEventListener('input', updateSliderUI);
 
 
-    // --- 3. Button Click Handler with Animation and Redirect ---
+    // --- 3. Button Click Handler with Animation, API Call, and Redirect ---
     const handleSubmission = (event) => {
         event.preventDefault(); 
         
         const finalPrediction = pointSlider.value;
         console.log(`Prediction submitted: ${finalPrediction} points`);
 
-        // 1. Disable the button to prevent double clicks
+        // 1. Disable the button and trigger the success animation
         continueButton.disabled = true;
-
-        // 2. Trigger the success animation (defined in quiz.css)
         continueButton.classList.add('success-state');
-        continueButton.textContent = 'Success!'; // Provide confirmation text
+        continueButton.textContent = 'Submitting...'; 
 
-        // 3. Wait for the animation to finish, then redirect
-        setTimeout(() => {
-            // This is where the navigation finally happens
-            window.location.href = REDIRECT_URL;
-
-        }, ANIMATION_DURATION_MS);
+        // 2. Send the prediction to the Google Apps Script endpoint
+        fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            // 'no-cors' is necessary for simple web apps talking to Apps Script
+            mode: 'no-cors', 
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                prediction: finalPrediction
+            })
+        })
+        .then(() => {
+            console.log("Request sent to Google Doc via Apps Script.");
+        })
+        .catch(error => {
+            console.error('Error sending data to Google Doc:', error);
+            // We redirect anyway to maintain a good user experience, even if the logging fails
+        })
+        .finally(() => {
+            // 3. Wait for the animation to finish (600ms), then redirect
+            setTimeout(() => {
+                // Construct the URL with the prediction as a parameter
+                const finalRedirectURL = `${DASHBOARD_BASE_URL}?prediction=${finalPrediction}`;
+                
+                // Redirect to the dashboard
+                window.location.href = finalRedirectURL; 
+            }, ANIMATION_DURATION_MS);
+        });
     };
 
-
-    // --- 4. Attach Event Listeners ---
+    // --- 4. Attach Event Listener ---
     continueButton.addEventListener('click', handleSubmission);
-
-    // Note: We are removing the 'Enter' key functionality on the input field
-    // because the input field no longer exists (it's a slider).
 });
