@@ -32,7 +32,7 @@
 
     --radius: 12px;
 }
-    
+
 /* DARK THEME — GitHub / Telegram Blue-Tinted */
 body.dark-mode {
     --bg: #0d1117; 
@@ -73,7 +73,7 @@ body.dark-mode {
 
 /* BODY */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background-color: var(--bg);
     color: var(--text);
     min-height: 100vh;
@@ -91,7 +91,7 @@ main {
     flex-direction: column;
     max-width: 1000px; 
     width: 100%; 
-    margin: 0 auto; 	
+    margin: 0 auto; 
     align-items: center; 
     gap: 20px; 
     padding: 20px 15px; /* Default desktop/larger mobile padding */
@@ -126,40 +126,340 @@ header h2 {
     margin-bottom: 30px; 
 }
 
+/* Container for Centering (Used for the initial quiz box layout) */
+.container {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+}
 
+/* The main box (Quiz/Welcome box) */
+.welcome-box {
+    background-color: var(--card-bg); /* Uses card background variable */
+    padding: 40px;
+    /* Smoother, larger border-radius */
+    border-radius: 25px;
+    /* Refined, dual shadow for depth */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 20px 40px rgba(0, 0, 0, 0.15);
+    /* Animation on load for the box */
+    animation: zoomIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    opacity: 0;
+}
+
+/* --- ANIMATION DEFINITIONS --- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes successPulse {
+    0% {
+        background-color: #E91E63; /* Starts at primary pink */
+        transform: scale(1);
+    }
+    30% {
+        background-color: #8BC34A; /* Lighter green pulse */
+        transform: scale(0.97);
+    }
+    100% {
+        background-color: #4CAF50; /* Ends at success green */
+        transform: scale(1);
+    }
+}
+
+/* Typography (Specific to Quiz/Welcome Box) */
+.welcome-box h1 {
+    font-size: 28px;
+    color: #4A148C;
+    margin-bottom: 20px;
+    animation: fadeInUp 0.8s ease-out 0.2s forwards;
+    opacity: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.question {
+    font-size: 18px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- SLIDER STYLES (WITH VISUAL CLUES: Dynamic Track Fill & Label Feedback) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+.slider-container {
+    text-align: center;
+    margin: 20px 0 35px 0;
+    position: relative; 
+}
+
+#slider-value-label {
+    display: block;
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: #6A1B9A;
+    margin-bottom: 10px;
+    transition: color 0.3s ease, transform 0.1s ease;
+}
+
+/* Visual Clue: Active label feedback */
+#slider-value-label.active {
+    transform: scale(1.05);
+    color: #4A148C;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 12px;
+    background: transparent; 
+    border-radius: 6px;
+    outline: none;
+    transition: opacity .2s;
+    z-index: 2; 
+}
+
+/* --- WebKit (Chrome, Safari, Opera) Track --- */
+.slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 12px;
+    cursor: pointer;
+    /* Dynamic colored track fill using a CSS variable (--track-progress) */
+    background: linear-gradient(to right, #6A1B9A var(--track-progress, 0%), #E0E0E0 var(--track-progress, 0%));
+    border-radius: 6px;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #6A1B9A;
+    cursor: grab;
+    border: 5px solid #ffffff;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease-in-out;
+    margin-top: -10px; 
+}
+
+.slider::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.15);
+    border-color: #A569BD;
+    /* Visual Clue: Subtle purple glow on press */
+    box-shadow: 0 0 0 8px rgba(106, 27, 154, 0.35); 
+}
+
+/* --- Firefox Track --- */
+.slider::-moz-range-track {
+    width: 100%;
+    height: 12px;
+    cursor: pointer;
+    background: linear-gradient(to right, #6A1B9A var(--track-progress, 0%), #E0E0E0 var(--track-progress, 0%));
+    border-radius: 6px;
+}
+
+.slider::-moz-range-thumb {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #6A1B9A;
+    cursor: grab;
+    border: 5px solid #ffffff;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease-in-out;
+}
+
+.slider::-moz-range-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.15);
+    background-color: #A569BD;
+}
+
+.slider:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 6px rgba(106, 27, 154, 0.3);
+}
+
+.slider:focus::-moz-range-thumb {
+    border: 5px solid #ffffff; 
+    box-shadow: 0 0 0 6px rgba(106, 27, 154, 0.3);
+}
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- BUTTON STYLING (Vibrant Pink Look with Visual Clues) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+#continue-button {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid #000; 
+    border-radius: 30px; 
+    background-color: #E91E63; 
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(233, 30, 99, 0.4); 
+    
+    /* Visual Clue: Smoother transition time for transform/lift */
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s, border-color 0.3s;
+    margin-top: 30px;
+    
+    position: relative; 
+    overflow: hidden;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    padding-right: 16px; 
+}
+
+/* Visual Clue: Hover Lift and Shadow Enhance */
+#continue-button:hover {
+    background-color: #C2185B; 
+    box-shadow: 0 8px 20px rgba(233, 30, 99, 0.6);
+    transform: translateY(-2px) scale(1.005); 
+}
+
+/* Visual Clue: Active (Pressed Down) State */
+#continue-button:active {
+    transform: translateY(0) scale(0.99); 
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2); 
+}
+
+/* Button Text Styling */
+#continue-button .button-text {
+    margin-right: 10px; 
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Checkmark Icon Styling */
+.checkmark-icon {
+    position: static;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: white; 
+    font-size: 16px; 
+    font-weight: 900;
+    color: #E91E63; 
+    opacity: 0; 
+    transform: scale(0); 
+    margin-right: -28px; 
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Visual Clue: Enhanced Success State (Green Color & Pulse) */
+#continue-button.success-state {
+    background-color: #4CAF50; 
+    animation: successPulse 0.6s ease-out; 
+    border-color: #4CAF50; 
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.5); 
+    transform: scale(1); 
+}
+
+#continue-button.success-state .button-text {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.9);
+}
+
+#continue-button.success-state .checkmark-icon {
+    opacity: 1;
+    transform: scale(1); 
+    margin-right: 0; 
+    color: #4CAF50; 
+}
+
+#continue-button.success-state:hover {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+    transform: scale(1);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.5);
+}
+
+
+/* --- Feedback/Small Text Styling --- */
+small {
+    display: block;
+    color: #777;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    font-weight: 400;
+}
+
+small:first-of-type {
+    margin-top: 25px;
+}
+
+/* Optional Feedback Message Styles */
+#feedback-message {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 15px 0;
+    padding: 12px;
+    border-radius: 10px;
+    transition: all 0.5s ease-in-out;
+}
+
+.hidden {
+    opacity: 0;
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.correct {
+    background-color: #e8f5e9;
+    color: #2E7D32;
+    border: 1px solid #C8E6C9;
+    opacity: 1;
+    max-height: 100px;
+    padding: 12px;
+}
+
+.incorrect {
+    background-color: #ffebee;
+    color: #C62828;
+    border: 1px solid #FFCDD2;
+    opacity: 1;
+    max-height: 100px;
+    padding: 12px;
+}
 
 /* --- OVERRIDE: SECTIONS STANDARD CARD STYLE with Quiz Look --- */
-/* Target the .content-section class used in your HTML */
 .content-section {
-    /*
-        NEW STYLE: Match the highly visible, distinct card look
-        from the quiz, ensuring a lift effect over the body background.
-    */
-    background-color: var(--bg); /* Use main BG for high contrast "float" in light mode */
-    
-    /* ➡️ VERY SMALL PADDING (Base size for mobile) - KEEPING ORIGINAL */
+    background-color: var(--bg); 
     padding: 12px;
-    
-    /* IMPROVEMENT: Use a larger border-radius for a softer, quiz-like feel */
     border-radius: 25px; 
-    
-    /* REMOVE: The 1px solid border is usually removed when using a strong shadow */
     border: none; 
-    
-    margin-bottom: 20px; /* Adjusted margin for better separation between cards */
-    
-    /* NEW: Use the high-quality shadow from the quiz box style (manual definition) */
+    margin-bottom: 20px; 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 20px 40px rgba(0, 0, 0, 0.15);
-    
-    /* KEEPING: Original Transition properties for theme changes */
     transition: background-color .3s, border .3s, box-shadow .3s, transform 0.3s;
     width: 100%;
-
-    /* KEEPING: CRITICAL MOBILE CHANGE: Apply fixed height and scrolling by default */
-    max-height: 280px; /* Base height for mobile cards */
+    max-height: 280px; 
     overflow-y: auto;
-    
-    /* Add a subtle lift animation on hover */
     transform: translateY(0);
 }
 
@@ -170,16 +470,10 @@ header h2 {
 
 /* --- Dark Mode Adjustment for Cards --- */
 body.dark-mode .content-section {
-    /* In dark mode, use the card-bg variable to keep a separation from the main dark background */
     background-color: var(--card-bg);
-    
-    /* Adjust dark mode shadow for better visibility against dark BG */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 20px 40px rgba(0, 0, 0, 0.6);
-    border: 1px solid var(--border); /* Re-introduce border for better separation in dark mode */
+    border: 1px solid var(--border); 
 }
-
-
-
 
 /* LIST DETAILS */
 ul {
@@ -225,16 +519,12 @@ li {
     display: flex; 
     justify-content: space-between; 
     align-items: center;
-    /* ➡️ VERY SMALL FONT */
     font-size: 12px; 
-    
-    /* ➡️ VERY SMALL PADDING */
     padding: 4px 0; 
     margin-bottom: 0; 
     background: transparent; 
     border: none; 
     border-radius: 0; 
-    
     border-bottom: 1px solid var(--border); 
     transition: none; 
 }
@@ -327,7 +617,6 @@ li {
 #fixtures-list li {
     display: flex;
     flex-direction: column; 
-    /* ➡️ VERY SMALL PADDING */
     padding: 6px 8px; 
     margin-bottom: 0; 
     background: transparent; 
@@ -335,7 +624,6 @@ li {
     border: none; 
     border-bottom: 1px solid var(--border); 
     font-weight: 600;
-    /* ➡️ VERY SMALL FONT */
     font-size: 12px; 
     transition: all .2s;
     position: relative; 
@@ -371,7 +659,6 @@ li {
     margin-top: 8px; 
     padding-top: 6px; 
     border-top: 1px dashed var(--border);
-    /* ➡️ VERY SMALL FONT */
     font-size: 10px; 
     line-height: 1.4; 
     color: var(--subtext);
@@ -406,7 +693,7 @@ li {
 /* --- UTILITY ELEMENTS --- */
 #backToTop {
     position: fixed;
-    bottom: 20px; 
+    bottom: 80px; /* Adjusted for mobile nav */
     right: 20px; 
     background: var(--accent); 
     color: #fff;
@@ -419,7 +706,7 @@ li {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 999;
+    z-index: 1000;
     box-shadow: 0 3px 8px rgba(0,0,0,0.4); 
     transition: background 0.3s, transform 0.25s, box-shadow 0.3s;
 }
@@ -449,6 +736,7 @@ footer {
     font-size: 0.85em;
     color: var(--subtext);
 }
+
 /* ------------------------------------------------ */
 /* --- MODIFIED NAVIGATION STYLES (RE-FIXED) --- */
 /* ------------------------------------------------ */
@@ -482,16 +770,13 @@ footer {
     margin: 0 auto; 
     display: flex;
     justify-content: space-between; 
-    /* ➡️ CRUCIAL: Ensure vertical alignment for all children */
     align-items: center; 
     padding-left: 10px; 
     padding-right: 10px; 
-    height: 100%; /* Ensure container fills the height of the nav bar */
+    height: 100%; 
 }
 
 /* --- TOP BAR ELEMENTS --- */
-
-/* ➡️ FIX: Ensure social icons are aligned */
 .social-icons {
     display: flex;
     align-items: center;
@@ -499,17 +784,16 @@ footer {
 }
 
 .social-icons a {
-    color: #fff; /* White icons */
+    color: #fff; 
     font-size: 16px;
     text-decoration: none;
-    line-height: 1; /* Helps vertical centering */
+    line-height: 1; 
 }
 
-/* ➡️ FIX: Ensure search and sign-up buttons are aligned */
 .search-login-actions { 
     display: flex;
     align-items: center;
-    gap: 8px; /* Small gap between buttons */
+    gap: 8px; 
 }
 
 .search-btn, .signin-btn {
@@ -524,12 +808,11 @@ footer {
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    height: 28px; /* Consistent height for alignment */
+    height: 28px; 
 }
 
-/* Separate style for the Sign Up button, if needed to be distinct */
 .signin-btn {
-    background-color: var(--accent); /* Using FPL Purple for contrast on the top bar */
+    background-color: var(--accent); 
 }
 
 .search-btn i {
@@ -547,29 +830,28 @@ footer {
     white-space: nowrap;
 }
 
-/* ➡️ FIX: Ensure links are horizontal and aligned */
 .main-links {
     display: flex;
     list-style: none;
     padding: 0;
     margin: 0;
-    height: 100%; /* Fill the nav bar height */
-    align-items: center; /* Vertical alignment */
+    height: 100%; 
+    align-items: center; 
 }
 
 .main-links li {
-    margin: 0; /* Remove vertical margin from list items */
+    margin: 0; 
 }
 
 .main-links a {
     color: #fff;
     text-decoration: none;
-    padding: 0 15px; /* Original spacing between links */
+    padding: 0 15px; 
     font-size: 14px;
     font-weight: 600;
-    height: 100%; /* Make the clickable area full height */
+    height: 100%; 
     display: flex;
-    align-items: center; /* Center link text vertically */
+    align-items: center; 
     transition: background-color 0.2s;
 }
 
@@ -586,44 +868,38 @@ footer {
     display: none; 
 }
 
-/* Ensure the scroll to top button is not hidden by the new nav */
-#backToTop {
-    bottom: 80px; 
-    z-index: 1000;
-}
-
-/* MODAL STYLES */
+/* MODAL STYLES (Used for the 'More' button on mobile nav) */
 #more-options-modal {
-    display: none; /* Hidden by default */
+    display: none; 
     position: fixed;
-    z-index: 1001; /* Above everything else */
+    z-index: 1001; 
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0, 0, 0, 0.8); /* Dark semi-transparent backdrop */
+    background-color: rgba(0, 0, 0, 0.8); 
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
     backdrop-filter: blur(5px);
 }
 
 #more-options-modal.open {
-    display: flex; /* Show the modal container */
+    display: flex; 
     opacity: 1;
-    align-items: flex-end; /* Drop down from the bottom */
+    align-items: flex-end; 
     justify-content: center;
 }
 
 body.modal-open {
-    overflow: hidden; /* Prevents background scrolling when modal is open */
+    overflow: hidden; 
 }
 
 .modal-content {
     background-color: var(--card-bg);
     width: 90%;
     max-width: 500px;
-    border-radius: var(--radius) var(--radius) 0 0; /* Rounded top corners */
+    border-radius: var(--radius) var(--radius) 0 0; 
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
     animation: slideUp 0.3s ease-out;
 }
@@ -749,21 +1025,26 @@ body.modal-open {
         text-decoration: none;
         color: #fff; /* White text on dark background */
         padding: 5px 0;
-        /* Set width for 5 items: 100% / 5 = 20% */
         width: 20%; 
         margin: 0 2px; 
-        transition: color 0.3s, opacity 0.3s;
+        /* Visual Clue: Tapped/Active Feedback Transition */
+        transition: color 0.3s, transform 0.1s; 
         position: relative; 
         overflow: visible; 
-        /* Tighter font for smaller screens */
         line-height: 1.1; 
     }
 
+    /* Visual Clue: Tapped/Active Feedback (Quick Scale Down) */
+    .nav-item:active:not(.active) {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+    
     .nav-item i {
         font-size: 18px;
         margin-bottom: 2px;
         z-index: 10;
-        transition: opacity 0.2s;
+        transition: color 0.3s, transform 0.2s, opacity 0.2s;
     }
 
     .nav-text {
@@ -775,24 +1056,19 @@ body.modal-open {
 
     /* Active State Styling */
     .nav-item.active {
-        /* The pill will define the visible content, text hides to make pill content visible */
         color: var(--card-bg); 
     }
-
 
     /* --- PILL HIGHLIGHT STYLING --- */
 
     .nav-highlight {
-        /* Position the pill container */
         position: absolute;
-        top: 5px; /* Pushes the pill down slightly from the top */
+        top: 5px; 
         left: 50%;
-        transform: translateX(-50%); /* Center the pill horizontally */
+        transform: translateX(-50%); 
         
-        /* Pill Appearance */
         height: 50px; 
         width: 90%; 
-        /* Use card background for a clean, contrasting pill */
         background-color: var(--card-bg); 
         border-radius: 30px; 
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -801,15 +1077,17 @@ body.modal-open {
         justify-content: center;
         align-items: center;
         
-        /* Start position: Hidden and slightly scaled down */
+        /* Visual Clue: Smoother and more complex transition for the pill (slight bounce) */
         opacity: 0;
         transform: translateX(-50%) scale(0.8);
-        transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+        transition: 
+            opacity 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+            transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         z-index: 5;
     }
 
     .nav-item.active .nav-highlight {
-        /* Active position: Fade in and scale up */
+        /* Active position: Fade in and scale up with a slight bounce (cubic-bezier) */
         opacity: 1;
         transform: translateX(-50%) scale(1);
     }
@@ -818,10 +1096,18 @@ body.modal-open {
     .highlight-info {
         font-size: 11px;
         font-weight: 700;
-        /* Use the standard text color for contrast against the card background */
-        color: var(--text); 
+        /* Visual Clue: Use the accent color for the text inside the pill */
+        color: var(--accent); 
         white-space: nowrap;
         text-align: center;
+        transition: color 0.3s ease;
+    }
+    
+    /* Visual Clue: Ensure the icon inside the pill also uses the accent color */
+    .highlight-info i {
+        color: var(--accent);
+        margin-right: 5px; 
+        font-size: 16px; 
     }
 
     /* Hide the original icon/text when the pill is active */
@@ -839,7 +1125,7 @@ body.modal-open {
 /* Apply to screens 1024px and wider */
 @media (min-width: 1024px) {
     
-    /* ➡️ CONSTRAIN THE MAIN CONTAINER SIZE (1100px) and enable 3-COLUMN GRID */
+    /* CONSTRAIN THE MAIN CONTAINER SIZE (1100px) and enable 3-COLUMN GRID */
     main {
         max-width: 1100px; 
         display: grid;
@@ -849,16 +1135,16 @@ body.modal-open {
         align-items: initial;
     }
 
-    /* ➡️ Increase Fixed Height for desktop */
+    /* Increase Fixed Height for desktop */
     section {
-        max-height: 320px; /* Taller card height for desktop */
+        max-height: 320px; 
         padding: 16px; 
     }
     
     /* Ensure sections that should span all three columns are set correctly */
     #welcome,
     #epl-table-list { 
-        grid-column: 1 / -1; /* Make it span all three columns */
+        grid-column: 1 / -1; 
     }
     
     /* Give the EPL Table a slightly different height if it needs to scroll (OPTIONAL) */
@@ -911,8 +1197,8 @@ body.modal-open {
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 @media (max-width: 1023px) {
     #welcome {
-        max-height: initial; /* Allow the content to define the height on mobile */
-        overflow-y: initial; /* Remove the scrollbar */
+        max-height: initial; 
+        overflow-y: initial; 
     }
 }
 
@@ -934,9 +1220,7 @@ body.modal-open {
         padding-right: 5px;
     }
     
-    /* 3. Tighten Bottom Nav Link Padding and Font Size */
-    /* NOTE: This block only affects the old, hidden #bottom-nav-bar. 
-       The new #bottom-nav uses its own mobile styles above. */
+    /* 3. Tighten Bottom Nav Link Padding and Font Size (Old Nav) */
     .main-links {
         gap: 2px; 
     }
@@ -993,38 +1277,26 @@ body.modal-open {
 /* 🔄 LOADER OVERLAY STYLES (Fixed Position, Full Screen) */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
-/* 1. The Full-Screen Overlay Container */
 #loading-overlay {
-    /* CRITICAL: Fixed position, full coverage, high z-index */
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     z-index: 1000; 
-    
-    /* Overlay background: slightly transparent version of the main background */
     background-color: var(--bg);
-    
-    /* Centering content (h1, p, loader) */
     display: flex;
-    flex-direction: column; /* Stack h1, p, loader vertically */
+    flex-direction: column; 
     justify-content: center;
     align-items: center;
-    
-    /* Ensure text is visible and styled */
     color: var(--text);
     text-align: center;
-    
-    /* Smooth transition for hiding/showing (controlled by JS) */
     opacity: 1;
     visibility: visible;
     transition: opacity 0.5s ease-out, visibility 0.5s;
 }
 
-/* 1b. Style the text within the overlay */
 #loading-overlay h1 {
-    /* Use an accent color for the main title */
     color: var(--accent);
     margin-bottom: 5px;
 }
@@ -1032,42 +1304,32 @@ body.modal-open {
 
 #loading-overlay p {
     color: var(--subtext);
-    margin-bottom: 30px; /* Space between text and loader */
+    margin-bottom: 30px; 
 }
 
 
-/* Class to hide the loader when content is ready (controlled by JavaScript) */
 #loading-overlay.hidden {
     opacity: 0;
     visibility: hidden;
-    /* Optional: prevents interaction with the area once faded */
     pointer-events: none; 
 }
 
 
-/* 2. The Actual Loader Spinner Element (Your class is .loader) */
 .loader {
-    /* FPL Themed Spinner using your custom colors */
     width: 15px;
     height: 15px;
     border: 3px solid transparent;
     border-radius: 50%;
-    
-    /* Use custom loader colors from your :root variables */
     border-top-color: var(--accent);
     border-right-color: var(--loader-color-2);
     border-bottom-color: var(--loader-color-3);
-    
-    /* Start the animation */
     animation: spin-complex 1.5s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
 }
 
-/* 3. Keyframes for the Spinning Animation */
 @keyframes spin-complex {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
 
 
 /* Styling for the list of individual leagues within the General Leagues section */
@@ -1077,7 +1339,6 @@ body.modal-open {
     background-color: var(--secondary-card-background, #f0f0f0);
 }
 
-/* Header for each individual league (clickable) */
 .general-league-header {
     padding: 10px 15px;
     cursor: pointer;
@@ -1095,20 +1356,17 @@ body.modal-open {
     background-color: var(--hover-background, #e5e5e5);
 }
 
-/* Container for the actual standing list - initially hidden */
 .league-standings-content {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
 }
 
-/* Class to make the standings visible */
 .league-standings-content.visible {
-    max-height: 500px; /* Adjust this value as needed, must be large enough to contain all content */
+    max-height: 500px; 
     padding: 10px 15px;
 }
 
-/* Remove bottom border from the provided content section */
 .league-standings-content.visible .standings-list-general li:last-child {
     border-bottom: none;
 }
