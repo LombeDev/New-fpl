@@ -126,22 +126,58 @@ header h2 {
     margin-bottom: 30px; 
 }
 
-/* SECTIONS STANDARD CARD STYLE */
-section {
-    background: var(--card-bg);
-    /* ➡️ VERY SMALL PADDING (Base size for mobile) */
-    padding: 12px; 
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    margin-bottom: 0; 
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-    transition: background .3s, border .3s, box-shadow .3s;
+
+
+/* --- OVERRIDE: SECTIONS STANDARD CARD STYLE with Quiz Look --- */
+/* Target the .content-section class used in your HTML */
+.content-section {
+    /*
+        NEW STYLE: Match the highly visible, distinct card look
+        from the quiz, ensuring a lift effect over the body background.
+    */
+    background-color: var(--bg); /* Use main BG for high contrast "float" in light mode */
+    
+    /* ➡️ VERY SMALL PADDING (Base size for mobile) - KEEPING ORIGINAL */
+    padding: 12px;
+    
+    /* IMPROVEMENT: Use a larger border-radius for a softer, quiz-like feel */
+    border-radius: 25px; 
+    
+    /* REMOVE: The 1px solid border is usually removed when using a strong shadow */
+    border: none; 
+    
+    margin-bottom: 20px; /* Adjusted margin for better separation between cards */
+    
+    /* NEW: Use the high-quality shadow from the quiz box style (manual definition) */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 20px 40px rgba(0, 0, 0, 0.15);
+    
+    /* KEEPING: Original Transition properties for theme changes */
+    transition: background-color .3s, border .3s, box-shadow .3s, transform 0.3s;
     width: 100%;
 
-    /* 🚀 CRITICAL MOBILE CHANGE: Apply fixed height and scrolling by default */
+    /* KEEPING: CRITICAL MOBILE CHANGE: Apply fixed height and scrolling by default */
     max-height: 280px; /* Base height for mobile cards */
-    overflow-y: auto; 
+    overflow-y: auto;
+    
+    /* Add a subtle lift animation on hover */
+    transform: translateY(0);
 }
+
+.content-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1), 0 25px 50px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Dark Mode Adjustment for Cards --- */
+body.dark-mode .content-section {
+    /* In dark mode, use the card-bg variable to keep a separation from the main dark background */
+    background-color: var(--card-bg);
+    
+    /* Adjust dark mode shadow for better visibility against dark BG */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 20px 40px rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--border); /* Re-introduce border for better separation in dark mode */
+}
+
 
 
 
