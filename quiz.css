@@ -1,3 +1,70 @@
+/* ROOT THEME VARIABLES — LIGHT MODE (clean + simple) */
+:root {
+    --bg: #e9e9e9; /* Light Gray Page Background */
+    --text: #242424;
+    --subtext: #555;
+    --card-bg: #ffffff; /* Card color set to White for contrast */
+    --border: #e5e5e5;
+    --accent: #37003C; /* FPL Purple */
+    --accent-hover: #530055;
+    --green: #2EA043; /* GitHub green - used for price risers */
+    /* Updated for the bottom bar green */
+    --nav-green-dark: #1E824C; 
+    --red-light: #CF3A46; /* Custom light red for fallers/scrollbar hover */
+    --blue-cl: #2196F3; /* Custom blue for CL zone */
+    --orange-el: #FF9800; /* Custom orange for EL zone */
+    --red-rl: #F44336; /* Custom red for relegation */
+    /* NEW: Custom colors for the top nav bar */
+    --top-nav-bg: #31554A; 
+    --top-nav-search-bg: #4D766C; 
+    
+    /* --- ACTION & STATUS COLORS --- */
+    --action-goal: #3A8C6F; /* Dark Green for Goal */
+    --action-assist: #3F51B5; /* Indigo for Assist */
+    --action-red: #D32F2F; /* Dark Red for Red Card */
+    --status-live: #FFC107; /* Amber for Live */
+    --status-finished: #607D8B; /* Blue Grey for Finished */
+    --status-upcoming: var(--accent); /* Upcoming matches use FPL Purple */
+    
+    /* --- NEW LOADER COLORS --- */
+    --loader-color-2: #00FF85; /* FPL Bright Green/Cyan */
+    --loader-color-3: #B3B3D9; /* Light secondary FPL color */
+
+    --radius: 12px;
+}
+
+/* DARK THEME — GitHub / Telegram Blue-Tinted */
+body.dark-mode {
+    --bg: #0d1117; 
+    --text: #c9d1d9; 
+    --subtext: #8b949e; 
+    --card-bg: #161b22; 
+    --border: #30363d; 
+    --accent: #238636; 
+    --accent-hover: #2ea043;
+    --green: #3fb950; 
+    --nav-green-dark: #238636; 
+    --top-nav-bg: #222933; 
+    --top-nav-search-bg: #333d48; 
+    --red-light: #f85149; 
+    --blue-cl: #64b5f6; 
+    --orange-el: #ffb74d; 
+    --red-rl: #e57373; 
+
+    /* --- DARK MODE ACTION & STATUS COLORS --- */
+    --action-goal: #81C784; 
+    --action-assist: #9FA8DA; 
+    --action-red: #E57373; 
+    --status-live: #FFEB3B; 
+    --status-finished: #B0BEC5; 
+    --status-upcoming: var(--accent);
+    
+    /* --- DARK MODE LOADER COLORS --- */
+    --loader-color-2: #64ffda; 
+    --loader-color-3: #9575CD; 
+}
+
+
 /* General Setup */
 body {
     font-family: 'Poppins', sans-serif;
@@ -6,9 +73,9 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    /* Subtle gradient background */
-    background: linear-gradient(135deg, #f0f4f8 0%, #e0e7ed 100%);
-    color: #333;
+    /* Subtle gradient background based on variable */
+    background: linear-gradient(135deg, var(--bg) 0%, #e0e7ed 100%);
+    color: var(--text);
     text-align: center;
     scroll-behavior: smooth;
 }
@@ -22,7 +89,7 @@ body {
 
 /* The main box */
 .welcome-box {
-    background-color: #ffffff;
+    background-color: var(--card-bg); /* Uses card background variable */
     padding: 40px;
     /* Smoother, larger border-radius */
     border-radius: 25px;
@@ -92,6 +159,8 @@ h1 {
 .slider-container {
     text-align: center;
     margin: 20px 0 35px 0;
+    /* Set position: relative for the track fill */
+    position: relative; 
 }
 
 #slider-value-label {
@@ -103,17 +172,35 @@ h1 {
     transition: color 0.3s ease, transform 0.1s ease;
 }
 
+/* New: Active label feedback */
+#slider-value-label.active {
+    transform: scale(1.05);
+    color: #4A148C;
+}
+
 .slider {
     -webkit-appearance: none;
     width: 100%;
     height: 12px;
-    background: #E0E0E0;
+    /* Remove original background, we'll use a specific track background now */
+    background: transparent; 
     border-radius: 6px;
     outline: none;
     transition: opacity .2s;
+    /* New: Set track colors via the track element itself */
+    z-index: 2; /* Keep thumb above track fill */
 }
 
-/* WebKit (Chrome, Safari, Opera) Thumb */
+/* --- WebKit (Chrome, Safari, Opera) Track --- */
+.slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 12px;
+    cursor: pointer;
+    /* Dynamic colored track fill */
+    background: linear-gradient(to right, #6A1B9A var(--track-progress, 0%), #E0E0E0 var(--track-progress, 0%));
+    border-radius: 6px;
+}
+
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -125,16 +212,27 @@ h1 {
     border: 5px solid #ffffff;
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
     transition: all 0.2s ease-in-out;
+    margin-top: -10px; /* Adjust vertical position to align with track center */
 }
 
 .slider::-webkit-slider-thumb:active {
     cursor: grabbing;
     transform: scale(1.15);
     border-color: #A569BD;
-    box-shadow: 0 0 0 8px rgba(106, 27, 154, 0.35);
+    /* Enhanced focus clue: subtle purple glow */
+    box-shadow: 0 0 0 8px rgba(106, 27, 154, 0.35); 
 }
 
-/* Firefox Thumb */
+/* --- Firefox Track --- */
+.slider::-moz-range-track {
+    width: 100%;
+    height: 12px;
+    cursor: pointer;
+    /* Dynamic colored track fill */
+    background: linear-gradient(to right, #6A1B9A var(--track-progress, 0%), #E0E0E0 var(--track-progress, 0%));
+    border-radius: 6px;
+}
+
 .slider::-moz-range-thumb {
     width: 32px;
     height: 32px;
@@ -153,7 +251,14 @@ h1 {
 }
 
 .slider:focus::-webkit-slider-thumb {
-    box-shadow: 0 0 0 6px rgba(106, 27, 154, 0.6);
+    /* Subtle focus glow, matching the active state */
+    box-shadow: 0 0 0 6px rgba(106, 27, 154, 0.3);
+}
+
+.slider:focus::-moz-range-thumb {
+    /* Subtle focus glow */
+    border: 5px solid #ffffff; 
+    box-shadow: 0 0 0 6px rgba(106, 27, 154, 0.3);
 }
 
 
@@ -173,7 +278,7 @@ h1 {
     
     box-shadow: 0 5px 15px rgba(233, 30, 99, 0.4); 
     
-    transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s, border-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s, border-color 0.3s;
     margin-top: 30px;
     
     position: relative; 
@@ -186,19 +291,22 @@ h1 {
     padding-right: 16px; 
 }
 
+/* VISUAL CLUE: Hover Lift and Shadow Enhance */
 #continue-button:hover {
     background-color: #C2185B; /* Darker pink on hover */
     box-shadow: 0 8px 20px rgba(233, 30, 99, 0.6);
+    transform: translateY(-2px) scale(1.005); /* Subtle lift effect */
 }
 
+/* VISUAL CLUE: Active (Pressed Down) State */
 #continue-button:active {
-    transform: scale(0.98);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transform: translateY(0) scale(0.99); /* Press down visually */
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2); /* Reduced shadow for depressed look */
 }
 
 /* Button Text Styling */
 #continue-button .button-text {
-    margin-right: 10px; /* Space for the checkmark icon */
+    margin-right: 10px; 
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
@@ -223,16 +331,19 @@ h1 {
     opacity: 0; /* Start hidden */
     transform: scale(0); 
     
-    margin-right: -28px; /* Offset the space initially */
+    margin-right: -28px; 
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* --- Success State Animation & Checkmark Trigger --- */
+/* VISUAL CLUE: Enhanced Success State (Green Color & Pulse) */
 #continue-button.success-state {
     background-color: #4CAF50; /* Success Green Background */
-    animation: successPulse 0.6s ease-out;
-    border-color: #4CAF50; /* Border matches button color */
+    /* Use the keyframe for a visual flash */
+    animation: successPulse 0.6s ease-out; 
+    border-color: #4CAF50; 
     box-shadow: 0 5px 15px rgba(76, 175, 80, 0.5); /* Green shadow */
+    transform: scale(1); /* Ensure it snaps back to normal size after animation */
 }
 
 /* Hide the text in the success state */
@@ -245,14 +356,17 @@ h1 {
 /* Show and animate the checkmark in the success state */
 #continue-button.success-state .checkmark-icon {
     opacity: 1;
-    transform: scale(1); /* Animates the checkmark into place */
+    transform: scale(1); 
     margin-right: 0; 
-    color: #4CAF50; /* Green checkmark inside white circle */
+    color: #4CAF50; 
 }
 
 #continue-button.success-state:hover {
+    /* Prevent hover from overriding the green in success state */
     background-color: #4CAF50;
     border-color: #4CAF50;
+    transform: scale(1);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.5);
 }
 
 
