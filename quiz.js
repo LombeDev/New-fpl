@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const continueButton = document.getElementById('continue-button');
     
     // YOUR DEPLOYED APPS SCRIPT URL:
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxO2nOGjgIPK6YmDlFdIjP5WoemHAc2N1meEu3h7cEtJPgEGkg2zBHSGl8MxLwDfTzR/exec'; 
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzW5jAWKQGVXflSJv3T1B_ie16Rn2rGjN4rsNKm3BdOnPFBicySDv_vfp4E5JWU-zgK/exec'; 
     
     // The base URL for the dashboard page (used for URL parameter redirect)
     const DASHBOARD_BASE_URL = 'main.html';
