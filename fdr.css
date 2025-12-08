@@ -129,34 +129,50 @@ header h2 {
     margin-bottom: 30px;
 }
 
-/* 🌟 NEUMORPHIC CARD STYLE (Extruded Look) 🌟 */
+
+/* 🌟 NEUMORPHIC CARD STYLE (IMPRESSED/PRESSED-IN Look) 🌟 */
 section {
     background: var(--card-bg); /* Match Card BG to Main BG */
-    padding: 16px; 
-    border-radius: 16px; 
-    border: none; /* Remove harsh border */
+    
+    /* KEEPING: Original Padding */
+    padding: 16px;
+    
+    /* KEEPING: Original Border-Radius */
+    border-radius: 16px;
+    
+    border: none;
     margin-bottom: 0;
-    
-    /* 🌟 NEUMORPHISM SHADOWS: Extruded (Pop-out) Effect */
+
+    /* 🌟 NEUMORPHISM SHADOWS: Impressed (Press-in) Effect */
     box-shadow: 
-        10px 10px 20px var(--neumorphic-shadow-dark),  /* Dark shadow (bottom-right) */
-        -10px -10px 20px var(--neumorphic-shadow-light); /* Light highlight (top-left) */
-    
+        inset 5px 5px 10px var(--neumorphic-shadow-dark), /* Inner Dark shadow */
+        inset -5px -5px 10px var(--neumorphic-shadow-light); /* Inner Light highlight */
+
     /* ANIMATION: Enable transitions for smooth press/lift effect */
     transition: background .3s, box-shadow .3s, transform 0.2s ease-out;
-    
+
     width: 100%;
-    max-height: 280px;
+    
+    /* KEEPING: Original Size and Scrolling Properties */
+    max-height: 280px; 
     overflow-y: auto;
 }
 
 section:hover {
-    /* 🌟 NEUMORPHISM: Slightly larger lift and more defined shadows on hover */
-    transform: translateY(-3px);
+    /* 🌟 NEUMORPHISM: Slightly less impressed on hover (to hint at interaction) */
+    /* This effect makes it look like it's trying to pop back out a little */
+    transform: translateY(0); 
     box-shadow: 
-        15px 15px 30px var(--neumorphic-shadow-dark), 
-        -15px -15px 30px var(--neumorphic-shadow-light); 
+        inset 3px 3px 6px var(--neumorphic-shadow-dark), 
+        inset -3px -3px 6px var(--neumorphic-shadow-light); 
 }
+
+section:active {
+    /* Optional: A subtle scale down on active/click for a 'squish' effect */
+    transform: scale(0.99);
+}
+
+
 
 /* LIST DETAILS */
 ul {
