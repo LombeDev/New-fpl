@@ -795,3 +795,160 @@ body.modal-open {
         
         /* Default State: Subtle Dark Gray */
         color: var
+
+
+
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 🚀 REVISED WELCOME QUIZ SCREEN STYLES (Vibrant Neumorphic Look) 🚀 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+#welcome-quiz-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--bg);
+    z-index: 2000; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Use a combined transition for a smoother, more complex exit animation */
+    transition: opacity 0.5s ease-out, transform 0.6s cubic-bezier(0.5, 0, 0.5, 1); 
+}
+
+/* --- THE MAIN CARD CONTAINER --- */
+.quiz-card {
+    background: var(--card-bg);
+    padding: 30px 20px;
+    border-radius: 20px; /* Slightly more rounded */
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    
+    /* 🌟 NEUMORPHISM: Extruded (Pop-out) Look for the card itself */
+    box-shadow: 
+        15px 15px 30px var(--neumorphic-shadow-dark), 
+        -15px -15px 30px var(--neumorphic-shadow-light);
+    
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.quiz-card header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 5px;
+    color: var(--accent); /* Keep FPL Purple */
+}
+
+.quiz-card header p {
+    font-size: 14px;
+    color: var(--subtext);
+    margin-bottom: 25px;
+}
+
+.question-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 20px;
+}
+
+/* --- OPTION BUTTONS (Using the same style, which is good UX) --- */
+.options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.option-btn {
+    background: var(--card-bg);
+    color: var(--text);
+    padding: 12px 15px;
+    border-radius: var(--radius);
+    border: none;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    
+    /* 🌟 NEUMORPHIC: Extruded look for interactive buttons */
+    box-shadow: 
+        5px 5px 10px var(--neumorphic-shadow-dark), 
+        -5px -5px 10px var(--neumorphic-shadow-light);
+        
+    transition: all 0.2s ease-out;
+}
+
+.option-btn:hover {
+    transform: translateY(-1px);
+}
+
+.option-btn:active, .option-btn.selected {
+    /* 🌟 NEUMORPHIC: Impressed (Press-in) Look on selection/click */
+    box-shadow: 
+        inset 3px 3px 6px var(--neumorphic-shadow-dark), 
+        inset -3px -3px 6px var(--neumorphic-shadow-light);
+    transform: scale(0.98);
+}
+
+/* --- Submit Button (Vibrant Pink/Accent Color) --- */
+/* We will define a new vibrant pink accent for the submit button specifically */
+:root {
+    --vibrant-pink: #E91E63; /* Use a strong pink for contrast, similar to image */
+    /* ... keep existing variables ... */
+}
+body.dark-mode {
+    --vibrant-pink: #FF4081; 
+    /* ... keep existing variables ... */
+}
+
+.neumorphic-button {
+    background-color: var(--vibrant-pink); /* Use the new vibrant pink */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 40px; 
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 15px;
+    
+    /* 🌟 NEUMORPHIC: Accent-colored Extruded look */
+    box-shadow: 
+        5px 5px 10px rgba(233, 30, 99, 0.5), /* Custom shadow for the pink color */
+        -5px -5px 10px var(--neumorphic-shadow-light); 
+        
+    transition: all 0.2s ease-out;
+}
+
+/* ... (Keep existing button:disabled and button:active styles) ... */
+
+/* --- Feedback --- */
+.feedback-text {
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 20px;
+    color: transparent; 
+}
+
+.feedback-text.correct {
+    color: var(--green);
+}
+
+.feedback-text.incorrect {
+    color: var(--red-light);
+}
+
+/* 🌟 REVISED EXIT TRANSITION (Dramatic Lift and Fade) 🌟 */
+.exit-screen {
+    /* Lift the screen up and away with a slight rotation */
+    opacity: 0 !important;
+    transform: translateY(-100vh) rotateX(10deg);
+    pointer-events: none;
+}
