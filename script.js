@@ -117,7 +117,9 @@ function applyTheme(index) {
         case 'dark-mode':
             themeToggle.textContent = "🌙"; // Next is Dark Mode
             break;
-        
+        case 'cyan-theme':
+            themeToggle.textContent = "✨"; // Next is Cyan Theme
+            break;
 
         case '': // Next is Light Mode
         default:
@@ -534,6 +536,4 @@ async function loadCurrentGameweekFixtures() {
             let statusText = 'Upcoming';
 
             if (fixture.finished) {
-                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span class="score-away">${fixture.team_a_score}</span>`;
-                statusClass = 'match-finished';
-  
+                scoreDisplay = `<span class="score-home">${fixture.team_h_score}</span> : <span 
