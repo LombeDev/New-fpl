@@ -449,6 +449,212 @@ footer {
     font-size: 0.85em;
     color: var(--subtext);
 }
+
+/* ------------------------------------------------ */
+/* --- NEW DESKTOP TOP NAV BASE STYLES --- */
+/* ------------------------------------------------ */
+
+#new-top-nav-desktop {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 950;
+    /* Gradient from the design image */
+    background: linear-gradient(to right, #6A5ACD, #483D8B); 
+    padding: 0;
+    height: 80px; /* Taller height for the central logo */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    display: none; /* Default hidden - only shown on desktop via media query */
+}
+
+/* Ensure the nav-container works with the new 1100px max-width from your desktop grid */
+#new-top-nav-desktop .nav-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    padding: 0 20px;
+}
+
+/* Central Logo Icon (The big 'F' in the circle) */
+.desktop-logo-container {
+    /* Absolute positioning to float it centered over the nav bar */
+    position: absolute; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 80px;
+    z-index: 960;
+    top: 50%; 
+    transform: translate(-50%, -50%); /* Center based on 80px height of nav */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.desktop-logo-icon {
+    /* Inner circle and border style */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+    background: #6A5ACD; /* Deep purple background */
+    border: 5px solid var(--card-bg); /* White/Card BG inner ring */
+    color: white !important; 
+    font-size: 40px;
+    font-weight: 900;
+    text-decoration: none !important;
+    line-height: 1;
+}
+
+/* Menu and Sign In Buttons */
+.nav-btn {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50px; 
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s, border-color 0.2s;
+    line-height: 1;
+    height: 40px;
+}
+
+.nav-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: #fff;
+}
+
+/* User Profile Orb/Sign In */
+.desktop-user-actions {
+    display: flex;
+    align-items: center;
+}
+.desktop-user-actions .nav-btn {
+    padding-left: 10px;
+}
+
+.user-profile-orb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    /* Rainbow gradient */
+    background: conic-gradient(red, orange, yellow, green, blue, indigo, violet, red); 
+    margin-right: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+/* ------------------------------------------------ */
+/* --- OFF-CANVAS MENU STYLES --- */
+/* ------------------------------------------------ */
+
+.off-canvas-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px; 
+    height: 100%;
+    background-color: var(--card-bg); 
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+    transform: translateX(-100%); 
+    transition: transform 0.3s ease-out;
+    z-index: 1000;
+    padding: 20px;
+    display: none; /* Initially hide on all screens by default */
+    flex-direction: column;
+}
+
+.off-canvas-menu.open {
+    transform: translateX(0); 
+    display: flex; /* Show the menu when open */
+}
+
+/* Only show the menu on desktop (1024px and up) when it's closed, otherwise let JS control display */
+@media (min-width: 1024px) {
+    #desktop-nav-menu {
+        /* This is a bit redundant since JS adds 'open', but ensures visibility context */
+        display: flex; 
+    }
+}
+
+
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 10px;
+}
+
+.menu-header h3 {
+    margin: 0;
+    color: var(--text);
+}
+
+.off-canvas-menu .close-btn {
+    background: none;
+    color: var(--subtext);
+    border: none;
+    font-size: 20px;
+    padding: 0;
+    height: initial;
+}
+
+.off-canvas-menu .nav-links-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+    flex-grow: 1;
+}
+
+.off-canvas-menu .nav-links-list a {
+    display: flex;
+    align-items: center;
+    padding: 15px 10px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border);
+    transition: background-color 0.2s;
+}
+
+.off-canvas-menu .nav-links-list a:hover {
+    background-color: var(--border);
+}
+
+.off-canvas-menu .nav-links-list i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+    color: var(--accent); 
+}
+
+.menu-footer {
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+#themeToggleMenu {
+    /* Override standard nav-btn styles for use in the menu footer */
+    background: var(--accent);
+    color: white;
+    border: none;
+    width: 100%;
+    justify-content: center;
+}
+
 /* ------------------------------------------------ */
 /* --- MODIFIED NAVIGATION STYLES (RE-FIXED) --- */
 /* ------------------------------------------------ */
@@ -713,7 +919,8 @@ body.modal-open {
     
     /* 1. Hide the old top and bottom navigation bars on mobile/tablet */
     #top-nav-bar,
-    #bottom-nav-bar {
+    #bottom-nav-bar,
+    #new-top-nav-desktop { /* Ensure the desktop nav is hidden on mobile/tablet */
         display: none !important;
     }
     
@@ -839,6 +1046,29 @@ body.modal-open {
 /* Apply to screens 1024px and wider */
 @media (min-width: 1024px) {
     
+    /* 1. Show the New Desktop Nav */
+    #new-top-nav-desktop {
+        display: block; /* Show the new nav bar */
+    }
+
+    /* 2. Hide the Old Nav Bars */
+    #top-nav-bar,
+    #bottom-nav-bar,
+    #bottom-nav { /* Hide the mobile nav too */
+        display: none !important;
+    }
+
+    /* 3. Ensure the main content starts below the new 80px nav bar, not the old ones */
+    body {
+        /* Reset padding-top if it was based on old nav heights */
+        padding-top: 0; 
+    }
+    
+    /* Reposition the theme toggle button */
+    #themeToggle {
+        display: none !important; /* Hide the old floating theme toggle */
+    }
+    
     /* ➡️ CONSTRAIN THE MAIN CONTAINER SIZE (1100px) and enable 3-COLUMN GRID */
     main {
         max-width: 1100px; 
@@ -936,7 +1166,7 @@ body.modal-open {
     
     /* 3. Tighten Bottom Nav Link Padding and Font Size */
     /* NOTE: This block only affects the old, hidden #bottom-nav-bar. 
-       The new #bottom-nav uses its own mobile styles above. */
+        The new #bottom-nav uses its own mobile styles above. */
     .main-links {
         gap: 2px; 
     }
