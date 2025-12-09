@@ -61,6 +61,7 @@ async function startDataLoadingAndTrackCompletion() {
 /* -----------------------------------------
     LIGHT / DARK / MULTI-COLOR MODE TOGGLE + SAVE
 ----------------------------------------- */
+// We need to define themeToggle globally before the DOMContentLoaded listener runs
 const themeToggle = document.getElementById("themeToggle");
 const body = document.body;
 
@@ -109,28 +110,37 @@ function applyTheme(index) {
     }
 
     // 3. Update the button icon for better visual feedback
-    // The icon is set to represent the NEXT theme in the cycle.
+    // Note: Since 'themeToggle' is now hidden/used as a central logic handler, 
+    // we must update the text of ALL theme buttons (floating, off-canvas, modal)
     const nextThemeIndex = (index + 1) % themes.length;
     const nextTheme = themes[nextThemeIndex];
-
+    
+    let icon = "☀️"; // Default to Sun (Next is Light Mode)
     switch (nextTheme) {
         case 'dark-mode':
-            themeToggle.textContent = "🌙"; // Next is Dark Mode
+            icon = "🌙"; // Next is Dark Mode
             break;
         case 'cyan-theme':
-            themeToggle.textContent = "✨"; // Next is Cyan Theme
+            icon = "✨"; // Next is Cyan Theme
             break;
         case 'red-theme':
-            themeToggle.textContent = "🔴"; // Next is Red Theme
+            icon = "🔴"; // Next is Red Theme
             break;
         case 'blue-theme':
-            themeToggle.textContent = "🔵"; // Next is Blue Theme
+            icon = "🔵"; // Next is Blue Theme
             break;
-        case '': // Next is Light Mode
-        default:
-            themeToggle.textContent = "☀️"; // Next is Light Mode
-            break;
+        // default remains "☀️"
     }
+
+    const themeButtons = [
+        themeToggle, 
+        document.getElementById('themeToggleMenu'),
+        document.getElementById('themeToggleMobileModal')
+    ].filter(el => el); // Filter out any null elements
+
+    themeButtons.forEach(btn => {
+        btn.textContent = icon;
+    });
 }
 
 
@@ -150,73 +160,135 @@ if (themeToggle) {
 
 
 /* -----------------------------------------
-    NAVIGATION MENU TOGGLES
+    NAVIGATION MENU TOGGLES (NEW LOGIC)
 ----------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.nav-links');
-    const kebab = document.querySelector('.kebab');
-    const kebabMenu = document.querySelector('.kebab-menu-dropdown');
+    // --- OFF-CANVAS MENU (DESKTOP/MAIN MENU) ELEMENTS ---
+    const desktopMenuBtn = document.getElementById('desktop-menu-btn');
+    const offCanvasMenu = document.getElementById('desktop-nav-menu'); 
+    const closeMenuBtn = document.getElementById('close-off-canvas-btn');
+    const themeToggleMenu = document.getElementById('themeToggleMenu'); // Theme button inside the off-canvas menu
 
-    // 1. Hamburger Menu Toggle Logic
-    if (hamburger && navLinks) {
-        hamburger.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            if (kebabMenu) {
-                kebabMenu.classList.remove('active');
+    // --- MOBILE MORE OPTIONS MODAL ELEMENTS ---
+    const mobileMoreBtn = document.getElementById('more-options-btn');
+    const mobileModal = document.getElementById('more-options-modal');
+    const closeMobileModalBtn = document.getElementById('close-mobile-modal-btn');
+    const themeToggleMobileModal = document.getElementById('themeToggleMobileModal');
+
+
+    // =========================================================
+    // 1. OFF-CANVAS MENU LOGIC (Desktop/Tablet)
+    // =========================================================
+
+    /**
+     * Toggles the open/closed state of the off-canvas menu.
+     * @param {boolean} open - true to open, false to close.
+     */
+    function toggleOffCanvasMenu(open) {
+        if (offCanvasMenu) {
+            if (open) {
+                offCanvasMenu.classList.add('open');
+                desktopMenuBtn?.setAttribute('aria-expanded', 'true');
+            } else {
+                offCanvasMenu.classList.remove('open');
+                desktopMenuBtn?.setAttribute('aria-expanded', 'false');
             }
-
-            const hamburgerIcon = hamburger.querySelector('i');
-            if (hamburgerIcon) {
-                if (navLinks.classList.contains('active')) {
-                    hamburgerIcon.classList.remove('fa-bars');
-                    hamburgerIcon.classList.add('fa-xmark');
-                    hamburger.setAttribute('aria-label', 'Close Main Menu');
-                } else {
-                    hamburgerIcon.classList.remove('fa-xmark');
-                    hamburgerIcon.classList.add('fa-bars');
-                    hamburger.setAttribute('aria-label', 'Open Main Menu');
-                }
-            }
-        });
-    }
-
-    // 2. Kebab Menu Toggle Logic
-    if (kebab && kebabMenu) {
-        kebab.addEventListener('click', (event) => {
-            kebabMenu.classList.toggle('active');
-
-            if (navLinks) {
-                navLinks.classList.remove('active');
-
-                const hamburgerIcon = hamburger.querySelector('i');
-                if (hamburgerIcon) {
-                    hamburgerIcon.classList.remove('fa-xmark');
-                    hamburgerIcon.classList.add('fa-bars');
-                    hamburger.setAttribute('aria-label', 'Open Main Menu');
-                }
-            }
-            event.stopPropagation();
-        });
-    }
-
-    // 3. Close menus when clicking outside
-    document.addEventListener('click', (event) => {
-        if (kebabMenu && !kebabMenu.contains(event.target) && event.target !== kebab && !kebab.contains(event.target)) {
-            kebabMenu.classList.remove('active');
         }
+    }
 
-        if (navLinks && event.target.closest('.nav-links a')) {
-             navLinks.classList.remove('active');
+    // Open button listener
+    desktopMenuBtn?.addEventListener('click', () => {
+        // Close the mobile modal if it's open
+        toggleMobileModal(false); 
+        toggleOffCanvasMenu(true);
+    });
 
-             const hamburgerIcon = hamburger.querySelector('i');
-             if (hamburgerIcon) {
-                 hamburgerIcon.classList.remove('fa-xmark');
-                 hamburgerIcon.classList.add('fa-bars');
-                 hamburger.setAttribute('aria-label', 'Open Main Menu');
-             }
+    // Close button listener
+    closeMenuBtn?.addEventListener('click', () => {
+        toggleOffCanvasMenu(false);
+    });
+    
+    // Close on link click inside the menu
+    offCanvasMenu?.querySelectorAll('.nav-links-list a').forEach(link => {
+        link.addEventListener('click', () => {
+            toggleOffCanvasMenu(false);
+        });
+    });
+
+
+    // =========================================================
+    // 2. MOBILE MORE OPTIONS MODAL LOGIC
+    // =========================================================
+
+    /**
+     * Toggles the open/closed state of the mobile modal.
+     * Also manages the body class to prevent background scrolling.
+     * @param {boolean} open - true to open, false to close.
+     */
+    function toggleMobileModal(open) {
+        if (mobileModal) {
+            if (open) {
+                mobileModal.classList.add('open');
+                document.body.classList.add('modal-open');
+                mobileMoreBtn?.setAttribute('aria-expanded', 'true');
+            } else {
+                mobileModal.classList.remove('open');
+                document.body.classList.remove('modal-open');
+                mobileMoreBtn?.setAttribute('aria-expanded', 'false');
+            }
+        }
+    }
+
+    // Open button listener (More button in the mobile nav)
+    mobileMoreBtn?.addEventListener('click', () => {
+        // Close the desktop menu if it's open (important for tablet breakpoints)
+        toggleOffCanvasMenu(false); 
+        toggleMobileModal(true);
+    });
+
+    // Close button listener (inside the modal)
+    closeMobileModalBtn?.addEventListener('click', () => {
+        toggleMobileModal(false);
+    });
+
+    // Close when clicking the backdrop
+    mobileModal?.addEventListener('click', (event) => {
+        if (event.target === mobileModal) {
+            toggleMobileModal(false);
         }
     });
+    
+    // Close on link click inside the modal
+    mobileModal?.querySelectorAll('.modal-options-list a').forEach(link => {
+        link.addEventListener('click', () => {
+            toggleMobileModal(false);
+        });
+    });
+
+    // =========================================================
+    // 3. THEME TOGGLE INTEGRATION (Centralized click handling)
+    // =========================================================
+    
+    // Theme button inside the off-canvas menu
+    if (themeToggleMenu) {
+        themeToggleMenu.addEventListener("click", () => {
+            // Trigger the original toggle function logic
+            themeToggle.click();
+        });
+    }
+
+    // Theme button inside the mobile modal
+    if (themeToggleMobileModal) {
+        themeToggleMobileModal.addEventListener("click", () => {
+            // Trigger the original toggle function logic
+            themeToggle.click();
+        });
+    }
+
+    // =========================================================
+    // 4. OLD NAVIGATION CLEANUP (for compatibility if old HTML persists)
+    // Removed old menu toggle logic as it's replaced by the new system.
+    // =========================================================
 });
 
 
@@ -565,7 +637,7 @@ async function loadCurrentGameweekFixtures() {
                     <span class="fixture-team away-team">
                         <span class="team-label away-label">${awayTeamAbbr}</span> 
                     </span>
-                    <span class="match-status-tag">${statusText}</span>
+                    <span class="match-status-tag ${statusClass === 'match-live' ? 'status-live' : statusClass === 'match-finished' ? 'status-finished' : 'status-upcoming'}">${statusText}</span>
                 </div>
             `;
 
@@ -705,6 +777,13 @@ async function loadPriceChanges(data) {
                 ${priceChangeHtml}
             `;
 
+            // Apply specific class for riser/faller to match CSS
+            if (changeInMillions > 0) {
+                div.classList.add("price-riser");
+            } else if (changeInMillions < 0) {
+                div.classList.add("price-faller");
+            }
+
             container.appendChild(div);
         }, index * 20);
     });
@@ -729,7 +808,7 @@ async function loadMostTransferred(data) {
 
             const teamAbbreviation = teamMap[p.team] || 'N/A';
 
-            div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers`;
+            div.innerHTML = `<span class="rank-number">${index + 1}.</span> <span class="manager-name">${p.first_name} ${p.second_name} (${teamAbbreviation})</span> <span>£${playerPrice}m (${transfers} in)</span>`;
 
             container.appendChild(div);
         }, index * 30);
@@ -755,9 +834,7 @@ async function loadMostTransferredOut(data) {
 
             const teamAbbreviation = teamMap[p.team] || 'N/A';
 
-            div.textContent = `${index + 1}. ${p.first_name} ${p.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${transfers} transfers out`;
-
-            div.classList.add("transferred-out");
+            div.innerHTML = `<span class="rank-number">${index + 1}.</span> <span class="manager-name transferred-out">${p.first_name} ${p.second_name} (${teamAbbreviation})</span> <span>£${playerPrice}m (${transfers} out)</span>`;
 
             container.appendChild(div);
         }, index * 30);
@@ -773,7 +850,7 @@ async function loadMostCaptained(data) {
     const currentEvent = data.events.find(e => e.is_next || e.is_current);
 
     if (!currentEvent || !currentEvent.most_captained) {
-        container.textContent = "Captain data not yet available for this Gameweek.";
+        container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3><p>Captain data not yet available for this Gameweek.</p>";
         return;
     }
 
@@ -782,7 +859,7 @@ async function loadMostCaptained(data) {
     const captain = data.elements.find(p => p.id === mostCaptainedId);
 
     if (!captain) {
-        container.textContent = "Could not find the most captained player.";
+        container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3><p>Could not find the most captained player.</p>";
         return;
     }
 
@@ -794,9 +871,8 @@ async function loadMostCaptained(data) {
     container.innerHTML = "<h3>Most Captained Player (This GW) ©️</h3>";
 
     const div = document.createElement("div");
-    div.textContent = `${captain.first_name} ${captain.second_name} (${teamAbbreviation}) (£${playerPrice}m) - ${captaincyPercentage}%`;
-    div.classList.add("top-rank");
-
+    div.innerHTML = `<span class="rank-number">1.</span> <span class="manager-name top-rank">${captain.first_name} ${captain.second_name} (${teamAbbreviation})</span> <span>£${playerPrice}m (${captaincyPercentage}%)</span>`;
+    
     container.appendChild(div);
 }
 
@@ -846,16 +922,15 @@ async function loadSimpleEPLTable(data) {
         } else if (team.position >= 18) {
             rowClass = "relegation-zone";
         }
-
-        if(rowClass) row.classList.add(rowClass);
-
+        if (rowClass) row.classList.add(rowClass);
+        
         row.innerHTML = `
             <td>${team.position}</td>
-            <td class="team-name">${team.name}</td>
+            <td class="team-name-cell">${team.name}</td>
             <td>${team.played}</td>
             <td>${team.win}</td>
             <td>${team.loss}</td>
-            <td><strong>${team.points}</strong></td>
+            <td>${team.points}</td>
         `;
     });
 
@@ -864,63 +939,76 @@ async function loadSimpleEPLTable(data) {
 
 
 /* -----------------------------------------
-    DEADLINE COUNTDOWN
+    DEADLINE COUNTDOWN (Placeholder function, assuming HTML exists)
 ----------------------------------------- */
 /**
- * Processes the FPL event data to find the next deadline and display a countdown.
- * @param {object} data - The full FPL bootstrap-static data.
+ * Processes FPL event data to find the next deadline and display a countdown.
+ * @param {object} data - The full data object from FPL bootstrap-static.
  */
 function processDeadlineDisplay(data) {
-    const deadlineSection = document.getElementById("deadline-section");
-    const titleElement = deadlineSection?.querySelector(".countdown-title");
-    const timerElement = document.getElementById("countdown-timer");
-    
-    if (!titleElement || !timerElement) return;
+    const countdownElement = document.getElementById("countdown-timer");
+    if (!countdownElement || !data || !data.events) return;
 
-    // Find the NEXT event (Gameweek) that is NOT finished.
     const nextEvent = data.events.find(e => e.is_next);
 
     if (!nextEvent) {
-        titleElement.textContent = "Deadline Info Unavailable";
-        timerElement.innerHTML = `<p>No upcoming gameweek found.</p>`;
+        countdownElement.textContent = "Season concluded or next deadline unavailable.";
         return;
     }
 
-    const deadlineTime = new Date(nextEvent.deadline_time);
-    const gameweekNumber = nextEvent.id;
+    const deadlineTime = new Date(nextEvent.deadline_time).getTime();
+    
+    // Initial display and start the interval
+    updateCountdown(deadlineTime, nextEvent.id);
+    setInterval(() => updateCountdown(deadlineTime, nextEvent.id), 1000);
+}
 
-    titleElement.textContent = `⏳ Gameweek ${gameweekNumber} Deadline`;
-    timerElement.innerHTML = `
-        <div class="countdown-label">Time Remaining:</div>
-        <div class="countdown-display-time" id="countdown-time-value">Loading...</div>
-        <div class="countdown-kickoff">Kickoff: ${deadlineTime.toLocaleDateString()} at ${deadlineTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+/**
+ * Updates the countdown timer display every second.
+ * @param {number} deadlineTime - The Unix timestamp of the deadline.
+ * @param {number} gwId - The ID of the next Gameweek.
+ */
+function updateCountdown(deadlineTime, gwId) {
+    const countdownElement = document.getElementById("countdown-timer");
+    const now = new Date().getTime();
+    const distance = deadlineTime - now;
+
+    if (distance < 0) {
+        countdownElement.innerHTML = `GW ${gwId} deadline has **passed**!`;
+        return;
+    }
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    countdownElement.innerHTML = `
+        <h3>GW ${gwId} Deadline</h3>
+        <p>
+            **${days}**d : **${hours}**h : **${minutes}**m : **${seconds}**s
+        </p>
     `;
+}
 
-    const countdownValueElement = document.getElementById('countdown-time-value');
+// -----------------------------------------
+// SCROLL TO TOP LOGIC
+// -----------------------------------------
+const backToTopButton = document.getElementById("backToTop");
 
-    // Update the countdown every second
-    const updateCountdown = setInterval(() => {
-        const now = new Date().getTime();
-        const distance = deadlineTime.getTime() - now;
-
-        if (distance < 0) {
-            clearInterval(updateCountdown);
-            countdownValueElement.innerHTML = "DEADLINE PASSED!";
-            titleElement.textContent = `✅ Gameweek ${gameweekNumber} Started!`;
-            return;
+if (backToTopButton) {
+    window.addEventListener("scroll", () => {
+        if (window.scrollY > 300) {
+            backToTopButton.style.display = "flex";
+        } else {
+            backToTopButton.style.display = "none";
         }
+    });
 
-        // Calculations for days, hours, minutes and seconds
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        countdownValueElement.innerHTML = `
-            <span class="countdown-days">${days}d</span> 
-            <span class="countdown-hours">${hours}h</span> 
-            <span class="countdown-minutes">${minutes}m</span> 
-            <span class="countdown-seconds">${seconds}s</span>
-        `;
-    }, 1000);
+    backToTopButton.addEventListener("click", () => {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    });
 }
