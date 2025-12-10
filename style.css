@@ -1371,3 +1371,113 @@ body.modal-open {
         transform: rotate(360deg);
     }
 }
+
+
+🎨 `style.css` (The Major Update)
+
+This update introduces a new CSS class, `.sidebar-collapsed`, which is applied to the sidebar via JavaScript. This class overrides the fixed 280px width, collapses the sidebar, and shifts the main content accordingly.
+
+**Add the following new CSS block:**
+
+```css
+/* ---------------------------------------------------------------------------------- */
+/* 🎨 NEW: COLLAPSIBLE DESKTOP SIDEBAR STYLES (Applies to #desktop-nav-menu) */
+/* ---------------------------------------------------------------------------------- */
+
+@media (min-width: 1024px) {
+    /* Style for the new Search/Collapse Toggle Button */
+    .collapse-toggle-btn {
+        background: none;
+        border: none;
+        color: var(--text);
+        font-size: 20px;
+        padding: 5px;
+        transition: transform 0.3s;
+        /* Ensure it's visible in the desktop menu header */
+        display: block !important;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    /* Style for the new Search Bar */
+    .menu-search-bar {
+        display: flex;
+        align-items: center;
+        margin: 0 20px 15px 20px;
+        padding: 10px 15px;
+        background-color: var(--border);
+        border-radius: 8px;
+        transition: opacity 0.3s;
+    }
+    .menu-search-bar i {
+        color: var(--subtext);
+        margin-right: 10px;
+    }
+    .menu-search-bar .search-input {
+        background: transparent;
+        border: none;
+        color: var(--text);
+        flex-grow: 1;
+        font-size: 14px;
+        outline: none;
+    }
+    
+    /* Ensure the Mobile Close Button is still hidden on desktop */
+    #desktop-nav-menu .close-btn {
+        display: none !important;
+    }
+    
+    /* ---------------------------------------------------- */
+    /* DEFAULT (OPEN) STATE: 280px */
+    /* ---------------------------------------------------- */
+    #desktop-nav-menu {
+        width: 280px; 
+    }
+    
+    main {
+        margin-left: 300px; /* 280px + 20px gap */
+        max-width: calc(100% - 300px); 
+    }
+    
+    /* ---------------------------------------------------- */
+    /* COLLAPSED STATE: 70px */
+    /* ---------------------------------------------------- */
+    
+    .sidebar-collapsed {
+        /* 1. Collapse the width of the sidebar */
+        width: 70px !important;
+        align-items: center;
+    }
+    
+    /* 2. Shift the main content back */
+    main.sidebar-collapsed-main {
+        margin-left: 90px !important; /* 70px + 20px gap */
+        max-width: calc(100% - 90px) !important; 
+    }
+
+    /* 3. Hide text elements in the collapsed sidebar */
+    .sidebar-collapsed .menu-title-text,
+    .sidebar-collapsed .menu-search-bar,
+    .sidebar-collapsed .nav-text, 
+    .sidebar-collapsed .menu-footer {
+        display: none !important;
+        opacity: 0;
+    }
+    
+    /* 4. Center icons in collapsed state */
+    .sidebar-collapsed .menu-header {
+        justify-content: center;
+    }
+    
+    /* 5. Adjust link padding and alignment */
+    .sidebar-collapsed .nav-links-list {
+        padding: 0 5px; /* Tighter padding */
+    }
+    .sidebar-collapsed .nav-links-list a {
+        justify-content: center; /* Center the icon */
+        padding: 12px; /* Square padding */
+    }
+    .sidebar-collapsed .nav-links-list a i {
+        margin-right: 0; /* Remove space next to icon */
+    }
+}
