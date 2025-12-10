@@ -1051,93 +1051,95 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggleMenu.addEventListener('click', toggleTheme);
     }
 
-    
     // --- 2. DESKTOP/MOBILE MENU LOGIC ---
     
     const menuToggleBtn = document.getElementById('menu-toggle-btn');
     const closeMenuBtn = document.getElementById('close-menu-btn');
     const desktopNavMenu = document.getElementById('desktop-nav-menu');
-    const pageWrapper = document.getElementById('page-wrapper');
     const mainContent = document.querySelector('main');
+    const sidebarCollapseToggle = document.getElementById('sidebar-collapse-toggle'); 
+    const sidebarCollapseToggle = document.getElementById('sidebar-collapse-toggle');// New
 
     // Function to check if the current screen is considered desktop (matching CSS @media)
     const isDesktop = () => {
         return window.innerWidth >= 1024;
     };
     
-    // Function to open the menu
-    const openMenu = () => {
-        if (isDesktop()) {
-            // Desktop: Toggle the class on the page wrapper/main content to shift the layout
-            // Since the sidebar is FIXED on desktop, we use a class to manage its visibility 
-            // and the main content's margin/position for a smooth effect.
-            // However, based on the CSS provided, the sidebar is permanently visible on desktop (FIXED).
-            // Let's adapt the JS to simply handle the OFF-CANVAS behavior on MOBILE.
-            // On desktop, the menu button can act as a way to "pin/unpin" it if desired, 
-            // but for simplicity with the current CSS, we'll focus the toggle on mobile.
-            
-            // If you want a desktop toggle for the fixed sidebar, you would add classes 
-            // like 'sidebar-collapsed' to the body/wrapper and update the sidebar/main CSS margins.
-            
-            // For now, let's just make the menu appear and disappear if you want to reuse the
-            // same component for a toggleable desktop sidebar, although the current CSS keeps it fixed.
-            
-            // Re-enabling the off-canvas class for consistency if you want it to toggle in/out
-            // even on desktop, though the CSS makes it fixed at 1024px.
-            desktopNavMenu.classList.toggle('open');
-            mainContent.classList.toggle('menu-open-desktop'); // Use a custom class for visual shift
-            
-        } else {
-            // Mobile: Standard off-canvas slide in
-            desktopNavMenu.classList.add('open');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
-        }
+    // --- MOBILE OFF-CANVAS FUNCTIONS ---
+    const openMobileMenu = () => {
+        desktopNavMenu.classList.add('open');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
     };
     
-    // Function to close the menu
-    const closeMenu = () => {
+    const closeMobileMenu = () => {
         desktopNavMenu.classList.remove('open');
-        mainContent.classList.remove('menu-open-desktop'); // Remove desktop visual shift class
         document.body.style.overflow = ''; // Restore background scrolling
     };
 
+    // --- DESKTOP COLLAPSE TOGGLE ---
+    const toggleDesktopSidebar = () => {
+        desktopNavMenu.classList.toggle('sidebar-collapsed');
+        mainContent.classList.toggle('sidebar-collapsed-main');
+    };
+    
+    // Initial desktop check for open state
+    if (isDesktop() && sidebarCollapseToggle) {
+         // Start in the collapsed state for maximum space by default
+         toggleDesktopSidebar();
+    }
+
+
+    // --- EVENT LISTENERS ---
+    
     if (menuToggleBtn) {
-        menuToggleBtn.addEventListener('click', openMenu);
+        menuToggleBtn.addEventListener('click', () => {
+             if (isDesktop()) {
+                 // On desktop, the top-left button toggles the collapse state
+                 toggleDesktopSidebar();
+             } else {
+                 // On mobile, it opens the off-canvas menu
+                 openMobileMenu();
+             }
+        });
+    }
+
+    // The collapse button now uses the primary menu button logic, 
+    // but we can ensure a dedicated click handler if needed.
+    if (sidebarCollapseToggle) {
+        sidebarCollapseToggle.addEventListener('click', toggleDesktopSidebar);
     }
 
     if (closeMenuBtn) {
-        closeMenuBtn.addEventListener('click', closeMenu);
+        closeMenuBtn.addEventListener('click', closeMobileMenu);
     }
     
-    // Close menu when a link is clicked (useful on mobile)
+    // Close mobile menu when a link is clicked
     document.querySelectorAll('.nav-links-list a').forEach(link => {
-        link.addEventListener('click', (event) => {
-            // Check if the screen is mobile/tablet before closing immediately
+        link.addEventListener('click', () => {
             if (!isDesktop()) { 
-                closeMenu();
+                closeMobileMenu();
             }
         });
     });
     
-    // Ensure the menu is visually correct on resize/load (handles desktop fixed state)
+    // Ensure correct state on resize
     const handleResize = () => {
         if (isDesktop()) {
-             // On desktop, the CSS should handle the fixed position.
-             // We ensure the mobile 'open' state is removed to avoid conflict.
+             // If resizing from mobile to desktop, remove mobile-specific classes
              desktopNavMenu.classList.remove('open');
              document.body.style.overflow = '';
              
-             // The menu display property is controlled by CSS, so we don't interfere with it here.
+             // Ensure desktop state is managed if the collapse toggle hasn't been hit
+             if (!desktopNavMenu.classList.contains('sidebar-collapsed') && !mainContent.classList.contains('sidebar-collapsed-main')) {
+                 // This block can be used to set a default state on resize if needed.
+                 // We will rely on the initial check to set the default state.
+             }
         } 
-        // Note: For a fixed sidebar, the 'desktop-nav-menu' should not be toggled, 
-        // but since you requested 'opening and closing', I've kept the toggle. 
-        // If you only want the fixed sidebar, remove the openMenu/closeMenu logic above and below 1024px.
     };
     
     window.addEventListener('resize', handleResize);
     handleResize(); // Initial check on load
-    
-    
+   
     // --- 3. BACK TO TOP BUTTON LOGIC ---
     
     const backToTopButton = document.getElementById('backToTop');
