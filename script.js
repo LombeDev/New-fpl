@@ -2,7 +2,8 @@
     GLOBAL SETUP
 ----------------------------------------- */
 // Using the more reliable proxy for cross-origin requests
-const proxy = "https://corsproxy.io/?";
+
+const proxy = "https://api.allorigins.win/raw?url=";
 
 // Global variables initialized at the top
 let teamMap = {};    // Team ID -> Abbreviation (e.g., 1 -> 'ARS')
