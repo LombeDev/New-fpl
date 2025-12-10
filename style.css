@@ -394,6 +394,145 @@ li {
 }
 
 
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- NEW: HIGH-END BUTTON STYLES (Gradient, Glow, Smooth Transition) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+.fpl-button-base {
+    /* Basic Button Styling */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 28px; /* Generous padding */
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: var(--radius); /* Uses the large radius defined in :root (16px) */
+    border: none;
+    line-height: 1;
+    
+    /* Smooth Transition for all effects */
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    
+    /* Ensures glow doesn't get cut off */
+    position: relative; 
+    overflow: hidden; 
+    z-index: 1; 
+}
+
+/* --- PRIMARY GLOW BUTTON (Using Indigo + Neon Green) --- */
+.fpl-button-primary {
+    /* Background Gradient */
+    background: linear-gradient(135deg, var(--primary-action), var(--primary-action-hover));
+    color: var(--text); 
+    
+    /* Initial subtle neon box shadow */
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.4), 
+        0 0 0 2px var(--primary-action), 
+        0 0 8px rgba(0, 255, 133, 0.1); 
+}
+
+.fpl-button-primary:hover {
+    /* Hover Gradient & Scale */
+    transform: translateY(-2px) scale(1.02); 
+    background: linear-gradient(135deg, var(--primary-action-hover), var(--primary-action));
+    
+    /* **Intense Neon Glow on Hover** */
+    box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.6), 
+        0 0 0 2px var(--accent), 
+        0 0 25px var(--accent), 
+        0 0 10px var(--accent-dark) inset; 
+}
+
+/* --- SECONDARY OUTLINE BUTTON (Neon Border) --- */
+.fpl-button-secondary {
+    background: transparent;
+    color: var(--accent); 
+    border: 2px solid var(--border); 
+    padding: 10px 26px; 
+    
+    /* Initial subtle glow/shadow */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.fpl-button-secondary:hover {
+    /* Hover Style: Fill with a dark accent color and apply glow */
+    color: var(--card-bg); 
+    background-color: var(--accent); 
+    border-color: var(--accent);
+    transform: translateY(-1px) scale(1.01);
+    
+    /* **Strong Neon Glow on Hover** */
+    box-shadow: 
+        0 5px 15px rgba(0, 0, 0, 0.5), 
+        0 0 20px var(--accent); 
+}
+
+/* --- OPTIONAL: BUTTON WITH ICON --- */
+.fpl-button-base i {
+    margin-right: 8px; 
+    font-size: 18px;
+}
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- NEW: FLOATING ACTION BUTTON (FAB) FOR TRANSFERS (Mobile Focus) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+#transferFAB {
+    /* Inherit the primary button style overrides */
+    position: fixed;
+    bottom: 90px; /* Above the bottom navigation bar (70px + margin) */
+    right: 20px;
+    z-index: 990;
+    
+    width: 55px; 
+    height: 55px;
+    padding: 0;
+    border-radius: 50%; 
+    
+    font-size: 24px; 
+    line-height: 1;
+    text-align: center;
+    
+    /* Primary Gradient/Glow - Stronger initial state */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary-action), var(--accent-dark));
+    color: var(--text); 
+    border: none;
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.4), 
+        0 0 10px rgba(0, 255, 133, 0.3); 
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+#transferFAB i {
+    margin: 0; 
+}
+
+/* Full glow on hover */
+#transferFAB:hover {
+    transform: scale(1.1); 
+    background: linear-gradient(135deg, var(--primary-action-hover), var(--accent));
+    
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.8), 
+        0 0 35px var(--accent), 
+        0 0 15px var(--accent-dark) inset; 
+}
+
+/* Hide FAB on desktop (since desktop has the nav bar actions) */
+@media (min-width: 1024px) {
+    #transferFAB {
+        display: none;
+    }
+}
+
+
 /* --- SCROLL TO TOP BUTTON --- */
 #backToTop {
     position: fixed;
@@ -417,6 +556,7 @@ li {
 #backToTop:hover {
     background: var(--primary-action-hover);
     transform: scale(1.05);
+    box-shadow: 0 0 15px var(--primary-action-hover);
 }
 
 /* --- THEME TOGGLE BUTTON --- */
@@ -517,22 +657,40 @@ footer .social-links a:hover {
     color: var(--accent); 
 }
 
-.search-btn, .signin-btn {
-    background-color: var(--primary-action); 
-    color: #fff;
-    border: none;
-    border-radius: 8px; 
-    padding: 8px 15px;
-    font-size: 14px;
-    font-weight: 600;
+/* Updated Top Nav buttons with premium glow style */
+.signin-btn, .search-btn {
+    /* Manual Base Overrides (Matching fpl-button-base) */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 15px; /* Smaller padding for top nav */
+    font-size: 14px; /* Smaller font size */
+    font-weight: 700;
+    line-height: 1;
     cursor: pointer;
-    white-space: nowrap;
-    height: 38px; 
-    transition: background-color 0.2s;
+    border-radius: 8px; /* Using 8px for top nav for a tighter look */
+    border: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative; 
+    overflow: hidden; 
+    z-index: 1; 
+
+    /* Primary Gradient/Color */
+    background: linear-gradient(90deg, var(--primary-action), var(--primary-action-hover));
+    color: var(--text);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Initial subtle shadow */
 }
 
-.search-btn:hover, .signin-btn:hover {
-    background-color: var(--primary-action-hover);
+.signin-btn:hover, .search-btn:hover {
+    /* Hover effects (using a scaled-down version of the primary button glow) */
+    transform: translateY(-1px); 
+    background: linear-gradient(90deg, var(--primary-action-hover), var(--primary-action));
+    
+    /* Subtle Glow on hover */
+    box-shadow: 
+        0 4px 10px rgba(0, 0, 0, 0.5), /* Stronger lift shadow */
+        0 0 0 1px var(--accent), /* Thin border shifts to neon */
+        0 0 12px var(--accent); /* Light neon glow */
 }
 
 .search-btn i {
@@ -835,4 +993,112 @@ footer .social-links a:hover {
 
 .nav-item.active,
 .nav-item:hover {
-    color: var(--card-bg); /* Text color 
+    color: var(--card-bg); /* Text color shifts to card-bg (darker text on neon highlight) */
+}
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- MODAL STYLES (Simple, Central, High Contrast) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+#more-options-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none; /* Controlled by JavaScript */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: var(--radius);
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+    transform: scale(0.9);
+    transition: transform 0.3s ease-out;
+}
+
+/* JavaScript class to show modal */
+#more-options-modal.show {
+    display: flex;
+}
+
+#more-options-modal.show .modal-content {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--accent);
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.modal-options-list {
+    list-style: none;
+    padding: 0;
+}
+
+.modal-options-list li a {
+    display: flex;
+    align-items: center;
+    padding: 12px 10px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 500;
+    border-radius: 8px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.modal-options-list li a:hover {
+    background-color: var(--border);
+    color: var(--accent);
+}
+
+.modal-options-list i {
+    margin-right: 15px;
+    color: var(--subtext);
+    width: 20px;
+    text-align: center;
+    font-size: 18px;
+}
+.modal-options-list li a:hover i {
+    color: var(--accent);
+}
+
+.modal-footer {
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    text-align: right;
+}
+
+/* Close button inherited from base styles */
+.close-btn-lg {
+    /* Using a simplified version of the primary button for consistency */
+    background: var(--primary-action);
+    color: var(--text);
+    padding: 8px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.close-btn-lg:hover {
+    background: var(--primary-action-hover);
+}
