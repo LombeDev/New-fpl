@@ -53,3 +53,786 @@ body.light-mode {
     --top-nav-bg: #10192C; /* Keep top bar dark for contrast */
     --top-nav-search-bg: #334155; 
 }
+
+/* RESET */
+* {
+    margin: 0;
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
+/* BODY */
+body {
+    font-family: 'Inter', sans-serif, Arial; /* Suggesting a modern font like Inter */
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-top: 0; 
+    transition: background var(--transition-speed), color var(--transition-speed);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden; 
+}
+
+/* MAIN CONTAINER (Increased max-width for dashboard feel) */
+main {
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px; /* Increased max-width */
+    width: 100%; 
+    margin: 0 auto; 	
+    align-items: center; 
+    gap: 30px; /* Increased gap */
+    padding: 20px; /* Increased padding */
+}
+
+/* HEADINGS */
+h1, h2 {
+    text-align: center;
+    color: var(--text);
+    margin-bottom: 20px;
+    letter-spacing: -0.5px; /* Tighter letter-spacing for modern look */
+}
+h1 { 
+    font-size: 42px; 
+    font-weight: 900; /* Extra bold */
+    line-height: 1.1; 
+}
+h2 { 
+    font-size: 28px; 
+    font-weight: 700; 
+}
+header h2 {
+    font-size: 20px; 
+    font-weight: 600; 
+    color: var(--accent); 
+    margin-top: 0;
+    margin-bottom: 40px; 
+}
+
+/* --- PREMIUM CARD COMPONENT (.content-section) --- */
+.content-section {
+    background-color: var(--card-bg); 
+    padding: 24px; /* Significantly increased padding */
+    border-radius: var(--radius); 
+    border: 1px solid var(--border); /* Subtle border for definition */
+    margin-bottom: 30px; /* Increased margin for separation */
+    
+    /* NEW: Soft, deep shadow for the 'float' effect */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); 
+    
+    transition: all var(--transition-speed) ease-in-out;
+    width: 100%;
+
+    /* Retain original mobile scroll settings, but increase base height */
+    max-height: 350px; 
+    overflow-y: auto;
+}
+
+.content-section:hover {
+    /* Subtle lift and glow on hover */
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 255, 133, 0.2); /* Soft neon glow */
+}
+
+/* Dark Mode Adjustment for Cards (Already set in root for card-bg) */
+body.light-mode .content-section {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); 
+    border: 1px solid var(--border);
+}
+
+
+/* LIST DETAILS */
+ul {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-left: 0;
+    list-style: none; 
+}
+
+li {
+    margin-bottom: 8px; 
+}
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- MODIFIED: STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS (DATA ROWS) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+#standings-list div,
+#price-changes-list div,
+#most-transferred-list div,
+#most-transferred-out-list div,
+#most-captained-list div {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    font-size: 14px; /* Increased font size */
+    padding: 12px 10px; /* Increased vertical padding and added horizontal padding */
+    margin-bottom: 0; 
+    background: transparent; 
+    border: none; 
+    border-radius: 0; 
+    
+    border-bottom: 1px solid var(--border); 
+    transition: background-color var(--transition-speed); /* Smooth transition */
+}
+
+/* NEW: Subtle hover effect on data rows */
+#standings-list div:hover,
+#price-changes-list div:hover,
+#most-transferred-list div:hover,
+#most-transferred-out-list div:hover,
+#most-captained-list div:hover {
+    transform: none;
+    background: var(--top-nav-search-bg); /* Use a darker color for hover */
+    cursor: pointer;
+}
+
+#standings-list div:last-child,
+#price-changes-list div:last-child,
+#most-transferred-list div:last-child,
+#most-transferred-out-list div:last-child,
+#most-captained-list div:last-child {
+    border-bottom: none;
+    padding-bottom: 12px; 
+}
+
+.rank-number {
+    font-weight: 700;
+    width: 30px; 
+    color: var(--accent);
+    text-align: left;
+}
+
+.manager-name {
+    flex-grow: 1; 
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    padding: 0 15px; /* Increased padding */
+    font-weight: 600;
+}
+
+.rank-change {
+    font-weight: 700;
+    width: 50px; 
+    text-align: right;
+    font-size: 14px; 
+}
+
+
+/* --- FPL DATA HEADERS --- */
+#price-changes-list h3,
+#most-transferred-list h3,
+#most-transferred-out-list h3,
+#most-captained-list h3,
+#fixtures-list h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 15px 0 20px 0;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+#price-changes-list {
+    padding-top: 5px; 
+}
+
+.price-riser {
+    border-left: 5px solid var(--success) !important;
+}
+.price-faller {
+    border-left: 5px solid var(--danger) !important;
+}
+.transferred-out {
+    border-right: 5px solid var(--danger);
+}
+
+
+/* --- FIXTURES SCORE/STATUS STYLES --- */
+#fixtures-list p {
+    text-align: center;
+    color: var(--subtext);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+#fixtures-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#fixtures-list li {
+    display: flex;
+    flex-direction: column; 
+    padding: 10px 15px; 
+    margin-bottom: 0; 
+    background: transparent; 
+    border-radius: 0; 
+    border: none; 
+    border-bottom: 1px solid var(--border); 
+    font-weight: 600;
+    font-size: 14px; 
+    transition: all .2s;
+    position: relative; 
+}
+
+#fixtures-list li:last-child {
+    border-bottom: none;
+}
+
+.fixture-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.match-status-tag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-top-right-radius: var(--radius); 
+    border-bottom-left-radius: var(--radius);
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--bg); /* Dark text on bright status background */
+}
+
+/* --- FIXTURE DETAILS (GOALS/ASSISTS/CARDS) STYLES --- */
+.fixture-details {
+    width: 100%;
+    margin-top: 10px; 
+    padding-top: 8px; 
+    border-top: 1px dashed var(--border);
+    font-size: 12px; 
+    line-height: 1.5; 
+    color: var(--subtext);
+    padding-bottom: 2px; 
+}
+
+
+/* --- EPL TABLE STYLES --- (Retaining Structure) */
+#epl-table-list {
+    overflow-x: auto; 
+}
+
+#epl-table-list table {
+    width: 100%;
+    border-collapse: separate; 
+    border-spacing: 0 8px; /* Increased spacing */
+    font-size: 14px;
+    text-align: center;
+}
+
+#epl-table-list th, 
+#epl-table-list td {
+    padding: 12px 6px;
+    white-space: nowrap;
+}
+
+/* Zone Highlighting */
+.champions-league td:first-child { border-left: 5px solid var(--blue-cl); }
+.europa-league td:first-child { border-left: 5px solid var(--orange-el); }
+.relegation-zone td:first-child { border-left: 5px solid var(--red-rl); }
+
+
+/* --- UTILITY CLASSES --- */
+.highlight-accent {
+    color: var(--accent);
+    font-weight: bold;
+}
+.price-riser {
+    color: var(--success);
+    font-weight: bold;
+}
+.price-faller {
+    color: var(--danger);
+    font-weight: bold;
+}
+.minutes-played {
+    font-weight: 500; 
+    color: var(--subtext); 
+    font-size: 13px;
+    white-space: nowrap; 
+    margin-left: 8px; 
+}
+
+/* --- COUNTDOWN TIMER STYLES --- */
+.countdown-title {
+    color: var(--accent);
+    text-shadow: 0 0 5px rgba(0, 255, 133, 0.5); /* Subtle neon glow */
+    margin-bottom: 10px;
+}
+.countdown-display {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    padding: 10px 0;
+}
+
+
+/* --- LOADER STYLES (High-End Spinners) --- */
+.loader {
+    border: 4px solid var(--border);
+    border-top: 4px solid var(--accent); /* Neon accent color for the spinner */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+/* --- SCROLL TO TOP BUTTON --- */
+#backToTop {
+    position: fixed;
+    bottom: 100px; /* Elevated to clear the new mobile nav */
+    right: 20px; 
+    background: var(--primary-action); 
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 45px; 
+    height: 45px; 
+    font-size: 22px; 
+    display: none; 
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 999;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
+    transition: background 0.3s, transform 0.25s, box-shadow 0.3s;
+}
+#backToTop:hover {
+    background: var(--primary-action-hover);
+    transform: scale(1.05);
+}
+
+/* --- THEME TOGGLE BUTTON --- */
+#themeToggle {
+    position: fixed;
+    top: 20px; 
+    right: 20px; 
+    background: var(--card-bg); 
+    color: var(--text); 
+    border: 1px solid var(--border);
+    padding: 8px 12px; 
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 16px; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3); 
+    transition: all var(--transition-speed);
+    z-index: 999;
+}
+#themeToggle:hover {
+    transform: scale(1.05);
+    background: var(--top-nav-search-bg);
+}
+
+/* --- FOOTER STYLES --- */
+footer {
+    padding: 30px 20px;
+    margin-top: 50px;
+    border-top: 1px solid var(--border); 
+    text-align: center;
+    font-size: 0.9em;
+    color: var(--subtext);
+    width: 100%;
+}
+footer .social-links {
+    margin: 15px 0;
+}
+footer .social-links a {
+    color: var(--subtext);
+    font-size: 18px;
+    margin: 0 10px;
+    transition: color 0.2s;
+}
+footer .social-links a:hover {
+    color: var(--accent);
+}
+.disclaimer {
+    margin-top: 10px;
+    font-size: 0.75em;
+}
+
+/* ------------------------------------------------ */
+/* --- MODIFIED NAVIGATION STYLES (PREMIUM LOOK) --- */
+/* ------------------------------------------------ */
+
+#top-nav-bar,
+#bottom-nav-bar {
+    width: 100%;
+    position: sticky; 
+    z-index: 900;
+    margin-bottom: 0; 
+    border-radius: 0;
+    border: none;
+    padding: 0;
+}
+
+#top-nav-bar {
+    top: 0;
+    background-color: var(--top-nav-bg); 
+    padding: 10px 0; 
+    height: 50px; 
+}
+#bottom-nav-bar {
+    top: 50px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+    background-color: var(--nav-bg); 
+    height: 60px; 
+    border-bottom: 2px solid var(--accent); 
+}
+
+.nav-container {
+    max-width: 1200px; 
+    margin: 0 auto; 
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    padding-left: 20px; 
+    padding-right: 20px; 
+    height: 100%; 
+}
+
+/* --- TOP BAR ELEMENTS --- */
+.social-icons a {
+    color: var(--subtext); 
+    font-size: 18px; 
+    transition: color 0.2s;
+}
+.social-icons a:hover {
+    color: var(--accent); 
+}
+
+.search-btn, .signin-btn {
+    background-color: var(--primary-action); 
+    color: #fff;
+    border: none;
+    border-radius: 8px; 
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    height: 38px; 
+    transition: background-color 0.2s;
+}
+
+.search-btn:hover, .signin-btn:hover {
+    background-color: var(--primary-action-hover);
+}
+
+.search-btn i {
+    margin-right: 5px;
+}
+
+/* --- BOTTOM BAR ELEMENTS (Main Nav - Used for links in older HTML) --- */
+.fpl-logo {
+    color: var(--accent);
+    font-size: 24px; 
+    font-weight: 900;
+    line-height: 1.1;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.main-links {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    height: 100%; 
+    align-items: center; 
+}
+
+.main-links li {
+    margin: 0; 
+}
+
+.main-links a {
+    color: var(--text);
+    text-decoration: none;
+    padding: 0 20px; 
+    font-size: 15px;
+    font-weight: 600;
+    height: 100%; 
+    display: flex;
+    align-items: center; 
+    transition: background-color 0.2s;
+}
+
+.main-links a:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: var(--accent);
+}
+
+/* ------------------------------------------------ */
+/* --- DESKTOP TOP NAV REVAMP (#new-top-nav-desktop) --- */
+/* ------------------------------------------------ */
+
+#new-top-nav-desktop {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 950;
+    background: var(--nav-bg);
+    padding: 0;
+    height: 90px;
+    border-bottom: 2px solid var(--accent);
+    display: none; 
+}
+@media (min-width: 1024px) {
+    #new-top-nav-desktop {
+        display: block; /* Show on desktop */
+    }
+}
+
+.desktop-logo-container {
+    position: absolute; 
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    width: 80px;
+    height: 80px;
+    z-index: 960;
+    top: 50%; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.desktop-logo-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+    background: var(--primary-action); 
+    border: 5px solid var(--accent); 
+    color: white !important; 
+    font-size: 36px;
+    font-weight: 900;
+    text-decoration: none !important;
+    line-height: 1;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Menu and Sign In Buttons */
+.nav-btn {
+    background-color: var(--primary-action);
+    color: #fff;
+    border: none;
+    border-radius: 50px; 
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s, transform 0.1s;
+    line-height: 1;
+    height: 40px;
+}
+
+.nav-btn:hover {
+    background-color: var(--primary-action-hover);
+    transform: scale(1.02);
+}
+
+.desktop-user-actions .nav-btn {
+    padding-left: 10px;
+}
+
+.user-profile-orb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    /* Rainbow gradient, or use a solid accent color for simplicity */
+    background: var(--accent); 
+    margin-right: 5px;
+    box-shadow: 0 0 5px rgba(0, 255, 133, 0.7);
+}
+
+
+/* ------------------------------------------------ */
+/* --- OFF-CANVAS MENU STYLES --- */
+/* ------------------------------------------------ */
+
+.off-canvas-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px; 
+    height: 100%;
+    background-color: var(--card-bg); 
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.4);
+    transform: translateX(-100%); 
+    transition: transform 0.3s ease-out;
+    z-index: 1000;
+    padding: 20px;
+    display: none; 
+    flex-direction: column;
+}
+
+.off-canvas-menu.open {
+    transform: translateX(0); 
+    display: flex; 
+}
+
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 10px;
+}
+
+.menu-header h3 {
+    margin: 0;
+    color: var(--text);
+    font-size: 20px;
+}
+
+.off-canvas-menu .close-btn {
+    background: none;
+    color: var(--subtext);
+    border: none;
+    font-size: 24px;
+    padding: 0;
+    height: initial;
+    transition: color 0.2s;
+}
+.off-canvas-menu .close-btn:hover {
+    color: var(--danger);
+}
+
+.off-canvas-menu .nav-links-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+    flex-grow: 1;
+}
+
+.off-canvas-menu .nav-links-list a {
+    display: flex;
+    align-items: center;
+    padding: 15px 10px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 500;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.off-canvas-menu .nav-links-list a:hover {
+    background-color: var(--border);
+    color: var(--accent);
+}
+
+.off-canvas-menu .nav-links-list i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+    color: var(--primary-action); 
+    font-size: 18px;
+}
+
+.menu-footer {
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+#themeToggleMenu {
+    background: var(--accent);
+    color: var(--card-bg);
+    border: none;
+    width: 100%;
+    justify-content: center;
+}
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 📱 DYNAMIC MOBILE BOTTOM NAV BAR STYLES (PILL EFFECT) 📱 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+#bottom-nav {
+    display: flex; 
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70px; /* Taller */
+    background: var(--nav-bg); 
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
+    z-index: 980;
+    padding: 0 5px;
+}
+
+/* Default: Hide the new bottom nav on desktop screens */
+@media (min-width: 1024px) {
+    #bottom-nav {
+        display: none; 
+    }
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--subtext);
+    font-size: 11px;
+    font-weight: 600;
+    width: 20%;
+    height: 60px;
+    position: relative;
+    transition: color 0.3s;
+}
+
+.nav-item i {
+    font-size: 20px; 
+    margin-bottom: 4px;
+    transition: all 0.3s;
+}
+
+.nav-highlight {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; 
+    height: 60px;
+    background-color: var(--accent);
+    border-radius: 40px; 
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Spring-like transition */
+    z-index: -1;
+}
+
+/* Active/Hover State */
+.nav-item.active .nav-highlight,
+.nav-item:hover .nav-highlight {
+    width: 90%; 
+    opacity: 1;
+}
+
+.nav-item.active,
+.nav-item:hover {
+    color: var(--card-bg); /* Text color 
