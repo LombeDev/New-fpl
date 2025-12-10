@@ -1012,3 +1012,240 @@ if (backToTopButton) {
         });
     });
 }
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- 1. THEME TOGGLE LOGIC ---
+    
+    const themeToggle = document.getElementById('themeToggle');
+    const themeToggleMenu = document.getElementById('themeToggleMenu');
+    
+    // Check local storage for theme preference
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme) {
+        document.body.classList.add(currentTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // Fallback to system preference if no local preference is set
+        document.body.classList.add('dark-mode');
+    }
+
+    // Function to handle the toggle action
+    const toggleTheme = () => {
+        const isDarkMode = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', isDarkMode ? 'dark-mode' : 'light-mode');
+        
+        // Update the button text/icon for better feedback if needed
+        if (themeToggle) {
+             themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+        }
+    };
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+    }
+    if (themeToggleMenu) {
+        themeToggleMenu.addEventListener('click', toggleTheme);
+    }
+
+    
+    // --- 2. DESKTOP/MOBILE MENU LOGIC ---
+    
+    const menuToggleBtn = document.getElementById('menu-toggle-btn');
+    const closeMenuBtn = document.getElementById('close-menu-btn');
+    const desktopNavMenu = document.getElementById('desktop-nav-menu');
+    const pageWrapper = document.getElementById('page-wrapper');
+    const mainContent = document.querySelector('main');
+
+    // Function to check if the current screen is considered desktop (matching CSS @media)
+    const isDesktop = () => {
+        return window.innerWidth >= 1024;
+    };
+    
+    // Function to open the menu
+    const openMenu = () => {
+        if (isDesktop()) {
+            // Desktop: Toggle the class on the page wrapper/main content to shift the layout
+            // Since the sidebar is FIXED on desktop, we use a class to manage its visibility 
+            // and the main content's margin/position for a smooth effect.
+            // However, based on the CSS provided, the sidebar is permanently visible on desktop (FIXED).
+            // Let's adapt the JS to simply handle the OFF-CANVAS behavior on MOBILE.
+            // On desktop, the menu button can act as a way to "pin/unpin" it if desired, 
+            // but for simplicity with the current CSS, we'll focus the toggle on mobile.
+            
+            // If you want a desktop toggle for the fixed sidebar, you would add classes 
+            // like 'sidebar-collapsed' to the body/wrapper and update the sidebar/main CSS margins.
+            
+            // For now, let's just make the menu appear and disappear if you want to reuse the
+            // same component for a toggleable desktop sidebar, although the current CSS keeps it fixed.
+            
+            // Re-enabling the off-canvas class for consistency if you want it to toggle in/out
+            // even on desktop, though the CSS makes it fixed at 1024px.
+            desktopNavMenu.classList.toggle('open');
+            mainContent.classList.toggle('menu-open-desktop'); // Use a custom class for visual shift
+            
+        } else {
+            // Mobile: Standard off-canvas slide in
+            desktopNavMenu.classList.add('open');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+    };
+    
+    // Function to close the menu
+    const closeMenu = () => {
+        desktopNavMenu.classList.remove('open');
+        mainContent.classList.remove('menu-open-desktop'); // Remove desktop visual shift class
+        document.body.style.overflow = ''; // Restore background scrolling
+    };
+
+    if (menuToggleBtn) {
+        menuToggleBtn.addEventListener('click', openMenu);
+    }
+
+    if (closeMenuBtn) {
+        closeMenuBtn.addEventListener('click', closeMenu);
+    }
+    
+    // Close menu when a link is clicked (useful on mobile)
+    document.querySelectorAll('.nav-links-list a').forEach(link => {
+        link.addEventListener('click', (event) => {
+            // Check if the screen is mobile/tablet before closing immediately
+            if (!isDesktop()) { 
+                closeMenu();
+            }
+        });
+    });
+    
+    // Ensure the menu is visually correct on resize/load (handles desktop fixed state)
+    const handleResize = () => {
+        if (isDesktop()) {
+             // On desktop, the CSS should handle the fixed position.
+             // We ensure the mobile 'open' state is removed to avoid conflict.
+             desktopNavMenu.classList.remove('open');
+             document.body.style.overflow = '';
+             
+             // The menu display property is controlled by CSS, so we don't interfere with it here.
+        } 
+        // Note: For a fixed sidebar, the 'desktop-nav-menu' should not be toggled, 
+        // but since you requested 'opening and closing', I've kept the toggle. 
+        // If you only want the fixed sidebar, remove the openMenu/closeMenu logic above and below 1024px.
+    };
+    
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial check on load
+    
+    
+    // --- 3. BACK TO TOP BUTTON LOGIC ---
+    
+    const backToTopButton = document.getElementById('backToTop');
+
+    window.addEventListener('scroll', () => {
+        if (backToTopButton) {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                backToTopButton.style.display = 'flex';
+            } else {
+                backToTopButton.style.display = 'none';
+            }
+        }
+    });
+
+    if (backToTopButton) {
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+
+    // --- 4. MOBILE BOTTOM NAV HIGHLIGHT LOGIC ---
+    
+    const navItems = document.querySelectorAll('#bottom-nav .nav-item');
+    const sections = document.querySelectorAll('.content-section');
+
+    const updateActiveNav = () => {
+        let currentSectionId = '';
+        const scrollPosition = window.scrollY + 100; // Add an offset
+
+        sections.forEach(section => {
+            if (section.offsetTop <= scrollPosition) {
+                currentSectionId = section.id;
+            }
+        });
+
+        navItems.forEach(item => {
+            const itemId = item.getAttribute('data-id');
+            const highlightInfo = item.querySelector('.highlight-info');
+            
+            if (itemId === currentSectionId) {
+                item.classList.add('active');
+                // Optional: Update the text in the pill based on the section
+                highlightInfo.textContent = item.querySelector('.nav-text').textContent;
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    };
+
+    window.addEventListener('scroll', updateActiveNav);
+    window.addEventListener('load', updateActiveNav);
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = item.getAttribute('data-id');
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 70, // Scroll slightly above the section
+                    behavior: 'smooth'
+                });
+            }
+            // If it's the 'More' button, open the modal (handled below)
+        });
+    });
+    
+    // --- 5. MORE OPTIONS MODAL LOGIC (Mobile) ---
+    const moreOptionLink = document.querySelector('.nav-item[data-id="more-options"]');
+    const moreOptionsModal = document.getElementById('more-options-modal');
+    const closeModalBtns = document.querySelectorAll('#close-modal-btn, #close-modal-footer-btn');
+
+    if (moreOptionLink) {
+        moreOptionLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (moreOptionsModal) {
+                moreOptionsModal.classList.add('open');
+                document.body.classList.add('modal-open');
+            }
+        });
+    }
+
+    if (moreOptionsModal) {
+        // Function to close the modal
+        const closeModal = () => {
+            moreOptionsModal.classList.remove('open');
+            document.body.classList.remove('modal-open');
+        };
+
+        // Close on button clicks
+        closeModalBtns.forEach(btn => btn.addEventListener('click', closeModal));
+
+        // Close when clicking outside the modal content
+        moreOptionsModal.addEventListener('click', (e) => {
+            if (e.target === moreOptionsModal) {
+                closeModal();
+            }
+        });
+
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && moreOptionsModal.classList.contains('open')) {
+                closeModal();
+            }
+        });
+    }
+});
