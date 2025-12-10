@@ -131,12 +131,6 @@ header h2 {
 /* --- OVERRIDE: SECTIONS STANDARD CARD STYLE with Quiz Look --- */
 /* Target the .content-section class used in your HTML */
 .content-section {
-    /*
-        NEW STYLE: Match the highly visible, distinct card look
-        from the quiz, ensuring a lift effect over the body background.
-    */
-    background-color: var(--bg); /* Use main BG for high contrast "float" in light mode */
-    
     /* ➡️ VERY SMALL PADDING (Base size for mobile) - KEEPING ORIGINAL */
     padding: 12px;
     
@@ -1134,6 +1128,117 @@ body.modal-open {
     section::-webkit-scrollbar-thumb:hover {
         background: var(--red-light); /* FPL red light on hover */
     }
+
+
+    /* --- START: DESKTOP SIDEBAR INTEGRATION (1024px+) --- */
+    
+    /* ---------------------------------------------------- */
+    /* 4. TRANSFORM OFF-CANVAS MENU INTO FIXED SIDEBAR */
+    /* ---------------------------------------------------- */
+    
+    #desktop-nav-menu {
+        /* CRITICAL: Override mobile/off-canvas positioning */
+        display: flex !important;
+        transform: translateX(0) !important;
+        
+        /* Positioning and Sizing for Sidebar */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px; /* Fixed width for the sidebar */
+        height: 100vh;
+        z-index: 990; /* High Z-index but below the modal (1001) */
+        
+        /* Styling using theme variables */
+        background-color: var(--card-bg); /* Use card-bg for the sidebar */
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px 0; /* Adjust overall padding (content below) */
+        overflow-y: auto; /* Allow scrolling for long menu content */
+    }
+
+    /* ---------------------------------------------------- */
+    /* 5. ADJUST MAIN CONTENT FOR SIDEBAR OFFSET */
+    /* ---------------------------------------------------- */
+    
+    main {
+        /* Push the main content container to the right */
+        margin-left: 300px; /* 280px (sidebar width) + 20px (gap/padding) */
+        
+        /* Adjust max-width of the grid to fit the remaining space */
+        max-width: calc(100% - 300px); 
+        
+        /* Reset grid columns for remaining space */
+        grid-template-columns: 1fr 1fr 1fr;
+        padding-top: 20px; /* Add some top padding */
+    }
+    
+    /* ---------------------------------------------------- */
+    /* 6. HIDE OR INTEGRATE TOP BAR ELEMENTS */
+    /* ---------------------------------------------------- */
+
+    /* Hide the entire top navigation bar as the menu is now on the side */
+    #new-top-nav-desktop {
+        display: none !important; 
+    }
+    
+    /* Hide the close button in the sidebar since it's always open */
+    #desktop-nav-menu .close-btn {
+        display: none !important;
+    }
+    
+    /* Reposition and restyle the sidebar content */
+    
+    /* Adjust header in sidebar for better spacing */
+    .off-canvas-menu .menu-header {
+        padding: 0 20px 15px 20px;
+        margin-bottom: 15px;
+        /* Ensure the Navigation title is still visible */
+        justify-content: flex-start;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    /* Style the links for a cleaner look */
+    .off-canvas-menu .nav-links-list {
+        padding: 0 10px;
+        flex-grow: 1; /* Allow list to push the footer down */
+    }
+    
+    .off-canvas-menu .nav-links-list a {
+        border-bottom: none; /* Remove bottom border */
+        border-radius: 6px; /* Pill effect like the Netlify example */
+        padding: 12px 15px; /* Tidy up padding */
+    }
+
+    .off-canvas-menu .nav-links-list a:hover {
+        /* Use a light accent color for hover */
+        background-color: var(--border); 
+    }
+    
+    /* Make the menu footer fixed to the bottom of the sidebar */
+    .menu-footer {
+        position: sticky;
+        bottom: 0;
+        width: 100%;
+        padding: 20px;
+        border-top: 1px solid var(--border);
+        background-color: var(--card-bg); /* Ensure it floats cleanly over the scroll area */
+    }
+    
+    /* Reset sections that were set to span all columns by default */
+    /* This ensures they follow the grid template unless specifically set to span. */
+    #standings, #general-leagues-container, #fixtures-list, 
+    #price-changes-list, #most-transferred-list, 
+    #most-transferred-out-list, #most-captained-list, 
+    #deadline-section { 
+        grid-column: initial;
+    }
+
+    /* Keep the EPL table spanning the grid */
+    #epl-table-list {
+        grid-column: 1 / -1; 
+    }
+
+    /* --- END: DESKTOP SIDEBAR INTEGRATION (1024px+) --- */
 }
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
@@ -1166,7 +1271,7 @@ body.modal-open {
     
     /* 3. Tighten Bottom Nav Link Padding and Font Size */
     /* NOTE: This block only affects the old, hidden #bottom-nav-bar. 
-        The new #bottom-nav uses its own mobile styles above. */
+         The new #bottom-nav uses its own mobile styles above. */
     .main-links {
         gap: 2px; 
     }
@@ -1231,114 +1336,38 @@ body.modal-open {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1000; 
-    
-    /* Overlay background: slightly transparent version of the main background */
-    background-color: var(--bg);
-    
-    /* Centering content (h1, p, loader) */
+    background-color: rgba(0, 0, 0, 0.7); 
     display: flex;
-    flex-direction: column; /* Stack h1, p, loader vertically */
     justify-content: center;
     align-items: center;
-    
-    /* Ensure text is visible and styled */
-    color: var(--text);
-    text-align: center;
-    
-    /* Smooth transition for hiding/showing (controlled by JS) */
+    z-index: 10000; 
+    opacity: 0; 
+    visibility: hidden; 
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+#loading-overlay.visible {
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.5s ease-out, visibility 0.5s;
 }
 
-/* 1b. Style the text within the overlay */
-#loading-overlay h1 {
-    /* Use an accent color for the main title */
-    color: var(--accent);
-    margin-bottom: 5px;
-}
-
-
-#loading-overlay p {
-    color: var(--subtext);
-    margin-bottom: 30px; /* Space between text and loader */
-}
-
-
-/* Class to hide the loader when content is ready (controlled by JavaScript) */
-#loading-overlay.hidden {
-    opacity: 0;
-    visibility: hidden;
-    /* Optional: prevents interaction with the area once faded */
-    pointer-events: none; 
-}
-
-
-/* 2. The Actual Loader Spinner Element (Your class is .loader) */
+/* 2. The Loader Animation */
 .loader {
-    /* FPL Themed Spinner using your custom colors */
-    width: 15px;
-    height: 15px;
-    border: 3px solid transparent;
+    width: 48px;
+    height: 48px;
+    border: 5px solid var(--text);
+    border-bottom-color: var(--accent);
     border-radius: 50%;
-    
-    /* Use custom loader colors from your :root variables */
-    border-top-color: var(--accent);
-    border-right-color: var(--loader-color-2);
-    border-bottom-color: var(--loader-color-3);
-    
-    /* Start the animation */
-    animation: spin-complex 1.5s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
 }
 
-/* 3. Keyframes for the Spinning Animation */
-@keyframes spin-complex {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-
-
-/* Styling for the list of individual leagues within the General Leagues section */
-.general-league-item {
-    margin-bottom: 10px;
-    border-radius: 8px;
-    background-color: var(--secondary-card-background, #f0f0f0);
-}
-
-/* Header for each individual league (clickable) */
-.general-league-header {
-    padding: 10px 15px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-radius: 8px;
-    font-size: 1.1em;
-    font-weight: bold;
-    color: var(--text-color);
-    transition: background-color 0.2s ease;
-}
-
-.general-league-header:hover {
-    background-color: var(--hover-background, #e5e5e5);
-}
-
-/* Container for the actual standing list - initially hidden */
-.league-standings-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
-}
-
-/* Class to make the standings visible */
-.league-standings-content.visible {
-    max-height: 500px; /* Adjust this value as needed, must be large enough to contain all content */
-    padding: 10px 15px;
-}
-
-/* Remove bottom border from the provided content section */
-.league-standings-content.visible .standings-list-general li:last-child {
-    border-bottom: none;
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
