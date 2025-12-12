@@ -924,3 +924,85 @@ function processDeadlineDisplay(data) {
         `;
     }, 1000);
 }
+
+
+
+
+
+
+
+/**
+ * Dynamically updates the text content of the fixed mobile header 
+ * based on which content section is currently visible in the viewport.
+ */
+function updateMobileHeaderTitle() {
+    // 1. Get DOM elements
+    const mobileHeaderTitle = document.getElementById('mobile-current-section');
+    const sections = document.querySelectorAll('.content-section');
+    
+    // Set a default title for the top of the page
+    let currentSectionName = "Dashboard"; 
+
+    // Get the current scroll position
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
+    
+    // Define the offset needed to account for the fixed mobile header height.
+    // Assuming the mobile header height is approximately 50px-60px.
+    const offset = 60; 
+    
+    // 2. Loop through sections to find the one in view
+    sections.forEach(section => {
+        
+        // Check if the current scroll position is within the bounds of this section.
+        // We use the offset to make the title change *before* the section header 
+        // hits the bottom of the fixed mobile header.
+        if (
+            scrollY >= section.offsetTop - offset &&
+            scrollY < section.offsetTop + section.offsetHeight - offset
+        ) {
+            
+            // 3. Determine the name to display
+            const sectionH2 = section.querySelector('h2');
+            
+            if (sectionH2 && sectionH2.dataset.navName) {
+                // Use the explicit name defined in the H2's data-nav-name attribute
+                currentSectionName = sectionH2.dataset.navName;
+            } else {
+                // Fallback: Use the section's ID, formatted nicely (e.g., "price-changes-list" -> "Price Changes List")
+                currentSectionName = section.id
+                    .replace(/-/g, ' ')
+                    .replace(/\b\w/g, char => char.toUpperCase());
+            }
+        }
+    });
+
+    // 4. Update the mobile header text
+    if (mobileHeaderTitle) {
+        mobileHeaderTitle.textContent = currentSectionName;
+    }
+}
+
+// 5. Initialize the function and attach listeners
+
+// Event listener for the scroll action
+window.addEventListener('scroll', updateMobileHeaderTitle);
+
+// Event listener for screen resize (important if the mobile header appears/disappears)
+window.addEventListener('resize', updateMobileHeaderTitle);
+
+// Run on page load to set the initial title correctly
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Add logic to open the mobile menu modal when the new search button is clicked
+    const openMobileSearchBtn = document.getElementById('openMobileSearchBtn');
+    const mobileMenuModal = document.getElementById('mobile-menu-modal');
+
+    if (openMobileSearchBtn && mobileMenuModal) {
+        openMobileSearchBtn.addEventListener('click', () => {
+            mobileMenuModal.style.display = 'flex';
+        });
+    }
+
+    // Set initial title when the DOM content is fully loaded
+    updateMobileHeaderTitle();
+});
