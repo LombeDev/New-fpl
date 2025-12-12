@@ -10,77 +10,6 @@
     <link rel="icon" type="image/png" href="favicon.png"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <style>
-        /* This is the CSS for the new Mobile Header and some adjustments */
-        :root {
-            --header-height: 50px; /* Define a variable for the new mobile header height */
-            --primary-color: #8b5cf6; /* Use a variable based on your existing style */
-            --background-color: #0a0a0b; 
-        }
-
-        #mobile-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: var(--header-height);
-            background: var(--background-color); /* Matches body background */
-            color: #fafafa;
-            display: none; /* Hidden by default, shown via media query */
-            align-items: center;
-            padding: 0 1rem;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            z-index: 999; /* Ensure it stays above everything */
-            justify-content: space-between;
-        }
-
-        #mobile-header .current-nav-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary-color); /* Highlight the current name */
-        }
-        
-        #mobile-header .current-nav-name span {
-            /* Text that fades in/out with the scroll position */
-            opacity: 0; 
-            transition: opacity 0.2s ease-in-out;
-        }
-
-        /* Adjustments for Mobile View */
-        @media (max-width: 768px) {
-            #mobile-header {
-                display: flex; /* Show the fixed header on small screens */
-            }
-            
-            #top-nav-bar {
-                /* Hide the desktop nav bar on mobile */
-                display: none; 
-            }
-            
-            main {
-                /* Push main content down to account for the fixed mobile header */
-                padding-top: var(--header-height);
-            }
-            
-            /* Make sure the bottom nav bar is always visible on mobile */
-            #bottom-nav {
-                display: flex; /* Assuming your style.css already makes this fixed bottom */
-            }
-        }
-        
-        /* Ensure the desktop nav bar is visible on larger screens */
-        @media (min-width: 769px) {
-            #top-nav-bar {
-                display: block;
-            }
-            #bottom-nav {
-                display: none !important;
-            }
-            main {
-                padding-top: 0; /* No need for padding on desktop */
-            }
-        }
-    </style>
 </head>
 <body>
 
@@ -112,10 +41,6 @@
     </div>
 </div>
 
-<header id="mobile-header">
-    <div class="current-nav-name">KOPALA FPL - <span id="mobile-current-section">Dashboard</span></div>
-    <button class="search-btn" id="openMobileSearchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
-</header>
 <main>
 <div id="mobile-menu-modal" class="fpl-modal-base">
     <div class="modal-content">
@@ -145,8 +70,15 @@
     </div>
 </div>
 
-<section id="standings" class="lazy content-section"> 
-    <h2 data-nav-name="League Rank">🏆 Kopala FPL</h2>
+<nav id="bottom-nav">
+    <a href="#" class="nav-item" id="openMobileMenuBtn">
+        <span class="nav-highlight"></span>
+        <i class="fas fa-bars"></i>
+        <span>More</span>
+    </a>
+</nav>
+  <section id="standings" class="lazy content-section"> 
+    <h2>🏆 Kopala FPL</h2>
     <div id="standings-list">
       <div style="text-align: center; padding: 20px 0;">
         <div class="loader"></div>
@@ -157,7 +89,7 @@
   
   <section id="general-leagues-container" class="lazy fpl-section content-section">
     <div class="collapsible-header" id="toggleGeneralLeagues">
-        <h2 data-nav-name="General Leagues" style="display: inline-block; margin-right: 10px;">🌍 General Leagues</h2>
+        <h2 style="display: inline-block; margin-right: 10px;">🌍 General Leagues</h2>
         <i class="fa-solid fa-chevron-down toggle-icon"></i> 
     </div>
     
@@ -170,32 +102,32 @@
   </section>
   
   <section id="fixtures-list" class="lazy content-section">
-    <h2 data-nav-name="Fixtures">⚽ Fixtures</h2>
+    <h2>⚽ Fixtures</h2>
     <div id="fixtures-list-content"><div class="loader"></div></div>
   </section>
 
   <section id="price-changes-list" class="lazy content-section">
-    <h2 data-nav-name="Price Changes">📈 Price Changes</h2>
+    <h2>📈 Price Changes</h2>
     <div id="price-changes-list-content"><div class="loader"></div></div>
   </section>
 
   <section id="most-transferred-list" class="lazy content-section">
-    <h2 data-nav-name="Transfers In">➡️ Transfers In</h2>
+    <h2>➡️ Transfers In</h2>
     <div id="most-transferred-list-content"><div class="loader"></div></div>
   </section>
 
   <section id="most-transferred-out-list" class="lazy content-section">
-    <h2 data-nav-name="Transfers Out">⬅️ Transfers Out</h2>
+    <h2>⬅️ Transfers Out</h2>
     <div id="most-transferred-out-list-content"><div class="loader"></div></div>
   </section>
   
   <section id="most-captained-list" class="lazy content-section">
-    <h2 data-nav-name="Captains">©️ Captains</h2>
+    <h2>©️ Captains</h2>
     <div id="most-captained-list-content"><div class="loader"></div></div>
   </section>
 
   <section id="deadline-section" class="fpl-section content-section">
-    <h2 data-nav-name="Deadline">Loading Deadline...</h2>
+    <h2 class="countdown-title">Loading Deadline...</h2>
     
     <div id="countdown-timer" class="countdown-display">
         <p>Fetching next deadline time...</p>
@@ -206,40 +138,57 @@
 
 
 <nav id="bottom-nav">
-    <a href="#standings" class="nav-item" data-id="standings" data-nav-name="Rank">
+    <a href="#standings" class="nav-item" data-id="standings">
         <i class="fas fa-trophy"></i> <span class="nav-text">Rank</span>
         <div class="nav-highlight">
             <span class="highlight-info" data-info="standings"></span>
         </div>
     </a>
-    <a href="#price-changes-list" class="nav-item" data-id="price-changes-list" data-nav-name="Prices">
+    <a href="#price-changes-list" class="nav-item" data-id="price-changes-list">
         <i class="fas fa-tag"></i> <span class="nav-text">Prices</span>
         <div class="nav-highlight">
             <span class="highlight-info" data-info="price-changes-list"></span>
         </div>
     </a>
-    <a href="#most-transferred-list" class="nav-item" data-id="most-transferred-list" data-nav-name="Transfers">
+    <a href="#most-transferred-list" class="nav-item" data-id="most-transferred-list">
         <i class="fas fa-people-arrows"></i> <span class="nav-text">Transfers</span>
         <div class="nav-highlight">
             <span class="highlight-info" data-info="most-transferred-list"></span>
         </div>
     </a>
-    <a href="wrapped.html" class="nav-item" data-id="gw-wrapped" data-nav-name="GW Wrapped">
-        <i class="fas fa-gift"></i> <span class="nav-text">GW Wrapped</span>
-        <div class="nav-highlight">
-            <span class="highlight-info" data-info="gw-wrapped"></span>
-        </div>
-    </a>
-    <a href="more.html" class="nav-item" data-id="more-options" data-nav-name="More">
+    <a href="more.html" class="nav-item" data-id="more-options">
         <i class="fas fa-ellipsis-h"></i> <span class="nav-text">More</span>
         <div class="nav-highlight">
             <span class="highlight-info" data-info="more-options"></span>
         </div>
     </a>
+    <a href="wrapped.html" class="nav-item" data-id="most-captained-list">
+        <i class="fas fa-trophy"></i> <span class="nav-text">GW Wrapped</span>
+        <div class="nav-highlight">
+            <span class="highlight-info" data-info="most-captained-list"></span>
+        </div>
+    </a>
 </nav>
 
 <div id="more-options-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>More Options</h3>
+            <button id="close-modal-btn" class="close-btn"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <ul class="modal-options-list">
+            <li><a href="more.html"><i class="fas fa-tools"></i> Tools Page</a></li>
+            <li><a href="#epl-table-list" class="modal-link"><i class="fas fa-list-ol"></i> EPL Table</a></li> 
+            <li><a href="#" id="toggle-theme-modal-btn"><i class="fas fa-moon"></i> Toggle Dark Mode</a></li>
+            <li><a href="#"><i class="fas fa-info-circle"></i> About / Disclaimer</a></li>
+        </ul>
+        
+        <div class="modal-footer">
+            <button id="close-modal-footer-btn" class="close-btn-lg">Close</button>
+        </div>
     </div>
+</div>
 
 
 <button id="backToTop" title="Scroll Up">
@@ -247,7 +196,13 @@
 </button>
 
 <footer>
-    </footer>
+    <p>&copy; 2026 KOPALA FPL</p>
+    <div class="social-links">
+        <a href="https://facebook.com/YourFacebookPage" target="_blank" aria-label="Follow us on Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="mailto: lombeicloud@gmail.com" aria-label="Email us"><i class="fa-solid fa-envelope"></i></a>
+    </div>
+    <p class="disclaimer">Data provided by Fantasy Premier League API and The Sports DB. Not officially affiliated with the Premier League.</p>
+</footer>
 
 <script src="script.js"></script>
 </body>
