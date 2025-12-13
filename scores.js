@@ -4,16 +4,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // TheSportsDB League Names and IDs for the requested competitions:
 const LEAGUE_DATA = {
+    // We must use the exact league name the API uses for searching
     'Premier League': { id: '4328', gridId: 'epl-grid', name: 'English Premier League' },
     'LaLiga': { id: '4335', gridId: 'laliga-grid', name: 'Spanish La Liga' },
     'Bundesliga': { id: '4331', gridId: 'bundesliga-grid', name: 'German Bundesliga' },
     'Serie A': { id: '4337', gridId: 'seriea-grid', name: 'Italian Serie A' },
     'Ligue 1': { id: '4334', gridId: 'ligue1-grid', name: 'French Ligue 1' },
-    // Using a different ID for AFCON for better search success
+    // Using a reliable generic ID for AFCON fallback, though search may vary
     'AFCON': { id: '4426', gridId: 'afcon-grid', name: 'African Cup of Nations' } 
 };
 
-// Base URL for TheSportsDB (using their stable free access key '1')
+// Base URL for TheSportsDB (using the stable public access key '1')
 const API_BASE_URL = 'https://www.thesportsdb.com/api/v1/json/1/'; 
 
 /**
@@ -105,27 +106,25 @@ async function fetchLeagueEvents(leagueInfo) {
     const todayDate = new Date().toISOString().slice(0, 10); 
     
     // Use the search endpoint to find events by league name and date
-    // This is generally more reliable than static event files that get moved.
-    let url = `${API_BASE_URL}searchevents.php?l=${encodeURIComponent(name)}&d=${todayDate}`;
+    let searchUrl = `${API_BASE_URL}searchevents.php?l=${encodeURIComponent(name)}&d=${todayDate}`;
     
     try {
-        const response = await fetch(url);
+        const response = await fetch(searchUrl);
         
         // Check for non-JSON response (like 404 HTML error page)
         const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-             // If we get an error page, the server URL is still bad.
-             throw new Error(`404 or Non-JSON response received from search endpoint.`);
+        if (!response.ok || !contentType || !contentType.includes("application/json")) {
+             // If we get an error page or bad status, fall back to the last events
+             throw new Error(`Non-JSON response or bad status received from search endpoint.`);
         }
         
         const data = await response.json();
-        
         let events = data.event || [];
         
         if (events.length > 0) {
             gridContainer.innerHTML = events.map(createMatchCard).join('');
         } else {
-            // If no events for today, try fetching the 5 most recent past events
+            // If no events for today, try fetching the 5 most recent past events by ID
             const latestUrl = `${API_BASE_URL}eventspastleague.php?id=${id}`;
             const latestResponse = await fetch(latestUrl);
             const latestData = await latestResponse.json();
@@ -139,6 +138,7 @@ async function fetchLeagueEvents(leagueInfo) {
             }
         }
     } catch (error) {
+        // If the search or past events fail entirely
         console.error(`Failed to fetch data for ${name}:`, error);
         gridContainer.innerHTML = `<p class="no-matches" style="color: var(--live-status); padding: 10px;">Error loading data for ${name}.</p>`;
     }
