@@ -1203,3 +1203,68 @@ body.light-mode .nav-item:hover {
     background-color: var(--border);
     margin: 10px 0;
 }
+
+
+
+/* Add this to the end of your existing CSS file (style.css) */
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- 1. CARD ROUNDING AND SHADOW (Applied to ALL .content-section) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+.content-section {
+    /* Existing content-section styles... */
+    border-radius: var(--radius); /* Uses the existing 16px radius for rounded corners */
+    
+    /* Light Mode Shadow for float effect */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+    border: 1px solid var(--border);
+    
+    transition: all 0.2s ease-in-out;
+    /* Ensure the margin doesn't break the grid */
+    margin-bottom: 30px !important;
+}
+
+.content-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15), 0 0 5px rgba(0, 135, 76, 0.3); 
+    cursor: default;
+}
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- 2. DESKTOP GRID HACK (APPLY GRID TO MAIN AND TARGET THE FIRST 4 CHILDREN) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+@media (min-width: 1024px) {
+    main {
+        /* Change main to a grid container */
+        display: grid;
+        /* Define 4 columns for the top stats, then a single column for everything else */
+        grid-template-columns: repeat(4, 1fr); 
+        /* Ensure the main container's items flow correctly */
+        grid-auto-flow: row; 
+        gap: 20px; /* Gap between sections */
+    }
+    
+    /* Force the 5th item and all subsequent items to span all 4 columns */
+    main > section:nth-child(n+5) {
+        grid-column: 1 / -1; 
+    }
+    
+    /* Specifically target the four sections that should be in the grid */
+    #general-leagues-container,
+    #fixtures-list,
+    #price-changes-list,
+    #most-transferred-list {
+        /* Force these to behave as grid items in the first row */
+        grid-column: auto / span 1;
+        /* Remove the external margin now that grid gap controls spacing */
+        margin-bottom: 0 !important; 
+    }
+    
+    /* Ensure only the first four children of main are placed in the 4-column grid row */
+    main > section:nth-child(1) { grid-area: 1 / 1; }
+    main > section:nth-child(2) { grid-area: 1 / 2; }
+    main > section:nth-child(3) { grid-area: 1 / 3; }
+    main > section:nth-child(4) { grid-area: 1 / 4; }
+}
