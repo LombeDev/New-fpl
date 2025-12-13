@@ -16,7 +16,9 @@ const LEAGUE_IDS = {
 
 // Base URL for TheSportsDB (using their free access key)
 // Note: Live scores/logos are limited on the free tier.
-const API_BASE_URL = 'https://www.thesportsdb.com/api/v1/json/6013/'; 
+// In scores.js or script.js:
+// Use the simplified '1' access key, which is stable for public endpoints.
+const API_BASE_URL = 'https://www.thesportsdb.com/api/v1/json/1/'; 
 
 /**
  * Maps a team name to a placeholder color (since team logos aren't guaranteed on free API).
