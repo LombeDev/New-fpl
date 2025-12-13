@@ -2,65 +2,61 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchMatchesForLeagues();
 });
 
-// TheSportsDB League Names and IDs for the requested competitions:
-const LEAGUE_DATA = {
-    // We must use the exact league name the API uses for searching
-    'Premier League': { id: '4328', gridId: 'epl-grid', name: 'English Premier League' },
-    'LaLiga': { id: '4335', gridId: 'laliga-grid', name: 'Spanish La Liga' },
-    'Bundesliga': { id: '4331', gridId: 'bundesliga-grid', name: 'German Bundesliga' },
-    'Serie A': { id: '4337', gridId: 'seriea-grid', name: 'Italian Serie A' },
-    'Ligue 1': { id: '4334', gridId: 'ligue1-grid', name: 'French Ligue 1' },
-    // Using a reliable generic ID for AFCON fallback, though search may vary
-    'AFCON': { id: '4426', gridId: 'afcon-grid', name: 'African Cup of Nations' } 
+// --- API CONFIGURATION (Livescore-API from RapidAPI) ---
+// 🛑 IMPORTANT: Replace these with your actual keys and host from RapidAPI
+const API_KEY = 'ed42f42e74msha29711a82aa97b6p13013djsn8e324daa3a1c'; 
+const API_HOST = 'flashlive-sports.p.rapidapi.com'; 
+
+// Livescore-API does not use League IDs; it returns ALL matches for the day.
+// We will filter based on the league name (or country name)
+const LEAGUE_NAMES = {
+    'Premier League': { name: 'England', gridId: 'epl-grid' }, 
+    'LaLiga': { name: 'Spain', gridId: 'laliga-grid' },
+    'Bundesliga': { name: 'Germany', gridId: 'bundesliga-grid' },
+    'Serie A': { name: 'Italy', gridId: 'seriea-grid' },
+    'Ligue 1': { name: 'France', gridId: 'ligue1-grid' },
+    'AFCON': { name: 'Africa Cup of Nations', gridId: 'afcon-grid' } 
 };
 
-// Base URL for TheSportsDB (using the stable public access key '1')
-const API_BASE_URL = 'https://www.thesportsdb.com/api/v1/json/1/'; 
+// Base URL for Today's Fixtures
+const API_URL = 'https://livescore-api.com/api-client/fixtures/matches.json'; 
+
 
 /**
- * Maps a team name to a placeholder color (for team logo background).
- */
-function getTeamColor(teamName) {
-    const hash = teamName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const colors = ['#1a73e8', '#ea4335', '#fbbc05', '#34a853', '#7e24a7', '#004F98'];
-    return colors[hash % colors.length];
-}
-
-/**
- * Creates the HTML for a single match card.
+ * Helper function to create the match card HTML.
  */
 function createMatchCard(match) {
-    // API provides score if match is over (FT) or live
-    const timeStatus = match.strTime || match.strStatus || 'TBC'; 
-    const isFinished = match.strStatus && match.strStatus.includes('FT');
-    const isLive = match.strStatus && !isFinished && match.intHomeScore !== null; 
+    const status = match.status;
+    const homeName = match.home_name;
+    const awayName = match.away_name;
+    const homeScore = match.score.split('-')[0] || 0;
+    const awayScore = match.score.split('-')[1] || 0;
 
-    let scoreDisplay = timeStatus;
+    let scoreDisplay = match.time || 'TBC';
     let statusClass = '';
 
-    if (isFinished) {
-        scoreDisplay = match.intHomeScore !== null ? `${match.intHomeScore}-${match.intAwayScore}` : timeStatus;
+    if (status === 'FINISHED') {
+        scoreDisplay = `${homeScore}-${awayScore}`;
         statusClass = 'finished';
-    } else if (isLive) {
-        scoreDisplay = `${match.intHomeScore}-${match.intAwayScore}`;
+    } else if (status === 'LIVE') {
+        scoreDisplay = `${homeScore}-${awayScore} (${match.minute}')`;
         statusClass = 'live';
-    } else {
-        scoreDisplay = timeStatus.substring(0, 5); // Just show the time if available
     }
-
-    const homeColor = getTeamColor(match.strHomeTeam);
-    const awayColor = getTeamColor(match.strAwayTeam);
+    
+    // Placeholder colors since logos are not guaranteed on free tier
+    const homeColor = getTeamColor(homeName);
+    const awayColor = getTeamColor(awayName);
 
     return `
         <div class="match-card ${statusClass}">
             <div class="teams-container">
                 <div class="team-row">
                     <div class="team-logo" style="background-color: ${homeColor};"></div>
-                    <span>${match.strHomeTeam}</span>
+                    <span>${homeName}</span>
                 </div>
                 <div class="team-row">
                     <div class="team-logo" style="background-color: ${awayColor};"></div>
-                    <span>${match.strAwayTeam}</span>
+                    <span>${awayName}</span>
                 </div>
             </div>
             <div class="match-status">${scoreDisplay}</div>
@@ -69,7 +65,7 @@ function createMatchCard(match) {
 }
 
 /**
- * Fetches match data for all defined leagues.
+ * Fetches all matches for today and filters them into league grids.
  */
 async function fetchMatchesForLeagues() {
     const loadingIndicator = document.getElementById('loading-indicator');
@@ -80,66 +76,57 @@ async function fetchMatchesForLeagues() {
     dateHeader.textContent = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     try {
-        const promises = Object.keys(LEAGUE_DATA).map(leagueKey => 
-            fetchLeagueEvents(LEAGUE_DATA[leagueKey])
-        );
+        const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+                // REQUIRED: Authentication Headers for RapidAPI
+                'x-rapidapi-host': API_HOST,
+                'x-rapidapi-key': API_KEY 
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
         
-        await Promise.all(promises);
+        const data = await response.json();
+        
+        if (data.success !== true || !data.data || !data.data.match) {
+             throw new Error("API response was successful but data is empty or malformed.");
+        }
+        
+        const allMatches = data.data.match || [];
+
+        // --- Filter and Render Matches ---
+        Object.keys(LEAGUE_NAMES).forEach(leagueKey => {
+            const leagueInfo = LEAGUE_NAMES[leagueKey];
+            const gridContainer = document.getElementById(leagueInfo.gridId);
+            
+            if (!gridContainer) return;
+
+            // Filter matches by the country name (or league name)
+            const filteredEvents = allMatches.filter(match => 
+                match.country.name.includes(leagueInfo.name)
+            );
+
+            if (filteredEvents.length > 0) {
+                gridContainer.innerHTML = filteredEvents.map(createMatchCard).join('');
+            } else {
+                gridContainer.innerHTML = `<p class="no-matches" style="color: var(--subtext); padding: 10px;">No matches found for ${leagueKey}.</p>`;
+            }
+        });
 
     } catch (error) {
         console.error("Error fetching match data:", error);
-        loadingIndicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error loading match data from the API.';
+        loadingIndicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error loading match data. Check your API Key and Network.';
     } finally {
         loadingIndicator.style.display = 'none';
     }
 }
 
-/**
- * Fetches events using the searchevents.php endpoint (Simpler and more reliable).
- */
-async function fetchLeagueEvents(leagueInfo) {
-    const { id, gridId, name } = leagueInfo;
-    const gridContainer = document.getElementById(gridId);
-    if (!gridContainer) return; 
-
-    // Format: YYYY-MM-DD
-    const todayDate = new Date().toISOString().slice(0, 10); 
-    
-    // Use the search endpoint to find events by league name and date
-    let searchUrl = `${API_BASE_URL}searchevents.php?l=${encodeURIComponent(name)}&d=${todayDate}`;
-    
-    try {
-        const response = await fetch(searchUrl);
-        
-        // Check for non-JSON response (like 404 HTML error page)
-        const contentType = response.headers.get("content-type");
-        if (!response.ok || !contentType || !contentType.includes("application/json")) {
-             // If we get an error page or bad status, fall back to the last events
-             throw new Error(`Non-JSON response or bad status received from search endpoint.`);
-        }
-        
-        const data = await response.json();
-        let events = data.event || [];
-        
-        if (events.length > 0) {
-            gridContainer.innerHTML = events.map(createMatchCard).join('');
-        } else {
-            // If no events for today, try fetching the 5 most recent past events by ID
-            const latestUrl = `${API_BASE_URL}eventspastleague.php?id=${id}`;
-            const latestResponse = await fetch(latestUrl);
-            const latestData = await latestResponse.json();
-            
-            const latestEvents = latestData.events ? latestData.events.slice(0, 5) : [];
-            
-            if (latestEvents.length > 0) {
-                 gridContainer.innerHTML = latestEvents.map(createMatchCard).join('');
-            } else {
-                 gridContainer.innerHTML = `<p class="no-matches" style="color: var(--subtext); padding: 10px;">No matches found for ${name}.</p>`;
-            }
-        }
-    } catch (error) {
-        // If the search or past events fail entirely
-        console.error(`Failed to fetch data for ${name}:`, error);
-        gridContainer.innerHTML = `<p class="no-matches" style="color: var(--live-status); padding: 10px;">Error loading data for ${name}.</p>`;
-    }
+// Remaining helper functions (getTeamColor)
+function getTeamColor(teamName) {
+    const hash = teamName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const colors = ['#1a73e8', '#ea4335', '#fbbc05', '#34a853', '#7e24a7', '#004F98'];
+    return colors[hash % colors.length];
 }
