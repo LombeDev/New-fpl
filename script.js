@@ -340,6 +340,8 @@ async function loadGeneralLeagueStandings() {
 
     // --- 1. Define the leagues to load (IDs provided by the user) ---
     const leaguesToLoad = [
+        { id: "101712", name: "Kopala FPL", type: "Classic" }, 
+        { id: "147133", name: "Bayporteers", type: "Classic" }, 
         { id: "258", name: "Zambia", type: "Classic" }, 
         { id: "315", name: "Overall", type: "Classic" }, 
         { id: "276", name: "Gameweek 1", type: "Classic" }, 
