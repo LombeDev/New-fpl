@@ -1,0 +1,150 @@
+/* Color and Sizing Variables */
+:root {
+    --bg: #FFFFFF;
+    --text: #1A202C;
+    --subtext: #6B7280;
+    --card-bg: #F9FAFB;
+    --border: #E5E7EB;
+    --accent: #00874C; /* Green/FPL Accent */
+    --live-status: #E3000F; /* Red for live scores */
+    --radius: 16px; 
+}
+
+/* Base Styling */
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    margin: 0;
+}
+
+main.scores-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 5px;
+}
+
+.date-header {
+    color: var(--subtext);
+    font-size: 16px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 15px;
+}
+
+/* --- LEAGUE HEADER STYLING --- */
+.league-container {
+    margin-bottom: 40px;
+}
+
+.league-header {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.league-header i {
+    color: var(--accent);
+    margin-right: 10px;
+    font-size: 24px;
+}
+
+
+/* --- MATCH GRID LAYOUT --- */
+.matches-grid {
+    display: grid;
+    /* Responsive grid: 3-column on large screens, stacks on small screens */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+    gap: 20px;
+}
+
+/* --- MATCH CARD STYLING (Based on the attached image) --- */
+.match-card {
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+    min-height: 80px; 
+}
+
+.match-card:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    cursor: default;
+}
+
+.teams-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.team-row {
+    display: flex;
+    align-items: center;
+    padding: 5px 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.team-logo {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-right: 10px;
+    /* Fallback style for team logos */
+    background-color: var(--subtext); 
+}
+
+/* Match Status/Score */
+.match-status {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--accent); 
+    padding-left: 15px;
+    text-align: right;
+    min-width: 50px;
+}
+
+/* Special styling for live scores */
+.match-card.live .match-status {
+    color: var(--live-status); 
+    animation: pulsate 1s infinite alternate;
+}
+
+.match-card.finished .match-status {
+    color: var(--subtext); /* Muted color for final scores */
+}
+
+@keyframes pulsate {
+    from { opacity: 1; }
+    to { opacity: 0.7; }
+}
+
+/* Loader Styling */
+#loading-indicator {
+    text-align: center;
+    font-size: 18px;
+    color: var(--subtext);
+    padding: 50px;
+}
+#loading-indicator i {
+    color: var(--accent);
+    margin-right: 10px;
+}
