@@ -67,10 +67,7 @@ const body = document.body;
 // Define the list of theme classes in the desired cycle order
 const themes = [
     '',              // 1. Light Mode (No class)
-    'dark-mode',     // 2. Dark Mode
-    'cyan-theme',    // 3. Cyan/Green Theme
-    'red-theme',     // 4. Red/Black Theme
-    'blue-theme'     // 5. FPL Blue Theme
+    'dark-mode',     // 2. Dark Mode 
 ];
 
 /**
@@ -116,15 +113,6 @@ function applyTheme(index) {
     switch (nextTheme) {
         case 'dark-mode':
             themeToggle.textContent = "🌙"; // Next is Dark Mode
-            break;
-        case 'cyan-theme':
-            themeToggle.textContent = "✨"; // Next is Cyan Theme
-            break;
-        case 'red-theme':
-            themeToggle.textContent = "🔴"; // Next is Red Theme
-            break;
-        case 'blue-theme':
-            themeToggle.textContent = "🔵"; // Next is Blue Theme
             break;
         case '': // Next is Light Mode
         default:
