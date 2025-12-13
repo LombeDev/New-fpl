@@ -466,13 +466,6 @@ async function loadPlayerStatusUpdates(data) {
                     statusLabel = 'Suspended';
                     statusClass = 'status-injured';
                     break;
-                case 'u':
-                    statusLabel = 'Unavailable';
-                    statusClass = 'status-unavailable';
-                    break;
-                default:
-                    statusLabel = 'Uncertain';
-                    break;
             }
 
             return `
