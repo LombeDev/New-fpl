@@ -1206,53 +1206,72 @@ body.light-mode .nav-item:hover {
 
 
 
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- 1. CARD ROUNDING AND SHADOW (Applied to ALL .content-section) --- */
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-
-.content-section {
-    /* Existing content-section styles... */
-    border-radius: var(--radius); 
-    
-    /* Light Mode Shadow for float effect */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
-    border: 1px solid var(--border);
-    
-    transition: all 0.2s ease-in-out;
-    /* IMPORTANT: Ensures the margin doesn't break the grid, as grid gap handles spacing */
-    margin-bottom: 0 !important; 
-}
-
-.content-section:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15), 0 0 5px rgba(0, 135, 76, 0.3); 
-    cursor: default;
-}
-
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- 2. DESKTOP GRID HACK (4-COLUMN TOP ROW, FULL-WIDTH CONTENT BELOW) --- */
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
 
 @media (min-width: 1024px) {
     main {
-        /* Change main to a grid container */
-        display: grid;
-        /* Define 4 columns for the top stats */
+        /* Set main as the grid container */
+        display: grid; 
+        /* Define the structure: 4 equal columns */
         grid-template-columns: repeat(4, 1fr); 
-        /* Ensure the main container's items flow correctly */
-        grid-auto-flow: row; 
-        gap: 20px; /* Gap between sections */
+        gap: 20px; 
+        
+        /* Ensure the individual sections don't have conflicting margins */
+        padding: 20px; /* Keep main padding */
+        margin: 0 auto;
+        width: 100%;
+        max-width: 1200px; 
     }
     
-    /* Apply the 4-column layout to the first 4 sections */
-    main > section:nth-child(1) { grid-area: 1 / 1; }
-    main > section:nth-child(2) { grid-area: 1 / 2; }
-    main > section:nth-child(3) { grid-area: 1 / 3; }
-    main > section:nth-child(4) { grid-area: 1 / 4; }
+    /* --- ROW 1: FULL WIDTH ELEMENTS (General Leagues and Fixtures) --- */
+    /* Place the two largest sections to span all 4 columns for readability */
     
-    /* Force the 5th item and all subsequent items to span all 4 columns */
-    /* This creates the full-width, single-column content area below the 4-card summary */
-    main > section:nth-child(n+5) {
-        grid-column: 1 / -1; 
+    #general-leagues-container {
+        grid-column: 1 / -1; /* Spans all 4 columns (1 to end) */
+        grid-row: 1;
+    }
+    
+    #fixtures-list {
+        grid-column: 1 / -1; /* Spans all 4 columns */
+        grid-row: 2;
+    }
+    
+    /* --- ROW 2: FOUR-COLUMN SUMMARY (Price Changes, Transfers In/Out, Injuries, Captains) --- */
+    /* These items will sit next to each other */
+    
+    #price-changes-list {
+        grid-column: 1 / 2; /* Column 1 */
+        grid-row: 3;
+    }
+    
+    #most-transferred-list {
+        grid-column: 2 / 3; /* Column 2 */
+        grid-row: 3;
+    }
+    
+    #most-transferred-out-list {
+        grid-column: 3 / 4; /* Column 3 */
+        grid-row: 3;
+    }
+    
+    #status-list {
+        grid-column: 4 / 5; /* Column 4 */
+        grid-row: 3;
+    }
+    
+    /* --- ROW 3: TWO-COLUMN ELEMENTS (Remaining Sections) --- */
+    
+    #most-captained-list {
+        grid-column: 1 / 3; /* Spans 2 columns (1 and 2) */
+        grid-row: 4;
+    }
+    
+    #deadline-section {
+        grid-column: 3 / 5; /* Spans 2 columns (3 and 4) */
+        grid-row: 4;
+    }
+    
+    /* Ensure all sections remove the conflicting margin when in grid */
+    main > section {
+        margin-bottom: 0 !important;
     }
 }
