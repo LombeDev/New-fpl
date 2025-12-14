@@ -1,150 +1,136 @@
-/* Color and Sizing Variables */
-:root {
-    --bg: #FFFFFF;
-    --text: #1A202C;
-    --subtext: #6B7280;
-    --card-bg: #F9FAFB;
-    --border: #E5E7EB;
-    --accent: #00874C; /* Green/FPL Accent */
-    --live-status: #E3000F; /* Red for live scores */
-    --radius: 16px; 
-}
-
-/* Base Styling */
 body {
-    background-color: var(--bg);
-    color: var(--text);
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f0f2f5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  margin: 0;
 }
 
-main.scores-dashboard {
-    max-width: 1200px;
-    margin: 0 auto;
+h1 {
+  margin-top: 60px; /* leave space for ticker */
+  margin-bottom: 20px;
 }
 
-h2 {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 5px;
+/* Tabs */
+.tabs {
+  margin-bottom: 20px;
 }
 
-.date-header {
-    color: var(--subtext);
-    font-size: 16px;
-    margin-bottom: 30px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 15px;
+.tab-btn {
+  padding: 10px 20px;
+  margin: 0 5px;
+  border: none;
+  background: #ddd;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
 }
 
-/* --- LEAGUE HEADER STYLING --- */
-.league-container {
-    margin-bottom: 40px;
+.tab-btn.active {
+  background: #007bff;
+  color: white;
 }
 
-.league-header {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
+/* Matches grid */
+#matches-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+  width: 100%;
+  max-width: 1200px;
 }
 
-.league-header i {
-    color: var(--accent);
-    margin-right: 10px;
-    font-size: 24px;
-}
-
-
-/* --- MATCH GRID LAYOUT --- */
-.matches-grid {
-    display: grid;
-    /* Responsive grid: 3-column on large screens, stacks on small screens */
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-    gap: 20px;
-}
-
-/* --- MATCH CARD STYLING (Based on the attached image) --- */
+/* Match card */
 .match-card {
-    background-color: var(--card-bg);
-    padding: 20px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.2s;
-    min-height: 80px; 
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.match-card:hover {
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-    cursor: default;
+.team {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin: 5px 0;
 }
 
-.teams-container {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
+.score {
+  font-size: 1.5em;
+  margin: 5px 0;
 }
 
-.team-row {
-    display: flex;
-    align-items: center;
-    padding: 5px 0;
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.2;
+.status {
+  color: #555;
+  font-size: 0.9em;
 }
 
-.team-logo {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    margin-right: 10px;
-    /* Fallback style for team logos */
-    background-color: var(--subtext); 
+.timer {
+  font-size: 0.9em;
+  color: #007bff;
+  margin-top: 5px;
 }
 
-/* Match Status/Score */
-.match-status {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--accent); 
-    padding-left: 15px;
-    text-align: right;
-    min-width: 50px;
+/* Goal animation on cards */
+.goal-animation {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffdd57;
+  color: black;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  animation: float 2s ease-out forwards;
 }
 
-/* Special styling for live scores */
-.match-card.live .match-status {
-    color: var(--live-status); 
-    animation: pulsate 1s infinite alternate;
+@keyframes float {
+  0% { opacity: 1; top: -20px; }
+  100% { opacity: 0; top: -60px; }
 }
 
-.match-card.finished .match-status {
-    color: var(--subtext); /* Muted color for final scores */
+/* Ticker */
+#score-ticker {
+  width: 100%;
+  background: #007bff;
+  color: white;
+  padding: 10px 0;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
 }
 
-@keyframes pulsate {
-    from { opacity: 1; }
-    to { opacity: 0.7; }
+.ticker-content {
+  display: inline-block;
+  padding-left: 100%;
+  animation: scroll-left 20s linear infinite;
 }
 
-/* Loader Styling */
-#loading-indicator {
-    text-align: center;
-    font-size: 18px;
-    color: var(--subtext);
-    padding: 50px;
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
 }
-#loading-indicator i {
-    color: var(--accent);
-    margin-right: 10px;
+
+/* Goal highlight on ticker */
+.goal-highlight {
+  background: #ffdd57;
+  color: black;
+  padding: 0 5px;
+  border-radius: 3px;
+  animation: flash 1s ease-in-out 2;
+}
+
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
