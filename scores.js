@@ -1,137 +1,128 @@
-document.addEventListener('DOMContentLoaded', () => {
-    fetchMatchesForLeagues();
+const API_KEY = "YOUR_API_KEY"; // Replace with your API-Football key
+let currentLeague = "140"; // Default La Liga
+const matchesContainer = document.getElementById("matches-container");
+const ticker = document.getElementById("score-ticker");
+
+let previousScores = {}; // Track previous scores for goal detection
+
+// Fetch live matches for both leagues
+async function fetchLiveMatches() {
+  try {
+    const resLaLiga = await fetch(`https://v3.football.api-sports.io/fixtures?live=all&league=140`, {
+      headers: { "x-apisports-key": API_KEY }
+    });
+    const resSerieA = await fetch(`https://v3.football.api-sports.io/fixtures?live=all&league=135`, {
+      headers: { "x-apisports-key": API_KEY }
+    });
+
+    const [dataLaLiga, dataSerieA] = await Promise.all([resLaLiga.json(), resSerieA.json()]);
+    const allMatches = [...dataLaLiga.response, ...dataSerieA.response];
+
+    updateMatches(allMatches);
+    updateTicker(allMatches);
+  } catch(err) {
+    console.error(err);
+  }
+}
+
+// Update match cards
+function updateMatches(matches) {
+  matchesContainer.innerHTML = "";
+
+  matches.forEach(match => {
+    const card = document.createElement("div");
+    card.className = "match-card";
+
+    const homeTeam = match.teams.home.name;
+    const awayTeam = match.teams.away.name;
+    const homeScore = match.goals.home ?? 0;
+    const awayScore = match.goals.away ?? 0;
+    const status = match.fixture.status.short;
+
+    card.innerHTML = `
+      <div class="team"><span>${homeTeam}</span><span>${awayTeam}</span></div>
+      <div class="score">${homeScore} - ${awayScore}</div>
+      <div class="status">${formatElapsed(match.fixture)}</div>
+      <div class="timer" id="timer-${match.fixture.id}"></div>
+    `;
+    matchesContainer.appendChild(card);
+
+    // Goal animation detection
+    const matchId = match.fixture.id;
+    const prev = previousScores[matchId] || {home: 0, away: 0};
+
+    if(homeScore > prev.home || awayScore > prev.away) {
+      const goalAnim = document.createElement("div");
+      goalAnim.className = "goal-animation";
+      goalAnim.textContent = "GOAL!";
+      card.appendChild(goalAnim);
+      setTimeout(() => goalAnim.remove(), 2000);
+    }
+
+    previousScores[matchId] = {home: homeScore, away: awayScore};
+
+    // Timer for ongoing match
+    if(match.fixture.status.elapsed !== null && status !== "FT") {
+      const timerEl = document.getElementById(`timer-${match.fixture.id}`);
+      let elapsed = match.fixture.status.elapsed;
+
+      const interval = setInterval(() => {
+        elapsed++;
+        timerEl.textContent = `${elapsed}'`;
+        if(elapsed >= 90) clearInterval(interval);
+      }, 60000);
+    }
+  });
+}
+
+// Update ticker
+function updateTicker(matches) {
+  if(matches.length === 0) {
+    ticker.innerHTML = `<div class="ticker-content">No live matches currently</div>`;
+    return;
+  }
+
+  const tickerText = matches.map(match => {
+    const home = match.teams.home.name;
+    const away = match.teams.away.name;
+    const homeScore = match.goals.home ?? 0;
+    const awayScore = match.goals.away ?? 0;
+
+    const matchId = match.fixture.id;
+    const prev = previousScores[matchId] || {home: 0, away: 0};
+    let text = `${home} ${homeScore}-${awayScore} ${away}`;
+
+    // Highlight new goal
+    if(homeScore > prev.home || awayScore > prev.away) {
+      text = `<span class="goal-highlight">${text} ⚽</span>`;
+    }
+
+    return text;
+  }).join("  ⚽  ");
+
+  ticker.innerHTML = `<div class="ticker-content">${tickerText}</div>`;
+}
+
+// Format elapsed time
+function formatElapsed(fixture) {
+  const status = fixture.status.short;
+  if(status === "NS") return "Not started";
+  if(status === "FT") return "Full Time";
+  if(status === "HT") return "Half Time";
+  if(fixture.status.elapsed !== null) return `${fixture.status.elapsed}'`;
+  return status;
+}
+
+// Tabs functionality
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentLeague = btn.dataset.league;
+    fetchLiveMatches();
+  });
 });
 
-// --- API CONFIGURATION (Flashlive Sports API via RapidAPI) ---
-// 🛑 WARNING: Do not share this key publicly! It is sensitive.
-const API_KEY = 'ed42f42e74msha29711a82aa97b6p13013djsn8e324daa3a1c'; 
-const API_HOST = 'flashlive-sports.p.rapidapi.com'; 
-
-// Soccer ID is typically 1 in Flashlive.
-const SPORT_ID = 1; 
-
-// League names for filtering (using common English names).
-const LEAGUE_NAMES = {
-    'Premier League': { name: 'Premier League', gridId: 'epl-grid' },
-    'LaLiga': { name: 'LaLiga', gridId: 'laliga-grid' },
-    'Bundesliga': { name: 'Bundesliga', gridId: 'bundesliga-grid' },
-    'Serie A': { name: 'Serie A', gridId: 'seriea-grid' },
-    'Ligue 1': { name: 'Ligue 1', gridId: 'ligue1-grid' },
-    'AFCON': { name: 'Africa Cup of Nations', gridId: 'afcon-grid' } 
-};
-
-const API_BASE_URL = 'https://flashlive-sports.p.rapidapi.com/v1/'; 
-
-
-/**
- * Helper function to create the match card HTML.
- * @param {object} match - The match data object from the API.
- */
-function createMatchCard(match) {
-    const homeTeam = match.homeTeam.name;
-    const awayTeam = match.awayTeam.name;
-    const homeScore = match.homeScore.current || 0;
-    const awayScore = match.awayScore.current || 0;
-    const status = match.status.type; // e.g., 'finished', 'inprogress', 'notstarted'
-    const minute = match.time.currentPeriodStartTimestamp ? (new Date().getTime() - match.time.currentPeriodStartTimestamp * 1000) / 60000 : null;
-
-
-    let scoreDisplay = match.time.startDate.substring(11, 16); // Default to start time
-    let statusClass = '';
-
-    if (status === 'finished') {
-        scoreDisplay = `${match.homeScore.normaltime}-${match.awayScore.normaltime}`;
-        statusClass = 'finished';
-    } else if (status === 'inprogress' || status === 'halfTime') {
-        scoreDisplay = `${homeScore}-${awayScore} (${Math.floor(minute)} min)`;
-        statusClass = 'live';
-    } else if (status === 'cancelled') {
-        scoreDisplay = 'Canceled';
-        statusClass = 'finished';
-    }
-
-    // Placeholder colors since logos are complex with this API's free tier
-    const homeColor = getTeamColor(homeTeam);
-    const awayColor = getTeamColor(awayTeam);
-
-    return `
-        <div class="match-card ${statusClass}">
-            <div class="teams-container">
-                <div class="team-row">
-                    <div class="team-logo" style="background-color: ${homeColor};"></div>
-                    <span>${homeTeam}</span>
-                </div>
-                <div class="team-row">
-                    <div class="team-logo" style="background-color: ${awayColor};"></div>
-                    <span>${awayTeam}</span>
-                </div>
-            </div>
-            <div class="match-status">${scoreDisplay}</div>
-        </div>
-    `;
-}
-
-/**
- * Fetches all matches for today and filters them into league grids.
- */
-async function fetchMatchesForLeagues() {
-    const loadingIndicator = document.getElementById('loading-indicator');
-    const dateHeader = document.querySelector('.date-header');
-    
-    // Set today's date
-    const today = new Date();
-    dateHeader.textContent = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-    // The API uses timestamps, but for simplicity, we'll fetch today's events.
-    // Flashlive often provides comprehensive lists by default.
-    const url = `${API_BASE_URL}events/list?sportId=${SPORT_ID}`;
-
-    try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'x-rapidapi-host': API_HOST,
-                'x-rapidapi-key': API_KEY 
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}. Check API usage/key.`);
-        }
-        
-        const data = await response.json();
-        const allMatches = data.data.events || [];
-
-        // --- Filter and Render Matches ---
-        Object.keys(LEAGUE_NAMES).forEach(leagueKey => {
-            const leagueInfo = LEAGUE_NAMES[leagueKey];
-            const gridContainer = document.getElementById(leagueInfo.gridId);
-            
-            if (!gridContainer) return;
-
-            // Filter matches by the tournament name using a case-insensitive check
-            const filteredEvents = allMatches.filter(match => 
-                match.tournament.name.toLowerCase().includes(leagueInfo.name.toLowerCase())
-            );
-
-            if (filteredEvents.length > 0) {
-                gridContainer.innerHTML = filteredEvents.map(createMatchCard).join('');
-            } else {
-                gridContainer.innerHTML = `<p class="no-matches" style="color: var(--subtext); padding: 10px;">No matches found for ${leagueKey}.</p>`;
-            }
-        });
-
-    } catch (error) {
-        console.error("Error fetching match data:", error);
-        loadingIndicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error loading match data. Check API Key or Network.';
-    } finally {
-        loadingIndicator.style.display = 'none';
-    }
-}
-
-// Remaining helper functions (getTeamColor)
-function getTeamColor(teamName) {
-    const hash = teamName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const colors = ['#1a73e8', '#ea4335', '#fbbc05', '#34a853', '#7e24a7', '#004F98'];
-    return colors[hash % colors.length];
-}
+// Initial fetch
+fetchLiveMatches();
+setInterval(fetchLiveMatches, 30000); // Refresh every 30 seconds
