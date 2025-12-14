@@ -1251,3 +1251,36 @@ body.light-mode .nav-item:hover {
         grid-column: 1 / 2;
     }
 }
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- FIX: MOBILE TAP HIGHLIGHT REMOVAL (Removes the outline/flash when tapping buttons/links) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+/* 1. Target the interactive elements in the primary navigation bars and all buttons */
+#bottom-nav .nav-item,
+#bottom-nav a,
+.signin-btn,
+.search-btn,
+#transferFAB,
+#backToTop,
+.fpl-button-base,
+.fpl-button-primary,
+.fpl-button-secondary,
+a {
+    /* Prevents the default focus outline from appearing on click/tap */
+    outline: none !important; 
+    
+    /* Disables the tap color overlay used by WebKit browsers (iOS/Android) */
+    -webkit-tap-highlight-color: transparent !important;
+    
+    /* Prevents text content from being highlighted/selected on press */
+    user-select: none;
+    -webkit-user-select: none; 
+}
+
+/* 2. Global Tap Fix (Ensures the fix applies to all interactive elements) */
+button, input[type="button"], input[type="submit"] {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
