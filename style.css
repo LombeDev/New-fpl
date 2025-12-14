@@ -17,9 +17,9 @@
     --primary-action-hover: #6366F1;
     
     /* --- NAV BAR & UTILITY --- */
-    --nav-bg: #10192C; /* Very dark background for fixed/sticky bars */
+    --nav-bg: #ffffff; /* MODIFIED: White background for fixed/sticky bars */
     --nav-active: var(--accent);
-    --top-nav-bg: var(--nav-bg); 
+    --top-nav-bg: #ffffff; /* MODIFIED: White background for top nav bar */
     --top-nav-search-bg: #334155; 
     
     /* --- COMPETITION ZONES --- */
@@ -52,8 +52,8 @@ body.light-mode {
     --primary-action-hover: #6366F1;
 
     /* Navigation/Utility */
-    --nav-bg: #FFFFFF; /* White for the bottom nav bar */
-    --top-nav-bg: #111827; /* Dark top bar for premium contrast */
+    --nav-bg: #FFFFFF; /* MODIFIED: White for the bottom nav bar */
+    --top-nav-bg: #FFFFFF; /* MODIFIED: White top bar (formerly dark) */
     --top-nav-search-bg: #F3F4F6; /* Light gray for search fields */
 }
 
@@ -640,7 +640,8 @@ footer .social-links a:hover {
 }
 #bottom-nav-bar {
     top: 50px; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+    /* Reduced shadow opacity for cleaner white background */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
     background-color: var(--nav-bg); 
     height: 60px; 
     border-bottom: 2px solid var(--accent); 
@@ -731,6 +732,7 @@ footer .social-links a:hover {
 }
 
 .main-links a {
+    /* Note: Text color is now white in dark mode, near-black in light mode (inherited from --text) */
     color: var(--text);
     text-decoration: none;
     padding: 0 20px; 
@@ -743,7 +745,8 @@ footer .social-links a:hover {
 }
 
 .main-links a:hover {
-    background-color: rgba(0, 0, 0, 0.3);
+    /* Hover background is still dark in dark mode, light gray in light mode (depending on how top-nav-search-bg is used) */
+    background-color: rgba(0, 0, 0, 0.05); /* Lighter hover for white background */
     color: var(--accent);
 }
 
@@ -756,7 +759,7 @@ footer .social-links a:hover {
     position: sticky;
     top: 0;
     z-index: 950;
-    background: var(--nav-bg);
+    background: var(--nav-bg); /* Now white in both modes */
     padding: 0;
     height: 90px;
     border-bottom: 2px solid var(--accent);
@@ -953,8 +956,8 @@ body.light-mode #themeToggleMenu {
     left: 0;
     width: 100%;
     height: 70px; /* Taller */
-    background: var(--nav-bg); 
-    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
+    background: var(--nav-bg); /* Now white in both modes */
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1); /* Lighter shadow for white background */
     z-index: 980;
     padding: 0 5px;
 }
@@ -1010,13 +1013,13 @@ body.light-mode #themeToggleMenu {
 
 .nav-item.active,
 .nav-item:hover {
-    color: var(--card-bg); /* Text color shifts to card-bg (darker text on neon highlight) */
+    color: var(--card-bg); /* Text color shifts to card-bg (white text) */
 }
 
 /* *** LIGHT MODE SPECIFIC OVERRIDE *** */
 body.light-mode .nav-item.active,
 body.light-mode .nav-item:hover {
-    color: var(--text); /* Near black text on the green highlight */
+    color: var(--text); /* Near black text on the green highlight (Better contrast) */
 }
 /* ************************************ */
 
