@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KOPALA FPL Dashboard</title>
     
-    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="style.css">
     
     <link rel="icon" type="image/png" href="favicon.png"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -24,107 +23,85 @@
         </div>
         <div class="search-login-actions">
           <a href="#standings-list" class="btn-link">
-             <button class="signin-btn">Rank</button>
-          </a>
-          <a href="#price-changes-list-content" class="btn-link">
-            <button class="signin-btn">Prices</button>
-          </a>
-          <a href="#most-transferred-list-content" class="btn-link">
-            <button class="signin-btn">Tranfers</button>
-          </a>
-          <a href="wrapped.html" class="btn-link">
-            <button class="signin-btn">GW Wrapped</button>
-          </a>
-          <a href="scores.html" class="btn-link"> 
-            <button class="signin-btn">Matches</button>
-          </a>
-          <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+       <button class="signin-btn">Rank</button></a>
+
+        <a href="#price-changes-list-content" class="btn-link">
+    <button class="signin-btn">Prices</button></a>
+
+     <a href="#most-transferred-list-content" class="btn-link">
+    <button class="signin-btn">Tranfers</button></a>
+
+       <a href="wrapped.html" class="btn-link">
+    <button class="signin-btn">GW Wrapped</button></a>
+
+       <a href="scores.html" class="btn-link"> 
+    <button class="signin-btn">Matches</button></a>
+            <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
         </div>
     </div>
 </div>
 
 <main>
-    <section id="deadline-section" class="fpl-section content-section">
-        <h2 class="countdown-title">Next Deadline</h2>
-        <div id="countdown-timer" class="countdown-display">
-            <p>Fetching next deadline time...</p>
+        
+  
+  <section id="general-leagues-container" class="lazy fpl-section content-section">
+    <div class="collapsible-header" id="toggleGeneralLeagues">
+        <h2 style="display: inline-block; margin-right: 10px;">🌍 General Leagues</h2>
+        <i class="fa-solid fa-chevron-down toggle-icon"></i> 
+    </div>
+    
+    <div id="general-leagues-list" class="collapsible-content hidden">
+        <div style="text-align: center; padding: 20px 0;">
+            <div class="loader"></div>
+            <p style="color: var(--subtext); margin-top: 15px; font-size: 14px;">Loading general league standings...</p>
         </div>
-    </section>
+    </div>
+  </section>
+  
+  <section id="fixtures-list" class="lazy content-section">
+    <h2>⚽ Fixtures</h2>
+    <div id="fixtures-list-content"><div class="loader"></div></div>
+  </section>
 
-    <section id="fixtures-list" class="lazy content-section">
-        <h2>⚽ Today's Matches</h2>
-        <div id="fixtures-list-content">
-             <div class="loader"></div>
-             <ul>
-                 <li>
-                    <div class="fixture-summary">
-                        <div class="fixture-teams">
-                            <span class="team-name">AST</span> vs <span class="team-name">CHE</span>
-                        </div>
-                        <div class="fixture-score-status">
-                            <span class="score-live" id="match-1-score">0 - 0</span>
-                            <span class="match-status-tag">Upcoming</span>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="fixture-summary">
-                        <div class="fixture-teams">
-                            <span class="team-name">LIV</span> vs <span class="team-name">MUN</span>
-                        </div>
-                        <div class="fixture-score-status">
-                            <span class="score-live" id="match-2-score">1 - 0</span>
-                            <span class="match-status-tag score-live">LIVE</span>
-                        </div>
-                    </div>
-                </li>
-             </ul>
-        </div>
-    </section>
+  <section id="price-changes-list" class="lazy content-section">
+    <h2>📈 Price Changes</h2>
+    <div id="price-changes-list-content"><div class="loader"></div></div>
+  </section>
 
-    <section id="most-transferred-list" class="lazy content-section">
-        <h2>➡️ Transfers In</h2>
-        <div id="most-transferred-list-content"><div class="loader"></div></div>
-    </section>
+  <section id="most-transferred-list" class="lazy content-section">
+    <h2>➡️ Transfers In</h2>
+    <div id="most-transferred-list-content"><div class="loader"></div></div>
+  </section>
+
+  <section id="most-transferred-out-list" class="lazy content-section">
+    <h2>⬅️ Transfers Out</h2>
+    <div id="most-transferred-out-list-content"><div class="loader"></div></div>
+  </section>
+
+ <section id="status-list" class="lazy content-section">
+    <h2>⬅️ Injuries</h2>
+    <div id="status-list"><div class="loader"></div></div>
+ </section>
+
+
+  <section id="deadline-section" class="fpl-section content-section">
+    <h2 class="countdown-title">Loading Deadline...</h2>
+    
+    <div id="countdown-timer" class="countdown-display">
+        <p>Fetching next deadline time...</p>
+    </div>
+  </section>
 
     <section id="most-captained-list" class="lazy content-section">
-        <h2>©️ Captains</h2>
-        <div id="most-captained-list-content"><div class="loader"></div></div>
-    </section>
-    
-    <section id="status-list" class="lazy content-section">
-        <h2>🏥 Injuries</h2>
-        <div id="status-list"><div class="loader"></div></div>
-    </section>
-
-    <section id="price-changes-list" class="lazy content-section">
-        <h2>📈 Price Changes</h2>
-        <div id="price-changes-list-content"><div class="loader"></div></div>
-    </section>
-
-    <section id="most-transferred-out-list" class="lazy content-section">
-        <h2>⬅️ Transfers Out</h2>
-        <div id="most-transferred-out-list-content"><div class="loader"></div></div>
-    </section>
-
-    <section id="general-leagues-container" class="lazy fpl-section content-section">
-        <div class="collapsible-header" id="toggleGeneralLeagues">
-            <h2 style="display: inline-block; margin-right: 10px;">🌍 General Leagues</h2>
-            <i class="fa-solid fa-chevron-down toggle-icon"></i> 
-        </div>
-        <div id="general-leagues-list" class="collapsible-content hidden">
-            <div style="text-align: center; padding: 20px 0;">
-                <div class="loader"></div>
-                <p style="color: var(--subtext); margin-top: 15px; font-size: 14px;">Loading general league standings...</p>
-            </div>
-        </div>
-    </section>
-    
+    <h2>©️ Captains</h2>
+    <div id="most-captained-list-content"><div class="loader"></div></div>
+  </section>
+   
 </main>
 
 
 <nav id="bottom-nav">
-    <a href="#standings" class="nav-item active" data-id="standings">
+    <a href="#standings" class="nav-item" data-id="standings">
         <i class="fa-solid fa-house"></i> <span class="nav-text">Home</span>
         <div class="nav-highlight">
             <span class="highlight-info" data-info="standings"></span>
@@ -171,6 +148,5 @@
 </footer>
 
 <script src="script.js"></script>
-
 </body>
 </html>
