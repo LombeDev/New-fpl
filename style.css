@@ -2,14 +2,15 @@
 /* --- HIGH-END FANTASY DASHBOARD ROOT THEME VARIABLES (DARK MODE FIRST) --- */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 :root {
-    /* --- CORE HIGH-END LIGHT THEME --- */
-    --bg: #f8fafc; /* Pure White Background */
-    --text: #1A202C; /* Dark Charcoal/Near Black Text for high contrast */
-    --subtext: #6B7280; /* Medium Gray for secondary text/hints */
-    --card-bg: #ffffff; /* Very light Gray for Card Backgrounds */
-    --border: #E5E7EB; /* Light, subtle Border/Separator Line */
+    /* --- CORE HIGH-END DARK THEME --- */
+    --bg: #1A202C; /* Dark Charcoal Background */
+    --text: #F8FAFC; /* Pure White Text for high contrast */
+    --subtext: #94A3B8; /* Light Gray for secondary text/hints */
+    --card-bg: #2D3748; /* Slightly lighter dark gray for Card Backgrounds */
+    --border: #4A5568; /* Subtle Border/Separator Line */
     --accent: #00874C; /* **Primary Accent: Classic FPL Green (Darker for readability)** */
     --accent-dark: #005A32; /* Darker Accent for Hover/Active State */
+    
     /* --- FANTASY FOOTBALL STATUS COLORS --- */
     --success: #34D399; /* Emerald Green (Price Riser, Positive) */
     --danger: #F87171; /* Coral Red (Price Faller, Negative) */
@@ -17,9 +18,9 @@
     --primary-action-hover: #6366F1;
     
     /* --- NAV BAR & UTILITY --- */
-    --nav-bg: #ffffff; /* MODIFIED: White background for fixed/sticky bars */
+    --nav-bg: var(--card-bg); /* Use card color for nav */
     --nav-active: var(--accent);
-    --top-nav-bg: #ffffff; /* MODIFIED: White background for top nav bar */
+    --top-nav-bg: var(--card-bg);
     --top-nav-search-bg: #334155; 
     
     /* --- COMPETITION ZONES --- */
@@ -27,9 +28,23 @@
     --orange-el: #FBBF24; /* Amber/Gold for EL */
     --red-rl: #F87171; /* Same as danger for Relegation */
     
-    /* --- UI ELEMENTS --- */
-    --radius: 24px; /* Larger radius for a softer, modern look */
+    /* --- UI ELEMENTS & SPACING (MODERNIZED) --- */
+    --radius: 12px; /* MODIFIED: Smaller for better component density */
+    --radius-lg: 24px; /* For elements like FABs */
     --transition-speed: 0.3s;
+    
+    /* NEW: Consistent Spacing Scale (based on 8-point grid) */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 40px;
+    
+    /* NEW: Box Shadows (for premium lift/elevation in Dark Mode) */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5), 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-neon: 0 0 10px rgba(0, 255, 133, 0.5);
 }
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
@@ -37,7 +52,7 @@
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 body.light-mode {
     /* Core Colors */
-    --bg: #FFFFFF; /* Pure White (Reference from the uploaded image) */
+    --bg: #FFFFFF; /* Pure White */
     --text: #111827; /* Near Black for high contrast */
     --subtext: #4B5563; /* Darker Gray for secondary text */
     --card-bg: #F9FAFB; /* Off-White/Very light gray for Card Backgrounds */
@@ -52,9 +67,15 @@ body.light-mode {
     --primary-action-hover: #6366F1;
 
     /* Navigation/Utility */
-    --nav-bg: #FFFFFF; /* MODIFIED: White for the bottom nav bar */
-    --top-nav-bg: #FFFFFF; /* MODIFIED: White top bar (formerly dark) */
+    --nav-bg: #FFFFFF;
+    --top-nav-bg: #FFFFFF;
     --top-nav-search-bg: #F3F4F6; /* Light gray for search fields */
+
+    /* Light Mode Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 5px 15px rgba(0, 0, 0, 0.1);
+    --shadow-neon: 0 0 8px rgba(0, 179, 93, 0.2); /* Softer neon in light mode */
 }
 
 /* RESET */
@@ -66,7 +87,7 @@ body.light-mode {
 
 /* BODY */
 body {
-    font-family: 'Inter', sans-serif, Arial; /* Suggesting a modern font like Inter */
+    font-family: 'Inter', sans-serif, Arial; /* Modern, clean font */
     background-color: var(--bg);
     color: var(--text);
     min-height: 100vh;
@@ -76,93 +97,96 @@ body {
     flex-direction: column;
     align-items: center;
     overflow-x: hidden; 
+    line-height: 1.6; /* Improved readability */
 }
 
 /* MAIN CONTAINER (Increased max-width for dashboard feel) */
 main {
     display: flex;
     flex-direction: column;
-    max-width: 1200px; /* Increased max-width */
+    max-width: 1200px;
     width: 100%; 
-    margin: 0 auto;  
+    margin: 0 auto; 
     align-items: center; 
-    gap: 30px; /* Increased gap */
-    padding: 20px; /* Increased padding */
+    gap: var(--space-lg); /* Consistent spacing */
+    padding: var(--space-lg);
 }
 
-/* HEADINGS */
+/* HEADINGS (Refined Hierarchy) */
 h1, h2 {
-    text-align: center;
     color: var(--text);
-    margin-bottom: 20px;
-    letter-spacing: -0.5px; /* Tighter letter-spacing for modern look */
+    text-align: left; /* Dashboard-style alignment */
+    letter-spacing: -0.5px;
 }
 h1 { 
-    font-size: 42px; 
-    font-weight: 900; /* Extra bold */
+    font-size: 3.5rem; /* Larger and more impactful */
+    font-weight: 900; 
     line-height: 1.1; 
+    letter-spacing: -1.5px;
+    margin-bottom: var(--space-xl);
 }
 h2 { 
-    font-size: 28px; 
-    font-weight: 700; 
+    font-size: 2rem; 
+    font-weight: 800; 
+    margin-bottom: var(--space-lg);
 }
-header h2 {
-    font-size: 20px; 
-    font-weight: 600; 
-    color: var(--accent); 
-    margin-top: 0;
-    margin-bottom: 40px; 
+
+/* NEW: Card Title Class (Consistent across all components) */
+.card-title {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: var(--space-lg);
+    display: block; 
 }
+
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 /* --- PREMIUM CARD COMPONENT (.content-section) --- */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 .content-section {
     background-color: var(--card-bg); 
-    padding: 24px; 
+    padding: var(--space-lg); 
     
-    /* MODIFICATION 1: Uses the 24px radius defined in :root */
     border-radius: var(--radius); 
     
     border: 1px solid var(--border); 
-    margin-bottom: 30px; 
+    margin-bottom: var(--space-lg); 
     
-    /* MODIFICATION 2: Shadow removed completely */
-    box-shadow: none; 
+    /* MODIFIED: Subtle lift shadow for a modern, layered look */
+    box-shadow: var(--shadow-md); 
     
     transition: all var(--transition-speed) ease-in-out;
     width: 100%;
 
-    max-height: 350px; 
+    max-height: 450px; 
     overflow-y: auto;
 }
 
 .content-section:hover {
     /* Subtle lift on hover */
-    transform: translateY(-4px);
+    transform: translateY(-2px);
     
-    /* MODIFICATION 3: Reduced hover shadow significantly for a clean 'lift' effect */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
+    /* MODIFIED: Stronger shadow on hover */
+    box-shadow: var(--shadow-lg); 
 }
 
-/* Dark Mode Adjustment for Cards (Already set in root for card-bg) */
-body.light-mode .content-section {
-    /* MODIFICATION 4: Shadow removed completely in light mode */
-    box-shadow: none; 
-    border: 1px solid var(--border);
+/* Dark Mode Adjustment for Cards */
+body:not(.light-mode) .content-section {
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Lighter border in dark mode */
 }
 
 
 /* LIST DETAILS */
 ul {
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: var(--space-sm);
+    margin-bottom: var(--space-sm);
     padding-left: 0;
     list-style: none; 
 }
 
 li {
-    margin-bottom: 8px; 
+    margin-bottom: var(--space-sm); 
 }
 
 
@@ -177,25 +201,25 @@ li {
     display: flex; 
     justify-content: space-between; 
     align-items: center;
-    font-size: 14px; /* Increased font size */
-    padding: 12px 10px; /* Increased vertical padding and added horizontal padding */
+    font-size: 0.95rem; 
+    padding: var(--space-sm) var(--space-md); 
     margin-bottom: 0; 
     background: transparent; 
     border: none; 
     border-radius: 0; 
     
     border-bottom: 1px solid var(--border); 
-    transition: background-color var(--transition-speed); /* Smooth transition */
+    transition: background-color var(--transition-speed); 
 }
 
-/* NEW: Subtle hover effect on data rows */
+/* NEW: Subtle hover effect on data rows (using accent tint) */
 #standings-list div:hover,
 #price-changes-list div:hover,
 #most-transferred-list div:hover,
 #most-transferred-out-list div:hover,
 #most-captained-list div:hover {
     transform: none;
-    background: var(--top-nav-search-bg); /* Use a darker color for hover */
+    background: color-mix(in srgb, var(--accent) 5%, transparent); /* Subtle tint of accent on hover */
     cursor: pointer;
 }
 
@@ -205,11 +229,11 @@ li {
 #most-transferred-out-list div:last-child,
 #most-captained-list div:last-child {
     border-bottom: none;
-    padding-bottom: 12px; 
+    padding-bottom: var(--space-sm); 
 }
 
 .rank-number {
-    font-weight: 700;
+    font-weight: 800; /* Bolder */
     width: 30px; 
     color: var(--accent);
     text-align: left;
@@ -221,7 +245,7 @@ li {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis; 
-    padding: 0 15px; /* Increased padding */
+    padding: 0 var(--space-md); 
     font-weight: 600;
 }
 
@@ -229,36 +253,38 @@ li {
     font-weight: 700;
     width: 50px; 
     text-align: right;
-    font-size: 14px; 
+    font-size: 0.9rem; 
 }
 
 
-/* --- FPL DATA HEADERS --- */
+/* --- FPL DATA HEADERS (Using new card-title class, but keeping specific selector) --- */
 #price-changes-list h3,
 #most-transferred-list h3,
 #most-transferred-out-list h3,
 #most-captained-list h3,
 #fixtures-list h3 {
-    font-size: 18px;
+    /* Using the styles of the new .card-title class */
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--text);
-    margin: 15px 0 20px 0;
-    letter-spacing: 0.5px;
-    text-align: center;
+    margin: 0 0 var(--space-lg) 0;
+    letter-spacing: 0;
+    text-align: left;
 }
 
 #price-changes-list {
-    padding-top: 5px; 
+    padding-top: var(--space-sm); 
 }
 
+/* Thinner Accent Border for Highlighting */
 .price-riser {
-    border-left: 5px solid var(--success) !important;
+    border-left: 3px solid var(--success) !important;
 }
 .price-faller {
-    border-left: 5px solid var(--danger) !important;
+    border-left: 3px solid var(--danger) !important;
 }
 .transferred-out {
-    border-right: 5px solid var(--danger);
+    border-right: 3px solid var(--danger);
 }
 
 
@@ -266,8 +292,8 @@ li {
 #fixtures-list p {
     text-align: center;
     color: var(--subtext);
-    font-size: 14px;
-    margin-bottom: 15px;
+    font-size: 0.9rem;
+    margin-bottom: var(--space-md);
 }
 
 #fixtures-list ul {
@@ -279,14 +305,11 @@ li {
 #fixtures-list li {
     display: flex;
     flex-direction: column; 
-    padding: 10px 15px; 
+    padding: var(--space-sm) var(--space-md); 
     margin-bottom: 0; 
-    background: transparent; 
-    border-radius: 0; 
-    border: none; 
     border-bottom: 1px solid var(--border); 
     font-weight: 600;
-    font-size: 14px; 
+    font-size: 0.95rem; 
     transition: all .2s;
     position: relative; 
 }
@@ -300,6 +323,8 @@ li {
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    font-weight: 700; /* Bolder scoreline */
+    font-size: 1.1rem;
 }
 
 .match-status-tag {
@@ -308,8 +333,8 @@ li {
     right: 0;
     border-top-right-radius: var(--radius); 
     border-bottom-left-radius: var(--radius);
-    padding: 5px 10px;
-    font-size: 11px;
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.7rem;
     font-weight: 700;
     color: var(--bg); /* Dark text on bright status background */
 }
@@ -317,17 +342,17 @@ li {
 /* --- FIXTURE DETAILS (GOALS/ASSISTS/CARDS) STYLES --- */
 .fixture-details {
     width: 100%;
-    margin-top: 10px; 
-    padding-top: 8px; 
+    margin-top: var(--space-sm); 
+    padding-top: var(--space-sm); 
     border-top: 1px dashed var(--border);
-    font-size: 12px; 
+    font-size: 0.8rem; 
     line-height: 1.5; 
     color: var(--subtext);
-    padding-bottom: 2px; 
+    padding-bottom: var(--space-xs); 
 }
 
 
-/* --- EPL TABLE STYLES --- (Retaining Structure) */
+/* --- EPL TABLE STYLES --- */
 #epl-table-list {
     overflow-x: auto; 
 }
@@ -335,21 +360,21 @@ li {
 #epl-table-list table {
     width: 100%;
     border-collapse: separate; 
-    border-spacing: 0 8px; /* Increased spacing */
-    font-size: 14px;
+    border-spacing: 0 var(--space-sm); 
+    font-size: 0.95rem;
     text-align: center;
 }
 
 #epl-table-list th, 
 #epl-table-list td {
-    padding: 12px 6px;
+    padding: var(--space-sm) var(--space-xs);
     white-space: nowrap;
 }
 
-/* Zone Highlighting */
-.champions-league td:first-child { border-left: 5px solid var(--blue-cl); }
-.europa-league td:first-child { border-left: 5px solid var(--orange-el); }
-.relegation-zone td:first-child { border-left: 5px solid var(--red-rl); }
+/* Zone Highlighting - Using thinner border for modern look */
+.champions-league td:first-child { border-left: 3px solid var(--blue-cl); }
+.europa-league td:first-child { border-left: 3px solid var(--orange-el); }
+.relegation-zone td:first-child { border-left: 3px solid var(--red-rl); }
 
 
 /* --- UTILITY CLASSES --- */
@@ -368,22 +393,22 @@ li {
 .minutes-played {
     font-weight: 500; 
     color: var(--subtext); 
-    font-size: 13px;
+    font-size: 0.8rem;
     white-space: nowrap; 
-    margin-left: 8px; 
+    margin-left: var(--space-sm); 
 }
 
 /* --- COUNTDOWN TIMER STYLES --- */
 .countdown-title {
     color: var(--accent);
     text-shadow: 0 0 5px rgba(0, 255, 133, 0.5); /* Subtle neon glow */
-    margin-bottom: 10px;
+    margin-bottom: var(--space-sm);
 }
 .countdown-display {
-    font-size: 20px;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--text);
-    padding: 10px 0;
+    padding: var(--space-sm) 0;
 }
 
 
@@ -405,27 +430,24 @@ li {
 
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- NEW: HIGH-END BUTTON STYLES (Gradient, Glow, Smooth Transition) --- */
+/* --- HIGH-END BUTTON STYLES (Gradient, Glow, Smooth Transition) --- */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
 .fpl-button-base {
-    /* Basic Button Styling */
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 12px 28px; /* Generous padding */
-    font-size: 16px;
+    padding: 12px 28px; 
+    font-size: 1rem;
     font-weight: 700;
     text-decoration: none;
     cursor: pointer;
-    border-radius: var(--radius); /* Uses the large radius defined in :root (16px) */
+    border-radius: var(--radius);
     border: none;
     line-height: 1;
     
-    /* Smooth Transition for all effects */
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     
-    /* Ensures glow doesn't get cut off */
     position: relative; 
     overflow: hidden; 
     z-index: 1; 
@@ -433,7 +455,6 @@ li {
 
 /* --- PRIMARY GLOW BUTTON (Using Indigo + Neon Green) --- */
 .fpl-button-primary {
-    /* Background Gradient */
     background: linear-gradient(135deg, var(--primary-action), var(--primary-action-hover));
     color: var(--text); 
     
@@ -464,12 +485,10 @@ li {
     border: 2px solid var(--border); 
     padding: 10px 26px; 
     
-    /* Initial subtle glow/shadow */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .fpl-button-secondary:hover {
-    /* Hover Style: Fill with a dark accent color and apply glow */
     color: var(--card-bg); 
     background-color: var(--accent); 
     border-color: var(--accent);
@@ -483,31 +502,29 @@ li {
 
 /* --- OPTIONAL: BUTTON WITH ICON --- */
 .fpl-button-base i {
-    margin-right: 8px; 
-    font-size: 18px;
+    margin-right: var(--space-sm); 
+    font-size: 1.125rem;
 }
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- NEW: FLOATING ACTION BUTTON (FAB) FOR TRANSFERS (Mobile Focus) --- */
+/* --- FLOATING ACTION BUTTON (FAB) FOR TRANSFERS (Mobile Focus) --- */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
 #transferFAB {
-    /* Inherit the primary button style overrides */
     position: fixed;
-    bottom: 90px; /* Above the bottom navigation bar (70px + margin) */
+    bottom: 90px; 
     right: 20px;
     z-index: 990;
     
     width: 55px; 
     height: 55px;
     padding: 0;
-    border-radius: 50%; 
+    border-radius: 50%; /* Perfect circle */
     
-    font-size: 24px; 
+    font-size: 1.5rem; 
     line-height: 1;
     text-align: center;
     
-    /* Primary Gradient/Glow - Stronger initial state */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -535,7 +552,7 @@ li {
         0 0 15px var(--accent-dark) inset; 
 }
 
-/* Hide FAB on desktop (since desktop has the nav bar actions) */
+/* Hide FAB on desktop */
 @media (min-width: 1024px) {
     #transferFAB {
         display: none;
@@ -546,7 +563,7 @@ li {
 /* --- SCROLL TO TOP BUTTON --- */
 #backToTop {
     position: fixed;
-    bottom: 100px; /* Elevated to clear the new mobile nav */
+    bottom: 100px; 
     right: 20px; 
     background: var(--primary-action); 
     color: #fff;
@@ -554,7 +571,7 @@ li {
     border-radius: 50%;
     width: 45px; 
     height: 45px; 
-    font-size: 22px; 
+    font-size: 1.375rem; 
     display: none; 
     align-items: center;
     justify-content: center;
@@ -577,10 +594,10 @@ li {
     background: var(--card-bg); 
     color: var(--text); 
     border: 1px solid var(--border);
-    padding: 8px 12px; 
+    padding: var(--space-sm) var(--space-md); 
     border-radius: var(--radius);
     cursor: pointer;
-    font-size: 16px; 
+    font-size: 1rem; 
     box-shadow: 0 2px 10px rgba(0,0,0,0.3); 
     transition: all var(--transition-speed);
     z-index: 999;
@@ -592,8 +609,8 @@ li {
 
 /* --- FOOTER STYLES --- */
 footer {
-    padding: 30px 20px;
-    margin-top: 50px;
+    padding: var(--space-xl) var(--space-lg);
+    margin-top: var(--space-xl);
     border-top: 1px solid var(--border); 
     text-align: center;
     font-size: 0.9em;
@@ -601,19 +618,19 @@ footer {
     width: 100%;
 }
 footer .social-links {
-    margin: 15px 0;
+    margin: var(--space-md) 0;
 }
 footer .social-links a {
     color: var(--subtext);
-    font-size: 18px;
-    margin: 0 10px;
+    font-size: 1.125rem;
+    margin: 0 var(--space-sm);
     transition: color 0.2s;
 }
 footer .social-links a:hover {
     color: var(--accent);
 }
 .disclaimer {
-    margin-top: 10px;
+    margin-top: var(--space-sm);
     font-size: 0.75em;
 }
 
@@ -640,7 +657,6 @@ footer .social-links a:hover {
 }
 #bottom-nav-bar {
     top: 50px; 
-    /* Reduced shadow opacity for cleaner white background */
     box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
     background-color: var(--nav-bg); 
     height: 60px; 
@@ -653,15 +669,15 @@ footer .social-links a:hover {
     display: flex;
     justify-content: space-between; 
     align-items: center; 
-    padding-left: 20px; 
-    padding-right: 20px; 
+    padding-left: var(--space-lg); 
+    padding-right: var(--space-lg); 
     height: 100%; 
 }
 
 /* --- TOP BAR ELEMENTS --- */
 .social-icons a {
     color: var(--subtext); 
-    font-size: 18px; 
+    font-size: 1.125rem; 
     transition: color 0.2s;
 }
 .social-icons a:hover {
@@ -670,48 +686,44 @@ footer .social-links a:hover {
 
 /* Updated Top Nav buttons with premium glow style */
 .signin-btn, .search-btn {
-    /* Manual Base Overrides (Matching fpl-button-base) */
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 15px; /* Smaller padding for top nav */
-    font-size: 14px; /* Smaller font size */
+    padding: var(--space-sm) var(--space-md); 
+    font-size: 0.875rem; 
     font-weight: 700;
     line-height: 1;
     cursor: pointer;
-    border-radius: 8px; /* Using 8px for top nav for a tighter look */
+    border-radius: var(--space-sm); 
     border: none;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     position: relative; 
     overflow: hidden; 
     z-index: 1; 
 
-    /* Primary Gradient/Color */
     background: linear-gradient(90deg, var(--primary-action), var(--primary-action-hover));
     color: var(--text);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Initial subtle shadow */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); 
 }
 
 .signin-btn:hover, .search-btn:hover {
-    /* Hover effects (using a scaled-down version of the primary button glow) */
     transform: translateY(-1px); 
     background: linear-gradient(90deg, var(--primary-action-hover), var(--primary-action));
     
-    /* Subtle Glow on hover */
     box-shadow: 
-        0 4px 10px rgba(0, 0, 0, 0.5), /* Stronger lift shadow */
-        0 0 0 1px var(--accent), /* Thin border shifts to neon */
-        0 0 12px var(--accent); /* Light neon glow */
+        0 4px 10px rgba(0, 0, 0, 0.5), 
+        0 0 0 1px var(--accent), 
+        0 0 12px var(--accent); 
 }
 
 .search-btn i {
-    margin-right: 5px;
+    margin-right: var(--space-xs);
 }
 
 /* --- BOTTOM BAR ELEMENTS (Main Nav - Used for links in older HTML) --- */
 .fpl-logo {
     color: var(--accent);
-    font-size: 24px; 
+    font-size: 1.5rem; 
     font-weight: 900;
     line-height: 1.1;
     text-transform: uppercase;
@@ -732,11 +744,10 @@ footer .social-links a:hover {
 }
 
 .main-links a {
-    /* Note: Text color is now white in dark mode, near-black in light mode (inherited from --text) */
     color: var(--text);
     text-decoration: none;
-    padding: 0 20px; 
-    font-size: 15px;
+    padding: 0 var(--space-lg); 
+    font-size: 0.9375rem;
     font-weight: 600;
     height: 100%; 
     display: flex;
@@ -745,8 +756,7 @@ footer .social-links a:hover {
 }
 
 .main-links a:hover {
-    /* Hover background is still dark in dark mode, light gray in light mode (depending on how top-nav-search-bg is used) */
-    background-color: rgba(0, 0, 0, 0.05); /* Lighter hover for white background */
+    background-color: rgba(0, 0, 0, 0.05); 
     color: var(--accent);
 }
 
@@ -759,7 +769,7 @@ footer .social-links a:hover {
     position: sticky;
     top: 0;
     z-index: 950;
-    background: var(--nav-bg); /* Now white in both modes */
+    background: var(--nav-bg); 
     padding: 0;
     height: 90px;
     border-bottom: 2px solid var(--accent);
@@ -767,7 +777,7 @@ footer .social-links a:hover {
 }
 @media (min-width: 1024px) {
     #new-top-nav-desktop {
-        display: block; /* Show on desktop */
+        display: block; 
     }
 }
 
@@ -795,7 +805,7 @@ footer .social-links a:hover {
     background: var(--primary-action); 
     border: 5px solid var(--accent); 
     color: white !important; 
-    font-size: 36px;
+    font-size: 2.25rem;
     font-weight: 900;
     text-decoration: none !important;
     line-height: 1;
@@ -809,12 +819,12 @@ footer .social-links a:hover {
     border: none;
     border-radius: 50px; 
     padding: 10px 15px;
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-sm);
     transition: background-color 0.2s, transform 0.1s;
     line-height: 1;
     height: 40px;
@@ -826,16 +836,15 @@ footer .social-links a:hover {
 }
 
 .desktop-user-actions .nav-btn {
-    padding-left: 10px;
+    padding-left: var(--space-sm);
 }
 
 .user-profile-orb {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    /* Rainbow gradient, or use a solid accent color for simplicity */
     background: var(--accent); 
-    margin-right: 5px;
+    margin-right: var(--space-xs);
     box-shadow: 0 0 5px rgba(0, 255, 133, 0.7);
 }
 
@@ -855,7 +864,7 @@ footer .social-links a:hover {
     transform: translateX(-100%); 
     transition: transform 0.3s ease-out;
     z-index: 1000;
-    padding: 20px;
+    padding: var(--space-lg);
     display: none; 
     flex-direction: column;
 }
@@ -869,22 +878,22 @@ footer .social-links a:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 15px;
+    padding-bottom: var(--space-md);
     border-bottom: 1px solid var(--border);
-    margin-bottom: 10px;
+    margin-bottom: var(--space-sm);
 }
 
 .menu-header h3 {
     margin: 0;
     color: var(--text);
-    font-size: 20px;
+    font-size: 1.25rem;
 }
 
 .off-canvas-menu .close-btn {
     background: none;
     color: var(--subtext);
     border: none;
-    font-size: 24px;
+    font-size: 1.5rem;
     padding: 0;
     height: initial;
     transition: color 0.2s;
@@ -896,18 +905,18 @@ footer .social-links a:hover {
 .off-canvas-menu .nav-links-list {
     list-style: none;
     padding: 0;
-    margin-top: 10px;
+    margin-top: var(--space-sm);
     flex-grow: 1;
 }
 
 .off-canvas-menu .nav-links-list a {
     display: flex;
     align-items: center;
-    padding: 15px 10px;
+    padding: var(--space-md) var(--space-sm);
     text-decoration: none;
     color: var(--text);
     font-weight: 500;
-    border-radius: 8px;
+    border-radius: var(--space-sm);
     transition: background-color 0.2s;
 }
 
@@ -917,15 +926,15 @@ footer .social-links a:hover {
 }
 
 .off-canvas-menu .nav-links-list i {
-    margin-right: 15px;
+    margin-right: var(--space-md);
     width: 20px;
     text-align: center;
     color: var(--primary-action); 
-    font-size: 18px;
+    font-size: 1.125rem;
 }
 
 .menu-footer {
-    padding-top: 20px;
+    padding-top: var(--space-lg);
     border-top: 1px solid var(--border);
 }
 
@@ -955,11 +964,11 @@ body.light-mode #themeToggleMenu {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 70px; /* Taller */
-    background: var(--nav-bg); /* Now white in both modes */
-    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1); /* Lighter shadow for white background */
+    height: 70px; 
+    background: var(--nav-bg); 
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1); 
     z-index: 980;
-    padding: 0 5px;
+    padding: 0 var(--space-xs);
 }
 
 /* Default: Hide the new bottom nav on desktop screens */
@@ -976,7 +985,7 @@ body.light-mode #themeToggleMenu {
     justify-content: center;
     text-decoration: none;
     color: var(--subtext);
-    font-size: 11px;
+    font-size: 0.6875rem;
     font-weight: 600;
     width: 20%;
     height: 60px;
@@ -985,8 +994,8 @@ body.light-mode #themeToggleMenu {
 }
 
 .nav-item i {
-    font-size: 20px; 
-    margin-bottom: 4px;
+    font-size: 1.25rem; 
+    margin-bottom: var(--space-xs);
     transition: all 0.3s;
 }
 
@@ -998,9 +1007,9 @@ body.light-mode #themeToggleMenu {
     width: 0; 
     height: 60px;
     background-color: var(--accent);
-    border-radius: 40px; 
+    border-radius: var(--space-xl); 
     opacity: 0;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Spring-like transition */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
     z-index: -1;
 }
 
@@ -1013,13 +1022,13 @@ body.light-mode #themeToggleMenu {
 
 .nav-item.active,
 .nav-item:hover {
-    color: var(--card-bg); /* Text color shifts to card-bg (white text) */
+    color: var(--card-bg); /* Text color shifts to white/light */
 }
 
-/* *** LIGHT MODE SPECIFIC OVERRIDE *** */
+/* *** LIGHT MODE SPECIFIC OVERRIDE (for contrast on green) *** */
 body.light-mode .nav-item.active,
 body.light-mode .nav-item:hover {
-    color: var(--text); /* Near black text on the green highlight (Better contrast) */
+    color: var(--text); 
 }
 /* ************************************ */
 
@@ -1034,7 +1043,7 @@ body.light-mode .nav-item:hover {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
-    display: none; /* Controlled by JavaScript */
+    display: none; 
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -1064,15 +1073,15 @@ body.light-mode .nav-item:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 15px;
+    padding-bottom: var(--space-md);
     border-bottom: 1px solid var(--border);
-    margin-bottom: 20px;
+    margin-bottom: var(--space-lg);
 }
 
 .modal-header h3 {
     margin: 0;
     color: var(--accent);
-    font-size: 24px;
+    font-size: 1.5rem;
     font-weight: 700;
 }
 
@@ -1090,11 +1099,11 @@ body.light-mode .nav-item:hover {
 .modal-options-list li a {
     display: flex;
     align-items: center;
-    padding: 12px 10px;
+    padding: var(--space-md) var(--space-sm);
     text-decoration: none;
     color: var(--text);
     font-weight: 500;
-    border-radius: 8px;
+    border-radius: var(--space-sm);
     transition: background-color 0.2s, color 0.2s;
 }
 
@@ -1104,30 +1113,29 @@ body.light-mode .nav-item:hover {
 }
 
 .modal-options-list i {
-    margin-right: 15px;
+    margin-right: var(--space-md);
     color: var(--subtext);
     width: 20px;
     text-align: center;
-    font-size: 18px;
+    font-size: 1.125rem;
 }
 .modal-options-list li a:hover i {
     color: var(--accent);
 }
 
 .modal-footer {
-    padding-top: 20px;
+    padding-top: var(--space-lg);
     border-top: 1px solid var(--border);
     text-align: right;
 }
 
 /* Close button inherited from base styles */
 .close-btn-lg {
-    /* Using a simplified version of the primary button for consistency */
     background: var(--primary-action);
     color: var(--text);
-    padding: 8px 20px;
+    padding: var(--space-sm) var(--space-lg);
     border: none;
-    border-radius: 8px;
+    border-radius: var(--space-sm);
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -1138,15 +1146,12 @@ body.light-mode .nav-item:hover {
 }
 
 
-
-
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* 📱 NEW: MOBILE MENU/SEARCH MODAL STYLES (Extends existing modal) 📱 */
+/* 📱 MOBILE MENU/SEARCH MODAL STYLES (Extends existing modal) 📱 */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 
 #mobile-menu-modal {
-    /* Base Modal container inherited from #more-options-modal */
-    display: none; /* Start hidden */
+    display: none; 
 }
 
 /* Replicate/rename the common modal base class */
@@ -1165,17 +1170,17 @@ body.light-mode .nav-item:hover {
 /* Mobile search specific styling */
 .menu-search-container {
     display: flex;
-    margin-bottom: 25px;
+    margin-bottom: var(--space-lg);
     border: 2px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
-    background-color: var(--top-nav-search-bg); /* Use a darker base color */
+    background-color: var(--top-nav-search-bg); 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     transition: all 0.3s;
 }
 .menu-search-container:focus-within {
-    border-color: var(--accent); /* Neon border on focus */
-    box-shadow: 0 0 15px rgba(0, 255, 133, 0.5); /* Neon glow on focus */
+    border-color: var(--accent); 
+    box-shadow: var(--shadow-neon); 
 }
 
 #mobile-search-input {
@@ -1184,7 +1189,7 @@ body.light-mode .nav-item:hover {
     border: none;
     background: transparent;
     color: var(--text);
-    font-size: 16px;
+    font-size: 1rem;
     outline: none;
 }
 #mobile-search-input::placeholder {
@@ -1192,13 +1197,12 @@ body.light-mode .nav-item:hover {
 }
 
 .search-icon-btn {
-    /* Style matching the top-nav buttons, but adapted */
     background: var(--primary-action);
     color: var(--text);
     padding: 0 15px;
     border: none;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 600;
     transition: background 0.2s;
 }
@@ -1210,77 +1214,52 @@ body.light-mode .nav-item:hover {
 .menu-separator {
     height: 1px;
     background-color: var(--border);
-    margin: 10px 0;
+    margin: var(--space-sm) 0;
 }
 
 
-
-
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* 💻 DASHBOARD CSS GRID LAYOUT (Desktop Only) 💻 */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
 @media (min-width: 1024px) {
     main {
-        /* Set main as the grid container */
         display: grid; 
-        /* Define the structure: 4 equal columns */
         grid-template-columns: repeat(4, 1fr); 
-        gap: 20px; 
+        gap: var(--space-lg); 
         
-        /* Ensure the individual sections don't have conflicting margins */
-        padding: 20px; /* Keep main padding */
-        margin: 0 auto;
-        width: 100%;
-        max-width: 1200px; 
+        padding: var(--space-lg); 
+        margin: var(--space-lg) auto;
+        max-width: 1400px; 
     }
     
-    /* --- ROW 1: FULL WIDTH ELEMENTS (General Leagues and Fixtures) --- */
-    /* Place the two largest sections to span all 4 columns for readability */
-    
-    #general-leagues-container {
-        grid-column: 1 / -1; /* Spans all 4 columns (1 to end) */
-        grid-row: 1;
+    /* --- KEY WIDE SECTIONS (Spanning 4 columns) --- */
+    #general-leagues-container,
+    #epl-table-container { 
+        grid-column: 1 / -1; 
     }
     
-    #fixtures-list {
-        grid-column: 1 / -1; /* Spans all 4 columns */
-        grid-row: 2;
+    /* --- WIDE CONTENT SECTIONS (Spanning 2 columns) --- */
+    #fixtures-list-container {
+        grid-column: span 2;
+        grid-row: auto; 
+    }
+
+    /* --- STANDARD CONTENT SECTIONS (Spanning 1 column) --- */
+    /* This section organizes the small 1-column cards into 2 rows of 2 cards */
+    #price-changes-container,
+    #most-transferred-list-container {
+        grid-column: span 2; 
+        grid-row: auto; 
     }
     
-    /* --- ROW 2: FOUR-COLUMN SUMMARY (Price Changes, Transfers In/Out, Injuries, Captains) --- */
-    /* These items will sit next to each other */
-    
-    #price-changes-list {
-        grid-column: 1 / 2;
+    #most-transferred-out-list-container,
+    #most-captained-list-container {
+        grid-column: span 2; 
+        grid-row: auto; 
     }
-}
-
-
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- FIX: MOBILE TAP HIGHLIGHT REMOVAL (Removes the outline/flash when tapping buttons/links) --- */
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-
-/* 1. Target the interactive elements in the primary navigation bars and all buttons */
-#bottom-nav .nav-item,
-#bottom-nav a,
-.signin-btn,
-.search-btn,
-#transferFAB,
-#backToTop,
-.fpl-button-base,
-.fpl-button-primary,
-.fpl-button-secondary,
-a {
-    /* Prevents the default focus outline from appearing on click/tap */
-    outline: none !important; 
     
-    /* Disables the tap color overlay used by WebKit browsers (iOS/Android) */
-    -webkit-tap-highlight-color: transparent !important;
-    
-    /* Prevents text content from being highlighted/selected on press */
-    user-select: none;
-    -webkit-user-select: none; 
-}
-
-/* 2. Global Tap Fix (Ensures the fix applies to all interactive elements) */
-button, input[type="button"], input[type="submit"] {
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
+    /* Ensure the general leagues list doesn't have an unnecessary margin-bottom */
+    .content-section {
+        margin-bottom: 0;
+    }
 }
