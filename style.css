@@ -1,72 +1,97 @@
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- HIGH-END FANTASY DASHBOARD ROOT THEME VARIABLES (DARK MODE FIRST) --- */
+/* --- ONEFOOTBALL THEME OVERRIDES (Prioritize Dark Mode) --- */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 :root {
-    /* --- CORE HIGH-END LIGHT THEME --- */
-    --bg: #f8fafc; /* Pure White Background */
-    --text: #1A202C; /* Dark Charcoal/Near Black Text for high contrast */
-    --subtext: #6B7280; /* Medium Gray for secondary text/hints */
-    --card-bg: #ffffff; /* Very light Gray for Card Backgrounds */
-    --border: #E5E7EB; /* Light, subtle Border/Separator Line */
-    --accent: #00874C; /* **Primary Accent: Classic FPL Green (Darker for readability)** */
-    --accent-dark: #005A32; /* Darker Accent for Hover/Active State */
-    /* --- FANTASY FOOTBALL STATUS COLORS --- */
-    --success: #34D399; /* Emerald Green (Price Riser, Positive) */
-    --danger: #F87171; /* Coral Red (Price Faller, Negative) */
-    --primary-action: #4F46E5; /* Deep Indigo (Button BG) */
-    --primary-action-hover: #6366F1;
+    /* --- CORE ONEFOOTBALL DARK THEME --- */
+    --bg: #1A1A1A;          /* Dark Charcoal/Near Black Background */
+    --text: #FFFFFF;        /* Pure White Text for high contrast */
+    --subtext: #A0A0A0;      /* Medium Gray for secondary text */
+    --card-bg: #232323;     /* Slightly Lighter Dark Gray for Card Backgrounds */
+    --border: #333333;      /* Dark, subtle Border/Separator Line */
+    --accent: #85FF12;      /* **Primary Accent: Vibrant Lime Green** */
+    --accent-dark: #64C20A; /* Darker Lime Green for Hover/Active State */
+    
+    /* --- FANTASY FOOTBALL STATUS COLORS (Use new palette) --- */
+    --success: var(--accent); /* Use lime green for price riser */
+    --danger: #FF3366;      /* Vibrant Pink/Red for price faller */
+    --primary-action: #404040; /* Darker Button BG */
+    --primary-action-hover: #505050;
     
     /* --- NAV BAR & UTILITY --- */
-    --nav-bg: #ffffff; /* MODIFIED: White background for fixed/sticky bars */
-    --nav-active: var(--accent);
-    --top-nav-bg: #ffffff; /* MODIFIED: White background for top nav bar */
-    --top-nav-search-bg: #334155; 
+    --nav-bg: #1A1A1A;       /* Dark background for fixed/sticky bars */
+    --top-nav-bg: #1A1A1A;   /* Dark background for top nav bar */
+    --top-nav-search-bg: #333333; /* Darker background for search fields */
     
-    /* --- COMPETITION ZONES --- */
-    --blue-cl: #60A5FA; /* Brighter Blue for CL */
-    --orange-el: #FBBF24; /* Amber/Gold for EL */
-    --red-rl: #F87171; /* Same as danger for Relegation */
+    /* --- COMPETITION ZONES (Using new Dark/Accent Colors) --- */
+    --blue-cl: #60A5FA;
+    --orange-el: #FBBF24;
+    --red-rl: var(--danger);
     
     /* --- UI ELEMENTS --- */
-    --radius: 24px; /* Larger radius for a softer, modern look */
+    --radius: 8px; /* Tighter radius for a modern, sharp look */
     --transition-speed: 0.3s;
 }
 
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* 💡 LIGHT MODE: CUSTOMIZED FOR PURE WHITE BACKGROUND 💡 */
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* Light Mode Override (For theme toggle functionality, ensuring it remains dark) */
 body.light-mode {
-    /* Core Colors */
-    --bg: #FFFFFF; /* Pure White (Reference from the uploaded image) */
-    --text: #111827; /* Near Black for high contrast */
-    --subtext: #4B5563; /* Darker Gray for secondary text */
-    --card-bg: #F9FAFB; /* Off-White/Very light gray for Card Backgrounds */
-    --border: #E5E7EB; /* Light border */
-    
-    /* Accent & Action Colors (Kept for Brand Consistency) */
-    --accent: #00B35D; /* Darker, more legible green for light mode */
-    --accent-dark: #00994C;
-    --success: #10B981;
-    --danger: #EF4444;
-    --primary-action: #4F46E5;
-    --primary-action-hover: #6366F1;
-
-    /* Navigation/Utility */
-    --nav-bg: #FFFFFF; /* MODIFIED: White for the bottom nav bar */
-    --top-nav-bg: #FFFFFF; /* MODIFIED: White top bar (formerly dark) */
-    --top-nav-search-bg: #F3F4F6; /* Light gray for search fields */
+    --bg: #1A1A1A;
+    --text: #FFFFFF;
+    --subtext: #A0A0A0;
+    --card-bg: #232323;
+    --border: #333333;
+    --accent: #85FF12;
+    --accent-dark: #64C20A;
+    --success: var(--accent);
+    --danger: #FF3366;
+    --primary-action: #404040;
+    --primary-action-hover: #505050;
+    --nav-bg: #1A1A1A;
+    --top-nav-bg: #1A1A1A;
+    --top-nav-search-bg: #333333;
 }
 
-/* RESET */
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- ANIMATION: SCORE UPDATE (Slide and Flash) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+@keyframes slideInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(10px) scale(0.9);
+        color: var(--danger); /* Flash with the danger/secondary color */
+    }
+    50% {
+        opacity: 1;
+        transform: translateX(0) scale(1.05); /* Slight bounce/scale up */
+        color: var(--accent); /* Transition to the primary Lime Green */
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        color: var(--accent); /* Settle on the final color */
+    }
+}
+
+.score-live.score-update {
+    animation: slideInRight 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; 
+}
+.rank-change.score-update {
+    animation: slideInRight 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; 
+}
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- RESET & CORE BODY --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
 * {
     margin: 0;
     padding: 0; 
     box-sizing: border-box; 
 }
 
-/* BODY */
 body {
-    font-family: 'Inter', sans-serif, Arial; /* Suggesting a modern font like Inter */
+    /* Use a modern, bold font (or remove if using default) */
+    font-family: 'Roboto Condensed', 'Inter', sans-serif, Arial; 
     background-color: var(--bg);
     color: var(--text);
     min-height: 100vh;
@@ -76,98 +101,200 @@ body {
     flex-direction: column;
     align-items: center;
     overflow-x: hidden; 
+    scroll-behavior: smooth;
 }
 
-/* MAIN CONTAINER (Increased max-width for dashboard feel) */
 main {
     display: flex;
     flex-direction: column;
-    max-width: 1200px; /* Increased max-width */
+    max-width: 1200px;
     width: 100%; 
-    margin: 0 auto;  
+    margin: 0 auto; 
     align-items: center; 
-    gap: 30px; /* Increased gap */
-    padding: 20px; /* Increased padding */
+    gap: 15px; /* Reduced gap between sections for tighter mobile feel */
+    padding: 20px;
 }
 
-/* HEADINGS */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- HEADINGS & CONTENT SECTIONS (CARDS) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
 h1, h2 {
-    text-align: center;
+    text-align: left; /* Headers usually align left within the card */
     color: var(--text);
     margin-bottom: 20px;
-    letter-spacing: -0.5px; /* Tighter letter-spacing for modern look */
-}
-h1 { 
-    font-size: 42px; 
-    font-weight: 900; /* Extra bold */
-    line-height: 1.1; 
+    letter-spacing: -0.5px;
 }
 h2 { 
-    font-size: 28px; 
-    font-weight: 700; 
-}
-header h2 {
-    font-size: 20px; 
-    font-weight: 600; 
-    color: var(--accent); 
-    margin-top: 0;
-    margin-bottom: 40px; 
+    font-size: 24px; 
+    font-weight: 900; /* Extra bold */
+    text-transform: uppercase;
+    padding-left: 10px;
+    border-left: 4px solid var(--accent); /* Lime green left border marker */
 }
 
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- PREMIUM CARD COMPONENT (.content-section) --- */
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
 .content-section {
-    background-color: var(--card-bg); 
+    background-color: var(--card-bg); /* Now uses #232323 */
     padding: 24px; 
+    border-radius: var(--radius); /* Now 8px */
+    border: none;
+    margin-bottom: 15px; /* Reduced bottom margin */
     
-    /* MODIFICATION 1: Uses the 24px radius defined in :root */
-    border-radius: var(--radius); 
-    
-    border: 1px solid var(--border); 
-    margin-bottom: 30px; 
-    
-    /* MODIFICATION 2: Shadow removed completely */
-    box-shadow: none; 
+    /* Strong shadow for a "lifted" feel on dark background */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.7); 
     
     transition: all var(--transition-speed) ease-in-out;
     width: 100%;
-
-    max-height: 350px; 
+    max-height: 400px; /* Slight increase in max height */
     overflow-y: auto;
 }
 
 .content-section:hover {
-    /* Subtle lift on hover */
     transform: translateY(-4px);
-    
-    /* MODIFICATION 3: Reduced hover shadow significantly for a clean 'lift' effect */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
+    /* Intense shadow/glow on hover */
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.9), 0 0 15px rgba(133, 255, 18, 0.5); 
 }
 
-/* Dark Mode Adjustment for Cards (Already set in root for card-bg) */
-body.light-mode .content-section {
-    /* MODIFICATION 4: Shadow removed completely in light mode */
-    box-shadow: none; 
-    border: 1px solid var(--border);
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- 1. DEADLINE SECTION (The Banner) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+#deadline-section {
+    background-color: var(--card-bg); 
+    border-top: 4px solid var(--accent); /* Top lime green band */
+    padding: 15px 20px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); 
+    margin: 10px;
 }
 
-
-/* LIST DETAILS */
-ul {
-    margin-top: 10px;
-    margin-bottom: 10px;
+.countdown-title {
+    color: var(--accent);
+    font-size: 1.2em;
+    font-weight: 900;
+    text-shadow: 0 0 5px rgba(133, 255, 18, 0.4); 
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    border-left: none; /* Remove left border marker for this banner title */
     padding-left: 0;
-    list-style: none; 
 }
-
-li {
-    margin-bottom: 8px; 
+.countdown-display {
+    font-size: 30px; 
+    font-weight: 900;
+    color: var(--text);
 }
 
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- MODIFIED: STANDINGS, PRICE CHANGES, TRANSFERS IN/OUT, AND CAPTAIN ROWS (DATA ROWS) --- */
+/* --- 2. FIXTURES SECTION (Match Cards / Sticky Desktop Bar) --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+/* Default Mobile Match Card Style */
+#fixtures-list li {
+    display: flex;
+    flex-direction: row; 
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 10px;
+    font-size: 16px;
+    background: transparent;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+}
+#fixtures-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.fixture-teams {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    flex-grow: 1;
+    padding-right: 10px;
+}
+.team-name {
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.fixture-score-status {
+    text-align: right;
+    font-weight: 900;
+    min-width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.score-live {
+    color: var(--accent); /* Lime Green for scores/live updates */
+    font-size: 1.2em; 
+    line-height: 1.2;
+}
+
+.match-status-tag {
+    background-color: var(--accent);
+    color: var(--background-dark);
+    border-radius: 4px; 
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+
+/* Desktop Score Bar Implementation */
+@media (min-width: 1024px) {
+    #fixtures-list {
+        grid-column: 1 / -1; 
+        grid-row: 2; 
+        
+        position: sticky;
+        top: 50px; /* Position it below the small top nav bar */
+        
+        z-index: 900; 
+        
+        margin: 0; 
+        border-radius: 0; 
+        padding: 10px 20px; 
+        
+        background-color: var(--card-bg); 
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); 
+        
+        /* Set max-height for the bar and ensure internal content scrolls */
+        max-height: 90px;
+        overflow: hidden;
+    }
+    
+    /* Hide the header on the sticky bar */
+    #fixtures-list h2 {
+        display: none;
+    }
+    
+    /* Enable horizontal scrolling for the scores list content */
+    #fixtures-list-content {
+        display: flex; 
+        overflow-x: auto; 
+        gap: 20px; 
+        padding-bottom: 5px;
+        align-items: center;
+        max-height: 70px; /* Constrain height */
+    }
+    
+    /* Fixture list items need to be inline blocks to flow horizontally */
+    #fixtures-list li {
+        min-width: 220px; /* Wider card item for desktop */
+        flex-shrink: 0;
+        display: block; 
+        border-bottom: none !important; 
+        border-right: 1px solid var(--border); /* Vertical separator for horizontal items */
+        padding: 0 20px;
+    }
+}
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- 3. TRANSFERS, PRICES, CAPTAINS (Player Spotlight) --- */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 #standings-list div,
 #price-changes-list div,
@@ -177,775 +304,63 @@ li {
     display: flex; 
     justify-content: space-between; 
     align-items: center;
-    font-size: 14px; /* Increased font size */
-    padding: 12px 10px; /* Increased vertical padding and added horizontal padding */
+    font-size: 14px;
+    padding: 15px 10px; 
     margin-bottom: 0; 
     background: transparent; 
     border: none; 
     border-radius: 0; 
-    
-    border-bottom: 1px solid var(--border); 
-    transition: background-color var(--transition-speed); /* Smooth transition */
+    border-bottom: 1px solid var(--border);
+    transition: background-color var(--transition-speed);
 }
-
-/* NEW: Subtle hover effect on data rows */
 #standings-list div:hover,
 #price-changes-list div:hover,
 #most-transferred-list div:hover,
 #most-transferred-out-list div:hover,
 #most-captained-list div:hover {
     transform: none;
-    background: var(--top-nav-search-bg); /* Use a darker color for hover */
+    background: rgba(255, 255, 255, 0.05); /* Subtle white overlay on dark hover */
     cursor: pointer;
-}
-
-#standings-list div:last-child,
-#price-changes-list div:last-child,
-#most-transferred-list div:last-child,
-#most-transferred-out-list div:last-child,
-#most-captained-list div:last-child {
-    border-bottom: none;
-    padding-bottom: 12px; 
 }
 
 .rank-number {
     font-weight: 700;
     width: 30px; 
-    color: var(--accent);
+    color: var(--accent); /* Lime Green rank number */
     text-align: left;
 }
 
 .manager-name {
     flex-grow: 1; 
     text-align: left;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; 
-    padding: 0 15px; /* Increased padding */
-    font-weight: 600;
+    padding: 0 15px;
+    font-weight: 700; 
+    font-size: 16px;
 }
 
 .rank-change {
-    font-weight: 700;
-    width: 50px; 
+    font-weight: 900;
+    width: 70px; 
     text-align: right;
-    font-size: 14px; 
+    font-size: 15px;
 }
 
-
-/* --- FPL DATA HEADERS --- */
-#price-changes-list h3,
-#most-transferred-list h3,
-#most-transferred-out-list h3,
-#most-captained-list h3,
-#fixtures-list h3 {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text);
-    margin: 15px 0 20px 0;
-    letter-spacing: 0.5px;
-    text-align: center;
-}
-
-#price-changes-list {
-    padding-top: 5px; 
-}
-
+/* Ensure the success/danger colors use the new Lime Green/Pink */
 .price-riser {
     border-left: 5px solid var(--success) !important;
-}
-.price-faller {
-    border-left: 5px solid var(--danger) !important;
-}
-.transferred-out {
-    border-right: 5px solid var(--danger);
-}
-
-
-/* --- FIXTURES SCORE/STATUS STYLES --- */
-#fixtures-list p {
-    text-align: center;
-    color: var(--subtext);
-    font-size: 14px;
-    margin-bottom: 15px;
-}
-
-#fixtures-list ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-#fixtures-list li {
-    display: flex;
-    flex-direction: column; 
-    padding: 10px 15px; 
-    margin-bottom: 0; 
-    background: transparent; 
-    border-radius: 0; 
-    border: none; 
-    border-bottom: 1px solid var(--border); 
-    font-weight: 600;
-    font-size: 14px; 
-    transition: all .2s;
-    position: relative; 
-}
-
-#fixtures-list li:last-child {
-    border-bottom: none;
-}
-
-.fixture-summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-
-.match-status-tag {
-    position: absolute;
-    top: 0;
-    right: 0;
-    border-top-right-radius: var(--radius); 
-    border-bottom-left-radius: var(--radius);
-    padding: 5px 10px;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--bg); /* Dark text on bright status background */
-}
-
-/* --- FIXTURE DETAILS (GOALS/ASSISTS/CARDS) STYLES --- */
-.fixture-details {
-    width: 100%;
-    margin-top: 10px; 
-    padding-top: 8px; 
-    border-top: 1px dashed var(--border);
-    font-size: 12px; 
-    line-height: 1.5; 
-    color: var(--subtext);
-    padding-bottom: 2px; 
-}
-
-
-/* --- EPL TABLE STYLES --- (Retaining Structure) */
-#epl-table-list {
-    overflow-x: auto; 
-}
-
-#epl-table-list table {
-    width: 100%;
-    border-collapse: separate; 
-    border-spacing: 0 8px; /* Increased spacing */
-    font-size: 14px;
-    text-align: center;
-}
-
-#epl-table-list th, 
-#epl-table-list td {
-    padding: 12px 6px;
-    white-space: nowrap;
-}
-
-/* Zone Highlighting */
-.champions-league td:first-child { border-left: 5px solid var(--blue-cl); }
-.europa-league td:first-child { border-left: 5px solid var(--orange-el); }
-.relegation-zone td:first-child { border-left: 5px solid var(--red-rl); }
-
-
-/* --- UTILITY CLASSES --- */
-.highlight-accent {
-    color: var(--accent);
-    font-weight: bold;
-}
-.price-riser {
     color: var(--success);
-    font-weight: bold;
 }
 .price-faller {
-    color: var(--danger);
-    font-weight: bold;
-}
-.minutes-played {
-    font-weight: 500; 
-    color: var(--subtext); 
-    font-size: 13px;
-    white-space: nowrap; 
-    margin-left: 8px; 
-}
-
-/* --- COUNTDOWN TIMER STYLES --- */
-.countdown-title {
-    color: var(--accent);
-    text-shadow: 0 0 5px rgba(0, 255, 133, 0.5); /* Subtle neon glow */
-    margin-bottom: 10px;
-}
-.countdown-display {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text);
-    padding: 10px 0;
-}
-
-
-/* --- LOADER STYLES (High-End Spinners) --- */
-.loader {
-    border: 4px solid var(--border);
-    border-top: 4px solid var(--accent); /* Neon accent color for the spinner */
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin: 0 auto;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- NEW: HIGH-END BUTTON STYLES (Gradient, Glow, Smooth Transition) --- */
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-
-.fpl-button-base {
-    /* Basic Button Styling */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 28px; /* Generous padding */
-    font-size: 16px;
-    font-weight: 700;
-    text-decoration: none;
-    cursor: pointer;
-    border-radius: var(--radius); /* Uses the large radius defined in :root (16px) */
-    border: none;
-    line-height: 1;
-    
-    /* Smooth Transition for all effects */
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    
-    /* Ensures glow doesn't get cut off */
-    position: relative; 
-    overflow: hidden; 
-    z-index: 1; 
-}
-
-/* --- PRIMARY GLOW BUTTON (Using Indigo + Neon Green) --- */
-.fpl-button-primary {
-    /* Background Gradient */
-    background: linear-gradient(135deg, var(--primary-action), var(--primary-action-hover));
-    color: var(--text); 
-    
-    /* Initial subtle neon box shadow */
-    box-shadow: 
-        0 4px 15px rgba(0, 0, 0, 0.4), 
-        0 0 0 2px var(--primary-action), 
-        0 0 8px rgba(0, 255, 133, 0.1); 
-}
-
-.fpl-button-primary:hover {
-    /* Hover Gradient & Scale */
-    transform: translateY(-2px) scale(1.02); 
-    background: linear-gradient(135deg, var(--primary-action-hover), var(--primary-action));
-    
-    /* **Intense Neon Glow on Hover** */
-    box-shadow: 
-        0 6px 20px rgba(0, 0, 0, 0.6), 
-        0 0 0 2px var(--accent), 
-        0 0 25px var(--accent), 
-        0 0 10px var(--accent-dark) inset; 
-}
-
-/* --- SECONDARY OUTLINE BUTTON (Neon Border) --- */
-.fpl-button-secondary {
-    background: transparent;
-    color: var(--accent); 
-    border: 2px solid var(--border); 
-    padding: 10px 26px; 
-    
-    /* Initial subtle glow/shadow */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.fpl-button-secondary:hover {
-    /* Hover Style: Fill with a dark accent color and apply glow */
-    color: var(--card-bg); 
-    background-color: var(--accent); 
-    border-color: var(--accent);
-    transform: translateY(-1px) scale(1.01);
-    
-    /* **Strong Neon Glow on Hover** */
-    box-shadow: 
-        0 5px 15px rgba(0, 0, 0, 0.5), 
-        0 0 20px var(--accent); 
-}
-
-/* --- OPTIONAL: BUTTON WITH ICON --- */
-.fpl-button-base i {
-    margin-right: 8px; 
-    font-size: 18px;
-}
-
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- NEW: FLOATING ACTION BUTTON (FAB) FOR TRANSFERS (Mobile Focus) --- */
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-
-#transferFAB {
-    /* Inherit the primary button style overrides */
-    position: fixed;
-    bottom: 90px; /* Above the bottom navigation bar (70px + margin) */
-    right: 20px;
-    z-index: 990;
-    
-    width: 55px; 
-    height: 55px;
-    padding: 0;
-    border-radius: 50%; 
-    
-    font-size: 24px; 
-    line-height: 1;
-    text-align: center;
-    
-    /* Primary Gradient/Glow - Stronger initial state */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--primary-action), var(--accent-dark));
-    color: var(--text); 
-    border: none;
-    box-shadow: 
-        0 4px 15px rgba(0, 0, 0, 0.4), 
-        0 0 10px rgba(0, 255, 133, 0.3); 
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-#transferFAB i {
-    margin: 0; 
-}
-
-/* Full glow on hover */
-#transferFAB:hover {
-    transform: scale(1.1); 
-    background: linear-gradient(135deg, var(--primary-action-hover), var(--accent));
-    
-    box-shadow: 
-        0 8px 25px rgba(0, 0, 0, 0.8), 
-        0 0 35px var(--accent), 
-        0 0 15px var(--accent-dark) inset; 
-}
-
-/* Hide FAB on desktop (since desktop has the nav bar actions) */
-@media (min-width: 1024px) {
-    #transferFAB {
-        display: none;
-    }
-}
-
-
-/* --- SCROLL TO TOP BUTTON --- */
-#backToTop {
-    position: fixed;
-    bottom: 100px; /* Elevated to clear the new mobile nav */
-    right: 20px; 
-    background: var(--primary-action); 
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 45px; 
-    height: 45px; 
-    font-size: 22px; 
-    display: none; 
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 999;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
-    transition: background 0.3s, transform 0.25s, box-shadow 0.3s;
-}
-#backToTop:hover {
-    background: var(--primary-action-hover);
-    transform: scale(1.05);
-    box-shadow: 0 0 15px var(--primary-action-hover);
-}
-
-/* --- THEME TOGGLE BUTTON --- */
-#themeToggle {
-    position: fixed;
-    top: 20px; 
-    right: 20px; 
-    background: var(--card-bg); 
-    color: var(--text); 
-    border: 1px solid var(--border);
-    padding: 8px 12px; 
-    border-radius: var(--radius);
-    cursor: pointer;
-    font-size: 16px; 
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3); 
-    transition: all var(--transition-speed);
-    z-index: 999;
-}
-#themeToggle:hover {
-    transform: scale(1.05);
-    background: var(--top-nav-search-bg);
-}
-
-/* --- FOOTER STYLES --- */
-footer {
-    padding: 30px 20px;
-    margin-top: 50px;
-    border-top: 1px solid var(--border); 
-    text-align: center;
-    font-size: 0.9em;
-    color: var(--subtext);
-    width: 100%;
-}
-footer .social-links {
-    margin: 15px 0;
-}
-footer .social-links a {
-    color: var(--subtext);
-    font-size: 18px;
-    margin: 0 10px;
-    transition: color 0.2s;
-}
-footer .social-links a:hover {
-    color: var(--accent);
-}
-.disclaimer {
-    margin-top: 10px;
-    font-size: 0.75em;
-}
-
-/* ------------------------------------------------ */
-/* --- MODIFIED NAVIGATION STYLES (PREMIUM LOOK) --- */
-/* ------------------------------------------------ */
-
-#top-nav-bar,
-#bottom-nav-bar {
-    width: 100%;
-    position: sticky; 
-    z-index: 900;
-    margin-bottom: 0; 
-    border-radius: 0;
-    border: none;
-    padding: 0;
-}
-
-#top-nav-bar {
-    top: 0;
-    background-color: var(--top-nav-bg); 
-    padding: 10px 0; 
-    height: 50px; 
-}
-#bottom-nav-bar {
-    top: 50px; 
-    /* Reduced shadow opacity for cleaner white background */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-    background-color: var(--nav-bg); 
-    height: 60px; 
-    border-bottom: 2px solid var(--accent); 
-}
-
-.nav-container {
-    max-width: 1200px; 
-    margin: 0 auto; 
-    display: flex;
-    justify-content: space-between; 
-    align-items: center; 
-    padding-left: 20px; 
-    padding-right: 20px; 
-    height: 100%; 
-}
-
-/* --- TOP BAR ELEMENTS --- */
-.social-icons a {
-    color: var(--subtext); 
-    font-size: 18px; 
-    transition: color 0.2s;
-}
-.social-icons a:hover {
-    color: var(--accent); 
-}
-
-/* Updated Top Nav buttons with premium glow style */
-.signin-btn, .search-btn {
-    /* Manual Base Overrides (Matching fpl-button-base) */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 15px; /* Smaller padding for top nav */
-    font-size: 14px; /* Smaller font size */
-    font-weight: 700;
-    line-height: 1;
-    cursor: pointer;
-    border-radius: 8px; /* Using 8px for top nav for a tighter look */
-    border: none;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    position: relative; 
-    overflow: hidden; 
-    z-index: 1; 
-
-    /* Primary Gradient/Color */
-    background: linear-gradient(90deg, var(--primary-action), var(--primary-action-hover));
-    color: var(--text);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Initial subtle shadow */
-}
-
-.signin-btn:hover, .search-btn:hover {
-    /* Hover effects (using a scaled-down version of the primary button glow) */
-    transform: translateY(-1px); 
-    background: linear-gradient(90deg, var(--primary-action-hover), var(--primary-action));
-    
-    /* Subtle Glow on hover */
-    box-shadow: 
-        0 4px 10px rgba(0, 0, 0, 0.5), /* Stronger lift shadow */
-        0 0 0 1px var(--accent), /* Thin border shifts to neon */
-        0 0 12px var(--accent); /* Light neon glow */
-}
-
-.search-btn i {
-    margin-right: 5px;
-}
-
-/* --- BOTTOM BAR ELEMENTS (Main Nav - Used for links in older HTML) --- */
-.fpl-logo {
-    color: var(--accent);
-    font-size: 24px; 
-    font-weight: 900;
-    line-height: 1.1;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-.main-links {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    height: 100%; 
-    align-items: center; 
-}
-
-.main-links li {
-    margin: 0; 
-}
-
-.main-links a {
-    /* Note: Text color is now white in dark mode, near-black in light mode (inherited from --text) */
-    color: var(--text);
-    text-decoration: none;
-    padding: 0 20px; 
-    font-size: 15px;
-    font-weight: 600;
-    height: 100%; 
-    display: flex;
-    align-items: center; 
-    transition: background-color 0.2s;
-}
-
-.main-links a:hover {
-    /* Hover background is still dark in dark mode, light gray in light mode (depending on how top-nav-search-bg is used) */
-    background-color: rgba(0, 0, 0, 0.05); /* Lighter hover for white background */
-    color: var(--accent);
-}
-
-/* ------------------------------------------------ */
-/* --- DESKTOP TOP NAV REVAMP (#new-top-nav-desktop) --- */
-/* ------------------------------------------------ */
-
-#new-top-nav-desktop {
-    width: 100%;
-    position: sticky;
-    top: 0;
-    z-index: 950;
-    background: var(--nav-bg); /* Now white in both modes */
-    padding: 0;
-    height: 90px;
-    border-bottom: 2px solid var(--accent);
-    display: none; 
-}
-@media (min-width: 1024px) {
-    #new-top-nav-desktop {
-        display: block; /* Show on desktop */
-    }
-}
-
-.desktop-logo-container {
-    position: absolute; 
-    left: 50%;
-    transform: translate(-50%, -50%); 
-    width: 80px;
-    height: 80px;
-    z-index: 960;
-    top: 50%; 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.desktop-logo-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-    border-radius: 50%;
-    background: var(--primary-action); 
-    border: 5px solid var(--accent); 
-    color: white !important; 
-    font-size: 36px;
-    font-weight: 900;
-    text-decoration: none !important;
-    line-height: 1;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-/* Menu and Sign In Buttons */
-.nav-btn {
-    background-color: var(--primary-action);
-    color: #fff;
-    border: none;
-    border-radius: 50px; 
-    padding: 10px 15px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.2s, transform 0.1s;
-    line-height: 1;
-    height: 40px;
-}
-
-.nav-btn:hover {
-    background-color: var(--primary-action-hover);
-    transform: scale(1.02);
-}
-
-.desktop-user-actions .nav-btn {
-    padding-left: 10px;
-}
-
-.user-profile-orb {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    /* Rainbow gradient, or use a solid accent color for simplicity */
-    background: var(--accent); 
-    margin-right: 5px;
-    box-shadow: 0 0 5px rgba(0, 255, 133, 0.7);
-}
-
-
-/* ------------------------------------------------ */
-/* --- OFF-CANVAS MENU STYLES --- */
-/* ------------------------------------------------ */
-
-.off-canvas-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 300px; 
-    height: 100%;
-    background-color: var(--card-bg); 
-    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.4);
-    transform: translateX(-100%); 
-    transition: transform 0.3s ease-out;
-    z-index: 1000;
-    padding: 20px;
-    display: none; 
-    flex-direction: column;
-}
-
-.off-canvas-menu.open {
-    transform: translateX(0); 
-    display: flex; 
-}
-
-.menu-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 10px;
-}
-
-.menu-header h3 {
-    margin: 0;
-    color: var(--text);
-    font-size: 20px;
-}
-
-.off-canvas-menu .close-btn {
-    background: none;
-    color: var(--subtext);
-    border: none;
-    font-size: 24px;
-    padding: 0;
-    height: initial;
-    transition: color 0.2s;
-}
-.off-canvas-menu .close-btn:hover {
+    border-left: 5px solid var(--danger) !important; 
     color: var(--danger);
 }
-
-.off-canvas-menu .nav-links-list {
-    list-style: none;
-    padding: 0;
-    margin-top: 10px;
-    flex-grow: 1;
+.price-riser, .price-faller {
+    font-weight: 900;
 }
-
-.off-canvas-menu .nav-links-list a {
-    display: flex;
-    align-items: center;
-    padding: 15px 10px;
-    text-decoration: none;
-    color: var(--text);
-    font-weight: 500;
-    border-radius: 8px;
-    transition: background-color 0.2s;
-}
-
-.off-canvas-menu .nav-links-list a:hover {
-    background-color: var(--border);
-    color: var(--accent);
-}
-
-.off-canvas-menu .nav-links-list i {
-    margin-right: 15px;
-    width: 20px;
-    text-align: center;
-    color: var(--primary-action); 
-    font-size: 18px;
-}
-
-.menu-footer {
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-}
-
-#themeToggleMenu {
-    background: var(--accent);
-    color: var(--card-bg);
-    border: none;
-    width: 100%;
-    justify-content: center;
-}
-
-/* *** LIGHT MODE SPECIFIC OVERRIDE *** */
-body.light-mode #themeToggleMenu {
-    color: var(--text); 
-}
-/* ************************************ */
 
 
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* 📱 DYNAMIC MOBILE BOTTOM NAV BAR STYLES (PILL EFFECT) 📱 */
+/* --- MOBILE BOTTOM NAV BAR STYLES (OneFootball Pill Effect) --- */
 /* ----------------------------------------------------------------------------------------------------------------------------------- */
 #bottom-nav {
     display: flex; 
@@ -955,17 +370,33 @@ body.light-mode #themeToggleMenu {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 70px; /* Taller */
-    background: var(--nav-bg); /* Now white in both modes */
-    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1); /* Lighter shadow for white background */
+    height: 70px; 
+    background: var(--nav-bg); 
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.6);
     z-index: 980;
     padding: 0 5px;
 }
 
-/* Default: Hide the new bottom nav on desktop screens */
+/* Hide top nav and add padding to main content on mobile */
+@media (max-width: 1023px) {
+    #top-nav-bar {
+        display: none;
+    }
+    main {
+        padding-bottom: 80px; 
+    }
+    #bottom-nav {
+        display: flex;
+    }
+}
+/* Hide bottom nav on desktop */
 @media (min-width: 1024px) {
     #bottom-nav {
         display: none; 
+    }
+    /* Add padding to the top of main content to prevent it from hiding under the sticky bar */
+    main {
+        padding-top: 80px; /* Height of top nav (50px) + space (30px) */
     }
 }
 
@@ -1000,7 +431,7 @@ body.light-mode #themeToggleMenu {
     background-color: var(--accent);
     border-radius: 40px; 
     opacity: 0;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Spring-like transition */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     z-index: -1;
 }
 
@@ -1013,274 +444,96 @@ body.light-mode #themeToggleMenu {
 
 .nav-item.active,
 .nav-item:hover {
-    color: var(--card-bg); /* Text color shifts to card-bg (white text) */
-}
-
-/* *** LIGHT MODE SPECIFIC OVERRIDE *** */
-body.light-mode .nav-item.active,
-body.light-mode .nav-item:hover {
-    color: var(--text); /* Near black text on the green highlight (Better contrast) */
-}
-/* ************************************ */
-
-
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- MODAL STYLES (Simple, Central, High Contrast) --- */
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-#more-options-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: none; /* Controlled by JavaScript */
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background-color: var(--card-bg);
-    padding: 30px;
-    border-radius: var(--radius);
-    max-width: 400px;
-    width: 90%;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
-    transform: scale(0.9);
-    transition: transform 0.3s ease-out;
-}
-
-/* JavaScript class to show modal */
-#more-options-modal.show {
-    display: flex;
-}
-
-#more-options-modal.show .modal-content {
-    transform: scale(1);
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 20px;
-}
-
-.modal-header h3 {
-    margin: 0;
-    color: var(--accent);
-    font-size: 24px;
+    color: var(--background-dark); /* Dark text on the lime green pill */
     font-weight: 700;
 }
 
+
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+/* --- TOP NAV BAR (Desktop Only) & UTILITY --- */
+/* ----------------------------------------------------------------------------------------------------------------------------------- */
+
+#top-nav-bar {
+    top: 0;
+    background-color: var(--top-nav-bg); 
+    padding: 10px 0; 
+    height: 50px; 
+    position: sticky;
+    z-index: 950;
+    border-bottom: 1px solid var(--border);
+}
 @media (max-width: 1023px) {
     #top-nav-bar {
-        display: none;
+        height: 0; /* Ensures it collapses completely */
+        overflow: hidden;
     }
 }
 
-.modal-options-list {
-    list-style: none;
-    padding: 0;
-}
-
-.modal-options-list li a {
+.nav-container {
+    max-width: 1200px; 
+    margin: 0 auto; 
     display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    padding-left: 20px; 
+    padding-right: 20px; 
+    height: 100%; 
+}
+
+/* Top Nav Buttons */
+.signin-btn, .search-btn {
+    display: inline-flex;
     align-items: center;
-    padding: 12px 10px;
-    text-decoration: none;
-    color: var(--text);
-    font-weight: 500;
-    border-radius: 8px;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.modal-options-list li a:hover {
-    background-color: var(--border);
-    color: var(--accent);
-}
-
-.modal-options-list i {
-    margin-right: 15px;
-    color: var(--subtext);
-    width: 20px;
-    text-align: center;
-    font-size: 18px;
-}
-.modal-options-list li a:hover i {
-    color: var(--accent);
-}
-
-.modal-footer {
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-    text-align: right;
-}
-
-/* Close button inherited from base styles */
-.close-btn-lg {
-    /* Using a simplified version of the primary button for consistency */
-    background: var(--primary-action);
-    color: var(--text);
-    padding: 8px 20px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.close-btn-lg:hover {
-    background: var(--primary-action-hover);
-}
-
-
-
-
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* 📱 NEW: MOBILE MENU/SEARCH MODAL STYLES (Extends existing modal) 📱 */
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-
-#mobile-menu-modal {
-    /* Base Modal container inherited from #more-options-modal */
-    display: none; /* Start hidden */
-}
-
-/* Replicate/rename the common modal base class */
-.fpl-modal-base {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
     justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-/* Mobile search specific styling */
-.menu-search-container {
-    display: flex;
-    margin-bottom: 25px;
-    border: 2px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    background-color: var(--top-nav-search-bg); /* Use a darker base color */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s;
-}
-.menu-search-container:focus-within {
-    border-color: var(--accent); /* Neon border on focus */
-    box-shadow: 0 0 15px rgba(0, 255, 133, 0.5); /* Neon glow on focus */
-}
-
-#mobile-search-input {
-    flex-grow: 1;
-    padding: 12px 15px;
-    border: none;
-    background: transparent;
-    color: var(--text);
-    font-size: 16px;
-    outline: none;
-}
-#mobile-search-input::placeholder {
-    color: var(--subtext);
-}
-
-.search-icon-btn {
-    /* Style matching the top-nav buttons, but adapted */
-    background: var(--primary-action);
-    color: var(--text);
-    padding: 0 15px;
-    border: none;
+    padding: 5px 10px; /* Reduced padding */
+    font-size: 13px; /* Smaller font size */
+    font-weight: 700;
+    line-height: 1;
     cursor: pointer;
-    font-size: 16px;
-    font-weight: 600;
-    transition: background 0.2s;
-}
-.search-icon-btn:hover {
-    background: var(--primary-action-hover);
-}
-
-/* Menu Separator Line */
-.menu-separator {
-    height: 1px;
-    background-color: var(--border);
-    margin: 10px 0;
+    border-radius: 5px; /* Tighter radius */
+    border: none;
+    transition: all 0.3s;
+    background: var(--card-bg); /* Use the card background color */
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-
-
-
-@media (min-width: 1024px) {
-    main {
-        /* Set main as the grid container */
-        display: grid; 
-        /* Define the structure: 4 equal columns */
-        grid-template-columns: repeat(4, 1fr); 
-        gap: 20px; 
-        
-        /* Ensure the individual sections don't have conflicting margins */
-        padding: 20px; /* Keep main padding */
-        margin: 0 auto;
-        width: 100%;
-        max-width: 1200px; 
-    }
-    
-    /* --- ROW 1: FULL WIDTH ELEMENTS (General Leagues and Fixtures) --- */
-    /* Place the two largest sections to span all 4 columns for readability */
-    
-    #general-leagues-container {
-        grid-column: 1 / -1; /* Spans all 4 columns (1 to end) */
-        grid-row: 1;
-    }
-    
-    #fixtures-list {
-        grid-column: 1 / -1; /* Spans all 4 columns */
-        grid-row: 2;
-    }
-    
-    /* --- ROW 2: FOUR-COLUMN SUMMARY (Price Changes, Transfers In/Out, Injuries, Captains) --- */
-    /* These items will sit next to each other */
-    
-    #price-changes-list {
-        grid-column: 1 / 2;
-    }
+.signin-btn:hover, .search-btn:hover {
+    transform: translateY(-1px); 
+    background: var(--top-nav-search-bg); /* Darker background on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    color: var(--accent); /* Lime accent on hover */
 }
 
 
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-/* --- FIX: MOBILE TAP HIGHLIGHT REMOVAL (Removes the outline/flash when tapping buttons/links) --- */
-/* ----------------------------------------------------------------------------------------------------------------------------------- */
-
-/* 1. Target the interactive elements in the primary navigation bars and all buttons */
-#bottom-nav .nav-item,
-#bottom-nav a,
-.signin-btn,
-.search-btn,
-#transferFAB,
-#backToTop,
-.fpl-button-base,
-.fpl-button-primary,
-.fpl-button-secondary,
-a {
-    /* Prevents the default focus outline from appearing on click/tap */
-    outline: none !important; 
-    
-    /* Disables the tap color overlay used by WebKit browsers (iOS/Android) */
-    -webkit-tap-highlight-color: transparent !important;
-    
-    /* Prevents text content from being highlighted/selected on press */
-    user-select: none;
-    -webkit-user-select: none; 
+/* --- THEME TOGGLE BUTTON --- */
+#themeToggle {
+    position: fixed;
+    top: 20px; 
+    right: 20px; 
+    background: var(--card-bg); 
+    color: var(--accent); 
+    border: 1px solid var(--border);
+    padding: 8px 12px; 
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 16px; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3); 
+    transition: all var(--transition-speed);
+    z-index: 1000; /* Ensure it's on top */
+}
+#themeToggle:hover {
+    transform: scale(1.05);
+    background: var(--top-nav-search-bg);
 }
 
-/* 2. Global Tap Fix (Ensures the fix applies to all interactive elements) */
-button, input[type="button"], input[type="submit"] {
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
+/* --- FOOTER STYLES --- */
+footer {
+    padding: 30px 20px;
+    margin-top: 50px;
+    border-top: 1px solid var(--border); 
+    text-align: center;
+    font-size: 0.9em;
+    color: var(--subtext);
+    width: 100%;
 }
