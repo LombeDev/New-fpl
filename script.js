@@ -560,3 +560,46 @@ async function runRivalAnalysis() {
 
     } catch (e) { console.error(e); }
 }
+
+
+
+/**
+ * Main function to populate the Stats View
+ * @param {Array} leagueEntries - Array of manager objects from the FPL API
+ */
+function populateStatsView(leagueEntries) {
+    // 1. Calculate League Average for the Summary Table
+    const totalGWScore = leagueEntries.reduce((sum, m) => sum + (m.event_total || 0), 0);
+    const avgGWScore = Math.round(totalGWScore / leagueEntries.length);
+    
+    const comparisonBody = document.getElementById('comparison-body');
+    if (comparisonBody) {
+        comparisonBody.innerHTML = `
+            <tr>
+                <td style="text-align: left;">League Avg</td>
+                <td>${avgGWScore}</td>
+                <td>-0</td> <td>-</td> 
+            </tr>
+        `;
+    }
+
+    // 2. Populate the Top Managers Table (Top 5 this GW)
+    const topManagersBody = document.getElementById('top-managers-body');
+    const sortedThisGW = [...leagueEntries].sort((a, b) => b.event_total - a.event_total).slice(0, 5);
+    
+    if (topManagersBody) {
+        topManagersBody.innerHTML = sortedThisGW.map(m => `
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 8px 0; text-align: left;">${m.player_name}</td>
+                <td style="text-align: right; font-weight: bold; color: #00ff85;">${m.event_total} pts</td>
+            </tr>
+        `).join('');
+    }
+
+    // 3. Populate Rival Select Dropdown
+    const rivalSelect = document.getElementById('rival-select');
+    if (rivalSelect) {
+        rivalSelect.innerHTML = '<option>Select Rival...</option>' + 
+            leagueEntries.map(m => `<option value="${m.entry}">${m.entry_name}</option>`).join('');
+    }
+}
