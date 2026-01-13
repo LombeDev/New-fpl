@@ -275,6 +275,121 @@ function toggleSettings() {
     overlay.style.display = isOpen ? 'block' : 'none';
 }
 
+
+
+/**
+ * FPL Stats Controller
+ */
+const FPL_BASE_URL = "https://fantasy.premierleague.com/api";
+
+async function initializeStats(leagueId, myEntryId) {
+    try {
+        // 1. Fetch Static Data (Player names, photos, and current Gameweek)
+        const staticRes = await fetch(`${FPL_BASE_URL}/bootstrap-static/`);
+        const staticData = await staticRes.json();
+        
+        const currentGW = staticData.events.find(e => e.is_current).id;
+        const leagueAvg = staticData.events.find(e => e.is_current).average_entry_score;
+
+        // Create Player Map for quick lookup
+        const playerMap = {};
+        staticData.elements.forEach(p => {
+            playerMap[p.id] = { web_name: p.web_name, code: p.code };
+        });
+
+        // 2. Fetch League Standings
+        const leagueRes = await fetch(`${FPL_BASE_URL}/leagues-classic/${leagueId}/standings/`);
+        const leagueData = await leagueRes.json();
+        const standings = leagueData.standings.results;
+
+        // 3. Update UI: Comparison & Top Managers
+        renderComparison(standings, myEntryId, leagueAvg);
+        renderTopManagers(standings, currentGW);
+
+        // 4. Update UI: Captaincy (This requires fetching individual picks)
+        calculateAndRenderCaptains(standings, currentGW, playerMap);
+
+    } catch (error) {
+        console.error("Error loading league stats:", error);
+    }
+}
+
+/**
+ * Renders the comparison between League Average and My Team
+ */
+function renderComparison(standings, myEntryId, leagueAvg) {
+    const myTeam = standings.find(m => m.entry === myEntryId) || standings[0];
+    const container = document.getElementById('comparison-body');
+    
+    container.innerHTML = `
+        <tr style="color: #37003c; border-bottom: 1px solid #eee;">
+            <td style="text-align: left; padding: 10px; color: #666;">League Avg</td>
+            <td>${leagueAvg}</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr style="color: #00ff85; background: #f9f9f9;">
+            <td style="text-align: left; padding: 10px; color: #666;">My Team</td>
+            <td>${myTeam.event_total}</td>
+            <td>${myTeam.rank_sort}</td>
+            <td>${myTeam.total}</td>
+        </tr>
+    `;
+}
+
+/**
+ * Renders the Top Scoring Managers for the week
+ */
+function renderTopManagers(standings, gw) {
+    const sorted = [...standings].sort((a, b) => b.event_total - a.event_total).slice(0, 5);
+    const container = document.getElementById('top-managers-body');
+    
+    container.innerHTML = sorted.map(m => `
+        <tr style="border-bottom: 1px solid #f0f0f0;">
+            <td style="padding: 12px; color: #999;">GW${gw}</td>
+            <td style="padding: 12px; font-weight: 500;">${m.player_name}</td>
+            <td style="padding: 12px; text-align: right; color: #37003c; font-weight: 800;">${m.event_total}</td>
+        </tr>
+    `).join('');
+}
+
+/**
+ * Calculates most captained players and renders cards
+ */
+async function calculateAndRenderCaptains(standings, gw, playerMap) {
+    const captainCounts = {};
+    const topManagers = standings.slice(0, 15); // Limiting to top 15 to avoid API rate limits
+
+    const pickPromises = topManagers.map(m => 
+        fetch(`${FPL_BASE_URL}/entry/${m.entry}/event/${gw}/picks/`).then(r => r.json())
+    );
+
+    const results = await Promise.all(pickPromises);
+
+    results.forEach(data => {
+        const cap = data.picks.find(p => p.is_captain);
+        if (cap) {
+            captainCounts[cap.element] = (captainCounts[cap.element] || 0) + 1;
+        }
+    });
+
+    const sortedCaps = Object.entries(captainCounts)
+        .map(([id, count]) => ({ id, count, pct: Math.round((count / topManagers.length) * 100) }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 3);
+
+    const container = document.getElementById('captained-container');
+    container.innerHTML = sortedCaps.map(c => `
+        <div style="text-align: center; width: 30%;">
+            <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${playerMap[c.id].code}.png" 
+                 style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #37003c; background: #eee;">
+            <div style="font-weight: 800; font-size: 0.7rem; margin-top: 5px;">${playerMap[c.id].web_name}</div>
+            <div style="color: #e90052; font-weight: 800; font-size: 1.1rem;">${c.count}</div>
+            <div style="font-size: 0.6rem; color: #666; font-weight: bold;">${c.pct}%</div>
+        </div>
+    `).join('');
+}
+
 function resetApp() {
     if(confirm("Logout and return to login screen?")) {
         localStorage.removeItem('kopala_fpl_id');
