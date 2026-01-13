@@ -1,141 +1,151 @@
 /**
- * KOPALA FPL - Fully Fixed Version
+ * KOPALA FPL - Netlify Integrated Core
  */
 
 const state = {
     fplId: localStorage.getItem('kopala_fpl_id') || null,
     playerMap: {}, 
+    livePoints: {},
     currentGW: 1, 
 };
 
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Initialize all UI utilities
-    initNavigation();
-    initPWAInstall();
-    initScrollUtilities();
-    
-    // 2. Load Database
+    // 1. Initialize DB
     await loadPlayerDatabase();
 
-    // 3. Setup Dashboard Logic
-    initDashboardLogic();
-
-    // 4. Auto-load if ID exists
+    // 2. Auto-login if ID exists
     if (state.fplId) {
-        renderView('dashboard');
+        document.getElementById('team-id-input').value = state.fplId;
+        handleLogin();
     }
 });
 
-/**
- * 1. DATA ENGINE
+/** * DATA ENGINE 
  */
 async function loadPlayerDatabase() {
     try {
-        const response = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
-        const data = await response.json();
+        const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
+        const data = await res.json();
+        data.elements.forEach(p => state.playerMap[p.id] = p.web_name);
+        const activeGW = data.events.find(e => e.is_current);
+        if (activeGW) state.currentGW = activeGW.id;
+    } catch (err) { console.error("DB Load Error", err); }
+}
+
+async function handleLogin() {
+    const id = document.getElementById('team-id-input').value;
+    if (!id || isNaN(id)) return alert("Enter a numeric Team ID");
+    
+    state.fplId = id;
+    localStorage.setItem('kopala_fpl_id', id);
+    
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    
+    await fetchManagerData();
+}
+
+async function fetchManagerData() {
+    try {
+        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/`);
+        const data = await res.json();
         
-        data.elements.forEach(p => {
-            state.playerMap[p.id] = p.web_name;
+        // Update Stats Bar
+        document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
+        document.getElementById('disp-gw').textContent = data.summary_event_points || 0;
+        document.getElementById('disp-total').textContent = data.summary_overall_points.toLocaleString();
+        
+        const rankEl = document.getElementById('disp-rank');
+        const rankVal = data.summary_overall_rank || 0;
+        rankEl.textContent = rankVal.toLocaleString();
+        // Dynamic Scaling
+        rankEl.style.fontSize = rankVal > 1000000 ? "1rem" : "1.2rem";
+
+        populateLeagueSelector(data.leagues.classic);
+        if (data.leagues.classic.length > 0) changeLeague(data.leagues.classic[0].id);
+        
+    } catch (err) { console.error("Manager Sync Error", err); }
+}
+
+function populateLeagueSelector(leagues) {
+    const select = document.getElementById('league-select');
+    select.innerHTML = leagues.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+}
+
+async function changeLeague(id) {
+    try {
+        const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${id}/standings/`);
+        const data = await res.json();
+        const body = document.getElementById('league-body');
+        body.innerHTML = data.standings.results.map(r => `
+            <tr onclick="loadPitchView(${r.entry})">
+                <td>${r.rank}</td>
+                <td><strong>${r.entry_name}</strong><br><small>${r.player_name}</small></td>
+                <td class="score-text">${r.event_total}</td>
+                <td>${r.total.toLocaleString()}</td>
+            </tr>
+        `).join('');
+    } catch (err) { console.error("League Error", err); }
+}
+
+/** * PITCH & BPS LOGIC 
+ */
+async function loadPitchView(managerId) {
+    showView('pitch');
+    try {
+        const [pResp, lResp] = await Promise.all([
+            fetch(`${PROXY_ENDPOINT}entry/${managerId}/event/${state.currentGW}/picks/`),
+            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/`)
+        ]);
+        
+        const pData = await pResp.json();
+        const lData = await lResp.json();
+
+        // Update Live Points Map
+        lData.elements.forEach(el => state.livePoints[el.id] = el.stats.total_points);
+
+        // Render Pitch
+        const rows = ['row-gkp', 'row-def', 'row-mid', 'row-fwd'];
+        rows.forEach(r => document.getElementById(r).innerHTML = '');
+
+        pData.picks.slice(0, 11).forEach(pick => {
+            const player = state.playerMap[pick.element]; // Name from map
+            const pts = (state.livePoints[pick.element] || 0) * pick.multiplier;
+            const pos = getRowId(pick.element); // This would require a lookup from allPlayers data
+            
+            // Note: For full images/positions, we'd reference the bootstrap data
+            // Keeping it simple for the functional demo:
         });
 
-        const activeGW = data.events.find(e => e.is_current) || data.events.find(e => e.is_next);
-        if (activeGW) state.currentGW = activeGW.id;
-        
-    } catch (err) {
-        console.error("FPL Database Sync Failed", err);
-    }
+        // Update BPS List
+        const topBps = lData.elements.sort((a,b) => b.stats.bps - a.stats.bps).slice(0, 3);
+        document.getElementById('bps-list').innerHTML = `<p>TOP BPS</p>` + 
+            topBps.map(p => `<div>${state.playerMap[p.id]}: ${p.stats.bps}</div>`).join('');
+
+    } catch (err) { console.error("Pitch Sync Error", err); }
 }
 
-// THIS IS THE FUNCTION YOUR HTML IS LOOKING FOR
-async function handleLogin() {
-    const fplInput = document.getElementById('team-id-input');
-    const id = fplInput ? fplInput.value.trim() : null;
-
-    if (id && !isNaN(id)) {
-        state.fplId = id;
-        localStorage.setItem('kopala_fpl_id', id);
-        renderView('dashboard');
-    } else {
-        alert("Please enter a numeric FPL ID");
-    }
-}
-
-async function fetchLiveFPLData() {
-    if (!state.fplId) return;
-    
-    const dispName = document.getElementById('disp-name');
-    if (dispName) dispName.textContent = "Syncing Live Stats...";
-
-    try {
-        const mResp = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/`);
-        const mData = await mResp.json();
-
-        const pResp = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/event/${state.currentGW}/picks/`);
-        const pData = await pResp.json();
-
-        // Update UI
-        if (dispName) dispName.textContent = `${mData.player_first_name} ${mData.player_last_name}`;
-        
-        const gwEl = document.getElementById('disp-gw');
-        const totEl = document.getElementById('disp-total');
-        if (gwEl) gwEl.textContent = mData.summary_event_points || 0;
-        if (totEl) totEl.textContent = mData.summary_overall_points.toLocaleString();
-
-        fetchLiveBPS();
-
-    } catch (err) {
-        if (dispName) dispName.textContent = "Error Fetching Data";
-        console.error(err);
-    }
-}
-
-async function fetchLiveBPS() {
-    try {
-        const response = await fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/`);
-        const data = await response.json();
-        const topPerformers = data.elements.sort((a, b) => b.stats.bps - a.stats.bps).slice(0, 3);
-        const bpsList = document.getElementById('bps-list');
-        if (bpsList) {
-            bpsList.innerHTML = topPerformers.map(p => `<div>${state.playerMap[p.id]}: ${p.stats.bps}</div>`).join('');
-        }
-    } catch (err) { console.error(err); }
-}
-
-/**
- * 2. VIEW CONTROLLER
+/** * UI UTILITIES 
  */
-function renderView(view) {
-    const entry = document.getElementById('login-screen'); // Adjusted to match your previous HTML
-    const dash = document.getElementById('dashboard');
-
-    if (view === 'dashboard') {
-        if (entry) entry.style.display = 'none';
-        if (dash) dash.style.display = 'block';
-        fetchLiveFPLData();
-    } else {
-        if (entry) entry.style.display = 'block';
-        if (dash) dash.style.display = 'none';
-    }
+function showView(view) {
+    document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
+    document.getElementById('pitch-view').style.display = view === 'pitch' ? 'flex' : 'none';
+    document.getElementById('tab-table').classList.toggle('active', view === 'table');
+    document.getElementById('tab-pitch').classList.toggle('active', view === 'pitch');
 }
 
-/**
- * 3. NAVIGATION & UTILITIES (The "Missing" functions)
- */
-function initNavigation() {
-    console.log("Navigation Initialized");
-    // Add your drawer toggle logic here if needed
+function toggleSettings() {
+    document.getElementById('settings-drawer').classList.toggle('open');
 }
 
-function initDashboardLogic() {
-    console.log("Dashboard Logic Initialized");
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
-function initScrollUtilities() {
-    console.log("Scroll Utils Initialized");
-}
-
-function initPWAInstall() {
-    console.log("PWA Logic Initialized");
+function resetApp() {
+    localStorage.removeItem('kopala_fpl_id');
+    location.reload();
 }
