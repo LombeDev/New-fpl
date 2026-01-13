@@ -1,6 +1,6 @@
 /**
- * KOPALA FPL - ULTIMATE INTEGRATED CORE
- * Features: Live Standings, Manager Expansion, Match Center, and Theme Engine
+ * KOPALA FPL - MASTER CORE SCRIPT
+ * Modules: Auth, UI, League Standings, Live Match Center, and Theme Engine
  */
 
 const state = {
@@ -8,8 +8,10 @@ const state = {
     playerMap: {}, 
     livePoints: {},
     currentGW: 1, 
+    myPlayerIds: [] // Track user squad for live highlighting
 };
 
+// Endpoints (Netlify Proxy for CORS)
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 const FIXTURES_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=fixtures/?event=";
 
@@ -20,7 +22,7 @@ let teamLookup = {};
  * 1. INITIALIZATION & THEME ENGINE
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Check for saved theme preference
+    // Apply saved theme (Dark/Light)
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
         const toggle = document.getElementById('dark-mode-toggle');
@@ -29,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await initAppData();
 
+    // Auto-login if session exists
     if (state.fplId) {
         document.getElementById('team-id-input').value = state.fplId;
         handleLogin();
@@ -40,22 +43,15 @@ function handleDarkModeToggle() {
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
-function toggleSettings() {
-    const drawer = document.getElementById('settings-drawer');
-    const overlay = document.getElementById('drawer-overlay');
-    
-    const isOpen = drawer.classList.toggle('open');
-    overlay.style.display = isOpen ? 'block' : 'none';
-}
-
 /**
- * 2. DATA INITIALIZATION 
+ * 2. DATA BOOTSTRAPPING
  */
 async function initAppData() {
     try {
         const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
         const data = await res.json();
         
+        // Map player data
         data.elements.forEach(p => {
             state.playerMap[p.id] = {
                 name: p.web_name,
@@ -64,8 +60,10 @@ async function initAppData() {
             };
         });
 
+        // Map team names
         data.teams.forEach(t => teamLookup[t.id] = t.name);
         
+        // Find active Gameweek
         const activeGW = data.events.find(e => e.is_current) || data.events.find(e => !e.finished);
         if (activeGW) state.currentGW = activeGW.id;
 
@@ -73,7 +71,7 @@ async function initAppData() {
 }
 
 /**
- * 3. MANAGER & LEAGUE LOGIC 
+ * 3. AUTH & SQUAD TRACKING
  */
 async function handleLogin() {
     const id = document.getElementById('team-id-input').value;
@@ -85,7 +83,17 @@ async function handleLogin() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     
+    // Crucial: Load your specific players first to highlight them in Live Match Center
+    await fetchMySquad();
     await fetchManagerData();
+}
+
+async function fetchMySquad() {
+    try {
+        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/event/${state.currentGW}/picks/`);
+        const data = await res.json();
+        state.myPlayerIds = data.picks.map(p => p.element);
+    } catch (err) { console.error("Squad Sync Error", err); }
 }
 
 async function fetchManagerData() {
@@ -105,6 +113,9 @@ async function fetchManagerData() {
     } catch (err) { console.error("Manager Sync Error", err); }
 }
 
+/**
+ * 4. STANDINGS & TABLE LOGIC
+ */
 async function changeLeague(id) {
     try {
         const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${id}/standings/`);
@@ -112,19 +123,16 @@ async function changeLeague(id) {
         const body = document.getElementById('league-body');
         
         body.innerHTML = data.standings.results.map(r => `
-            <tr id="row-${r.entry}" class="manager-row" onclick="toggleManagerExpansion(${r.entry})" style="border-bottom: 1px solid var(--border-gray); cursor: pointer;">
-                <td style="padding: 12px;">${r.rank}</td>
-                <td style="padding: 12px;"><strong>${r.entry_name}</strong><br><small style="color: var(--text-muted)">${r.player_name}</small></td>
-                <td style="padding: 12px; font-weight: bold; color: var(--fpl-purple);">${r.event_total}</td>
-                <td style="padding: 12px;">${r.total.toLocaleString()}</td>
+            <tr id="row-${r.entry}" class="manager-row" onclick="toggleManagerExpansion(${r.entry})">
+                <td>${r.rank}</td>
+                <td><strong>${r.entry_name}</strong><br><small>${r.player_name}</small></td>
+                <td class="score-text">${r.event_total}</td>
+                <td>${r.total.toLocaleString()}</td>
             </tr>
         `).join('');
     } catch (err) { console.error("League Error", err); }
 }
 
-/**
- * 4. MANAGER EXPANSION (Mini-Pitch) 
- */
 async function toggleManagerExpansion(managerId) {
     const existing = document.querySelector('.details-row');
     const targetRow = document.getElementById(`row-${managerId}`);
@@ -143,6 +151,7 @@ async function toggleManagerExpansion(managerId) {
         const pResp = await fetch(`${PROXY_ENDPOINT}entry/${managerId}/event/${state.currentGW}/picks/`);
         const pData = await pResp.json();
 
+        // Slice(0,11) for starting XI
         pData.picks.slice(0, 11).forEach(pick => {
             const player = state.playerMap[pick.element];
             const rowIds = { 1: 'exp-gkp', 2: 'exp-def', 3: 'exp-mid', 4: 'exp-fwd' };
@@ -150,9 +159,9 @@ async function toggleManagerExpansion(managerId) {
             
             if (container) {
                 container.innerHTML += `
-                    <div class="mini-player" style="text-align: center; width: 60px;">
-                        <div style="width: 20px; height: 20px; background: #eee; border-radius: 50%; margin: 0 auto;"></div>
-                        <div style="font-size: 10px; margin-top: 4px; overflow: hidden; white-space: nowrap;">${player.name}</div>
+                    <div class="mini-player">
+                        <div class="player-shirt"></div>
+                        <div class="player-name">${player.name}</div>
                     </div>
                 `;
             }
@@ -161,7 +170,7 @@ async function toggleManagerExpansion(managerId) {
 }
 
 /**
- * 5. MATCH CENTER ENGINE 
+ * 5. LIVE MATCH CENTER (WITH BONUS & HIGHLIGHTS)
  */
 async function updateLiveScores() {
     const container = document.getElementById('fixtures-container');
@@ -184,37 +193,66 @@ async function updateLiveScores() {
             const homeAbbr = teamLookup[game.team_h].substring(0, 3).toUpperCase();
             const awayAbbr = teamLookup[game.team_a].substring(0, 3).toUpperCase();
             
+            // Calculate Top 3 Bonus Points
+            const bpsData = game.stats.find(s => s.identifier === 'bps');
+            let bonusListHtml = '';
+            
+            if (bpsData) {
+                const top3 = [...bpsData.h, ...bpsData.a].sort((a, b) => b.value - a.value).slice(0, 3);
+                const bonusValues = [3, 2, 1];
+
+                top3.forEach((player, index) => {
+                    const isMyPlayer = state.myPlayerIds.includes(player.element);
+                    const playerName = state.playerMap[player.element]?.name || "Unknown";
+                    
+                    bonusListHtml += `
+                        <div class="bonus-row ${isMyPlayer ? 'my-player-bonus' : ''}">
+                            <span>
+                                <span class="bonus-badge">${bonusValues[index]}pts</span> 
+                                ${isMyPlayer ? '<span class="star-icon">★</span> ' : ''}${playerName}
+                            </span>
+                            <span class="bps-val">${player.value} BPS</span>
+                        </div>`;
+                });
+            }
+
             html += `
-                <div class="match-card" style="display: flex; padding: 15px; border-bottom: 1px solid var(--border-gray); align-items: center; justify-content: space-between;">
-                    <span style="font-weight: 700; flex: 1; text-align: right;">${homeAbbr}</span>
-                    <span style="background: var(--fpl-purple); color: white; padding: 4px 10px; border-radius: 4px; margin: 0 15px; font-family: monospace;">${game.team_h_score} - ${game.team_a_score}</span>
-                    <span style="font-weight: 700; flex: 1; text-align: left;">${awayAbbr}</span>
+                <div class="match-card">
+                    <div class="match-scoreline">
+                        <span class="team-name">${homeAbbr}</span>
+                        <span class="score-badge">${game.team_h_score} - ${game.team_a_score}</span>
+                        <span class="team-name">${awayAbbr}</span>
+                    </div>
+                    <div class="bonus-section">
+                        <div class="bonus-title">Live Bonus</div>
+                        ${bonusListHtml || '<div class="calculating">Calculating...</div>'}
+                    </div>
                 </div>`;
         });
         
-        container.innerHTML = html || '<p style="text-align:center; padding:40px; color: var(--text-muted);">No live games currently.</p>';
+        container.innerHTML = html || '<p class="no-games">No live games currently.</p>';
     } catch (err) { console.error("Match Center Error", err); }
 }
 
 /**
- * 6. UI NAVIGATION 
+ * 6. UI UTILITIES
  */
 function showView(view) {
     document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
     document.getElementById('pitch-view').style.display = view === 'pitch' ? 'block' : 'none';
-    
     document.getElementById('tab-table').classList.toggle('active', view === 'table');
     document.getElementById('tab-pitch').classList.toggle('active', view === 'pitch');
 
-    if (view === 'pitch') {
-        updateLiveScores();
-    } else {
-        clearTimeout(refreshTimer);
-    }
+    if (view === 'pitch') updateLiveScores();
+    else clearTimeout(refreshTimer);
+}
+
+function toggleSettings() {
+    document.getElementById('settings-drawer').classList.toggle('open');
 }
 
 function resetApp() {
-    if(confirm("Logout and return to login screen?")) {
+    if(confirm("Logout and clear data?")) {
         localStorage.removeItem('kopala_fpl_id');
         location.reload();
     }
