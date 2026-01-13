@@ -603,3 +603,41 @@ function populateStatsView(leagueEntries) {
             leagueEntries.map(m => `<option value="${m.entry}">${m.entry_name}</option>`).join('');
     }
 }
+
+
+
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+
+// 1. Listen for the browser's install prompt event
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent the mini-infobar from appearing on mobile
+  e.preventDefault();
+  // Stash the event so it can be triggered later.
+  deferredPrompt = e;
+  // Update UI notify the user they can install the PWA
+  installBtn.style.display = 'block';
+
+  console.log("'beforeinstallprompt' event was fired.");
+});
+
+// 2. Handle the click event on your custom button
+installBtn.addEventListener('click', async () => {
+  if (deferredPrompt) {
+    // Show the install prompt
+    deferredPrompt.prompt();
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response to the install prompt: ${outcome}`);
+    // We've used the prompt, and can't use it again, throw it away
+    deferredPrompt = null;
+    // Hide the button again
+    installBtn.style.display = 'none';
+  }
+});
+
+// 3. (Optional) Clear the button if the app is successfully installed
+window.addEventListener('appinstalled', () => {
+  console.log('PWA was installed');
+  installBtn.style.display = 'none';
+});
