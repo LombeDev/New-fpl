@@ -3,11 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live FPL Tables Clone</title>
+    <title>KOPALA FPL - Live Match Center</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
+    <style>
+        /* Essential styles for the Match Center integration */
+        #fixtures-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 10px;
+            background: #fff;
+            scrollbar-width: thin;
+            scrollbar-color: #37003c #f4f4f4;
+        }
+        #fixtures-container::-webkit-scrollbar { width: 6px; }
+        #fixtures-container::-webkit-scrollbar-thumb { background-color: #37003c; border-radius: 10px; }
+
+        .details-row td { background: #00563b !important; padding: 0 !important; border: none; }
+        .expansion-content { display: flex; padding: 15px; gap: 15px; color: white; background: linear-gradient(to bottom, #008d4c, #00563b); }
+        .mini-pitch-view { flex: 2; }
+        .p-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
+        .mini-player { text-align: center; width: 50px; }
+        .player-shirt { width: 25px; height: 25px; background: #eee; border-radius: 50%; margin: 0 auto; border: 1px solid rgba(255,255,255,0.3); }
+        .player-name { font-size: 8px; background: #37003c; padding: 2px; margin-top: 2px; overflow: hidden; white-space: nowrap; }
+        .player-val { font-size: 9px; background: white; color: black; font-weight: bold; }
+        
+        .exp-side-panel { flex: 1; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; font-size: 0.8rem; }
+        .chip-container { display: flex; gap: 4px; margin-bottom: 10px; }
+        .chip { padding: 3px 6px; border: 1px solid #fff; font-size: 9px; opacity: 0.3; border-radius: 3px; }
+        .chip.used { opacity: 1; background: #ff005a; border-color: #ff005a; }
+    </style>
 </head>
 <body>
+
     <div id="login-screen">
         <div class="hero-section">
             <h1>LIVE <span>FPL Tables</span></h1>
@@ -19,7 +47,7 @@
                 <input type="number" id="team-id-input" placeholder="Team ID (e.g. 12345)">
                 <button onclick="handleLogin()">Start</button>
             </div>
-            <a href="#" class="help-link">► I don't know my team ID</a>
+            <a href="https://fantasy.premierleague.com/entry/YOUR_ID/event/1" target="_blank" class="help-link">► How to find my ID?</a>
         </div>
     </div>
 
@@ -31,7 +59,7 @@
             </div>
             <div class="header-actions">
                 <button onclick="toggleSettings()" class="settings-btn">⚙️</button>
-                <button onclick="handleLogin()" class="update-btn">Update</button>
+                <button onclick="location.reload()" class="update-btn">Update</button>
             </div>
         </header>
 
@@ -41,18 +69,9 @@
                 <div><span id="disp-gw" class="score-text">0</span> <small>GW Pts</small></div>
             </div>
             <div class="stat-grid">
-                <div class="stat-item">
-                    <label>Overall Rank</label>
-                    <span id="disp-rank">N/A</span>
-                </div>
-                <div class="stat-item">
-                    <label>Total Pts</label>
-                    <span id="disp-total">0</span>
-                </div>
-                <div class="stat-item">
-                    <label>Transfers</label>
-                    <span id="disp-transfers">0</span>
-                </div>
+                <div class="stat-item"><label>Rank</label><span id="disp-rank">N/A</span></div>
+                <div class="stat-item"><label>Total</label><span id="disp-total">0</span></div>
+                <div class="stat-item"><label>Transfers</label><span id="disp-transfers">0</span></div>
             </div>
         </div>
 
@@ -71,18 +90,17 @@
                         <th>Total</th>
                     </tr>
                 </thead>
-                <tbody id="league-body"></tbody>
+                <tbody id="league-body">
+                    </tbody>
             </table>
         </section>
 
         <section id="pitch-view" style="display:none;" class="view-content">
-            <div class="fpl-pitch">
-                <div class="pitch-row" id="row-gkp"></div>
-                <div class="pitch-row" id="row-def"></div>
-                <div class="pitch-row" id="row-mid"></div>
-                <div class="pitch-row" id="row-fwd"></div>
+            <div style="background: #37003c; color: white; padding: 12px; text-align: center; font-weight: 800; font-size: 0.7rem; letter-spacing: 1px;">
+                EPL LIVE MATCH CENTER & BONUS
             </div>
-            <div id="bps-list" class="bps-container"></div>
+            <div id="fixtures-container">
+                </div>
         </section>
     </div>
 
@@ -93,10 +111,6 @@
         </div>
         <div class="drawer-content">
             <div class="setting-group">
-                <h3>Live options</h3>
-                <label class="switch-item"><span>Live auto subs</span><input type="checkbox" id="auto-subs" checked></label>
-            </div>
-            <div class="setting-group">
                 <h3>Look and feel</h3>
                 <label class="switch-item"><span>Dark mode</span><input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()"></label>
             </div>
@@ -104,34 +118,32 @@
         </div>
     </div>
 
-
     <template id="manager-details-template">
-    <tr class="details-row">
-        <td colspan="4">
-            <div class="expansion-content">
-                <div class="mini-pitch-view">
-                    <div class="p-row" id="exp-gkp"></div>
-                    <div class="p-row" id="exp-def"></div>
-                    <div class="p-row" id="exp-mid"></div>
-                    <div class="p-row" id="exp-fwd"></div>
-                </div>
-                <div class="exp-side-panel">
-                    <div class="chip-container">
-                        <div class="chip" id="chip-wc">WC</div>
-                        <div class="chip" id="chip-tc">TC</div>
-                        <div class="chip" id="chip-bb">BB</div>
-                        <div class="chip" id="chip-fh">FH</div>
+        <tr class="details-row">
+            <td colspan="4">
+                <div class="expansion-content">
+                    <div class="mini-pitch-view">
+                        <div class="p-row" id="exp-gkp"></div>
+                        <div class="p-row" id="exp-def"></div>
+                        <div class="p-row" id="exp-mid"></div>
+                        <div class="p-row" id="exp-fwd"></div>
                     </div>
-                    <div class="exp-finance">
-                        <p>ITB: £<span id="exp-itb">0.0</span>m</p>
-                        <p>Hits: <span id="exp-cost">0</span></p>
+                    <div class="exp-side-panel">
+                        <div class="chip-container">
+                            <div class="chip" id="chip-wc">WC</div>
+                            <div class="chip" id="chip-tc">TC</div>
+                            <div class="chip" id="chip-bb">BB</div>
+                            <div class="chip" id="chip-fh">FH</div>
+                        </div>
+                        <div class="exp-finance">
+                            <p>ITB: £<span id="exp-itb">0.0</span>m</p>
+                            <p>Hits: <span id="exp-cost">0</span></p>
+                        </div>
                     </div>
-                    <div id="exp-transfers-list" class="transfers-mini-list"></div>
                 </div>
-            </div>
-        </td>
-    </tr>
-</template>
+            </td>
+        </tr>
+    </template>
 
     <script src="script.js"></script>
 </body>
