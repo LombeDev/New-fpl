@@ -1,6 +1,6 @@
 /**
  * KOPALA FPL - MASTER CORE SCRIPT
- * Full Integration: Auth, Table, Live Match Center, and Pitch Expansion
+ * Features: PWA Install, Auth, League Table (Arrows + Captains), Live Match Center, and Pitch Expansion
  */
 
 const state = {
@@ -8,7 +8,7 @@ const state = {
     playerMap: {}, 
     livePoints: {},
     currentGW: 1, 
-    myPlayerIds: [] // Stores user's squad for live highlighting
+    myPlayerIds: [] 
 };
 
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
@@ -16,17 +16,26 @@ const FIXTURES_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=fixtures/?even
 
 let refreshTimer = null;
 let teamLookup = {}; 
+let deferredPrompt; // For PWA Install
 
 /**
- * 1. INITIALIZATION & THEME
+ * 1. INITIALIZATION & PWA EVENT
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Apply Theme
+    // Theme setup
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
         const toggle = document.getElementById('dark-mode-toggle');
         if (toggle) toggle.checked = true;
     }
+
+    // PWA Install Prompt Logic
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const installBtn = document.getElementById('install-app-btn');
+        if (installBtn) installBtn.style.display = 'block';
+    });
 
     await initAppData();
 
@@ -35,11 +44,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         handleLogin();
     }
 });
-
-function handleDarkModeToggle() {
-    const isDark = document.body.classList.toggle('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-}
 
 /**
  * 2. DATA BOOTSTRAPPING
@@ -54,7 +58,7 @@ async function initAppData() {
                 name: p.web_name,
                 pos: p.element_type,
                 team: p.team,
-                code: p.code // Required for player photos
+                code: p.code
             };
         });
 
@@ -109,27 +113,72 @@ async function fetchManagerData() {
 }
 
 /**
- * 4. LEAGUE STANDINGS
+ * 4. LEAGUE STANDINGS (Rank Arrows + Stacked Captain)
  */
-async function changeLeague(id) {
+async function changeLeague(leagueId) {
+    const body = document.getElementById('league-body');
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Loading Standings...</td></tr>';
+
     try {
-        const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${id}/standings/`);
+        const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
         const data = await res.json();
-        const body = document.getElementById('league-body');
+        const standings = data.standings.results;
+
+        // Parallel fetch for all captains
+        const captainPromises = standings.map(r => 
+            fetch(`${PROXY_ENDPOINT}entry/${r.entry}/event/${state.currentGW}/picks/`)
+            .then(res => res.json())
+            .catch(() => null)
+        );
+
+        const allPicks = await Promise.all(captainPromises);
+
+        body.innerHTML = standings.map((r, index) => {
+            // Rank Movement
+            let arrow = '';
+            if (r.last_rank > r.rank) {
+                arrow = '<span style="color: #00ff85; margin-right: 4px;">▲</span>'; 
+            } else if (r.last_rank < r.rank && r.last_rank !== 0) {
+                arrow = '<span style="color: #e90052; margin-right: 4px;">▼</span>'; 
+            } else {
+                arrow = '<span style="color: #999; margin-right: 4px;">-</span>';
+            }
+
+            // Captain Logic
+            const managerPicks = allPicks[index];
+            let captainName = "N/A";
+            if (managerPicks && managerPicks.picks) {
+                const capId = managerPicks.picks.find(p => p.is_captain)?.element;
+                captainName = state.playerMap[capId]?.name || "Unknown";
+            }
+
+            return `
+                <tr id="row-${r.entry}" class="manager-row" onclick="toggleManagerExpansion(${r.entry})">
+                    <td style="font-weight: bold; white-space: nowrap;">${arrow}${r.rank}</td>
+                    <td>
+                        <div style="font-weight: bold; color: #37003c; line-height: 1.2;">${r.entry_name}</div>
+                        <div style="font-size: 0.75rem; color: #666;">${r.player_name}</div>
+                        <div style="font-size: 0.7rem; margin-top: 4px; display: flex; align-items: center;">
+                            <span style="background: #e90052; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; margin-right: 4px; font-weight: bold;">C</span>
+                            <span style="color: #37003c; font-weight: 600;">${captainName}</span>
+                        </div>
+                    </td>
+                    <td class="score-text" style="font-weight: 800; color: #37003c; text-align: center;">${r.event_total}</td>
+                    <td style="font-weight: 600; text-align: right;">${r.total.toLocaleString()}</td>
+                </tr>
+            `;
+        }).join('');
         
-        body.innerHTML = data.standings.results.map(r => `
-            <tr id="row-${r.entry}" class="manager-row" onclick="toggleManagerExpansion(${r.entry})">
-                <td>${r.rank}</td>
-                <td><strong>${r.entry_name}</strong><br><small>${r.player_name}</small></td>
-                <td class="score-text">${r.event_total}</td>
-                <td>${r.total.toLocaleString()}</td>
-            </tr>
-        `).join('');
-    } catch (err) { console.error("League Error", err); }
+        initializeStats(leagueId, state.fplId);
+
+    } catch (err) { 
+        console.error("League Error", err); 
+        body.innerHTML = "<tr><td colspan='4'>Error loading league data.</td></tr>";
+    }
 }
 
 /**
- * 5. PITCH EXPANSION (Starting XI + Bench + Live Points)
+ * 5. PITCH EXPANSION
  */
 async function toggleManagerExpansion(managerId) {
     const existing = document.querySelector('.details-row');
@@ -182,7 +231,7 @@ async function toggleManagerExpansion(managerId) {
                             <div class="player-points-badge">${points * (multiplier || 1)}</div>
                         </div>
                         <div class="player-name-tag ${multiplier > 1 ? 'is-captain' : ''}">
-                            ${multiplier > 1 ? 'C' : ''} ${player.name}
+                            ${multiplier > 1 ? (multiplier === 3 ? 'TC' : 'C') : ''} ${player.name}
                         </div>
                     </div>
                 `;
@@ -192,7 +241,7 @@ async function toggleManagerExpansion(managerId) {
 }
 
 /**
- * 6. CENTERED MATCH CENTER (Live Bonus & My Players)
+ * 6. MATCH CENTER
  */
 async function updateLiveScores() {
     const container = document.getElementById('fixtures-container');
@@ -212,8 +261,8 @@ async function updateLiveScores() {
         const sortedGames = [...startedGames].sort((a, b) => new Date(b.kickoff_time) - new Date(a.kickoff_time));
 
         sortedGames.forEach(game => {
-            const homeAbbr = teamLookup[game.team_h].substring(0, 3).toUpperCase();
-            const awayAbbr = teamLookup[game.team_a].substring(0, 3).toUpperCase();
+            const homeAbbr = teamLookup[game.team_h]?.substring(0, 3).toUpperCase();
+            const awayAbbr = teamLookup[game.team_a]?.substring(0, 3).toUpperCase();
             
             const bpsData = game.stats.find(s => s.identifier === 'bps');
             let bonusListHtml = '';
@@ -256,186 +305,29 @@ async function updateLiveScores() {
 }
 
 /**
- * 7. NAVIGATION & UTILS
- */
-function showView(view) {
-    document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
-    document.getElementById('pitch-view').style.display = view === 'pitch' ? 'block' : 'none';
-    document.getElementById('tab-table').classList.toggle('active', view === 'table');
-    document.getElementById('tab-pitch').classList.toggle('active', view === 'pitch');
-
-    if (view === 'pitch') updateLiveScores();
-    else clearTimeout(refreshTimer);
-}
-
-function toggleSettings() {
-    const drawer = document.getElementById('settings-drawer');
-    const overlay = document.getElementById('drawer-overlay');
-    const isOpen = drawer.classList.toggle('open');
-    overlay.style.display = isOpen ? 'block' : 'none';
-}
-
-
-
-/**
- * FPL Stats Controller
- */
-const FPL_BASE_URL = "https://fantasy.premierleague.com/api";
-
-async function initializeStats(leagueId, myEntryId) {
-    try {
-        // 1. Fetch Static Data (Player names, photos, and current Gameweek)
-        const staticRes = await fetch(`${FPL_BASE_URL}/bootstrap-static/`);
-        const staticData = await staticRes.json();
-        
-        const currentGW = staticData.events.find(e => e.is_current).id;
-        const leagueAvg = staticData.events.find(e => e.is_current).average_entry_score;
-
-        // Create Player Map for quick lookup
-        const playerMap = {};
-        staticData.elements.forEach(p => {
-            playerMap[p.id] = { web_name: p.web_name, code: p.code };
-        });
-
-        // 2. Fetch League Standings
-        const leagueRes = await fetch(`${FPL_BASE_URL}/leagues-classic/${leagueId}/standings/`);
-        const leagueData = await leagueRes.json();
-        const standings = leagueData.standings.results;
-
-        // 3. Update UI: Comparison & Top Managers
-        renderComparison(standings, myEntryId, leagueAvg);
-        renderTopManagers(standings, currentGW);
-
-        // 4. Update UI: Captaincy (This requires fetching individual picks)
-        calculateAndRenderCaptains(standings, currentGW, playerMap);
-
-    } catch (error) {
-        console.error("Error loading league stats:", error);
-    }
-}
-
-/**
- * Renders the comparison between League Average and My Team
- */
-function renderComparison(standings, myEntryId, leagueAvg) {
-    const myTeam = standings.find(m => m.entry === myEntryId) || standings[0];
-    const container = document.getElementById('comparison-body');
-    
-    container.innerHTML = `
-        <tr style="color: #37003c; border-bottom: 1px solid #eee;">
-            <td style="text-align: left; padding: 10px; color: #666;">League Avg</td>
-            <td>${leagueAvg}</td>
-            <td>-</td>
-            <td>-</td>
-        </tr>
-        <tr style="color: #00ff85; background: #f9f9f9;">
-            <td style="text-align: left; padding: 10px; color: #666;">My Team</td>
-            <td>${myTeam.event_total}</td>
-            <td>${myTeam.rank_sort}</td>
-            <td>${myTeam.total}</td>
-        </tr>
-    `;
-}
-
-/**
- * Renders the Top Scoring Managers for the week
- */
-function renderTopManagers(standings, gw) {
-    const sorted = [...standings].sort((a, b) => b.event_total - a.event_total).slice(0, 5);
-    const container = document.getElementById('top-managers-body');
-    
-    container.innerHTML = sorted.map(m => `
-        <tr style="border-bottom: 1px solid #f0f0f0;">
-            <td style="padding: 12px; color: #999;">GW${gw}</td>
-            <td style="padding: 12px; font-weight: 500;">${m.player_name}</td>
-            <td style="padding: 12px; text-align: right; color: #37003c; font-weight: 800;">${m.event_total}</td>
-        </tr>
-    `).join('');
-}
-
-/**
- * Calculates most captained players and renders cards
- */
-async function calculateAndRenderCaptains(standings, gw, playerMap) {
-    const captainCounts = {};
-    const topManagers = standings.slice(0, 15); // Limiting to top 15 to avoid API rate limits
-
-    const pickPromises = topManagers.map(m => 
-        fetch(`${FPL_BASE_URL}/entry/${m.entry}/event/${gw}/picks/`).then(r => r.json())
-    );
-
-    const results = await Promise.all(pickPromises);
-
-    results.forEach(data => {
-        const cap = data.picks.find(p => p.is_captain);
-        if (cap) {
-            captainCounts[cap.element] = (captainCounts[cap.element] || 0) + 1;
-        }
-    });
-
-    const sortedCaps = Object.entries(captainCounts)
-        .map(([id, count]) => ({ id, count, pct: Math.round((count / topManagers.length) * 100) }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 3);
-
-    const container = document.getElementById('captained-container');
-    container.innerHTML = sortedCaps.map(c => `
-        <div style="text-align: center; width: 30%;">
-            <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${playerMap[c.id].code}.png" 
-                 style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #37003c; background: #eee;">
-            <div style="font-weight: 800; font-size: 0.7rem; margin-top: 5px;">${playerMap[c.id].web_name}</div>
-            <div style="color: #e90052; font-weight: 800; font-size: 1.1rem;">${c.count}</div>
-            <div style="font-size: 0.6rem; color: #666; font-weight: bold;">${c.pct}%</div>
-        </div>
-    `).join('');
-}
-
-function resetApp() {
-    if(confirm("Logout and return to login screen?")) {
-        localStorage.removeItem('kopala_fpl_id');
-        location.reload();
-    }
-}
-
-
-/**
- * Main function to load all league-specific statistics
+ * 7. STATS HELPERS
  */
 async function initializeStats(leagueId, myEntryId) {
     try {
-        // 1. Fetch League Standings
         const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
         const data = await res.json();
         const standings = data.standings.results;
 
-        // 2. Load Global/Average Stats from bootstrap (static data)
         const staticRes = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
         const staticData = await staticRes.json();
-        const currentGW = staticData.events.find(e => e.is_current).id;
-        const leagueAvg = staticData.events.find(e => e.is_current).average_entry_score;
+        const leagueAvg = staticData.events.find(e => e.is_current)?.average_entry_score || 0;
 
-        // Populate Rival Dropdown
-        const rivalSelect = document.getElementById('rival-select');
-        rivalSelect.innerHTML = '<option>Select Rival...</option>' + 
-            standings.filter(m => m.entry != myEntryId)
-            .map(m => `<option value="${m.entry}">${m.entry_name}</option>`).join('');
-
-        // 3. Render Sections
         renderComparison(standings, myEntryId, leagueAvg);
-        renderTopManagers(standings, currentGW);
-        calculateAndRenderCaptains(standings, currentGW, state.playerMap);
+        renderTopManagers(standings, state.currentGW);
+        calculateAndRenderCaptains(standings, state.currentGW, state.playerMap);
 
-    } catch (error) {
-        console.error("Stats Error:", error);
-    }
+    } catch (error) { console.error("Stats Error:", error); }
 }
 
-/**
- * Table Comparison: Me vs Average
- */
 function renderComparison(standings, myEntryId, leagueAvg) {
     const myTeam = standings.find(m => m.entry == myEntryId) || standings[0];
     const container = document.getElementById('comparison-body');
+    if (!container) return;
     
     container.innerHTML = `
         <tr style="color: #37003c; border-bottom: 1px solid #f9f9f9;">
@@ -447,17 +339,16 @@ function renderComparison(standings, myEntryId, leagueAvg) {
         <tr style="color: #00ff85; background: #f0fff0;">
             <td style="text-align: left; padding: 10px 0; color: #37003c;">My Team</td>
             <td>${myTeam.event_total}</td>
-            <td>${myTeam.rank_sort}</td> <td>${myTeam.total.toLocaleString()}</td>
+            <td>${myTeam.rank_sort}</td> 
+            <td>${myTeam.total.toLocaleString()}</td>
         </tr>
     `;
 }
 
-/**
- * Top 5 Managers list for the current GW
- */
 function renderTopManagers(standings, gw) {
     const sorted = [...standings].sort((a, b) => b.event_total - a.event_total).slice(0, 5);
     const container = document.getElementById('top-managers-body');
+    if (!container) return;
     
     container.innerHTML = sorted.map(m => `
         <tr style="border-bottom: 1px solid #f4f4f4;">
@@ -468,12 +359,11 @@ function renderTopManagers(standings, gw) {
     `).join('');
 }
 
-/**
- * Captaincy UI Cards
- */
 async function calculateAndRenderCaptains(standings, gw, playerMap) {
     const captainCounts = {};
     const top15 = standings.slice(0, 15);
+    const container = document.getElementById('captained-container');
+    if (!container) return;
 
     const pickPromises = top15.map(m => 
         fetch(`${PROXY_ENDPOINT}entry/${m.entry}/event/${gw}/picks/`).then(r => r.json())
@@ -481,7 +371,7 @@ async function calculateAndRenderCaptains(standings, gw, playerMap) {
 
     const results = await Promise.all(pickPromises);
     results.forEach(data => {
-        const cap = data.picks.find(p => p.is_captain);
+        const cap = data.picks?.find(p => p.is_captain);
         if (cap) captainCounts[cap.element] = (captainCounts[cap.element] || 0) + 1;
     });
 
@@ -489,155 +379,51 @@ async function calculateAndRenderCaptains(standings, gw, playerMap) {
         .map(([id, count]) => ({ id, count, pct: Math.round((count / top15.length) * 100) }))
         .sort((a, b) => b.count - a.count).slice(0, 3);
 
-    document.getElementById('captained-container').innerHTML = sorted.map((c, i) => `
+    container.innerHTML = sorted.map((c, i) => `
         <div style="text-align: center; width: 30%;">
             <div style="position: relative; display: inline-block;">
-                <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${playerMap[c.id].code}.png" 
+                <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${playerMap[c.id]?.code}.png" 
                      style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid ${i==0?'#00ff85':'#37003c'}; background:#eee;">
                 <div style="position: absolute; bottom: 0; right: 0; background: #e90052; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid white;">C</div>
             </div>
-            <div style="font-weight: 800; font-size: 0.7rem; margin-top: 5px; color: #37003c;">${playerMap[c.id].name}</div>
+            <div style="font-weight: 800; font-size: 0.7rem; margin-top: 5px; color: #37003c;">${playerMap[c.id]?.name}</div>
             <div style="color: #e90052; font-weight: 800; font-size: 1.1rem;">${c.pct}%</div>
         </div>
     `).join('');
 }
 
 /**
- * Rival Analysis Master Trigger
+ * 8. UTILS & NAVIGATION
  */
-async function runRivalAnalysis() {
-    const rivalId = document.getElementById('rival-select').value;
-    if (!rivalId || isNaN(rivalId)) return;
+function showView(view) {
+    document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
+    document.getElementById('pitch-view').style.display = view === 'pitch' ? 'block' : 'none';
+    document.getElementById('tab-table').classList.toggle('active', view === 'table');
+    document.getElementById('tab-pitch').classList.toggle('active', view === 'pitch');
 
-    const chartContainer = document.getElementById('rival-chart-container');
-    const chipContainer = document.getElementById('rival-chips-hits');
-    const transContainer = document.getElementById('transfer-log-container');
-
-    try {
-        const [hisRes, transRes, meRes] = await Promise.all([
-            fetch(`${PROXY_ENDPOINT}entry/${rivalId}/history/`),
-            fetch(`${PROXY_ENDPOINT}entry/${rivalId}/transfers/`),
-            fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/history/`)
-        ]);
-
-        const his = await hisRes.json();
-        const trans = await transRes.json();
-        const me = await meRes.json();
-
-        // 1. Hits & Chips
-        const currentGWData = his.current.find(h => h.event === state.currentGW);
-        const hitCost = currentGWData ? currentGWData.event_transfers_cost : 0;
-        
-        chipContainer.innerHTML = `
-            <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                ${his.chips.map(c => `<span style="background:#37003c; color:white; font-size:0.6rem; padding:2px 6px; border-radius:10px; font-weight:bold;">${c.name.toUpperCase()} GW${c.event}</span>`).join('')}
-            </div>
-            ${hitCost > 0 ? `<div style="color:#ff005a; font-weight:800; font-size:0.7rem;">⚠️ TOOK -${hitCost} HIT THIS GW</div>` : ''}
-        `;
-
-        // 2. Chart Bars
-        const history = me.current.slice(-5).reverse();
-        chartContainer.innerHTML = history.map(gw => {
-            const rivalGw = his.current.find(t => t.event === gw.event);
-            const diff = gw.total_points - (rivalGw?.total_points || 0);
-            const barWidth = Math.min(Math.abs(diff), 150);
-            return `
-                <div style="display:flex; align-items:center; font-size:0.7rem;">
-                    <span style="width:35px; font-weight:bold;">GW${gw.event}</span>
-                    <div style="height:12px; background:${diff>=0?'#00ff85':'#ff005a'}; width:${barWidth}px; border-radius:2px;"></div>
-                    <span style="margin-left:8px; font-weight:bold; color:${diff>=0?'#00ff85':'#ff005a'}">${diff > 0 ? '+' : ''}${diff}</span>
-                </div>
-            `;
-        }).join('');
-
-        // 3. Transfers
-        transContainer.innerHTML = trans.slice(0, 3).map(t => `
-            <div style="display:flex; justify-content:space-between; font-size:0.7rem; background:#f9f9f9; padding:5px; border-radius:4px;">
-                <span style="color:#00ff85; font-weight:bold;">IN: ${state.playerMap[t.element_in]?.name}</span>
-                <span style="color:#e90052; font-weight:bold;">OUT: ${state.playerMap[t.element_out]?.name}</span>
-            </div>
-        `).join('');
-
-    } catch (e) { console.error(e); }
+    if (view === 'pitch') updateLiveScores();
+    else clearTimeout(refreshTimer);
 }
 
+function handleDarkModeToggle() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
 
-
-/**
- * Main function to populate the Stats View
- * @param {Array} leagueEntries - Array of manager objects from the FPL API
- */
-function populateStatsView(leagueEntries) {
-    // 1. Calculate League Average for the Summary Table
-    const totalGWScore = leagueEntries.reduce((sum, m) => sum + (m.event_total || 0), 0);
-    const avgGWScore = Math.round(totalGWScore / leagueEntries.length);
-    
-    const comparisonBody = document.getElementById('comparison-body');
-    if (comparisonBody) {
-        comparisonBody.innerHTML = `
-            <tr>
-                <td style="text-align: left;">League Avg</td>
-                <td>${avgGWScore}</td>
-                <td>-0</td> <td>-</td> 
-            </tr>
-        `;
-    }
-
-    // 2. Populate the Top Managers Table (Top 5 this GW)
-    const topManagersBody = document.getElementById('top-managers-body');
-    const sortedThisGW = [...leagueEntries].sort((a, b) => b.event_total - a.event_total).slice(0, 5);
-    
-    if (topManagersBody) {
-        topManagersBody.innerHTML = sortedThisGW.map(m => `
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 8px 0; text-align: left;">${m.player_name}</td>
-                <td style="text-align: right; font-weight: bold; color: #00ff85;">${m.event_total} pts</td>
-            </tr>
-        `).join('');
-    }
-
-    // 3. Populate Rival Select Dropdown
-    const rivalSelect = document.getElementById('rival-select');
-    if (rivalSelect) {
-        rivalSelect.innerHTML = '<option>Select Rival...</option>' + 
-            leagueEntries.map(m => `<option value="${m.entry}">${m.entry_name}</option>`).join('');
+async function triggerInstall() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            document.getElementById('install-app-btn').style.display = 'none';
+        }
+        deferredPrompt = null;
     }
 }
 
-
-
-let deferredPrompt;
-const installBtn = document.getElementById('installBtn');
-
-// 1. Listen for the browser's install prompt event
-window.addEventListener('beforeinstallprompt', (e) => {
-  // Prevent the mini-infobar from appearing on mobile
-  e.preventDefault();
-  // Stash the event so it can be triggered later.
-  deferredPrompt = e;
-  // Update UI notify the user they can install the PWA
-  installBtn.style.display = 'block';
-
-  console.log("'beforeinstallprompt' event was fired.");
-});
-
-// 2. Handle the click event on your custom button
-installBtn.addEventListener('click', async () => {
-  if (deferredPrompt) {
-    // Show the install prompt
-    deferredPrompt.prompt();
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response to the install prompt: ${outcome}`);
-    // We've used the prompt, and can't use it again, throw it away
-    deferredPrompt = null;
-    // Hide the button again
-    installBtn.style.display = 'none';
-  }
-});
-
-// 3. (Optional) Clear the button if the app is successfully installed
-window.addEventListener('appinstalled', () => {
-  console.log('PWA was installed');
-  installBtn.style.display = 'none';
-});
+function resetApp() {
+    if(confirm("Logout and return to login screen?")) {
+        localStorage.removeItem('kopala_fpl_id');
+        location.reload();
+    }
+}
