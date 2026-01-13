@@ -149,3 +149,68 @@ function resetApp() {
     localStorage.removeItem('kopala_fpl_id');
     location.reload();
 }
+
+
+// Add these functions to your existing script.js
+
+async function toggleManagerExpansion(managerId) {
+    const existing = document.querySelector('.details-row');
+    const targetRow = document.getElementById(`row-${managerId}`);
+
+    // 1. If already open, close it
+    if (existing && existing.previousElementSibling === targetRow) {
+        existing.remove();
+        return;
+    }
+    if (existing) existing.remove(); // Close any other open ones
+
+    // 2. Inject the expansion template
+    const template = document.getElementById('manager-details-template');
+    const clone = template.content.cloneNode(true);
+    targetRow.after(clone);
+
+    // 3. Fetch Data
+    try {
+        const [currResp, prevResp, entryResp] = await Promise.all([
+            fetch(`${PROXY_ENDPOINT}entry/${managerId}/event/${state.currentGW}/picks/`),
+            fetch(`${PROXY_ENDPOINT}entry/${managerId}/event/${state.currentGW - 1}/picks/`),
+            fetch(`${PROXY_ENDPOINT}entry/${managerId}/`)
+        ]);
+
+        const currData = await currResp.json();
+        const prevData = await prevResp.json();
+        const entryData = await entryResp.json();
+
+        // Calculate Transfers
+        const currIds = currData.picks.map(p => p.element);
+        const prevIds = prevData.picks.map(p => p.element);
+        const ins = currIds.filter(id => !prevIds.includes(id));
+        const outs = prevIds.filter(id => !currIds.includes(id));
+
+        // Render Transfers
+        const list = document.getElementById('exp-transfers-list');
+        list.innerHTML = ins.map((id, i) => `
+            <div class="transfer-row">
+                <span class="in">↑ ${state.playerMap[id]}</span>
+                <span class="out">↓ ${state.playerMap[outs[i]] || 'N/A'}</span>
+            </div>
+        `).join('') || 'No transfers';
+
+        // Render Chips
+        const chips = entryData.chips || [];
+        const map = { 'wildcard': 'wc', '3xc': 'tc', 'bboost': 'bb', 'freehit': 'fh' };
+        Object.keys(map).forEach(key => {
+            const used = chips.find(c => c.name === key);
+            document.getElementById(`chip-${map[key]}`).textContent = used ? `GW${used.event}` : '✅';
+        });
+
+        document.getElementById('exp-itb').textContent = (currData.entry_history.bank / 10).toFixed(1);
+        document.getElementById('exp-cost').textContent = currData.entry_history.event_transfers_cost;
+
+    } catch (e) { console.error("Expansion fail", e); }
+}
+
+// Update your changeLeague function to use the new ID and onclick
+// body.innerHTML = data.standings.results.map(r => `
+//    <tr class="manager-row" id="row-${r.entry}" onclick="toggleManagerExpansion(${r.entry})">...</tr>
+// `);
