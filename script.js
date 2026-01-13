@@ -396,3 +396,167 @@ function resetApp() {
         location.reload();
     }
 }
+
+
+/**
+ * Main function to load all league-specific statistics
+ */
+async function initializeStats(leagueId, myEntryId) {
+    try {
+        // 1. Fetch League Standings
+        const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
+        const data = await res.json();
+        const standings = data.standings.results;
+
+        // 2. Load Global/Average Stats from bootstrap (static data)
+        const staticRes = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
+        const staticData = await staticRes.json();
+        const currentGW = staticData.events.find(e => e.is_current).id;
+        const leagueAvg = staticData.events.find(e => e.is_current).average_entry_score;
+
+        // Populate Rival Dropdown
+        const rivalSelect = document.getElementById('rival-select');
+        rivalSelect.innerHTML = '<option>Select Rival...</option>' + 
+            standings.filter(m => m.entry != myEntryId)
+            .map(m => `<option value="${m.entry}">${m.entry_name}</option>`).join('');
+
+        // 3. Render Sections
+        renderComparison(standings, myEntryId, leagueAvg);
+        renderTopManagers(standings, currentGW);
+        calculateAndRenderCaptains(standings, currentGW, state.playerMap);
+
+    } catch (error) {
+        console.error("Stats Error:", error);
+    }
+}
+
+/**
+ * Table Comparison: Me vs Average
+ */
+function renderComparison(standings, myEntryId, leagueAvg) {
+    const myTeam = standings.find(m => m.entry == myEntryId) || standings[0];
+    const container = document.getElementById('comparison-body');
+    
+    container.innerHTML = `
+        <tr style="color: #37003c; border-bottom: 1px solid #f9f9f9;">
+            <td style="text-align: left; padding: 10px 0; color: #888;">League Avg</td>
+            <td>${leagueAvg}</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr style="color: #00ff85; background: #f0fff0;">
+            <td style="text-align: left; padding: 10px 0; color: #37003c;">My Team</td>
+            <td>${myTeam.event_total}</td>
+            <td>${myTeam.rank_sort}</td> <td>${myTeam.total.toLocaleString()}</td>
+        </tr>
+    `;
+}
+
+/**
+ * Top 5 Managers list for the current GW
+ */
+function renderTopManagers(standings, gw) {
+    const sorted = [...standings].sort((a, b) => b.event_total - a.event_total).slice(0, 5);
+    const container = document.getElementById('top-managers-body');
+    
+    container.innerHTML = sorted.map(m => `
+        <tr style="border-bottom: 1px solid #f4f4f4;">
+            <td style="padding: 8px 0; color: #999; font-size: 0.7rem;">GW${gw}</td>
+            <td style="padding: 8px 0; font-weight: 500;">${m.entry_name}</td>
+            <td style="padding: 8px 0; text-align: right; color: #37003c; font-weight: 800;">${m.event_total}</td>
+        </tr>
+    `).join('');
+}
+
+/**
+ * Captaincy UI Cards
+ */
+async function calculateAndRenderCaptains(standings, gw, playerMap) {
+    const captainCounts = {};
+    const top15 = standings.slice(0, 15);
+
+    const pickPromises = top15.map(m => 
+        fetch(`${PROXY_ENDPOINT}entry/${m.entry}/event/${gw}/picks/`).then(r => r.json())
+    );
+
+    const results = await Promise.all(pickPromises);
+    results.forEach(data => {
+        const cap = data.picks.find(p => p.is_captain);
+        if (cap) captainCounts[cap.element] = (captainCounts[cap.element] || 0) + 1;
+    });
+
+    const sorted = Object.entries(captainCounts)
+        .map(([id, count]) => ({ id, count, pct: Math.round((count / top15.length) * 100) }))
+        .sort((a, b) => b.count - a.count).slice(0, 3);
+
+    document.getElementById('captained-container').innerHTML = sorted.map((c, i) => `
+        <div style="text-align: center; width: 30%;">
+            <div style="position: relative; display: inline-block;">
+                <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${playerMap[c.id].code}.png" 
+                     style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid ${i==0?'#00ff85':'#37003c'}; background:#eee;">
+                <div style="position: absolute; bottom: 0; right: 0; background: #e90052; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid white;">C</div>
+            </div>
+            <div style="font-weight: 800; font-size: 0.7rem; margin-top: 5px; color: #37003c;">${playerMap[c.id].name}</div>
+            <div style="color: #e90052; font-weight: 800; font-size: 1.1rem;">${c.pct}%</div>
+        </div>
+    `).join('');
+}
+
+/**
+ * Rival Analysis Master Trigger
+ */
+async function runRivalAnalysis() {
+    const rivalId = document.getElementById('rival-select').value;
+    if (!rivalId || isNaN(rivalId)) return;
+
+    const chartContainer = document.getElementById('rival-chart-container');
+    const chipContainer = document.getElementById('rival-chips-hits');
+    const transContainer = document.getElementById('transfer-log-container');
+
+    try {
+        const [hisRes, transRes, meRes] = await Promise.all([
+            fetch(`${PROXY_ENDPOINT}entry/${rivalId}/history/`),
+            fetch(`${PROXY_ENDPOINT}entry/${rivalId}/transfers/`),
+            fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/history/`)
+        ]);
+
+        const his = await hisRes.json();
+        const trans = await transRes.json();
+        const me = await meRes.json();
+
+        // 1. Hits & Chips
+        const currentGWData = his.current.find(h => h.event === state.currentGW);
+        const hitCost = currentGWData ? currentGWData.event_transfers_cost : 0;
+        
+        chipContainer.innerHTML = `
+            <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                ${his.chips.map(c => `<span style="background:#37003c; color:white; font-size:0.6rem; padding:2px 6px; border-radius:10px; font-weight:bold;">${c.name.toUpperCase()} GW${c.event}</span>`).join('')}
+            </div>
+            ${hitCost > 0 ? `<div style="color:#ff005a; font-weight:800; font-size:0.7rem;">⚠️ TOOK -${hitCost} HIT THIS GW</div>` : ''}
+        `;
+
+        // 2. Chart Bars
+        const history = me.current.slice(-5).reverse();
+        chartContainer.innerHTML = history.map(gw => {
+            const rivalGw = his.current.find(t => t.event === gw.event);
+            const diff = gw.total_points - (rivalGw?.total_points || 0);
+            const barWidth = Math.min(Math.abs(diff), 150);
+            return `
+                <div style="display:flex; align-items:center; font-size:0.7rem;">
+                    <span style="width:35px; font-weight:bold;">GW${gw.event}</span>
+                    <div style="height:12px; background:${diff>=0?'#00ff85':'#ff005a'}; width:${barWidth}px; border-radius:2px;"></div>
+                    <span style="margin-left:8px; font-weight:bold; color:${diff>=0?'#00ff85':'#ff005a'}">${diff > 0 ? '+' : ''}${diff}</span>
+                </div>
+            `;
+        }).join('');
+
+        // 3. Transfers
+        transContainer.innerHTML = trans.slice(0, 3).map(t => `
+            <div style="display:flex; justify-content:space-between; font-size:0.7rem; background:#f9f9f9; padding:5px; border-radius:4px;">
+                <span style="color:#00ff85; font-weight:bold;">IN: ${state.playerMap[t.element_in]?.name}</span>
+                <span style="color:#e90052; font-weight:bold;">OUT: ${state.playerMap[t.element_out]?.name}</span>
+            </div>
+        `).join('');
+
+    } catch (e) { console.error(e); }
+}
