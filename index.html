@@ -3,136 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOPALA FPL | Ultimate Integrated Core</title>
+    <title>KOPALA FPL - Live Match Center</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        /* 1. THEME VARIABLES (For Dark Mode Logic) */
+        :root {
+            --bg-color: #ffffff;
+            --card-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --text-muted: #666;
+            --border-gray: #e1e1e1;
+            --fpl-purple: #37003c;
+            --fpl-green: #00ff85;
+            --link-blue: #00a2ed;
+        }
+
+        /* Dark Mode Overrides */
+        body.dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #f0f0f0;
+            --text-muted: #aaa;
+            --border-gray: #333;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            transition: background 0.3s ease;
+        }
+
+        /* 2. CENTERED LOGIN SCREEN */
+        #login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .brand-logo {
+            width: 64px;
+            height: 64px;
+            background: var(--fpl-purple);
+            color: var(--fpl-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin: 0 auto 24px;
+            border-radius: 8px;
+        }
+
+        .simple-login-card { text-align: left; }
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--link-blue);
+            margin-bottom: 10px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-gray);
+            border-radius: 10px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            box-sizing: border-box;
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 16px;
+            background: #00d46a;
+            color: var(--fpl-purple);
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        /* 3. SETTINGS DRAWER */
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background: var(--card-bg);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+        .drawer.open { right: 0; }
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-gray);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* 4. FIXTURES & EXPANSION */
+        #fixtures-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            background: var(--card-bg);
+        }
+        .details-row td { background: #00563b !important; padding: 0 !important; }
+        .expansion-content { display: flex; padding: 15px; gap: 15px; color: white; }
+    </style>
 </head>
 <body>
 
     <div id="login-screen">
-        <div class="login-card">
-            <div class="logo-circle">H</div>
-            <h1>Welcome to KOPALA FPL</h1>
-            <p>Enter your Fantasy Premier League Team ID to continue</p>
-            
-            <div class="input-group">
-                <input type="number" id="team-id-input" placeholder="e.g. 123456" />
-                <button onclick="handleLogin()">Continue</button>
+        <div class="login-wrapper">
+            <div class="brand-header">
+                <div class="brand-logo">H</div>
+                <h1>KOPALA FPL</h1>
+                <p>Log in to track your live rank</p>
             </div>
-            
-            <a href="https://fantasy.premierleague.com/entry/history" target="_blank" class="find-id">Where do I find my ID?</a>
+
+            <div class="simple-login-card">
+                <div class="form-group">
+                    <label for="team-id-input">Team ID*</label>
+                    <input type="number" id="team-id-input" placeholder="Enter your ID">
+                </div>
+                <button class="action-button" onclick="handleLogin()">Continue</button>
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="#" class="help-link" style="color: var(--link-blue); text-decoration: none; font-size: 0.9rem;">I don't know my team ID</a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="dashboard" style="display: none;">
-        
-        <header class="app-header">
-            <div class="header-top">
-                <button class="icon-btn" onclick="toggleSettings()">⚙️</button>
-                <div class="app-logo">KOPALA FPL</div>
-                <button class="icon-btn" onclick="resetApp()">Logout</button>
+    <div id="dashboard" style="display:none;">
+        <header class="app-header" style="padding: 15px; border-bottom: 1px solid var(--border-gray); display: flex; justify-content: space-between; align-items: center;">
+            <div class="selector-wrapper">
+                <select id="league-select" onchange="changeLeague(this.value)" style="padding: 8px; border-radius: 5px;"></select>
             </div>
-            
-            <div class="manager-summary">
-                <div class="manager-meta">
-                    <h2 id="disp-name">Manager Name</h2>
-                    <span class="rank-pill">Rank: <span id="disp-rank">0</span></span>
-                </div>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <small>GW POINTS</small>
-                        <div id="disp-gw" class="stat-val">0</div>
-                    </div>
-                    <div class="stat-item">
-                        <small>TOTAL POINTS</small>
-                        <div id="disp-total" class="stat-val">0</div>
-                    </div>
-                </div>
+            <div class="header-actions">
+                <button onclick="toggleSettings()" style="background:none; border:none; font-size: 1.2rem; cursor:pointer;">⚙️</button>
+                <button onclick="location.reload()" style="background:var(--fpl-purple); color:white; border:none; padding: 8px 12px; border-radius: 5px; cursor:pointer;">Update</button>
             </div>
-
-            <nav class="tab-bar">
-                <button id="tab-table" class="active" onclick="showView('table')">Table</button>
-                <button id="tab-pitch" onclick="showView('pitch')">EPL & BPS</button>
-            </nav>
         </header>
 
-        <main class="content-area">
-            
-            <section id="table-view">
-                <div class="league-selector">
-                    <select id="league-select" onchange="changeLeague(this.value)">
-                        <option>Loading Leagues...</option>
-                    </select>
-                </div>
-                <table class="classic-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Team & Manager</th>
-                            <th>GW</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="league-body">
-                        </tbody>
-                </table>
-            </section>
-
-            <section id="pitch-view" style="display: none;">
-                
-                <div class="section-label">LIVE MATCH CENTER</div>
-                <div id="fixtures-container">
-                    </div>
-                
-                <div class="section-divider"></div>
-
-                <div class="next-fixtures-card">
-                    <div class="fixture-header">
-                        <h3>UPCOMING FIXTURES</h3>
-                        <div class="gw-nav">
-                            <button class="nav-arrow" onclick="changeGW(-1)">❮</button>
-                            <span id="next-gw-badge">GW --</span>
-                            <button class="nav-arrow" onclick="changeGW(1)">❯</button>
-                        </div>
-                    </div>
-                    <div id="upcoming-list-container">
-                        </div>
-                </div>
-            </section>
-
-        </main>
-    </div>
-
-    <div id="drawer-overlay" onclick="toggleSettings()"></div>
-    <div id="settings-drawer">
-        <h3>Settings</h3>
-        <div class="setting-item">
-            <span>Dark Mode</span>
-            <label class="switch">
-                <input type="checkbox" id="dark-mode-toggle" onchange="handleDarkModeToggle()">
-                <span class="slider round"></span>
-            </label>
+        <div class="manager-stats-bar" style="padding: 20px; text-align: center;">
+            <h2 id="disp-name" style="margin: 0;">Loading...</h2>
+            <div style="font-size: 1.5rem; font-weight: 800; color: var(--fpl-purple);"><span id="disp-gw">0</span> <small style="font-size: 0.8rem;">GW Pts</small></div>
+            <div class="stat-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; margin-top: 15px; gap: 10px;">
+                <div class="stat-item"><label style="display:block; font-size: 0.7rem; opacity: 0.6;">Rank</label><span id="disp-rank">N/A</span></div>
+                <div class="stat-item"><label style="display:block; font-size: 0.7rem; opacity: 0.6;">Total</label><span id="disp-total">0</span></div>
+                <div class="stat-item"><label style="display:block; font-size: 0.7rem; opacity: 0.6;">Transfers</label><span id="disp-transfers">0</span></div>
+            </div>
         </div>
-        <p class="version">Kopala FPL v2.1 Pro Core</p>
+
+        <nav class="main-tabs" style="display: flex; border-bottom: 1px solid var(--border-gray);">
+            <button class="tab-btn active" id="tab-table" onclick="showView('table')" style="flex: 1; padding: 15px; border: none; background: none; font-weight: 700;">Table</button>
+            <button class="tab-btn" id="tab-pitch" onclick="showView('pitch')" style="flex: 1; padding: 15px; border: none; background: none; font-weight: 700;">EPL & BPS</button>
+        </nav>
+
+        <section id="table-view" class="view-content">
+            <table class="live-table" style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #f9f9f9; font-size: 0.8rem;">
+                    <tr><th>Rank</th><th>Team & Manager</th><th>Score</th><th>Total</th></tr>
+                </thead>
+                <tbody id="league-body"></tbody>
+            </table>
+        </section>
+
+        <section id="pitch-view" style="display:none;" class="view-content">
+            <div style="background: var(--fpl-purple); color: white; padding: 12px; text-align: center; font-weight: 800; font-size: 0.7rem;">EPL LIVE & BONUS</div>
+            <div id="fixtures-container"></div>
+        </section>
     </div>
+
+    <div id="settings-drawer" class="drawer">
+        <div class="drawer-header">
+            <h2 style="margin: 0; font-size: 1.2rem;">Settings</h2>
+            <button onclick="toggleSettings()" style="background:none; border:none; font-size: 1.2rem; cursor:pointer;">✕</button>
+        </div>
+        <div class="drawer-content">
+            <div class="setting-item">
+                <span>Dark Mode</span>
+                <input type="checkbox" id="dark-mode-toggle" onchange="handleDarkModeToggle()">
+            </div>
+            <hr style="border: 0; border-top: 1px solid var(--border-gray); margin: 20px 0;">
+            <button onclick="resetApp()" style="width: 100%; padding: 12px; background: #ff4d4d; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Logout / Change ID</button>
+        </div>
+    </div>
+
+    <div id="drawer-overlay" onclick="toggleSettings()" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; z-index:999;"></div>
 
     <template id="manager-details-template">
-        <tr class="details-row">
-            <td colspan="4">
-                <div class="expansion-content">
-                    <div class="mini-pitch-view">
-                        <div class="p-row" id="exp-gkp"></div>
-                        <div class="p-row" id="exp-def"></div>
-                        <div class="p-row" id="exp-mid"></div>
-                        <div class="p-row" id="exp-fwd"></div>
-                        
-                        <div class="bench-divider">SUBSTITUTES</div>
-                        <div class="p-row bench-row" id="exp-bench"></div>
-                    </div>
+    <tr class="details-row">
+        <td colspan="4">
+            <div class="expansion-content">
+                <div class="mini-pitch-view">
+                    <div class="p-row" id="exp-gkp"></div>
+                    <div class="p-row" id="exp-def"></div>
+                    <div class="p-row" id="exp-mid"></div>
+                    <div class="p-row" id="exp-fwd"></div>
+                    
+                    <div class="bench-divider">SUBSTITUTES</div>
+                    <div class="p-row bench-row" id="exp-bench"></div>
                 </div>
-            </td>
-        </tr>
-    </template>
+            </div>
+        </td>
+    </tr>
+</template>
 
     <script src="script.js"></script>
 </body>
