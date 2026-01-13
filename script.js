@@ -1,64 +1,198 @@
 /**
- * KOPALA FPL - ULTIMATE INTEGRATED PRO DASHBOARD
+ * KOPALA FPL - MASTER CORE SCRIPT
+ * Full Integration: Auth, Table, Live Match Center, and Pitch Expansion
  */
 
 const state = {
     fplId: localStorage.getItem('kopala_fpl_id') || null,
     playerMap: {}, 
-    myPlayerIds: [],
-    currentGW: 1,
-    currentViewGW: 1, // For Upcoming Fixtures Navigation
-    allEplMatches: []
+    livePoints: {},
+    currentGW: 1, 
+    myPlayerIds: [] // Stores user's squad for live highlighting
 };
 
-// Endpoints
-const FPL_PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
+const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 const FIXTURES_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=fixtures/?event=";
-const EPL_DATA_PROXY = "/api/competitions/PL/"; // Football-Data.org Proxy
 
-let teamLookup = {};
 let refreshTimer = null;
-
-const TEAM_SHORT_CODES = {
-    "Manchester City FC": "MCI", "Manchester United FC": "MUN", "Arsenal FC": "ARS",
-    "Liverpool FC": "LIV", "Chelsea FC": "CHE", "Tottenham Hotspur FC": "TOT",
-    "Aston Villa FC": "AVL", "Newcastle United FC": "NEW", "Everton FC": "EVE",
-    "Brighton & Hove Albion FC": "BHA", "West Ham United FC": "WHU", 
-    "Crystal Palace FC": "CRY", "Wolverhampton Wanderers FC": "WOL",
-    "Brentford FC": "BRE", "Fulham FC": "FUL", "Nottingham Forest FC": "NFO",
-    "Leicester City FC": "LEI", "Southampton FC": "SOU", "Ipswich Town FC": "IPS"
-};
+let teamLookup = {}; 
 
 /**
- * 1. INITIALIZATION
+ * 1. INITIALIZATION & THEME
  */
 document.addEventListener('DOMContentLoaded', async () => {
+    // Apply Theme
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        const toggle = document.getElementById('dark-mode-toggle');
+        if (toggle) toggle.checked = true;
+    }
+
     await initAppData();
-    await initUpcomingFixtures(); // Fetch Schedule
-    
+
     if (state.fplId) {
+        document.getElementById('team-id-input').value = state.fplId;
         handleLogin();
     }
 });
 
-async function initAppData() {
-    try {
-        const res = await fetch(`${FPL_PROXY}bootstrap-static/`);
-        const data = await res.json();
-        
-        data.elements.forEach(p => {
-            state.playerMap[p.id] = { name: p.web_name, pos: p.element_type, code: p.code };
-        });
-        data.teams.forEach(t => teamLookup[t.id] = t.name);
-        
-        const active = data.events.find(e => e.is_current) || data.events.find(e => !e.finished);
-        state.currentGW = active ? active.id : 1;
-        state.currentViewGW = state.currentGW; // Sync upcoming view with current GW
-    } catch (err) { console.error("FPL Init Error", err); }
+function handleDarkModeToggle() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
 /**
- * 2. LIVE MATCH CENTER (Centering + Bonus + My Players)
+ * 2. DATA BOOTSTRAPPING
+ */
+async function initAppData() {
+    try {
+        const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
+        const data = await res.json();
+        
+        data.elements.forEach(p => {
+            state.playerMap[p.id] = {
+                name: p.web_name,
+                pos: p.element_type,
+                team: p.team,
+                code: p.code // Required for player photos
+            };
+        });
+
+        data.teams.forEach(t => teamLookup[t.id] = t.name);
+        
+        const activeGW = data.events.find(e => e.is_current) || data.events.find(e => !e.finished);
+        if (activeGW) state.currentGW = activeGW.id;
+
+    } catch (err) { console.error("Init Error", err); }
+}
+
+/**
+ * 3. AUTH & SQUAD TRACKING
+ */
+async function handleLogin() {
+    const id = document.getElementById('team-id-input').value;
+    if (!id || isNaN(id)) return alert("Enter a numeric Team ID");
+    
+    state.fplId = id;
+    localStorage.setItem('kopala_fpl_id', id);
+    
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    
+    await fetchMySquad();
+    await fetchManagerData();
+}
+
+async function fetchMySquad() {
+    try {
+        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/event/${state.currentGW}/picks/`);
+        const data = await res.json();
+        state.myPlayerIds = data.picks.map(p => p.element);
+    } catch (err) { console.error("Squad Sync Error", err); }
+}
+
+async function fetchManagerData() {
+    try {
+        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/`);
+        const data = await res.json();
+        
+        document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
+        document.getElementById('disp-gw').textContent = data.summary_event_points || 0;
+        document.getElementById('disp-total').textContent = data.summary_overall_points.toLocaleString();
+        document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
+
+        const select = document.getElementById('league-select');
+        select.innerHTML = data.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+        
+        if (data.leagues.classic.length > 0) changeLeague(data.leagues.classic[0].id);
+    } catch (err) { console.error("Manager Error", err); }
+}
+
+/**
+ * 4. LEAGUE STANDINGS
+ */
+async function changeLeague(id) {
+    try {
+        const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${id}/standings/`);
+        const data = await res.json();
+        const body = document.getElementById('league-body');
+        
+        body.innerHTML = data.standings.results.map(r => `
+            <tr id="row-${r.entry}" class="manager-row" onclick="toggleManagerExpansion(${r.entry})">
+                <td>${r.rank}</td>
+                <td><strong>${r.entry_name}</strong><br><small>${r.player_name}</small></td>
+                <td class="score-text">${r.event_total}</td>
+                <td>${r.total.toLocaleString()}</td>
+            </tr>
+        `).join('');
+    } catch (err) { console.error("League Error", err); }
+}
+
+/**
+ * 5. PITCH EXPANSION (Starting XI + Bench + Live Points)
+ */
+async function toggleManagerExpansion(managerId) {
+    const existing = document.querySelector('.details-row');
+    const targetRow = document.getElementById(`row-${managerId}`);
+
+    if (existing && existing.previousElementSibling === targetRow) {
+        existing.remove();
+        return;
+    }
+    if (existing) existing.remove();
+
+    const template = document.getElementById('manager-details-template');
+    const clone = template.content.cloneNode(true);
+    targetRow.after(clone);
+
+    try {
+        const [pResp, liveResp] = await Promise.all([
+            fetch(`${PROXY_ENDPOINT}entry/${managerId}/event/${state.currentGW}/picks/`),
+            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/`)
+        ]);
+
+        const pData = await pResp.json();
+        const liveData = await liveResp.json();
+
+        const livePointsMap = {};
+        liveData.elements.forEach(item => {
+            livePointsMap[item.id] = item.stats.total_points;
+        });
+
+        pData.picks.forEach((pick, index) => {
+            const player = state.playerMap[pick.element];
+            const points = livePointsMap[pick.element] || 0;
+            const multiplier = pick.multiplier;
+            const photoUrl = `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.code}.png`;
+            
+            let containerId;
+            if (index < 11) {
+                const rowIds = { 1: 'exp-gkp', 2: 'exp-def', 3: 'exp-mid', 4: 'exp-fwd' };
+                containerId = rowIds[player.pos];
+            } else {
+                containerId = 'exp-bench';
+            }
+
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML += `
+                    <div class="mini-player ${index >= 11 ? 'is-bench' : ''}">
+                        <div class="player-photo-wrapper">
+                            <img src="${photoUrl}" class="player-face" onerror="this.src='https://fantasy.premierleague.com/static/media/player-missing-110.43794689.png'">
+                            <div class="player-points-badge">${points * (multiplier || 1)}</div>
+                        </div>
+                        <div class="player-name-tag ${multiplier > 1 ? 'is-captain' : ''}">
+                            ${multiplier > 1 ? 'C' : ''} ${player.name}
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    } catch (e) { console.error("Expansion Error", e); }
+}
+
+/**
+ * 6. CENTERED MATCH CENTER (Live Bonus & My Players)
  */
 async function updateLiveScores() {
     const container = document.getElementById('fixtures-container');
@@ -66,11 +200,13 @@ async function updateLiveScores() {
     clearTimeout(refreshTimer);
 
     try {
-        const res = await fetch(`${FIXTURES_ENDPOINT}${state.currentGW}`);
-        const fixtures = await res.json();
+        const response = await fetch(`${FIXTURES_ENDPOINT}${state.currentGW}`);
+        const fixtures = await response.json();
         const startedGames = fixtures.filter(f => f.started);
         
-        if (startedGames.some(f => !f.finished)) refreshTimer = setTimeout(updateLiveScores, 60000);
+        if (startedGames.some(f => !f.finished)) {
+            refreshTimer = setTimeout(updateLiveScores, 60000);
+        }
 
         let html = '';
         const sortedGames = [...startedGames].sort((a, b) => new Date(b.kickoff_time) - new Date(a.kickoff_time));
@@ -79,115 +215,69 @@ async function updateLiveScores() {
             const homeAbbr = teamLookup[game.team_h].substring(0, 3).toUpperCase();
             const awayAbbr = teamLookup[game.team_a].substring(0, 3).toUpperCase();
             
-            // Goals & Assists
-            const goals = game.stats.find(s => s.identifier === 'goals_scored');
-            const assists = game.stats.find(s => s.identifier === 'assists');
-            let hEvents = '', aEvents = '';
+            const bpsData = game.stats.find(s => s.identifier === 'bps');
+            let bonusListHtml = '';
             
-            if (goals) {
-                goals.h.forEach(s => hEvents += `<div>${state.playerMap[s.element]?.name} ⚽</div>`);
-                goals.a.forEach(s => aEvents += `<div>⚽ ${state.playerMap[s.element]?.name}</div>`);
-            }
-            if (assists) {
-                assists.h.forEach(s => hEvents += `<div style="opacity:0.4; font-size:0.55rem;">${state.playerMap[s.element]?.name} <span style="color:#ff005a">A</span></div>`);
-                assists.a.forEach(s => aEvents += `<div style="opacity:0.4; font-size:0.55rem;"><span style="color:#ff005a">A</span> ${state.playerMap[s.element]?.name}</div>`);
-            }
+            if (bpsData) {
+                const top3 = [...bpsData.h, ...bpsData.a].sort((a, b) => b.value - a.value).slice(0, 3);
+                const bonusValues = [3, 2, 1];
 
-            // Bonus with My Player Star
-            const bps = game.stats.find(s => s.identifier === 'bps');
-            let bonusHtml = '';
-            if (bps) {
-                const top = [...bps.h, ...bps.a].sort((a, b) => b.value - a.value).slice(0, 3);
-                const colors = ['#FFD700', '#C0C0C0', '#CD7F32'];
-                top.forEach((p, i) => {
-                    const isMyPlayer = state.myPlayerIds.includes(p.element);
-                    bonusHtml += `
-                        <div class="bonus-row ${isMyPlayer ? 'my-player-bonus' : ''}" style="display:flex; align-items:center; gap:6px; margin-bottom:4px; font-size:0.65rem; justify-content:center;">
-                            <span style="background:${colors[i]}; color:#000; width:13px; height:13px; display:flex; align-items:center; justify-content:center; border-radius:2px; font-weight:900; font-size:0.5rem;">${3-i}</span>
-                            <span style="font-weight:700;">${isMyPlayer ? '★ ' : ''}${state.playerMap[p.element]?.name} <span style="opacity:0.3;">${p.value}</span></span>
+                top3.forEach((player, index) => {
+                    const isMyPlayer = state.myPlayerIds.includes(player.element);
+                    const playerName = state.playerMap[player.element]?.name || "Unknown";
+                    
+                    bonusListHtml += `
+                        <div class="bonus-row ${isMyPlayer ? 'my-player-bonus' : ''}">
+                            <span>
+                                <span class="bonus-badge">${bonusValues[index]}pts</span> 
+                                ${isMyPlayer ? '<span class="star-icon">★</span> ' : ''}${playerName}
+                            </span>
+                            <span class="bps-val">${player.value} BPS</span>
                         </div>`;
                 });
             }
 
             html += `
-                <div class="match-card" style="padding:15px; border-bottom:1px solid #eee; text-align:center;">
-                    <div class="match-scoreline" style="display:flex; justify-content:center; align-items:center; gap:15px; margin-bottom:10px;">
-                        <span style="font-weight:900; width:50px; text-align:right;">${homeAbbr}</span>
-                        <span style="background:#37003c; color:white; padding:4px 10px; border-radius:4px; font-family:monospace; font-weight:900;">${game.team_h_score} - ${game.team_a_score}</span>
-                        <span style="font-weight:900; width:50px; text-align:left;">${awayAbbr}</span>
+                <div class="match-card">
+                    <div class="match-scoreline">
+                        <span class="team-name" style="text-align: right;">${homeAbbr}</span>
+                        <span class="score-badge">${game.team_h_score} - ${game.team_a_score}</span>
+                        <span class="team-name" style="text-align: left;">${awayAbbr}</span>
                     </div>
-                    <div style="display:flex; justify-content:center; gap:20px; font-size:0.6rem; font-weight:600; margin-bottom:10px;">
-                        <div style="text-align:right;">${hEvents}</div>
-                        <div style="text-align:left;">${aEvents}</div>
-                    </div>
-                    <div class="bonus-section" style="border-top:1px dashed #eee; padding-top:10px;">
-                        <div style="font-size:0.55rem; font-weight:900; opacity:0.5; margin-bottom:5px;">🏆 LIVE BONUS</div>
-                        ${bonusHtml || '<span style="opacity:0.2;">Calculating...</span>'}
+                    <div class="bonus-section">
+                        <div class="bonus-title">Live Bonus</div>
+                        ${bonusListHtml || '<div class="calculating">Calculating...</div>'}
                     </div>
                 </div>`;
         });
         
-        container.innerHTML = html || '<p style="text-align:center; padding:20px; opacity:0.5;">No live games.</p>';
-    } catch (err) { console.error("Live Score Error", err); }
+        container.innerHTML = html || '<p class="no-games">No live games currently.</p>';
+    } catch (err) { console.error("Match Center Error", err); }
 }
 
 /**
- * 3. UPCOMING FIXTURES NAVIGATION (Schedule)
+ * 7. NAVIGATION & UTILS
  */
-async function initUpcomingFixtures() {
-    try {
-        const start = new Date();
-        start.setDate(start.getDate() - 7);
-        const end = new Date();
-        end.setDate(end.getDate() + 90);
-        
-        const res = await fetch(`${EPL_DATA_PROXY}matches?dateFrom=${start.toISOString().split('T')[0]}&dateTo=${end.toISOString().split('T')[0]}`);
-        const data = await res.json();
-        state.allEplMatches = data.matches || [];
-        renderUpcoming();
-    } catch (err) { console.error("Schedule Error", err); }
+function showView(view) {
+    document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
+    document.getElementById('pitch-view').style.display = view === 'pitch' ? 'block' : 'none';
+    document.getElementById('tab-table').classList.toggle('active', view === 'table');
+    document.getElementById('tab-pitch').classList.toggle('active', view === 'pitch');
+
+    if (view === 'pitch') updateLiveScores();
+    else clearTimeout(refreshTimer);
 }
 
-function changeGW(direction) {
-    const newGW = state.currentViewGW + direction;
-    if (newGW >= 1 && newGW <= 38) {
-        state.currentViewGW = newGW;
-        renderUpcoming();
-    }
+function toggleSettings() {
+    const drawer = document.getElementById('settings-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+    const isOpen = drawer.classList.toggle('open');
+    overlay.style.display = isOpen ? 'block' : 'none';
 }
 
-function renderUpcoming() {
-    const container = document.getElementById('upcoming-list-container');
-    const badge = document.getElementById('next-gw-badge');
-    if (!container) return;
-
-    if (badge) badge.innerText = `GW ${state.currentViewGW}`;
-
-    const gwMatches = state.allEplMatches.filter(m => m.matchday === state.currentViewGW);
-
-    if (gwMatches.length === 0) {
-        container.innerHTML = `<p style="text-align:center; padding:20px; font-size:0.8rem; opacity:0.5;">No fixtures found.</p>`;
-        return;
+function resetApp() {
+    if(confirm("Logout and return to login screen?")) {
+        localStorage.removeItem('kopala_fpl_id');
+        location.reload();
     }
-
-    container.innerHTML = gwMatches.map(m => {
-        const date = new Date(m.utcDate);
-        const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const dayStr = date.toLocaleDateString([], { weekday: 'short', day: 'numeric' });
-        
-        return `
-            <div class="fixture-mini-row" style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #eee;">
-                <div style="width:35%; text-align:right; font-weight:800; font-size:0.75rem;">
-                    ${TEAM_SHORT_CODES[m.homeTeam.name] || m.homeTeam.tla} <img src="${m.homeTeam.crest}" style="width:16px; margin-left:5px; vertical-align:middle;">
-                </div>
-                <div style="width:30%; text-align:center; display:flex; flex-direction:column;">
-                    <span style="font-size:0.55rem; font-weight:900; background:#eee; padding:1px 4px; border-radius:3px; margin:0 auto;">VS</span>
-                    <span style="font-size:0.5rem; opacity:0.6; margin-top:2px;">${dayStr} ${timeStr}</span>
-                </div>
-                <div style="width:35%; text-align:left; font-weight:800; font-size:0.75rem;">
-                    <img src="${m.awayTeam.crest}" style="width:16px; margin-right:5px; vertical-align:middle;"> ${TEAM_SHORT_CODES[m.awayTeam.name] || m.awayTeam.tla}
-                </div>
-            </div>
-        `;
-    }).join('');
 }
