@@ -1,513 +1,194 @@
+/* --- Variables & Core Setup --- */
 :root {
     --fpl-purple: #37003c;
-    --fpl-pink: #e90052;
-    --fpl-green: #00ff87;
+    --fpl-pink: #e90052;     /* Team names and live scores */
+    --fpl-green: #37db34;    /* Positive movement/Captain icon */
+    --fpl-red: #e01e5a;      /* Negative movement */
     --pitch-green: #008d4c;
-    --bg-light: #f4f4f4;
-    --text-main: #333;
+    --bg-light: #f4f4f4;     /* Light gray background for headers */
+    --bg-white: #ffffff;     /* Pure white for cards/rows */
+    --text-main: #242424;
+    --text-muted: #666666;
+    --border-color: #ebebeb;
     --card-bg: white;
-    --border-color: #ddd;
 }
 
 /* Dark Mode Variables Override */
 body.dark-mode {
-    --bg-light: #111;
-    --text-main: #eee;
-    --card-bg: #222;
-    --border-color: #333;
+    --bg-light: #111111;
+    --bg-white: #1a1a1a;
+    --text-main: #eeeeee;
+    --text-muted: #aaaaaa;
+    --card-bg: #222222;
+    --border-color: #333333;
 }
 
 body { 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
     margin: 0; 
     background: var(--bg-light); 
     color: var(--text-main); 
-    transition: background-color 0.3s, color 0.3s;
-    line-height: 1.6;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* --- Login Screen --- */
-.hero-section { 
-    background: #00563b; 
-    color: white; 
-    text-align: center; 
-    padding: clamp(40px, 10vw, 80px) 20px; /* Responsive padding */
-}
-
-.login-card { 
-    background: var(--card-bg); 
-    max-width: 90%; 
-    width: 450px; 
-    margin: -40px auto 20px; 
-    padding: 30px; 
-    border-radius: 12px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-}
-
-/* --- Dashboard Header --- */
+/* --- App Header & Selectors --- */
 .app-header { 
-    background: var(--card-bg); 
-    padding: 15px 20px; 
+    background: var(--bg-white); 
+    padding: 12px 16px; 
     border-bottom: 1px solid var(--border-color); 
-    display: flex; 
-    flex-wrap: wrap; /* Allows wrapping on small screens */
-    justify-content: space-between; 
-    align-items: center; 
-    gap: 15px;
 }
 
-.selector-wrapper {
-    width: 100%; /* Full width on mobile */
-}
-
-@media (min-width: 600px) {
-    .selector-wrapper { width: auto; }
-}
-
-select { 
+.league-selector { 
     padding: 10px; 
     width: 100%; 
-    max-width: 300px; 
-    border-radius: 6px; 
-    border: 1px solid var(--border-color); 
-    background: var(--card-bg);
-    color: var(--text-main);
+    border-radius: 4px; 
+    border: 1px solid var(--fpl-pink); 
+    background: var(--bg-white);
+    color: var(--fpl-pink);
+    font-weight: bold;
+    font-size: 1rem;
 }
 
-/* --- Navigation Tabs --- */
-.main-tabs { 
+/* --- Navigation & Filtering Tabs --- */
+.filter-tabs { 
     display: flex; 
-    background: #ddd; 
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    background: #eeeeee; 
+    padding: 4px;
+    gap: 4px;
 }
 
-body.dark-mode .main-tabs { background: #000; }
+body.dark-mode .filter-tabs { background: #000000; }
 
 .tab-btn { 
     flex: 1; 
-    padding: 15px 5px; 
-    border: none; 
-    background: none; 
-    font-weight: bold; 
+    padding: 10px 5px; 
+    border: 1px solid #ccc; 
+    background: var(--bg-white); 
+    font-weight: 600; 
     cursor: pointer; 
     color: var(--text-main);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    border-radius: 4px;
     transition: 0.2s;
 }
 
 .tab-btn.active { 
     background: var(--fpl-purple); 
     color: white; 
+    border-color: var(--fpl-purple);
 }
 
-/* --- Manager Stats Bar --- */
-.manager-stats-bar {
-    background: var(--fpl-purple);
+/* --- Live Table Styles (The Screenshot Look) --- */
+.table-container {
+    background: var(--bg-white);
+    width: 100%;
+    overflow-x: auto;
+}
+
+.live-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
+.live-table th { 
+    text-align: left; 
+    padding: 10px 12px; 
+    background: var(--bg-light); 
+    color: var(--text-muted);
+    font-size: 12px; 
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.live-table td { 
+    padding: 12px; 
+    border-bottom: 1px solid var(--border-color); 
+    vertical-align: middle;
+}
+
+/* Team & Manager Formatting */
+.team-name {
+    color: var(--fpl-pink);
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    display: block;
+}
+
+.manager-name {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    display: block;
+}
+
+.captain-tag {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.captain-icon {
+    background: #888;
     color: white;
-    padding: 20px;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
 }
 
-.stat-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); /* Responsive columns */
-    gap: 15px;
-    text-align: center;
+/* Scores & Totals */
+.score-val { 
+    color: var(--fpl-pink); 
+    font-weight: 700; 
+    font-size: 1.2rem;
+    text-align: right;
 }
 
-.stat-item label { display: block; font-size: 11px; opacity: 0.8; text-transform: uppercase; }
-.stat-item span { font-weight: 800; font-size: 1.2rem; }
+.total-val { 
+    font-weight: 800; 
+    font-size: 1.2rem;
+    text-align: right;
+}
 
-/* --- The Pitch (Crucial for Responsiveness) --- */
+/* --- Rank Icons --- */
+.rank-indicator { margin-left: 5px; font-size: 0.8rem; }
+.up { color: var(--fpl-green); }
+.down { color: var(--fpl-red); }
+.steady { color: #999; }
+
+/* --- The Pitch --- */
 .fpl-pitch { 
     background: linear-gradient(to bottom, #008d4c, #00563b); 
-    min-height: 60vh; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: space-around; 
     padding: 20px 10px;
-    position: relative;
-    overflow: hidden;
-}
-
-.pitch-row { 
-    display: flex; 
-    justify-content: center; 
-    gap: 10px; 
-    margin-bottom: 15px;
 }
 
 .player-card { 
-    width: clamp(60px, 18vw, 90px); /* Scales based on screen width */
+    width: 75px; 
     text-align: center; 
-    color: white; 
-}
-
-.player-img { 
-    width: 80%; 
-    height: auto; 
-    margin-bottom: 4px;
 }
 
 .player-name-tag { 
     background: var(--fpl-purple); 
-    font-size: clamp(9px, 2vw, 11px); 
-    padding: 3px; 
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: white;
+    font-size: 10px; 
+    padding: 2px; 
+    margin-top: 2px;
 }
 
 .player-points-tag { 
     background: white; 
     color: black; 
     font-weight: bold; 
-    font-size: 12px; 
-    padding: 2px; 
+    font-size: 11px; 
 }
 
-/* --- Table Styles --- */
-.table-container {
-    overflow-x: auto; /* Enables horizontal scroll for large tables on mobile */
-}
-
-.live-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    background: var(--card-bg); 
-}
-
-.live-table th { 
-    text-align: left; 
-    padding: 12px; 
-    background: rgba(0,0,0,0.05); 
-    font-size: 12px; 
-}
-
-.live-table td { 
-    padding: 12px; 
-    border-bottom: 1px solid var(--border-color); 
-}
-
-/* --- Settings Drawer --- */
-.drawer { 
-    position: fixed; 
-    top: 0; 
-    right: -100%; /* Fully hidden off-screen */
-    width: 100%; 
-    max-width: 320px; 
-    height: 100%; 
-    background: var(--card-bg); 
-    box-shadow: -5px 0 15px rgba(0,0,0,0.2); 
-    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-    z-index: 1000; 
-}
-
-.drawer.open { right: 0; }
-
-
-.details-row td { background: #00563b; padding: 0 !important; }
-
-.expansion-content {
-    display: flex;
-    padding: 15px;
-    gap: 20px;
-    color: white;
-    background: linear-gradient(to bottom, #008d4c, #00563b);
-}
-
-.mini-pitch-view { flex: 2; }
-.exp-side-panel { flex: 1; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; }
-
-.p-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
-
-.mini-player { text-align: center; width: 55px; }
-.player-shirt { width: 30px; height: 30px; background: #eee; border-radius: 50%; margin: 0 auto; }
-.player-name { font-size: 9px; background: var(--fpl-purple); margin-top: 2px; }
-.player-val { font-size: 10px; background: white; color: black; font-weight: bold; }
-
-.chip { display: inline-block; padding: 4px; border: 1px solid #fff; font-size: 10px; opacity: 0.3; }
-.chip.used { opacity: 1; background: var(--fpl-pink); border-color: var(--fpl-pink); }
-
-
-
-
-
-
-
-:root {
-    --fpl-purple: #37003c;
-    --fpl-green: #00ff85;
-    --text-dark: #1a1a1a;
-    --border-gray: #e1e1e1;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #fcfcfc;
-}
-
-#login-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 20px;
-}
-
-/* Brand Section */
-.brand-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.brand-logo {
-    width: 60px;
-    height: 60px;
-    background: var(--fpl-purple);
-    color: var(--fpl-green);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    font-weight: 900;
-    margin: 0 auto 20px;
-    border-radius: 4px;
-}
-
-.brand-header h1 {
-    font-size: 1.8rem;
-    color: var(--text-dark);
-    margin: 0 0 10px 0;
-    font-weight: 600;
-}
-
-.brand-header p {
-    color: #666;
-    margin: 0;
-}
-
-/* Simple Card Section */
-.simple-login-card {
-    width: 100%;
-    max-width: 400px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-    position: relative;
-}
-
-.form-group label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #3b82f6; /* Blue accent for labels like FFH */
-    margin-bottom: 8px;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 14px;
-    font-size: 1rem;
-    border: 1px solid var(--border-gray);
-    border-radius: 8px;
-    box-sizing: border-box;
-    background: white;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: #3b82f6;
-}
-
-/* Green Action Button */
-.action-button {
-    width: 100%;
-    padding: 16px;
-    background: #00e676; /* The bright green from the screenshots */
-    color: var(--fpl-purple);
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-    margin-bottom: 20px;
-}
-
-.action-button:hover {
-    background: #00c853;
-}
-
-.card-footer {
-    text-align: center;
-}
-
-.help-link {
-    color: #3b82f6;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-
-
-/* Styling for My Players in the Match Center */
-.star-icon {
-    color: var(--fpl-green);
-    font-weight: bold;
-    margin-right: 2px;
-}
-
-.my-player-bonus {
-    background: rgba(0, 255, 133, 0.1); /* Subtle green background */
-    border-left: 3px solid var(--fpl-green);
-}
-
-body.dark-mode .my-player-bonus {
-    background: rgba(0, 255, 133, 0.05);
-}
-
-.bonus-badge {
-    background: #FFD700;
-    color: #37003c;
-    padding: 1px 4px;
-    border-radius: 3px;
-    font-size: 0.65rem;
-    font-weight: 900;
-}
-
-
-
-/* Match Center Layout */
-.match-card {
-    padding: 20px 16px;
-    border-bottom: 1px solid var(--border-gray);
-    background: var(--card-bg);
-    text-align: center; /* Centers all child text */
-}
-
-.match-scoreline {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Centers the Scoreline horizontally */
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.team-name {
-    font-weight: 800;
-    font-size: 1.1rem;
-    width: 60px; /* Fixed width ensures score stays dead-center */
-}
-
-.score-badge {
-    background: var(--fpl-purple);
-    color: white;
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    font-size: 1.3rem;
-    min-width: 70px;
-    display: inline-block;
-}
-
-/* Bonus Section Centering */
-.bonus-section {
-    border-top: 1px dashed var(--border-gray);
-    padding-top: 12px;
-    max-width: 250px; /* Keeps the list neat */
-    margin: 0 auto;   /* Centers the container itself */
-}
-
-.bonus-title {
-    font-size: 0.65rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-    letter-spacing: 1px;
-}
-
-.bonus-row {
-    display: flex;
-    justify-content: center; /* Centers the player and BPS value */
-    align-items: center;
-    gap: 10px;
-    font-size: 0.8rem;
-    margin-top: 5px;
-    padding: 4px;
-}
-
-.bps-val {
-    opacity: 0.5;
-    font-size: 0.7rem;
-}
-
-.no-games {
-    text-align: center;
-    padding: 50px;
-    color: var(--text-muted);
-}
-
-
-.mini-player {
-    text-align: center;
-    width: 55px;
-    position: relative;
-    margin: 5px;
-}
-
-.player-photo-wrapper {
-    position: relative;
-    width: 45px;
-    height: 45px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 50%;
-    overflow: visible; /* Allows badge to sit on edge */
-    border: 2px solid rgba(255,255,255,0.8);
-}
-
-.player-face {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.player-points-badge {
-    position: absolute;
-    bottom: -5px;
-    right: -5px;
-    background: var(--fpl-purple);
-    color: var(--fpl-green);
-    font-size: 10px;
-    font-weight: 800;
-    padding: 2px 5px;
-    border-radius: 10px;
-    border: 1px solid white;
-    min-width: 12px;
-}
-
-.player-name-tag {
-    font-size: 9px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    padding: 2px;
-    margin-top: 4px;
-    border-radius: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.is-captain {
-    background: var(--fpl-purple);
-    color: var(--fpl-green);
-    font-weight: bold;
-}
+/* --- Utilities --- */
+.text-center { text-align: center; }
+.p-20 { padding: 20px; }
