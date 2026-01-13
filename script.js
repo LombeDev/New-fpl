@@ -1,6 +1,6 @@
 /**
  * KOPALA FPL - MASTER CORE SCRIPT
- * Modules: Auth, UI, League Standings, Live Match Center, and Theme Engine
+ * Full Integration: Auth, Table, Live Match Center, and Pitch Expansion
  */
 
 const state = {
@@ -8,10 +8,9 @@ const state = {
     playerMap: {}, 
     livePoints: {},
     currentGW: 1, 
-    myPlayerIds: [] // Track user squad for live highlighting
+    myPlayerIds: [] // Stores user's squad for live highlighting
 };
 
-// Endpoints (Netlify Proxy for CORS)
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 const FIXTURES_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=fixtures/?event=";
 
@@ -19,10 +18,10 @@ let refreshTimer = null;
 let teamLookup = {}; 
 
 /**
- * 1. INITIALIZATION & THEME ENGINE
+ * 1. INITIALIZATION & THEME
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Apply saved theme (Dark/Light)
+    // Apply Theme
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
         const toggle = document.getElementById('dark-mode-toggle');
@@ -31,7 +30,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await initAppData();
 
-    // Auto-login if session exists
     if (state.fplId) {
         document.getElementById('team-id-input').value = state.fplId;
         handleLogin();
@@ -51,23 +49,21 @@ async function initAppData() {
         const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
         const data = await res.json();
         
-        // Map player data
         data.elements.forEach(p => {
             state.playerMap[p.id] = {
                 name: p.web_name,
                 pos: p.element_type,
-                team: p.team
+                team: p.team,
+                code: p.code // Required for player photos
             };
         });
 
-        // Map team names
         data.teams.forEach(t => teamLookup[t.id] = t.name);
         
-        // Find active Gameweek
         const activeGW = data.events.find(e => e.is_current) || data.events.find(e => !e.finished);
         if (activeGW) state.currentGW = activeGW.id;
 
-    } catch (err) { console.error("Initialization Error", err); }
+    } catch (err) { console.error("Init Error", err); }
 }
 
 /**
@@ -83,7 +79,6 @@ async function handleLogin() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     
-    // Crucial: Load your specific players first to highlight them in Live Match Center
     await fetchMySquad();
     await fetchManagerData();
 }
@@ -110,11 +105,11 @@ async function fetchManagerData() {
         select.innerHTML = data.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
         
         if (data.leagues.classic.length > 0) changeLeague(data.leagues.classic[0].id);
-    } catch (err) { console.error("Manager Sync Error", err); }
+    } catch (err) { console.error("Manager Error", err); }
 }
 
 /**
- * 4. STANDINGS & TABLE LOGIC
+ * 4. LEAGUE STANDINGS
  */
 async function changeLeague(id) {
     try {
@@ -133,6 +128,9 @@ async function changeLeague(id) {
     } catch (err) { console.error("League Error", err); }
 }
 
+/**
+ * 5. PITCH EXPANSION (Starting XI + Bench + Live Points)
+ */
 async function toggleManagerExpansion(managerId) {
     const existing = document.querySelector('.details-row');
     const targetRow = document.getElementById(`row-${managerId}`);
@@ -148,29 +146,53 @@ async function toggleManagerExpansion(managerId) {
     targetRow.after(clone);
 
     try {
-        const pResp = await fetch(`${PROXY_ENDPOINT}entry/${managerId}/event/${state.currentGW}/picks/`);
-        const pData = await pResp.json();
+        const [pResp, liveResp] = await Promise.all([
+            fetch(`${PROXY_ENDPOINT}entry/${managerId}/event/${state.currentGW}/picks/`),
+            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/`)
+        ]);
 
-        // Slice(0,11) for starting XI
-        pData.picks.slice(0, 11).forEach(pick => {
+        const pData = await pResp.json();
+        const liveData = await liveResp.json();
+
+        const livePointsMap = {};
+        liveData.elements.forEach(item => {
+            livePointsMap[item.id] = item.stats.total_points;
+        });
+
+        pData.picks.forEach((pick, index) => {
             const player = state.playerMap[pick.element];
-            const rowIds = { 1: 'exp-gkp', 2: 'exp-def', 3: 'exp-mid', 4: 'exp-fwd' };
-            const container = document.getElementById(rowIds[player.pos]);
+            const points = livePointsMap[pick.element] || 0;
+            const multiplier = pick.multiplier;
+            const photoUrl = `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.code}.png`;
             
+            let containerId;
+            if (index < 11) {
+                const rowIds = { 1: 'exp-gkp', 2: 'exp-def', 3: 'exp-mid', 4: 'exp-fwd' };
+                containerId = rowIds[player.pos];
+            } else {
+                containerId = 'exp-bench';
+            }
+
+            const container = document.getElementById(containerId);
             if (container) {
                 container.innerHTML += `
-                    <div class="mini-player">
-                        <div class="player-shirt"></div>
-                        <div class="player-name">${player.name}</div>
+                    <div class="mini-player ${index >= 11 ? 'is-bench' : ''}">
+                        <div class="player-photo-wrapper">
+                            <img src="${photoUrl}" class="player-face" onerror="this.src='https://fantasy.premierleague.com/static/media/player-missing-110.43794689.png'">
+                            <div class="player-points-badge">${points * (multiplier || 1)}</div>
+                        </div>
+                        <div class="player-name-tag ${multiplier > 1 ? 'is-captain' : ''}">
+                            ${multiplier > 1 ? 'C' : ''} ${player.name}
+                        </div>
                     </div>
                 `;
             }
         });
-    } catch (e) { console.error("Expansion fail", e); }
+    } catch (e) { console.error("Expansion Error", e); }
 }
 
 /**
- * 5. LIVE MATCH CENTER (WITH BONUS & HIGHLIGHTS)
+ * 6. CENTERED MATCH CENTER (Live Bonus & My Players)
  */
 async function updateLiveScores() {
     const container = document.getElementById('fixtures-container');
@@ -193,7 +215,6 @@ async function updateLiveScores() {
             const homeAbbr = teamLookup[game.team_h].substring(0, 3).toUpperCase();
             const awayAbbr = teamLookup[game.team_a].substring(0, 3).toUpperCase();
             
-            // Calculate Top 3 Bonus Points
             const bpsData = game.stats.find(s => s.identifier === 'bps');
             let bonusListHtml = '';
             
@@ -219,9 +240,9 @@ async function updateLiveScores() {
             html += `
                 <div class="match-card">
                     <div class="match-scoreline">
-                        <span class="team-name">${homeAbbr}</span>
+                        <span class="team-name" style="text-align: right;">${homeAbbr}</span>
                         <span class="score-badge">${game.team_h_score} - ${game.team_a_score}</span>
-                        <span class="team-name">${awayAbbr}</span>
+                        <span class="team-name" style="text-align: left;">${awayAbbr}</span>
                     </div>
                     <div class="bonus-section">
                         <div class="bonus-title">Live Bonus</div>
@@ -235,7 +256,7 @@ async function updateLiveScores() {
 }
 
 /**
- * 6. UI UTILITIES
+ * 7. NAVIGATION & UTILS
  */
 function showView(view) {
     document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
@@ -248,11 +269,14 @@ function showView(view) {
 }
 
 function toggleSettings() {
-    document.getElementById('settings-drawer').classList.toggle('open');
+    const drawer = document.getElementById('settings-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+    const isOpen = drawer.classList.toggle('open');
+    overlay.style.display = isOpen ? 'block' : 'none';
 }
 
 function resetApp() {
-    if(confirm("Logout and clear data?")) {
+    if(confirm("Logout and return to login screen?")) {
         localStorage.removeItem('kopala_fpl_id');
         location.reload();
     }
