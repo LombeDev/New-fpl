@@ -1,6 +1,6 @@
 /**
  * KOPALA FPL - ULTIMATE INTEGRATED CORE
- * Features: Live Standings, Manager Expansion Pitch, and Match Center
+ * Features: Live Standings, Manager Expansion, Match Center, and Theme Engine
  */
 
 const state = {
@@ -10,32 +10,52 @@ const state = {
     currentGW: 1, 
 };
 
-// Netlify Proxy or Local Proxy
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 const FIXTURES_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=fixtures/?event=";
 
 let refreshTimer = null;
-let teamLookup = {}; // For Match Center
+let teamLookup = {}; 
 
+/**
+ * 1. INITIALIZATION & THEME ENGINE
+ */
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Initialize Player Database & Teams
+    // Check for saved theme preference
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        const toggle = document.getElementById('dark-mode-toggle');
+        if (toggle) toggle.checked = true;
+    }
+
     await initAppData();
 
-    // 2. Auto-login if ID exists
     if (state.fplId) {
         document.getElementById('team-id-input').value = state.fplId;
         handleLogin();
     }
 });
 
-/** * 1. DATA INITIALIZATION 
+function handleDarkModeToggle() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+function toggleSettings() {
+    const drawer = document.getElementById('settings-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+    
+    const isOpen = drawer.classList.toggle('open');
+    overlay.style.display = isOpen ? 'block' : 'none';
+}
+
+/**
+ * 2. DATA INITIALIZATION 
  */
 async function initAppData() {
     try {
         const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
         const data = await res.json();
         
-        // Map players for the Pitch Expansion
         data.elements.forEach(p => {
             state.playerMap[p.id] = {
                 name: p.web_name,
@@ -44,7 +64,6 @@ async function initAppData() {
             };
         });
 
-        // Map teams for Match Center
         data.teams.forEach(t => teamLookup[t.id] = t.name);
         
         const activeGW = data.events.find(e => e.is_current) || data.events.find(e => !e.finished);
@@ -53,7 +72,8 @@ async function initAppData() {
     } catch (err) { console.error("Initialization Error", err); }
 }
 
-/** * 2. MANAGER & LEAGUE LOGIC 
+/**
+ * 3. MANAGER & LEAGUE LOGIC 
  */
 async function handleLogin() {
     const id = document.getElementById('team-id-input').value;
@@ -92,17 +112,18 @@ async function changeLeague(id) {
         const body = document.getElementById('league-body');
         
         body.innerHTML = data.standings.results.map(r => `
-            <tr id="row-${r.entry}" class="manager-row" onclick="toggleManagerExpansion(${r.entry})">
-                <td>${r.rank}</td>
-                <td><strong>${r.entry_name}</strong><br><small>${r.player_name}</small></td>
-                <td class="score-text">${r.event_total}</td>
-                <td>${r.total.toLocaleString()}</td>
+            <tr id="row-${r.entry}" class="manager-row" onclick="toggleManagerExpansion(${r.entry})" style="border-bottom: 1px solid var(--border-gray); cursor: pointer;">
+                <td style="padding: 12px;">${r.rank}</td>
+                <td style="padding: 12px;"><strong>${r.entry_name}</strong><br><small style="color: var(--text-muted)">${r.player_name}</small></td>
+                <td style="padding: 12px; font-weight: bold; color: var(--fpl-purple);">${r.event_total}</td>
+                <td style="padding: 12px;">${r.total.toLocaleString()}</td>
             </tr>
         `).join('');
     } catch (err) { console.error("League Error", err); }
 }
 
-/** * 3. MANAGER EXPANSION (Mini-Pitch) 
+/**
+ * 4. MANAGER EXPANSION (Mini-Pitch) 
  */
 async function toggleManagerExpansion(managerId) {
     const existing = document.querySelector('.details-row');
@@ -119,45 +140,28 @@ async function toggleManagerExpansion(managerId) {
     targetRow.after(clone);
 
     try {
-        const [pResp, entryResp] = await Promise.all([
-            fetch(`${PROXY_ENDPOINT}entry/${managerId}/event/${state.currentGW}/picks/`),
-            fetch(`${PROXY_ENDPOINT}entry/${managerId}/`)
-        ]);
-
+        const pResp = await fetch(`${PROXY_ENDPOINT}entry/${managerId}/event/${state.currentGW}/picks/`);
         const pData = await pResp.json();
-        const entryData = await entryResp.json();
 
-        // Render Pitch
         pData.picks.slice(0, 11).forEach(pick => {
             const player = state.playerMap[pick.element];
-            const pts = (state.livePoints[pick.element] || 0) * pick.multiplier;
             const rowIds = { 1: 'exp-gkp', 2: 'exp-def', 3: 'exp-mid', 4: 'exp-fwd' };
             const container = document.getElementById(rowIds[player.pos]);
             
             if (container) {
                 container.innerHTML += `
-                    <div class="mini-player">
-                        <div class="player-shirt"></div>
-                        <div class="player-name">${player.name}</div>
-                        <div class="player-val">${pts}</div>
+                    <div class="mini-player" style="text-align: center; width: 60px;">
+                        <div style="width: 20px; height: 20px; background: #eee; border-radius: 50%; margin: 0 auto;"></div>
+                        <div style="font-size: 10px; margin-top: 4px; overflow: hidden; white-space: nowrap;">${player.name}</div>
                     </div>
                 `;
             }
         });
-
-        document.getElementById('exp-itb').textContent = (pData.entry_history.bank / 10).toFixed(1);
-        document.getElementById('exp-cost').textContent = pData.entry_history.event_transfers_cost;
-
-        const chipMap = { 'wildcard': 'wc', '3xc': 'tc', 'bboost': 'bb', 'freehit': 'fh' };
-        entryData.chips.forEach(c => {
-            const el = document.getElementById(`chip-${chipMap[c.name]}`);
-            if (el) el.classList.add('used');
-        });
-
     } catch (e) { console.error("Expansion fail", e); }
 }
 
-/** * 4. MATCH CENTER ENGINE (The "Pitch" Button View) 
+/**
+ * 5. MATCH CENTER ENGINE 
  */
 async function updateLiveScores() {
     const container = document.getElementById('fixtures-container');
@@ -169,7 +173,6 @@ async function updateLiveScores() {
         const fixtures = await response.json();
         const startedGames = fixtures.filter(f => f.started);
         
-        // Auto-refresh every 60s if games are live
         if (startedGames.some(f => !f.finished)) {
             refreshTimer = setTimeout(updateLiveScores, 60000);
         }
@@ -181,58 +184,25 @@ async function updateLiveScores() {
             const homeAbbr = teamLookup[game.team_h].substring(0, 3).toUpperCase();
             const awayAbbr = teamLookup[game.team_a].substring(0, 3).toUpperCase();
             
-            // Goals & Assists Logic
-            const goals = game.stats.find(s => s.identifier === 'goals_scored');
-            let homeEvents = '', awayEvents = '';
-            if (goals) {
-                goals.h.forEach(s => homeEvents += `<div>${state.playerMap[s.element]?.name} ⚽</div>`);
-                goals.a.forEach(s => awayEvents += `<div>⚽ ${state.playerMap[s.element]?.name}</div>`);
-            }
-
-            // Bonus Points Logic
-            const bps = game.stats.find(s => s.identifier === 'bps');
-            let bonusHtml = '';
-            if (bps) {
-                const top = [...bps.h, ...bps.a].sort((a, b) => b.value - a.value).slice(0, 3);
-                const colors = ['#FFD700', '#C0C0C0', '#CD7F32'];
-                top.forEach((p, i) => {
-                    bonusHtml += `
-                        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; font-size:0.65rem;">
-                            <span style="background:${colors[i]}; color:#000; width:13px; height:13px; display:flex; align-items:center; justify-content:center; border-radius:2px; font-weight:900; font-size:0.5rem;">${3-i}</span>
-                            <span style="font-weight:700;">${state.playerMap[p.element]?.name} <span style="opacity:0.3;">${p.value}</span></span>
-                        </div>`;
-                });
-            }
-
             html += `
-                <div class="match-card" style="display: flex; padding: 12px; border-bottom: 1px solid #eee; min-height: 100px;">
-                    <div style="flex: 1.5; border-right: 1px solid #eee; padding-right:10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <span style="font-weight: 800;">${homeAbbr}</span>
-                            <span style="background: #37003c; color: white; padding: 2px 8px; border-radius: 4px; font-family: monospace;">${game.team_h_score} - ${game.team_a_score}</span>
-                            <span style="font-weight: 800;">${awayAbbr}</span>
-                        </div>
-                        <div style="font-size: 0.6rem; display: flex; justify-content: space-between;">
-                            <div>${homeEvents}</div>
-                            <div>${awayEvents}</div>
-                        </div>
-                    </div>
-                    <div style="flex: 1; padding-left: 10px;">
-                        <div style="font-size: 0.55rem; font-weight: 800; color: #37003c; margin-bottom: 5px; opacity: 0.6;">🏆 BONUS</div>
-                        ${bonusHtml || '<span style="opacity:0.3; font-size:0.6rem;">Awaiting...</span>'}
-                    </div>
+                <div class="match-card" style="display: flex; padding: 15px; border-bottom: 1px solid var(--border-gray); align-items: center; justify-content: space-between;">
+                    <span style="font-weight: 700; flex: 1; text-align: right;">${homeAbbr}</span>
+                    <span style="background: var(--fpl-purple); color: white; padding: 4px 10px; border-radius: 4px; margin: 0 15px; font-family: monospace;">${game.team_h_score} - ${game.team_a_score}</span>
+                    <span style="font-weight: 700; flex: 1; text-align: left;">${awayAbbr}</span>
                 </div>`;
         });
         
-        container.innerHTML = html || '<p style="text-align:center; padding:20px; opacity:0.5;">No live games currently.</p>';
+        container.innerHTML = html || '<p style="text-align:center; padding:40px; color: var(--text-muted);">No live games currently.</p>';
     } catch (err) { console.error("Match Center Error", err); }
 }
 
-/** * 5. UI UTILITIES 
+/**
+ * 6. UI NAVIGATION 
  */
 function showView(view) {
     document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
     document.getElementById('pitch-view').style.display = view === 'pitch' ? 'block' : 'none';
+    
     document.getElementById('tab-table').classList.toggle('active', view === 'table');
     document.getElementById('tab-pitch').classList.toggle('active', view === 'pitch');
 
@@ -243,11 +213,9 @@ function showView(view) {
     }
 }
 
-function toggleSettings() {
-    document.getElementById('settings-drawer').classList.toggle('open');
-}
-
 function resetApp() {
-    localStorage.removeItem('kopala_fpl_id');
-    location.reload();
+    if(confirm("Logout and return to login screen?")) {
+        localStorage.removeItem('kopala_fpl_id');
+        location.reload();
+    }
 }
