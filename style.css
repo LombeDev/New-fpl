@@ -26,7 +26,68 @@ body {
     line-height: 1.6;
 }
 
-/* --- Login & Global Components --- */
+/* --- NEW: Simple Fixtures & Results Section --- */
+
+.fixtures-container {
+    max-width: 600px;
+    margin: 20px auto;
+    background: var(--card-bg);
+    padding-bottom: 20px;
+}
+
+.fixture-date-group {
+    margin-bottom: 10px;
+}
+
+.date-header {
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #888;
+    padding: 20px 0 10px;
+    letter-spacing: 0.5px;
+}
+
+.fixture-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Only apply border to items inside a list, matching the screenshot style */
+.fixture-row:last-child {
+    border-bottom: none;
+}
+
+.home-team, .away-team {
+    flex: 1;
+    font-size: 1.1rem;
+    color: var(--text-main);
+}
+
+.home-team {
+    text-align: right;
+    padding-right: 25px;
+}
+
+.away-team {
+    text-align: left;
+    padding-left: 25px;
+}
+
+.score-display {
+    color: var(--fpl-pink);
+    font-weight: 700;
+    font-size: 1.3rem;
+    min-width: 70px;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+/* --- Existing App Components --- */
 .hero-section { background: #00563b; color: white; text-align: center; padding: clamp(40px, 10vw, 80px) 20px; }
 .login-card { background: var(--card-bg); max-width: 90%; width: 450px; margin: -40px auto 20px; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
 .app-header { background: var(--card-bg); padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; }
@@ -40,257 +101,8 @@ body.dark-mode .main-tabs { background: #000; }
 .live-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
 .live-table th { text-align: left; padding: 12px; background: rgba(0,0,0,0.05); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #999; }
 .live-table td { padding: 12px; border-bottom: 1px solid var(--border-color); }
-.manager-row:hover { background-color: rgba(0, 255, 133, 0.05); cursor: pointer; }
 
-/* --- Circular Pitch View (Squad Expansion) --- */
-.details-row td { padding: 0 !important; }
-
-.pitch-container {
-    background: #008d53 url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center;
-    background-size: cover;
-    padding: 15px 5px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.pitch-row {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-}
-
-.player-card {
-    width: 62px;
-    text-align: center;
-    position: relative;
-}
-
-.player-photo-wrapper {
-    width: 44px;
-    height: 44px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-}
-
-.player-face {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.player-info-label {
-    background: #fff;
-    color: #333;
-    font-size: 0.6rem;
-    font-weight: 800;
-    padding: 1px 3px;
-    margin-top: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border-radius: 2px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.player-points-badge {
-    color: #fff;
-    font-size: 0.85rem;
-    font-weight: 900;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-    margin-top: -2px;
-}
-
-/* --- Manager Stats Footer --- */
-.manager-stats-footer {
-    background: var(--bg-light);
-    padding: 12px 15px;
-    border-top: 2px solid var(--fpl-purple);
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    font-size: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-}
-
-.chip-status-row {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
-
-.chip-icon {
-    width: 28px;
-    height: 28px;
-    background: var(--fpl-purple);
-    color: var(--fpl-green);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 0.6rem;
-    margin: 0 auto 3px;
-}
-
-.chip-icon.used {
-    background: #ddd;
-    color: #999;
-}
-
-.chip-label {
-    font-size: 0.55rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    text-align: center;
-}
-
-/* --- Transitions --- */
-.details-row {
-    animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-
-
-/* The Shimmer Effect */
-@keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-}
-
-.skeleton-loader {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 4px;
-    display: inline-block;
-}
-
-/* Specific Loading Shapes */
-.loading-ball {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    margin: 0 auto;
-}
-
-.loading-text {
-    width: 80%;
-    height: 10px;
-    margin-top: 8px;
-}
-
-/* Smooth expansion container */
-.details-row {
-    transition: all 0.3s ease-in-out;
-}
-
-
-/* Smooth expansion for the manager detail row */
-.details-row {
-    overflow: hidden;
-    animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-}
-
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Staggered "Pop" animation for player cards */
-.player-card {
-    opacity: 0;
-    transform: scale(0.8);
-    animation: playerPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-@keyframes playerPop {
-    to { opacity: 1; transform: scale(1); }
-}
-
-/* Add delays to rows for a staggered entry effect */
-.pitch-row:nth-child(1) .player-card { animation-delay: 0.1s; }
-.pitch-row:nth-child(2) .player-card { animation-delay: 0.2s; }
-.pitch-row:nth-child(3) .player-card { animation-delay: 0.3s; }
-.pitch-row:nth-child(4) .player-card { animation-delay: 0.4s; }
-
-/* Pulse effect for loading state */
-.loading-pulse {
-    animation: pulse 1.5s infinite ease-in-out;
-    color: #999;
-    font-weight: bold;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
-}
-
-/* Smooth hover for rows */
-.manager-row {
-    transition: background-color 0.2s ease, transform 0.1s ease;
-}
-
-.manager-row:active {
-    transform: scale(0.98);
-}
-
-
-
-/* Settings Drawer Sidebar */
-.drawer {
-    position: fixed;
-    top: 0;
-    right: -320px; /* Hidden by default */
-    width: 300px;
-    height: 100%;
-    background: var(--card-bg);
-    box-shadow: -5px 0 15px rgba(0,0,0,0.2);
-    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-    padding: 20px;
-}
-
-.drawer.open {
-    right: 0; /* Slides in */
-}
-
-/* Optional: Dark overlay when drawer is open */
-.drawer-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: none;
-    z-index: 999;
-}
-
-.drawer.open + .drawer-overlay {
-    display: block;
-}
-
-
-
-
-/* --- Circular Player Styles --- */
+/* --- Pitch View --- */
 .pitch-container {
     background: #008d53 url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center;
     background-size: cover;
@@ -300,6 +112,9 @@ body.dark-mode .main-tabs { background: #000; }
 .player-card {
     width: 65px;
     text-align: center;
+    opacity: 0;
+    transform: scale(0.8);
+    animation: playerPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 .player-photo-wrapper {
@@ -335,122 +150,24 @@ body.dark-mode .main-tabs { background: #000; }
     text-shadow: 1px 1px 2px #000;
 }
 
-/* --- Manager Dashboard Footer --- */
-.manager-stats-footer {
-    background: #f8f8f8;
-    padding: 15px;
-    font-family: 'Segoe UI', sans-serif;
+@keyframes playerPop {
+    to { opacity: 1; transform: scale(1); }
 }
 
-.stats-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 15px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
+/* --- Drawer/Sidebar --- */
+.drawer {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 300px;
+    height: 100%;
+    background: var(--card-bg);
+    box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    padding: 20px;
 }
 
-.chip-status-row {
-    display: flex;
-    justify-content: space-around;
-    padding-top: 15px;
-}
-
-.chip-item { text-align: center; }
-.chip-circle {
-    width: 32px;
-    height: 32px;
-    background: #37003c;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 0.7rem;
-    margin: 0 auto 5px;
-}
-
-/* --- Bonus Match Center --- */
-.match-card-main {
-    display: flex;
-    background: white;
-    border-radius: 8px;
-    margin: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.score-box {
-    background: #37003c;
-    color: white;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-family: monospace;
-    font-weight: 800;
-}
-
-.event-icon {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    background: #e90052;
-    color: white;
-    font-size: 0.6rem;
-    border-radius: 2px;
-    text-align: center;
-    margin-left: 4px;
-}
-
-
-
-/* High-Fidelity Match Center Styles */
-.match-card-main {
-    display: flex;
-    background: #fff;
-    border-radius: 8px;
-    margin: 10px 0;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    border: 1px solid #eee;
-}
-
-.score-box-center {
-    background: #37003c;
-    color: #fff;
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-weight: 900;
-    font-size: 0.9rem;
-    font-family: monospace;
-}
-
-.assist-badge {
-    background: #e90052;
-    color: #fff;
-    font-size: 0.6rem;
-    font-weight: 900;
-    padding: 1px 4px;
-    border-radius: 2px;
-    margin-left: 4px;
-    display: inline-block;
-}
-
-.bonus-column {
-    flex: 1;
-    padding: 15px;
-    background: #fafafa;
-    border-left: 1px solid #eee;
-}
-
-.medal-icon {
-    width: 18px;
-    height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    font-weight: 900;
-    font-size: 0.7rem;
-    color: #000;
+.drawer.open {
+    right: 0;
 }
