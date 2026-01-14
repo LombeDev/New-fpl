@@ -53,3 +53,38 @@ exports.handler = async (event) => {
         return { statusCode: error.response ? error.response.status : 500, body: error.message };
     }
 };
+
+
+
+// netlify/functions/fpl-proxy.js
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
+exports.handler = async (event) => {
+    // Extract the intended FPL path
+    const path = event.path.replace('/.netlify/functions/fpl-proxy', '');
+    const url = `https://fantasy.premierleague.com/api${path}${event.rawQuery ? '?' + event.rawQuery : ''}`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Referer': 'https://fantasy.premierleague.com/',
+                'Accept': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        return {
+            statusCode: 200,
+            headers: { 
+                "Content-Type": "application/json", 
+                "Access-Control-Allow-Origin": "*" 
+            },
+            body: JSON.stringify(data)
+        };
+    } catch (error) {
+        return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
+    }
+};
