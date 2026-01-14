@@ -1,23 +1,17 @@
 /**
  * KOPALA FPL - MASTER CORE SCRIPT
- * Features: Persistent Views, PWA Install, League Table (Arrows + Captains), Live Match Center
+ * Features: Rate-Limit Safe, Persistent View, Settings Toggle, Invitational Filter
  */
 
 const state = {
     fplId: localStorage.getItem('kopala_fpl_id') || null,
-    activeView: localStorage.getItem('kopala_active_view') || 'table', // Persistent view
+    activeView: localStorage.getItem('kopala_active_view') || 'table',
     playerMap: {}, 
-    livePoints: {},
     currentGW: 1, 
     myPlayerIds: [] 
 };
 
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
-const FIXTURES_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=fixtures/?event=";
-
-let refreshTimer = null;
-let teamLookup = {}; 
-let deferredPrompt; 
 
 /**
  * 1. INITIALIZATION & PERSISTENCE
@@ -26,214 +20,150 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Theme setup
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
-        const toggle = document.getElementById('dark-mode-toggle');
-        if (toggle) toggle.checked = true;
+        document.getElementById('dark-mode-toggle').checked = true;
     }
-
-    // PWA Install Prompt Logic
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        const installBtn = document.getElementById('install-app-btn');
-        if (installBtn) installBtn.style.display = 'block';
-    });
 
     await initAppData();
 
-    // Check if user is already "Logged In"
     if (state.fplId) {
-        // Hide login screen and show dashboard immediately
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
-        
-        // Restore their last view (Table or Pitch)
         showView(state.activeView);
-        
         await fetchMySquad();
         await fetchManagerData();
     }
 });
 
 /**
- * 2. DATA BOOTSTRAPPING
+ * 2. SETTINGS TOGGLE LOGIC
  */
-async function initAppData() {
-    try {
-        const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
-        const data = await res.json();
-        
-        data.elements.forEach(p => {
-            state.playerMap[p.id] = {
-                name: p.web_name,
-                pos: p.element_type,
-                team: p.team,
-                code: p.code
-            };
-        });
-
-        data.teams.forEach(t => teamLookup[t.id] = t.name);
-        
-        const activeGW = data.events.find(e => e.is_current) || data.events.find(e => !e.finished);
-        if (activeGW) state.currentGW = activeGW.id;
-
-    } catch (err) { console.error("Init Error", err); }
-}
-
-/**
- * 3. AUTH & SQUAD TRACKING
- */
-async function handleLogin() {
-    const id = document.getElementById('team-id-input').value;
-    if (!id || isNaN(id)) return alert("Enter a numeric Team ID");
+function toggleSettings() {
+    const drawer = document.getElementById('settings-drawer');
+    const overlay = document.getElementById('drawer-overlay');
     
-    state.fplId = id;
-    localStorage.setItem('kopala_fpl_id', id);
+    const isOpen = drawer.classList.contains('open');
     
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    
-    // Set default view on first login
-    showView('table');
-    
-    await fetchMySquad();
-    await fetchManagerData();
-}
-
-/**
- * 4. VIEW PERSISTENCE LOGIC
- */
-function showView(view) {
-    state.activeView = view;
-    localStorage.setItem('kopala_active_view', view); // Save view to storage
-
-    const tableView = document.getElementById('table-view');
-    const pitchView = document.getElementById('pitch-view');
-    const tabTable = document.getElementById('tab-table');
-    const tabPitch = document.getElementById('tab-pitch');
-
-    if (tableView) tableView.style.display = view === 'table' ? 'block' : 'none';
-    if (pitchView) pitchView.style.display = view === 'pitch' ? 'block' : 'none';
-    
-    if (tabTable) tabTable.classList.toggle('active', view === 'table');
-    if (tabPitch) tabPitch.classList.toggle('active', view === 'pitch');
-
-    if (view === 'pitch') {
-        updateLiveScores();
+    if (isOpen) {
+        drawer.classList.remove('open');
+        overlay.style.display = 'none';
     } else {
-        clearTimeout(refreshTimer);
+        drawer.classList.add('open');
+        overlay.style.display = 'block';
     }
 }
 
 /**
- * 5. LEAGUE STANDINGS (Rank Arrows + Stacked Captain)
+ * 3. VIEW PERSISTENCE
+ */
+function showView(view) {
+    state.activeView = view;
+    localStorage.setItem('kopala_active_view', view);
+
+    // Toggle View Sections
+    document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
+    document.getElementById('pitch-view').style.display = view === 'pitch' ? 'block' : 'none';
+    
+    // Toggle Tab Button Active Class
+    document.getElementById('tab-table').classList.toggle('active', view === 'table');
+    document.getElementById('tab-pitch').classList.toggle('active', view === 'pitch');
+}
+
+/**
+ * 4. RATE-LIMIT SAFE BATCH FETCH
+ */
+async function batchFetchCaptains(standings) {
+    let results = [];
+    const batchSize = 5;
+    for (let i = 0; i < standings.length; i += batchSize) {
+        const batch = standings.slice(i, i + batchSize);
+        const batchRes = await Promise.all(batch.map(r => 
+            fetch(`${PROXY_ENDPOINT}entry/${r.entry}/event/${state.currentGW}/picks/`)
+            .then(res => res.json()).catch(() => null)
+        ));
+        results = [...results, ...batchRes];
+        if (i + batchSize < standings.length) await new Promise(r => setTimeout(r, 250));
+    }
+    return results;
+}
+
+/**
+ * 5. LEAGUE STANDINGS (Invitational Only)
  */
 async function changeLeague(leagueId) {
     const body = document.getElementById('league-body');
-    if (!body) return;
-    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Loading Standings...</td></tr>';
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Safe Loading...</td></tr>';
 
     try {
         const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
         const data = await res.json();
         const standings = data.standings.results;
 
-        const captainPromises = standings.map(r => 
-            fetch(`${PROXY_ENDPOINT}entry/${r.entry}/event/${state.currentGW}/picks/`)
-            .then(res => res.json())
-            .catch(() => null)
-        );
-
-        const allPicks = await Promise.all(captainPromises);
+        const allPicks = await batchFetchCaptains(standings);
 
         body.innerHTML = standings.map((r, index) => {
-            let arrow = '';
-            if (r.last_rank > r.rank) {
-                arrow = '<span style="color: #00ff85; margin-right: 4px;">▲</span>'; 
-            } else if (r.last_rank < r.rank && r.last_rank !== 0) {
-                arrow = '<span style="color: #e90052; margin-right: 4px;">▼</span>'; 
-            } else {
-                arrow = '<span style="color: #999; margin-right: 4px;">-</span>';
-            }
-
+            const arrow = r.last_rank > r.rank ? '▲' : (r.last_rank < r.rank && r.last_rank !== 0 ? '▼' : '-');
+            const arrowColor = r.last_rank > r.rank ? '#00ff85' : '#e90052';
+            
             const managerPicks = allPicks[index];
-            let captainName = "N/A";
-            if (managerPicks && managerPicks.picks) {
-                const capId = managerPicks.picks.find(p => p.is_captain)?.element;
-                captainName = state.playerMap[capId]?.name || "Unknown";
-            }
+            const capId = managerPicks?.picks?.find(p => p.is_captain)?.element;
+            const captainName = state.playerMap[capId]?.name || "N/A";
 
             return `
-                <tr id="row-${r.entry}" class="manager-row" onclick="toggleManagerExpansion(${r.entry})">
-                    <td style="font-weight: bold; white-space: nowrap;">${arrow}${r.rank}</td>
+                <tr class="manager-row" onclick="toggleManagerExpansion(${r.entry})">
+                    <td style="font-weight: bold;"><span style="color:${arrowColor}">${arrow}</span> ${r.rank}</td>
                     <td>
-                        <div style="font-weight: bold; color: #37003c; line-height: 1.2;">${r.entry_name}</div>
+                        <div style="font-weight: 800; color: #37003c;">${r.entry_name}</div>
                         <div style="font-size: 0.75rem; color: #666;">${r.player_name}</div>
                         <div style="font-size: 0.7rem; margin-top: 4px; display: flex; align-items: center;">
-                            <span style="background: #e90052; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; margin-right: 4px; font-weight: bold;">C</span>
-                            <span style="color: #37003c; font-weight: 600;">${captainName}</span>
+                            <span style="background:#e90052; color:white; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; font-size:0.5rem; margin-right:4px; font-weight:bold;">C</span>
+                            <span style="font-weight:600;">${captainName}</span>
                         </div>
                     </td>
-                    <td class="score-text" style="font-weight: 800; color: #37003c; text-align: center;">${r.event_total}</td>
-                    <td style="font-weight: 600; text-align: right;">${r.total.toLocaleString()}</td>
+                    <td style="text-align:center; font-weight:800;">${r.event_total}</td>
+                    <td style="text-align:right; font-weight:600;">${r.total.toLocaleString()}</td>
                 </tr>
             `;
         }).join('');
-        
-        initializeStats(leagueId, state.fplId);
-
-    } catch (err) { 
-        console.error("League Error", err); 
-        body.innerHTML = "<tr><td colspan='4'>Error loading league data.</td></tr>";
-    }
+    } catch (err) { console.error("League Load Error", err); }
 }
 
 /**
- * 6. SQUAD & DATA FETCHING
+ * 6. CORE DATA FETCHERS
  */
-async function fetchMySquad() {
+async function initAppData() {
     try {
-        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/event/${state.currentGW}/picks/`);
+        const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
         const data = await res.json();
-        state.myPlayerIds = data.picks.map(p => p.element);
-    } catch (err) { console.error("Squad Sync Error", err); }
+        data.elements.forEach(p => state.playerMap[p.id] = { name: p.web_name, code: p.code });
+        state.currentGW = (data.events.find(e => e.is_current) || data.events.find(e => !e.finished)).id;
+    } catch (e) { console.error("Bootstrap error", e); }
 }
 
 async function fetchManagerData() {
-    try {
-        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/`);
-        const data = await res.json();
-        
-        document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
-        document.getElementById('disp-gw').textContent = data.summary_event_points || 0;
-        document.getElementById('disp-total').textContent = data.summary_overall_points.toLocaleString();
-        document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
-
-        const select = document.getElementById('league-select');
-        select.innerHTML = data.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
-        
-        if (data.leagues.classic.length > 0) changeLeague(data.leagues.classic[0].id);
-    } catch (err) { console.error("Manager Error", err); }
+    const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/`);
+    const data = await res.json();
+    document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
+    
+    const invitational = data.leagues.classic.filter(l => l.league_type === 'x');
+    const select = document.getElementById('league-select');
+    select.innerHTML = invitational.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+    
+    if (invitational.length > 0) changeLeague(invitational[0].id);
 }
 
-/**
- * (Sections for Pitch Expansion, Match Center, Stats remain the same but included in logic)
- */
-// ... [Remaining functions: toggleManagerExpansion, updateLiveScores, initializeStats, etc. from previous response] ...
-
-async function triggerInstall() {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            document.getElementById('install-app-btn').style.display = 'none';
-        }
-        deferredPrompt = null;
-    }
+function handleDarkModeToggle() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
 function resetApp() {
-    if(confirm("Logout and return to login screen?")) {
-        localStorage.clear(); // Clears ID and View persistence
-        location.reload();
-    }
+    if(confirm("Logout?")) { localStorage.clear(); location.reload(); }
+}
+
+async function handleLogin() {
+    const id = document.getElementById('team-id-input').value;
+    if (!id) return alert("Enter ID");
+    state.fplId = id;
+    localStorage.setItem('kopala_fpl_id', id);
+    location.reload();
 }
