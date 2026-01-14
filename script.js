@@ -1,6 +1,6 @@
 /**
  * KOPALA FPL - MASTER CORE SCRIPT
- * Features: Squad Expansion, Rate-Limit Protection, Persistent Views, Invitational Filter
+ * Features: Live Pitch with Faces, Manager Stats Dashboard, Rate-Limit Protection
  */
 
 const state = {
@@ -8,7 +8,6 @@ const state = {
     activeView: localStorage.getItem('kopala_active_view') || 'table',
     playerMap: {}, 
     currentGW: 1, 
-    myPlayerIds: [] 
 };
 
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
@@ -17,6 +16,7 @@ const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
  * 1. INITIALIZATION
  */
 document.addEventListener('DOMContentLoaded', async () => {
+    // Theme setup
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
         const darkToggle = document.getElementById('dark-mode-toggle');
@@ -29,20 +29,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         showView(state.activeView);
-        await fetchMySquad();
         await fetchManagerData();
     }
 });
 
 /**
- * 2. CORE DATA BOOTSTRAPPING
+ * 2. BOOTSTRAP DATA (Player Info & Current GW)
  */
 async function initAppData() {
     try {
         const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
         const data = await res.json();
         
-        // map player data for easy lookup
         data.elements.forEach(p => {
             state.playerMap[p.id] = { 
                 name: p.web_name, 
@@ -57,7 +55,7 @@ async function initAppData() {
 }
 
 /**
- * 3. LEAGUE & MANAGER FETCHING
+ * 3. LEAGUE & MANAGER DATA
  */
 async function fetchManagerData() {
     try {
@@ -68,7 +66,6 @@ async function fetchManagerData() {
         document.getElementById('disp-total').textContent = data.summary_overall_points.toLocaleString();
         document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
 
-        // Filter for Invitational Leagues only
         const invitational = data.leagues.classic.filter(l => l.league_type === 'x');
         const select = document.getElementById('league-select');
         
@@ -76,38 +73,24 @@ async function fetchManagerData() {
             select.innerHTML = invitational.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
             changeLeague(invitational[0].id);
         }
-    } catch (e) { console.error("Manager Data Error", e); }
+    } catch (e) { console.error("Manager data error", e); }
 }
 
-async function fetchMySquad() {
-    try {
-        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/event/${state.currentGW}/picks/`);
-        const data = await res.json();
-        state.myPlayerIds = data.picks.map(p => p.element);
-    } catch (e) { console.error("Squad Sync Error", e); }
-}
-
-/**
- * 4. LEAGUE TABLE & RATE LIMITING
- */
 async function changeLeague(leagueId) {
     const body = document.getElementById('league-body');
-    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Safe Loading...</td></tr>';
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Loading Live Standings...</td></tr>';
 
     try {
         const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
         const data = await res.json();
         const standings = data.standings.results;
 
-        // Batch fetch captains (5 at a time) to avoid 429 Rate Limit errors
         const allPicks = await batchFetchCaptains(standings);
 
         body.innerHTML = standings.map((r, index) => {
             const arrow = r.last_rank > r.rank ? '▲' : (r.last_rank < r.rank && r.last_rank !== 0 ? '▼' : '-');
             const arrowColor = r.last_rank > r.rank ? '#00ff85' : '#e90052';
-            
-            const managerPicks = allPicks[index];
-            const capId = managerPicks?.picks?.find(p => p.is_captain)?.element;
+            const capId = allPicks[index]?.picks?.find(p => p.is_captain)?.element;
             const captainName = state.playerMap[capId]?.name || "N/A";
 
             return `
@@ -126,26 +109,26 @@ async function changeLeague(leagueId) {
                 </tr>
             `;
         }).join('');
-    } catch (err) { console.error("League Error", err); }
+    } catch (err) { console.error("League error", err); }
 }
 
 async function batchFetchCaptains(standings) {
     let results = [];
     const batchSize = 5;
-    for (let i = 0; i < standings.length; i += batchSize) {
+    for (let i = 0; i < Math.min(standings.length, 15); i += batchSize) {
         const batch = standings.slice(i, i + batchSize);
         const batchRes = await Promise.all(batch.map(r => 
             fetch(`${PROXY_ENDPOINT}entry/${r.entry}/event/${state.currentGW}/picks/`)
             .then(res => res.json()).catch(() => null)
         ));
         results = [...results, ...batchRes];
-        if (i + batchSize < standings.length) await new Promise(r => setTimeout(r, 250));
+        if (i + batchSize < standings.length) await new Promise(r => setTimeout(r, 200));
     }
     return results;
 }
 
 /**
- * 5. SQUAD EXPANSION LOGIC
+ * 4. SQUAD EXPANSION (The Pitch & Stats Dashboard)
  */
 async function toggleManagerExpansion(entryId) {
     const row = document.getElementById(`row-${entryId}`);
@@ -159,46 +142,91 @@ async function toggleManagerExpansion(entryId) {
     const detailRow = document.createElement('tr');
     detailRow.id = `details-${entryId}`;
     detailRow.className = 'details-row';
-    detailRow.innerHTML = `<td colspan="4" style="padding:20px; text-align:center; background:#eee;">Loading Squad...</td>`;
+    detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:20px; background:#f4f4f4;">Loading Team Data...</td>`;
     row.parentNode.insertBefore(detailRow, row.nextSibling);
 
     try {
-        const res = await fetch(`${PROXY_ENDPOINT}entry/${entryId}/event/${state.currentGW}/picks/`);
-        const data = await res.json();
+        // Fetch Picks, Live Points, and History for Chips/Transfers
+        const [picksRes, liveRes, historyRes] = await Promise.all([
+            fetch(`${PROXY_ENDPOINT}entry/${entryId}/event/${state.currentGW}/picks/`),
+            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/`),
+            fetch(`${PROXY_ENDPOINT}entry/${entryId}/history/`)
+        ]);
         
-        const squad = data.picks.map(p => ({
+        const picksData = await picksRes.json();
+        const liveData = await liveRes.json();
+        const historyData = await historyRes.json();
+
+        const livePointsMap = {};
+        liveData.elements.forEach(el => livePointsMap[el.id] = el.stats.total_points);
+
+        const squad = picksData.picks.map(p => ({
             ...state.playerMap[p.element],
-            isCap: p.is_captain
+            isCap: p.is_captain,
+            pts: (livePointsMap[p.element] || 0) * (p.multiplier || 1)
         }));
 
-        // Render mini-pitch rows
         detailRow.innerHTML = `
-            <td colspan="4" style="background: #008d53; padding: 15px;">
-                <div class="mini-pitch-container" style="display:flex; flex-direction:column; gap:8px;">
+            <td colspan="4" style="padding:0;">
+                <div class="pitch-container" style="background: #008d53 url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center; background-size: cover; padding: 20px 0;">
                     ${renderPitchRow(squad.filter(p => p.pos === 1))}
                     ${renderPitchRow(squad.filter(p => p.pos === 2))}
                     ${renderPitchRow(squad.filter(p => p.pos === 3))}
                     ${renderPitchRow(squad.filter(p => p.pos === 4))}
                 </div>
+                
+                <div class="manager-stats-footer" style="background:#f9f9f9; padding:15px; border-top:2px solid #37003c;">
+                    <div style="text-align:center; font-weight:800; margin-bottom:12px; font-size:0.7rem; color:#37003c; text-transform:uppercase;">Gameweek Stats & Chips</div>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; font-size:0.75rem; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid #ddd;">
+                        <div>
+                            <div style="display:flex; justify-content:space-between;"><span>GW Hits:</span> <span style="color:#e90052; font-weight:bold;">-${picksData.entry_history.event_transfers_cost}</span></div>
+                            <div style="display:flex; justify-content:space-between;"><span>Bank:</span> <span style="font-weight:bold;">£${(picksData.entry_history.bank / 10).toFixed(1)}m</span></div>
+                        </div>
+                        <div>
+                            <div style="display:flex; justify-content:space-between;"><span>Season Transfers:</span> <span style="font-weight:bold;">${historyData.current.reduce((acc, curr) => acc + curr.event_transfers, 0)}</span></div>
+                            <div style="display:flex; justify-content:space-between;"><span>Net GW Points:</span> <span style="font-weight:bold; background:#00ff85; padding:0 4px; border-radius:2px;">${picksData.entry_history.points - picksData.entry_history.event_transfers_cost}</span></div>
+                        </div>
+                    </div>
+                    
+                    <div style="display:flex; justify-content:space-around; text-align:center;">
+                        ${renderChip('WC', historyData.chips, 'wildcard')}
+                        ${renderChip('TC', historyData.chips, '3xc')}
+                        ${renderChip('BB', historyData.chips, 'bboost')}
+                        ${renderChip('FH', historyData.chips, 'freehit')}
+                    </div>
+                </div>
             </td>
         `;
-    } catch (e) { detailRow.innerHTML = `<td colspan="4">Error loading squad.</td>`; }
+    } catch (e) { detailRow.innerHTML = `<td colspan="4">Error loading manager data.</td>`; }
 }
 
 function renderPitchRow(players) {
-    return `<div style="display:flex; justify-content:center; gap:5px;">
+    return `<div style="display:flex; justify-content:center; gap:8px; margin-bottom:10px;">
         ${players.map(p => `
-            <div style="text-align:center; width:65px;">
-                <div style="background:white; color:black; font-size:0.6rem; padding:3px; border-radius:3px; font-weight:bold; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">
-                    ${p.isCap ? '<span style="color:red">C</span> ' : ''}${p.name}
+            <div style="width:65px; text-align:center;">
+                <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" style="width:100%; height:auto;" onerror="this.src='https://fantasy.premierleague.com/static/media/player-missing-110.6625805d.png'">
+                <div style="background:#37003c; color:white; font-size:0.6rem; font-weight:bold; padding:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${p.isCap ? '(C) ' : ''}${p.name}
                 </div>
+                <div style="background:#00ff85; color:#37003c; font-size:0.7rem; font-weight:900; padding:1px; border-radius:0 0 4px 4px;">${p.pts}</div>
             </div>
         `).join('')}
     </div>`;
 }
 
+function renderChip(label, usedChips, chipName) {
+    const isUsed = usedChips.some(c => c.name === chipName);
+    return `
+        <div>
+            <div style="width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:bold; margin:0 auto; background:${isUsed ? '#ccc' : '#37003c'}; color:${isUsed ? '#888' : '#00ff85'}">${label}</div>
+            <div style="font-size:0.55rem; font-weight:bold; margin-top:4px; color:${isUsed ? '#999' : '#333'}">${isUsed ? 'USED' : 'AVAIL'}</div>
+        </div>
+    `;
+}
+
 /**
- * 6. UI HELPERS & PERSISTENCE
+ * 5. UI HELPERS
  */
 function showView(view) {
     state.activeView = view;
