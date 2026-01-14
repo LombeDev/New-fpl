@@ -136,7 +136,6 @@
             padding: 10px;
         }
 
-        /* MATCH CENTER UI CLASSES */
         .match-card-main {
             display: flex;
             background: #fff;
@@ -189,12 +188,29 @@
 
         .details-row td { background: #00563b !important; padding: 0 !important; }
         .expansion-content { display: flex; padding: 15px; gap: 15px; color: white; }
+
+        /* TAB STYLING */
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: none;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-btn.active {
+            color: var(--fpl-purple);
+            border-bottom-color: var(--fpl-purple);
+        }
     </style>
 </head>
 <body>
-<button id="installBtn" style="display: none; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-  Install Our App
-</button>
+    <button id="installBtn" style="display: none; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+      Install Our App
+    </button>
+
     <div id="login-screen">
         <div class="login-wrapper">
             <div class="brand-header">
@@ -217,6 +233,10 @@
     </div>
 
     <div id="dashboard" style="display:none;">
+        <div id="deadline-banner" style="background: var(--fpl-green); color: var(--fpl-purple); padding: 8px; text-align: center; font-size: 0.8rem; font-weight: 800; text-transform: uppercase;">
+            ⏳ Next Deadline: <span id="deadline-timer">Loading...</span>
+        </div>
+
         <header class="app-header" style="padding: 15px; border-bottom: 1px solid var(--border-gray); display: flex; justify-content: space-between; align-items: center;">
             <div class="selector-wrapper">
                 <select id="league-select" onchange="changeLeague(this.value)" style="padding: 8px; border-radius: 5px;"></select>
@@ -237,11 +257,12 @@
             </div>
         </div>
 
-       <nav class="main-tabs" style="display: flex; border-bottom: 1px solid var(--border-gray);">
-    <button class="tab-btn active" id="tab-table" onclick="showView('table')" style="flex: 1; padding: 15px; border: none; background: none; font-weight: 700;">Table</button>
-    <button class="tab-btn" id="tab-pitch" onclick="showView('pitch'); if(typeof updateLiveScores === 'function') updateLiveScores();" style="flex: 1; padding: 15px; border: none; background: none; font-weight: 700;">Fixtures</button>
-    <button class="tab-btn" id="tab-stats" onclick="showView('stats')" style="flex: 1; padding: 15px; border: none; background: none; font-weight: 700;">Stats</button>
-</nav>
+        <nav class="main-tabs" style="display: flex; border-bottom: 1px solid var(--border-gray);">
+            <button class="tab-btn active" id="tab-table" onclick="showView('table')">Table</button>
+            <button class="tab-btn" id="tab-pitch" onclick="showView('pitch'); if(typeof updateLiveScores === 'function') updateLiveScores();">Fixtures</button>
+            <button class="tab-btn" id="tab-stats" onclick="showView('stats')">Market</button>
+        </nav>
+
         <section id="table-view" class="view-content">
             <table class="live-table" style="width: 100%; border-collapse: collapse;">
                 <thead style="background: #f9f9f9; font-size: 0.8rem;">
@@ -252,31 +273,55 @@
         </section>
 
         <section id="pitch-view" style="display:none;" class="view-content">
-            <div style="background: var(--fpl-purple); color: white; padding: 12px; text-align: center; font-weight: 800; font-size: 0.7rem; text-transform: uppercase;"></div>
+            <div style="background: var(--fpl-purple); color: white; padding: 12px; text-align: center; font-weight: 800; font-size: 0.7rem; text-transform: uppercase;">Match Center</div>
             <div id="fixtures-container"></div>
         </section>
+
+        <section id="stats-view" class="view-content" style="background-color: #f8f8f8; display: none; padding-bottom: 50px;">
+            <div style="background: #37003c; color: white; padding: 12px; text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase;">
+                Transfer Market Insights
+            </div>
+
+            <div class="stats-card" style="background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+                    <thead>
+                        <tr style="color: #666; text-align: right; border-bottom: 1px solid #eee;">
+                            <th style="text-align: left; padding-bottom: 8px;">League Summary</th>
+                            <th>GW Score</th>
+                            <th>Hits</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparison-body" style="text-align: right; font-weight: bold;"></tbody>
+                </table>
+            </div>
+
+            <div class="stats-card" style="background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h3 style="font-size: 0.9rem; border-bottom: 2px solid var(--fpl-purple); padding-bottom: 5px; margin-top: 0;">Daily Price Changes</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                    <div>
+                        <h4 style="color: #00d46a; font-size: 0.7rem; margin-bottom: 5px;">TOP RISERS</h4>
+                        <ul id="risers-list" style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; line-height: 1.6;">
+                            <li style="color: #888;">No changes today</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--fpl-pink); font-size: 0.7rem; margin-bottom: 5px;">TOP FALLERS</h4>
+                        <ul id="fallers-list" style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; line-height: 1.6;">
+                            <li style="color: #888;">No changes today</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-card" style="background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h3 style="font-size: 0.9rem; border-bottom: 2px solid var(--fpl-purple); padding-bottom: 5px; margin-top: 0;">Price Change Predictor</h3>
+                <div id="predictor-list" style="margin-top: 10px;">
+                    </div>
+                <p style="font-size: 0.6rem; color: #888; margin-top: 10px;">*Estimate based on net transfer activity in current 24h cycle.</p>
+            </div>
+        </section>
     </div>
-
-    <section id="stats-view" class="view-content" style="background-color: #f8f8f8; display: none; padding-bottom: 50px;">
-        <div style="background: #37003c; color: white; padding: 12px; text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase;">
-            League Stats - Kopala EPL
-        </div>
-
-        <div class="stats-card" style="background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
-                <thead>
-                    <tr style="color: #666; text-align: right; border-bottom: 1px solid #eee;">
-                        <th style="text-align: left; padding-bottom: 8px;">Summary</th>
-                        <th>GW Score</th>
-                        <th>Hits</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody id="comparison-body" style="text-align: right; font-weight: bold;">
-                    </tbody>
-            </table>
-        </div>
-    </section>
 
     <div id="settings-drawer" class="drawer">
         <div class="drawer-header">
