@@ -1,27 +1,31 @@
-[build]
-  functions = "netlify/functions"
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/fpl-proxy/:splat"
-  status = 200
-
-
-
-# Rule for FPL Data (BPS and Live Scores)
-[[redirects]]
-  from = "/fpl-api/*"
-  to = "https://fantasy.premierleague.com/api/:splat"
-  status = 200
-  force = true
-  [redirects.headers]
-    User-Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-
-# Rule for General Football Data (Standings and Fixture List)
 [[redirects]]
   from = "/api/*"
   to = "https://api.football-data.org/v4/:splat"
   status = 200
   force = true
-  [redirects.headers]
-    X-Auth-Token = "YOUR_API_KEY_HERE"  # You need a free key from football-data.org
+  headers = {X-Auth-Token = "c24eb6d142cc4b42a529bed2b380d7db"}
+
+
+  [[redirects]]
+  from = "/fpl-api/*"
+  to = "https://fantasy.premierleague.com/api/:splat"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/fpl-api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+
+[[redirects]]
+  from = "/fpl-api/*"
+  to = "https://fantasy.premierleague.com/api/:splat"
+  status = 200
+  force = true
+
+
+  [build]
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
