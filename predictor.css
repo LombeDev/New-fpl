@@ -1,0 +1,261 @@
+/* * KOPALA FPL - MASTER STYLESHEET
+ * Optimized for Dark Mode & Real-time Dashboards
+ */
+
+:root {
+    --fpl-dark: #0d121d;
+    --fpl-card: #1e2736;
+    --fpl-green: #00ff85;
+    --fpl-red: #e90052;
+    --fpl-border: #242f3d;
+    --text-main: #ffffff;
+    --text-muted: #8a96a3;
+    --fpl-pitch: #008d4c;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, sans-serif;
+    background-color: var(--fpl-dark);
+    color: var(--text-main);
+    padding-bottom: 20px;
+}
+
+/* --- NAVIGATION --- */
+.main-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: #0d121d;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--fpl-border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: 0.2s;
+    flex: 1;
+}
+
+.nav-item.active {
+    color: white;
+}
+
+.nav-item.active::after {
+    content: '';
+    width: 20px;
+    height: 3px;
+    background: var(--fpl-green);
+    margin-top: 5px;
+    border-radius: 2px;
+}
+
+.nav-item span {
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-top: 4px;
+    text-transform: uppercase;
+}
+
+/* --- DASHBOARD HEADER --- */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    align-items: center;
+}
+
+.refresh-btn {
+    background: none;
+    border: none;
+    color: var(--fpl-green);
+    cursor: pointer;
+}
+
+/* --- STATUS CARDS (Arrow & Points) --- */
+.status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 15px;
+    margin-bottom: 20px;
+}
+
+.status-card {
+    background: white;
+    color: #333;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.arrow-card {
+    background: linear-gradient(135deg, #ffffff 0%, #e0fcf0 100%);
+}
+
+.arrow-indicator {
+    width: 30px;
+    height: 30px;
+    background: var(--fpl-green);
+    color: white;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-icon-small {
+    background: #242f3d;
+    color: white;
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    margin-bottom: 5px;
+}
+
+.status-label { font-size: 0.8rem; color: #666; margin: 0; }
+.status-detail { font-size: 0.85rem; color: #444; margin-top: 5px; }
+
+/* --- IMPACT SECTIONS (Differentials/Threats) --- */
+.impact-section {
+    margin-top: 15px;
+}
+
+.impact-header {
+    padding: 8px 15px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: #111;
+    display: flex;
+    align-items: center;
+}
+
+.diff-bg { background: linear-gradient(90deg, #8ed1fc 0%, #00ff85 100%); }
+.threat-bg { background: linear-gradient(90deg, #ff9b9b 0%, #ffeb3b 100%); }
+
+.impact-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    padding: 10px;
+    background: #f8f9fa;
+}
+
+.player-impact-card {
+    text-align: center;
+    background: white;
+    padding: 10px 5px;
+    border-radius: 4px;
+    color: #333;
+    position: relative;
+}
+
+.shirt-wrapper img { width: 35px; }
+
+.player-name-tag {
+    background: #242f3d;
+    color: white;
+    font-size: 0.6rem;
+    padding: 2px;
+    border-radius: 3px;
+    margin: 5px 0;
+}
+
+.impact-badge {
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.impact-badge.gain { background: #d4edda; color: #155724; }
+.impact-badge.loss { background: #fff3cd; color: #856404; }
+
+/* --- PRICE PREDICTOR TABLE --- */
+.price-header-card {
+    padding: 20px;
+    text-align: center;
+}
+
+.timer-badge {
+    background: var(--fpl-green);
+    color: #0d121d;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin-top: 10px;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+}
+
+.filter-controls input, .filter-controls select {
+    flex: 1;
+    background: var(--fpl-card);
+    border: 1px solid var(--fpl-border);
+    color: white;
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.table-container {
+    overflow-x: auto;
+    margin: 0 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--fpl-card);
+    border-radius: 8px;
+}
+
+th {
+    text-align: left;
+    padding: 15px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--fpl-border);
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid var(--fpl-border);
+}
+
+.live-badge {
+    background: var(--fpl-red);
+    color: white;
+    font-size: 0.6rem;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-weight: 800;
+}
+
+.rise-cell { color: var(--fpl-green); font-weight: bold; }
+.fall-cell { color: var(--fpl-red); font-weight: bold; }
+
+/* --- UTILS --- */
+.view-section {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
