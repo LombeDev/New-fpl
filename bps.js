@@ -1,9 +1,15 @@
 /**
  * KOPALA FPL - PRO MATCH CENTER (HIGH-FIDELITY VERSION)
  */
+
+// ADD THIS LINE TO FIX THE REFERENCE ERROR
+let refreshTimer; 
+
 async function updateLiveScores() {
     const container = document.getElementById('fixtures-container');
     if (!container) return;
+    
+    // This will now work because refreshTimer is defined above
     clearTimeout(refreshTimer);
 
     try {
@@ -76,7 +82,7 @@ async function updateLiveScores() {
                 </div>`;
         });
         
-        container.innerHTML = html;
+        container.innerHTML = html || '<div style="text-align:center; padding:20px; opacity:0.5;">No matches started yet.</div>';
     } catch (err) {
         console.error("Match Center Sync Error:", err);
     }
