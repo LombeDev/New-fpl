@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <style>
-        /* 1. THEME VARIABLES (For Dark Mode Logic) */
+        /* 1. THEME VARIABLES */
         :root {
             --bg-color: #ffffff;
             --card-bg: #ffffff;
@@ -20,7 +20,6 @@
             --fpl-pink: #e90052;
         }
 
-        /* Dark Mode Overrides */
         body.dark-mode {
             --bg-color: #121212;
             --card-bg: #1e1e1e;
@@ -68,14 +67,15 @@
             border-radius: 8px;
         }
 
-        .simple-login-card { text-align: left; }
         .form-group label {
             display: block;
             font-size: 0.9rem;
             font-weight: 600;
             color: var(--link-blue);
             margin-bottom: 10px;
+            text-align: left;
         }
+
         .form-group input {
             width: 100%;
             padding: 14px;
@@ -113,22 +113,8 @@
             box-sizing: border-box;
         }
         .drawer.open { right: 0; }
-        .drawer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-gray);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-        }
-        .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
 
-        /* 4. FIXTURES & EXPANSION */
+        /* 4. FIXTURES & MATCH CENTER */
         #fixtures-container {
             max-height: 70vh;
             overflow-y: auto;
@@ -136,60 +122,6 @@
             padding: 10px;
         }
 
-        .match-card-main {
-            display: flex;
-            background: #fff;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: 1px solid #eee;
-        }
-
-        .score-box-center {
-            background: #37003c;
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-weight: 900;
-            font-size: 0.9rem;
-            font-family: monospace;
-        }
-
-        .assist-badge {
-            background: var(--fpl-pink);
-            color: #fff;
-            font-size: 0.6rem;
-            font-weight: 900;
-            padding: 1px 4px;
-            border-radius: 2px;
-            margin-left: 4px;
-            display: inline-block;
-        }
-
-        .bonus-column {
-            flex: 1;
-            padding: 15px;
-            background: #fafafa;
-            border-left: 1px solid #eee;
-        }
-
-        .medal-icon {
-            width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            font-weight: 900;
-            font-size: 0.7rem;
-            color: #000;
-        }
-
-        .details-row td { background: #00563b !important; padding: 0 !important; }
-        .expansion-content { display: flex; padding: 15px; gap: 15px; color: white; }
-
-        /* TAB STYLING */
         .tab-btn {
             flex: 1;
             padding: 15px;
@@ -204,11 +136,29 @@
             color: var(--fpl-purple);
             border-bottom-color: var(--fpl-purple);
         }
+
+        /* MARKET TABLE STYLES */
+        .market-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 0.85rem;
+        }
+        .market-table th {
+            background: var(--fpl-purple);
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+        .market-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
     </style>
 </head>
 <body>
-    <button id="installBtn" style="display: none; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-      Install Our App
+    <button id="installBtn" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 99; padding: 10px; background: var(--link-blue); color: white; border: none; border-radius: 5px;">
+        Install App
     </button>
 
     <div id="login-screen">
@@ -218,7 +168,6 @@
                 <h1>KOPALA FPL</h1>
                 <p>Log in to track your live rank</p>
             </div>
-
             <div class="simple-login-card">
                 <div class="form-group">
                     <label for="team-id-input">Team ID*</label>
@@ -226,7 +175,7 @@
                 </div>
                 <button class="action-button" onclick="handleLogin()">Continue</button>
                 <div style="text-align: center; margin-top: 15px;">
-                    <a href="#" class="help-link" style="color: var(--link-blue); text-decoration: none; font-size: 0.9rem;">I don't know my team ID</a>
+                    <a href="#" style="color: var(--link-blue); text-decoration: none; font-size: 0.9rem;">I don't know my team ID</a>
                 </div>
             </div>
         </div>
@@ -259,14 +208,14 @@
 
         <nav class="main-tabs" style="display: flex; border-bottom: 1px solid var(--border-gray);">
             <button class="tab-btn active" id="tab-table" onclick="showView('table')">Table</button>
-            <button class="tab-btn" id="tab-pitch" onclick="showView('pitch'); if(typeof updateLiveScores === 'function') updateLiveScores();">Fixtures</button>
+            <button class="tab-btn" id="tab-pitch" onclick="showView('pitch')">Fixtures</button>
             <button class="tab-btn" id="tab-stats" onclick="showView('stats')">Market</button>
         </nav>
 
         <section id="table-view" class="view-content">
             <table class="live-table" style="width: 100%; border-collapse: collapse;">
                 <thead style="background: #f9f9f9; font-size: 0.8rem;">
-                    <tr><th>Rank</th><th>Team & Manager</th><th>Score</th><th>Total</th></tr>
+                    <tr><th style="padding:10px;">Rank</th><th>Team</th><th>GW</th><th>Total</th></tr>
                 </thead>
                 <tbody id="league-body"></tbody>
             </table>
@@ -277,65 +226,81 @@
             <div id="fixtures-container"></div>
         </section>
 
-        <section id="stats-view" class="view-content" style="background-color: #f8f8f8; display: none; padding-bottom: 50px;">
-            <div style="background: #37003c; color: white; padding: 12px; text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase;">
+        <section id="stats-view" class="view-content" style="background-color: #f8f8f8; display: none; padding: 15px;">
+            <div style="background: #37003c; color: white; padding: 12px; text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; margin: -15px -15px 15px -15px;">
                 Transfer Market Insights
             </div>
 
-            <div class="stats-card" style="background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px;">
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
                     <thead>
-                        <tr style="color: #666; text-align: right; border-bottom: 1px solid #eee;">
+                        <tr style="color: #666; border-bottom: 1px solid #eee;">
                             <th style="text-align: left; padding-bottom: 8px;">League Summary</th>
-                            <th>GW Score</th>
-                            <th>Hits</th>
-                            <th>Total</th>
+                            <th style="text-align: right;">GW</th>
+                            <th style="text-align: right;">Hits</th>
+                            <th style="text-align: right;">Total</th>
                         </tr>
                     </thead>
                     <tbody id="comparison-body" style="text-align: right; font-weight: bold;"></tbody>
                 </table>
             </div>
 
-            <div class="stats-card" style="background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px;">
                 <h3 style="font-size: 0.9rem; border-bottom: 2px solid var(--fpl-purple); padding-bottom: 5px; margin-top: 0;">Daily Price Changes</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
                     <div>
                         <h4 style="color: #00d46a; font-size: 0.7rem; margin-bottom: 5px;">TOP RISERS</h4>
-                        <ul id="risers-list" style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; line-height: 1.6;">
-                            <li style="color: #888;">No changes today</li>
-                        </ul>
+                        <ul id="risers-list" style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; line-height: 1.6;"></ul>
                     </div>
                     <div>
                         <h4 style="color: var(--fpl-pink); font-size: 0.7rem; margin-bottom: 5px;">TOP FALLERS</h4>
-                        <ul id="fallers-list" style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; line-height: 1.6;">
-                            <li style="color: #888;">No changes today</li>
-                        </ul>
+                        <ul id="fallers-list" style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; line-height: 1.6;"></ul>
                     </div>
                 </div>
             </div>
 
-            <div class="stats-card" style="background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <h3 style="font-size: 0.9rem; border-bottom: 2px solid var(--fpl-purple); padding-bottom: 5px; margin-top: 0;">Price Change Predictor</h3>
-                <div id="predictor-list" style="margin-top: 10px;">
-                    </div>
-                <p style="font-size: 0.6rem; color: #888; margin-top: 10px;">*Estimate based on net transfer activity in current 24h cycle.</p>
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <input type="text" id="playerSearch" placeholder="Search player..." style="flex: 2; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+                <select id="teamFilter" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+                    <option value="All">All Teams</option>
+                </select>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 5px;">
+                <span style="font-size: 0.75rem; font-weight: bold; color: var(--text-muted);">
+                    Price Change In: <span id="timer" style="color: var(--fpl-pink); font-family: monospace;">--:--:--</span>
+                </span>
+                <div id="loader" style="font-size: 0.7rem; color: #999; display: none;">Updating...</div>
+            </div>
+
+            <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow-x: auto;">
+                <table class="market-table">
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Team</th>
+                            <th>Target</th>
+                            <th>Predict</th>
+                            <th>%</th>
+                        </tr>
+                    </thead>
+                    <tbody id="predictor-body">
+                        </tbody>
+                </table>
             </div>
         </section>
     </div>
 
     <div id="settings-drawer" class="drawer">
-        <div class="drawer-header">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-gray); padding-bottom: 10px; margin-bottom: 20px;">
             <h2 style="margin: 0; font-size: 1.2rem;">Settings</h2>
-            <button onclick="toggleSettings()" style="background:none; border:none; font-size: 1.2rem; cursor:pointer;">✕</button>
+            <button onclick="toggleSettings()" style="background:none; border:none; font-size: 1.2rem;">✕</button>
         </div>
-        <div class="drawer-content">
-            <div class="setting-item">
-                <span>Dark Mode</span>
-                <input type="checkbox" id="dark-mode-toggle" onchange="handleDarkModeToggle()">
-            </div>
-            <hr style="border: 0; border-top: 1px solid var(--border-gray); margin: 20px 0;">
-            <button onclick="resetApp()" style="width: 100%; padding: 12px; background: #ff4d4d; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Logout / Change ID</button>
+        <div class="setting-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <span>Dark Mode</span>
+            <input type="checkbox" id="dark-mode-toggle" onchange="handleDarkModeToggle()">
         </div>
+        <button onclick="resetApp()" style="width: 100%; padding: 12px; background: #ff4d4d; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Logout / Change ID</button>
     </div>
 
     <div id="drawer-overlay" onclick="toggleSettings()" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; z-index:999;"></div>
