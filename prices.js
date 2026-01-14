@@ -1,74 +1,91 @@
 /**
- * KOPALA FPL - Deadline Engine Only
+ * KOPALA FPL - Deadline Engine
+ * Focus: Correct GW Detection & Countdown
  */
 
 const API_URL = "/api/fpl/bootstrap-static/"; 
+let deadlineInterval; // To clear the timer if needed
 
 /**
- * Fetches data and updates the deadline banner
+ * 1. MAIN INITIALIZER
  */
 async function refreshDashboard() {
-    console.log("Attempting to fetch deadline data...");
-    
     try {
         const response = await fetch(API_URL);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         
-        if (!response.ok) {
-            throw new Error(`HTTP Error: ${response.status}`);
+        const data = await response.json();
+        
+        // Find the next Gameweek
+        const nextGw = data.events.find(event => event.is_next);
+        
+        if (nextGw) {
+            startDeadlineCountdown(nextGw);
+        } else {
+            document.getElementById('deadline-timer').innerText = "Season Finished or Updating";
         }
 
-        const data = await response.json();
-        console.log("Data received successfully:", data);
-
-        updateDeadline(data);
-
     } catch (e) {
-        console.error("Fetch failed:", e.message);
-        document.getElementById('deadline-timer').innerText = "Error loading deadline";
+        console.error("Deadline Fetch Failed:", e);
+        document.getElementById('deadline-timer').innerText = "⚠️ Offline";
     }
 }
 
 /**
- * Finds the next Gameweek and displays the deadline
+ * 2. COUNTDOWN LOGIC
+ * Updates the UI every second with time remaining
  */
-function updateDeadline(data) {
-    // Find the event where 'is_next' is true
-    const nextGw = data.events.find(event => event.is_next);
+function startDeadlineCountdown(gwData) {
+    const deadlineTime = new Date(gwData.deadline_time).getTime();
     const timerEl = document.getElementById('deadline-timer');
 
-    if (nextGw && timerEl) {
-        const deadlineDate = new Date(nextGw.deadline_time);
-        
-        // Format: "Fri 14 Jan, 20:30"
-        const options = { 
-            weekday: 'short', 
-            day: 'numeric', 
-            month: 'short', 
-            hour: '2-digit', 
-            minute: '2-digit' 
-        };
-        
-        const formattedDate = deadlineDate.toLocaleDateString('en-GB', options);
-        
-        timerEl.innerText = `${nextGw.name}: ${formattedDate}`;
-        console.log("Deadline updated to:", formattedDate);
-    } else {
-        console.warn("Could not find the next Gameweek in the data.");
-    }
+    // Clear any existing interval
+    if (deadlineInterval) clearInterval(deadlineInterval);
+
+    deadlineInterval = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = deadlineTime - now;
+
+        if (distance < 0) {
+            clearInterval(deadlineInterval);
+            timerEl.innerText = `${gwData.name} Passed`;
+            return;
+        }
+
+        // Calculations for days, hours, minutes
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+        // Format string: "GW18: 2d 04h 20m"
+        timerEl.innerText = `${gwData.name}: ${days}d ${hours}h ${minutes}m`;
+    }, 1000);
 }
 
 /**
- * LOGIN TRIGGER
- * This is what connects your button to the code
+ * 3. UI HANDLERS
  */
 function handleLogin() {
     const teamId = document.getElementById('team-id-input').value;
-    if (!teamId) return alert("Please enter a Team ID");
+    if (!teamId) return alert("Please enter your Team ID");
 
-    // Hide login, show dashboard
+    // Transition UI
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
 
-    // Run the deadline fetch
+    // Run the feature
     refreshDashboard();
+}
+
+// Global reset function (for your Logout button)
+function resetApp() {
+    location.reload();
+}
+
+// Helper for the settings drawer toggle
+function toggleSettings() {
+    const drawer = document.getElementById('settings-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+    drawer.classList.toggle('open');
+    overlay.style.display = drawer.classList.contains('open') ? 'block' : 'none';
 }
