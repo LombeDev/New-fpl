@@ -1,6 +1,6 @@
 /**
- * KOPALA FPL - MASTER CORE SCRIPT (COMPLETE)
- * Includes: Anti-Cache, FFH-Style Skeleton Loading, Circular Faces, and Smooth Animations
+ * KOPALA FPL - MASTER CORE SCRIPT
+ * Version: 2.0 (Red Theme + Validation + Telegram Dark Mode)
  */
 
 const state = {
@@ -10,25 +10,32 @@ const state = {
     currentGW: 1, 
 };
 
+// Ensure this matches your netlify.toml redirect path
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 
 /**
- * 1. INITIALIZATION
+ * 1. INITIALIZATION & ROUTING
  */
 document.addEventListener('DOMContentLoaded', async () => {
+    // Handle Theme Persistence
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
         const darkToggle = document.getElementById('dark-mode-toggle');
         if (darkToggle) darkToggle.checked = true;
     }
 
+    // Load static data (players, teams, current GW)
     await initAppData();
 
+    // Route: Dashboard or Login
     if (state.fplId) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         showView(state.activeView);
         await fetchManagerData();
+    } else {
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('dashboard').style.display = 'none';
     }
 });
 
@@ -39,8 +46,10 @@ async function initAppData() {
     try {
         const cb = `&t=${Date.now()}`;
         const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/${cb}`);
+        if (!res.ok) throw new Error("API Offline");
         const data = await res.json();
         
+        // Map players for quick lookup
         data.elements.forEach(p => {
             state.playerMap[p.id] = { 
                 name: p.web_name, 
@@ -49,13 +58,59 @@ async function initAppData() {
             };
         });
 
+        // Determine current Gameweek
         const activeGW = data.events.find(e => e.is_current) || data.events.find(e => !e.finished);
-        if (activeGW) state.currentGW = activeGW.id;
-    } catch (e) { console.error("Bootstrap error", e); }
+        if (activeGW) {
+            state.currentGW = activeGW.id;
+            const timerEl = document.getElementById('deadline-timer');
+            if (timerEl) timerEl.textContent = activeGW.name;
+        }
+    } catch (e) { 
+        console.error("Bootstrap error:", e); 
+    }
 }
 
 /**
- * 3. LEAGUE & MANAGER DATA
+ * 3. VALIDATED LOGIN
+ */
+async function handleLogin() {
+    const input = document.getElementById('team-id-input');
+    const loginBtn = document.querySelector('.action-button');
+    const teamId = input.value.trim();
+
+    // Basic Validation
+    if (!teamId || isNaN(teamId)) {
+        input.classList.add('input-error');
+        alert("Please enter a valid numeric Team ID.");
+        return;
+    }
+
+    // UI Feedback
+    const originalText = loginBtn.innerText;
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = `Verifying ID...`;
+
+    try {
+        const cb = `&t=${Date.now()}`;
+        const res = await fetch(`${PROXY_ENDPOINT}entry/${teamId}/${cb}`);
+        
+        if (!res.ok) throw new Error("ID Not Found");
+
+        // Success: Save and Reload
+        localStorage.clear();
+        localStorage.setItem('kopala_fpl_id', teamId);
+        window.location.href = window.location.pathname + '?v=' + Date.now();
+
+    } catch (error) {
+        alert("Invalid Team ID. Please check and try again.");
+        loginBtn.disabled = false;
+        loginBtn.innerText = originalText;
+        input.classList.add('input-error');
+    }
+}
+
+/**
+ * 4. LEAGUE STANDINGS
  */
 async function fetchManagerData() {
     try {
@@ -67,6 +122,7 @@ async function fetchManagerData() {
         document.getElementById('disp-total').textContent = data.summary_overall_points.toLocaleString();
         document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
 
+        // Populate Private Leagues Select
         const invitational = data.leagues.classic.filter(l => l.league_type === 'x');
         const select = document.getElementById('league-select');
         
@@ -79,7 +135,7 @@ async function fetchManagerData() {
 
 async function changeLeague(leagueId) {
     const body = document.getElementById('league-body');
-    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;" class="loading-pulse">Updating Standings...</td></tr>';
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px;" class="loading-pulse">Syncing Standings...</td></tr>';
 
     try {
         const cb = `&t=${Date.now()}`;
@@ -87,6 +143,7 @@ async function changeLeague(leagueId) {
         const data = await res.json();
         const standings = data.standings.results;
 
+        // Fetch Captains for the top managers
         const allPicks = await batchFetchCaptains(standings);
 
         body.innerHTML = standings.map((r, index) => {
@@ -100,15 +157,15 @@ async function changeLeague(leagueId) {
                     <td style="font-weight: bold;"><span style="color:${arrowColor}">${arrow}</span> ${r.rank}</td>
                     <td>
                         <div class="manager-info-stack">
-                            <div class="manager-entry-name" style="font-weight:800; color:#37003c;">${r.entry_name}</div>
-                            <div class="manager-real-name" style="font-size:0.75rem; color:#666;">${r.player_name}</div>
+                            <div class="manager-entry-name" style="font-weight:800; color:var(--text-main);">${r.entry_name}</div>
+                            <div class="manager-real-name" style="font-size:0.75rem; color:var(--text-muted);">${r.player_name}</div>
                             <div class="captain-name-row" style="font-size:0.7rem; margin-top:4px; display:flex; align-items:center;">
-                                <span class="cap-badge" style="background:#e90052; color:white; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; font-size:0.5rem; margin-right:4px; font-weight:bold;">C</span> 
-                                <span style="font-weight:600;">${captainName}</span>
+                                <span class="cap-badge" style="background:var(--fpl-red); color:white; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; font-size:0.5rem; margin-right:4px; font-weight:bold;">C</span> 
+                                <span style="font-weight:600; color:var(--text-main);">${captainName}</span>
                             </div>
                         </div>
                     </td>
-                    <td style="text-align:center; font-weight:800;">${r.event_total}</td>
+                    <td style="text-align:center; font-weight:800; color:var(--fpl-red);">${r.event_total}</td>
                     <td style="text-align:right; font-weight:600;">${r.total.toLocaleString()}</td>
                 </tr>
             `;
@@ -127,13 +184,13 @@ async function batchFetchCaptains(standings) {
             .then(res => res.json()).catch(() => null)
         ));
         results = [...results, ...batchRes];
-        if (i + batchSize < standings.length) await new Promise(r => setTimeout(r, 200));
+        await new Promise(r => setTimeout(r, 100));
     }
     return results;
 }
 
 /**
- * 4. SQUAD EXPANSION (With Skeleton Loader & Auto-Scroll)
+ * 5. SQUAD EXPANSION
  */
 async function toggleManagerExpansion(entryId) {
     const row = document.getElementById(`row-${entryId}`);
@@ -148,13 +205,13 @@ async function toggleManagerExpansion(entryId) {
     detailRow.id = `details-${entryId}`;
     detailRow.className = 'details-row';
     
-    // Skeleton Loader (FFH Style)
+    // Skeleton Loader
     detailRow.innerHTML = `
-        <td colspan="4" style="background: #fff; padding: 25px;">
+        <td colspan="4" style="background: var(--card-bg); padding: 30px;">
             <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
                 <div class="skeleton-loader loading-ball"></div>
                 <div class="skeleton-loader loading-text"></div>
-                <div style="font-size:0.6rem; color:#999; font-weight:bold; letter-spacing:1px;">FETCHING LIVE DATA</div>
+                <div style="font-size:0.6rem; color:var(--text-muted); font-weight:bold; letter-spacing:1px;">FETCHING PITCH DATA</div>
             </div>
         </td>
     `;
@@ -192,13 +249,13 @@ async function toggleManagerExpansion(entryId) {
                 
                 <div class="manager-stats-footer">
                     <div class="stats-grid">
-                        <div style="border-right: 1px solid #ddd; padding-right: 10px;">
-                            <div class="stat-item"><span>GW Hits:</span> <span style="color:var(--fpl-pink); font-weight:800;">-${picksData.entry_history.event_transfers_cost}</span></div>
-                            <div class="stat-item"><span>Bank:</span> <span style="font-weight:800;">£${(picksData.entry_history.bank / 10).toFixed(1)}m</span></div>
+                        <div style="border-right: 1px solid var(--border-color); padding-right: 10px;">
+                            <div style="font-size:0.75rem;">Hits: <span style="color:var(--fpl-red); font-weight:800;">-${picksData.entry_history.event_transfers_cost}</span></div>
+                            <div style="font-size:0.75rem;">Bank: <span style="font-weight:800; color:var(--text-main);">£${(picksData.entry_history.bank / 10).toFixed(1)}m</span></div>
                         </div>
                         <div style="padding-left: 10px;">
-                            <div class="stat-item"><span>Season Trfs:</span> <span style="font-weight:800;">${historyData.current.reduce((acc, curr) => acc + curr.event_transfers, 0)}</span></div>
-                            <div class="stat-item"><span>Net Pts:</span> <span style="font-weight:800; color:var(--fpl-purple); background:var(--fpl-green); padding:0 4px; border-radius:2px;">${picksData.entry_history.points - picksData.entry_history.event_transfers_cost}</span></div>
+                            <div style="font-size:0.75rem;">GW Net: <span style="font-weight:800; color:var(--fpl-red);">${picksData.entry_history.points - picksData.entry_history.event_transfers_cost}</span></div>
+                            <div style="font-size:0.75rem;">Overall: <span style="font-weight:800; color:var(--text-main);">${picksData.entry_history.total_points.toLocaleString()}</span></div>
                         </div>
                     </div>
                     
@@ -212,11 +269,10 @@ async function toggleManagerExpansion(entryId) {
             </td>
         `;
 
-        // Smooth scroll to the expanded squad
         detailRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     } catch (e) { 
-        detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:15px; color:red;">Connection Error. Please try again.</td>`; 
+        detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:15px; color:var(--fpl-red);">Fetch Failed.</td>`; 
     }
 }
 
@@ -238,14 +294,14 @@ function renderChip(label, usedChips, chipName) {
     const isUsed = usedChips.some(c => c.name === chipName);
     return `
         <div>
-            <div class="chip-icon ${isUsed ? 'used' : ''}">${label}</div>
-            <div class="chip-label">${isUsed ? 'USED' : 'AVAIL'}</div>
+            <div class="chip-circle ${isUsed ? 'used' : ''}">${label}</div>
+            <div style="font-size:0.55rem; font-weight:bold; text-align:center; color:var(--text-muted);">${isUsed ? 'USED' : 'AVAIL'}</div>
         </div>
     `;
 }
 
 /**
- * 5. UI & PERSISTENCE
+ * 6. SETTINGS & UTILS
  */
 function showView(view) {
     state.activeView = view;
@@ -256,49 +312,19 @@ function showView(view) {
     document.getElementById('tab-pitch').classList.toggle('active', view === 'pitch');
 }
 
-async function handleLogin() {
-    const id = document.getElementById('team-id-input').value;
-    if (!id) return alert("Enter Team ID");
-    localStorage.clear();
-    localStorage.setItem('kopala_fpl_id', id);
-    window.location.href = window.location.pathname + '?v=' + Date.now();
-}
-
-function resetApp() {
-    if(confirm("Logout?")) { 
-        localStorage.clear(); 
-        window.location.href = window.location.pathname + '?v=' + Date.now();
-    }
-}
-
 function handleDarkModeToggle() {
     const isDark = document.body.classList.toggle('dark-mode');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
-
-/**
- * 6. SETTINGS DRAWER & UI EXTRAS
- */
 function toggleSettings() {
-    const drawer = document.querySelector('.drawer');
-    if (drawer) {
-        drawer.classList.toggle('open');
-    } else {
-        // Fallback if drawer class isn't found
-        const settingsSection = document.getElementById('settings-drawer');
-        if (settingsSection) settingsSection.classList.toggle('open');
-    }
+    const drawer = document.getElementById('settings-drawer');
+    drawer.classList.toggle('open');
 }
 
-// Close drawer if user clicks outside of it
-document.addEventListener('click', (e) => {
-    const drawer = document.querySelector('.drawer');
-    const settingsBtn = document.querySelector('.settings-btn'); // Or whatever your gear icon class is
-    
-    if (drawer && drawer.classList.contains('open')) {
-        if (!drawer.contains(e.target) && !e.target.closest('button')) {
-            drawer.classList.remove('open');
-        }
+function resetApp() {
+    if(confirm("Logout and switch Team ID?")) { 
+        localStorage.clear(); 
+        window.location.href = window.location.pathname + '?v=' + Date.now();
     }
-});
+}
