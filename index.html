@@ -7,25 +7,32 @@
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <style>
-        /* 1. THEME VARIABLES */
+        /* 1. THEME VARIABLES (Material You & Telegram Harmonized) */
         :root {
-            --bg-color: #ffffff;
+            --bg-color: #f3f3f5;
             --card-bg: #ffffff;
             --text-main: #1a1a1a;
-            --text-muted: #666;
-            --border-gray: #e1e1e1;
+            --text-muted: #707579;
+            --border-gray: #dfe1e5;
             --fpl-purple: #37003c;
             --fpl-green: #00ff85;
-            --link-blue: #00a2ed;
+            --link-blue: #0088cc; /* Telegram Blue */
             --fpl-pink: #e90052;
+            
+            /* Material 3 Radius Tokens */
+            --radius-large: 28px;
+            --radius-medium: 16px;
+            --radius-full: 100px;
         }
 
         body.dark-mode {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-main: #f0f0f0;
-            --text-muted: #aaa;
-            --border-gray: #333;
+            --bg-color: #1c242d;    /* Telegram Dark Bg */
+            --card-bg: #242f3d;     /* Telegram Dark Card */
+            --text-main: #ffffff;
+            --text-muted: #869099;
+            --border-gray: #171e28;
+            --fpl-purple: #00ff85;  /* Invert: Green is more readable as primary in dark mode */
+            --fpl-green: #37003c;
         }
 
         body {
@@ -34,94 +41,113 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            transition: background 0.3s ease;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
-        /* 2. CENTERED LOGIN SCREEN */
+        /* 2. CENTERED LOGIN SCREEN (Material 3 Style) */
         #login-screen {
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
             min-height: 100vh;
-            padding: 20px;
-            box-sizing: border-box;
+        }
+
+        .brand-header {
+            background: #37003c; /* Always purple header */
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
         }
 
         .login-wrapper {
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
+            margin: -50px auto 0; /* Pull card up into header */
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .simple-login-card {
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: var(--radius-large);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             text-align: center;
         }
 
         .brand-logo {
-            width: 64px;
-            height: 64px;
-            background: var(--fpl-purple);
-            color: var(--fpl-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.2rem;
-            font-weight: 900;
-            margin: 0 auto 24px;
-            border-radius: 8px;
+            width: 64px; height: 64px;
+            background: #e90052; /* FPL Pink for the logo spot */
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; font-weight: 900;
+            margin: 0 auto 15px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(233, 0, 82, 0.3);
         }
 
         .form-group label {
             display: block;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--link-blue);
-            margin-bottom: 10px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            margin-bottom: 8px;
             text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 14px;
-            border: 1px solid var(--border-gray);
-            border-radius: 10px;
-            background: var(--card-bg);
+            padding: 16px;
+            border: 2px solid var(--border-gray);
+            border-radius: var(--radius-medium);
+            background: var(--bg-color);
             color: var(--text-main);
             box-sizing: border-box;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: #e90052;
         }
 
         .action-button {
             width: 100%;
             padding: 16px;
-            background: #00d46a;
-            color: var(--fpl-purple);
+            background: #e90052;
+            color: white;
             border: none;
-            border-radius: 10px;
-            font-weight: 700;
+            border-radius: var(--radius-full);
+            font-weight: 800;
+            font-size: 1rem;
             cursor: pointer;
             margin-top: 20px;
+            transition: transform 0.1s, opacity 0.2s;
         }
 
-        /* 3. SETTINGS DRAWER */
+        .action-button:active {
+            transform: scale(0.97);
+        }
+
+        /* 3. SETTINGS DRAWER (M3 Style) */
         .drawer {
             position: fixed;
-            top: 0;
-            right: -300px;
+            top: 10px; right: -320px;
             width: 300px;
-            height: 100%;
+            height: calc(100% - 20px);
             background: var(--card-bg);
-            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
             z-index: 1000;
-            transition: right 0.3s ease;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             padding: 24px;
             box-sizing: border-box;
+            border-radius: var(--radius-large) 0 0 var(--radius-large);
         }
         .drawer.open { right: 0; }
 
-        /* 4. FIXTURES & MATCH CENTER */
-        #fixtures-container {
-            max-height: 70vh;
-            overflow-y: auto;
-            background: var(--card-bg);
-            padding: 10px;
-        }
-
+        /* 4. TABS & CONTENT */
         .tab-btn {
             flex: 1;
             padding: 15px;
@@ -131,186 +157,84 @@
             color: var(--text-muted);
             cursor: pointer;
             border-bottom: 3px solid transparent;
+            transition: 0.3s;
         }
         .tab-btn.active {
-            color: var(--fpl-purple);
-            border-bottom-color: var(--fpl-purple);
+            color: #e90052;
+            border-bottom-color: #e90052;
         }
 
-        /* MARKET TABLE STYLES */
-        .market-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            font-size: 0.85rem;
-        }
-        .market-table th {
-            background: var(--fpl-purple);
-            color: white;
-            padding: 10px;
-            text-align: left;
-        }
-        .market-table td {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+        /* Market / Table Elements */
+        .live-table th {
+            background: var(--bg-color);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            padding: 15px 10px;
         }
     </style>
 </head>
 <body>
-    <button id="installBtn" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 99; padding: 10px; background: var(--link-blue); color: white; border: none; border-radius: 5px;">
+    <button id="installBtn" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 99; padding: 12px 20px; background: var(--link-blue); color: white; border: none; border-radius: var(--radius-full); font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
         Install App
     </button>
 
     <div id="login-screen">
+        <div class="brand-header">
+            <h1 style="margin:0; font-size: 2.2rem; font-weight: 900; letter-spacing: -1px;">KOPALA FPL</h1>
+            <p style="opacity: 0.8; font-weight: 500;">Live Rank & Market Insights</p>
+        </div>
+
         <div class="login-wrapper">
-            <div class="brand-header">
-                <div class="brand-logo">K</div>
-                <h1>KOPALA FPL</h1>
-                <p>Log in to track your live rank</p>
-            </div>
             <div class="simple-login-card">
+                <div class="brand-logo">K</div>
                 <div class="form-group">
-                    <label for="team-id-input">Team ID*</label>
-                    <input type="number" id="team-id-input" placeholder="Enter your ID">
+                    <label for="team-id-input">Manager Team ID</label>
+                    <input type="number" id="team-id-input" placeholder="e.g. 550421">
                 </div>
                 <button class="action-button" onclick="handleLogin()">Continue</button>
-                <div style="text-align: center; margin-top: 15px;">
+                
+                <div style="text-align: center; margin-top: 20px;">
                     <a href="https://www.youtube.com/watch?v=5vXiVHdyxuY" 
-   target="_blank" 
-   style="color: var(--link-blue); text-decoration: none; font-size: 0.9rem;">
-   I don't know my team ID
-</a>
+                       target="_blank" 
+                       style="color: var(--link-blue); text-decoration: none; font-size: 0.85rem; font-weight: 700;">
+                        Help: How to find my ID?
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="dashboard" style="display:none;">
-        <div id="deadline-banner" style="background: var(--fpl-green); color: var(--fpl-purple); padding: 8px; text-align: center; font-size: 0.8rem; font-weight: 800; text-transform: uppercase;">
-            ⏳ Next Deadline: <span id="deadline-timer">Loading...</span>
+        <div id="deadline-banner" style="background: var(--fpl-green); color: #37003c; padding: 10px; text-align: center; font-size: 0.75rem; font-weight: 900; text-transform: uppercase;">
+            ⏳ Deadline: <span id="deadline-timer">--:--:--</span>
         </div>
 
-        <header class="app-header" style="padding: 15px; border-bottom: 1px solid var(--border-gray); display: flex; justify-content: space-between; align-items: center;">
-            <div class="selector-wrapper">
-                <select id="league-select" onchange="changeLeague(this.value)" style="padding: 8px; border-radius: 5px;"></select>
-            </div>
+        <header class="app-header" style="padding: 15px; background: var(--card-bg); border-bottom: 1px solid var(--border-gray); display: flex; justify-content: space-between; align-items: center;">
+            <select id="league-select" onchange="changeLeague(this.value)" style="padding: 8px; border-radius: 8px; background: var(--bg-color); color: var(--text-main); border: 1px solid var(--border-gray);"></select>
             <div class="header-actions">
-                <button onclick="toggleSettings()" style="background:none; border:none; font-size: 1.2rem; cursor:pointer;">⚙️</button>
-                <button onclick="location.reload()" style="background:var(--fpl-purple); color:white; border:none; padding: 8px 12px; border-radius: 5px; cursor:pointer;">Update</button>
+                <button onclick="toggleSettings()" style="background:none; border:none; font-size: 1.4rem; cursor:pointer;">⚙️</button>
             </div>
         </header>
 
-        <div class="manager-stats-bar" style="padding: 20px; text-align: center;">
-            <h2 id="disp-name" style="margin: 0;">Loading...</h2>
-            <div style="font-size: 1.5rem; font-weight: 800; color: var(--fpl-purple);"><span id="disp-gw">0</span> <small style="font-size: 0.8rem;">GW Pts</small></div>
-            <div class="stat-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; margin-top: 15px; gap: 10px;">
-                <div class="stat-item"><label style="display:block; font-size: 0.7rem; opacity: 0.6;">Rank</label><span id="disp-rank">N/A</span></div>
-                <div class="stat-item"><label style="display:block; font-size: 0.7rem; opacity: 0.6;">Total</label><span id="disp-total">0</span></div>
-                <div class="stat-item"><label style="display:block; font-size: 0.7rem; opacity: 0.6;">Transfers</label><span id="disp-transfers">0</span></div>
-            </div>
         </div>
-
-        <nav class="main-tabs" style="display: flex; border-bottom: 1px solid var(--border-gray);">
-            <button class="tab-btn active" id="tab-table" onclick="showView('table')">Table</button>
-            <button class="tab-btn" id="tab-pitch" onclick="showView('pitch')">Fixtures</button>
-            <button class="tab-btn" id="tab-stats" onclick="showView('stats')">Market</button>
-        </nav>
-
-        <section id="table-view" class="view-content">
-            <table class="live-table" style="width: 100%; border-collapse: collapse;">
-                <thead style="background: #f9f9f9; font-size: 0.8rem;">
-                    <tr><th style="padding:10px;">Rank</th><th>Team</th><th>GW</th><th>Total</th></tr>
-                </thead>
-                <tbody id="league-body"></tbody>
-            </table>
-        </section>
-
-        <section id="pitch-view" style="display:none;" class="view-content">
-            <div style="background: var(--fpl-purple); color: white; padding: 12px; text-align: center; font-weight: 800; font-size: 0.7rem; text-transform: uppercase;">Match Center</div>
-            <div id="fixtures-container"></div>
-        </section>
-
-        <section id="stats-view" class="view-content" style="background-color: #f8f8f8; display: none; padding: 15px;">
-            <div style="background: #37003c; color: white; padding: 12px; text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; margin: -15px -15px 15px -15px;">
-                Transfer Market Insights
-            </div>
-
-            <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
-                    <thead>
-                        <tr style="color: #666; border-bottom: 1px solid #eee;">
-                            <th style="text-align: left; padding-bottom: 8px;">League Summary</th>
-                            <th style="text-align: right;">GW</th>
-                            <th style="text-align: right;">Hits</th>
-                            <th style="text-align: right;">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="comparison-body" style="text-align: right; font-weight: bold;"></tbody>
-                </table>
-            </div>
-
-            <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px;">
-                <h3 style="font-size: 0.9rem; border-bottom: 2px solid var(--fpl-purple); padding-bottom: 5px; margin-top: 0;">Daily Price Changes</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
-                    <div>
-                        <h4 style="color: #00d46a; font-size: 0.7rem; margin-bottom: 5px;">TOP RISERS</h4>
-                        <ul id="risers-list" style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; line-height: 1.6;"></ul>
-                    </div>
-                    <div>
-                        <h4 style="color: var(--fpl-pink); font-size: 0.7rem; margin-bottom: 5px;">TOP FALLERS</h4>
-                        <ul id="fallers-list" style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; line-height: 1.6;"></ul>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                <input type="text" id="playerSearch" placeholder="Search player..." style="flex: 2; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
-                <select id="teamFilter" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
-                    <option value="All">All Teams</option>
-                </select>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 5px;">
-                <span style="font-size: 0.75rem; font-weight: bold; color: var(--text-muted);">
-                    Price Change In: <span id="timer" style="color: var(--fpl-pink); font-family: monospace;">--:--:--</span>
-                </span>
-                <div id="loader" style="font-size: 0.7rem; color: #999; display: none;">Updating...</div>
-            </div>
-
-            <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow-x: auto;">
-                <table class="market-table">
-                    <thead>
-                        <tr>
-                            <th>Player</th>
-                            <th>Team</th>
-                            <th>Target</th>
-                            <th>Predict</th>
-                            <th>%</th>
-                        </tr>
-                    </thead>
-                    <tbody id="predictor-body">
-                        </tbody>
-                </table>
-            </div>
-        </section>
-    </div>
 
     <div id="settings-drawer" class="drawer">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-gray); padding-bottom: 10px; margin-bottom: 20px;">
-            <h2 style="margin: 0; font-size: 1.2rem;">Settings</h2>
-            <button onclick="toggleSettings()" style="background:none; border:none; font-size: 1.2rem;">✕</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-gray); padding-bottom: 15px; margin-bottom: 20px;">
+            <h2 style="margin: 0; font-size: 1.2rem; font-weight: 800;">Settings</h2>
+            <button onclick="toggleSettings()" style="background:none; border:none; font-size: 1.5rem; cursor:pointer;">✕</button>
         </div>
-        <div class="setting-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <span>Dark Mode</span>
+        <div class="setting-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <span style="font-weight: 600;">Dark Mode</span>
             <input type="checkbox" id="dark-mode-toggle" onchange="handleDarkModeToggle()">
         </div>
-        <button onclick="resetApp()" style="width: 100%; padding: 12px; background: #ff4d4d; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Logout / Change ID</button>
+        <button onclick="resetApp()" style="width: 100%; padding: 14px; background: #ff4d4d; color: white; border: none; border-radius: var(--radius-medium); font-weight: 700; cursor: pointer;">Logout</button>
     </div>
 
-    <div id="drawer-overlay" onclick="toggleSettings()" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; z-index:999;"></div>
+    <div id="drawer-overlay" onclick="toggleSettings()" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); display:none; z-index:999; backdrop-filter: blur(2px);"></div>
 
     <script src="script.js"></script>
     <script src="bps.js"></script>
-
 </body>
 </html>
