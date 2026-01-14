@@ -264,6 +264,26 @@ async function toggleManagerExpansion(entryId) {
             </td>
         `;
 
+
+
+
+        /**
+ * SETTINGS DRAWER TOGGLE
+ * This function opens/closes the settings menu
+ */
+function toggleSettings() {
+    const drawer = document.getElementById('settings-drawer');
+    if (drawer) {
+        drawer.classList.toggle('open');
+        console.log("Settings drawer toggled");
+    } else {
+        // If you haven't built the drawer yet, we can use a simple alert or log
+        console.warn("Settings drawer element (#settings-drawer) not found in HTML.");
+        // Optional: fallback to a standard logout/reset if no drawer exists
+        resetApp(); 
+    }
+}
+
     } catch (e) { 
         detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:15px; color:var(--fpl-red);">Fetch Failed.</td>`; 
     }
