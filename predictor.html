@@ -6,145 +6,53 @@
     <title>KOPALA FPL - Master Dashboard</title>
     <link rel="stylesheet" href="predictor.css">
 </head>
-<body class="dark-mode">
 
-    <nav class="main-nav">
-        <div class="nav-item active" onclick="showView('table')">
-            <div class="nav-icon">📈</div>
-            <span>Rank</span>
-        </div>
-        <div class="nav-item" onclick="showView('leagues')">
-            <div class="nav-icon">🏆</div>
-            <span>Leagues</span>
-        </div>
-        <div class="nav-item" onclick="showView('prices')">
-            <div class="nav-icon">💲</div>
-            <span>Prices</span>
-        </div>
-        <div class="nav-item" onclick="showView('planner')">
-            <div class="nav-icon">📅</div>
-            <span>Planner</span>
-        </div>
-        <div class="nav-item" onclick="showView('games')">
-            <div class="nav-icon">⚽</div>
-            <span>Games</span>
-        </div>
-        <div class="nav-item" onclick="showView('statistics')">
-            <div class="nav-icon">📊</div>
-            <span>Statistics</span>
-        </div>
-    </nav>
 
-    <div id="login-screen" class="login-container">
-        <div class="login-box">
-            <h1>KOPALA FPL</h1>
-            <p>Enter your FPL Team ID to sync</p>
-            <input type="number" id="team-id-input" placeholder="Team ID (e.g. 12345)">
-            <button class="enter-id-btn" onclick="handleLogin()">SYNC DATA</button>
+
+<div id="prices-view" class="view-section">
+    <div class="price-header-card">
+        <h3>LiveFPL Price Change Predictor</h3>
+        <div class="countdown-container">
+            <span>Next price change countdown:</span>
+            <div id="timer" class="timer-badge">00h 00m 00s</div>
         </div>
     </div>
 
-    <main id="dashboard" style="display: none;">
-        
-        <div id="table-view" class="view-section">
-            <div class="dashboard-header">
-                <div class="manager-meta">
-                    <h2 id="disp-name">Manager Name</h2>
-                    <p>Overall Rank: <span id="disp-rank">0</span></p>
-                </div>
-                <button class="refresh-btn" onclick="refreshLiveScores()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="refresh-icon">
-                        <path d="M23 4v6h-6"></path>
-                        <path d="M1 20v-6h6"></path>
-                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                    </svg>
-                </button>
-            </div>
+    <div class="info-banner">
+        <p>+100% means predicted rise, -100% means predicted fall</p>
+    </div>
 
-            <div class="status-grid">
-                <div class="status-card arrow-card">
-                    <div id="rank-arrow" class="arrow-indicator">▲</div>
-                    <p>You're on a</p>
-                    <h3 id="arrow-status-text">GREEN ARROW</h3>
-                    <p class="margin-text">Margin: <span id="disp-margin">--</span> points 👏</p>
-                </div>
-                <div class="status-card points-box">
-                    <div class="status-icon-small">🔢</div>
-                    <p class="status-label">Gameweek points</p>
-                    <h2 id="disp-gw">0 points</h2>
-                    <p class="status-detail">Safety Score: 55 points 🚀</p>
-                </div>
-            </div>
-
-            <div class="impact-section">
-                <div class="impact-header diff-bg">🎲 DIFFERENTIALS</div>
-                <div id="diffs-list" class="impact-grid"></div>
-            </div>
-
-            <div class="impact-section">
-                <div class="impact-header threat-bg">⚠️ THREATS</div>
-                <div id="threats-list" class="impact-grid"></div>
-            </div>
-
-            <div class="league-container">
-                <div class="league-select-wrap">
-                    <select id="league-select" onchange="changeLeague(this.value)"></select>
-                </div>
-                <table id="league-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Manager</th>
-                            <th>GW</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="league-body"></tbody>
-                </table>
-            </div>
+    <div class="filter-controls">
+        <div class="search-wrap">
+            <input type="text" id="playerSearch" placeholder="Search for Player...">
         </div>
-
-        <div id="prices-view" class="view-section" style="display: none;">
-            <div class="price-header-card">
-                <h3>LiveFPL Price Change Predictor</h3>
-                <div class="countdown-container">
-                    <span>Next price change countdown:</span>
-                    <div id="timer" class="timer-badge">00h 00m 00s</div>
-                </div>
-            </div>
-
-            <div class="info-banner">
-                <p>+100% means predicted rise, -100% means predicted fall</p>
-            </div>
-
-            <div class="filter-controls">
-                <input type="text" id="playerSearch" placeholder="Search Player...">
-                <select id="teamFilter">
-                    <option value="All">All Teams</option>
-                </select>
-            </div>
-
-            <div class="table-container">
-                <div id="loader" class="price-loader">Syncing Market...</div>
-                <table id="predictor-table">
-                    <thead>
-                        <tr>
-                            <th>Player</th>
-                            <th>Team</th>
-                            <th>Progress Now</th>
-                            <th>Prediction</th>
-                            <th>Rate (%)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="predictor-body"></tbody>
-                </table>
-            </div>
+        <div class="select-wrap">
+            <select id="teamFilter">
+                <option value="All">All Teams</option>
+            </select>
         </div>
+    </div>
 
-        <div id="leagues-view" class="view-section" style="display: none;"><h2>Leagues Detailed View</h2></div>
-        <div id="planner-view" class="view-section" style="display: none;"><h2>Transfer Planner</h2></div>
-        <div id="games-view" class="view-section" style="display: none;"><h2>Live Fixtures</h2></div>
-        <div id="statistics-view" class="view-section" style="display: none;"><h2>Player Statistics</h2></div>
+    <div class="table-container">
+        <div id="loader" class="price-loader">Syncing Market Data...</div>
+        <table id="predictor-table">
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Team</th>
+                    <th>Progress Now</th>
+                    <th>Prediction</th>
+                    <th>Progress per hr</th>
+                </tr>
+            </thead>
+            <tbody id="predictor-body">
+                </tbody>
+        </table>
+    </div>
+    
+    <button id="backToTop" class="back-to-top" style="display:none;">↑</button>
+
+
 
     </main>
 
@@ -157,6 +65,7 @@
         </div>
     </div>
 
-    <script src="predictor.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
+</div>
