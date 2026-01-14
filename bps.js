@@ -1,3 +1,16 @@
+// Global Configuration for Match Center
+const FPL_PROXY = 'https://corsproxy.io/?https://fantasy.premierleague.com/api/'; 
+let refreshTimer;
+
+/**
+ * KOPALA FPL - PRO MATCH CENTER (HIGH-FIDELITY VERSION)
+ */
+async function updateLiveScores() {
+    // ... rest of your function ...
+
+
+
+
 /**
  * KOPALA FPL - PRO MATCH CENTER (HIGH-FIDELITY VERSION)
  */
