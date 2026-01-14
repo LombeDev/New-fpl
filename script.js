@@ -1,6 +1,6 @@
 /**
  * KOPALA FPL - MASTER CORE SCRIPT
- * Features: Live Pitch with Faces, Manager Stats Dashboard, Rate-Limit Protection
+ * Features: Anti-Cache Fetching, Circular Pitch Layout, Live Manager Stats
  */
 
 const state = {
@@ -10,6 +10,7 @@ const state = {
     currentGW: 1, 
 };
 
+// Netlify Proxy Endpoint
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 
 /**
@@ -38,7 +39,9 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 async function initAppData() {
     try {
-        const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
+        // Cache buster forces a fresh fetch from the FPL API
+        const cb = `&t=${Date.now()}`;
+        const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/${cb}`);
         const data = await res.json();
         
         data.elements.forEach(p => {
@@ -59,7 +62,8 @@ async function initAppData() {
  */
 async function fetchManagerData() {
     try {
-        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/`);
+        const cb = `&t=${Date.now()}`;
+        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/${cb}`);
         const data = await res.json();
         
         document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
@@ -78,10 +82,11 @@ async function fetchManagerData() {
 
 async function changeLeague(leagueId) {
     const body = document.getElementById('league-body');
-    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Loading Live Standings...</td></tr>';
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Fetching Live Standings...</td></tr>';
 
     try {
-        const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
+        const cb = `&t=${Date.now()}`;
+        const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/${cb}`);
         const data = await res.json();
         const standings = data.standings.results;
 
@@ -97,11 +102,12 @@ async function changeLeague(leagueId) {
                 <tr id="row-${r.entry}" class="manager-row" onclick="toggleManagerExpansion(${r.entry})">
                     <td style="font-weight: bold;"><span style="color:${arrowColor}">${arrow}</span> ${r.rank}</td>
                     <td>
-                        <div style="font-weight: 800; color: #37003c;">${r.entry_name}</div>
-                        <div style="font-size: 0.75rem; color: #666;">${r.player_name}</div>
-                        <div style="font-size: 0.7rem; margin-top: 4px; display: flex; align-items: center;">
-                            <span style="background:#e90052; color:white; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; font-size:0.5rem; margin-right:4px; font-weight:bold;">C</span>
-                            <span style="font-weight:600;">${captainName}</span>
+                        <div class="manager-info-stack">
+                            <div class="manager-entry-name">${r.entry_name}</div>
+                            <div class="manager-real-name">${r.player_name}</div>
+                            <div class="captain-name-row">
+                                <span class="cap-badge">C</span> ${captainName}
+                            </div>
                         </div>
                     </td>
                     <td style="text-align:center; font-weight:800;">${r.event_total}</td>
@@ -117,8 +123,9 @@ async function batchFetchCaptains(standings) {
     const batchSize = 5;
     for (let i = 0; i < Math.min(standings.length, 15); i += batchSize) {
         const batch = standings.slice(i, i + batchSize);
+        const cb = `&t=${Date.now()}`;
         const batchRes = await Promise.all(batch.map(r => 
-            fetch(`${PROXY_ENDPOINT}entry/${r.entry}/event/${state.currentGW}/picks/`)
+            fetch(`${PROXY_ENDPOINT}entry/${r.entry}/event/${state.currentGW}/picks/${cb}`)
             .then(res => res.json()).catch(() => null)
         ));
         results = [...results, ...batchRes];
@@ -128,7 +135,7 @@ async function batchFetchCaptains(standings) {
 }
 
 /**
- * 4. SQUAD EXPANSION (The Pitch & Stats Dashboard)
+ * 4. SQUAD EXPANSION (The Pitch & Dashboard)
  */
 async function toggleManagerExpansion(entryId) {
     const row = document.getElementById(`row-${entryId}`);
@@ -142,15 +149,15 @@ async function toggleManagerExpansion(entryId) {
     const detailRow = document.createElement('tr');
     detailRow.id = `details-${entryId}`;
     detailRow.className = 'details-row';
-    detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:20px; background:#f4f4f4;">Loading Team Data...</td>`;
+    detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:20px;">Syncing Live Team...</td>`;
     row.parentNode.insertBefore(detailRow, row.nextSibling);
 
     try {
-        // Fetch Picks, Live Points, and History for Chips/Transfers
+        const cb = `&t=${Date.now()}`;
         const [picksRes, liveRes, historyRes] = await Promise.all([
-            fetch(`${PROXY_ENDPOINT}entry/${entryId}/event/${state.currentGW}/picks/`),
-            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/`),
-            fetch(`${PROXY_ENDPOINT}entry/${entryId}/history/`)
+            fetch(`${PROXY_ENDPOINT}entry/${entryId}/event/${state.currentGW}/picks/${cb}`),
+            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/${cb}`),
+            fetch(`${PROXY_ENDPOINT}entry/${entryId}/history/${cb}`)
         ]);
         
         const picksData = await picksRes.json();
@@ -168,28 +175,28 @@ async function toggleManagerExpansion(entryId) {
 
         detailRow.innerHTML = `
             <td colspan="4" style="padding:0;">
-                <div class="pitch-container" style="background: #008d53 url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center; background-size: cover; padding: 20px 0;">
+                <div class="pitch-container">
                     ${renderPitchRow(squad.filter(p => p.pos === 1))}
                     ${renderPitchRow(squad.filter(p => p.pos === 2))}
                     ${renderPitchRow(squad.filter(p => p.pos === 3))}
                     ${renderPitchRow(squad.filter(p => p.pos === 4))}
                 </div>
                 
-                <div class="manager-stats-footer" style="background:#f9f9f9; padding:15px; border-top:2px solid #37003c;">
-                    <div style="text-align:center; font-weight:800; margin-bottom:12px; font-size:0.7rem; color:#37003c; text-transform:uppercase;">Gameweek Stats & Chips</div>
+                <div class="manager-stats-footer">
+                    <div style="text-align:center; font-weight:800; margin-bottom:10px; font-size:0.7rem; color:var(--fpl-purple); text-transform:uppercase;">Live GW Stats & Chips</div>
                     
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; font-size:0.75rem; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid #ddd;">
-                        <div>
-                            <div style="display:flex; justify-content:space-between;"><span>GW Hits:</span> <span style="color:#e90052; font-weight:bold;">-${picksData.entry_history.event_transfers_cost}</span></div>
-                            <div style="display:flex; justify-content:space-between;"><span>Bank:</span> <span style="font-weight:bold;">£${(picksData.entry_history.bank / 10).toFixed(1)}m</span></div>
+                    <div class="stats-grid">
+                        <div style="border-right: 1px solid #ddd; padding-right: 10px;">
+                            <div class="stat-item"><span>GW Hits:</span> <span style="color:var(--fpl-pink); font-weight:800;">-${picksData.entry_history.event_transfers_cost}</span></div>
+                            <div class="stat-item"><span>Bank:</span> <span style="font-weight:800;">£${(picksData.entry_history.bank / 10).toFixed(1)}m</span></div>
                         </div>
-                        <div>
-                            <div style="display:flex; justify-content:space-between;"><span>Season Transfers:</span> <span style="font-weight:bold;">${historyData.current.reduce((acc, curr) => acc + curr.event_transfers, 0)}</span></div>
-                            <div style="display:flex; justify-content:space-between;"><span>Net GW Points:</span> <span style="font-weight:bold; background:#00ff85; padding:0 4px; border-radius:2px;">${picksData.entry_history.points - picksData.entry_history.event_transfers_cost}</span></div>
+                        <div style="padding-left: 10px;">
+                            <div class="stat-item"><span>Season Trfs:</span> <span style="font-weight:800;">${historyData.current.reduce((acc, curr) => acc + curr.event_transfers, 0)}</span></div>
+                            <div class="stat-item"><span>Net Pts:</span> <span style="font-weight:800; color:var(--fpl-purple); background:var(--fpl-green); padding:0 4px; border-radius:2px;">${picksData.entry_history.points - picksData.entry_history.event_transfers_cost}</span></div>
                         </div>
                     </div>
                     
-                    <div style="display:flex; justify-content:space-around; text-align:center;">
+                    <div class="chip-status-row">
                         ${renderChip('WC', historyData.chips, 'wildcard')}
                         ${renderChip('TC', historyData.chips, '3xc')}
                         ${renderChip('BB', historyData.chips, 'bboost')}
@@ -202,14 +209,14 @@ async function toggleManagerExpansion(entryId) {
 }
 
 function renderPitchRow(players) {
-    return `<div style="display:flex; justify-content:center; gap:8px; margin-bottom:10px;">
+    return `<div class="pitch-row">
         ${players.map(p => `
-            <div style="width:65px; text-align:center;">
-                <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" style="width:100%; height:auto;" onerror="this.src='https://fantasy.premierleague.com/static/media/player-missing-110.6625805d.png'">
-                <div style="background:#37003c; color:white; font-size:0.6rem; font-weight:bold; padding:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                    ${p.isCap ? '(C) ' : ''}${p.name}
+            <div class="player-card">
+                <div class="player-photo-wrapper">
+                    <img class="player-face" src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" onerror="this.src='https://fantasy.premierleague.com/static/media/player-missing-110.6625805d.png'">
                 </div>
-                <div style="background:#00ff85; color:#37003c; font-size:0.7rem; font-weight:900; padding:1px; border-radius:0 0 4px 4px;">${p.pts}</div>
+                <div class="player-info-label">${p.isCap ? '(C) ' : ''}${p.name}</div>
+                <div class="player-points-badge">${p.pts}</div>
             </div>
         `).join('')}
     </div>`;
@@ -219,15 +226,34 @@ function renderChip(label, usedChips, chipName) {
     const isUsed = usedChips.some(c => c.name === chipName);
     return `
         <div>
-            <div style="width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:bold; margin:0 auto; background:${isUsed ? '#ccc' : '#37003c'}; color:${isUsed ? '#888' : '#00ff85'}">${label}</div>
-            <div style="font-size:0.55rem; font-weight:bold; margin-top:4px; color:${isUsed ? '#999' : '#333'}">${isUsed ? 'USED' : 'AVAIL'}</div>
+            <div class="chip-icon ${isUsed ? 'used' : ''}">${label}</div>
+            <div class="chip-label">${isUsed ? 'USED' : 'AVAIL'}</div>
         </div>
     `;
 }
 
 /**
- * 5. UI HELPERS
+ * 5. LOGIN / LOGOUT (Hard Refreshes)
  */
+async function handleLogin() {
+    const id = document.getElementById('team-id-input').value;
+    if (!id) return alert("Enter Team ID");
+    
+    // Clear and set new ID
+    localStorage.clear();
+    localStorage.setItem('kopala_fpl_id', id);
+    
+    // Hard refresh with timestamp to bypass index cache
+    window.location.href = window.location.pathname + '?v=' + Date.now();
+}
+
+function resetApp() {
+    if(confirm("Logout and clear all data?")) { 
+        localStorage.clear(); 
+        window.location.href = window.location.pathname + '?v=' + Date.now();
+    }
+}
+
 function showView(view) {
     state.activeView = view;
     localStorage.setItem('kopala_active_view', view);
@@ -235,28 +261,4 @@ function showView(view) {
     document.getElementById('pitch-view').style.display = view === 'pitch' ? 'block' : 'none';
     document.getElementById('tab-table').classList.toggle('active', view === 'table');
     document.getElementById('tab-pitch').classList.toggle('active', view === 'pitch');
-}
-
-function toggleSettings() {
-    const drawer = document.getElementById('settings-drawer');
-    const overlay = document.getElementById('drawer-overlay');
-    const isOpen = drawer.classList.contains('open');
-    drawer.classList.toggle('open', !isOpen);
-    overlay.style.display = !isOpen ? 'block' : 'none';
-}
-
-function handleDarkModeToggle() {
-    const isDark = document.body.classList.toggle('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-}
-
-async function handleLogin() {
-    const id = document.getElementById('team-id-input').value;
-    if (!id) return alert("Enter Team ID");
-    localStorage.setItem('kopala_fpl_id', id);
-    location.reload();
-}
-
-function resetApp() {
-    if(confirm("Logout?")) { localStorage.clear(); location.reload(); }
 }
