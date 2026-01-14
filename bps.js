@@ -2,7 +2,6 @@
  * KOPALA FPL - PRO MATCH CENTER (FUNCTION PROXY VERSION)
  */
 
-// 1. Point to your Netlify Function
 const FPL_PROXY = '/.netlify/functions/fpl-proxy/'; 
 let refreshTimer;
 
@@ -26,7 +25,7 @@ async function initMatchCenter() {
     } catch (err) {
         console.error("Init Error:", err);
         document.getElementById('fixtures-container').innerHTML = 
-            `<div style="text-align:center; padding:20px; color:#ff4d4d;">⚠️ FPL connection blocked. Try again in 5 minutes.</div>`;
+            `<div style="text-align:center; padding:20px; color:#ff4d4d;">⚠️ Connection blocked. Try redeploying.</div>`;
     }
 }
 
