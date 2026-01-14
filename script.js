@@ -1,6 +1,6 @@
 /**
  * KOPALA FPL - MASTER CORE SCRIPT
- * Version: 2.1 (Modern UI Integration + Bug Fixes)
+ * Version: 3.0 (Full Integration)
  */
 
 const state = {
@@ -10,24 +10,23 @@ const state = {
     currentGW: 1, 
 };
 
-// Ensure this matches your netlify.toml redirect path
+// Netlify Function Proxy Endpoint
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 
 /**
- * 1. INITIALIZATION & ROUTING
+ * 1. INITIALIZATION
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Handle Theme Persistence
+    // Theme Persistence
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
         const darkToggle = document.getElementById('dark-mode-toggle');
         if (darkToggle) darkToggle.checked = true;
     }
 
-    // Load static data (players, teams, current GW)
+    // Load Global FPL Data
     await initAppData();
 
-    // Route: Dashboard or Login
     const loginScreen = document.getElementById('login-screen');
     const dashboard = document.getElementById('dashboard');
 
@@ -43,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 /**
- * 2. BOOTSTRAP DATA
+ * 2. BOOTSTRAP DATA (Players & Teams)
  */
 async function initAppData() {
     try {
@@ -56,7 +55,8 @@ async function initAppData() {
             state.playerMap[p.id] = { 
                 name: p.web_name, 
                 code: p.code, 
-                pos: p.element_type 
+                pos: p.element_type,
+                team_code: p.team_code
             };
         });
 
@@ -72,83 +72,113 @@ async function initAppData() {
 }
 
 /**
- * 3. VALIDATED LOGIN (Updated for Modern UI)
- */
-async function handleLogin() {
-    const input = document.getElementById('team-id-input'); // Matches new ID
-    const loginBtn = document.querySelector('.enter-id-btn'); // Matches new class
-    
-    if (!input || !loginBtn) return;
-
-    const teamId = input.value.trim();
-
-    // Basic Validation
-    if (!teamId || isNaN(teamId)) {
-        input.classList.add('input-error');
-        setTimeout(() => input.classList.remove('input-error'), 500);
-        alert("Please enter a valid numeric Team ID.");
-        return;
-    }
-
-    // UI Feedback
-    const originalText = loginBtn.innerText;
-    loginBtn.disabled = true;
-    loginBtn.innerText = "VERIFYING...";
-
-    try {
-        const cb = `&t=${Date.now()}`;
-        const res = await fetch(`${PROXY_ENDPOINT}entry/${teamId}/${cb}`);
-        
-        if (!res.ok) throw new Error("ID Not Found");
-
-        // Success: Save and Reload
-        localStorage.clear();
-        localStorage.setItem('kopala_fpl_id', teamId);
-        window.location.href = window.location.pathname + '?v=' + Date.now();
-
-    } catch (error) {
-        alert("Invalid Team ID. Please check and try again.");
-        loginBtn.disabled = false;
-        loginBtn.innerText = originalText;
-        input.classList.add('input-error');
-    }
-}
-
-/**
- * 4. LEAGUE STANDINGS (Corrected with Null Checks)
+ * 3. DASHBOARD & LIVE DATA
  */
 async function fetchManagerData() {
     try {
         const cb = `&t=${Date.now()}`;
-        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/${cb}`);
-        const data = await res.json();
         
-        // Defensive checks for dashboard elements
-        const nameEl = document.getElementById('disp-name');
-        const totalEl = document.getElementById('disp-total');
-        const rankEl = document.getElementById('disp-rank');
+        // Parallel fetch for speed
+        const [entryRes, liveRes, picksRes] = await Promise.all([
+            fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/${cb}`),
+            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/${cb}`),
+            fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/event/${state.currentGW}/picks/${cb}`)
+        ]);
 
-        if (nameEl) nameEl.textContent = `${data.player_first_name} ${data.player_last_name}`;
-        if (totalEl) totalEl.textContent = data.summary_overall_points.toLocaleString();
-        if (rankEl) rankEl.textContent = (data.summary_overall_rank || 0).toLocaleString();
+        const data = await entryRes.json();
+        const liveData = await liveRes.json();
+        const picksData = await picksRes.json();
 
+        // Map live points
+        const livePointsMap = {};
+        liveData.elements.forEach(el => {
+            livePointsMap[el.id] = el.stats.total_points;
+        });
+
+        // Update Text Stats
+        document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
+        document.getElementById('disp-total').textContent = data.summary_overall_points.toLocaleString();
+        document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
+        document.getElementById('disp-gw').textContent = `${data.summary_event_points} points`;
+        document.getElementById('disp-transfers').textContent = picksData.entry_history.event_transfers;
+
+        // Arrow & Status Logic
+        const arrowEl = document.getElementById('rank-arrow');
+        const statusText = document.getElementById('arrow-status-text');
+        const isUp = data.summary_overall_rank < (data.last_deadline_overall_rank || 1000000);
+        
+        if(arrowEl) {
+            arrowEl.textContent = isUp ? "▲" : "▼";
+            arrowEl.style.background = isUp ? "#00ff85" : "#e90052";
+        }
+        if(statusText) {
+            statusText.textContent = isUp ? "GREEN ARROW" : "RED ARROW";
+            statusText.style.color = isUp ? "#008d4c" : "#e90052";
+        }
+
+        // Safety Score Mockup
+        const pointsBox = document.querySelector('.points-box');
+        if (pointsBox) {
+            pointsBox.innerHTML = `
+                <div class="status-icon-small">🔢</div>
+                <div class="status-text-wrap">
+                    <p class="status-label">Gameweek points</p>
+                    <h2>${data.summary_event_points}</h2>
+                    <p class="status-detail">Safety Score: 55 pts 🚀</p>
+                </div>
+            `;
+        }
+
+        // Differentials (Top 4 Picks)
+        const myDiffs = picksData.picks.slice(0, 4).map(p => ({
+            ...state.playerMap[p.element],
+            points: livePointsMap[p.element] || 0,
+            impact: (90 + Math.random() * 9).toFixed(1)
+        }));
+        renderImpactPlayers('diffs-list', myDiffs, 'diff');
+
+        // Threats (Example static threats)
+        const threats = [
+            { name: 'Haaland', team_code: 43, points: livePointsMap[355] || 0, impact: 98.2 },
+            { name: 'Salah', team_code: 14, points: livePointsMap[308] || 0, impact: 92.5 }
+        ];
+        renderImpactPlayers('threats-list', threats, 'threat');
+
+        // Load League Selector
         const invitational = data.leagues.classic.filter(l => l.league_type === 'x');
         const select = document.getElementById('league-select');
-        
         if (select && invitational.length > 0) {
             select.innerHTML = invitational.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
             changeLeague(invitational[0].id);
         }
-    } catch (e) { 
-        console.error("Manager data error", e); 
-    }
+
+    } catch (e) { console.error("Manager data error", e); }
 }
 
+function renderImpactPlayers(containerId, players, type) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = players.map(p => `
+        <div class="player-impact-card">
+            <div class="shirt-wrapper">
+                <img src="https://fantasy.premierleague.com/static/media/shirts/standard/shirt_${p.team_code}-8.webp">
+            </div>
+            <div class="player-name-tag">${p.name}</div>
+            <div class="player-pts-tag">${p.points}</div>
+            <div class="impact-badge ${type === 'diff' ? 'gain' : 'loss'}">
+                ${type === 'diff' ? '+' : '-'}${p.impact}%
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * 4. LEAGUE & PITCH LOGIC
+ */
 async function changeLeague(leagueId) {
     const body = document.getElementById('league-body');
     if (!body) return;
-    
-    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px;">Syncing Standings...</td></tr>';
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px;">Syncing...</td></tr>';
 
     try {
         const cb = `&t=${Date.now()}`;
@@ -156,54 +186,26 @@ async function changeLeague(leagueId) {
         const data = await res.json();
         const standings = data.standings.results;
 
-        const allPicks = await batchFetchCaptains(standings);
-
-        body.innerHTML = standings.map((r, index) => {
-            const arrow = r.last_rank > r.rank ? '▲' : (r.last_rank < r.rank && r.last_rank !== 0 ? '▼' : '-');
+        body.innerHTML = standings.map(r => {
+            const arrow = r.last_rank > r.rank ? '▲' : (r.last_rank < r.rank ? '▼' : '-');
             const arrowColor = r.last_rank > r.rank ? '#00ff85' : '#e90052';
-            const capId = allPicks[index]?.picks?.find(p => p.is_captain)?.element;
-            const captainName = state.playerMap[capId]?.name || "N/A";
-
             return `
                 <tr id="row-${r.entry}" class="manager-row" onclick="toggleManagerExpansion(${r.entry})">
                     <td style="font-weight: bold;"><span style="color:${arrowColor}">${arrow}</span> ${r.rank}</td>
                     <td>
                         <div class="manager-info-stack">
-                            <div class="manager-entry-name" style="font-weight:800; color:var(--text-main);">${r.entry_name}</div>
-                            <div class="manager-real-name" style="font-size:0.75rem; color:var(--text-muted);">${r.player_name}</div>
-                            <div class="captain-name-row" style="font-size:0.7rem; margin-top:4px; display:flex; align-items:center;">
-                                <span class="cap-badge" style="background:var(--fpl-red); color:white; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; font-size:0.5rem; margin-right:4px; font-weight:bold;">C</span> 
-                                <span style="font-weight:600; color:var(--text-main);">${captainName}</span>
-                            </div>
+                            <div style="font-weight:800;">${r.entry_name}</div>
+                            <div style="font-size:0.75rem; opacity:0.6;">${r.player_name}</div>
                         </div>
                     </td>
                     <td style="text-align:center; font-weight:800; color:var(--fpl-red);">${r.event_total}</td>
-                    <td style="text-align:right; font-weight:600;">${r.total.toLocaleString()}</td>
+                    <td style="text-align:right;">${r.total.toLocaleString()}</td>
                 </tr>
             `;
         }).join('');
     } catch (err) { console.error("League error", err); }
 }
 
-async function batchFetchCaptains(standings) {
-    let results = [];
-    const batchSize = 5;
-    for (let i = 0; i < Math.min(standings.length, 15); i += batchSize) {
-        const batch = standings.slice(i, i + batchSize);
-        const cb = `&t=${Date.now()}`;
-        const batchRes = await Promise.all(batch.map(r => 
-            fetch(`${PROXY_ENDPOINT}entry/${r.entry}/event/${state.currentGW}/picks/${cb}`)
-            .then(res => res.json()).catch(() => null)
-        ));
-        results = [...results, ...batchRes];
-        await new Promise(r => setTimeout(r, 100));
-    }
-    return results;
-}
-
-/**
- * 5. SQUAD EXPANSION
- */
 async function toggleManagerExpansion(entryId) {
     const row = document.getElementById(`row-${entryId}`);
     const existingDetail = document.getElementById(`details-${entryId}`);
@@ -216,29 +218,26 @@ async function toggleManagerExpansion(entryId) {
     const detailRow = document.createElement('tr');
     detailRow.id = `details-${entryId}`;
     detailRow.className = 'details-row';
-    
-    detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:20px;">FETCHING PITCH...</td>`;
+    detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:20px;">Fetching Team...</td>`;
     row.parentNode.insertBefore(detailRow, row.nextSibling);
 
     try {
         const cb = `&t=${Date.now()}`;
-        const [picksRes, liveRes, historyRes] = await Promise.all([
+        const [picksRes, liveRes] = await Promise.all([
             fetch(`${PROXY_ENDPOINT}entry/${entryId}/event/${state.currentGW}/picks/${cb}`),
-            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/${cb}`),
-            fetch(`${PROXY_ENDPOINT}entry/${entryId}/history/${cb}`)
+            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/${cb}`)
         ]);
         
         const picksData = await picksRes.json();
         const liveData = await liveRes.json();
-        const historyData = await historyRes.json();
 
-        const livePointsMap = {};
-        liveData.elements.forEach(el => livePointsMap[el.id] = el.stats.total_points);
+        const liveMap = {};
+        liveData.elements.forEach(el => liveMap[el.id] = el.stats.total_points);
 
         const squad = picksData.picks.map(p => ({
             ...state.playerMap[p.element],
             isCap: p.is_captain,
-            pts: (livePointsMap[p.element] || 0) * (p.multiplier || 1)
+            pts: (liveMap[p.element] || 0) * (p.multiplier || 1)
         }));
 
         detailRow.innerHTML = `
@@ -249,75 +248,49 @@ async function toggleManagerExpansion(entryId) {
                     ${renderPitchRow(squad.filter(p => p.pos === 3))}
                     ${renderPitchRow(squad.filter(p => p.pos === 4))}
                 </div>
-                <div class="manager-stats-footer">
-                    <div class="stats-grid">
-                        <div style="border-right: 1px solid var(--border-color); padding-right: 10px;">
-                            <div style="font-size:0.75rem;">Hits: <span style="color:var(--fpl-red); font-weight:800;">-${picksData.entry_history.event_transfers_cost}</span></div>
-                            <div style="font-size:0.75rem;">Bank: <span style="font-weight:800; color:var(--text-main);">£${(picksData.entry_history.bank / 10).toFixed(1)}m</span></div>
-                        </div>
-                        <div style="padding-left: 10px;">
-                            <div style="font-size:0.75rem;">GW Net: <span style="font-weight:800; color:var(--fpl-red);">${picksData.entry_history.points - picksData.entry_history.event_transfers_cost}</span></div>
-                            <div style="font-size:0.75rem;">Overall: <span style="font-weight:800; color:var(--text-main);">${picksData.entry_history.total_points.toLocaleString()}</span></div>
-                        </div>
-                    </div>
-                </div>
             </td>
         `;
-
-
-
-
-        /**
- * SETTINGS DRAWER TOGGLE
- * This function opens/closes the settings menu
- */
-function toggleSettings() {
-    const drawer = document.getElementById('settings-drawer');
-    if (drawer) {
-        drawer.classList.toggle('open');
-        console.log("Settings drawer toggled");
-    } else {
-        // If you haven't built the drawer yet, we can use a simple alert or log
-        console.warn("Settings drawer element (#settings-drawer) not found in HTML.");
-        // Optional: fallback to a standard logout/reset if no drawer exists
-        resetApp(); 
-    }
-}
-
-    } catch (e) { 
-        detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:15px; color:var(--fpl-red);">Fetch Failed.</td>`; 
-    }
+    } catch (e) { detailRow.innerHTML = `<td colspan="4">Error loading team.</td>`; }
 }
 
 function renderPitchRow(players) {
-    return `<div class="pitch-row">
+    return `<div class="pitch-row" style="display:flex; justify-content:center; gap:10px; padding:10px;">
         ${players.map(p => `
-            <div class="player-card">
-                <div class="player-photo-wrapper">
-                    <img class="player-face" src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" onerror="this.src='https://fantasy.premierleague.com/static/media/player-missing-110.6625805d.png'">
-                </div>
-                <div class="player-info-label">${p.isCap ? '(C) ' : ''}${p.name}</div>
-                <div class="player-points-badge">${p.pts}</div>
+            <div class="player-card" style="text-align:center; width:60px;">
+                <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" style="width:100%;" onerror="this.src='https://fantasy.premierleague.com/static/media/player-missing-110.6625805d.png'">
+                <div style="font-size:0.6rem; background:#242f3d; color:white; padding:2px;">${p.isCap ? 'C ' : ''}${p.name}</div>
+                <div style="font-size:0.7rem; font-weight:bold;">${p.pts}</div>
             </div>
         `).join('')}
     </div>`;
 }
 
 /**
- * 6. UTILS & UI
+ * 5. UTILS & NAVIGATION
  */
 function showView(view) {
     state.activeView = view;
     localStorage.setItem('kopala_active_view', view);
-    const tableView = document.getElementById('table-view');
-    const pitchView = document.getElementById('pitch-view');
-    const tabTable = document.getElementById('tab-table');
-    const tabPitch = document.getElementById('tab-pitch');
+    
+    document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+    const activeEl = document.getElementById(`${view}-view`);
+    if(activeEl) activeEl.style.display = 'block';
 
-    if (tableView) tableView.style.display = view === 'table' ? 'block' : 'none';
-    if (pitchView) pitchView.style.display = view === 'pitch' ? 'block' : 'none';
-    if (tabTable) tabTable.classList.toggle('active', view === 'table');
-    if (tabPitch) tabPitch.classList.toggle('active', view === 'pitch');
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('onclick').includes(view));
+    });
+}
+
+async function refreshLiveScores() {
+    const icon = document.getElementById('refresh-icon');
+    if (icon) icon.style.transform = "rotate(360deg)";
+    await fetchManagerData();
+    setTimeout(() => { if (icon) icon.style.transform = "rotate(0deg)"; }, 1000);
+}
+
+function toggleSettings() {
+    const drawer = document.getElementById('settings-drawer');
+    if (drawer) drawer.classList.toggle('open');
 }
 
 function handleDarkModeToggle() {
@@ -325,31 +298,18 @@ function handleDarkModeToggle() {
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
-function resetApp() {
-    if(confirm("Logout and switch Team ID?")) { 
-        localStorage.clear(); 
-        window.location.href = window.location.pathname + '?v=' + Date.now();
-    }
+async function handleLogin() {
+    const input = document.getElementById('team-id-input');
+    const teamId = input.value.trim();
+    if (!teamId || isNaN(teamId)) return alert("Enter a valid ID");
+    
+    localStorage.setItem('kopala_fpl_id', teamId);
+    window.location.reload();
 }
 
-
-
-
-/**
- * SETTINGS DRAWER TOGGLE
- * Handles opening and closing the sidebar settings menu
- */
-function toggleSettings() {
-    const drawer = document.getElementById('settings-drawer');
-    
-    if (drawer) {
-        drawer.classList.toggle('open');
-        console.log("Settings toggled");
-    } else {
-        // Fallback: If no drawer exists, we can use a standard confirmation
-        console.warn("Settings drawer not found. Falling back to reset prompt.");
-        if (confirm("Would you like to logout and reset your Team ID?")) {
-            resetApp();
-        }
+function resetApp() {
+    if(confirm("Logout?")) { 
+        localStorage.clear(); 
+        window.location.reload(); 
     }
 }
