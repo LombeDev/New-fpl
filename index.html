@@ -7,20 +7,19 @@
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <style>
-        /* 1. THEME VARIABLES (For Dark Mode Logic) */
+        /* 1. THEME VARIABLES */
         :root {
-            --bg-color: #ffffff;
+            --bg-color: #f4f4f7;
             --card-bg: #ffffff;
             --text-main: #1a1a1a;
             --text-muted: #666;
             --border-gray: #e1e1e1;
             --fpl-purple: #37003c;
             --fpl-green: #00ff85;
-            --link-blue: #00a2ed;
             --fpl-pink: #e90052;
+            --link-blue: #00a2ed;
         }
 
-        /* Dark Mode Overrides */
         body.dark-mode {
             --bg-color: #121212;
             --card-bg: #1e1e1e;
@@ -35,265 +34,177 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            transition: background 0.3s ease;
         }
 
-        /* 2. CENTERED LOGIN SCREEN */
-        #login-screen {
+        /* 2. STATS & SUB-TAB NAVIGATION */
+        .sub-tabs {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            box-sizing: border-box;
+            gap: 10px;
+            padding: 12px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-gray);
+            overflow-x: auto;
         }
 
-        .login-wrapper {
-            width: 100%;
-            max-width: 400px;
+        .sub-tab {
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1px solid var(--fpl-purple);
+            background: transparent;
+            color: var(--fpl-purple);
+            font-size: 0.8rem;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .sub-tab.active {
+            background: var(--fpl-purple);
+            color: white;
+        }
+
+        .stats-card {
+            background: var(--card-bg);
+            margin: 10px;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* 3. ROUNDED PLAYER FACES */
+        .player-face-circle {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #f0f0f0;
+            border: 2px solid #eee;
+            aspect-ratio: 1 / 1;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .ownership-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .player-item {
             text-align: center;
         }
 
-        .brand-logo {
-            width: 64px;
-            height: 64px;
-            background: var(--fpl-purple);
-            color: var(--fpl-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.2rem;
-            font-weight: 900;
-            margin: 0 auto 24px;
-            border-radius: 8px;
+        .player-name-small {
+            font-size: 0.65rem;
+            font-weight: 700;
+            margin-top: 4px;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .simple-login-card { text-align: left; }
-        .form-group label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--link-blue);
-            margin-bottom: 10px;
+        .pos-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 800;
+            margin-top: 15px;
+            border-bottom: 1px solid var(--border-gray);
         }
-        .form-group input {
+
+        .fpl-select {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
+            border-radius: 8px;
             border: 1px solid var(--border-gray);
-            border-radius: 10px;
             background: var(--card-bg);
             color: var(--text-main);
-            box-sizing: border-box;
+            font-weight: 600;
         }
-
-        .action-button {
-            width: 100%;
-            padding: 16px;
-            background: #00d46a;
-            color: var(--fpl-purple);
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-
-        /* 3. SETTINGS DRAWER */
-        .drawer {
-            position: fixed;
-            top: 0;
-            right: -300px;
-            width: 300px;
-            height: 100%;
-            background: var(--card-bg);
-            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-            z-index: 1000;
-            transition: right 0.3s ease;
-            padding: 24px;
-            box-sizing: border-box;
-        }
-        .drawer.open { right: 0; }
-        .drawer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-gray);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-        }
-        .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        /* 4. FIXTURES & EXPANSION */
-        #fixtures-container {
-            max-height: 70vh;
-            overflow-y: auto;
-            background: var(--card-bg);
-            padding: 10px;
-        }
-
-        /* MATCH CENTER UI CLASSES */
-        .match-card-main {
-            display: flex;
-            background: #fff;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: 1px solid #eee;
-        }
-
-        .score-box-center {
-            background: #37003c;
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-weight: 900;
-            font-size: 0.9rem;
-            font-family: monospace;
-        }
-
-        .assist-badge {
-            background: var(--fpl-pink);
-            color: #fff;
-            font-size: 0.6rem;
-            font-weight: 900;
-            padding: 1px 4px;
-            border-radius: 2px;
-            margin-left: 4px;
-            display: inline-block;
-        }
-
-        .bonus-column {
-            flex: 1;
-            padding: 15px;
-            background: #fafafa;
-            border-left: 1px solid #eee;
-        }
-
-        .medal-icon {
-            width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            font-weight: 900;
-            font-size: 0.7rem;
-            color: #000;
-        }
-
-        .details-row td { background: #00563b !important; padding: 0 !important; }
-        .expansion-content { display: flex; padding: 15px; gap: 15px; color: white; }
     </style>
 </head>
 <body>
-<button id="installBtn" style="display: none; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-  Install Our App
-</button>
-    <div id="login-screen">
-        <div class="login-wrapper">
-            <div class="brand-header">
-                <div class="brand-logo">K</div>
-                <h1>KOPALA FPL</h1>
-                <p>Log in to track your live rank</p>
+
+    <div id="dashboard">
+        <nav class="main-tabs" style="display: flex; background: #fff; border-bottom: 1px solid var(--border-gray);">
+            <button class="tab-btn" id="tab-table" onclick="showView('table')" style="flex: 1; padding: 15px; border: none; background: none; font-weight: 700;">Table</button>
+            <button class="tab-btn" id="tab-pitch" onclick="showView('pitch')" style="flex: 1; padding: 15px; border: none; background: none; font-weight: 700;">Fixtures</button>
+            <button class="tab-btn active" id="tab-stats" onclick="showView('stats')" style="flex: 1; padding: 15px; border: none; background: none; font-weight: 700;">Stats</button>
+        </nav>
+
+        <section id="stats-view" class="view-content">
+            <div class="sub-tabs">
+                <button class="sub-tab active" id="sub-tab-summary" onclick="showSubView('summary')">Summary</button>
+                <button class="sub-tab" id="sub-tab-ownership" onclick="showSubView('ownership')">Ownership</button>
+                <button class="sub-tab" id="sub-tab-compare" onclick="showSubView('compare')">Compare</button>
             </div>
 
-            <div class="simple-login-card">
-                <div class="form-group">
-                    <label for="team-id-input">Team ID*</label>
-                    <input type="number" id="team-id-input" placeholder="Enter your ID">
+            <div id="stats-main-content">
+                <div id="sub-view-summary">
+                    <div class="stats-card">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                            <thead>
+                                <tr style="color: var(--text-muted); text-align: right; border-bottom: 1px solid var(--border-gray);">
+                                    <th style="text-align: left; padding: 8px 0;">Summary</th>
+                                    <th>GW Score</th>
+                                    <th>Hits</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comparison-body" style="text-align: right; font-weight: bold; color: var(--fpl-purple);">
+                                </tbody>
+                        </table>
+                    </div>
+
+                    <div class="stats-card">
+                        <h4 style="margin:0 0 10px 0; font-size: 0.9rem;">Top 3 Managers (GW)</h4>
+                        <div id="top-managers-list"></div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 25px;">
+                        <p style="font-weight: bold; font-size: 0.85rem;"><span style="color:var(--fpl-pink)">C</span> Most Captained</p>
+                        <div id="top-captains-list" style="display: flex; justify-content: center; gap: 15px;">
+                            </div>
+                    </div>
                 </div>
-                <button class="action-button" onclick="handleLogin()">Continue</button>
-                <div style="text-align: center; margin-top: 15px;">
-                    <a href="#" class="help-link" style="color: var(--link-blue); text-decoration: none; font-size: 0.9rem;">I don't know my team ID</a>
+
+                <div id="sub-view-ownership" style="display: none; padding: 10px;">
+                    <h4 style="text-align:center; font-style:italic; font-weight:400; font-size: 0.85rem;">Highest ownership <span style="font-weight:700">in this league</span></h4>
+                    
+                    <div class="pos-label">Goalkeepers</div>
+                    <div id="pos-1" class="ownership-grid"></div>
+
+                    <div class="pos-label">Defenders</div>
+                    <div id="pos-2" class="ownership-grid"></div>
+
+                    <div class="pos-label">Midfielders</div>
+                    <div id="pos-3" class="ownership-grid"></div>
+
+                    <div class="pos-label">Forwards</div>
+                    <div id="pos-4" class="ownership-grid"></div>
+                </div>
+
+                <div id="sub-view-compare" style="display: none; padding: 10px;">
+                    <div class="stats-card" style="text-align: center;">
+                        <h3 style="margin-top:0; font-size: 1.1rem;">Rival Manager Comparison</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Select a rival to compare squads</p>
+                        
+                        <select id="rival-select" class="fpl-select" onchange="runRivalComparison(this.value)">
+                            <option value="">Choose a Manager...</option>
+                        </select>
+
+                        <div id="comparison-results" style="margin-top: 20px;"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div id="dashboard" style="display:none;">
-        <header class="app-header" style="padding: 15px; border-bottom: 1px solid var(--border-gray); display: flex; justify-content: space-between; align-items: center;">
-            <div class="selector-wrapper">
-                <select id="league-select" onchange="changeLeague(this.value)" style="padding: 8px; border-radius: 5px;"></select>
-            </div>
-            <div class="header-actions">
-                <button onclick="toggleSettings()" style="background:none; border:none; font-size: 1.2rem; cursor:pointer;">⚙️</button>
-                <button onclick="location.reload()" style="background:var(--fpl-purple); color:white; border:none; padding: 8px 12px; border-radius: 5px; cursor:pointer;">Update</button>
-            </div>
-        </header>
-
-        <div class="manager-stats-bar" style="padding: 20px; text-align: center;">
-            <h2 id="disp-name" style="margin: 0;">Loading...</h2>
-            <div style="font-size: 1.5rem; font-weight: 800; color: var(--fpl-purple);"><span id="disp-gw">0</span> <small style="font-size: 0.8rem;">GW Pts</small></div>
-            <div class="stat-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; margin-top: 15px; gap: 10px;">
-                <div class="stat-item"><label style="display:block; font-size: 0.7rem; opacity: 0.6;">Rank</label><span id="disp-rank">N/A</span></div>
-                <div class="stat-item"><label style="display:block; font-size: 0.7rem; opacity: 0.6;">Total</label><span id="disp-total">0</span></div>
-                <div class="stat-item"><label style="display:block; font-size: 0.7rem; opacity: 0.6;">Transfers</label><span id="disp-transfers">0</span></div>
-            </div>
-        </div>
-
-       <nav class="main-tabs" style="display: flex; border-bottom: 1px solid var(--border-gray);">
-    <button class="tab-btn active" id="tab-table" onclick="showView('table')" style="flex: 1; padding: 15px; border: none; background: none; font-weight: 700;">Table</button>
-    <button class="tab-btn" id="tab-pitch" onclick="showView('pitch'); if(typeof updateLiveScores === 'function') updateLiveScores();" style="flex: 1; padding: 15px; border: none; background: none; font-weight: 700;">Fixtures</button>
-    <button class="tab-btn" id="tab-stats" onclick="showView('stats')" style="flex: 1; padding: 15px; border: none; background: none; font-weight: 700;">Stats</button>
-</nav>
-        <section id="table-view" class="view-content">
-            <table class="live-table" style="width: 100%; border-collapse: collapse;">
-                <thead style="background: #f9f9f9; font-size: 0.8rem;">
-                    <tr><th>Rank</th><th>Team & Manager</th><th>Score</th><th>Total</th></tr>
-                </thead>
-                <tbody id="league-body"></tbody>
-            </table>
         </section>
 
-        <section id="pitch-view" style="display:none;" class="view-content">
-            <div style="background: var(--fpl-purple); color: white; padding: 12px; text-align: center; font-weight: 800; font-size: 0.7rem; text-transform: uppercase;"></div>
-            <div id="fixtures-container"></div>
-        </section>
+        <section id="table-view" class="view-content" style="display:none;"></section>
+        <section id="pitch-view" class="view-content" style="display:none;"></section>
     </div>
-
-    <section id="stats-view" class="view-content" style="background-color: #f8f8f8; display: none; padding-bottom: 50px;">
-        <div style="background: #37003c; color: white; padding: 12px; text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase;">
-            League Stats - Kopala EPL
-        </div>
-
-        <div class="stats-card" style="background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
-                <thead>
-                    <tr style="color: #666; text-align: right; border-bottom: 1px solid #eee;">
-                        <th style="text-align: left; padding-bottom: 8px;">Summary</th>
-                        <th>GW Score</th>
-                        <th>Hits</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody id="comparison-body" style="text-align: right; font-weight: bold;">
-                    </tbody>
-            </table>
-        </div>
-    </section>
-
-    <div id="settings-drawer" class="drawer">
-        <div class="drawer-header">
-            <h2 style="margin: 0; font-size: 1.2rem;">Settings</h2>
-            <button onclick="toggleSettings()" style="background:none; border:none; font-size: 1.2rem; cursor:pointer;">✕</button>
-        </div>
-        <div class="drawer-content">
-            <div class="setting-item">
-                <span>Dark Mode</span>
-                <input type="checkbox" id="dark-mode-toggle" onchange="handleDarkModeToggle()">
-            </div>
-            <hr style="border: 0; border-top: 1px solid var(--border-gray); margin: 20px 0;">
-            <button onclick="resetApp()" style="width: 100%; padding: 12px; background: #ff4d4d; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Logout / Change ID</button>
-        </div>
-    </div>
-
-    <div id="drawer-overlay" onclick="toggleSettings()" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; z-index:999;"></div>
 
     <script src="script.js"></script>
     <script src="bps.js"></script>
