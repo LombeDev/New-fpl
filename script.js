@@ -331,3 +331,25 @@ function resetApp() {
         window.location.href = window.location.pathname + '?v=' + Date.now();
     }
 }
+
+
+
+
+/**
+ * SETTINGS DRAWER TOGGLE
+ * Handles opening and closing the sidebar settings menu
+ */
+function toggleSettings() {
+    const drawer = document.getElementById('settings-drawer');
+    
+    if (drawer) {
+        drawer.classList.toggle('open');
+        console.log("Settings toggled");
+    } else {
+        // Fallback: If no drawer exists, we can use a standard confirmation
+        console.warn("Settings drawer not found. Falling back to reset prompt.");
+        if (confirm("Would you like to logout and reset your Team ID?")) {
+            resetApp();
+        }
+    }
+}
