@@ -328,3 +328,47 @@ function resetApp() {
         window.location.href = window.location.pathname + '?v=' + Date.now();
     }
 }
+
+
+
+let deferredPrompt;
+    const installBanner = document.getElementById('install-banner');
+
+    // Detect if the app is already installed/running in standalone mode
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        installBanner.style.setProperty('display', 'none', 'important');
+    }
+
+    // Capture the install event
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent the mini-infobar from appearing on mobile
+        e.preventDefault();
+        // Stash the event so it can be triggered later.
+        deferredPrompt = e;
+        // Show our custom install banner
+        installBanner.style.display = 'flex';
+    });
+
+    async function triggerInstall() {
+        if (!deferredPrompt) return;
+        
+        // Show the native install prompt
+        deferredPrompt.prompt();
+        
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to install: ${outcome}`);
+        
+        // We've used the prompt, and can't use it again, throw it away
+        deferredPrompt = null;
+        
+        // Hide our banner
+        installBanner.style.display = 'none';
+    }
+
+    // Hide banner if app is installed successfully
+    window.addEventListener('appinstalled', () => {
+        installBanner.style.display = 'none';
+        deferredPrompt = null;
+        console.log('PWA was installed');
+    });
