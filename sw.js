@@ -1,32 +1,49 @@
 const CACHE_NAME = 'kopala-fpl-v1';
-const urlsToCache = [
+const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/style.css',
-  '/script.js',
-  '/manifest.json'
+  '/app.js',
+  '/manifest.json',
+  '/icon-192.png'
 ];
 
-// Install the service worker and cache files
-self.addEventListener('install', event => {
+// 1. Install Event: Pre-cache static UI files
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
   );
+  self.skipWaiting();
 });
 
-// Cache and return requests
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
+// 2. Fetch Event: Smart Caching
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // Strategy A: Static Assets (Cache-First)
+  if (STATIC_ASSETS.includes(url.pathname)) {
+    event.respondWith(
+      caches.match(event.request).then((res) => res || fetch(event.request))
+    );
+    return;
+  }
+
+  // Strategy B: FPL API Proxy (Stale-While-Revalidate)
+  if (url.pathname.includes('fpl-proxy')) {
+    event.respondWith(
+      caches.open('fpl-api-cache').then((cache) => {
+        return cache.match(event.request).then((cachedResponse) => {
+          const fetchPromise = fetch(event.request).then((networkResponse) => {
+            // Update the cache with new data for next time
+            if (networkResponse.ok) {
+              cache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
+          });
+          // Return cached data immediately, or wait for network if nothing is cached
+          return cachedResponse || fetchPromise;
+        });
       })
-  );
+    );
+  }
 });
