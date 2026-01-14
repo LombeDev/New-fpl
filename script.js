@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Theme setup
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
-        document.getElementById('dark-mode-toggle').checked = true;
+        const darkToggle = document.getElementById('dark-mode-toggle');
+        if (darkToggle) darkToggle.checked = true;
     }
 
     await initAppData();
@@ -41,6 +42,8 @@ function toggleSettings() {
     const drawer = document.getElementById('settings-drawer');
     const overlay = document.getElementById('drawer-overlay');
     
+    if (!drawer || !overlay) return;
+
     const isOpen = drawer.classList.contains('open');
     
     if (isOpen) {
@@ -59,13 +62,16 @@ function showView(view) {
     state.activeView = view;
     localStorage.setItem('kopala_active_view', view);
 
-    // Toggle View Sections
-    document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
-    document.getElementById('pitch-view').style.display = view === 'pitch' ? 'block' : 'none';
+    const tableView = document.getElementById('table-view');
+    const pitchView = document.getElementById('pitch-view');
+    const tabTable = document.getElementById('tab-table');
+    const tabPitch = document.getElementById('tab-pitch');
+
+    if (tableView) tableView.style.display = view === 'table' ? 'block' : 'none';
+    if (pitchView) pitchView.style.display = view === 'pitch' ? 'block' : 'none';
     
-    // Toggle Tab Button Active Class
-    document.getElementById('tab-table').classList.toggle('active', view === 'table');
-    document.getElementById('tab-pitch').classList.toggle('active', view === 'pitch');
+    if (tabTable) tabTable.classList.toggle('active', view === 'table');
+    if (tabPitch) tabPitch.classList.toggle('active', view === 'pitch');
 }
 
 /**
@@ -81,16 +87,18 @@ async function batchFetchCaptains(standings) {
             .then(res => res.json()).catch(() => null)
         ));
         results = [...results, ...batchRes];
+        // 250ms pause between batches to respect FPL API limits
         if (i + batchSize < standings.length) await new Promise(r => setTimeout(r, 250));
     }
     return results;
 }
 
 /**
- * 5. LEAGUE STANDINGS (Invitational Only)
+ * 5. LEAGUE STANDINGS
  */
 async function changeLeague(leagueId) {
     const body = document.getElementById('league-body');
+    if (!body) return;
     body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Safe Loading...</td></tr>';
 
     try {
@@ -124,6 +132,8 @@ async function changeLeague(leagueId) {
                 </tr>
             `;
         }).join('');
+        
+        // Removed initializeStats call to prevent ReferenceError
     } catch (err) { console.error("League Load Error", err); }
 }
 
@@ -135,22 +145,40 @@ async function initAppData() {
         const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
         const data = await res.json();
         data.elements.forEach(p => state.playerMap[p.id] = { name: p.web_name, code: p.code });
-        state.currentGW = (data.events.find(e => e.is_current) || data.events.find(e => !e.finished)).id;
+        
+        const activeGW = data.events.find(e => e.is_current) || data.events.find(e => !e.finished);
+        if (activeGW) state.currentGW = activeGW.id;
     } catch (e) { console.error("Bootstrap error", e); }
 }
 
-async function fetchManagerData() {
-    const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/`);
-    const data = await res.json();
-    document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
-    
-    const invitational = data.leagues.classic.filter(l => l.league_type === 'x');
-    const select = document.getElementById('league-select');
-    select.innerHTML = invitational.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
-    
-    if (invitational.length > 0) changeLeague(invitational[0].id);
+async function fetchMySquad() {
+    try {
+        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/event/${state.currentGW}/picks/`);
+        const data = await res.json();
+        state.myPlayerIds = data.picks.map(p => p.element);
+    } catch (e) { console.error("Squad error", e); }
 }
 
+async function fetchManagerData() {
+    try {
+        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/`);
+        const data = await res.json();
+        document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
+        document.getElementById('disp-total').textContent = data.summary_overall_points.toLocaleString();
+        document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
+        
+        const invitational = data.leagues.classic.filter(l => l.league_type === 'x');
+        const select = document.getElementById('league-select');
+        if (select) {
+            select.innerHTML = invitational.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+            if (invitational.length > 0) changeLeague(invitational[0].id);
+        }
+    } catch (e) { console.error("Manager data error", e); }
+}
+
+/**
+ * 7. UTILS
+ */
 function handleDarkModeToggle() {
     const isDark = document.body.classList.toggle('dark-mode');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -166,4 +194,9 @@ async function handleLogin() {
     state.fplId = id;
     localStorage.setItem('kopala_fpl_id', id);
     location.reload();
+}
+
+function toggleManagerExpansion(entryId) {
+    console.log("Expanding manager:", entryId);
+    // Placeholder for manager details logic
 }
