@@ -275,3 +275,30 @@ function handleDarkModeToggle() {
     const isDark = document.body.classList.toggle('dark-mode');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
+
+
+/**
+ * 6. SETTINGS DRAWER & UI EXTRAS
+ */
+function toggleSettings() {
+    const drawer = document.querySelector('.drawer');
+    if (drawer) {
+        drawer.classList.toggle('open');
+    } else {
+        // Fallback if drawer class isn't found
+        const settingsSection = document.getElementById('settings-drawer');
+        if (settingsSection) settingsSection.classList.toggle('open');
+    }
+}
+
+// Close drawer if user clicks outside of it
+document.addEventListener('click', (e) => {
+    const drawer = document.querySelector('.drawer');
+    const settingsBtn = document.querySelector('.settings-btn'); // Or whatever your gear icon class is
+    
+    if (drawer && drawer.classList.contains('open')) {
+        if (!drawer.contains(e.target) && !e.target.closest('button')) {
+            drawer.classList.remove('open');
+        }
+    }
+});
