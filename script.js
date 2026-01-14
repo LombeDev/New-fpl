@@ -1,6 +1,6 @@
 /**
- * KOPALA FPL - MASTER CORE SCRIPT
- * Features: Anti-Cache Fetching, Circular Pitch Layout, Live Manager Stats
+ * KOPALA FPL - MASTER CORE SCRIPT (COMPLETE)
+ * Includes: Anti-Cache, FFH-Style Skeleton Loading, Circular Faces, and Smooth Animations
  */
 
 const state = {
@@ -10,14 +10,12 @@ const state = {
     currentGW: 1, 
 };
 
-// Netlify Proxy Endpoint
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 
 /**
  * 1. INITIALIZATION
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Theme setup
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
         const darkToggle = document.getElementById('dark-mode-toggle');
@@ -39,7 +37,6 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 async function initAppData() {
     try {
-        // Cache buster forces a fresh fetch from the FPL API
         const cb = `&t=${Date.now()}`;
         const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/${cb}`);
         const data = await res.json();
@@ -82,7 +79,7 @@ async function fetchManagerData() {
 
 async function changeLeague(leagueId) {
     const body = document.getElementById('league-body');
-    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Fetching Live Standings...</td></tr>';
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;" class="loading-pulse">Updating Standings...</td></tr>';
 
     try {
         const cb = `&t=${Date.now()}`;
@@ -103,10 +100,11 @@ async function changeLeague(leagueId) {
                     <td style="font-weight: bold;"><span style="color:${arrowColor}">${arrow}</span> ${r.rank}</td>
                     <td>
                         <div class="manager-info-stack">
-                            <div class="manager-entry-name">${r.entry_name}</div>
-                            <div class="manager-real-name">${r.player_name}</div>
-                            <div class="captain-name-row">
-                                <span class="cap-badge">C</span> ${captainName}
+                            <div class="manager-entry-name" style="font-weight:800; color:#37003c;">${r.entry_name}</div>
+                            <div class="manager-real-name" style="font-size:0.75rem; color:#666;">${r.player_name}</div>
+                            <div class="captain-name-row" style="font-size:0.7rem; margin-top:4px; display:flex; align-items:center;">
+                                <span class="cap-badge" style="background:#e90052; color:white; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; font-size:0.5rem; margin-right:4px; font-weight:bold;">C</span> 
+                                <span style="font-weight:600;">${captainName}</span>
                             </div>
                         </div>
                     </td>
@@ -135,7 +133,7 @@ async function batchFetchCaptains(standings) {
 }
 
 /**
- * 4. SQUAD EXPANSION (The Pitch & Dashboard)
+ * 4. SQUAD EXPANSION (With Skeleton Loader & Auto-Scroll)
  */
 async function toggleManagerExpansion(entryId) {
     const row = document.getElementById(`row-${entryId}`);
@@ -149,7 +147,17 @@ async function toggleManagerExpansion(entryId) {
     const detailRow = document.createElement('tr');
     detailRow.id = `details-${entryId}`;
     detailRow.className = 'details-row';
-    detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:20px;">Syncing Live Team...</td>`;
+    
+    // Skeleton Loader (FFH Style)
+    detailRow.innerHTML = `
+        <td colspan="4" style="background: #fff; padding: 25px;">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+                <div class="skeleton-loader loading-ball"></div>
+                <div class="skeleton-loader loading-text"></div>
+                <div style="font-size:0.6rem; color:#999; font-weight:bold; letter-spacing:1px;">FETCHING LIVE DATA</div>
+            </div>
+        </td>
+    `;
     row.parentNode.insertBefore(detailRow, row.nextSibling);
 
     try {
@@ -183,8 +191,6 @@ async function toggleManagerExpansion(entryId) {
                 </div>
                 
                 <div class="manager-stats-footer">
-                    <div style="text-align:center; font-weight:800; margin-bottom:10px; font-size:0.7rem; color:var(--fpl-purple); text-transform:uppercase;">Live GW Stats & Chips</div>
-                    
                     <div class="stats-grid">
                         <div style="border-right: 1px solid #ddd; padding-right: 10px;">
                             <div class="stat-item"><span>GW Hits:</span> <span style="color:var(--fpl-pink); font-weight:800;">-${picksData.entry_history.event_transfers_cost}</span></div>
@@ -205,7 +211,13 @@ async function toggleManagerExpansion(entryId) {
                 </div>
             </td>
         `;
-    } catch (e) { detailRow.innerHTML = `<td colspan="4">Error loading manager data.</td>`; }
+
+        // Smooth scroll to the expanded squad
+        detailRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    } catch (e) { 
+        detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:15px; color:red;">Connection Error. Please try again.</td>`; 
+    }
 }
 
 function renderPitchRow(players) {
@@ -233,27 +245,8 @@ function renderChip(label, usedChips, chipName) {
 }
 
 /**
- * 5. LOGIN / LOGOUT (Hard Refreshes)
+ * 5. UI & PERSISTENCE
  */
-async function handleLogin() {
-    const id = document.getElementById('team-id-input').value;
-    if (!id) return alert("Enter Team ID");
-    
-    // Clear and set new ID
-    localStorage.clear();
-    localStorage.setItem('kopala_fpl_id', id);
-    
-    // Hard refresh with timestamp to bypass index cache
-    window.location.href = window.location.pathname + '?v=' + Date.now();
-}
-
-function resetApp() {
-    if(confirm("Logout and clear all data?")) { 
-        localStorage.clear(); 
-        window.location.href = window.location.pathname + '?v=' + Date.now();
-    }
-}
-
 function showView(view) {
     state.activeView = view;
     localStorage.setItem('kopala_active_view', view);
@@ -261,4 +254,24 @@ function showView(view) {
     document.getElementById('pitch-view').style.display = view === 'pitch' ? 'block' : 'none';
     document.getElementById('tab-table').classList.toggle('active', view === 'table');
     document.getElementById('tab-pitch').classList.toggle('active', view === 'pitch');
+}
+
+async function handleLogin() {
+    const id = document.getElementById('team-id-input').value;
+    if (!id) return alert("Enter Team ID");
+    localStorage.clear();
+    localStorage.setItem('kopala_fpl_id', id);
+    window.location.href = window.location.pathname + '?v=' + Date.now();
+}
+
+function resetApp() {
+    if(confirm("Logout?")) { 
+        localStorage.clear(); 
+        window.location.href = window.location.pathname + '?v=' + Date.now();
+    }
+}
+
+function handleDarkModeToggle() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
