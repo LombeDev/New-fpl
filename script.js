@@ -1,6 +1,6 @@
 /**
  * KOPALA FPL - MASTER CORE SCRIPT
- * Version: 2.0 (Red Theme + Validation + Telegram Dark Mode)
+ * Version: 2.1 (Modern UI Integration + Bug Fixes)
  */
 
 const state = {
@@ -28,19 +28,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     await initAppData();
 
     // Route: Dashboard or Login
+    const loginScreen = document.getElementById('login-screen');
+    const dashboard = document.getElementById('dashboard');
+
     if (state.fplId) {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (dashboard) dashboard.style.display = 'block';
         showView(state.activeView);
         await fetchManagerData();
     } else {
-        document.getElementById('login-screen').style.display = 'flex';
-        document.getElementById('dashboard').style.display = 'none';
+        if (loginScreen) loginScreen.style.display = 'flex';
+        if (dashboard) dashboard.style.display = 'none';
     }
 });
 
 /**
- * 2. BOOTSTRAP DATA (Player Info & Current GW)
+ * 2. BOOTSTRAP DATA
  */
 async function initAppData() {
     try {
@@ -49,7 +52,6 @@ async function initAppData() {
         if (!res.ok) throw new Error("API Offline");
         const data = await res.json();
         
-        // Map players for quick lookup
         data.elements.forEach(p => {
             state.playerMap[p.id] = { 
                 name: p.web_name, 
@@ -58,7 +60,6 @@ async function initAppData() {
             };
         });
 
-        // Determine current Gameweek
         const activeGW = data.events.find(e => e.is_current) || data.events.find(e => !e.finished);
         if (activeGW) {
             state.currentGW = activeGW.id;
@@ -71,16 +72,20 @@ async function initAppData() {
 }
 
 /**
- * 3. VALIDATED LOGIN
+ * 3. VALIDATED LOGIN (Updated for Modern UI)
  */
 async function handleLogin() {
-    const input = document.getElementById('team-id-input');
-    const loginBtn = document.querySelector('.action-button');
+    const input = document.getElementById('team-id-input'); // Matches new ID
+    const loginBtn = document.querySelector('.enter-id-btn'); // Matches new class
+    
+    if (!input || !loginBtn) return;
+
     const teamId = input.value.trim();
 
     // Basic Validation
     if (!teamId || isNaN(teamId)) {
         input.classList.add('input-error');
+        setTimeout(() => input.classList.remove('input-error'), 500);
         alert("Please enter a valid numeric Team ID.");
         return;
     }
@@ -88,7 +93,7 @@ async function handleLogin() {
     // UI Feedback
     const originalText = loginBtn.innerText;
     loginBtn.disabled = true;
-    loginBtn.innerHTML = `Verifying ID...`;
+    loginBtn.innerText = "VERIFYING...";
 
     try {
         const cb = `&t=${Date.now()}`;
@@ -110,7 +115,7 @@ async function handleLogin() {
 }
 
 /**
- * 4. LEAGUE STANDINGS
+ * 4. LEAGUE STANDINGS (Corrected with Null Checks)
  */
 async function fetchManagerData() {
     try {
@@ -118,11 +123,15 @@ async function fetchManagerData() {
         const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/${cb}`);
         const data = await res.json();
         
-        document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
-        document.getElementById('disp-total').textContent = data.summary_overall_points.toLocaleString();
-        document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
+        // Defensive checks for dashboard elements
+        const nameEl = document.getElementById('disp-name');
+        const totalEl = document.getElementById('disp-total');
+        const rankEl = document.getElementById('disp-rank');
 
-        // Populate Private Leagues Select
+        if (nameEl) nameEl.textContent = `${data.player_first_name} ${data.player_last_name}`;
+        if (totalEl) totalEl.textContent = data.summary_overall_points.toLocaleString();
+        if (rankEl) rankEl.textContent = (data.summary_overall_rank || 0).toLocaleString();
+
         const invitational = data.leagues.classic.filter(l => l.league_type === 'x');
         const select = document.getElementById('league-select');
         
@@ -130,12 +139,16 @@ async function fetchManagerData() {
             select.innerHTML = invitational.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
             changeLeague(invitational[0].id);
         }
-    } catch (e) { console.error("Manager data error", e); }
+    } catch (e) { 
+        console.error("Manager data error", e); 
+    }
 }
 
 async function changeLeague(leagueId) {
     const body = document.getElementById('league-body');
-    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px;" class="loading-pulse">Syncing Standings...</td></tr>';
+    if (!body) return;
+    
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px;">Syncing Standings...</td></tr>';
 
     try {
         const cb = `&t=${Date.now()}`;
@@ -143,7 +156,6 @@ async function changeLeague(leagueId) {
         const data = await res.json();
         const standings = data.standings.results;
 
-        // Fetch Captains for the top managers
         const allPicks = await batchFetchCaptains(standings);
 
         body.innerHTML = standings.map((r, index) => {
@@ -205,16 +217,7 @@ async function toggleManagerExpansion(entryId) {
     detailRow.id = `details-${entryId}`;
     detailRow.className = 'details-row';
     
-    // Skeleton Loader
-    detailRow.innerHTML = `
-        <td colspan="4" style="background: var(--card-bg); padding: 30px;">
-            <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
-                <div class="skeleton-loader loading-ball"></div>
-                <div class="skeleton-loader loading-text"></div>
-                <div style="font-size:0.6rem; color:var(--text-muted); font-weight:bold; letter-spacing:1px;">FETCHING PITCH DATA</div>
-            </div>
-        </td>
-    `;
+    detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:20px;">FETCHING PITCH...</td>`;
     row.parentNode.insertBefore(detailRow, row.nextSibling);
 
     try {
@@ -246,7 +249,6 @@ async function toggleManagerExpansion(entryId) {
                     ${renderPitchRow(squad.filter(p => p.pos === 3))}
                     ${renderPitchRow(squad.filter(p => p.pos === 4))}
                 </div>
-                
                 <div class="manager-stats-footer">
                     <div class="stats-grid">
                         <div style="border-right: 1px solid var(--border-color); padding-right: 10px;">
@@ -258,18 +260,9 @@ async function toggleManagerExpansion(entryId) {
                             <div style="font-size:0.75rem;">Overall: <span style="font-weight:800; color:var(--text-main);">${picksData.entry_history.total_points.toLocaleString()}</span></div>
                         </div>
                     </div>
-                    
-                    <div class="chip-status-row">
-                        ${renderChip('WC', historyData.chips, 'wildcard')}
-                        ${renderChip('TC', historyData.chips, '3xc')}
-                        ${renderChip('BB', historyData.chips, 'bboost')}
-                        ${renderChip('FH', historyData.chips, 'freehit')}
-                    </div>
                 </div>
             </td>
         `;
-
-        detailRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     } catch (e) { 
         detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:15px; color:var(--fpl-red);">Fetch Failed.</td>`; 
@@ -290,36 +283,26 @@ function renderPitchRow(players) {
     </div>`;
 }
 
-function renderChip(label, usedChips, chipName) {
-    const isUsed = usedChips.some(c => c.name === chipName);
-    return `
-        <div>
-            <div class="chip-circle ${isUsed ? 'used' : ''}">${label}</div>
-            <div style="font-size:0.55rem; font-weight:bold; text-align:center; color:var(--text-muted);">${isUsed ? 'USED' : 'AVAIL'}</div>
-        </div>
-    `;
-}
-
 /**
- * 6. SETTINGS & UTILS
+ * 6. UTILS & UI
  */
 function showView(view) {
     state.activeView = view;
     localStorage.setItem('kopala_active_view', view);
-    document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
-    document.getElementById('pitch-view').style.display = view === 'pitch' ? 'block' : 'none';
-    document.getElementById('tab-table').classList.toggle('active', view === 'table');
-    document.getElementById('tab-pitch').classList.toggle('active', view === 'pitch');
+    const tableView = document.getElementById('table-view');
+    const pitchView = document.getElementById('pitch-view');
+    const tabTable = document.getElementById('tab-table');
+    const tabPitch = document.getElementById('tab-pitch');
+
+    if (tableView) tableView.style.display = view === 'table' ? 'block' : 'none';
+    if (pitchView) pitchView.style.display = view === 'pitch' ? 'block' : 'none';
+    if (tabTable) tabTable.classList.toggle('active', view === 'table');
+    if (tabPitch) tabPitch.classList.toggle('active', view === 'pitch');
 }
 
 function handleDarkModeToggle() {
     const isDark = document.body.classList.toggle('dark-mode');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
-}
-
-function toggleSettings() {
-    const drawer = document.getElementById('settings-drawer');
-    drawer.classList.toggle('open');
 }
 
 function resetApp() {
@@ -328,47 +311,3 @@ function resetApp() {
         window.location.href = window.location.pathname + '?v=' + Date.now();
     }
 }
-
-
-
-let deferredPrompt;
-    const installBanner = document.getElementById('install-banner');
-
-    // Detect if the app is already installed/running in standalone mode
-    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-        installBanner.style.setProperty('display', 'none', 'important');
-    }
-
-    // Capture the install event
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent the mini-infobar from appearing on mobile
-        e.preventDefault();
-        // Stash the event so it can be triggered later.
-        deferredPrompt = e;
-        // Show our custom install banner
-        installBanner.style.display = 'flex';
-    });
-
-    async function triggerInstall() {
-        if (!deferredPrompt) return;
-        
-        // Show the native install prompt
-        deferredPrompt.prompt();
-        
-        // Wait for the user to respond to the prompt
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`User response to install: ${outcome}`);
-        
-        // We've used the prompt, and can't use it again, throw it away
-        deferredPrompt = null;
-        
-        // Hide our banner
-        installBanner.style.display = 'none';
-    }
-
-    // Hide banner if app is installed successfully
-    window.addEventListener('appinstalled', () => {
-        installBanner.style.display = 'none';
-        deferredPrompt = null;
-        console.log('PWA was installed');
-    });
