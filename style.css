@@ -1,6 +1,7 @@
 /**
  * KOPALA FPL - MASTER STYLESHEET
  * Theme: Telegram Dark Mode & Material You FPL Edition
+ * Version: 2.0 (Updated Login Design)
  */
 
 /* 1. THEME VARIABLES */
@@ -11,6 +12,7 @@
     --fpl-green: #00ff85;
     --fpl-dark-green: #008f4b;
     --pitch-green: #008d4c;
+    --fpl-purple: #37003c;
     
     /* Material 3 Surface Roles (Light) */
     --bg-light: #f3f3f5;
@@ -49,7 +51,7 @@ body {
     line-height: 1.6;
 }
 
-/* 3. LOGIN & HEADERS */
+/* 3. HERO & LOGIN CARD (Updated to match image) */
 .hero-section { 
     background: var(--fpl-red); 
     color: white; 
@@ -62,11 +64,94 @@ body {
     max-width: 90%; 
     width: 450px; 
     margin: -50px auto 20px; 
-    padding: 35px; 
-    border-radius: var(--radius-large); 
+    padding: 0; /* Changed to 0 to let input/buttons touch borders */
+    border-radius: 8px; /* Matches the sharper look in the image */
     box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+    overflow: hidden;
+    border: 1px solid var(--border-color);
 }
 
+.login-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-align: center;
+    padding: 20px 10px;
+    margin: 0;
+    letter-spacing: 0.5px;
+    color: var(--text-main);
+    text-transform: uppercase;
+}
+
+.input-group-container {
+    border-top: 1px solid var(--border-color);
+}
+
+/* Updated Input Style */
+.login-card input[type="number"] {
+    width: 100%;
+    border: none;
+    padding: 25px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: transparent;
+    border-bottom: 1px solid var(--border-color);
+    outline: none;
+    box-sizing: border-box;
+    border-radius: 0;
+}
+
+.login-card input::placeholder {
+    color: #b0b3b8;
+    text-transform: uppercase;
+    font-size: 0.95rem;
+}
+
+/* Bottom Actions Row */
+.login-actions {
+    display: flex;
+    align-items: stretch;
+    height: 65px;
+}
+
+.help-link {
+    flex: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--fpl-dark-green);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 10px;
+    text-align: center;
+}
+
+.enter-btn {
+    flex: 1;
+    border: none;
+    background: #eeeeee; /* Matches the grey button in image */
+    color: #8e949a;
+    font-weight: 800;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s;
+    border-left: 1px solid var(--border-color);
+    text-transform: uppercase;
+}
+
+body.dark-mode .enter-btn {
+    background: #2b3644;
+    color: var(--text-muted);
+}
+
+.enter-btn:active {
+    background: #e2e2e2;
+}
+
+/* 4. APP HEADER & NAVIGATION */
 .app-header { 
     background: var(--header-bg); 
     padding: 15px 20px; 
@@ -76,7 +161,6 @@ body {
     align-items: center; 
 }
 
-/* 4. NAVIGATION TABS */
 .main-tabs { 
     display: flex; 
     background: var(--tab-bg); 
@@ -137,7 +221,7 @@ body.dark-mode .live-table th {
     cursor: pointer; 
 }
 
-/* 6. PITCH VIEW (Squad Layout) */
+/* 6. PITCH VIEW */
 .pitch-container {
     background: var(--pitch-green) url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center;
     background-size: cover;
@@ -214,32 +298,7 @@ body.dark-mode .pitch-container {
     margin-bottom: 15px;
 }
 
-.chip-status-row {
-    display: flex;
-    justify-content: space-around;
-    padding-top: 10px;
-}
-
-.chip-circle {
-    width: 36px;
-    height: 36px;
-    background: var(--fpl-red);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 0.75rem;
-    margin: 0 auto 5px;
-}
-
-.chip-circle.used {
-    background: var(--text-muted);
-    opacity: 0.4;
-}
-
-/* 8. MATCH CENTER & INPUTS */
+/* 8. GLOBAL BUTTONS & INPUTS */
 .action-button {
     background: var(--fpl-red);
     color: white;
@@ -255,23 +314,7 @@ body.dark-mode .pitch-container {
 
 .action-button:active { transform: scale(0.96); }
 
-input[type="number"] {
-    width: 100%;
-    padding: 14px;
-    border-radius: var(--radius-medium);
-    border: 2px solid var(--border-color);
-    background: var(--bg-light);
-    color: var(--text-main);
-    font-size: 1rem;
-    box-sizing: border-box;
-}
-
-input:focus {
-    outline: none;
-    border-color: var(--fpl-red);
-}
-
-/* 9. SETTINGS DRAWER (M3 Style) */
+/* 9. SETTINGS DRAWER */
 .drawer {
     position: fixed;
     top: 10px;
@@ -305,24 +348,14 @@ input:focus {
     border: 2px solid var(--fpl-red) !important;
 }
 
-.action-button:disabled {
-    background: var(--text-muted);
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-
-
-
-/* INSTALL BANNER STYLES */
+/* INSTALL BANNER */
 #install-banner {
-    display: none; /* Hidden by default */
+    display: none; 
     background: var(--fpl-purple);
     color: white;
     padding: 15px 20px;
     margin: 10px;
     border-radius: 16px;
-    display: flex;
     align-items: center;
     justify-content: space-between;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -330,41 +363,19 @@ input:focus {
     z-index: 1001;
 }
 
-.install-text h4 { margin: 0; font-size: 0.9rem; }
-.install-text p { margin: 2px 0 0; font-size: 0.75rem; opacity: 0.8; }
-
-.install-btn-trigger {
-    background: var(--fpl-green);
-    color: var(--fpl-purple);
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 800;
-    font-size: 0.75rem;
-    cursor: pointer;
-}
-
-
-/* MODERN SELECTOR CONTAINER */
 .selector-wrapper {
     position: relative;
     display: flex;
     align-items: center;
-    background: var(--bg-color);
+    background: var(--bg-light);
     border-radius: 12px;
     padding: 2px 8px;
-    border: 1px solid var(--border-gray);
+    border: 1px solid var(--border-color);
     transition: all 0.2s ease;
 }
 
-.selector-wrapper:focus-within {
-    border-color: var(--fpl-purple);
-    box-shadow: 0 0 0 3px rgba(55, 0, 60, 0.1);
-}
-
-/* THE ACTUAL SELECT ELEMENT */
 #league-select {
-    appearance: none; /* Removes default browser arrow */
+    appearance: none;
     background: transparent;
     border: none;
     padding: 10px 35px 10px 12px;
@@ -374,32 +385,4 @@ input:focus {
     cursor: pointer;
     width: 100%;
     outline: none;
-    font-family: inherit;
-}
-
-/* CUSTOM ARROW ICON */
-.selector-wrapper::after {
-    content: '▼';
-    font-size: 0.6rem;
-    position: absolute;
-    right: 15px;
-    color: var(--text-muted);
-    pointer-events: none;
-}
-
-/* HEADER BUTTON REFINEMENT */
-.header-actions .update-btn {
-    background: var(--fpl-purple);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 0.9rem;
-    transition: transform 0.1s;
-    cursor: pointer;
-}
-
-.header-actions .update-btn:active {
-    transform: scale(0.95);
 }
