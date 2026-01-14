@@ -1,300 +1,154 @@
+/**
+ * KOPALA FPL - MASTER STYLESHEET
+ * Theme: Telegram Dark Mode & FPL Red Edition
+ */
+
+/* 1. THEME VARIABLES */
 :root {
-    --fpl-purple: #37003c;
-    --fpl-pink: #e90052;
-    --fpl-green: #00ff87;
+    /* Brand Colors */
+    --fpl-red: #e90052;
+    --fpl-pink: #ff005a;
+    --fpl-green: #00ff85;
+    --fpl-dark-green: #008f4b;
     --pitch-green: #008d4c;
+    
+    /* Light Mode Palette */
     --bg-light: #f4f4f4;
-    --text-main: #333;
-    --card-bg: white;
-    --border-color: #ddd;
+    --text-main: #1a1a1a;
+    --text-muted: #707579;
+    --card-bg: #ffffff;
+    --border-color: #dfe1e5;
+    --header-bg: #ffffff;
+    --tab-bg: #e1e1e1;
 }
 
-/* Dark Mode Variables */
+/* Telegram-Style Dark Mode */
 body.dark-mode {
-    --bg-light: #111;
-    --text-main: #eee;
-    --card-bg: #222;
-    --border-color: #333;
+    --bg-light: #1c242d;    /* Deep Blue-Grey Background */
+    --card-bg: #242f3d;     /* Lighter Blue-Grey Cards */
+    --header-bg: #242f3d;
+    --text-main: #ffffff;
+    --text-muted: #869099;
+    --border-color: #171e28;
+    --tab-bg: #171e28;
 }
 
+/* 2. CORE STYLES */
 body { 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
     margin: 0; 
     background: var(--bg-light); 
     color: var(--text-main); 
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.2s, color 0.2s;
     line-height: 1.6;
 }
 
-/* --- Login & Global Components --- */
-.hero-section { background: #00563b; color: white; text-align: center; padding: clamp(40px, 10vw, 80px) 20px; }
-.login-card { background: var(--card-bg); max-width: 90%; width: 450px; margin: -40px auto 20px; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-.app-header { background: var(--card-bg); padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; }
-.main-tabs { display: flex; background: #ddd; position: sticky; top: 0; z-index: 100; }
-body.dark-mode .main-tabs { background: #000; }
-.tab-btn { flex: 1; padding: 15px 5px; border: none; background: none; font-weight: bold; cursor: pointer; color: var(--text-main); font-size: 0.9rem; transition: 0.2s; }
-.tab-btn.active { background: var(--fpl-purple); color: white; }
+/* 3. LOGIN & HEADERS */
+.hero-section { 
+    background: var(--fpl-red); 
+    color: white; 
+    text-align: center; 
+    padding: clamp(40px, 10vw, 80px) 20px; 
+}
 
-/* --- Table & List Styles --- */
-.table-container { overflow-x: auto; }
-.live-table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
-.live-table th { text-align: left; padding: 12px; background: rgba(0,0,0,0.05); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #999; }
-.live-table td { padding: 12px; border-bottom: 1px solid var(--border-color); }
-.manager-row:hover { background-color: rgba(0, 255, 133, 0.05); cursor: pointer; }
+.login-card { 
+    background: var(--card-bg); 
+    max-width: 90%; 
+    width: 450px; 
+    margin: -40px auto 20px; 
+    padding: 30px; 
+    border-radius: 12px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+}
 
-/* --- Circular Pitch View (Squad Expansion) --- */
-.details-row td { padding: 0 !important; }
+.app-header { 
+    background: var(--header-bg); 
+    padding: 15px 20px; 
+    border-bottom: 1px solid var(--border-color); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
 
+/* 4. NAVIGATION TABS */
+.main-tabs { 
+    display: flex; 
+    background: var(--tab-bg); 
+    position: sticky; 
+    top: 0; 
+    z-index: 100; 
+}
+
+.tab-btn { 
+    flex: 1; 
+    padding: 15px 5px; 
+    border: none; 
+    background: none; 
+    font-weight: bold; 
+    cursor: pointer; 
+    color: var(--text-main); 
+    font-size: 0.9rem; 
+    transition: 0.2s; 
+}
+
+.tab-btn.active { 
+    background: var(--fpl-red); 
+    color: white; 
+}
+
+/* 5. LIVE TABLE & LISTS */
+.table-container { 
+    overflow-x: auto; 
+    background: var(--card-bg);
+}
+
+.live-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
+.live-table th { 
+    text-align: left; 
+    padding: 12px; 
+    background: rgba(0,0,0,0.05); 
+    font-size: 0.7rem; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    color: var(--text-muted); 
+}
+
+body.dark-mode .live-table th {
+    background: #171e28;
+}
+
+.live-table td { 
+    padding: 12px; 
+    border-bottom: 1px solid var(--border-color); 
+}
+
+.manager-row:hover { 
+    background-color: rgba(233, 0, 82, 0.05); /* Soft FPL Red hover */
+    cursor: pointer; 
+}
+
+/* 6. PITCH VIEW (Squad Layout) */
 .pitch-container {
-    background: #008d53 url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center;
+    background: var(--pitch-green) url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center;
     background-size: cover;
-    padding: 15px 5px;
+    padding: 20px 10px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+}
+
+body.dark-mode .pitch-container {
+    filter: brightness(0.8) contrast(1.1); /* Darker pitch for dark mode */
 }
 
 .pitch-row {
     display: flex;
     justify-content: center;
-    gap: 6px;
-}
-
-.player-card {
-    width: 62px;
-    text-align: center;
-    position: relative;
-}
-
-.player-photo-wrapper {
-    width: 44px;
-    height: 44px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-}
-
-.player-face {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.player-info-label {
-    background: #fff;
-    color: #333;
-    font-size: 0.6rem;
-    font-weight: 800;
-    padding: 1px 3px;
-    margin-top: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border-radius: 2px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.player-points-badge {
-    color: #fff;
-    font-size: 0.85rem;
-    font-weight: 900;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-    margin-top: -2px;
-}
-
-/* --- Manager Stats Footer --- */
-.manager-stats-footer {
-    background: var(--bg-light);
-    padding: 12px 15px;
-    border-top: 2px solid var(--fpl-purple);
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    font-size: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-}
-
-.chip-status-row {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
-
-.chip-icon {
-    width: 28px;
-    height: 28px;
-    background: var(--fpl-purple);
-    color: var(--fpl-green);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 0.6rem;
-    margin: 0 auto 3px;
-}
-
-.chip-icon.used {
-    background: #ddd;
-    color: #999;
-}
-
-.chip-label {
-    font-size: 0.55rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    text-align: center;
-}
-
-/* --- Transitions --- */
-.details-row {
-    animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-
-
-/* The Shimmer Effect */
-@keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-}
-
-.skeleton-loader {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 4px;
-    display: inline-block;
-}
-
-/* Specific Loading Shapes */
-.loading-ball {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    margin: 0 auto;
-}
-
-.loading-text {
-    width: 80%;
-    height: 10px;
-    margin-top: 8px;
-}
-
-/* Smooth expansion container */
-.details-row {
-    transition: all 0.3s ease-in-out;
-}
-
-
-/* Smooth expansion for the manager detail row */
-.details-row {
-    overflow: hidden;
-    animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-}
-
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Staggered "Pop" animation for player cards */
-.player-card {
-    opacity: 0;
-    transform: scale(0.8);
-    animation: playerPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-@keyframes playerPop {
-    to { opacity: 1; transform: scale(1); }
-}
-
-/* Add delays to rows for a staggered entry effect */
-.pitch-row:nth-child(1) .player-card { animation-delay: 0.1s; }
-.pitch-row:nth-child(2) .player-card { animation-delay: 0.2s; }
-.pitch-row:nth-child(3) .player-card { animation-delay: 0.3s; }
-.pitch-row:nth-child(4) .player-card { animation-delay: 0.4s; }
-
-/* Pulse effect for loading state */
-.loading-pulse {
-    animation: pulse 1.5s infinite ease-in-out;
-    color: #999;
-    font-weight: bold;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
-}
-
-/* Smooth hover for rows */
-.manager-row {
-    transition: background-color 0.2s ease, transform 0.1s ease;
-}
-
-.manager-row:active {
-    transform: scale(0.98);
-}
-
-
-
-/* Settings Drawer Sidebar */
-.drawer {
-    position: fixed;
-    top: 0;
-    right: -320px; /* Hidden by default */
-    width: 300px;
-    height: 100%;
-    background: var(--card-bg);
-    box-shadow: -5px 0 15px rgba(0,0,0,0.2);
-    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-    padding: 20px;
-}
-
-.drawer.open {
-    right: 0; /* Slides in */
-}
-
-/* Optional: Dark overlay when drawer is open */
-.drawer-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: none;
-    z-index: 999;
-}
-
-.drawer.open + .drawer-overlay {
-    display: block;
-}
-
-
-
-
-/* --- Circular Player Styles --- */
-.pitch-container {
-    background: #008d53 url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center;
-    background-size: cover;
-    padding: 20px 10px;
+    gap: 8px;
 }
 
 .player-card {
@@ -310,7 +164,7 @@ body.dark-mode .main-tabs { background: #000; }
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid #fff;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
 .player-face {
@@ -326,41 +180,42 @@ body.dark-mode .main-tabs { background: #000; }
     font-weight: 800;
     margin-top: 5px;
     border-radius: 2px;
+    padding: 1px 2px;
 }
 
 .player-points-badge {
     color: #fff;
     font-size: 1rem;
     font-weight: 900;
-    text-shadow: 1px 1px 2px #000;
+    text-shadow: 1px 1px 3px #000;
 }
 
-/* --- Manager Dashboard Footer --- */
+/* 7. MANAGER STATS FOOTER */
 .manager-stats-footer {
-    background: #f8f8f8;
+    background: var(--card-bg);
     padding: 15px;
-    font-family: 'Segoe UI', sans-serif;
+    border-top: 3px solid var(--fpl-red);
 }
 
 .stats-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 15px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+    margin-bottom: 12px;
 }
 
 .chip-status-row {
     display: flex;
     justify-content: space-around;
-    padding-top: 15px;
+    padding-top: 10px;
 }
 
-.chip-item { text-align: center; }
 .chip-circle {
     width: 32px;
     height: 32px;
-    background: #37003c;
+    background: var(--fpl-red);
     color: white;
     border-radius: 50%;
     display: flex;
@@ -371,176 +226,77 @@ body.dark-mode .main-tabs { background: #000; }
     margin: 0 auto 5px;
 }
 
-/* --- Bonus Match Center --- */
+.chip-circle.used {
+    background: var(--text-muted);
+    opacity: 0.5;
+}
+
+/* 8. MATCH CENTER & MARKET */
 .match-card-main {
     display: flex;
-    background: white;
-    border-radius: 8px;
-    margin: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.score-box {
-    background: #37003c;
-    color: white;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-family: monospace;
-    font-weight: 800;
-}
-
-.event-icon {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    background: #e90052;
-    color: white;
-    font-size: 0.6rem;
-    border-radius: 2px;
-    text-align: center;
-    margin-left: 4px;
-}
-
-
-
-/* High-Fidelity Match Center Styles */
-.match-card-main {
-    display: flex;
-    background: #fff;
+    background: var(--card-bg);
     border-radius: 8px;
     margin: 10px 0;
     overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    border: 1px solid #eee;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
 }
 
 .score-box-center {
-    background: #37003c;
+    background: var(--fpl-red);
     color: #fff;
     padding: 4px 12px;
     border-radius: 4px;
     font-weight: 900;
-    font-size: 0.9rem;
     font-family: monospace;
 }
 
-.assist-badge {
-    background: #e90052;
-    color: #fff;
-    font-size: 0.6rem;
-    font-weight: 900;
-    padding: 1px 4px;
-    border-radius: 2px;
-    margin-left: 4px;
-    display: inline-block;
-}
-
-.bonus-column {
-    flex: 1;
-    padding: 15px;
-    background: #fafafa;
-    border-left: 1px solid #eee;
-}
-
-.medal-icon {
-    width: 18px;
-    height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    font-weight: 900;
-    font-size: 0.7rem;
-    color: #000;
-}
-
-
-
-/* FPL Brand Colors */
-:root {
-    --fpl-purple: #37003c;
-    --fpl-pink: #ff005a;
-    --fpl-green: #00ff85;
-    --fpl-dark-green: #008f4b;
-    --fpl-bg: #f2f2f2;
-    --fpl-border: #dbdbdb;
-}
-
-/* Table Container */
-.table-container {
-    max-height: 500px;
-    overflow-y: auto;
-    border: 1px solid var(--fpl-border);
-    scrollbar-width: thin;
-}
-
-/* Predictor Table Styling */
-#predictor-table {
-    border-collapse: collapse;
-    background: white;
-}
-
 #predictor-table th {
-    position: sticky;
-    top: 0;
-    background: var(--fpl-purple);
+    background: var(--fpl-red);
     color: white;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
-    z-index: 10;
 }
 
-#predictor-table td {
-    padding: 12px;
-    border-bottom: 1px solid var(--fpl-border);
-    vertical-align: middle;
-}
-
-/* Row Hover Effect */
-#predictor-table tr:hover {
-    background-color: #fafafa;
-}
-
-/* Live Badge for 'Tonight' predictions */
-.live-badge {
-    display: inline-block;
-    background: var(--fpl-pink);
-    color: white;
-    font-size: 0.6rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: bold;
-    margin-top: 4px;
-}
-
-/* Trend Colors */
-.trend-up { color: var(--fpl-dark-green); font-weight: bold; }
-.trend-down { color: var(--fpl-pink); font-weight: bold; }
-
-/* Cell Highlighting */
-.rise-cell { background-color: rgba(0, 255, 133, 0.1); }
-.fall-cell { background-color: rgba(255, 0, 90, 0.1); }
-
-/* Input & Select Styling */
-#playerSearch, #teamFilter {
-    border: 2px solid var(--fpl-border);
-    transition: border-color 0.2s;
-    outline: none;
-}
-
-#playerSearch:focus, #teamFilter:focus {
-    border-color: var(--fpl-purple);
-}
-
-/* Countdown Timer */
 #timer {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 1rem;
+    font-family: 'Courier New', monospace;
     padding: 2px 8px;
     background: #000;
     color: var(--fpl-green);
     border-radius: 4px;
+}
+
+/* 9. SETTINGS DRAWER */
+.drawer {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 300px;
+    height: 100%;
+    background: var(--card-bg);
+    box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.drawer.open { right: 0; }
+
+.drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    z-index: 999;
+}
+
+/* 10. ANIMATIONS */
+@keyframes playerPop {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.player-card {
+    animation: playerPop 0.3s ease-out forwards;
 }
