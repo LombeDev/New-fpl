@@ -1,71 +1,16 @@
 /**
- * KOPALA FPL - Deadline Engine
- * Focus: Correct GW Detection & Countdown
+ * KOPALA FPL - Ultimate Home Dashboard (v4.0)
  */
 
-const API_URL = "/api/fpl/bootstrap-static/"; 
-let deadlineInterval; // To clear the timer if needed
+// IMPORTANT: Match this to your Netlify proxy path
+const API_BASE = "/api/fpl/"; 
+let teamMap = {};
 
 /**
- * 1. MAIN INITIALIZER
+ * LOGIN TRIGGER
+ * Connects your HTML "Continue" button to the dashboard logic
  */
-async function refreshDashboard() {
-    try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        
-        const data = await response.json();
-        
-        // Find the next Gameweek
-        const nextGw = data.events.find(event => event.is_next);
-        
-        if (nextGw) {
-            startDeadlineCountdown(nextGw);
-        } else {
-            document.getElementById('deadline-timer').innerText = "Season Finished or Updating";
-        }
-
-    } catch (e) {
-        console.error("Deadline Fetch Failed:", e);
-        document.getElementById('deadline-timer').innerText = "⚠️ Offline";
-    }
-}
-
-/**
- * 2. COUNTDOWN LOGIC
- * Updates the UI every second with time remaining
- */
-function startDeadlineCountdown(gwData) {
-    const deadlineTime = new Date(gwData.deadline_time).getTime();
-    const timerEl = document.getElementById('deadline-timer');
-
-    // Clear any existing interval
-    if (deadlineInterval) clearInterval(deadlineInterval);
-
-    deadlineInterval = setInterval(() => {
-        const now = new Date().getTime();
-        const distance = deadlineTime - now;
-
-        if (distance < 0) {
-            clearInterval(deadlineInterval);
-            timerEl.innerText = `${gwData.name} Passed`;
-            return;
-        }
-
-        // Calculations for days, hours, minutes
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-
-        // Format string: "GW18: 2d 04h 20m"
-        timerEl.innerText = `${gwData.name}: ${days}d ${hours}h ${minutes}m`;
-    }, 1000);
-}
-
-/**
- * 3. UI HANDLERS
- */
-function handleLogin() {
+async function handleLogin() {
     const teamId = document.getElementById('team-id-input').value;
     if (!teamId) return alert("Please enter your Team ID");
 
@@ -73,19 +18,110 @@ function handleLogin() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
 
-    // Run the feature
-    refreshDashboard();
+    // Start the FPL Engine
+    init();
 }
 
-// Global reset function (for your Logout button)
-function resetApp() {
-    location.reload();
+async function init() {
+    const CACHE_KEY = "fpl_bootstrap_cache";
+    const LOCK_KEY = 'fpl_api_blocked_until';
+
+    // 1. Rate Limit Guard
+    const blockedUntil = localStorage.getItem(LOCK_KEY);
+    if (blockedUntil && Date.now() < parseInt(blockedUntil)) {
+        loadFromCacheOnly(); 
+        return;
+    }
+
+    try {
+        // 2. Cache Logic (10-minute window)
+        const cached = localStorage.getItem(CACHE_KEY);
+        let data;
+
+        if (cached) {
+            const parsed = JSON.parse(cached);
+            if (Date.now() - parsed.timestamp < 10 * 60 * 1000) {
+                data = parsed.content;
+            }
+        }
+
+        // 3. Fetch Data
+        if (!data) {
+            // Using bootstrap-static endpoint
+            const response = await fetch(`${API_BASE}bootstrap-static/`);
+
+            if (response.status === 429) {
+                const coolDownTime = Date.now() + (30 * 60 * 1000); 
+                localStorage.setItem(LOCK_KEY, coolDownTime.toString());
+                throw new Error("429");
+            }
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            data = await response.json();
+            
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+                timestamp: Date.now(),
+                content: data
+            }));
+        }
+
+        processAndRender(data);
+
+    } catch (err) {
+        console.error("Init failed:", err.message);
+        loadFromCacheOnly(); 
+    }
 }
 
-// Helper for the settings drawer toggle
-function toggleSettings() {
-    const drawer = document.getElementById('settings-drawer');
-    const overlay = document.getElementById('drawer-overlay');
-    drawer.classList.toggle('open');
-    overlay.style.display = drawer.classList.contains('open') ? 'block' : 'none';
+function processAndRender(data) {
+    // Build Team Map (ID -> Short Name)
+    data.teams.forEach(t => teamMap[t.id] = t.short_name);
+
+    renderDeadline(data.events);
+    // You can add back the other render functions (Prices, King, etc.) here
+}
+
+function loadFromCacheOnly() {
+    const cached = localStorage.getItem("fpl_bootstrap_cache");
+    if (cached) {
+        const parsed = JSON.parse(cached);
+        processAndRender(parsed.content);
+    }
+}
+
+/**
+ * 1. COUNTDOWN TIMER
+ */
+function renderDeadline(events) {
+    // Find next GW that hasn't finished
+    const nextGW = events.find(e => !e.finished);
+    if (!nextGW) return;
+
+    // TARGET: Match the ID in your HTML
+    const el = document.getElementById("deadline-timer");
+    
+    const deadline = new Date(nextGW.deadline_time).getTime();
+
+    const update = () => {
+        const now = new Date().getTime();
+        const diff = deadline - now;
+
+        if (diff <= 0) {
+            if (el) el.innerHTML = "Deadline Passed";
+            return;
+        }
+
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+
+        if (el) {
+            el.innerHTML = `${nextGW.name}: ${d}d ${h}h ${m}m ${s}s`;
+        }
+    };
+
+    update();
+    setInterval(update, 1000);
 }
