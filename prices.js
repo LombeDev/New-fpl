@@ -1,114 +1,88 @@
 /**
- * KOPALA FPL - Ultimate Home Dashboard (v4.0)
+ * KOPALA FPL - Fixed Deadline & Bootstrap Engine
  */
 
-// IMPORTANT: Match this to your Netlify proxy path
 const API_BASE = "/api/fpl/"; 
 let teamMap = {};
 
 /**
- * LOGIN TRIGGER
- * Connects your HTML "Continue" button to the dashboard logic
+ * TRIGGER: Called by your "Continue" button
  */
 async function handleLogin() {
     const teamId = document.getElementById('team-id-input').value;
     if (!teamId) return alert("Please enter your Team ID");
 
-    // Transition UI
+    // Show Dashboard
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
 
-    // Start the FPL Engine
+    // Start Data Sync
     init();
 }
 
 async function init() {
     const CACHE_KEY = "fpl_bootstrap_cache";
-    const LOCK_KEY = 'fpl_api_blocked_until';
-
-    // 1. Rate Limit Guard
-    const blockedUntil = localStorage.getItem(LOCK_KEY);
-    if (blockedUntil && Date.now() < parseInt(blockedUntil)) {
-        loadFromCacheOnly(); 
-        return;
-    }
+    const now = Date.now();
 
     try {
-        // 2. Cache Logic (10-minute window)
+        // 1. Try Cache first
         const cached = localStorage.getItem(CACHE_KEY);
-        let data;
-
         if (cached) {
             const parsed = JSON.parse(cached);
-            if (Date.now() - parsed.timestamp < 10 * 60 * 1000) {
-                data = parsed.content;
+            if (now - parsed.timestamp < 10 * 60 * 1000) { // 10 min cache
+                processAndRender(parsed.content);
+                return;
             }
         }
 
-        // 3. Fetch Data
-        if (!data) {
-            // Using bootstrap-static endpoint
-            const response = await fetch(`${API_BASE}bootstrap-static/`);
+        // 2. Fetch fresh data
+        const response = await fetch(`${API_BASE}bootstrap-static/`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-            if (response.status === 429) {
-                const coolDownTime = Date.now() + (30 * 60 * 1000); 
-                localStorage.setItem(LOCK_KEY, coolDownTime.toString());
-                throw new Error("429");
-            }
-
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-            data = await response.json();
-            
-            localStorage.setItem(CACHE_KEY, JSON.stringify({
-                timestamp: Date.now(),
-                content: data
-            }));
-        }
+        const data = await response.json();
+        
+        // 3. Save to Cache
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+            timestamp: now,
+            content: data
+        }));
 
         processAndRender(data);
 
     } catch (err) {
-        console.error("Init failed:", err.message);
-        loadFromCacheOnly(); 
+        console.error("FPL Sync Failed:", err);
+        // Fallback to old cache if network fails
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) processAndRender(JSON.parse(cached).content);
     }
 }
 
 function processAndRender(data) {
-    // Build Team Map (ID -> Short Name)
+    // Map team IDs to names (e.g., 1 -> "ARS")
     data.teams.forEach(t => teamMap[t.id] = t.short_name);
 
+    // Run Deadline Feature
     renderDeadline(data.events);
-    // You can add back the other render functions (Prices, King, etc.) here
-}
-
-function loadFromCacheOnly() {
-    const cached = localStorage.getItem("fpl_bootstrap_cache");
-    if (cached) {
-        const parsed = JSON.parse(cached);
-        processAndRender(parsed.content);
-    }
 }
 
 /**
- * 1. COUNTDOWN TIMER
+ * DEADLINE FEATURE
+ * Matches ID: "deadline-timer"
  */
 function renderDeadline(events) {
-    // Find next GW that hasn't finished
-    const nextGW = events.find(e => !e.finished);
+    // Find the next active Gameweek
+    const nextGW = events.find(e => !e.finished && new Date(e.deadline_time) > new Date());
     if (!nextGW) return;
 
-    // TARGET: Match the ID in your HTML
-    const el = document.getElementById("deadline-timer");
-    
-    const deadline = new Date(nextGW.deadline_time).getTime();
+    const timerEl = document.getElementById("deadline-timer");
+    const deadlineTime = new Date(nextGW.deadline_time).getTime();
 
-    const update = () => {
+    const updateTimer = () => {
         const now = new Date().getTime();
-        const diff = deadline - now;
+        const diff = deadlineTime - now;
 
         if (diff <= 0) {
-            if (el) el.innerHTML = "Deadline Passed";
+            if (timerEl) timerEl.innerHTML = "Deadline Passed";
             return;
         }
 
@@ -117,11 +91,34 @@ function renderDeadline(events) {
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
 
-        if (el) {
-            el.innerHTML = `${nextGW.name}: ${d}d ${h}h ${m}m ${s}s`;
+        if (timerEl) {
+            // Simple, clean format for your green banner
+            timerEl.innerHTML = `${nextGW.name}: ${d}d ${h}h ${m}m ${s}s`;
         }
     };
 
-    update();
-    setInterval(update, 1000);
+    updateTimer();
+    setInterval(updateTimer, 1000);
+}
+
+/**
+ * UTILS
+ */
+function toggleSettings() {
+    const drawer = document.getElementById('settings-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+    const isOpen = drawer.classList.contains('open');
+    
+    if (isOpen) {
+        drawer.classList.remove('open');
+        overlay.style.display = 'none';
+    } else {
+        drawer.classList.add('open');
+        overlay.style.display = 'block';
+    }
+}
+
+function resetApp() {
+    localStorage.clear();
+    location.reload();
 }
