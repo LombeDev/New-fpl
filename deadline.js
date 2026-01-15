@@ -1,66 +1,73 @@
 /**
- * KOPALA FPL - Smart Deadline Banner
- * Only fetches when the current deadline has expired.
+ * KOPALA FPL - Fixed Deadline Script
+ * Handles Netlify Proxy + Local Fallback + Smart Caching
  */
+
 async function updateFPLDeadline() {
     const bannerEl = document.getElementById('deadline-timer');
     const CACHE_KEY = "fpl_deadline_cache";
-    const API_URL = "/fpl-api/bootstrap-static/";
-
-    // 1. Check Local Cache
-    const cachedData = localStorage.getItem(CACHE_KEY);
+    
+    // 1. TRY CACHE FIRST
+    const cached = localStorage.getItem(CACHE_KEY);
     const now = new Date();
 
-    if (cachedData) {
-        const parsed = JSON.parse(cachedData);
-        const deadlineDate = new Date(parsed.deadline_time);
-
-        // If the cached deadline is still in the future, just render it and EXIT
+    if (cached) {
+        const data = JSON.parse(cached);
+        const deadlineDate = new Date(data.deadline_time);
+        
+        // If stored deadline is still valid, show it and stop
         if (now < deadlineDate) {
-            console.log("Using cached deadline: " + parsed.name);
-            renderDeadlineDisplay(parsed.name, deadlineDate);
-            return;
+            renderDeadlineDisplay(data.name, deadlineDate);
+            return; 
         }
     }
 
-    // 2. Fetch New Data (Only runs if no cache OR deadline passed)
+    // 2. FETCH NEW DATA (If no cache or deadline passed)
+    // We try the Netlify path. If on localhost, it will catch the error and try a proxy.
+    let API_URL = "/fpl-api/bootstrap-static/"; 
+    
     try {
-        console.log("Deadline passed or no cache. Fetching new GW data...");
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error("Fetch failed");
+        let response = await fetch(API_URL);
         
-        const data = await response.json();
-        
-        // Find the next upcoming gameweek (not finished and in the future)
-        const nextGW = data.events.find(e => !e.finished && new Date(e.deadline_time) > now);
-
-        if (nextGW) {
-            const newCache = {
-                name: nextGW.name,
-                deadline_time: nextGW.deadline_time
-            };
-
-            // Update Cache
-            localStorage.setItem(CACHE_KEY, JSON.stringify(newCache));
-            renderDeadlineDisplay(newCache.name, new Date(newCache.deadline_time));
+        // Fallback for Local Development (if Netlify rewrite is missing)
+        if (!response.ok || window.location.hostname === "localhost") {
+            const proxy = "https://api.allorigins.win/get?url=";
+            const target = "https://fantasy.premierleague.com/api/bootstrap-static/";
+            response = await fetch(proxy + encodeURIComponent(target));
+            const json = await response.json();
+            processFPLData(JSON.parse(json.contents));
         } else {
-            if (bannerEl) bannerEl.innerText = "Season Finished";
+            const data = await response.json();
+            processFPLData(data);
         }
     } catch (error) {
-        console.error("Deadline sync error:", error);
-        if (bannerEl) bannerEl.innerText = "Syncing...";
+        console.error("Deadline Fetch Failed:", error);
+        if (bannerEl) bannerEl.innerText = "Error Loading";
     }
 }
 
-/**
- * Formats the date to a readable string
- */
+function processFPLData(data) {
+    const CACHE_KEY = "fpl_deadline_cache";
+    // Find the 'is_next' gameweek
+    const nextGW = data.events.find(e => e.is_next === true);
+
+    if (nextGW) {
+        const deadlineInfo = {
+            name: nextGW.name,
+            deadline_time: nextGW.deadline_time
+        };
+        // Save to cache
+        localStorage.setItem(CACHE_KEY, JSON.stringify(deadlineInfo));
+        renderDeadlineDisplay(deadlineInfo.name, new Date(deadlineInfo.deadline_time));
+    }
+}
+
 function renderDeadlineDisplay(name, dateObj) {
     const bannerEl = document.getElementById('deadline-timer');
     if (!bannerEl) return;
 
-    // Format: Sat 18 Jan, 11:00 AM
-    const formattedDate = dateObj.toLocaleString('en-GB', {
+    // Formatting to: Sat 18 Jan, 11:00 AM
+    const formatted = dateObj.toLocaleString('en-GB', {
         weekday: 'short',
         day: 'numeric',
         month: 'short',
@@ -69,11 +76,8 @@ function renderDeadlineDisplay(name, dateObj) {
         hour12: true
     });
 
-    bannerEl.innerText = `${name}: ${formattedDate}`;
+    bannerEl.innerText = `${name}: ${formatted}`;
 }
 
-// Run immediately on load
+// Start
 document.addEventListener('DOMContentLoaded', updateFPLDeadline);
-
-// Optional: Auto-check every 30 minutes in case the tab is left open
-setInterval(updateFPLDeadline, 30 * 60 * 1000);
