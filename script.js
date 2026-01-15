@@ -441,3 +441,14 @@ function renderCompareColumn(container, picks, pointsMap, teamName) {
 function closeCompareModal() {
     document.getElementById('compare-modal').style.display = 'none';
 }
+
+
+
+function updateActiveTab(clickedId) {
+    // Remove active class from all
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    // Add to the one we clicked
+    document.getElementById(clickedId).classList.add('active');
+}
