@@ -328,4 +328,95 @@ function resetApp() {
 
 
 
+/**
+ * 5. COMPARISON ENGINE (New)
+ */
+let selectedForComparison = [];
 
+function selectForCompare(entryId, entryName) {
+    // If already selected, remove it (toggle)
+    if (selectedForComparison.find(s => s.id === entryId)) {
+        selectedForComparison = selectedForComparison.filter(s => s.id !== entryId);
+    } else {
+        // Only allow 2 selections
+        if (selectedForComparison.length >= 2) selectedForComparison.shift();
+        selectedForComparison.push({ id: entryId, name: entryName });
+    }
+    
+    updateCompareButtonUI();
+}
+
+function updateCompareButtonUI() {
+    const btn = document.getElementById('tab-compare');
+    if (!btn) return;
+    
+    if (selectedForComparison.length === 2) {
+        btn.style.background = "var(--fpl-green)";
+        btn.innerText = "COMPARE (2)";
+        btn.disabled = false;
+    } else {
+        btn.style.background = "var(--fpl-purple)";
+        btn.innerText = `COMPARE (${selectedForComparison.length})`;
+        btn.disabled = selectedForComparison.length < 2;
+    }
+}
+
+async function openCompareModal() {
+    const modal = document.getElementById('compare-modal');
+    const col1 = document.getElementById('team-1-col');
+    const col2 = document.getElementById('team-2-col');
+    
+    modal.style.display = 'block';
+    col1.innerHTML = '<div class="loader-small"></div>';
+    col2.innerHTML = '<div class="loader-small"></div>';
+
+    try {
+        const [id1, id2] = selectedForComparison.map(s => s.id);
+        const cb = `&t=${Date.now()}`;
+        
+        // Fetch Live Points and Picks
+        const [res1, res2, liveRes] = await Promise.all([
+            fetch(`${PROXY_ENDPOINT}entry/${id1}/event/${state.currentGW}/picks/${cb}`),
+            fetch(`${PROXY_ENDPOINT}entry/${id2}/event/${state.currentGW}/picks/${cb}`),
+            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/${cb}`)
+        ]);
+
+        const data1 = await res1.json();
+        const data2 = await res2.json();
+        const liveData = await liveRes.json();
+        
+        const pointsMap = {};
+        liveData.elements.forEach(el => pointsMap[el.id] = el.stats.total_points);
+
+        renderCompareColumn(col1, data1.picks, pointsMap, selectedForComparison[0].name);
+        renderCompareColumn(col2, data2.picks, pointsMap, selectedForComparison[1].name);
+
+    } catch (e) {
+        console.error("Comparison Error", e);
+    }
+}
+
+function renderCompareColumn(container, picks, pointsMap, teamName) {
+    container.innerHTML = `<div class="compare-header">${teamName}</div>`;
+    
+    picks.forEach(pick => {
+        const p = state.playerMap[pick.element];
+        const pts = (pointsMap[pick.element] || 0) * (pick.multiplier || 1);
+        
+        container.innerHTML += `
+            <div class="compare-card">
+                <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" 
+                     onerror="this.src='https://fantasy.premierleague.com/static/media/player-missing-110.6625805d.png'">
+                <div class="compare-info">
+                    <span class="p-name">${p.name}</span>
+                    <span class="p-pts">${pts} pts</span>
+                </div>
+                ${pick.is_captain ? '<span class="c-tag">C</span>' : ''}
+            </div>
+        `;
+    });
+}
+
+function closeCompareModal() {
+    document.getElementById('compare-modal').style.display = 'none';
+}
