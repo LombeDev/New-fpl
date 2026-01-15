@@ -153,16 +153,29 @@ return `
         <td style="font-weight: bold;" onclick="toggleManagerExpansion(${r.entry})">
             <span style="color:${arrowColor}">${arrow}</span> ${r.rank}
         </td>
+
         <td onclick="toggleManagerExpansion(${r.entry})">
             <div class="manager-info-stack">
-                <div class="manager-entry-name">${r.entry_name}</div>
-                <div class="manager-real-name">${r.player_name}</div>
+                <div class="manager-entry-name" style="font-weight:800;">${r.entry_name}</div>
+                <div class="manager-real-name" style="font-size:0.75rem; color:var(--text-muted);">${r.player_name}</div>
+                
+                <div class="captain-name-row" style="font-size:0.7rem; margin-top:4px; display:flex; align-items:center;">
+                    <span class="cap-badge" style="background:var(--fpl-red); color:white; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; font-size:0.5rem; margin-right:4px; font-weight:bold;">C</span> 
+                    <span style="font-weight:600;">${state.playerMap[allPicks[index]?.picks?.find(p => p.is_captain)?.element]?.name || "N/A"}</span>
+                </div>
             </div>
         </td>
-        <td style="text-align:center;">
-            <input type="checkbox" class="compare-chk" onchange="selectForCompare(${r.entry}, '${r.entry_name.replace(/'/g, "\\'")}')">
+
+        <td style="text-align:center; vertical-align: middle;">
+            <input type="checkbox" class="compare-chk" 
+                style="width: 18px; height: 18px; cursor: pointer;"
+                onchange="selectForCompare(${r.entry}, '${r.entry_name.replace(/'/g, "\\'")}')">
         </td>
-        <td style="text-align:right; font-weight:600;">${r.total.toLocaleString()}</td>
+
+        <td style="text-align:right;">
+            <div style="font-weight:800; color:var(--fpl-red); font-size: 0.9rem;">${r.event_total}</div>
+            <div style="font-size: 0.75rem; font-weight:600; color: var(--text-muted);">${r.total.toLocaleString()}</div>
+        </td>
     </tr>
 `;
         }).join('');
