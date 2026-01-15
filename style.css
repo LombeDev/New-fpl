@@ -1,7 +1,6 @@
 /**
- * KOPALA FPL - MASTER STYLESHEET
- * Theme: Telegram Dark Mode & Material You FPL Edition
- * Version: 2.0 (Updated Login Design)
+ * KOPALA FPL - MASTER STYLESHEET v3.0
+ * Features: Sliding Nav, Professional Font Scaling, Compact Compare Modal
  */
 
 /* 1. THEME VARIABLES */
@@ -14,31 +13,28 @@
     --pitch-green: #008d4c;
     --fpl-purple: #37003c;
     
-    /* Material 3 Surface Roles (Light) */
+    /* Light Mode Tones */
     --bg-light: #f3f3f5;
     --card-bg: #ffffff;
     --text-main: #1a1a1a;
     --text-muted: #707579;
     --border-color: #dfe1e5;
     --header-bg: #ffffff;
-    --tab-bg: #e1e1e1;
-    --link-blue: #0088cc;
     
-    /* M3 Radius Tokens */
-    --radius-large: 28px;   /* For Cards & Drawers */
-    --radius-medium: 16px;  /* For Inputs */
-    --radius-full: 100px;   /* For Pill Buttons */
+    /* Radius Tokens */
+    --radius-large: 20px;
+    --radius-medium: 12px;
+    --radius-full: 100px;
 }
 
-/* Telegram-Style Dark Mode with M3 Tones */
+/* Telegram Dark Mode */
 body.dark-mode {
-    --bg-light: #1c242d;    /* Deep Blue-Grey Background */
-    --card-bg: #242f3d;     /* Lighter Blue-Grey Cards */
+    --bg-light: #1c242d;
+    --card-bg: #242f3d;
     --header-bg: #242f3d;
     --text-main: #ffffff;
     --text-muted: #869099;
     --border-color: #171e28;
-    --tab-bg: #171e28;
 }
 
 /* 2. CORE STYLES */
@@ -48,789 +44,258 @@ body {
     background: var(--bg-light); 
     color: var(--text-main); 
     transition: background-color 0.2s, color 0.2s;
-    line-height: 1.6;
+    line-height: 1.5;
+    font-size: 14px; /* Professional reduced scale */
 }
 
-/* 3. HERO & LOGIN CARD (Updated to match image) */
-.hero-section { 
-    background: var(--fpl-red); 
-    color: white; 
-    text-align: center; 
-    padding: clamp(60px, 12vw, 100px) 20px; 
-}
-
-.login-card { 
-    background: var(--card-bg); 
-    max-width: 90%; 
-    width: 450px; 
-    margin: -50px auto 20px; 
-    padding: 0; /* Changed to 0 to let input/buttons touch borders */
-    border-radius: 8px; /* Matches the sharper look in the image */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-}
-
-.login-title {
-    font-size: 0.85rem;
-    font-weight: 800;
-    text-align: center;
-    padding: 20px 10px;
-    margin: 0;
-    letter-spacing: 0.5px;
-    color: var(--text-main);
-    text-transform: uppercase;
-}
-
-.input-group-container {
-    border-top: 1px solid var(--border-color);
-}
-
-/* Updated Input Style */
-.login-card input[type="number"] {
-    width: 100%;
-    border: none;
-    padding: 25px;
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    background: transparent;
-    border-bottom: 1px solid var(--border-color);
-    outline: none;
-    box-sizing: border-box;
-    border-radius: 0;
-}
-
-.login-card input::placeholder {
-    color: #b0b3b8;
-    text-transform: uppercase;
-    font-size: 0.95rem;
-}
-
-/* Bottom Actions Row */
-.login-actions {
-    display: flex;
-    align-items: stretch;
-    height: 65px;
-}
-
-.help-link {
-    flex: 1.2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: var(--fpl-dark-green);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 10px;
-    text-align: center;
-}
-
-.enter-btn {
-    flex: 1;
-    border: none;
-    background: #eeeeee; /* Matches the grey button in image */
-    color: #8e949a;
-    font-weight: 800;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: 0.2s;
-    border-left: 1px solid var(--border-color);
-    text-transform: uppercase;
-}
-
-body.dark-mode .enter-btn {
-    background: #2b3644;
-    color: var(--text-muted);
-}
-
-.enter-btn:active {
-    background: #e2e2e2;
-}
-
-
-/* 5. LIVE TABLE & LISTS */
-.table-container { 
-    overflow-x: auto; 
-    background: var(--card-bg);
-}
-
-.live-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-}
-
-.live-table th { 
-    text-align: left; 
-    padding: 16px 12px; 
-    background: rgba(0,0,0,0.03); 
-    font-size: 0.7rem; 
-    text-transform: uppercase; 
-    letter-spacing: 1px; 
-    color: var(--text-muted); 
-}
-
-body.dark-mode .live-table th {
-    background: #171e28;
-}
-
-.live-table td { 
-    padding: 14px 12px; 
-    border-bottom: 1px solid var(--border-color); 
-}
-
-.manager-row:hover { 
-    background-color: rgba(233, 0, 82, 0.05); 
-    cursor: pointer; 
-}
-
-/* 6. PITCH VIEW */
-.pitch-container {
-    background: var(--pitch-green) url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center;
-    background-size: cover;
-    padding: 20px 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-body.dark-mode .pitch-container {
-    filter: brightness(0.8) contrast(1.1);
-}
-
-.pitch-row {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-}
-
-.player-card {
-    width: 65px;
-    text-align: center;
-    animation: playerPop 0.3s ease-out forwards;
-}
-
-.player-photo-wrapper {
-    width: 48px;
-    height: 48px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #fff;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
-
-.player-face {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.player-info-label {
-    background: #fff;
-    color: #333;
-    font-size: 0.65rem;
-    font-weight: 800;
-    margin-top: 5px;
-    border-radius: 4px;
-    padding: 2px 4px;
-}
-
-.player-points-badge {
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 900;
-    text-shadow: 1px 1px 3px #000;
-}
-
-/* 7. MANAGER STATS FOOTER */
-.manager-stats-footer {
-    background: var(--card-bg);
-    padding: 20px;
-    border-top: 1px solid var(--border-color);
-    border-radius: 0 0 var(--radius-large) var(--radius-large);
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
-    margin-bottom: 15px;
-}
-
-/* 8. GLOBAL BUTTONS & INPUTS */
-.action-button {
-    background: var(--fpl-red);
-    color: white;
-    border: none;
-    padding: 14px;
-    border-radius: var(--radius-full);
-    width: 100%;
-    font-weight: 800;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: 0.2s;
-}
-
-.action-button:active { transform: scale(0.96); }
-
-/* 9. SETTINGS DRAWER */
-.drawer {
-    position: fixed;
-    top: 10px;
-    right: -320px;
-    width: 300px;
-    height: calc(100% - 20px);
-    background: var(--card-bg);
-    box-shadow: -10px 0 30px rgba(0,0,0,0.15);
-    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-    padding: 24px;
-    border-radius: var(--radius-large) 0 0 var(--radius-large);
-}
-
-.drawer.open { right: 0; }
-
-/* 10. ANIMATIONS & VALIDATION */
-@keyframes playerPop {
-    from { opacity: 0; transform: translateY(10px) scale(0.9); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-6px); }
-    75% { transform: translateX(6px); }
-}
-
-.input-error {
-    animation: shake 0.2s ease-in-out 2;
-    border: 2px solid var(--fpl-red) !important;
-}
-
-/* INSTALL BANNER */
-#install-banner {
-    display: none; 
-    background: var(--fpl-purple);
-    color: white;
-    padding: 15px 20px;
-    margin: 10px;
-    border-radius: 16px;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    position: relative;
-    z-index: 1001;
-}
-
-.selector-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: var(--bg-light);
-    border-radius: 12px;
-    padding: 2px 8px;
-    border: 1px solid var(--border-color);
-    transition: all 0.2s ease;
-}
-
-#league-select {
-    appearance: none;
-    background: transparent;
-    border: none;
-    padding: 10px 35px 10px 12px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--text-main);
-    cursor: pointer;
-    width: 100%;
-    outline: none;
-}
-
-
-
-
-
-/* 3. LOGIN SCREEN CONTAINER */
-#login-screen {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-}
-
-.login-wrapper {
-    width: 100%;
-    max-width: 420px;
-}
-
-
-
-/* TOP ICON NAVIGATION */
-.top-icon-nav {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background: #0a1421; /* Dark navy from your image */
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    height: 70px;
-    padding: 5px 0;
-    border-bottom: 2px solid #1a2635;
-}
-
-.nav-item {
-    background: none;
-    border: none;
-    color: #8e99a7; /* Muted blue-grey */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    cursor: pointer;
-    flex: 1;
-    transition: all 0.2s ease;
-    padding: 8px 0;
-}
-
-.nav-item svg {
-    width: 20px;
-    height: 20px;
-    stroke-width: 2.5px;
-}
-
-.nav-item span {
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: capitalize;
-    letter-spacing: 0.3px;
-}
-
-/* Active State Styles */
-.nav-item.active {
-    color: #ffffff; /* White text for active state as per image */
-    position: relative;
-}
-
-/* Optional: Add a small indicator line under the active item */
-.nav-item.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    width: 30%;
-    height: 3px;
-    background: var(--fpl-red);
-    border-radius: 10px 10px 0 0;
-}
-
-.nav-item:hover {
-    color: #ffffff;
-}
-
-/* Dark Mode adjustment - slightly lighter background to pop */
-body.dark-mode .top-icon-nav {
-    background: #070d16;
-}
-
-.brand-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.brand-logo {
-    width: 60px;
-    height: 60px;
-    background: var(--fpl-red);
-    color: white;
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    font-weight: 900;
-    margin: 0 auto 10px;
-}
-
-.brand-header h1 {
-    margin: 0;
-    font-size: 1.6rem;
-    letter-spacing: 1px;
-    color: var(--text-main);
-}
-
-/* 4. THE EXACT IMAGE STYLE CARD */
-.simple-login-card {
-    background: var(--card-bg);
-    border-radius: var(--radius-card);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-}
-
-.login-instruction {
-    font-size: 0.9rem;
-    font-weight: 800;
-    text-align: center;
-    padding: 25px 20px;
-    margin: 0;
-    letter-spacing: 0.2px;
-    color: #1a1a1a;
-    text-transform: uppercase;
-}
-
-/* Input Area Container */
-.input-area {
-    padding: 0 15px 15px 15px;
-}
-
-#team-id-input {
-    width: 100%;
-    border: 1px solid var(--border-color);
-    border-radius: 6px; /* Matches the square-ish input in image */
-    padding: 20px 10px;
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #8292a2; /* Muted blue-grey from image */
-    background: #ffffff;
-    outline: none;
-    box-sizing: border-box;
-    transition: border-color 0.2s;
-}
-
-#team-id-input::placeholder {
-    color: #8292a2;
-    text-transform: uppercase;
-    font-size: 1.1rem;
-}
-
-#team-id-input:focus {
-    border-color: var(--fpl-red);
-}
-
-/* Split Footer Logic */
-.login-footer-actions {
-    display: flex;
-    border-top: 1px solid var(--border-color);
-    height: 85px; /* Taller footer as seen in image */
-    align-items: stretch;
-}
-
-.help-link {
-    flex: 1.2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: #00a162; /* The specific teal-green from image */
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 0 15px;
-    text-align: center;
-}
-
-.enter-id-btn {
-    flex: 1;
-    border: none;
-    background: #eeeeee; /* Grey background from image */
-    color: #8292a2; /* Grey text from image */
-    font-weight: 800;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: 0.2s;
-    text-transform: uppercase;
-    border-left: 1px solid var(--border-color);
-    margin: 4px; /* Slight inset for the button style */
-    border-radius: 4px;
-}
-
-.enter-id-btn:hover {
-    background: #e2e2e2;
-}
-
-
-
-
-/* IMPACT SECTIONS (Differentials & Threats) */
-.impact-section {
-    background: linear-gradient(to right, #a3c9e2, #78ffd6); /* Matches the cyan/blue gradient in photo */
-    padding: 2px; /* For the border effect */
-    margin-top: 10px;
-}
-
-.impact-header {
-    background: #e1e1e1;
-    padding: 8px 15px;
-    font-weight: 800;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    color: #1a1a1a;
-}
-
-.impact-header.warning {
-    background: #a3c9e2;
-}
-
-.impact-info {
-    background: #a3c9e2;
-    font-size: 0.65rem;
-    padding: 2px 15px;
-    color: #333;
-    font-style: italic;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-}
-
-.player-impact-grid {
-    background: #ffffff;
-    display: flex;
-    justify-content: space-around;
-    padding: 15px 5px;
-    gap: 5px;
-}
-
-.player-impact-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 22%;
-}
-
-.shirt-wrapper img {
-    width: 45px;
-    margin-bottom: 5px;
-}
-
-.player-name-tag {
-    background: #242f3d;
-    color: white;
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 4px;
-    width: 100%;
-    text-align: center;
-    font-weight: 700;
-}
-
-.player-pts-tag {
-    font-size: 0.8rem;
-    color: #666;
-    margin: 2px 0;
-}
-
-.impact-badge {
-    font-size: 0.7rem;
-    font-weight: 800;
-    padding: 3px 6px;
-    border-radius: 6px;
-    width: 90%;
-    text-align: center;
-}
-
-.impact-badge.gain {
-    background: #ccffcc;
-    color: #008d4c;
-}
-
-.impact-badge.loss {
-    background: #ffcccc;
-    color: #e90052;
-}
-
-
-
-
-/* MANAGER DASHBOARD STYLES */
-.manager-dashboard {
-    background: #ffffff;
-    border-radius: 12px;
-    overflow: hidden;
-    margin: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    font-family: 'Segoe UI', Roboto, sans-serif;
-}
-
-.status-header {
-    background: #a3c9e2; /* Light blue header from image */
-    padding: 8px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #1a1a1a;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-}
-
-.main-stats-container {
-    display: flex;
-    border-bottom: 1px solid #eee;
-}
-
-.status-box {
-    flex: 1;
-    padding: 20px 10px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.arrow-box {
-    border-right: 1px solid #eee;
-}
-
-.status-icon {
-    width: 40px;
-    height: 40px;
-    background: #00ff85; /* FPL Green */
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-}
-
-.status-label {
-    margin: 0;
-    font-size: 0.75rem;
-    color: #666;
-}
-
-.status-text-wrap h3 {
-    margin: 2px 0;
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: #008d4c; /* Darker green */
-}
-
-.status-text-wrap h2 {
-    margin: 2px 0;
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #1a1a1a;
-}
-
-.status-detail {
-    margin: 0;
-    font-size: 0.8rem;
-    color: #888;
-}
-
-.manager-info-footer {
-    padding: 15px;
-    background: #f8f9fa;
-    text-align: center;
-}
-
-#disp-name {
-    margin: 0 0 5px 0;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--fpl-purple);
-}
-
-.mini-stat {
-    font-size: 0.85rem;
-    color: #666;
-    font-weight: 600;
-}
-
-.highlight-stat {
-    color: var(--fpl-red);
-    font-weight: 800;
-}
-
-/* Dark Mode adjustment */
-body.dark-mode .manager-dashboard { background: #1c242d; }
-body.dark-mode .status-header { background: #2c3b4a; color: white; }
-body.dark-mode .status-text-wrap h2 { color: white; }
-body.dark-mode .manager-info-footer { background: #242f3d; }
-
-
-.compare-results {
-    display: flex;
-    max-height: 70vh;
-    overflow-y: auto;
-}
-.compare-card {
-    display: flex;
-    align-items: center;
-    padding: 8px;
-    border-bottom: 1px solid #eee;
-    position: relative;
-}
-.compare-card img { width: 40px; height: auto; margin-right: 10px; }
-.compare-info { display: flex; flex-direction: column; }
-.p-name { font-weight: 800; font-size: 0.85rem; }
-.p-pts { color: var(--fpl-red); font-weight: 700; font-size: 0.8rem; }
-.c-tag { 
-    position: absolute; right: 5px; top: 5px; 
-    background: var(--fpl-purple); color: white; 
-    font-size: 0.6rem; padding: 2px 4px; border-radius: 2px;
-}
-.compare-header {
-    background: #f4f4f4; padding: 10px; font-weight: 800;
-    position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--fpl-green);
-}
-
-
-
-/* Centers the entire navigation block */
+/* 3. CENTERED NAVIGATION & SLIDING UNDERLINE */
 .main-tabs {
     display: flex;
     justify-content: center; 
-    background: #ffffff;
-    border-bottom: 1px solid #eeeeee;
-    padding: 0 20px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 70px; /* Adjust based on top-icon-nav height */
+    z-index: 900;
 }
 
-/* Container for buttons and sliding line */
 .tab-container {
     display: flex;
-    gap: 30px; /* Space between centered text */
+    gap: 30px;
     position: relative;
-    padding: 10px 0;
+    padding: 0 10px;
 }
 
 .tab-btn {
     background: none;
     border: none;
-    padding: 10px 0;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #888;
+    padding: 12px 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
     cursor: pointer;
+    text-transform: uppercase;
     transition: color 0.3s ease;
     white-space: nowrap;
 }
 
 .tab-btn.active {
-    color: #000;
+    color: var(--text-main);
 }
 
-/* The Sliding Underline Indicator */
 .tab-indicator {
     position: absolute;
     bottom: 0;
     height: 3px;
-    background: #e90052; /* FPL Red */
-    border-radius: 2px;
-    /* Smooth sliding animation */
+    background: var(--fpl-red);
+    border-radius: 2px 2px 0 0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark Mode Logic */
-body.dark-mode .main-tabs { background: #171e28; border-bottom: 1px solid #242f3d; }
-body.dark-mode .tab-btn.active { color: #fff; }
+/* 4. PROFESSIONAL COMPARE MODAL (THE "NICE" POPUP) */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; 
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 15px;
+}
+
+.compare-modal-content {
+    background: var(--card-bg);
+    width: 100%;
+    max-width: 400px;
+    border-radius: var(--radius-large);
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
+    animation: modalPop 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.compare-header {
+    background: var(--fpl-purple);
+    color: white;
+    padding: 14px;
+    text-align: center;
+}
+
+.compare-header h2 {
+    margin: 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+.compare-results {
+    padding: 12px;
+    max-height: 65vh;
+    overflow-y: auto;
+    background: var(--bg-light);
+}
+
+.compare-card {
+    display: grid;
+    grid-template-columns: 1fr 30px 1fr;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: var(--card-bg);
+    border-radius: var(--radius-medium);
+    border: 1px solid var(--border-color);
+}
+
+.player-side {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.p-name { font-size: 0.75rem; font-weight: 700; color: var(--text-main); }
+.p-pts { font-size: 0.9rem; font-weight: 800; color: var(--fpl-red); }
+
+.vs-badge {
+    font-size: 0.55rem;
+    font-weight: 900;
+    color: var(--text-muted);
+    background: var(--bg-light);
+    height: 20px; width: 20px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto;
+}
+
+.close-modal-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: var(--card-bg);
+    color: var(--fpl-dark-green);
+    font-weight: 800;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-top: 1px solid var(--border-color);
+}
+
+/* 5. LIVE TABLE STYLES */
+.table-container { 
+    background: var(--card-bg);
+    margin-top: 5px;
+}
+
+.live-table { width: 100%; border-collapse: collapse; }
+
+.live-table th { 
+    text-align: left; 
+    padding: 12px 8px; 
+    background: rgba(0,0,0,0.02); 
+    font-size: 0.65rem; 
+    text-transform: uppercase; 
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.live-table td { 
+    padding: 10px 8px; 
+    border-bottom: 1px solid var(--border-color); 
+    font-size: 0.8rem;
+}
+
+/* 6. PITCH VIEW (Miniaturized) */
+.pitch-container {
+    background: var(--pitch-green) url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center;
+    background-size: cover;
+    padding: 15px 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.player-card {
+    width: 58px; /* Reduced from 65px */
+    text-align: center;
+}
+
+.player-photo-wrapper {
+    width: 40px; height: 40px; /* Reduced */
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+.player-face { width: 100%; height: 100%; object-fit: cover; }
+
+.player-info-label {
+    background: #fff;
+    color: #333;
+    font-size: 0.6rem;
+    font-weight: 800;
+    margin-top: 3px;
+    border-radius: 3px;
+    padding: 1px 2px;
+}
+
+/* 7. DASHBOARD HEADER */
+.top-icon-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #0a1421;
+    display: flex;
+    justify-content: space-around;
+    height: 65px;
+    border-bottom: 1px solid #1a2635;
+}
+
+.nav-item {
+    background: none; border: none;
+    color: #8e99a7;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.nav-item.active { color: #ffffff; }
+
+/* 8. MANAGER STATS FOOTER */
+.manager-dashboard {
+    background: var(--card-bg);
+    border-radius: var(--radius-medium);
+    margin: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.status-header {
+    background: #a3c9e2;
+    padding: 6px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.main-stats-container { display: flex; }
+
+.status-box {
+    flex: 1;
+    padding: 15px 5px;
+    text-align: center;
+    border-right: 1px solid var(--border-color);
+}
+
+.status-text-wrap h2 { margin: 0; font-size: 1.4rem; font-weight: 900; }
+.status-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
