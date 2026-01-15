@@ -1,6 +1,6 @@
 /**
  * KOPALA FPL - MASTER CORE SCRIPT
- * Version: 2.1 (Modern UI Integration + Bug Fixes)
+ * Version: 2.2 (Analytics Integrated & Functionally Fixed)
  */
 
 const state = {
@@ -10,24 +10,20 @@ const state = {
     currentGW: 1, 
 };
 
-// Ensure this matches your netlify.toml redirect path
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 
 /**
- * 1. INITIALIZATION & ROUTING
+ * 1. INITIALIZATION
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Handle Theme Persistence
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
         const darkToggle = document.getElementById('dark-mode-toggle');
         if (darkToggle) darkToggle.checked = true;
     }
 
-    // Load static data (players, teams, current GW)
     await initAppData();
 
-    // Route: Dashboard or Login
     const loginScreen = document.getElementById('login-screen');
     const dashboard = document.getElementById('dashboard');
 
@@ -42,9 +38,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-/**
- * 2. BOOTSTRAP DATA
- */
 async function initAppData() {
     try {
         const cb = `&t=${Date.now()}`;
@@ -72,17 +65,14 @@ async function initAppData() {
 }
 
 /**
- * 3. VALIDATED LOGIN (Updated for Modern UI)
+ * 2. LOGIN & MANAGER DATA
  */
 async function handleLogin() {
-    const input = document.getElementById('team-id-input'); // Matches new ID
-    const loginBtn = document.querySelector('.enter-id-btn'); // Matches new class
-    
+    const input = document.getElementById('team-id-input');
+    const loginBtn = document.querySelector('.enter-id-btn');
     if (!input || !loginBtn) return;
 
     const teamId = input.value.trim();
-
-    // Basic Validation
     if (!teamId || isNaN(teamId)) {
         input.classList.add('input-error');
         setTimeout(() => input.classList.remove('input-error'), 500);
@@ -90,40 +80,30 @@ async function handleLogin() {
         return;
     }
 
-    // UI Feedback
-    const originalText = loginBtn.innerText;
     loginBtn.disabled = true;
     loginBtn.innerText = "VERIFYING...";
 
     try {
         const cb = `&t=${Date.now()}`;
         const res = await fetch(`${PROXY_ENDPOINT}entry/${teamId}/${cb}`);
-        
         if (!res.ok) throw new Error("ID Not Found");
 
-        // Success: Save and Reload
         localStorage.clear();
         localStorage.setItem('kopala_fpl_id', teamId);
         window.location.href = window.location.pathname + '?v=' + Date.now();
-
     } catch (error) {
-        alert("Invalid Team ID. Please check and try again.");
+        alert("Invalid Team ID.");
         loginBtn.disabled = false;
-        loginBtn.innerText = originalText;
-        input.classList.add('input-error');
+        loginBtn.innerText = "ENTER";
     }
 }
 
-/**
- * 4. LEAGUE STANDINGS (Corrected with Null Checks)
- */
 async function fetchManagerData() {
     try {
         const cb = `&t=${Date.now()}`;
         const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/${cb}`);
         const data = await res.json();
         
-        // Defensive checks for dashboard elements
         const nameEl = document.getElementById('disp-name');
         const totalEl = document.getElementById('disp-total');
         const rankEl = document.getElementById('disp-rank');
@@ -139,11 +119,12 @@ async function fetchManagerData() {
             select.innerHTML = invitational.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
             changeLeague(invitational[0].id);
         }
-    } catch (e) { 
-        console.error("Manager data error", e); 
-    }
+    } catch (e) { console.error("Manager data error", e); }
 }
 
+/**
+ * 3. LEAGUE & ANALYTICS
+ */
 async function changeLeague(leagueId) {
     const body = document.getElementById('league-body');
     if (!body) return;
@@ -156,8 +137,10 @@ async function changeLeague(leagueId) {
         const data = await res.json();
         const standings = data.standings.results;
 
+        // Fetch picks for the top 15 managers
         const allPicks = await batchFetchCaptains(standings);
 
+        // Populate Table
         body.innerHTML = standings.map((r, index) => {
             const arrow = r.last_rank > r.rank ? '▲' : (r.last_rank < r.rank && r.last_rank !== 0 ? '▼' : '-');
             const arrowColor = r.last_rank > r.rank ? '#00ff85' : '#e90052';
@@ -169,11 +152,11 @@ async function changeLeague(leagueId) {
                     <td style="font-weight: bold;"><span style="color:${arrowColor}">${arrow}</span> ${r.rank}</td>
                     <td>
                         <div class="manager-info-stack">
-                            <div class="manager-entry-name" style="font-weight:800; color:var(--text-main);">${r.entry_name}</div>
+                            <div class="manager-entry-name" style="font-weight:800;">${r.entry_name}</div>
                             <div class="manager-real-name" style="font-size:0.75rem; color:var(--text-muted);">${r.player_name}</div>
                             <div class="captain-name-row" style="font-size:0.7rem; margin-top:4px; display:flex; align-items:center;">
                                 <span class="cap-badge" style="background:var(--fpl-red); color:white; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; font-size:0.5rem; margin-right:4px; font-weight:bold;">C</span> 
-                                <span style="font-weight:600; color:var(--text-main);">${captainName}</span>
+                                <span style="font-weight:600;">${captainName}</span>
                             </div>
                         </div>
                     </td>
@@ -182,6 +165,10 @@ async function changeLeague(leagueId) {
                 </tr>
             `;
         }).join('');
+
+        // TRIGGER ANALYTICS (Differentials & Threats)
+        await calculateLeagueAnalytics(standings, allPicks);
+
     } catch (err) { console.error("League error", err); }
 }
 
@@ -201,36 +188,91 @@ async function batchFetchCaptains(standings) {
     return results;
 }
 
+async function calculateLeagueAnalytics(standings, allPicks) {
+    const myEntryId = parseInt(state.fplId);
+    const myPicksData = allPicks.find((p, index) => standings[index].entry === myEntryId);
+    if (!myPicksData) return;
+
+    // Get Live points for the small point tags
+    const liveRes = await fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/&t=${Date.now()}`);
+    const liveData = await liveRes.json();
+    const livePointsMap = {};
+    liveData.elements.forEach(el => livePointsMap[el.id] = el.stats.total_points);
+
+    const mySquadIds = new Set(myPicksData.picks.map(p => p.element));
+    const leagueSize = allPicks.filter(p => p !== null).length;
+    const ownershipCount = {};
+
+    allPicks.forEach(playerPicks => {
+        if (!playerPicks) return;
+        playerPicks.picks.forEach(p => {
+            ownershipCount[p.element] = (ownershipCount[p.element] || 0) + 1;
+        });
+    });
+
+    const analytics = [];
+    for (const [id, count] of Object.entries(ownershipCount)) {
+        const pId = parseInt(id);
+        const ownershipPct = (count / leagueSize) * 100;
+        analytics.push({
+            id: pId,
+            name: state.playerMap[pId]?.name || "Unknown",
+            pts: livePointsMap[pId] || 0,
+            ownedByMe: mySquadIds.has(pId),
+            ownership: ownershipPct,
+            impact: 100 - ownershipPct 
+        });
+    }
+
+    const differentials = analytics.filter(p => p.ownedByMe).sort((a, b) => a.ownership - b.ownership).slice(0, 3);
+    const threats = analytics.filter(p => !p.ownedByMe).sort((a, b) => b.ownership - a.ownership).slice(0, 3);
+
+    renderImpactUI('diffs-list', differentials, true);
+    renderImpactUI('threats-list', threats, false);
+}
+
+function renderImpactUI(containerId, players, isGain) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = players.map(p => `
+        <div class="player-impact-card">
+            <div class="shirt-wrapper">
+                <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${state.playerMap[p.id]?.code}.png" 
+                     onerror="this.src='https://fantasy.premierleague.com/static/media/player-missing-110.6625805d.png'">
+            </div>
+            <div class="player-name-tag">${p.name}</div>
+            <div class="player-pts-tag">${p.pts}</div>
+            <div class="impact-badge ${isGain ? 'gain' : 'loss'}">
+                ${isGain ? '+' : ''}${p.impact.toFixed(1)}%
+            </div>
+        </div>
+    `).join('');
+}
+
 /**
- * 5. SQUAD EXPANSION
+ * 4. UI UTILS
  */
 async function toggleManagerExpansion(entryId) {
     const row = document.getElementById(`row-${entryId}`);
     const existingDetail = document.getElementById(`details-${entryId}`);
-
-    if (existingDetail) {
-        existingDetail.remove();
-        return;
-    }
+    if (existingDetail) { existingDetail.remove(); return; }
 
     const detailRow = document.createElement('tr');
     detailRow.id = `details-${entryId}`;
     detailRow.className = 'details-row';
-    
     detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:20px;">FETCHING PITCH...</td>`;
     row.parentNode.insertBefore(detailRow, row.nextSibling);
 
     try {
         const cb = `&t=${Date.now()}`;
-        const [picksRes, liveRes, historyRes] = await Promise.all([
+        const [picksRes, liveRes] = await Promise.all([
             fetch(`${PROXY_ENDPOINT}entry/${entryId}/event/${state.currentGW}/picks/${cb}`),
-            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/${cb}`),
-            fetch(`${PROXY_ENDPOINT}entry/${entryId}/history/${cb}`)
+            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/${cb}`)
         ]);
         
         const picksData = await picksRes.json();
         const liveData = await liveRes.json();
-        const historyData = await historyRes.json();
 
         const livePointsMap = {};
         liveData.elements.forEach(el => livePointsMap[el.id] = el.stats.total_points);
@@ -249,194 +291,36 @@ async function toggleManagerExpansion(entryId) {
                     ${renderPitchRow(squad.filter(p => p.pos === 3))}
                     ${renderPitchRow(squad.filter(p => p.pos === 4))}
                 </div>
-                <div class="manager-stats-footer">
-                    <div class="stats-grid">
-                        <div style="border-right: 1px solid var(--border-color); padding-right: 10px;">
-                            <div style="font-size:0.75rem;">Hits: <span style="color:var(--fpl-red); font-weight:800;">-${picksData.entry_history.event_transfers_cost}</span></div>
-                            <div style="font-size:0.75rem;">Bank: <span style="font-weight:800; color:var(--text-main);">£${(picksData.entry_history.bank / 10).toFixed(1)}m</span></div>
-                        </div>
-                        <div style="padding-left: 10px;">
-                            <div style="font-size:0.75rem;">GW Net: <span style="font-weight:800; color:var(--fpl-red);">${picksData.entry_history.points - picksData.entry_history.event_transfers_cost}</span></div>
-                            <div style="font-size:0.75rem;">Overall: <span style="font-weight:800; color:var(--text-main);">${picksData.entry_history.total_points.toLocaleString()}</span></div>
-                        </div>
-                    </div>
-                </div>
             </td>
         `;
-
-
-
-
-        /**
- * SETTINGS DRAWER TOGGLE
- * This function opens/closes the settings menu
- */
-function toggleSettings() {
-    const drawer = document.getElementById('settings-drawer');
-    if (drawer) {
-        drawer.classList.toggle('open');
-        console.log("Settings drawer toggled");
-    } else {
-        // If you haven't built the drawer yet, we can use a simple alert or log
-        console.warn("Settings drawer element (#settings-drawer) not found in HTML.");
-        // Optional: fallback to a standard logout/reset if no drawer exists
-        resetApp(); 
-    }
-}
-
-    } catch (e) { 
-        detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:15px; color:var(--fpl-red);">Fetch Failed.</td>`; 
-    }
+    } catch (e) { detailRow.innerHTML = `<td colspan="4">Error loading data.</td>`; }
 }
 
 function renderPitchRow(players) {
-    return `<div class="pitch-row">
-        ${players.map(p => `
-            <div class="player-card">
-                <div class="player-photo-wrapper">
-                    <img class="player-face" src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" onerror="this.src='https://fantasy.premierleague.com/static/media/player-missing-110.6625805d.png'">
-                </div>
-                <div class="player-info-label">${p.isCap ? '(C) ' : ''}${p.name}</div>
-                <div class="player-points-badge">${p.pts}</div>
-            </div>
-        `).join('')}
-    </div>`;
+    return `<div class="pitch-row">${players.map(p => `
+        <div class="player-card">
+            <img class="player-face" src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png">
+            <div class="player-info-label">${p.isCap ? '(C) ' : ''}${p.name}</div>
+            <div class="player-points-badge">${p.pts}</div>
+        </div>`).join('')}</div>`;
 }
 
-/**
- * 6. UTILS & UI
- */
 function showView(view) {
     state.activeView = view;
     localStorage.setItem('kopala_active_view', view);
     const tableView = document.getElementById('table-view');
     const pitchView = document.getElementById('pitch-view');
-    const tabTable = document.getElementById('tab-table');
-    const tabPitch = document.getElementById('tab-pitch');
-
     if (tableView) tableView.style.display = view === 'table' ? 'block' : 'none';
     if (pitchView) pitchView.style.display = view === 'pitch' ? 'block' : 'none';
-    if (tabTable) tabTable.classList.toggle('active', view === 'table');
-    if (tabPitch) tabPitch.classList.toggle('active', view === 'pitch');
 }
 
-function handleDarkModeToggle() {
-    const isDark = document.body.classList.toggle('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+function toggleSettings() {
+    const drawer = document.getElementById('settings-drawer');
+    if (drawer) drawer.classList.toggle('open');
+    else if (confirm("Logout?")) resetApp();
 }
 
 function resetApp() {
-    if(confirm("Logout and switch Team ID?")) { 
-        localStorage.clear(); 
-        window.location.href = window.location.pathname + '?v=' + Date.now();
-    }
+    localStorage.clear();
+    window.location.href = window.location.pathname;
 }
-
-
-
-
-/**
- * SETTINGS DRAWER TOGGLE
- * Handles opening and closing the sidebar settings menu
- */
-function toggleSettings() {
-    const drawer = document.getElementById('settings-drawer');
-    
-    if (drawer) {
-        drawer.classList.toggle('open');
-        console.log("Settings toggled");
-    } else {
-        // Fallback: If no drawer exists, we can use a standard confirmation
-        console.warn("Settings drawer not found. Falling back to reset prompt.");
-        if (confirm("Would you like to logout and reset your Team ID?")) {
-            resetApp();
-        }
-    }
-}
-
-
-
-/**
- * ANALYTICS: DIFFERENTIALS & THREATS
- * Populates your custom HTML grid with the top 3 gains and risks.
- */
-async function calculateLeagueAnalytics(standings, allPicks) {
-    const myEntryId = parseInt(state.fplId);
-    const myPicksData = allPicks.find((p, index) => standings[index].entry === myEntryId);
-    
-    if (!myPicksData) return;
-
-    // 1. Map live points for the player-pts-tag
-    const liveRes = await fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/&t=${Date.now()}`);
-    const liveData = await liveRes.json();
-    const livePointsMap = {};
-    liveData.elements.forEach(el => livePointsMap[el.id] = el.stats.total_points);
-
-    const mySquadIds = new Set(myPicksData.picks.map(p => p.element));
-    const leagueSize = allPicks.length;
-    const ownershipCount = {};
-
-    // 2. Count ownership across the league
-    allPicks.forEach(playerPicks => {
-        if (!playerPicks) return;
-        playerPicks.picks.forEach(p => {
-            ownershipCount[p.element] = (ownershipCount[p.element] || 0) + 1;
-        });
-    });
-
-    const analytics = [];
-    for (const [id, count] of Object.entries(ownershipCount)) {
-        const pId = parseInt(id);
-        const ownershipPct = (count / leagueSize) * 100;
-        
-        analytics.push({
-            id: pId,
-            name: state.playerMap[pId]?.name || "Unknown",
-            pts: livePointsMap[pId] || 0,
-            ownedByMe: mySquadIds.has(pId),
-            ownership: ownershipPct,
-            impact: 100 - ownershipPct 
-        });
-    }
-
-    // 3. Filter Top 3 Differentials (Owned by you, lowest league ownership)
-    const differentials = analytics
-        .filter(p => p.ownedByMe)
-        .sort((a, b) => a.ownership - b.ownership)
-        .slice(0, 3);
-
-    // 4. Filter Top 3 Threats (NOT owned by you, highest league ownership)
-    const threats = analytics
-        .filter(p => !p.ownedByMe)
-        .sort((a, b) => b.ownership - a.ownership)
-        .slice(0, 3);
-
-    renderImpactUI('diffs-list', differentials, true);
-    renderImpactUI('threats-list', threats, false);
-}
-
-function renderImpactUI(containerId, players, isGain) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    container.innerHTML = players.map(p => `
-        <div class="player-impact-card">
-            <div class="shirt-wrapper">
-                <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${state.playerMap[p.id]?.code}.png" 
-                     onerror="this.src='https://fantasy.premierleague.com/static/media/player-missing-110.6625805d.png'" 
-                     alt="player">
-            </div>
-            <div class="player-name-tag">${p.name}</div>
-            <div class="player-pts-tag">${p.pts}</div>
-            <div class="impact-badge ${isGain ? 'gain' : 'loss'}">
-                ${isGain ? '+' : '-'}${p.impact.toFixed(1)}%
-            </div>
-        </div>
-    `).join('');
-}
-
-
-
-// ... bottom of changeLeague function ...
-const allPicks = await batchFetchCaptains(standings);
-await calculateLeagueAnalytics(standings, allPicks); // Trigger the new UI population
