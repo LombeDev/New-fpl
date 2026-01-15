@@ -293,22 +293,7 @@
             <button class="tab-btn" id="tab-compare" onclick="openCompareModal()" style="margin-left: auto; background: var(--fpl-purple); color: white; border-radius: 4px; margin-bottom: 5px;">Compare Teams</button>
             <button class="tab-btn" id="tab-pitch" onclick="showView('pitch')">Fixtures</button>
             </nav>
-        <div id="compare-modal" class="modal" style="display:none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);">
-    <div class="modal-content" style="background: white; margin: 5% auto; width: 90%; max-width: 800px; border-radius: 8px; overflow: hidden;">
-        <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee;">
-            <h3 style="margin:0;">Compare Teams</h3>
-            <button onclick="closeCompareModal()" style="border:none; background:#eee; padding:5px 15px; border-radius:4px; cursor:pointer;">Close</button>
-        </div>
-        
-        <div style="display: flex; background: #f4f4f4; padding: 10px; gap: 10px;">
-            <select id="select-team-1" style="flex:1; padding:8px;"></select>
-            <select id="select-team-2" style="flex:1; padding:8px;"></select>
-        </div>
-
-        <div id="compare-results" style="display: flex; height: 60vh; overflow-y: auto;">
-            <div id="team-1-col" style="flex:1; border-right: 1px solid #eee;"></div>
-            <div id="team-2-col" style="flex:1;"></div>
-        </div>
+       
 
         <section id="table-view" class="view-content">
             <table class="live-table" style="width: 100%; border-collapse: collapse;">
@@ -324,70 +309,26 @@
             <div id="fixtures-container"></div>
         </section>
 
-        <section id="stats-view" class="view-content" style="background-color: #f8f8f8; display: none; padding: 15px;">
-            <div style="background: #37003c; color: white; padding: 12px; text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; margin: -15px -15px 15px -15px;">
-                Transfer Market Insights
-            </div>
+       
 
-            <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
-                    <thead>
-                        <tr style="color: #666; border-bottom: 1px solid #eee;">
-                            <th style="text-align: left; padding-bottom: 8px;">League Summary</th>
-                            <th style="text-align: right;">GW</th>
-                            <th style="text-align: right;">Hits</th>
-                            <th style="text-align: right;">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="comparison-body" style="text-align: right; font-weight: bold;"></tbody>
-                </table>
-            </div>
+             <div id="compare-modal" class="modal" style="display:none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);">
+    <div class="modal-content" style="background: white; margin: 5% auto; width: 90%; max-width: 800px; border-radius: 8px; overflow: hidden;">
+        <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee;">
+            <h3 style="margin:0;">Compare Teams</h3>
+            <button onclick="closeCompareModal()" style="border:none; background:#eee; padding:5px 15px; border-radius:4px; cursor:pointer;">Close</button>
+        </div>
+        
+        <div style="display: flex; background: #f4f4f4; padding: 10px; gap: 10px;">
+            <select id="select-team-1" style="flex:1; padding:8px;"></select>
+            <select id="select-team-2" style="flex:1; padding:8px;"></select>
+        </div>
 
-            <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px;">
-                <h3 style="font-size: 0.9rem; border-bottom: 2px solid var(--fpl-purple); padding-bottom: 5px; margin-top: 0;">Daily Price Changes</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
-                    <div>
-                        <h4 style="color: #00d46a; font-size: 0.7rem; margin-bottom: 5px;">TOP RISERS</h4>
-                        <ul id="risers-list" style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; line-height: 1.6;"></ul>
-                    </div>
-                    <div>
-                        <h4 style="color: var(--fpl-pink); font-size: 0.7rem; margin-bottom: 5px;">TOP FALLERS</h4>
-                        <ul id="fallers-list" style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; line-height: 1.6;"></ul>
-                    </div>
-                </div>
-            </div>
+        <div id="compare-results" style="display: flex; height: 60vh; overflow-y: auto;">
+            <div id="team-1-col" style="flex:1; border-right: 1px solid #eee;"></div>
+            <div id="team-2-col" style="flex:1;"></div>
+        </div>
+            
 
-            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                <input type="text" id="playerSearch" placeholder="Search player..." style="flex: 2; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
-                <select id="teamFilter" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
-                    <option value="All">All Teams</option>
-                </select>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 5px;">
-                <span style="font-size: 0.75rem; font-weight: bold; color: var(--text-muted);">
-                    Price Change In: <span id="timer" style="color: var(--fpl-pink); font-family: monospace;">--:--:--</span>
-                </span>
-                <div id="loader" style="font-size: 0.7rem; color: #999; display: none;">Updating...</div>
-            </div>
-
-            <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow-x: auto;">
-                <table class="market-table">
-                    <thead>
-                        <tr>
-                            <th>Player</th>
-                            <th>Team</th>
-                            <th>Target</th>
-                            <th>Predict</th>
-                            <th>%</th>
-                        </tr>
-                    </thead>
-                    <tbody id="predictor-body">
-                        </tbody>
-                </table>
-            </div>
-        </section>
-    </div>
 
     <div id="settings-drawer" class="drawer">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-gray); padding-bottom: 10px; margin-bottom: 20px;">
