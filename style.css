@@ -1,233 +1,849 @@
 /**
  * KOPALA FPL - MASTER STYLESHEET
- * Theme: Telegram Dark Mode & Material You Professional Edition
- * Version: 3.0 (Unified M3 Spec)
+ * Theme: Telegram Dark Mode & Material You FPL Edition
+ * Version: 2.0 (Updated Login Design)
  */
 
-/* 1. THEME VARIABLES (Material You Color Roles) */
+/* 1. THEME VARIABLES */
 :root {
-    /* M3 Light Palette */
-    --md-surface: #fdfbff;
-    --md-on-surface: #1c1b1f;
-    --md-surface-variant: #e7e0ec;
-    --md-on-surface-variant: #49454f;
-    --md-primary-container: #e8def8;
-    --md-on-primary-container: #21005d;
-    --md-primary: #6750a4;
-    --md-outline: #79747e;
-
     /* Brand Colors */
-    --fpl-purple: #37003c;
     --fpl-red: #e90052;
+    --fpl-pink: #ff005a;
     --fpl-green: #00ff85;
-    --pitch-green: #02894e;
+    --fpl-dark-green: #008f4b;
+    --pitch-green: #008d4c;
+    --fpl-purple: #37003c;
     
-    /* Radius Tokens */
-    --radius-pill: 100px;
-    --radius-large: 28px;  /* Material 3 Card standard */
-    --radius-medium: 12px;
+    /* Material 3 Surface Roles (Light) */
+    --bg-light: #f3f3f5;
+    --card-bg: #ffffff;
+    --text-main: #1a1a1a;
+    --text-muted: #707579;
+    --border-color: #dfe1e5;
+    --header-bg: #ffffff;
+    --tab-bg: #e1e1e1;
+    --link-blue: #0088cc;
+    
+    /* M3 Radius Tokens */
+    --radius-large: 28px;   /* For Cards & Drawers */
+    --radius-medium: 16px;  /* For Inputs */
+    --radius-full: 100px;   /* For Pill Buttons */
 }
 
-/* Telegram-Style Dark Mode Integration */
+/* Telegram-Style Dark Mode with M3 Tones */
 body.dark-mode {
-    --md-surface: #171e28;
-    --md-on-surface: #ffffff;
-    --md-surface-variant: #242f3d;
-    --md-on-surface-variant: #869099;
-    --md-primary-container: #38003c; /* FPL Purple variant */
-    --md-on-primary-container: #e8def8;
-    --md-outline: #2b3644;
+    --bg-light: #1c242d;    /* Deep Blue-Grey Background */
+    --card-bg: #242f3d;     /* Lighter Blue-Grey Cards */
+    --header-bg: #242f3d;
+    --text-main: #ffffff;
+    --text-muted: #869099;
+    --border-color: #171e28;
+    --tab-bg: #171e28;
 }
 
-/* 2. CORE RESET */
+/* 2. CORE STYLES */
 body { 
-    font-family: 'Roboto', -apple-system, system-ui, sans-serif; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
     margin: 0; 
-    background: var(--md-surface); 
-    color: var(--md-on-surface);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    line-height: 1.5;
+    background: var(--bg-light); 
+    color: var(--text-main); 
+    transition: background-color 0.2s, color 0.2s;
+    line-height: 1.6;
 }
 
-/* 3. MATERIAL YOU TAB NAVIGATION (SEGMENTED CONTROL) */
-.main-tabs {
+/* 3. HERO & LOGIN CARD (Updated to match image) */
+.hero-section { 
+    background: var(--fpl-red); 
+    color: white; 
+    text-align: center; 
+    padding: clamp(60px, 12vw, 100px) 20px; 
+}
+
+.login-card { 
+    background: var(--card-bg); 
+    max-width: 90%; 
+    width: 450px; 
+    margin: -50px auto 20px; 
+    padding: 0; /* Changed to 0 to let input/buttons touch borders */
+    border-radius: 8px; /* Matches the sharper look in the image */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.login-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-align: center;
+    padding: 20px 10px;
+    margin: 0;
+    letter-spacing: 0.5px;
+    color: var(--text-main);
+    text-transform: uppercase;
+}
+
+.input-group-container {
+    border-top: 1px solid var(--border-color);
+}
+
+/* Updated Input Style */
+.login-card input[type="number"] {
+    width: 100%;
+    border: none;
+    padding: 25px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: transparent;
+    border-bottom: 1px solid var(--border-color);
+    outline: none;
+    box-sizing: border-box;
+    border-radius: 0;
+}
+
+.login-card input::placeholder {
+    color: #b0b3b8;
+    text-transform: uppercase;
+    font-size: 0.95rem;
+}
+
+/* Bottom Actions Row */
+.login-actions {
     display: flex;
+    align-items: stretch;
+    height: 65px;
+}
+
+.help-link {
+    flex: 1.2;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    padding: 16px 0;
-    background: var(--md-surface);
+    text-decoration: none;
+    color: var(--fpl-dark-green);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 10px;
+    text-align: center;
 }
 
-.tab-container {
-    display: flex;
-    background: var(--md-surface-variant);
-    border-radius: var(--radius-pill);
-    padding: 4px;
-    width: 92%;
-    max-width: 480px;
-}
-
-.tab-btn {
+.enter-btn {
     flex: 1;
     border: none;
-    padding: 10px 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--md-on-surface-variant);
-    background: transparent;
+    background: #eeeeee; /* Matches the grey button in image */
+    color: #8e949a;
+    font-weight: 800;
+    font-size: 0.85rem;
     cursor: pointer;
-    border-radius: var(--radius-pill);
-    transition: all 0.2s ease;
+    transition: 0.2s;
+    border-left: 1px solid var(--border-color);
+    text-transform: uppercase;
 }
 
-.tab-btn.active {
-    background-color: var(--md-primary-container);
-    color: var(--md-on-primary-container);
+body.dark-mode .enter-btn {
+    background: #2b3644;
+    color: var(--text-muted);
 }
 
-/* 4. PROFESSIONAL LIVE TABLE (Material List Style) */
+.enter-btn:active {
+    background: #e2e2e2;
+}
+
+
+/* 5. LIVE TABLE & LISTS */
 .table-container { 
-    margin: 0 16px;
     overflow-x: auto; 
+    background: var(--card-bg);
 }
 
 .live-table { 
     width: 100%; 
-    border-collapse: separate;
-    border-spacing: 0 4px; 
+    border-collapse: collapse; 
 }
 
 .live-table th { 
-    padding: 12px;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    color: var(--md-on-surface-variant);
-    font-weight: 700;
+    text-align: left; 
+    padding: 16px 12px; 
+    background: rgba(0,0,0,0.03); 
+    font-size: 0.7rem; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    color: var(--text-muted); 
 }
 
-.manager-row td { 
-    padding: 16px 12px;
-    background: var(--md-surface-variant);
-    border-top: 1px solid transparent;
+body.dark-mode .live-table th {
+    background: #171e28;
 }
 
-/* Row card effect */
-.manager-row td:first-child { border-radius: 16px 0 0 16px; }
-.manager-row td:last-child { border-radius: 0 16px 16px 0; }
-
-.manager-row:active {
-    transform: scale(0.98);
-    opacity: 0.8;
+.live-table td { 
+    padding: 14px 12px; 
+    border-bottom: 1px solid var(--border-color); 
 }
 
-/* 5. MANAGER DASHBOARD (Material Elevation) */
-.manager-dashboard {
-    background: var(--md-surface);
-    border-radius: var(--radius-large);
-    margin: 16px;
-    overflow: hidden;
-    border: 1px solid var(--md-outline);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+.manager-row:hover { 
+    background-color: rgba(233, 0, 82, 0.05); 
+    cursor: pointer; 
 }
 
-.status-header {
-    background: var(--md-primary-container);
-    color: var(--md-on-primary-container);
-    padding: 12px;
-    text-align: center;
-    font-weight: 800;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-}
-
-.main-stats-container {
+/* 6. PITCH VIEW */
+.pitch-container {
+    background: var(--pitch-green) url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center;
+    background-size: cover;
+    padding: 20px 10px;
     display: flex;
-    background: var(--md-surface);
+    flex-direction: column;
+    gap: 12px;
 }
 
-.status-box {
-    flex: 1;
-    padding: 20px;
+body.dark-mode .pitch-container {
+    filter: brightness(0.8) contrast(1.1);
+}
+
+.pitch-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.player-card {
+    width: 65px;
     text-align: center;
-    border-right: 1px solid var(--md-outline);
+    animation: playerPop 0.3s ease-out forwards;
 }
 
-.status-icon {
-    width: 44px;
-    height: 44px;
-    background: var(--fpl-green);
-    color: var(--fpl-purple);
-    border-radius: 12px; /* Squircle shape */
-    display: inline-flex;
+.player-photo-wrapper {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.player-face {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.player-info-label {
+    background: #fff;
+    color: #333;
+    font-size: 0.65rem;
+    font-weight: 800;
+    margin-top: 5px;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+.player-points-badge {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 900;
+    text-shadow: 1px 1px 3px #000;
+}
+
+/* 7. MANAGER STATS FOOTER */
+.manager-stats-footer {
+    background: var(--card-bg);
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+    border-radius: 0 0 var(--radius-large) var(--radius-large);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+/* 8. GLOBAL BUTTONS & INPUTS */
+.action-button {
+    background: var(--fpl-red);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: var(--radius-full);
+    width: 100%;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.2s;
+}
+
+.action-button:active { transform: scale(0.96); }
+
+/* 9. SETTINGS DRAWER */
+.drawer {
+    position: fixed;
+    top: 10px;
+    right: -320px;
+    width: 300px;
+    height: calc(100% - 20px);
+    background: var(--card-bg);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    padding: 24px;
+    border-radius: var(--radius-large) 0 0 var(--radius-large);
+}
+
+.drawer.open { right: 0; }
+
+/* 10. ANIMATIONS & VALIDATION */
+@keyframes playerPop {
+    from { opacity: 0; transform: translateY(10px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+}
+
+.input-error {
+    animation: shake 0.2s ease-in-out 2;
+    border: 2px solid var(--fpl-red) !important;
+}
+
+/* INSTALL BANNER */
+#install-banner {
+    display: none; 
+    background: var(--fpl-purple);
+    color: white;
+    padding: 15px 20px;
+    margin: 10px;
+    border-radius: 16px;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 1001;
+}
+
+.selector-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--bg-light);
+    border-radius: 12px;
+    padding: 2px 8px;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+#league-select {
+    appearance: none;
+    background: transparent;
+    border: none;
+    padding: 10px 35px 10px 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+    cursor: pointer;
+    width: 100%;
+    outline: none;
+}
+
+
+
+
+
+/* 3. LOGIN SCREEN CONTAINER */
+#login-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.login-wrapper {
+    width: 100%;
+    max-width: 420px;
+}
+
+
+
+/* TOP ICON NAVIGATION */
+.top-icon-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #0a1421; /* Dark navy from your image */
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 70px;
+    padding: 5px 0;
+    border-bottom: 2px solid #1a2635;
+}
+
+.nav-item {
+    background: none;
+    border: none;
+    color: #8e99a7; /* Muted blue-grey */
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
-    margin-bottom: 8px;
+    gap: 6px;
+    cursor: pointer;
+    flex: 1;
+    transition: all 0.2s ease;
+    padding: 8px 0;
 }
 
-/* 6. LOGIN CARD (Sharp M3 Variant) */
-.login-card { 
-    background: var(--md-surface); 
-    width: 100%;
-    max-width: 400px;
-    margin: 20px auto;
-    border-radius: var(--radius-medium);
-    border: 1px solid var(--md-outline);
+.nav-item svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.5px;
+}
+
+.nav-item span {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
+}
+
+/* Active State Styles */
+.nav-item.active {
+    color: #ffffff; /* White text for active state as per image */
+    position: relative;
+}
+
+/* Optional: Add a small indicator line under the active item */
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 30%;
+    height: 3px;
+    background: var(--fpl-red);
+    border-radius: 10px 10px 0 0;
+}
+
+.nav-item:hover {
+    color: #ffffff;
+}
+
+/* Dark Mode adjustment - slightly lighter background to pop */
+body.dark-mode .top-icon-nav {
+    background: #070d16;
+}
+
+.brand-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.brand-logo {
+    width: 60px;
+    height: 60px;
+    background: var(--fpl-red);
+    color: white;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 900;
+    margin: 0 auto 10px;
+}
+
+.brand-header h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    letter-spacing: 1px;
+    color: var(--text-main);
+}
+
+/* 4. THE EXACT IMAGE STYLE CARD */
+.simple-login-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-card);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
     overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.login-instruction {
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-align: center;
+    padding: 25px 20px;
+    margin: 0;
+    letter-spacing: 0.2px;
+    color: #1a1a1a;
+    text-transform: uppercase;
+}
+
+/* Input Area Container */
+.input-area {
+    padding: 0 15px 15px 15px;
 }
 
 #team-id-input {
     width: 100%;
-    padding: 24px;
-    border: none;
-    background: transparent;
-    color: var(--md-on-surface);
-    font-size: 1.2rem;
-    font-weight: 700;
+    border: 1px solid var(--border-color);
+    border-radius: 6px; /* Matches the square-ish input in image */
+    padding: 20px 10px;
     text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #8292a2; /* Muted blue-grey from image */
+    background: #ffffff;
     outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+#team-id-input::placeholder {
+    color: #8292a2;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+}
+
+#team-id-input:focus {
+    border-color: var(--fpl-red);
+}
+
+/* Split Footer Logic */
+.login-footer-actions {
+    display: flex;
+    border-top: 1px solid var(--border-color);
+    height: 85px; /* Taller footer as seen in image */
+    align-items: stretch;
+}
+
+.help-link {
+    flex: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #00a162; /* The specific teal-green from image */
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0 15px;
+    text-align: center;
 }
 
 .enter-id-btn {
-    width: 100%;
-    padding: 16px;
-    background: var(--md-primary-container);
-    color: var(--md-on-primary-container);
+    flex: 1;
     border: none;
+    background: #eeeeee; /* Grey background from image */
+    color: #8292a2; /* Grey text from image */
     font-weight: 800;
-    text-transform: uppercase;
+    font-size: 1rem;
     cursor: pointer;
+    transition: 0.2s;
+    text-transform: uppercase;
+    border-left: 1px solid var(--border-color);
+    margin: 4px; /* Slight inset for the button style */
+    border-radius: 4px;
 }
 
-/* 7. COMPARE MODAL (M3 Full Screen Surface) */
-.compare-results {
-    background: var(--md-surface);
-    border-radius: var(--radius-large) var(--radius-large) 0 0;
-    padding: 16px;
+.enter-id-btn:hover {
+    background: #e2e2e2;
 }
 
-.compare-header {
-    background: var(--md-surface-variant);
-    padding: 12px;
-    border-radius: 12px;
-    margin-bottom: 12px;
+
+
+
+/* IMPACT SECTIONS (Differentials & Threats) */
+.impact-section {
+    background: linear-gradient(to right, #a3c9e2, #78ffd6); /* Matches the cyan/blue gradient in photo */
+    padding: 2px; /* For the border effect */
+    margin-top: 10px;
+}
+
+.impact-header {
+    background: #e1e1e1;
+    padding: 8px 15px;
     font-weight: 800;
-    color: var(--md-on-surface);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    color: #1a1a1a;
 }
 
+.impact-header.warning {
+    background: #a3c9e2;
+}
+
+.impact-info {
+    background: #a3c9e2;
+    font-size: 0.65rem;
+    padding: 2px 15px;
+    color: #333;
+    font-style: italic;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.player-impact-grid {
+    background: #ffffff;
+    display: flex;
+    justify-content: space-around;
+    padding: 15px 5px;
+    gap: 5px;
+}
+
+.player-impact-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 22%;
+}
+
+.shirt-wrapper img {
+    width: 45px;
+    margin-bottom: 5px;
+}
+
+.player-name-tag {
+    background: #242f3d;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    width: 100%;
+    text-align: center;
+    font-weight: 700;
+}
+
+.player-pts-tag {
+    font-size: 0.8rem;
+    color: #666;
+    margin: 2px 0;
+}
+
+.impact-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 3px 6px;
+    border-radius: 6px;
+    width: 90%;
+    text-align: center;
+}
+
+.impact-badge.gain {
+    background: #ccffcc;
+    color: #008d4c;
+}
+
+.impact-badge.loss {
+    background: #ffcccc;
+    color: #e90052;
+}
+
+
+
+
+/* MANAGER DASHBOARD STYLES */
+.manager-dashboard {
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+.status-header {
+    background: #a3c9e2; /* Light blue header from image */
+    padding: 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #1a1a1a;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.main-stats-container {
+    display: flex;
+    border-bottom: 1px solid #eee;
+}
+
+.status-box {
+    flex: 1;
+    padding: 20px 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.arrow-box {
+    border-right: 1px solid #eee;
+}
+
+.status-icon {
+    width: 40px;
+    height: 40px;
+    background: #00ff85; /* FPL Green */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.status-label {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.status-text-wrap h3 {
+    margin: 2px 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #008d4c; /* Darker green */
+}
+
+.status-text-wrap h2 {
+    margin: 2px 0;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1a1a1a;
+}
+
+.status-detail {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.manager-info-footer {
+    padding: 15px;
+    background: #f8f9fa;
+    text-align: center;
+}
+
+#disp-name {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--fpl-purple);
+}
+
+.mini-stat {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 600;
+}
+
+.highlight-stat {
+    color: var(--fpl-red);
+    font-weight: 800;
+}
+
+/* Dark Mode adjustment */
+body.dark-mode .manager-dashboard { background: #1c242d; }
+body.dark-mode .status-header { background: #2c3b4a; color: white; }
+body.dark-mode .status-text-wrap h2 { color: white; }
+body.dark-mode .manager-info-footer { background: #242f3d; }
+
+
+.compare-results {
+    display: flex;
+    max-height: 70vh;
+    overflow-y: auto;
+}
 .compare-card {
     display: flex;
     align-items: center;
-    padding: 12px;
-    background: var(--md-surface-variant);
-    border-radius: 12px;
-    margin-bottom: 8px;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    position: relative;
+}
+.compare-card img { width: 40px; height: auto; margin-right: 10px; }
+.compare-info { display: flex; flex-direction: column; }
+.p-name { font-weight: 800; font-size: 0.85rem; }
+.p-pts { color: var(--fpl-red); font-weight: 700; font-size: 0.8rem; }
+.c-tag { 
+    position: absolute; right: 5px; top: 5px; 
+    background: var(--fpl-purple); color: white; 
+    font-size: 0.6rem; padding: 2px 4px; border-radius: 2px;
+}
+.compare-header {
+    background: #f4f4f4; padding: 10px; font-weight: 800;
+    position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--fpl-green);
 }
 
-/* 8. PITCH VIEW (Refined Overlay) */
-.pitch-container {
-    background: var(--pitch-green) url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center;
-    background-size: cover;
-    border-radius: var(--radius-large);
-    margin: 10px;
-    padding: 20px 0;
+
+
+/* Container Wrapper */
+.main-tabs {
+    display: flex;
+    justify-content: center;
+    padding: 16px 0;
+    background: #ffffff;
+}
+
+/* Material Design 3 Segmented Container */
+.tab-container {
+    display: flex;
+    background: #f3f3f7; /* Material Surface Variant */
+    border-radius: 28px; /* Large rounding typical of Material You */
+    padding: 4px;
+    width: 92%;
+    max-width: 450px;
+    position: relative;
+    border: 1px solid #e1e1e6;
+}
+
+/* Base Button Style */
+.tab-btn {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 10px 0;
+    font-family: 'Roboto', 'Segoe UI', sans-serif;
+    font-size: 14px;
+    font-weight: 500; /* Material Medium weight */
+    color: #44474e; /* On-surface color */
+    background: transparent;
+    cursor: pointer;
+    border-radius: 24px;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    position: relative;
+}
+
+/* Material ACTIVE State (NO White Block) */
+.tab-btn.active {
+    /* Using a soft purple tint (Material Primary Container) instead of white */
+    background-color: #e8def8; 
+    color: #1d192b; /* Deep purple text */
+}
+
+/* The Bottom Indicator Line (Material specific) */
+.tab-btn.active::after {
+    content: "";
+    position: absolute;
+    bottom: 2px;
+    left: 25%;
+    right: 25%;
+    height: 3px;
+    background: #6750a4; /* Primary color */
+    border-radius: 3px 3px 0 0;
+}
+
+/* Feedback on tap */
+.tab-btn:active {
+    background-color: rgba(103, 80, 164, 0.12);
 }
