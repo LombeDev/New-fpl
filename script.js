@@ -443,5 +443,41 @@ window.addEventListener('load', () => {
 
 
 
+const themeToggle = document.getElementById('theme-toggle');
+const logoutBtn = document.getElementById('logout-btn');
+const body = document.body;
 
+// 1. Check for saved user preference on load
+const currentTheme = localStorage.getItem('theme');
+if (currentTheme === 'dark') {
+    body.classList.add('dark-mode');
+    updateThemeUI(true);
+}
+
+// 2. Theme Toggle Logic
+themeToggle.addEventListener('click', () => {
+    body.classList.toggle('dark-mode');
+    
+    let isDark = body.classList.contains('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    updateThemeUI(isDark);
+});
+
+function updateThemeUI(isDark) {
+    const icon = themeToggle.querySelector('.icon');
+    const text = themeToggle.querySelector('.text');
+    
+    icon.textContent = isDark ? '☀️' : '🌙';
+    text.textContent = isDark ? 'Day Mode' : 'Night Mode';
+}
+
+// 3. Logout Logic
+logoutBtn.addEventListener('click', () => {
+    const confirmLogout = confirm("Are you sure you want to log out?");
+    if (confirmLogout) {
+        console.log("User logged out.");
+        // Add your redirection or session clearing logic here
+        alert("Logged out successfully!");
+    }
+});
 
