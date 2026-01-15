@@ -1,11 +1,13 @@
 /**
  * KOPALA FPL - MASTER CORE SCRIPT
- * Version: 2.6 (Circular Design & Persistent Caching)
+ * Version: 2.7 (Pitch Pattern Integration & Persistence)
  */
 
 const state = {
     fplId: localStorage.getItem('kopala_fpl_id') || null,
     activeView: localStorage.getItem('kopala_active_view') || 'table',
+    // Stores the selected pitch pattern (default to 'p-vertical')
+    pitchPattern: localStorage.getItem('kopala_pitch_pattern') || 'p-vertical',
     playerMap: {}, 
     currentGW: 1,
     imageCache: JSON.parse(localStorage.getItem('kopala_img_cache')) || {}
@@ -13,13 +15,21 @@ const state = {
 
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 
+// SELECTED FOR COMPARISON
+let selectedForComparison = [];
+
 document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Theme Initialization
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
         const darkToggle = document.getElementById('dark-mode-toggle');
         if (darkToggle) darkToggle.checked = true;
     }
 
+    // 2. Pitch Pattern UI Initialization
+    updatePitchUIState();
+
+    // 3. Load App Data
     await initAppData();
 
     const loginScreen = document.getElementById('login-screen');
@@ -36,6 +46,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+/**
+ * PITCH SELECTOR LOGIC
+ */
+function setPitchPattern(patternClass) {
+    state.pitchPattern = patternClass;
+    localStorage.setItem('kopala_pitch_pattern', patternClass);
+    
+    // Immediately update any visible pitch containers in the DOM
+    document.querySelectorAll('.pitch-container').forEach(container => {
+        // Reset class list but keep 'pitch-container'
+        container.className = `pitch-container ${patternClass}`;
+    });
+    
+    updatePitchUIState();
+}
+
+function updatePitchUIState() {
+    document.querySelectorAll('.pitch-option').forEach(opt => {
+        opt.classList.remove('active');
+        if (opt.classList.contains(state.pitchPattern)) {
+            opt.classList.add('active');
+        }
+    });
+}
+
+/**
+ * IMAGE & CACHE SYSTEM
+ */
 function saveImageCache() {
     localStorage.setItem('kopala_img_cache', JSON.stringify(state.imageCache));
 }
@@ -69,6 +107,9 @@ function handleImageError(imgElement, playerKey) {
     imgElement.remove();
 }
 
+/**
+ * DATA FETCHING & APP INIT
+ */
 async function initAppData() {
     try {
         const cb = `&t=${Date.now()}`;
@@ -207,57 +248,134 @@ function renderImpactUI(containerId, players, isGain) {
     if (container) container.innerHTML = players.map(p => `<div class="player-impact-card"><div class="shirt-wrapper">${getPlayerImageHtml(state.playerMap[p.id]?.code)}</div><div class="player-name-tag">${p.name}</div><div class="player-pts-tag">${p.pts}</div><div class="impact-badge ${isGain ? 'gain' : 'loss'}">${isGain ? '+' : ''}${p.impact.toFixed(1)}%</div></div>`).join('');
 }
 
+/**
+ * PITCH RENDERING LOGIC
+ */
 async function toggleManagerExpansion(entryId) {
     const row = document.getElementById(`row-${entryId}`);
     const existingDetail = document.getElementById(`details-${entryId}`);
     if (existingDetail) { existingDetail.remove(); return; }
+    
     const detailRow = document.createElement('tr');
     detailRow.id = `details-${entryId}`;
     detailRow.className = 'details-row';
     detailRow.innerHTML = `<td colspan="5" style="text-align:center; padding:20px;">FETCHING PITCH...</td>`;
     row.parentNode.insertBefore(detailRow, row.nextSibling);
+    
     try {
-        const [picksRes, liveRes] = await Promise.all([fetch(`${PROXY_ENDPOINT}entry/${entryId}/event/${state.currentGW}/picks/&t=${Date.now()}`), fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/&t=${Date.now()}`)]);
+        const [picksRes, liveRes] = await Promise.all([
+            fetch(`${PROXY_ENDPOINT}entry/${entryId}/event/${state.currentGW}/picks/&t=${Date.now()}`),
+            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/&t=${Date.now()}`)
+        ]);
         const picksData = await picksRes.json();
         const liveData = await liveRes.json();
+        
         const livePointsMap = {};
         liveData.elements.forEach(el => livePointsMap[el.id] = el.stats.total_points);
-        const squad = picksData.picks.map(p => ({ ...state.playerMap[p.element], isCap: p.is_captain, pts: (livePointsMap[p.element] || 0) * (p.multiplier || 1) }));
-        detailRow.innerHTML = `<td colspan="5" style="padding:0;"><div class="pitch-container">${renderPitchRow(squad.filter(p => p.pos === 1))}${renderPitchRow(squad.filter(p => p.pos === 2))}${renderPitchRow(squad.filter(p => p.pos === 3))}${renderPitchRow(squad.filter(p => p.pos === 4))}</div></td>`;
+        
+        const squad = picksData.picks.map(p => ({ 
+            ...state.playerMap[p.element], 
+            isCap: p.is_captain, 
+            multiplier: p.multiplier,
+            pts: (livePointsMap[p.element] || 0) * (p.multiplier || 1) 
+        }));
+
+        // Apply state.pitchPattern as a class to the container
+        detailRow.innerHTML = `
+            <td colspan="5" style="padding:0;">
+                <div class="pitch-container ${state.pitchPattern}">
+                    ${renderPitchRow(squad.filter(p => p.pos === 1))}
+                    ${renderPitchRow(squad.filter(p => p.pos === 2))}
+                    ${renderPitchRow(squad.filter(p => p.pos === 3))}
+                    ${renderPitchRow(squad.filter(p => p.pos === 4))}
+                </div>
+            </td>`;
     } catch (e) { detailRow.innerHTML = `<td colspan="5">Error loading data.</td>`; }
 }
 
 function renderPitchRow(players) {
-    return `<div class="pitch-row">${players.map(p => `<div class="player-card">${getPlayerImageHtml(p.code, "player-face")}<div class="player-info-label">${p.isCap ? '(C) ' : ''}${p.name}</div><div class="player-points-badge">${p.pts}</div></div>`).join('')}</div>`;
+    return `
+        <div class="pitch-row">
+            ${players.map(p => `
+                <div class="player-card">
+                    ${getPlayerImageHtml(p.code, "player-face")}
+                    <div class="player-label-stack">
+                        <div class="p-name-bar">${p.isCap ? '(C) ' : ''}${p.name}</div>
+                        <div class="p-stat-bar">${p.multiplier}x</div>
+                        <div class="p-points-bar">${p.pts}</div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>`;
 }
 
+/**
+ * UI TABS & MODALS
+ */
 function showView(view) {
     state.activeView = view;
     localStorage.setItem('kopala_active_view', view);
     document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
     document.getElementById('pitch-view').style.display = view === 'pitch' ? 'block' : 'none';
+    
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     const btnId = view === 'table' ? 'tab-table' : 'tab-pitch';
-    document.getElementById(btnId).classList.add('active');
+    const activeBtn = document.getElementById(btnId);
+    if (activeBtn) activeBtn.classList.add('active');
+    
     moveIndicator(btnId);
 }
 
 function moveIndicator(id) {
     const btn = document.getElementById(id);
     const indicator = document.getElementById('main-indicator');
-    if (btn && indicator) { indicator.style.width = `${btn.offsetWidth}px`; indicator.style.left = `${btn.offsetLeft}px`; }
+    if (btn && indicator) { 
+        indicator.style.width = `${btn.offsetWidth}px`; 
+        indicator.style.left = `${btn.offsetLeft}px`; 
+    }
 }
 
+function handleDarkModeToggle() {
+    const isDark = document.getElementById('dark-mode-toggle').checked;
+    if (isDark) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('theme', 'light');
+    }
+}
+
+function toggleSettings() {
+    const drawer = document.getElementById('settings-drawer');
+    if (drawer) drawer.classList.toggle('open');
+}
+
+/**
+ * COMPARISON LOGIC
+ */
 function selectForCompare(entryId, entryName) {
-    if (selectedForComparison.find(s => s.id === entryId)) { selectedForComparison = selectedForComparison.filter(s => s.id !== entryId); } 
-    else { if (selectedForComparison.length >= 2) selectedForComparison.shift(); selectedForComparison.push({ id: entryId, name: entryName }); }
+    if (selectedForComparison.find(s => s.id === entryId)) { 
+        selectedForComparison = selectedForComparison.filter(s => s.id !== entryId); 
+    } else { 
+        if (selectedForComparison.length >= 2) selectedForComparison.shift(); 
+        selectedForComparison.push({ id: entryId, name: entryName }); 
+    }
     updateCompareButtonUI();
 }
 
 function updateCompareButtonUI() {
     const btn = document.getElementById('tab-compare');
-    if (selectedForComparison.length === 2) { btn.style.background = "var(--fpl-green)"; btn.innerText = "COMPARE (2)"; btn.disabled = false; } 
-    else { btn.style.background = "var(--fpl-purple)"; btn.innerText = `COMPARE (${selectedForComparison.length})`; btn.disabled = selectedForComparison.length < 2; }
+    if (!btn) return;
+    if (selectedForComparison.length === 2) { 
+        btn.style.background = "var(--fpl-green)"; 
+        btn.innerText = "COMPARE (2)"; 
+        btn.disabled = false; 
+    } else { 
+        btn.style.background = "var(--fpl-purple)"; 
+        btn.innerText = `COMPARE (${selectedForComparison.length})`; 
+        btn.disabled = selectedForComparison.length < 2; 
+    }
 }
 
 async function openCompareModal() {
@@ -267,9 +385,16 @@ async function openCompareModal() {
     modal.style.display = 'block';
     try {
         const [id1, id2] = selectedForComparison.map(s => s.id);
-        const [res1, res2, liveRes] = await Promise.all([fetch(`${PROXY_ENDPOINT}entry/${id1}/event/${state.currentGW}/picks/&t=${Date.now()}`), fetch(`${PROXY_ENDPOINT}entry/${id2}/event/${state.currentGW}/picks/&t=${Date.now()}`), fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/&t=${Date.now()}`)]);
-        const data1 = await res1.json(); const data2 = await res2.json(); const liveData = await liveRes.json();
-        const pointsMap = {}; liveData.elements.forEach(el => pointsMap[el.id] = el.stats.total_points);
+        const [res1, res2, liveRes] = await Promise.all([
+            fetch(`${PROXY_ENDPOINT}entry/${id1}/event/${state.currentGW}/picks/&t=${Date.now()}`), 
+            fetch(`${PROXY_ENDPOINT}entry/${id2}/event/${state.currentGW}/picks/&t=${Date.now()}`), 
+            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/&t=${Date.now()}`)
+        ]);
+        const data1 = await res1.json(); 
+        const data2 = await res2.json(); 
+        const liveData = await liveRes.json();
+        const pointsMap = {}; 
+        liveData.elements.forEach(el => pointsMap[el.id] = el.stats.total_points);
         renderCompareColumn(col1, data1.picks, pointsMap, selectedForComparison[0].name);
         renderCompareColumn(col2, data2.picks, pointsMap, selectedForComparison[1].name);
     } catch (e) { console.error("Comparison Error", e); }
@@ -279,11 +404,35 @@ function renderCompareColumn(container, picks, pointsMap, teamName) {
     container.innerHTML = `<div class="compare-header">${teamName}</div>` + picks.map(pick => {
         const p = state.playerMap[pick.element];
         const pts = (pointsMap[pick.element] || 0) * (pick.multiplier || 1);
-        return `<div class="compare-card">${getPlayerImageHtml(p.code)}<div class="compare-info"><span class="p-name">${p.name}</span><span class="p-pts">${pts} pts</span></div>${pick.is_captain ? '<span class="c-tag">C</span>' : ''}</div>`;
+        return `
+            <div class="compare-card">
+                ${getPlayerImageHtml(p.code)}
+                <div class="compare-info">
+                    <span class="p-name">${p.name}</span>
+                    <span class="p-pts">${pts} pts</span>
+                </div>
+                ${pick.is_captain ? '<span class="c-tag">C</span>' : ''}
+            </div>`;
     }).join('');
 }
 
-function handleCompareClick() { moveIndicator('tab-compare'); document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); document.getElementById('tab-compare').classList.add('active'); openCompareModal(); }
-function closeCompareModal() { document.getElementById('compare-modal').style.display = 'none'; }
-function resetApp() { localStorage.clear(); window.location.href = window.location.pathname; }
-window.addEventListener('load', () => { setTimeout(() => moveIndicator('tab-table'), 100); });
+function handleCompareClick() { 
+    moveIndicator('tab-compare'); 
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); 
+    const compareBtn = document.getElementById('tab-compare');
+    if (compareBtn) compareBtn.classList.add('active'); 
+    openCompareModal(); 
+}
+
+function closeCompareModal() { 
+    document.getElementById('compare-modal').style.display = 'none'; 
+}
+
+function resetApp() { 
+    localStorage.clear(); 
+    window.location.href = window.location.pathname; 
+}
+
+window.addEventListener('load', () => { 
+    setTimeout(() => moveIndicator('tab-table'), 500); 
+});
