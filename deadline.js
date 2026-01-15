@@ -1,6 +1,6 @@
 /**
- * KOPALA FPL - Bulletproof Deadline Script
- * Version 3.0
+ * KOPALA FPL - Fixed Deadline Script
+ * Specifically for Netlify Rewrites
  */
 
 async function updateFPLDeadline() {
@@ -8,42 +8,49 @@ async function updateFPLDeadline() {
     const CACHE_KEY = "fpl_deadline_cache";
     const API_URL = "/fpl-api/bootstrap-static/";
 
-    // 1. Instant Cache Display
+    // 1. Try to show cached data immediately to prevent "Loading..." flicker
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
         const data = JSON.parse(cached);
         const dDate = new Date(data.deadline_time);
+        // Only show if it's still in the future
         if (new Date() < dDate) {
             renderDeadlineDisplay(data.name, dDate);
-            // We still fetch in background to verify, but user sees date instantly
         }
     }
 
     try {
-        // 2. Fetch Data (Supports Netlify Proxy)
+        // 2. Fetch fresh data from your Netlify Proxy
         const response = await fetch(API_URL);
-        if (!response.ok) throw new Error("Proxy Error");
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
         const data = await response.json();
 
-        // 3. Find the NEXT deadline (First event that hasn't finished and is in the future)
-        const nextGW = data.events.find(e => {
-            const d = new Date(e.deadline_time);
-            return d > new Date() && !e.finished;
-        });
+        // 3. Find the NEXT gameweek
+        // Strategy: Look for 'is_next', fallback to first event with future date
+        let nextGW = data.events.find(e => e.is_next === true);
+        
+        if (!nextGW) {
+            nextGW = data.events.find(e => !e.finished && new Date(e.deadline_time) > new Date());
+        }
 
         if (nextGW) {
-            const deadlineDate = new Date(nextGW.deadline_time);
-            
-            // Save to Cache
-            localStorage.setItem(CACHE_KEY, JSON.stringify({
+            const deadlineInfo = {
                 name: nextGW.name,
                 deadline_time: nextGW.deadline_time
-            }));
+            };
 
-            renderDeadlineDisplay(nextGW.name, deadlineDate);
+            // Save to LocalStorage cache
+            localStorage.setItem(CACHE_KEY, JSON.stringify(deadlineInfo));
+
+            // Render to HTML
+            renderDeadlineDisplay(deadlineInfo.name, new Date(deadlineInfo.deadline_time));
         }
-    } catch (err) {
-        console.warn("API Fetch failed, using cache fallback.");
+    } catch (error) {
+        console.error("FPL Fetch Error:", error);
+        if (!cached && bannerEl) {
+            bannerEl.innerText = "Check Connection";
+        }
     }
 }
 
@@ -51,20 +58,21 @@ function renderDeadlineDisplay(name, dateObj) {
     const bannerEl = document.getElementById('deadline-timer');
     if (!bannerEl) return;
 
-    // Formatting: Sat 17 Jan, 13:30
+    // Local Format: Sat 18 Jan, 11:00 AM
     const formatted = dateObj.toLocaleString('en-GB', {
         weekday: 'short',
         day: 'numeric',
         month: 'short',
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false // Clean 24h format
+        hour12: true
     });
 
-    bannerEl.innerHTML = `${name}: <span style="color: white; margin-left: 5px;">${formatted}</span>`;
+    // We use innerHTML to allow for a slight style pop on the date
+    bannerEl.innerHTML = `${name}: <span style="color: #ffffff;">${formatted}</span>`;
 }
 
-// RUN ON LOAD
+// Ensure the script runs after the DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', updateFPLDeadline);
 } else {
