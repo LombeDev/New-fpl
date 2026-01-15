@@ -452,3 +452,48 @@ function updateActiveTab(clickedId) {
     // Add to the one we clicked
     document.getElementById(clickedId).classList.add('active');
 }
+
+
+function showView(view) {
+    const btnId = view === 'table' ? 'tab-table' : 'tab-pitch';
+    
+    // Update Active Classes
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(btnId).classList.add('active');
+
+    // Move the Underline
+    moveIndicator(btnId);
+
+    // Logic to show/hide your views
+    if(view === 'table') {
+        document.getElementById('table-view').style.display = 'block';
+        document.getElementById('pitch-view').style.display = 'none';
+    } else {
+        document.getElementById('table-view').style.display = 'none';
+        document.getElementById('pitch-view').style.display = 'block';
+    }
+}
+
+// Separate function for Compare to handle the modal + underline
+function handleCompareClick() {
+    moveIndicator('tab-compare');
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('tab-compare').classList.add('active');
+    openCompareModal();
+}
+
+function moveIndicator(id) {
+    const btn = document.getElementById(id);
+    const indicator = document.getElementById('main-indicator');
+    
+    if (btn && indicator) {
+        // We use offsetLeft and offsetWidth to calculate exact position relative to the centered container
+        indicator.style.width = `${btn.offsetWidth}px`;
+        indicator.style.left = `${btn.offsetLeft}px`;
+    }
+}
+
+// Initial position on load
+window.addEventListener('load', () => {
+    setTimeout(() => moveIndicator('tab-table'), 100);
+});
