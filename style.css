@@ -151,40 +151,6 @@ body.dark-mode .enter-btn {
     background: #e2e2e2;
 }
 
-/* 4. APP HEADER & NAVIGATION */
-.app-header { 
-    background: var(--header-bg); 
-    padding: 15px 20px; 
-    border-bottom: 1px solid var(--border-color); 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-}
-
-.main-tabs { 
-    display: flex; 
-    background: var(--tab-bg); 
-    position: sticky; 
-    top: 0; 
-    z-index: 100; 
-}
-
-.tab-btn { 
-    flex: 1; 
-    padding: 15px 5px; 
-    border: none; 
-    background: none; 
-    font-weight: bold; 
-    cursor: pointer; 
-    color: var(--text-main); 
-    font-size: 0.9rem; 
-    transition: 0.2s; 
-}
-
-.tab-btn.active { 
-    background: var(--fpl-red); 
-    color: white; 
-}
 
 /* 5. LIVE TABLE & LISTS */
 .table-container { 
@@ -821,49 +787,63 @@ body.dark-mode .manager-info-footer { background: #242f3d; }
 
 
 
-/* Navigation Wrapper */
+/* Container Wrapper */
 .main-tabs {
     display: flex;
     justify-content: center;
-    padding: 12px 0;
+    padding: 16px 0;
     background: #ffffff;
-    border-bottom: 1px solid #eee;
 }
 
-/* The light gray "pill" container */
+/* Material Design 3 Segmented Container */
 .tab-container {
     display: flex;
-    background: #f0f0f0; /* Soft gray background from your image */
-    padding: 3px;
-    border-radius: 8px; /* Slightly rounded corners */
-    width: 90%; /* Keeps it compact on screen */
-    max-width: 400px;
-    gap: 2px;
+    background: #f3f3f7; /* Material Surface Variant */
+    border-radius: 28px; /* Large rounding typical of Material You */
+    padding: 4px;
+    width: 92%;
+    max-width: 450px;
+    position: relative;
+    border: 1px solid #e1e1e6;
 }
 
-/* The individual buttons */
+/* Base Button Style */
 .tab-btn {
     flex: 1;
     border: none;
-    padding: 8px 0; /* Compact height */
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    font-size: 13px; /* Smaller, professional font size */
-    font-weight: 700;
-    cursor: pointer;
-    border-radius: 6px;
+    outline: none;
+    padding: 10px 0;
+    font-family: 'Roboto', 'Segoe UI', sans-serif;
+    font-size: 14px;
+    font-weight: 500; /* Material Medium weight */
+    color: #44474e; /* On-surface color */
     background: transparent;
-    color: #555;
-    transition: all 0.2s ease;
+    cursor: pointer;
+    border-radius: 24px;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    position: relative;
 }
 
-/* The WHITE active state (Matching the 'Table' button in your image) */
+/* Material ACTIVE State (NO White Block) */
 .tab-btn.active {
-    background: #ffffff;
-    color: #38003c; /* FPL Purple for text */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle lift effect */
+    /* Using a soft purple tint (Material Primary Container) instead of white */
+    background-color: #e8def8; 
+    color: #1d192b; /* Deep purple text */
 }
 
-/* Hover for non-active buttons */
-.tab-btn:hover:not(.active) {
-    background: rgba(0,0,0,0.05);
+/* The Bottom Indicator Line (Material specific) */
+.tab-btn.active::after {
+    content: "";
+    position: absolute;
+    bottom: 2px;
+    left: 25%;
+    right: 25%;
+    height: 3px;
+    background: #6750a4; /* Primary color */
+    border-radius: 3px 3px 0 0;
+}
+
+/* Feedback on tap */
+.tab-btn:active {
+    background-color: rgba(103, 80, 164, 0.12);
 }
