@@ -1,78 +1,75 @@
 /**
- * KOPALA FPL - Fixed Deadline Script
- * Specifically for Netlify Rewrites
+ * KOPALA FPL - Universal Deadline Script
+ * Specifically for your multi-span HTML structure
  */
-
 async function updateFPLDeadline() {
-    const bannerEl = document.getElementById('deadline-timer');
+    const gwLabel = document.getElementById('gw-label');
+    const timeDisplay = document.getElementById('deadline-date-time');
     const CACHE_KEY = "fpl_deadline_cache";
-    const API_URL = "/fpl-api/bootstrap-static/";
-
-    // 1. Try to show cached data immediately to prevent "Loading..." flicker
+    
+    // 1. Check for cached data to show instantly
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
         const data = JSON.parse(cached);
-        const dDate = new Date(data.deadline_time);
-        // Only show if it's still in the future
-        if (new Date() < dDate) {
-            renderDeadlineDisplay(data.name, dDate);
+        if (new Date() < new Date(data.deadline_time)) {
+            renderToSpans(data.name, new Date(data.deadline_time));
         }
     }
+
+    // 2. Select API Path (detects if you are local or on Netlify)
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    const API_URL = isLocal 
+        ? "https://api.allorigins.win/get?url=" + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/")
+        : "/fpl-api/bootstrap-static/";
 
     try {
-        // 2. Fetch fresh data from your Netlify Proxy
         const response = await fetch(API_URL);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) throw new Error("Fetch failed");
         
-        const data = await response.json();
+        let data = await response.json();
+        if (isLocal) data = JSON.parse(data.contents);
 
-        // 3. Find the NEXT gameweek
-        // Strategy: Look for 'is_next', fallback to first event with future date
-        let nextGW = data.events.find(e => e.is_next === true);
-        
-        if (!nextGW) {
-            nextGW = data.events.find(e => !e.finished && new Date(e.deadline_time) > new Date());
-        }
+        // 3. Find the next valid deadline
+        const nextGW = data.events.find(e => e.is_next === true) || 
+                       data.events.find(e => !e.finished && new Date(e.deadline_time) > new Date());
 
         if (nextGW) {
-            const deadlineInfo = {
-                name: nextGW.name,
-                deadline_time: nextGW.deadline_time
-            };
-
-            // Save to LocalStorage cache
-            localStorage.setItem(CACHE_KEY, JSON.stringify(deadlineInfo));
-
-            // Render to HTML
-            renderDeadlineDisplay(deadlineInfo.name, new Date(deadlineInfo.deadline_time));
+            const cacheObj = { name: nextGW.name, deadline_time: nextGW.deadline_time };
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cacheObj));
+            renderToSpans(cacheObj.name, new Date(cacheObj.deadline_time));
         }
     } catch (error) {
-        console.error("FPL Fetch Error:", error);
-        if (!cached && bannerEl) {
-            bannerEl.innerText = "Check Connection";
-        }
+        console.error("Deadline Sync Error:", error);
+        if (timeDisplay && !cached) timeDisplay.innerText = "Syncing...";
     }
 }
 
-function renderDeadlineDisplay(name, dateObj) {
-    const bannerEl = document.getElementById('deadline-timer');
-    if (!bannerEl) return;
+/**
+ * Updates your specific HTML structure
+ */
+function renderToSpans(name, dateObj) {
+    const gwLabel = document.getElementById('gw-label');
+    const timeDisplay = document.getElementById('deadline-date-time');
 
-    // Local Format: Sat 18 Jan, 11:00 AM
-    const formatted = dateObj.toLocaleString('en-GB', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-    });
+    if (gwLabel) {
+        // Formats "Gameweek 22" to "GW 22"
+        gwLabel.innerText = name.replace("Gameweek ", "GW ");
+    }
 
-    // We use innerHTML to allow for a slight style pop on the date
-    bannerEl.innerHTML = `${name}: <span style="color: #ffffff;">${formatted}</span>`;
+    if (timeDisplay) {
+        // Formats to: Sat 18 Jan, 11:00 AM
+        timeDisplay.innerText = dateObj.toLocaleString('en-GB', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
 }
 
-// Ensure the script runs after the DOM is ready
+// Ensure it runs after the page loads
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', updateFPLDeadline);
 } else {
