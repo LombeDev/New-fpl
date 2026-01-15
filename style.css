@@ -787,61 +787,50 @@ body.dark-mode .manager-info-footer { background: #242f3d; }
 
 
 
-/* Transparent container, no background */
+/* Centers the entire navigation block */
 .main-tabs {
     display: flex;
-    justify-content: flex-start;
-    padding: 10px 20px;
+    justify-content: center; 
     background: #ffffff;
     border-bottom: 1px solid #eeeeee;
+    padding: 0 20px;
 }
 
+/* Container for buttons and sliding line */
 .tab-container {
     display: flex;
-    gap: 25px; /* Spacing between text links */
+    gap: 30px; /* Space between centered text */
+    position: relative;
+    padding: 10px 0;
 }
 
-/* Reset button to simple text */
 .tab-btn {
     background: none;
     border: none;
-    padding: 8px 0;
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #888888; /* Muted color for inactive */
+    padding: 10px 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #888;
     cursor: pointer;
-    position: relative;
-    transition: color 0.2s ease;
+    transition: color 0.3s ease;
+    white-space: nowrap;
 }
 
-/* Active State: Bold text with a simple underline */
 .tab-btn.active {
-    color: #000000; /* Solid black for active */
-    font-weight: 700;
+    color: #000;
 }
 
-/* Simple Underline Indicator */
-.tab-btn.active::after {
-    content: "";
+/* The Sliding Underline Indicator */
+.tab-indicator {
     position: absolute;
     bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: #e90052; /* FPL Red underline */
+    height: 3px;
+    background: #e90052; /* FPL Red */
+    border-radius: 2px;
+    /* Smooth sliding animation */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark Mode Adjustment */
-body.dark-mode .main-tabs {
-    background: #171e28;
-    border-bottom: 1px solid #242f3d;
-}
-
-body.dark-mode .tab-btn.active {
-    color: #ffffff;
-}
-
-body.dark-mode .tab-btn {
-    color: #869099;
-}
+/* Dark Mode Logic */
+body.dark-mode .main-tabs { background: #171e28; border-bottom: 1px solid #242f3d; }
+body.dark-mode .tab-btn.active { color: #fff; }
