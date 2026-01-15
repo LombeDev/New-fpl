@@ -1,37 +1,44 @@
 /**
  * KOPALA FPL - MASTER CORE SCRIPT
- * Version: 2.7 (Pitch Pattern Integration & Persistence)
+ * Version: 3.0 (Live Match Center & High-Performance UI)
  */
 
 const state = {
     fplId: localStorage.getItem('kopala_fpl_id') || null,
     activeView: localStorage.getItem('kopala_active_view') || 'table',
-    // Stores the selected pitch pattern (default to 'p-vertical')
     pitchPattern: localStorage.getItem('kopala_pitch_pattern') || 'p-vertical',
     playerMap: {}, 
     currentGW: 1,
     imageCache: JSON.parse(localStorage.getItem('kopala_img_cache')) || {}
 };
 
+// Endpoints
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
+const FOOTBALL_API_URL = "/api/competitions/PL/matches?limit=12"; // Uses your redirect
 
-// SELECTED FOR COMPARISON
 let selectedForComparison = [];
+let cardObserver;
 
+/**
+ * 1. INITIALIZATION & CORE EVENTS
+ */
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Theme Initialization
+    // A. Setup lazy loading observer
+    initIntersectionObserver();
+
+    // B. Theme Check
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
-        const darkToggle = document.getElementById('dark-mode-toggle');
-        if (darkToggle) darkToggle.checked = true;
     }
 
-    // 2. Pitch Pattern UI Initialization
+    // C. Initialize Pitch UI
     updatePitchUIState();
 
-    // 3. Load App Data
+    // D. Load Global FPL & Live Match Data
     await initAppData();
+    await fetchFootballMatches();
 
+    // E. Handle Authentication Flow
     const loginScreen = document.getElementById('login-screen');
     const dashboard = document.getElementById('dashboard');
 
@@ -44,148 +51,137 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (loginScreen) loginScreen.style.display = 'flex';
         if (dashboard) dashboard.style.display = 'none';
     }
+
+    // F. Start 60s Refresh Cycle for Live Scores
+    setInterval(fetchFootballMatches, 60000);
 });
 
 /**
- * PITCH SELECTOR LOGIC
+ * 2. PERFORMANCE & UI OBSERVER
  */
-function setPitchPattern(patternClass) {
-    state.pitchPattern = patternClass;
-    localStorage.setItem('kopala_pitch_pattern', patternClass);
-    
-    // Immediately update any visible pitch containers in the DOM
-    document.querySelectorAll('.pitch-container').forEach(container => {
-        // Reset class list but keep 'pitch-container'
-        container.className = `pitch-container ${patternClass}`;
-    });
-    
-    updatePitchUIState();
-}
-
-function updatePitchUIState() {
-    document.querySelectorAll('.pitch-option').forEach(opt => {
-        opt.classList.remove('active');
-        if (opt.classList.contains(state.pitchPattern)) {
-            opt.classList.add('active');
-        }
-    });
+function initIntersectionObserver() {
+    cardObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('appeared');
+                cardObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
 }
 
 /**
- * IMAGE & CACHE SYSTEM
+ * 3. LIVE FOOTBALL MATCH CENTER
  */
-function saveImageCache() {
-    localStorage.setItem('kopala_img_cache', JSON.stringify(state.imageCache));
-}
+async function fetchFootballMatches() {
+    const container = document.getElementById('fixtures-container');
+    if (!container) return;
 
-function getPlayerImageHtml(playerCode, className = "") {
-    const playerKey = `p${playerCode}`;
-    if (state.imageCache[playerKey] === 'failed') {
-        return `<div class="img-container img-missing ${className}"></div>`;
+    try {
+        const response = await fetch(FOOTBALL_API_URL);
+        const data = await response.json();
+        
+        container.innerHTML = ''; // Remove skeletons
+
+        data.matches.forEach(match => {
+            const isLive = match.status === 'IN_PLAY' || match.status === 'LIVE' || match.status === 'PAUSED';
+            const homeScore = match.score.fullTime.home ?? '-';
+            const awayScore = match.score.fullTime.away ?? '-';
+
+            const matchCard = document.createElement('div');
+            matchCard.className = 'fixture-card card-lazy';
+            matchCard.innerHTML = `
+                <div class="live-status-header">
+                    ${isLive ? '<div class="status-badge"><span class="pulse-dot"></span> LIVE</div>' : `<span class="status-label">${match.status.replace('_', ' ')}</span>`}
+                </div>
+                <div class="fixture-content">
+                    <div class="score-col">
+                        <div class="team-unit">
+                            <img src="${match.homeTeam.crest}" class="team-logo" alt="${match.homeTeam.name}">
+                            <span class="team-abbr">${match.homeTeam.tla}</span>
+                        </div>
+                        <div class="score-box">${homeScore} : ${awayScore}</div>
+                        <div class="team-unit">
+                            <img src="${match.awayTeam.crest}" class="team-logo" alt="${match.awayTeam.name}">
+                            <span class="team-abbr">${match.awayTeam.tla}</span>
+                        </div>
+                    </div>
+                    <button class="expand-btn" onclick="toggleMatchDetails(this)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                </div>
+                <div class="details-drawer">
+                    <div class="details-content">
+                        <div class="detail-row"><span>Stadium</span> <strong>${match.venue || 'TBA'}</strong></div>
+                        <div class="detail-row"><span>Matchday</span> <strong>GW ${match.matchday}</strong></div>
+                        <div class="detail-row"><span>Kickoff</span> <strong>${new Date(match.utcDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</strong></div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(matchCard);
+            cardObserver.observe(matchCard);
+        });
+    } catch (error) {
+        console.error("Match Center Error:", error);
     }
-    const primaryUrl = `https://resources.premierleague.com/premierleague/photos/players/110x140/${playerKey}.png`;
-    return `
-        <div class="img-container ${className} skeleton-loading">
-            <img src="${primaryUrl}" loading="lazy" onload="handleImageSuccess(this, '${playerKey}')" onerror="handleImageError(this, '${playerKey}')">
-        </div>
-    `;
 }
 
-function handleImageSuccess(imgElement, playerKey) {
-    imgElement.parentElement.classList.remove('skeleton-loading');
-    state.imageCache[playerKey] = 'loaded';
-}
-
-function handleImageError(imgElement, playerKey) {
-    state.imageCache[playerKey] = 'failed';
-    saveImageCache(); 
-    const container = imgElement.parentElement;
-    if (container) {
-        container.classList.remove('skeleton-loading');
-        container.classList.add('img-missing');
-    }
-    imgElement.remove();
+function toggleMatchDetails(btn) {
+    const card = btn.closest('.fixture-card');
+    const drawer = card.querySelector('.details-drawer');
+    btn.classList.toggle('active');
+    drawer.classList.toggle('open');
 }
 
 /**
- * DATA FETCHING & APP INIT
+ * 4. FPL DATA & MANAGER LOGIC
  */
 async function initAppData() {
     try {
-        const cb = `&t=${Date.now()}`;
-        const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/${cb}`);
+        const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
         const data = await res.json();
         data.elements.forEach(p => {
             state.playerMap[p.id] = { name: p.web_name, code: p.code, pos: p.element_type };
         });
         const activeGW = data.events.find(e => e.is_current) || data.events.find(e => !e.finished);
-        if (activeGW) {
-            state.currentGW = activeGW.id;
-            const timerEl = document.getElementById('deadline-timer');
-            if (timerEl) timerEl.textContent = activeGW.name;
-        }
-    } catch (e) { console.error("Bootstrap error:", e); }
-}
-
-async function handleLogin() {
-    const input = document.getElementById('team-id-input');
-    const loginBtn = document.querySelector('.enter-id-btn');
-    if (!input || !loginBtn) return;
-    const teamId = input.value.trim();
-    if (!teamId || isNaN(teamId)) {
-        input.classList.add('input-error');
-        setTimeout(() => input.classList.remove('input-error'), 500);
-        return;
-    }
-    loginBtn.disabled = true;
-    loginBtn.innerText = "VERIFYING...";
-    try {
-        const cb = `&t=${Date.now()}`;
-        const res = await fetch(`${PROXY_ENDPOINT}entry/${teamId}/${cb}`);
-        if (!res.ok) throw new Error("ID Not Found");
-        localStorage.clear();
-        localStorage.setItem('kopala_fpl_id', teamId);
-        window.location.href = window.location.pathname + '?v=' + Date.now();
-    } catch (error) {
-        alert("Invalid Team ID.");
-        loginBtn.disabled = false;
-        loginBtn.innerText = "ENTER";
-    }
+        if (activeGW) state.currentGW = activeGW.id;
+    } catch (e) { console.error("FPL Init Error", e); }
 }
 
 async function fetchManagerData() {
     try {
-        const cb = `&t=${Date.now()}`;
-        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/${cb}`);
+        const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/`);
         const data = await res.json();
         document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
         document.getElementById('disp-total').textContent = data.summary_overall_points.toLocaleString();
         document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
+        
         const invitational = data.leagues.classic.filter(l => l.league_type === 'x');
         const select = document.getElementById('league-select');
         if (select && invitational.length > 0) {
             select.innerHTML = invitational.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
             changeLeague(invitational[0].id);
         }
-    } catch (e) { console.error("Manager data error", e); }
+    } catch (e) { console.error("Manager Data Error", e); }
 }
 
 async function changeLeague(leagueId) {
     const body = document.getElementById('league-body');
-    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px;">Syncing Standings...</td></tr>';
+    body.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px;">Syncing League...</td></tr>';
     try {
-        const cb = `&t=${Date.now()}`;
-        const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/${cb}`);
+        const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
         const data = await res.json();
         const standings = data.standings.results;
         const allPicks = await batchFetchCaptains(standings);
+        
         body.innerHTML = standings.map((r, index) => {
             const arrow = r.last_rank > r.rank ? '▲' : (r.last_rank < r.rank && r.last_rank !== 0 ? '▼' : '-');
             const arrowColor = r.last_rank > r.rank ? '#00ff85' : '#e90052';
             const capId = allPicks[index]?.picks?.find(p => p.is_captain)?.element;
             const captainName = state.playerMap[capId]?.name || "N/A";
+
             return `
-                <tr id="row-${r.entry}" class="manager-row">
+                <tr id="row-${r.entry}" class="manager-row card-lazy">
                     <td onclick="toggleManagerExpansion(${r.entry})"><span style="color:${arrowColor}">${arrow}</span> ${r.rank}</td>
                     <td onclick="toggleManagerExpansion(${r.entry})">
                         <div class="manager-info-stack">
@@ -203,280 +199,56 @@ async function changeLeague(leagueId) {
                 </tr>
             `;
         }).join('');
-        await calculateLeagueAnalytics(standings, allPicks);
-    } catch (err) { console.error("League error", err); }
+        
+        document.querySelectorAll('.manager-row').forEach(row => cardObserver.observe(row));
+    } catch (err) { console.error("League Error", err); }
 }
 
+/**
+ * 5. UTILS & UI HELPERS
+ */
 async function batchFetchCaptains(standings) {
     let results = [];
-    for (let i = 0; i < Math.min(standings.length, 15); i += 5) {
+    for (let i = 0; i < Math.min(standings.length, 10); i += 5) {
         const batch = standings.slice(i, i + 5);
-        const batchRes = await Promise.all(batch.map(r => fetch(`${PROXY_ENDPOINT}entry/${r.entry}/event/${state.currentGW}/picks/&t=${Date.now()}`).then(res => res.json()).catch(() => null)));
+        const batchRes = await Promise.all(batch.map(r => fetch(`${PROXY_ENDPOINT}entry/${r.entry}/event/${state.currentGW}/picks/`).then(res => res.json()).catch(() => null)));
         results = [...results, ...batchRes];
-        await new Promise(r => setTimeout(r, 100));
     }
     return results;
 }
 
-async function calculateLeagueAnalytics(standings, allPicks) {
-    const myEntryId = parseInt(state.fplId);
-    const myPicksData = allPicks.find((p, index) => standings[index].entry === myEntryId);
-    if (!myPicksData) return;
-    const liveRes = await fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/&t=${Date.now()}`);
-    const liveData = await liveRes.json();
-    const livePointsMap = {};
-    liveData.elements.forEach(el => livePointsMap[el.id] = el.stats.total_points);
-    const mySquadIds = new Set(myPicksData.picks.map(p => p.element));
-    const leagueSize = allPicks.filter(p => p !== null).length;
-    const ownershipCount = {};
-    allPicks.forEach(playerPicks => {
-        if (!playerPicks) return;
-        playerPicks.picks.forEach(p => { ownershipCount[p.element] = (ownershipCount[p.element] || 0) + 1; });
-    });
-    const analytics = [];
-    for (const [id, count] of Object.entries(ownershipCount)) {
-        const pId = parseInt(id);
-        const ownershipPct = (count / leagueSize) * 100;
-        analytics.push({ id: pId, name: state.playerMap[pId]?.name || "Unknown", pts: livePointsMap[pId] || 0, ownedByMe: mySquadIds.has(pId), ownership: ownershipPct, impact: 100 - ownershipPct });
-    }
-    renderImpactUI('diffs-list', analytics.filter(p => p.ownedByMe).sort((a, b) => a.ownership - b.ownership).slice(0, 3), true);
-    renderImpactUI('threats-list', analytics.filter(p => !p.ownedByMe).sort((a, b) => b.ownership - a.ownership).slice(0, 3), false);
-}
-
-function renderImpactUI(containerId, players, isGain) {
-    const container = document.getElementById(containerId);
-    if (container) container.innerHTML = players.map(p => `<div class="player-impact-card"><div class="shirt-wrapper">${getPlayerImageHtml(state.playerMap[p.id]?.code)}</div><div class="player-name-tag">${p.name}</div><div class="player-pts-tag">${p.pts}</div><div class="impact-badge ${isGain ? 'gain' : 'loss'}">${isGain ? '+' : ''}${p.impact.toFixed(1)}%</div></div>`).join('');
-}
-
-/**
- * PITCH RENDERING LOGIC
- */
-async function toggleManagerExpansion(entryId) {
-    const row = document.getElementById(`row-${entryId}`);
-    const existingDetail = document.getElementById(`details-${entryId}`);
-    if (existingDetail) { existingDetail.remove(); return; }
-    
-    const detailRow = document.createElement('tr');
-    detailRow.id = `details-${entryId}`;
-    detailRow.className = 'details-row';
-    detailRow.innerHTML = `<td colspan="5" style="text-align:center; padding:20px;">FETCHING PITCH...</td>`;
-    row.parentNode.insertBefore(detailRow, row.nextSibling);
-    
-    try {
-        const [picksRes, liveRes] = await Promise.all([
-            fetch(`${PROXY_ENDPOINT}entry/${entryId}/event/${state.currentGW}/picks/&t=${Date.now()}`),
-            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/&t=${Date.now()}`)
-        ]);
-        const picksData = await picksRes.json();
-        const liveData = await liveRes.json();
-        
-        const livePointsMap = {};
-        liveData.elements.forEach(el => livePointsMap[el.id] = el.stats.total_points);
-        
-        const squad = picksData.picks.map(p => ({ 
-            ...state.playerMap[p.element], 
-            isCap: p.is_captain, 
-            multiplier: p.multiplier,
-            pts: (livePointsMap[p.element] || 0) * (p.multiplier || 1) 
-        }));
-
-        // Apply state.pitchPattern as a class to the container
-        detailRow.innerHTML = `
-            <td colspan="5" style="padding:0;">
-                <div class="pitch-container ${state.pitchPattern}">
-                    ${renderPitchRow(squad.filter(p => p.pos === 1))}
-                    ${renderPitchRow(squad.filter(p => p.pos === 2))}
-                    ${renderPitchRow(squad.filter(p => p.pos === 3))}
-                    ${renderPitchRow(squad.filter(p => p.pos === 4))}
-                </div>
-            </td>`;
-    } catch (e) { detailRow.innerHTML = `<td colspan="5">Error loading data.</td>`; }
-}
-
-function renderPitchRow(players) {
+function getPlayerImageHtml(playerCode, className = "") {
+    const playerKey = `p${playerCode}`;
+    const primaryUrl = `https://resources.premierleague.com/premierleague/photos/players/110x140/${playerKey}.png`;
     return `
-        <div class="pitch-row">
-            ${players.map(p => `
-                <div class="player-card">
-                    ${getPlayerImageHtml(p.code, "player-face")}
-                    <div class="player-label-stack">
-                        <div class="p-name-bar">${p.isCap ? '(C) ' : ''}${p.name}</div>
-                        <div class="p-stat-bar">${p.multiplier}x</div>
-                        <div class="p-points-bar">${p.pts}</div>
-                    </div>
-                </div>
-            `).join('')}
-        </div>`;
+        <div class="img-container ${className} skeleton-loading">
+            <img src="${primaryUrl}" loading="lazy" onload="this.parentElement.classList.remove('skeleton-loading')" onerror="this.remove()">
+        </div>
+    `;
 }
 
-/**
- * UI TABS & MODALS
- */
 function showView(view) {
     state.activeView = view;
     localStorage.setItem('kopala_active_view', view);
     document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
     document.getElementById('pitch-view').style.display = view === 'pitch' ? 'block' : 'none';
-    
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    const btnId = view === 'table' ? 'tab-table' : 'tab-pitch';
-    const activeBtn = document.getElementById(btnId);
-    if (activeBtn) activeBtn.classList.add('active');
-    
-    moveIndicator(btnId);
 }
 
-function moveIndicator(id) {
-    const btn = document.getElementById(id);
-    const indicator = document.getElementById('main-indicator');
-    if (btn && indicator) { 
-        indicator.style.width = `${btn.offsetWidth}px`; 
-        indicator.style.left = `${btn.offsetLeft}px`; 
-    }
+function updatePitchUIState() {
+    document.querySelectorAll('.pitch-option').forEach(opt => {
+        opt.classList.toggle('active', opt.classList.contains(state.pitchPattern));
+    });
 }
 
-function handleDarkModeToggle() {
-    const isDark = document.getElementById('dark-mode-toggle').checked;
-    if (isDark) {
-        document.body.classList.add('dark-mode');
-        localStorage.setItem('theme', 'dark');
-    } else {
-        document.body.classList.remove('dark-mode');
-        localStorage.setItem('theme', 'light');
-    }
+function handleLogin() {
+    const input = document.getElementById('team-id-input');
+    const teamId = input.value.trim();
+    if (!teamId || isNaN(teamId)) return;
+    localStorage.setItem('kopala_fpl_id', teamId);
+    window.location.reload();
 }
 
-function toggleSettings() {
-    const drawer = document.getElementById('settings-drawer');
-    if (drawer) drawer.classList.toggle('open');
+function resetApp() {
+    localStorage.clear();
+    window.location.reload();
 }
-
-/**
- * COMPARISON LOGIC
- */
-function selectForCompare(entryId, entryName) {
-    if (selectedForComparison.find(s => s.id === entryId)) { 
-        selectedForComparison = selectedForComparison.filter(s => s.id !== entryId); 
-    } else { 
-        if (selectedForComparison.length >= 2) selectedForComparison.shift(); 
-        selectedForComparison.push({ id: entryId, name: entryName }); 
-    }
-    updateCompareButtonUI();
-}
-
-function updateCompareButtonUI() {
-    const btn = document.getElementById('tab-compare');
-    if (!btn) return;
-    if (selectedForComparison.length === 2) { 
-        btn.style.background = "var(--fpl-green)"; 
-        btn.innerText = "COMPARE (2)"; 
-        btn.disabled = false; 
-    } else { 
-        btn.style.background = "var(--fpl-purple)"; 
-        btn.innerText = `COMPARE (${selectedForComparison.length})`; 
-        btn.disabled = selectedForComparison.length < 2; 
-    }
-}
-
-async function openCompareModal() {
-    const modal = document.getElementById('compare-modal');
-    const col1 = document.getElementById('team-1-col');
-    const col2 = document.getElementById('team-2-col');
-    modal.style.display = 'block';
-    try {
-        const [id1, id2] = selectedForComparison.map(s => s.id);
-        const [res1, res2, liveRes] = await Promise.all([
-            fetch(`${PROXY_ENDPOINT}entry/${id1}/event/${state.currentGW}/picks/&t=${Date.now()}`), 
-            fetch(`${PROXY_ENDPOINT}entry/${id2}/event/${state.currentGW}/picks/&t=${Date.now()}`), 
-            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/&t=${Date.now()}`)
-        ]);
-        const data1 = await res1.json(); 
-        const data2 = await res2.json(); 
-        const liveData = await liveRes.json();
-        const pointsMap = {}; 
-        liveData.elements.forEach(el => pointsMap[el.id] = el.stats.total_points);
-        renderCompareColumn(col1, data1.picks, pointsMap, selectedForComparison[0].name);
-        renderCompareColumn(col2, data2.picks, pointsMap, selectedForComparison[1].name);
-    } catch (e) { console.error("Comparison Error", e); }
-}
-
-function renderCompareColumn(container, picks, pointsMap, teamName) {
-    container.innerHTML = `<div class="compare-header">${teamName}</div>` + picks.map(pick => {
-        const p = state.playerMap[pick.element];
-        const pts = (pointsMap[pick.element] || 0) * (pick.multiplier || 1);
-        return `
-            <div class="compare-card">
-                ${getPlayerImageHtml(p.code)}
-                <div class="compare-info">
-                    <span class="p-name">${p.name}</span>
-                    <span class="p-pts">${pts} pts</span>
-                </div>
-                ${pick.is_captain ? '<span class="c-tag">C</span>' : ''}
-            </div>`;
-    }).join('');
-}
-
-function handleCompareClick() { 
-    moveIndicator('tab-compare'); 
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); 
-    const compareBtn = document.getElementById('tab-compare');
-    if (compareBtn) compareBtn.classList.add('active'); 
-    openCompareModal(); 
-}
-
-function closeCompareModal() { 
-    document.getElementById('compare-modal').style.display = 'none'; 
-}
-
-function resetApp() { 
-    localStorage.clear(); 
-    window.location.href = window.location.pathname; 
-}
-
-window.addEventListener('load', () => { 
-    setTimeout(() => moveIndicator('tab-table'), 500); 
-});
-
-
-
-
-
-
-
-const themeToggle = document.getElementById('theme-toggle');
-const logoutBtn = document.getElementById('logout-btn');
-const body = document.body;
-
-// 1. Check for saved user preference on load
-const currentTheme = localStorage.getItem('theme');
-if (currentTheme === 'dark') {
-    body.classList.add('dark-mode');
-    updateThemeUI(true);
-}
-
-// 2. Theme Toggle Logic
-themeToggle.addEventListener('click', () => {
-    body.classList.toggle('dark-mode');
-    
-    let isDark = body.classList.contains('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    updateThemeUI(isDark);
-});
-
-function updateThemeUI(isDark) {
-    const icon = themeToggle.querySelector('.icon');
-    const text = themeToggle.querySelector('.text');
-    
-    icon.textContent = isDark ? '☀️' : '🌙';
-    text.textContent = isDark ? 'Day Mode' : 'Night Mode';
-}
-
-// 3. Logout Logic
-logoutBtn.addEventListener('click', () => {
-    const confirmLogout = confirm("Are you sure you want to log out?");
-    if (confirmLogout) {
-        console.log("User logged out.");
-        // Add your redirection or session clearing logic here
-        alert("Logged out successfully!");
-    }
-});
