@@ -147,23 +147,24 @@ async function changeLeague(leagueId) {
             const capId = allPicks[index]?.picks?.find(p => p.is_captain)?.element;
             const captainName = state.playerMap[capId]?.name || "N/A";
 
-            return `
-                <tr id="row-${r.entry}" class="manager-row" onclick="toggleManagerExpansion(${r.entry})">
-                    <td style="font-weight: bold;"><span style="color:${arrowColor}">${arrow}</span> ${r.rank}</td>
-                    <td>
-                        <div class="manager-info-stack">
-                            <div class="manager-entry-name" style="font-weight:800;">${r.entry_name}</div>
-                            <div class="manager-real-name" style="font-size:0.75rem; color:var(--text-muted);">${r.player_name}</div>
-                            <div class="captain-name-row" style="font-size:0.7rem; margin-top:4px; display:flex; align-items:center;">
-                                <span class="cap-badge" style="background:var(--fpl-red); color:white; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; font-size:0.5rem; margin-right:4px; font-weight:bold;">C</span> 
-                                <span style="font-weight:600;">${captainName}</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td style="text-align:center; font-weight:800; color:var(--fpl-red);">${r.event_total}</td>
-                    <td style="text-align:right; font-weight:600;">${r.total.toLocaleString()}</td>
-                </tr>
-            `;
+           // Inside changeLeague standings.map...
+return `
+    <tr id="row-${r.entry}" class="manager-row">
+        <td style="font-weight: bold;" onclick="toggleManagerExpansion(${r.entry})">
+            <span style="color:${arrowColor}">${arrow}</span> ${r.rank}
+        </td>
+        <td onclick="toggleManagerExpansion(${r.entry})">
+            <div class="manager-info-stack">
+                <div class="manager-entry-name">${r.entry_name}</div>
+                <div class="manager-real-name">${r.player_name}</div>
+            </div>
+        </td>
+        <td style="text-align:center;">
+            <input type="checkbox" class="compare-chk" onchange="selectForCompare(${r.entry}, '${r.entry_name.replace(/'/g, "\\'")}')">
+        </td>
+        <td style="text-align:right; font-weight:600;">${r.total.toLocaleString()}</td>
+    </tr>
+`;
         }).join('');
 
         // TRIGGER ANALYTICS (Differentials & Threats)
