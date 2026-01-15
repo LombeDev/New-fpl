@@ -353,3 +353,90 @@ function toggleSettings() {
         }
     }
 }
+
+
+
+/**
+ * ANALYTICS: DIFFERENTIALS & THREATS
+ * Populates your custom HTML grid with the top 3 gains and risks.
+ */
+async function calculateLeagueAnalytics(standings, allPicks) {
+    const myEntryId = parseInt(state.fplId);
+    const myPicksData = allPicks.find((p, index) => standings[index].entry === myEntryId);
+    
+    if (!myPicksData) return;
+
+    // 1. Map live points for the player-pts-tag
+    const liveRes = await fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/&t=${Date.now()}`);
+    const liveData = await liveRes.json();
+    const livePointsMap = {};
+    liveData.elements.forEach(el => livePointsMap[el.id] = el.stats.total_points);
+
+    const mySquadIds = new Set(myPicksData.picks.map(p => p.element));
+    const leagueSize = allPicks.length;
+    const ownershipCount = {};
+
+    // 2. Count ownership across the league
+    allPicks.forEach(playerPicks => {
+        if (!playerPicks) return;
+        playerPicks.picks.forEach(p => {
+            ownershipCount[p.element] = (ownershipCount[p.element] || 0) + 1;
+        });
+    });
+
+    const analytics = [];
+    for (const [id, count] of Object.entries(ownershipCount)) {
+        const pId = parseInt(id);
+        const ownershipPct = (count / leagueSize) * 100;
+        
+        analytics.push({
+            id: pId,
+            name: state.playerMap[pId]?.name || "Unknown",
+            pts: livePointsMap[pId] || 0,
+            ownedByMe: mySquadIds.has(pId),
+            ownership: ownershipPct,
+            impact: 100 - ownershipPct 
+        });
+    }
+
+    // 3. Filter Top 3 Differentials (Owned by you, lowest league ownership)
+    const differentials = analytics
+        .filter(p => p.ownedByMe)
+        .sort((a, b) => a.ownership - b.ownership)
+        .slice(0, 3);
+
+    // 4. Filter Top 3 Threats (NOT owned by you, highest league ownership)
+    const threats = analytics
+        .filter(p => !p.ownedByMe)
+        .sort((a, b) => b.ownership - a.ownership)
+        .slice(0, 3);
+
+    renderImpactUI('diffs-list', differentials, true);
+    renderImpactUI('threats-list', threats, false);
+}
+
+function renderImpactUI(containerId, players, isGain) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = players.map(p => `
+        <div class="player-impact-card">
+            <div class="shirt-wrapper">
+                <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${state.playerMap[p.id]?.code}.png" 
+                     onerror="this.src='https://fantasy.premierleague.com/static/media/player-missing-110.6625805d.png'" 
+                     alt="player">
+            </div>
+            <div class="player-name-tag">${p.name}</div>
+            <div class="player-pts-tag">${p.pts}</div>
+            <div class="impact-badge ${isGain ? 'gain' : 'loss'}">
+                ${isGain ? '+' : '-'}${p.impact.toFixed(1)}%
+            </div>
+        </div>
+    `).join('');
+}
+
+
+
+// ... bottom of changeLeague function ...
+const allPicks = await batchFetchCaptains(standings);
+await calculateLeagueAnalytics(standings, allPicks); // Trigger the new UI population
