@@ -787,63 +787,61 @@ body.dark-mode .manager-info-footer { background: #242f3d; }
 
 
 
-/* Container Wrapper */
+/* Transparent container, no background */
 .main-tabs {
     display: flex;
-    justify-content: center;
-    padding: 16px 0;
+    justify-content: flex-start;
+    padding: 10px 20px;
     background: #ffffff;
+    border-bottom: 1px solid #eeeeee;
 }
 
-/* Material Design 3 Segmented Container */
 .tab-container {
     display: flex;
-    background: #f3f3f7; /* Material Surface Variant */
-    border-radius: 28px; /* Large rounding typical of Material You */
-    padding: 4px;
-    width: 92%;
-    max-width: 450px;
-    position: relative;
-    border: 1px solid #e1e1e6;
+    gap: 25px; /* Spacing between text links */
 }
 
-/* Base Button Style */
+/* Reset button to simple text */
 .tab-btn {
-    flex: 1;
+    background: none;
     border: none;
-    outline: none;
-    padding: 10px 0;
-    font-family: 'Roboto', 'Segoe UI', sans-serif;
-    font-size: 14px;
-    font-weight: 500; /* Material Medium weight */
-    color: #44474e; /* On-surface color */
-    background: transparent;
+    padding: 8px 0;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #888888; /* Muted color for inactive */
     cursor: pointer;
-    border-radius: 24px;
-    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
     position: relative;
+    transition: color 0.2s ease;
 }
 
-/* Material ACTIVE State (NO White Block) */
+/* Active State: Bold text with a simple underline */
 .tab-btn.active {
-    /* Using a soft purple tint (Material Primary Container) instead of white */
-    background-color: #e8def8; 
-    color: #1d192b; /* Deep purple text */
+    color: #000000; /* Solid black for active */
+    font-weight: 700;
 }
 
-/* The Bottom Indicator Line (Material specific) */
+/* Simple Underline Indicator */
 .tab-btn.active::after {
     content: "";
     position: absolute;
-    bottom: 2px;
-    left: 25%;
-    right: 25%;
-    height: 3px;
-    background: #6750a4; /* Primary color */
-    border-radius: 3px 3px 0 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #e90052; /* FPL Red underline */
 }
 
-/* Feedback on tap */
-.tab-btn:active {
-    background-color: rgba(103, 80, 164, 0.12);
+/* Dark Mode Adjustment */
+body.dark-mode .main-tabs {
+    background: #171e28;
+    border-bottom: 1px solid #242f3d;
+}
+
+body.dark-mode .tab-btn.active {
+    color: #ffffff;
+}
+
+body.dark-mode .tab-btn {
+    color: #869099;
 }
