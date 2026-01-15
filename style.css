@@ -890,65 +890,68 @@ body.dark-mode .tab-btn {
 
 /* Circular Player Image Container */
 .img-container {
-    width: 65px; 
-    height: 65px;
+    width: 60px;
+    height: 60px;
     background: #ffffff;
     border-radius: 50%;
     display: flex;
-    align-items: flex-start; /* Changed to start to control top-down positioning */
+    align-items: flex-start;
     justify-content: center;
     overflow: hidden;
-    margin: 0 auto 8px auto;
+    margin: 0 auto -10px auto; /* Pulls the label up slightly over the circle */
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     border: 2px solid #fff;
     position: relative;
+    z-index: 2; /* Keeps the face above the label boxes */
 }
 
-/* Focused Face Styling */
 .img-container img {
-    width: 150%; /* Zoom in to focus on the face */
+    width: 150%; 
     height: auto;
-    display: block;
-    margin-top: 5%; /* Push the image down slightly to center the face */
-    transform: translateY(0); /* Fine-tune vertical position */
+    margin-top: 5%;
 }
 
-/* Shimmer/Skeleton state for the circle */
-.skeleton-loading {
-    background: #f0f0f0;
-    position: relative;
+/* Stacked Label Design */
+.player-label-stack {
+    display: flex;
+    flex-direction: column;
+    width: 85px; /* Adjust based on your pitch spacing */
+    margin: 0 auto;
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    z-index: 1;
 }
 
-.skeleton-loading::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-    animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
-.player-info-label {
+/* Top Name Bar */
+.p-name-bar {
+    background: #1f2326; /* Dark slate from your screenshot */
     color: #ffffff;
+    font-size: 0.75rem;
     font-weight: 700;
-    font-size: 0.8rem;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
-    margin-top: 2px;
+    padding: 3px 2px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.player-points-badge {
-    background: #37003c; /* Official FPL Purple */
-    color: #ffffff;
+/* Points/Stat Bar */
+.p-points-bar {
+    background: #00ff87; /* Bright FPL Green */
+    color: #1f2326;
+    font-size: 1rem;
     font-weight: 800;
-    font-size: 0.9rem;
-    padding: 2px 8px;
-    border-radius: 4px;
-    display: inline-block;
+    padding: 2px 0;
+    text-align: center;
+}
+
+/* Optional Bottom Bar (for ownership % or extra stats) */
+.p-extra-bar {
+    background: #e1e4e7; /* Light gray */
+    color: #1f2326;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 0;
+    text-align: center;
 }
