@@ -192,13 +192,6 @@
         <nav class="top-icon-nav">
    
   
-<a href="predictor.html" class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="12" y1="1" x2="12" y2="23"/>
-        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-    </svg>
-    <span>Prices</span>
-</a>
     <button class="nav-item" onclick="showView('pitch')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         <span>Planner</span>
@@ -236,6 +229,7 @@
     </div>
 
     <div class="main-stats-container">
+        <div class="manager-info-footer">
         <div class="status-box arrow-box">
             <div id="rank-arrow" class="status-icon">▲</div>
             <div class="status-text-wrap">
@@ -255,7 +249,7 @@
         </div>
     </div>
 
-    <div class="manager-info-footer">
+    
         <div class="impact-section diffs">
     <div class="impact-header">
         <span>🎲 DIFFERENTIALS</span>
@@ -265,7 +259,7 @@
     </div>
     <div class="player-impact-grid" id="diffs-list">
         <div class="player-impact-card">
-            <div class="shirt-wrapper"><img src="https://fantasy.premierleague.com/static/media/shirts/standard/shirt_1-8.webp" alt="shirt"></div>
+            <div class="shirt-wrapper"><img src="https://resources.premierleague.com/premierleague25/photos/players/110x140/215379.png" alt="shirt"></div>
             <div class="player-name-tag">Anderson</div>
             <div class="player-pts-tag">7</div>
             <div class="impact-badge gain">+96.8%</div>
@@ -333,33 +327,33 @@
         </div>
             
 
-<div id="settings-drawer" class="drawer">
-    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-gray); padding-bottom: 10px; margin-bottom: 20px;">
-        <h2 style="margin: 0; font-size: 1.2rem;">Settings</h2>
-        <button onclick="toggleSettings()" style="background:none; border:none; font-size: 1.2rem; cursor:pointer;">✕</button>
+<div id="settings-drawer" class="settings-drawer">
+    <div class="drawer-header">
+        <h3>Settings</h3>
+        <button onclick="toggleSettings()" class="close-drawer">✕</button>
     </div>
-
-    <div class="setting-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <span>Dark Mode</span>
-        <input type="checkbox" id="dark-mode-toggle" onchange="handleDarkModeToggle()">
-    </div>
-
-    <div class="setting-item" style="margin-bottom: 20px;">
-        <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 4px;">Pitch type</div>
-        <div style="font-size: 0.75rem; color: #666; margin-bottom: 12px;">Customise team view background</div>
-        <div class="pitch-type-grid" style="display: flex; gap: 8px;">
-            <div class="pitch-option p-vertical active" onclick="setPitch('p-vertical', this)"></div>
-            <div class="pitch-option p-horizontal" onclick="setPitch('p-horizontal', this)"></div>
-            <div class="pitch-option p-plaid" onclick="setPitch('p-plaid', this)"></div>
-            <div class="pitch-option p-circles" onclick="setPitch('p-circles', this)"></div>
-            <div class="pitch-option p-solid" onclick="setPitch('p-solid', this)"></div>
+    
+    <div class="drawer-content">
+        <label>Pitch Pattern</label>
+        <div class="pitch-options-grid">
+            <div class="pitch-option p-vertical" onclick="setPitchPattern('p-vertical')">Vertical</div>
+            <div class="pitch-option p-horizontal" onclick="setPitchPattern('p-horizontal')">Horizontal</div>
+            <div class="pitch-option p-grass" onclick="setPitchPattern('p-grass')">Classic Grass</div>
         </div>
+
+        <hr>
+
+        <div class="setting-row">
+            <span>Dark Mode</span>
+            <label class="switch">
+                <input type="checkbox" id="dark-mode-toggle" onchange="handleDarkModeToggle()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <button onclick="resetApp()" class="reset-btn">Reset App Data</button>
     </div>
-
-    <button onclick="resetApp()" style="width: 100%; padding: 12px; background: #ff4d4d; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px;">Logout / Change ID</button>
 </div>
-
-    <div id="drawer-overlay" onclick="toggleSettings()" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; z-index:999;"></div>
 
     <script src="script.js"></script>
     <script src="bps.js"></script>
