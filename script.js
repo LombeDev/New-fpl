@@ -1,12 +1,11 @@
 /**
  * KOPALA FPL - MASTER CORE SCRIPT
- * Version: 2.7 (Pitch Pattern Integration & Persistence)
+ * Version: 2.7 (Pitch Pattern Integration & Persistence - Clean)
  */
 
 const state = {
     fplId: localStorage.getItem('kopala_fpl_id') || null,
     activeView: localStorage.getItem('kopala_active_view') || 'table',
-    // Stores the selected pitch pattern (default to 'p-vertical')
     pitchPattern: localStorage.getItem('kopala_pitch_pattern') || 'p-vertical',
     playerMap: {}, 
     currentGW: 1,
@@ -14,9 +13,6 @@ const state = {
 };
 
 const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
-
-// SELECTED FOR COMPARISON
-let selectedForComparison = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Theme Initialization
@@ -53,9 +49,7 @@ function setPitchPattern(patternClass) {
     state.pitchPattern = patternClass;
     localStorage.setItem('kopala_pitch_pattern', patternClass);
     
-    // Immediately update any visible pitch containers in the DOM
     document.querySelectorAll('.pitch-container').forEach(container => {
-        // Reset class list but keep 'pitch-container'
         container.className = `pitch-container ${patternClass}`;
     });
     
@@ -185,9 +179,9 @@ async function changeLeague(leagueId) {
             const capId = allPicks[index]?.picks?.find(p => p.is_captain)?.element;
             const captainName = state.playerMap[capId]?.name || "N/A";
             return `
-                <tr id="row-${r.entry}" class="manager-row">
-                    <td onclick="toggleManagerExpansion(${r.entry})"><span style="color:${arrowColor}">${arrow}</span> ${r.rank}</td>
-                    <td onclick="toggleManagerExpansion(${r.entry})">
+                <tr id="row-${r.entry}" class="manager-row" onclick="toggleManagerExpansion(${r.entry})">
+                    <td><span style="color:${arrowColor}">${arrow}</span> ${r.rank}</td>
+                    <td>
                         <div class="manager-info-stack">
                             <div style="font-weight:800;">${r.entry_name}</div>
                             <div style="font-size:0.75rem; color:var(--text-muted);">${r.player_name}</div>
@@ -197,7 +191,6 @@ async function changeLeague(leagueId) {
                             </div>
                         </div>
                     </td>
-                    <td style="text-align:center;"><input type="checkbox" onchange="selectForCompare(${r.entry}, '${r.entry_name.replace(/'/g, "\\'")}')"></td>
                     <td style="text-align:center;">${allPicks[index]?.entry_history?.event_transfers_cost > 0 ? `<div style="color:#e90052; font-weight:900;">-${allPicks[index].entry_history.event_transfers_cost}</div>` : `0`}</td>
                     <td style="text-align:right;"><div style="font-weight:800; color:var(--fpl-red);">${r.event_total}</div><div style="font-size:0.75rem;">${r.total.toLocaleString()}</div></td>
                 </tr>
@@ -259,7 +252,7 @@ async function toggleManagerExpansion(entryId) {
     const detailRow = document.createElement('tr');
     detailRow.id = `details-${entryId}`;
     detailRow.className = 'details-row';
-    detailRow.innerHTML = `<td colspan="5" style="text-align:center; padding:20px;">FETCHING PITCH...</td>`;
+    detailRow.innerHTML = `<td colspan="4" style="text-align:center; padding:20px;">FETCHING PITCH...</td>`;
     row.parentNode.insertBefore(detailRow, row.nextSibling);
     
     try {
@@ -280,9 +273,8 @@ async function toggleManagerExpansion(entryId) {
             pts: (livePointsMap[p.element] || 0) * (p.multiplier || 1) 
         }));
 
-        // Apply state.pitchPattern as a class to the container
         detailRow.innerHTML = `
-            <td colspan="5" style="padding:0;">
+            <td colspan="4" style="padding:0;">
                 <div class="pitch-container ${state.pitchPattern}">
                     ${renderPitchRow(squad.filter(p => p.pos === 1))}
                     ${renderPitchRow(squad.filter(p => p.pos === 2))}
@@ -290,7 +282,7 @@ async function toggleManagerExpansion(entryId) {
                     ${renderPitchRow(squad.filter(p => p.pos === 4))}
                 </div>
             </td>`;
-    } catch (e) { detailRow.innerHTML = `<td colspan="5">Error loading data.</td>`; }
+    } catch (e) { detailRow.innerHTML = `<td colspan="4">Error loading data.</td>`; }
 }
 
 function renderPitchRow(players) {
@@ -351,83 +343,6 @@ function toggleSettings() {
     if (drawer) drawer.classList.toggle('open');
 }
 
-/**
- * COMPARISON LOGIC
- */
-function selectForCompare(entryId, entryName) {
-    if (selectedForComparison.find(s => s.id === entryId)) { 
-        selectedForComparison = selectedForComparison.filter(s => s.id !== entryId); 
-    } else { 
-        if (selectedForComparison.length >= 2) selectedForComparison.shift(); 
-        selectedForComparison.push({ id: entryId, name: entryName }); 
-    }
-    updateCompareButtonUI();
-}
-
-function updateCompareButtonUI() {
-    const btn = document.getElementById('tab-compare');
-    if (!btn) return;
-    if (selectedForComparison.length === 2) { 
-        btn.style.background = "var(--fpl-green)"; 
-        btn.innerText = "COMPARE (2)"; 
-        btn.disabled = false; 
-    } else { 
-        btn.style.background = "var(--fpl-purple)"; 
-        btn.innerText = `COMPARE (${selectedForComparison.length})`; 
-        btn.disabled = selectedForComparison.length < 2; 
-    }
-}
-
-async function openCompareModal() {
-    const modal = document.getElementById('compare-modal');
-    const col1 = document.getElementById('team-1-col');
-    const col2 = document.getElementById('team-2-col');
-    modal.style.display = 'block';
-    try {
-        const [id1, id2] = selectedForComparison.map(s => s.id);
-        const [res1, res2, liveRes] = await Promise.all([
-            fetch(`${PROXY_ENDPOINT}entry/${id1}/event/${state.currentGW}/picks/&t=${Date.now()}`), 
-            fetch(`${PROXY_ENDPOINT}entry/${id2}/event/${state.currentGW}/picks/&t=${Date.now()}`), 
-            fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/&t=${Date.now()}`)
-        ]);
-        const data1 = await res1.json(); 
-        const data2 = await res2.json(); 
-        const liveData = await liveRes.json();
-        const pointsMap = {}; 
-        liveData.elements.forEach(el => pointsMap[el.id] = el.stats.total_points);
-        renderCompareColumn(col1, data1.picks, pointsMap, selectedForComparison[0].name);
-        renderCompareColumn(col2, data2.picks, pointsMap, selectedForComparison[1].name);
-    } catch (e) { console.error("Comparison Error", e); }
-}
-
-function renderCompareColumn(container, picks, pointsMap, teamName) {
-    container.innerHTML = `<div class="compare-header">${teamName}</div>` + picks.map(pick => {
-        const p = state.playerMap[pick.element];
-        const pts = (pointsMap[pick.element] || 0) * (pick.multiplier || 1);
-        return `
-            <div class="compare-card">
-                ${getPlayerImageHtml(p.code)}
-                <div class="compare-info">
-                    <span class="p-name">${p.name}</span>
-                    <span class="p-pts">${pts} pts</span>
-                </div>
-                ${pick.is_captain ? '<span class="c-tag">C</span>' : ''}
-            </div>`;
-    }).join('');
-}
-
-function handleCompareClick() { 
-    moveIndicator('tab-compare'); 
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); 
-    const compareBtn = document.getElementById('tab-compare');
-    if (compareBtn) compareBtn.classList.add('active'); 
-    openCompareModal(); 
-}
-
-function closeCompareModal() { 
-    document.getElementById('compare-modal').style.display = 'none'; 
-}
-
 function resetApp() { 
     localStorage.clear(); 
     window.location.href = window.location.pathname; 
@@ -437,46 +352,32 @@ window.addEventListener('load', () => {
     setTimeout(() => moveIndicator('tab-table'), 500); 
 });
 
-
-
-
-
-
-
+/**
+ * THEME & LOGOUT
+ */
 const themeToggle = document.getElementById('theme-toggle');
 const logoutBtn = document.getElementById('logout-btn');
-const body = document.body;
 
-// 1. Check for saved user preference on load
-const currentTheme = localStorage.getItem('theme');
-if (currentTheme === 'dark') {
-    body.classList.add('dark-mode');
-    updateThemeUI(true);
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        let isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        updateThemeUI(isDark);
+    });
 }
-
-// 2. Theme Toggle Logic
-themeToggle.addEventListener('click', () => {
-    body.classList.toggle('dark-mode');
-    
-    let isDark = body.classList.contains('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    updateThemeUI(isDark);
-});
 
 function updateThemeUI(isDark) {
-    const icon = themeToggle.querySelector('.icon');
-    const text = themeToggle.querySelector('.text');
-    
-    icon.textContent = isDark ? '☀️' : '🌙';
-    text.textContent = isDark ? 'Day Mode' : 'Night Mode';
+    const icon = themeToggle?.querySelector('.icon');
+    const text = themeToggle?.querySelector('.text');
+    if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+    if (text) text.textContent = isDark ? 'Day Mode' : 'Night Mode';
 }
 
-// 3. Logout Logic
-logoutBtn.addEventListener('click', () => {
-    const confirmLogout = confirm("Are you sure you want to log out?");
-    if (confirmLogout) {
-        console.log("User logged out.");
-        // Add your redirection or session clearing logic here
-        alert("Logged out successfully!");
-    }
-});
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        if (confirm("Are you sure you want to log out?")) {
+            resetApp();
+        }
+    });
+}
