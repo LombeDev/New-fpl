@@ -1,6 +1,7 @@
 /**
- * KOPALA FPL - MASTER STYLESHEET v3.0
- * Features: Sliding Nav, Professional Font Scaling, Compact Compare Modal
+ * KOPALA FPL - MASTER STYLESHEET
+ * Theme: Telegram Dark Mode & Material You FPL Edition
+ * Version: 2.1 (Reduced Font Size Edition)
  */
 
 /* 1. THEME VARIABLES */
@@ -13,21 +14,24 @@
     --pitch-green: #008d4c;
     --fpl-purple: #37003c;
     
-    /* Light Mode Tones */
+    /* Material 3 Surface Roles (Light) */
     --bg-light: #f3f3f5;
     --card-bg: #ffffff;
     --text-main: #1a1a1a;
     --text-muted: #707579;
     --border-color: #dfe1e5;
     --header-bg: #ffffff;
+    --tab-bg: #e1e1e1;
+    --link-blue: #0088cc;
     
-    /* Radius Tokens */
-    --radius-large: 20px;
-    --radius-medium: 12px;
+    /* M3 Radius Tokens */
+    --radius-large: 28px;
+    --radius-medium: 16px;
     --radius-full: 100px;
+    --radius-card: 8px;
 }
 
-/* Telegram Dark Mode */
+/* Telegram-Style Dark Mode */
 body.dark-mode {
     --bg-light: #1c242d;
     --card-bg: #242f3d;
@@ -35,6 +39,7 @@ body.dark-mode {
     --text-main: #ffffff;
     --text-muted: #869099;
     --border-color: #171e28;
+    --tab-bg: #171e28;
 }
 
 /* 2. CORE STYLES */
@@ -44,258 +49,277 @@ body {
     background: var(--bg-light); 
     color: var(--text-main); 
     transition: background-color 0.2s, color 0.2s;
-    line-height: 1.5;
-    font-size: 14px; /* Professional reduced scale */
+    line-height: 1.4; /* Reduced line height for tighter look */
+    font-size: 14px; /* Reduced base size */
 }
 
-/* 3. CENTERED NAVIGATION & SLIDING UNDERLINE */
-.main-tabs {
-    display: flex;
-    justify-content: center; 
-    background: var(--card-bg);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 70px; /* Adjust based on top-icon-nav height */
-    z-index: 900;
+/* 3. HERO & LOGIN CARD */
+.hero-section { 
+    background: var(--fpl-red); 
+    color: white; 
+    text-align: center; 
+    padding: clamp(40px, 10vw, 80px) 20px; 
 }
 
-.tab-container {
-    display: flex;
-    gap: 30px;
-    position: relative;
-    padding: 0 10px;
-}
-
-.tab-btn {
-    background: none;
-    border: none;
-    padding: 12px 0;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: color 0.3s ease;
-    white-space: nowrap;
-}
-
-.tab-btn.active {
-    color: var(--text-main);
-}
-
-.tab-indicator {
-    position: absolute;
-    bottom: 0;
-    height: 3px;
-    background: var(--fpl-red);
-    border-radius: 2px 2px 0 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 4. PROFESSIONAL COMPARE MODAL (THE "NICE" POPUP) */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0; 
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    padding: 15px;
-}
-
-.compare-modal-content {
-    background: var(--card-bg);
-    width: 100%;
-    max-width: 400px;
-    border-radius: var(--radius-large);
+.login-card { 
+    background: var(--card-bg); 
+    max-width: 90%; 
+    width: 450px; 
+    margin: -40px auto 20px; 
+    padding: 0;
+    border-radius: var(--radius-card);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-    border: 1px solid var(--border-color);
-    animation: modalPop 0.25s cubic-bezier(0.2, 0, 0, 1);
-}
-
-@keyframes modalPop {
-    from { opacity: 0; transform: scale(0.9) translateY(20px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.compare-header {
-    background: var(--fpl-purple);
-    color: white;
-    padding: 14px;
-    text-align: center;
-}
-
-.compare-header h2 {
-    margin: 0;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-}
-
-.compare-results {
-    padding: 12px;
-    max-height: 65vh;
-    overflow-y: auto;
-    background: var(--bg-light);
-}
-
-.compare-card {
-    display: grid;
-    grid-template-columns: 1fr 30px 1fr;
-    align-items: center;
-    padding: 10px;
-    margin-bottom: 8px;
-    background: var(--card-bg);
-    border-radius: var(--radius-medium);
     border: 1px solid var(--border-color);
 }
 
-.player-side {
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-}
-
-.p-name { font-size: 0.75rem; font-weight: 700; color: var(--text-main); }
-.p-pts { font-size: 0.9rem; font-weight: 800; color: var(--fpl-red); }
-
-.vs-badge {
-    font-size: 0.55rem;
-    font-weight: 900;
-    color: var(--text-muted);
-    background: var(--bg-light);
-    height: 20px; width: 20px;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 50%;
-    margin: 0 auto;
-}
-
-.close-modal-btn {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    background: var(--card-bg);
-    color: var(--fpl-dark-green);
+.login-title {
+    font-size: 0.75rem; /* Reduced */
     font-weight: 800;
-    font-size: 0.75rem;
+    text-align: center;
+    padding: 15px 10px;
+    margin: 0;
+    letter-spacing: 0.5px;
+    color: var(--text-main);
     text-transform: uppercase;
-    cursor: pointer;
+}
+
+.input-group-container {
     border-top: 1px solid var(--border-color);
 }
 
-/* 5. LIVE TABLE STYLES */
-.table-container { 
-    background: var(--card-bg);
-    margin-top: 5px;
+.login-card input[type="number"] {
+    width: 100%;
+    border: none;
+    padding: 20px;
+    text-align: center;
+    font-size: 0.95rem; /* Reduced */
+    font-weight: 700;
+    color: var(--text-muted);
+    background: transparent;
+    border-bottom: 1px solid var(--border-color);
+    outline: none;
+    box-sizing: border-box;
+    border-radius: 0;
 }
 
-.live-table { width: 100%; border-collapse: collapse; }
+.login-card input::placeholder {
+    color: #b0b3b8;
+    text-transform: uppercase;
+    font-size: 0.8rem; /* Reduced */
+}
+
+/* Bottom Actions Row */
+.login-actions {
+    display: flex;
+    align-items: stretch;
+    height: 55px; /* Reduced height */
+}
+
+.help-link {
+    flex: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--fpl-dark-green);
+    font-size: 0.65rem; /* Reduced */
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 8px;
+    text-align: center;
+}
+
+.enter-btn {
+    flex: 1;
+    border: none;
+    background: #eeeeee;
+    color: #8e949a;
+    font-weight: 800;
+    font-size: 0.75rem; /* Reduced */
+    cursor: pointer;
+    transition: 0.2s;
+    border-left: 1px solid var(--border-color);
+    text-transform: uppercase;
+}
+
+body.dark-mode .enter-btn {
+    background: #2b3644;
+    color: var(--text-muted);
+}
+
+/* 5. LIVE TABLE */
+.table-container { 
+    overflow-x: auto; 
+    background: var(--card-bg);
+}
+
+.live-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
 
 .live-table th { 
     text-align: left; 
-    padding: 12px 8px; 
-    background: rgba(0,0,0,0.02); 
-    font-size: 0.65rem; 
+    padding: 12px 10px; 
+    background: rgba(0,0,0,0.03); 
+    font-size: 0.6rem; /* Reduced */
     text-transform: uppercase; 
-    color: var(--text-muted);
-    border-bottom: 1px solid var(--border-color);
+    letter-spacing: 1px; 
+    color: var(--text-muted); 
 }
 
 .live-table td { 
-    padding: 10px 8px; 
+    padding: 10px 10px; 
+    font-size: 0.8rem; /* Reduced */
     border-bottom: 1px solid var(--border-color); 
-    font-size: 0.8rem;
 }
 
-/* 6. PITCH VIEW (Miniaturized) */
+/* 6. PITCH VIEW */
 .pitch-container {
     background: var(--pitch-green) url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center;
     background-size: cover;
-    padding: 15px 5px;
+    padding: 15px 8px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .player-card {
-    width: 58px; /* Reduced from 65px */
+    width: 60px; /* Reduced */
     text-align: center;
 }
 
 .player-photo-wrapper {
-    width: 40px; height: 40px; /* Reduced */
+    width: 40px; /* Reduced */
+    height: 40px;
     margin: 0 auto;
     background: #fff;
     border-radius: 50%;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     overflow: hidden;
+    border: 2px solid #fff;
 }
-
-.player-face { width: 100%; height: 100%; object-fit: cover; }
 
 .player-info-label {
     background: #fff;
     color: #333;
-    font-size: 0.6rem;
+    font-size: 0.55rem; /* Reduced */
     font-weight: 800;
-    margin-top: 3px;
+    margin-top: 4px;
     border-radius: 3px;
-    padding: 1px 2px;
+    padding: 1px 3px;
 }
 
-/* 7. DASHBOARD HEADER */
-.top-icon-nav {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background: #0a1421;
-    display: flex;
-    justify-content: space-around;
-    height: 65px;
-    border-bottom: 1px solid #1a2635;
+.player-points-badge {
+    color: #fff;
+    font-size: 0.85rem; /* Reduced */
+    font-weight: 900;
 }
 
-.nav-item {
-    background: none; border: none;
-    color: #8e99a7;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-size: 0.65rem;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.nav-item.active { color: #ffffff; }
-
-/* 8. MANAGER STATS FOOTER */
-.manager-dashboard {
-    background: var(--card-bg);
-    border-radius: var(--radius-medium);
-    margin: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    overflow: hidden;
-}
-
+/* 7. MANAGER DASHBOARD */
 .status-header {
     background: #a3c9e2;
     padding: 6px;
-    font-size: 0.75rem;
+    font-weight: 600;
+    font-size: 0.75rem; /* Reduced */
+    color: #1a1a1a;
+}
+
+.status-text-wrap h3 {
+    font-size: 0.9rem; /* Reduced */
     font-weight: 800;
-    text-align: center;
+    color: #008d4c;
 }
 
-.main-stats-container { display: flex; }
-
-.status-box {
-    flex: 1;
-    padding: 15px 5px;
-    text-align: center;
-    border-right: 1px solid var(--border-color);
+.status-text-wrap h2 {
+    font-size: 1.4rem; /* Reduced */
+    font-weight: 800;
 }
 
-.status-text-wrap h2 { margin: 0; font-size: 1.4rem; font-weight: 900; }
-.status-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
+.status-label, .status-detail {
+    font-size: 0.65rem; /* Reduced */
+}
+
+/* 8. IMPACT SECTIONS */
+.impact-header {
+    padding: 6px 12px;
+    font-weight: 800;
+    font-size: 0.75rem; /* Reduced */
+}
+
+.impact-info {
+    font-size: 0.55rem; /* Reduced */
+}
+
+.player-name-tag {
+    font-size: 0.6rem; /* Reduced */
+    padding: 1px 4px;
+}
+
+.impact-badge {
+    font-size: 0.6rem; /* Reduced */
+}
+
+/* 9. NAVIGATION */
+.top-icon-nav {
+    height: 60px; /* Reduced */
+}
+
+.nav-item span {
+    font-size: 0.6rem; /* Reduced */
+    font-weight: 700;
+}
+
+.nav-item svg {
+    width: 18px; /* Reduced */
+    height: 18px;
+}
+
+/* 10. TABS */
+.tab-btn {
+    font-size: 0.8rem; /* Reduced */
+    padding: 8px 0;
+}
+
+/* 11. SIMPLE LOGIN CARD (Image Style) */
+.login-instruction {
+    font-size: 0.75rem; /* Reduced */
+    padding: 20px 15px;
+}
+
+#team-id-input {
+    padding: 15px 10px;
+    font-size: 0.95rem; /* Reduced */
+}
+
+#team-id-input::placeholder {
+    font-size: 0.9rem;
+}
+
+.login-footer-actions {
+    height: 70px; /* Reduced */
+}
+
+.enter-id-btn {
+    font-size: 0.85rem; /* Reduced */
+}
+
+/* UTILS & ANIMATIONS */
+.mini-stat { font-size: 0.75rem; }
+.action-button { font-size: 0.9rem; padding: 12px; }
+
+@keyframes playerPop {
+    from { opacity: 0; transform: translateY(10px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+}
+
+.input-error {
+    animation: shake 0.2s ease-in-out 2;
+    border: 2px solid var(--fpl-red) !important;
+}
