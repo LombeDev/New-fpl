@@ -1,7 +1,7 @@
 /**
  * KOPALA FPL - MASTER STYLESHEET
  * Theme: Telegram Dark Mode & Material You FPL Edition
- * Version: 2.0 (Updated Login Design)
+ * Version: 2.1 (Added Pitch Selector & Grass Texture)
  */
 
 /* 1. THEME VARIABLES */
@@ -25,15 +25,16 @@
     --link-blue: #0088cc;
     
     /* M3 Radius Tokens */
-    --radius-large: 28px;   /* For Cards & Drawers */
-    --radius-medium: 16px;  /* For Inputs */
-    --radius-full: 100px;   /* For Pill Buttons */
+    --radius-large: 28px;
+    --radius-medium: 16px;
+    --radius-full: 100px;
+    --radius-card: 12px;
 }
 
 /* Telegram-Style Dark Mode with M3 Tones */
 body.dark-mode {
-    --bg-light: #1c242d;    /* Deep Blue-Grey Background */
-    --card-bg: #242f3d;     /* Lighter Blue-Grey Cards */
+    --bg-light: #1c242d;
+    --card-bg: #242f3d;
     --header-bg: #242f3d;
     --text-main: #ffffff;
     --text-muted: #869099;
@@ -51,7 +52,7 @@ body {
     line-height: 1.6;
 }
 
-/* 3. HERO & LOGIN CARD (Updated to match image) */
+/* 3. HERO & LOGIN SECTION */
 .hero-section { 
     background: var(--fpl-red); 
     color: white; 
@@ -59,305 +60,6 @@ body {
     padding: clamp(60px, 12vw, 100px) 20px; 
 }
 
-.login-card { 
-    background: var(--card-bg); 
-    max-width: 90%; 
-    width: 450px; 
-    margin: -50px auto 20px; 
-    padding: 0; /* Changed to 0 to let input/buttons touch borders */
-    border-radius: 8px; /* Matches the sharper look in the image */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-}
-
-.login-title {
-    font-size: 0.85rem;
-    font-weight: 800;
-    text-align: center;
-    padding: 20px 10px;
-    margin: 0;
-    letter-spacing: 0.5px;
-    color: var(--text-main);
-    text-transform: uppercase;
-}
-
-.input-group-container {
-    border-top: 1px solid var(--border-color);
-}
-
-/* Updated Input Style */
-.login-card input[type="number"] {
-    width: 100%;
-    border: none;
-    padding: 25px;
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    background: transparent;
-    border-bottom: 1px solid var(--border-color);
-    outline: none;
-    box-sizing: border-box;
-    border-radius: 0;
-}
-
-.login-card input::placeholder {
-    color: #b0b3b8;
-    text-transform: uppercase;
-    font-size: 0.95rem;
-}
-
-/* Bottom Actions Row */
-.login-actions {
-    display: flex;
-    align-items: stretch;
-    height: 65px;
-}
-
-.help-link {
-    flex: 1.2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: var(--fpl-dark-green);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 10px;
-    text-align: center;
-}
-
-.enter-btn {
-    flex: 1;
-    border: none;
-    background: #eeeeee; /* Matches the grey button in image */
-    color: #8e949a;
-    font-weight: 800;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: 0.2s;
-    border-left: 1px solid var(--border-color);
-    text-transform: uppercase;
-}
-
-body.dark-mode .enter-btn {
-    background: #2b3644;
-    color: var(--text-muted);
-}
-
-.enter-btn:active {
-    background: #e2e2e2;
-}
-
-
-/* 5. LIVE TABLE & LISTS */
-.table-container { 
-    overflow-x: auto; 
-    background: var(--card-bg);
-}
-
-.live-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-}
-
-.live-table th { 
-    text-align: left; 
-    padding: 16px 12px; 
-    background: rgba(0,0,0,0.03); 
-    font-size: 0.7rem; 
-    text-transform: uppercase; 
-    letter-spacing: 1px; 
-    color: var(--text-muted); 
-}
-
-body.dark-mode .live-table th {
-    background: #171e28;
-}
-
-.live-table td { 
-    padding: 14px 12px; 
-    border-bottom: 1px solid var(--border-color); 
-}
-
-.manager-row:hover { 
-    background-color: rgba(233, 0, 82, 0.05); 
-    cursor: pointer; 
-}
-
-/* 6. PITCH VIEW */
-.pitch-container {
-    background: var(--pitch-green) url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center;
-    background-size: cover;
-    padding: 20px 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-body.dark-mode .pitch-container {
-    filter: brightness(0.8) contrast(1.1);
-}
-
-.pitch-row {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-}
-
-.player-card {
-    width: 65px;
-    text-align: center;
-    animation: playerPop 0.3s ease-out forwards;
-}
-
-.player-photo-wrapper {
-    width: 48px;
-    height: 48px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #fff;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
-
-.player-face {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.player-info-label {
-    background: #fff;
-    color: #333;
-    font-size: 0.65rem;
-    font-weight: 800;
-    margin-top: 5px;
-    border-radius: 4px;
-    padding: 2px 4px;
-}
-
-.player-points-badge {
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 900;
-    text-shadow: 1px 1px 3px #000;
-}
-
-/* 7. MANAGER STATS FOOTER */
-.manager-stats-footer {
-    background: var(--card-bg);
-    padding: 20px;
-    border-top: 1px solid var(--border-color);
-    border-radius: 0 0 var(--radius-large) var(--radius-large);
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
-    margin-bottom: 15px;
-}
-
-/* 8. GLOBAL BUTTONS & INPUTS */
-.action-button {
-    background: var(--fpl-red);
-    color: white;
-    border: none;
-    padding: 14px;
-    border-radius: var(--radius-full);
-    width: 100%;
-    font-weight: 800;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: 0.2s;
-}
-
-.action-button:active { transform: scale(0.96); }
-
-/* 9. SETTINGS DRAWER */
-.drawer {
-    position: fixed;
-    top: 10px;
-    right: -320px;
-    width: 300px;
-    height: calc(100% - 20px);
-    background: var(--card-bg);
-    box-shadow: -10px 0 30px rgba(0,0,0,0.15);
-    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-    padding: 24px;
-    border-radius: var(--radius-large) 0 0 var(--radius-large);
-}
-
-.drawer.open { right: 0; }
-
-/* 10. ANIMATIONS & VALIDATION */
-@keyframes playerPop {
-    from { opacity: 0; transform: translateY(10px) scale(0.9); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-6px); }
-    75% { transform: translateX(6px); }
-}
-
-.input-error {
-    animation: shake 0.2s ease-in-out 2;
-    border: 2px solid var(--fpl-red) !important;
-}
-
-/* INSTALL BANNER */
-#install-banner {
-    display: none; 
-    background: var(--fpl-purple);
-    color: white;
-    padding: 15px 20px;
-    margin: 10px;
-    border-radius: 16px;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    position: relative;
-    z-index: 1001;
-}
-
-.selector-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: var(--bg-light);
-    border-radius: 12px;
-    padding: 2px 8px;
-    border: 1px solid var(--border-color);
-    transition: all 0.2s ease;
-}
-
-#league-select {
-    appearance: none;
-    background: transparent;
-    border: none;
-    padding: 10px 35px 10px 12px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--text-main);
-    cursor: pointer;
-    width: 100%;
-    outline: none;
-}
-
-
-
-
-
-/* 3. LOGIN SCREEN CONTAINER */
 #login-screen {
     display: flex;
     justify-content: center;
@@ -369,76 +71,6 @@ body.dark-mode .pitch-container {
 .login-wrapper {
     width: 100%;
     max-width: 420px;
-}
-
-
-
-/* TOP ICON NAVIGATION */
-.top-icon-nav {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background: #0a1421; /* Dark navy from your image */
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    height: 70px;
-    padding: 5px 0;
-    border-bottom: 2px solid #1a2635;
-}
-
-.nav-item {
-    background: none;
-    border: none;
-    color: #8e99a7; /* Muted blue-grey */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    cursor: pointer;
-    flex: 1;
-    transition: all 0.2s ease;
-    padding: 8px 0;
-}
-
-.nav-item svg {
-    width: 20px;
-    height: 20px;
-    stroke-width: 2.5px;
-}
-
-.nav-item span {
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: capitalize;
-    letter-spacing: 0.3px;
-}
-
-/* Active State Styles */
-.nav-item.active {
-    color: #ffffff; /* White text for active state as per image */
-    position: relative;
-}
-
-/* Optional: Add a small indicator line under the active item */
-.nav-item.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    width: 30%;
-    height: 3px;
-    background: var(--fpl-red);
-    border-radius: 10px 10px 0 0;
-}
-
-.nav-item:hover {
-    color: #ffffff;
-}
-
-/* Dark Mode adjustment - slightly lighter background to pop */
-body.dark-mode .top-icon-nav {
-    background: #070d16;
 }
 
 .brand-header {
@@ -467,7 +99,6 @@ body.dark-mode .top-icon-nav {
     color: var(--text-main);
 }
 
-/* 4. THE EXACT IMAGE STYLE CARD */
 .simple-login-card {
     background: var(--card-bg);
     border-radius: var(--radius-card);
@@ -483,11 +114,10 @@ body.dark-mode .top-icon-nav {
     padding: 25px 20px;
     margin: 0;
     letter-spacing: 0.2px;
-    color: #1a1a1a;
+    color: var(--text-main);
     text-transform: uppercase;
 }
 
-/* Input Area Container */
 .input-area {
     padding: 0 15px 15px 15px;
 }
@@ -495,33 +125,26 @@ body.dark-mode .top-icon-nav {
 #team-id-input {
     width: 100%;
     border: 1px solid var(--border-color);
-    border-radius: 6px; /* Matches the square-ish input in image */
+    border-radius: 6px;
     padding: 20px 10px;
     text-align: center;
     font-size: 1.1rem;
     font-weight: 700;
-    color: #8292a2; /* Muted blue-grey from image */
+    color: #8292a2;
     background: #ffffff;
     outline: none;
     box-sizing: border-box;
     transition: border-color 0.2s;
 }
 
-#team-id-input::placeholder {
-    color: #8292a2;
-    text-transform: uppercase;
-    font-size: 1.1rem;
-}
-
 #team-id-input:focus {
     border-color: var(--fpl-red);
 }
 
-/* Split Footer Logic */
 .login-footer-actions {
     display: flex;
     border-top: 1px solid var(--border-color);
-    height: 85px; /* Taller footer as seen in image */
+    height: 85px;
     align-items: stretch;
 }
 
@@ -531,7 +154,7 @@ body.dark-mode .top-icon-nav {
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    color: #00a162; /* The specific teal-green from image */
+    color: #00a162;
     font-size: 0.85rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -542,286 +165,78 @@ body.dark-mode .top-icon-nav {
 .enter-id-btn {
     flex: 1;
     border: none;
-    background: #eeeeee; /* Grey background from image */
-    color: #8292a2; /* Grey text from image */
+    background: #eeeeee;
+    color: #8292a2;
     font-weight: 800;
     font-size: 1rem;
     cursor: pointer;
     transition: 0.2s;
     text-transform: uppercase;
     border-left: 1px solid var(--border-color);
-    margin: 4px; /* Slight inset for the button style */
+    margin: 4px;
     border-radius: 4px;
 }
 
-.enter-id-btn:hover {
-    background: #e2e2e2;
-}
-
-
-
-
-/* IMPACT SECTIONS (Differentials & Threats) */
-.impact-section {
-    background: linear-gradient(to right, #a3c9e2, #78ffd6); /* Matches the cyan/blue gradient in photo */
-    padding: 2px; /* For the border effect */
-    margin-top: 10px;
-}
-
-.impact-header {
-    background: #e1e1e1;
-    padding: 8px 15px;
-    font-weight: 800;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    color: #1a1a1a;
-}
-
-.impact-header.warning {
-    background: #a3c9e2;
-}
-
-.impact-info {
-    background: #a3c9e2;
-    font-size: 0.65rem;
-    padding: 2px 15px;
-    color: #333;
-    font-style: italic;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-}
-
-.player-impact-grid {
-    background: #ffffff;
+/* 4. NAVIGATION & TABS */
+.top-icon-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #0a1421;
     display: flex;
     justify-content: space-around;
-    padding: 15px 5px;
-    gap: 5px;
+    align-items: center;
+    height: 70px;
+    padding: 5px 0;
+    border-bottom: 2px solid #1a2635;
 }
 
-.player-impact-card {
+.nav-item {
+    background: none;
+    border: none;
+    color: #8e99a7;
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 22%;
-}
-
-.shirt-wrapper img {
-    width: 45px;
-    margin-bottom: 5px;
-}
-
-.player-name-tag {
-    background: #242f3d;
-    color: white;
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 4px;
-    width: 100%;
-    text-align: center;
-    font-weight: 700;
-}
-
-.player-pts-tag {
-    font-size: 0.8rem;
-    color: #666;
-    margin: 2px 0;
-}
-
-.impact-badge {
-    font-size: 0.7rem;
-    font-weight: 800;
-    padding: 3px 6px;
-    border-radius: 6px;
-    width: 90%;
-    text-align: center;
-}
-
-.impact-badge.gain {
-    background: #ccffcc;
-    color: #008d4c;
-}
-
-.impact-badge.loss {
-    background: #ffcccc;
-    color: #e90052;
-}
-
-
-
-
-/* MANAGER DASHBOARD STYLES */
-.manager-dashboard {
-    background: #ffffff;
-    border-radius: 12px;
-    overflow: hidden;
-    margin: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    font-family: 'Segoe UI', Roboto, sans-serif;
-}
-
-.status-header {
-    background: #a3c9e2; /* Light blue header from image */
-    padding: 8px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #1a1a1a;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-}
-
-.main-stats-container {
-    display: flex;
-    border-bottom: 1px solid #eee;
-}
-
-.status-box {
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
     flex: 1;
-    padding: 20px 10px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    transition: all 0.2s ease;
 }
 
-.arrow-box {
-    border-right: 1px solid #eee;
+.nav-item.active { color: #ffffff; position: relative; }
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 30%;
+    height: 3px;
+    background: var(--fpl-red);
+    border-radius: 10px 10px 0 0;
 }
 
-.status-icon {
-    width: 40px;
-    height: 40px;
-    background: #00ff85; /* FPL Green */
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-}
-
-.status-label {
-    margin: 0;
-    font-size: 0.75rem;
-    color: #666;
-}
-
-.status-text-wrap h3 {
-    margin: 2px 0;
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: #008d4c; /* Darker green */
-}
-
-.status-text-wrap h2 {
-    margin: 2px 0;
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #1a1a1a;
-}
-
-.status-detail {
-    margin: 0;
-    font-size: 0.8rem;
-    color: #888;
-}
-
-.manager-info-footer {
-    padding: 15px;
-    background: #f8f9fa;
-    text-align: center;
-}
-
-#disp-name {
-    margin: 0 0 5px 0;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--fpl-purple);
-}
-
-.mini-stat {
-    font-size: 0.85rem;
-    color: #666;
-    font-weight: 600;
-}
-
-.highlight-stat {
-    color: var(--fpl-red);
-    font-weight: 800;
-}
-
-/* Dark Mode adjustment */
-body.dark-mode .manager-dashboard { background: #1c242d; }
-body.dark-mode .status-header { background: #2c3b4a; color: white; }
-body.dark-mode .status-text-wrap h2 { color: white; }
-body.dark-mode .manager-info-footer { background: #242f3d; }
-
-
-.compare-results {
-    display: flex;
-    max-height: 70vh;
-    overflow-y: auto;
-}
-.compare-card {
-    display: flex;
-    align-items: center;
-    padding: 8px;
-    border-bottom: 1px solid #eee;
-    position: relative;
-}
-.compare-card img { width: 40px; height: auto; margin-right: 10px; }
-.compare-info { display: flex; flex-direction: column; }
-.p-name { font-weight: 800; font-size: 0.85rem; }
-.p-pts { color: var(--fpl-red); font-weight: 700; font-size: 0.8rem; }
-.c-tag { 
-    position: absolute; right: 5px; top: 5px; 
-    background: var(--fpl-purple); color: white; 
-    font-size: 0.6rem; padding: 2px 4px; border-radius: 2px;
-}
-.compare-header {
-    background: #f4f4f4; padding: 10px; font-weight: 800;
-    position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--fpl-green);
-}
-
-
-
-/* Transparent container, no background */
 .main-tabs {
     display: flex;
     justify-content: flex-start;
     padding: 10px 20px;
-    background: #ffffff;
-    border-bottom: 1px solid #eeeeee;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
 }
 
-.tab-container {
-    display: flex;
-    gap: 25px; /* Spacing between text links */
-}
-
-/* Reset button to simple text */
 .tab-btn {
     background: none;
     border: none;
     padding: 8px 0;
-    font-family: inherit;
     font-size: 0.9rem;
     font-weight: 500;
-    color: #888888; /* Muted color for inactive */
+    color: var(--text-muted);
     cursor: pointer;
     position: relative;
-    transition: color 0.2s ease;
+    margin-right: 25px;
 }
 
-/* Active State: Bold text with a simple underline */
-.tab-btn.active {
-    color: #000000; /* Solid black for active */
-    font-weight: 700;
-}
-
-/* Simple Underline Indicator */
+.tab-btn.active { color: var(--text-main); font-weight: 700; }
 .tab-btn.active::after {
     content: "";
     position: absolute;
@@ -829,140 +244,139 @@ body.dark-mode .manager-info-footer { background: #242f3d; }
     left: 0;
     width: 100%;
     height: 2px;
-    background: #e90052; /* FPL Red underline */
+    background: var(--fpl-red);
 }
 
-/* Dark Mode Adjustment */
-body.dark-mode .main-tabs {
-    background: #171e28;
-    border-bottom: 1px solid #242f3d;
+/* 5. LIVE TABLE & LISTS */
+.table-container { overflow-x: auto; background: var(--card-bg); }
+.live-table { width: 100%; border-collapse: collapse; }
+.live-table th { 
+    text-align: left; padding: 16px 12px; 
+    background: rgba(0,0,0,0.03); 
+    font-size: 0.7rem; text-transform: uppercase; 
+    color: var(--text-muted); 
 }
+.live-table td { padding: 14px 12px; border-bottom: 1px solid var(--border-color); }
 
-body.dark-mode .tab-btn.active {
-    color: #ffffff;
-}
-
-body.dark-mode .tab-btn {
-    color: #869099;
-}
-
-
-
-/* The container for the player image */
-.shirt-wrapper, .player-face-wrapper, .compare-card {
+/* 6. PITCH VIEW & PLAYER CARDS */
+.pitch-container {
+    background-color: var(--pitch-green);
     position: relative;
-    background-color: #f6f7f8;
-    overflow: hidden;
-}
-
-/* The Shimmer Animation */
-.skeleton-loading::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.6) 50%,
-        rgba(255, 255, 255, 0) 100%
-    );
-    animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
-/* Style for when the image is missing (solid white) */
-.img-missing {
-    background-color: #ffffff !important;
-}
-.img-missing::after {
-    display: none; /* Stop shimmering once we know it's dead */
-}
-
-
-
-
-/* Circular Player Headshot with Zoomed Face */
-.img-container {
-    width: 65px;
-    height: 65px;
-    background: #ffffff;
-    border-radius: 50%;
-    display: flex;
-    align-items: flex-start; /* Focus on top of bust */
-    justify-content: center;
-    overflow: hidden;
-    margin: 0 auto -5px auto; /* Overlap slightly with the label stack */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    border: 2px solid #fff;
-    position: relative;
-    z-index: 2;
-}
-
-.img-container img {
-    width: 150%; /* Scale up to focus on the face */
-    height: auto;
-    margin-top: 5%; /* Align head to top of circle */
-}
-
-/* Triple-Stacked Label System */
-.player-label-stack {
+    padding: 20px 10px;
     display: flex;
     flex-direction: column;
-    width: 85px; 
-    margin: 0 auto;
-    border-radius: 2px;
+    gap: 12px;
+    transition: background 0.4s ease;
     overflow: hidden;
+}
+
+/* Real Grass Texture Overlay */
+.pitch-container::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url("https://www.transparenttextures.com/patterns/pinstriped-suit.png");
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Pitch Pattern Classes */
+.p-vertical { background-image: repeating-linear-gradient(90deg, transparent, transparent 10%, rgba(0,0,0,0.08) 10%, rgba(0,0,0,0.08) 20%); }
+.p-horizontal { background-image: repeating-linear-gradient(0deg, transparent, transparent 10%, rgba(0,0,0,0.08) 10%, rgba(0,0,0,0.08) 20%); }
+.p-plaid { 
+    background-image: repeating-linear-gradient(90deg, transparent, transparent 10%, rgba(0,0,0,0.08) 10%, rgba(0,0,0,0.08) 20%),
+                      repeating-linear-gradient(0deg, transparent, transparent 10%, rgba(0,0,0,0.08) 10%, rgba(0,0,0,0.08) 20%);
+}
+.p-circles { 
+    background-image: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.08) 41%);
+    background-size: 80px 80px;
+}
+.p-solid { background-image: none; }
+
+.pitch-row { display: flex; justify-content: center; gap: 8px; position: relative; z-index: 2; }
+
+/* Circular Zoomed Headshot */
+.img-container {
+    width: 65px; height: 65px;
+    background: #ffffff;
+    border-radius: 50%;
+    display: flex; align-items: flex-start; justify-content: center;
+    overflow: hidden; margin: 0 auto -5px auto;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    border: 2px solid #fff;
+    position: relative; z-index: 2;
+}
+
+.img-container img { width: 150%; height: auto; margin-top: 5%; }
+
+/* Triple Stacked Label */
+.player-label-stack {
+    display: flex; flex-direction: column;
+    width: 85px; margin: 0 auto;
+    border-radius: 2px; overflow: hidden;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     z-index: 1;
 }
 
-/* Section 1: Dark Name Bar */
-.p-name-bar {
-    background: #24292e; /* Dark slate/charcoal */
-    color: #ffffff;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 4px 2px;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.p-name-bar { background: #24292e; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 4px 2px; text-align: center; }
+.p-stat-bar { background: #00ff87; color: #24292e; font-size: 0.85rem; font-weight: 800; padding: 3px 0; text-align: center; }
+.p-points-bar { background: #e1e4e7; color: #24292e; font-size: 0.95rem; font-weight: 800; padding: 3px 0; text-align: center; }
+
+/* 7. SETTINGS DRAWER & PITCH SELECTOR */
+.drawer {
+    position: fixed; top: 10px; right: -320px;
+    width: 300px; height: calc(100% - 20px);
+    background: var(--card-bg);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2000; padding: 24px;
+    border-radius: var(--radius-large) 0 0 var(--radius-large);
 }
 
-/* Section 2: Bright Green Stat Bar (e.g., Ownership %) */
-.p-stat-bar {
-    background: #00ff87; /* Official FPL Neon Green */
-    color: #24292e;
-    font-size: 0.85rem;
-    font-weight: 800;
-    padding: 3px 0;
-    text-align: center;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+.drawer.open { right: 0; }
+
+.pitch-type-grid { display: flex; gap: 10px; padding: 10px 0; }
+
+.pitch-option {
+    width: 42px; height: 42px; border-radius: 8px;
+    cursor: pointer; border: 2px solid transparent;
+    background-color: var(--pitch-green);
+    transition: transform 0.2s;
 }
 
-/* Section 3: Light Grey Points Bar */
-.p-points-bar {
-    background: #e1e4e7; /* Light grey/blue background */
-    color: #24292e;
-    font-size: 0.95rem;
-    font-weight: 800;
-    padding: 3px 0;
-    text-align: center;
+.pitch-option.active { border-color: var(--fpl-red); }
+
+.pitch-option.p-vertical { background-image: linear-gradient(90deg, transparent 50%, rgba(0,0,0,0.1) 50%); background-size: 15px 100%; }
+.pitch-option.p-horizontal { background-image: linear-gradient(0deg, transparent 50%, rgba(0,0,0,0.1) 50%); background-size: 100% 15px; }
+.pitch-option.p-plaid { background-image: linear-gradient(90deg, transparent 50%, rgba(0,0,0,0.1) 50%), linear-gradient(0deg, transparent 50%, rgba(0,0,0,0.1) 50%); background-size: 15px 15px; }
+.pitch-option.p-circles { background-image: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.1) 41%); background-size: 20px 20px; }
+
+/* 8. MANAGER DASHBOARD & IMPACT */
+.manager-dashboard {
+    background: var(--card-bg); border-radius: 12px;
+    overflow: hidden; margin: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
-/* Shimmer/Skeleton for Circular Face */
+.status-header { background: #a3c9e2; padding: 8px; text-align: center; font-weight: 600; color: #1a1a1a; }
+
+.player-impact-grid {
+    background: #ffffff; display: flex;
+    justify-content: space-around; padding: 15px 5px; gap: 5px;
+}
+
+.player-name-tag {
+    background: #242f3d; color: white;
+    font-size: 0.7rem; padding: 2px 8px;
+    border-radius: 4px; width: 100%; text-align: center;
+}
+
+/* 9. SKELETONS & ANIMATIONS */
 .skeleton-loading {
     background: #f6f7f8;
     background-image: linear-gradient(90deg, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
-    background-repeat: no-repeat;
-    background-size: 800px 100%;
+    background-repeat: no-repeat; background-size: 800px 100%;
     animation: shimmer 1.5s infinite linear;
 }
 
@@ -971,19 +385,15 @@ body.dark-mode .tab-btn {
     100% { background-position: 400px 0; }
 }
 
-
-
-#compare-modal .modal-content {
-    display: flex;
-    gap: 20px;
-    padding: 20px;
-    overflow-y: auto;
-    max-height: 80vh;
+@keyframes playerPop {
+    from { opacity: 0; transform: translateY(10px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-#team-1-col, #team-2-col {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.player-card { animation: playerPop 0.3s ease-out forwards; }
+
+/* 10. UTILITIES */
+.drawer-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); display: none; z-index: 1999;
 }
