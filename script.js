@@ -148,6 +148,7 @@ async function changeLeague(leagueId) {
             const captainName = state.playerMap[capId]?.name || "N/A";
 
            // Inside changeLeague standings.map...
+// Inside changeLeague standings.map...
 return `
     <tr id="row-${r.entry}" class="manager-row">
         <td style="font-weight: bold;" onclick="toggleManagerExpansion(${r.entry})">
@@ -167,9 +168,15 @@ return `
         </td>
 
         <td style="text-align:center; vertical-align: middle;">
-            <input type="checkbox" class="compare-chk" 
-                style="width: 18px; height: 18px; cursor: pointer;"
-                onchange="selectForCompare(${r.entry}, '${r.entry_name.replace(/'/g, "\\'")}')">
+            <input type="checkbox" class="compare-chk" onchange="selectForCompare(${r.entry}, '${r.entry_name.replace(/'/g, "\\'")}')">
+        </td>
+
+        <td style="text-align:center; vertical-align: middle;">
+            ${allPicks[index]?.entry_history?.event_transfers_cost > 0 
+                ? `<div style="color:#e90052; font-weight:900; font-size:0.9rem;">-${allPicks[index].entry_history.event_transfers_cost}</div>
+                   <div style="font-size:0.6rem; text-transform:uppercase; font-weight:700; opacity:0.7;">HIT</div>`
+                : `<div style="color:var(--text-muted); font-size:0.8rem; font-weight:500;">0</div>`
+            }
         </td>
 
         <td style="text-align:right;">
