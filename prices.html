@@ -43,16 +43,17 @@
 
         /* Table */
         .table-wrap { background: #fff; border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 8px 8px; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
         thead th { background: #0f172a; color: #fff; text-align: left; padding: 12px; font-size: 11px; text-transform: uppercase; }
         tbody td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
 
         .bar-bg { width: 100px; height: 6px; background: #e2e8f0; border-radius: 10px; margin-top: 5px; }
         .bar-fill { height: 100%; border-radius: 10px; }
         
-        .urgent { background: #dcfce7 !important; font-weight: bold; color: #166534; text-align: center; }
-        .urgent-fall { background: #fee2e2 !important; font-weight: bold; color: #991b1b; text-align: center; }
+        .urgent { background: #dcfce7 !important; font-weight: bold; color: #166534; }
+        .urgent-fall { background: #fee2e2 !important; font-weight: bold; color: #991b1b; }
         .tonight { color: #ef4444; font-size: 10px; display: block; font-weight: 800; }
+        .price-val { font-family: monospace; font-weight: bold; }
 
         #loader { padding: 40px; text-align: center; font-weight: bold; background: white; border: 1px solid var(--border-color); }
         .cache-controls { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 15px; }
@@ -92,6 +93,7 @@
                         <th>Player</th>
                         <th>Team</th>
                         <th>Progress</th>
+                        <th>Price Change</th>
                         <th>Prediction</th>
                         <th>Trend</th>
                     </tr>
@@ -108,14 +110,13 @@
 
     <script>
         const API_URL = "https://fantasy.premierleague.com/api/bootstrap-static/";
-        // Two proxies for better reliability
         const PROXIES = [
             "https://api.allorigins.win/get?url=",
             "https://corsproxy.io/?url="
         ];
         const CACHE_KEY = "fpl_price_data";
         const CACHE_TIME = "fpl_price_timestamp";
-        const AGGRESSIVE_LIMIT = 5 * 60 * 60 * 1000; // 5 Hours
+        const AGGRESSIVE_LIMIT = 5 * 60 * 60 * 1000; 
 
         let allPlayers = [];
         let viewMode = 'rise';
@@ -130,21 +131,15 @@
                 return;
             }
 
-            // Attempt fetch with Proxy Fallback
             let data = null;
             for (let proxy of PROXIES) {
                 try {
-                    console.log(`Trying proxy: ${proxy}`);
                     const response = await fetch(`${proxy}${encodeURIComponent(API_URL)}`);
-                    if (!response.ok) throw new Error("Network response error");
-                    
+                    if (!response.ok) throw new Error("Network error");
                     const result = await response.json();
-                    // Handle AllOrigins wrapper vs direct proxy
                     data = result.contents ? JSON.parse(result.contents) : result;
                     if (data) break; 
-                } catch (e) {
-                    console.warn(`Proxy failed: ${proxy}`, e);
-                }
+                } catch (e) { console.warn(`Proxy failed: ${proxy}`); }
             }
 
             if (data) {
@@ -156,8 +151,6 @@
                 processData(JSON.parse(localStorage.getItem(CACHE_KEY)));
                 document.getElementById('cacheStatus').innerText = "⚠️ Failed to sync. Using offline data.";
                 document.getElementById('loader').style.display = 'none';
-            } else {
-                document.getElementById('loader').innerHTML = "Failed to reach FPL. Try turning off VPN or refresh later.";
             }
         }
 
@@ -172,10 +165,12 @@
             allPlayers = data.elements.map(p => {
                 const net = p.transfers_in_event - p.transfers_out_event;
                 const prog = (net / 480);
+                const currentPrice = p.now_cost / 10;
                 return {
                     name: p.web_name,
                     team: teams[p.team],
-                    price: (p.now_cost / 10).toFixed(1),
+                    price: currentPrice.toFixed(1),
+                    newPrice: (viewMode === 'rise' ? currentPrice + 0.1 : currentPrice - 0.1).toFixed(1),
                     prog: parseFloat(prog.toFixed(1)),
                     pred: parseFloat((prog * 1.05).toFixed(1)),
                     pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type]
@@ -199,17 +194,21 @@
                 const isUrgent = Math.abs(p.pred) >= 100;
                 const highlight = isUrgent ? (viewMode === 'rise' ? 'urgent' : 'urgent-fall') : '';
                 const barColor = viewMode === 'rise' ? '#00ff85' : '#ff005a';
+                const nextPrice = (parseFloat(p.price) + (viewMode === 'rise' ? 0.1 : -0.1)).toFixed(1);
 
                 return `
                     <tr>
                         <td>
                             <strong>${p.name}</strong><br>
-                            <small style="color:var(--text-muted)">${p.pos} £${p.price}</small>
+                            <small style="color:var(--text-muted)">${p.pos}</small>
                         </td>
                         <td>${p.team}</td>
                         <td>
                             ${p.prog}%
                             <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(Math.max(Math.abs(p.prog), 5), 100)}%; background:${barColor}"></div></div>
+                        </td>
+                        <td class="price-val">
+                            £${p.price} <i class="fas fa-long-arrow-alt-right"></i> <span style="color:${barColor}">£${nextPrice}</span>
                         </td>
                         <td class="${highlight}">
                             ${p.pred}%
@@ -223,18 +222,8 @@
 
         function forceRefresh() { init(true); }
 
-        document.getElementById('btnRise').onclick = () => { 
-            viewMode = 'rise'; 
-            document.getElementById('btnRise').classList.add('active'); 
-            document.getElementById('btnFall').classList.remove('active'); 
-            render(); 
-        };
-        document.getElementById('btnFall').onclick = () => { 
-            viewMode = 'fall'; 
-            document.getElementById('btnFall').classList.add('active'); 
-            document.getElementById('btnRise').classList.remove('active'); 
-            render(); 
-        };
+        document.getElementById('btnRise').onclick = () => { viewMode = 'rise'; document.getElementById('btnRise').classList.add('active'); document.getElementById('btnFall').classList.remove('active'); render(); };
+        document.getElementById('btnFall').onclick = () => { viewMode = 'fall'; document.getElementById('btnFall').classList.add('active'); document.getElementById('btnRise').classList.remove('active'); render(); };
         document.getElementById('playerSearch').oninput = render;
 
         setInterval(() => {
