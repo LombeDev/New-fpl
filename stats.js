@@ -1,34 +1,49 @@
+const API_URL = "https://fantasy.premierleague.com/api/bootstrap-static/";
 const FIXTURES_URL = "https://fantasy.premierleague.com/api/fixtures/";
+const PROXIES = [
+    "https://corsproxy.io/?url=",
+    "https://api.allorigins.win/get?url="
+];
 
-async function init(force = false) {
-    const lastFetched = localStorage.getItem(CACHE_TIME);
-    const now = Date.now();
+let allPlayers = [];
+let viewMode = 'rise';
 
-    // Fetch both Bootstrap Static and Fixtures
+async function init() {
+    const loader = document.getElementById('loader');
+    const tickerLoader = document.getElementById('ticker-loader');
+
     try {
+        // Fetch both datasets simultaneously
         const [bootData, fixtureData] = await Promise.all([
-            fetchData(API_URL),
-            fetchData(FIXTURES_URL)
+            fetchWithProxy(API_URL),
+            fetchWithProxy(FIXTURES_URL)
         ]);
 
-        if (bootData && fixtureData) {
-            localStorage.setItem(CACHE_KEY, JSON.stringify(bootData));
-            localStorage.setItem(CACHE_TIME, now.toString());
-            processData(bootData, fixtureData);
-            updateCacheUI(now, false);
+        if (!bootData || !fixtureData) {
+            throw new Error("Could not load FPL data");
         }
-    } catch (e) {
-        console.error("Initialization failed", e);
+
+        // Process everything
+        processData(bootData, fixtureData);
+        
+    } catch (error) {
+        console.error("Initialization Error:", error);
+        if(loader) loader.innerText = "⚠️ Error loading data. Please refresh.";
+        if(tickerLoader) tickerLoader.innerText = "⚠️ Fixtures unavailable.";
     }
 }
 
-async function fetchData(url) {
+async function fetchWithProxy(url) {
     for (let proxy of PROXIES) {
         try {
             const response = await fetch(`${proxy}${encodeURIComponent(url)}`);
-            const result = await response.json();
-            return result.contents ? JSON.parse(result.contents) : result;
-        } catch (e) { continue; }
+            if (!response.ok) continue;
+            const data = await response.json();
+            // Handle AllOrigins wrapper vs direct JSON
+            return data.contents ? JSON.parse(data.contents) : data;
+        } catch (e) {
+            console.warn(`Proxy ${proxy} failed for ${url}`);
+        }
     }
     return null;
 }
@@ -36,11 +51,10 @@ async function fetchData(url) {
 function processData(data, fixtures) {
     const teams = Object.fromEntries(data.teams.map(t => [t.id, { 
         name: t.name, 
-        short: t.short_name,
-        id: t.id
+        short: t.short_name 
     }]));
 
-    // 1. Process Predictor Table (Existing logic)
+    // 1. Predictor Logic
     allPlayers = data.elements.map(p => {
         const net = p.transfers_in_event - p.transfers_out_event;
         const currentPrice = p.now_cost / 10;
@@ -54,11 +68,14 @@ function processData(data, fixtures) {
         };
     });
 
-    // 2. Process Fixture Ticker
+    // 2. Render Both Sections
+    renderPredictor();
     renderTicker(data.teams, fixtures);
-    
+
+    // Hide Loaders
     document.getElementById('loader').style.display = 'none';
-    render(); // Render Predictor
+    document.getElementById('ticker-loader').style.display = 'none';
+    document.getElementById('ticker-table').style.display = 'table';
 }
 
 function renderTicker(teams, allFixtures) {
@@ -66,18 +83,17 @@ function renderTicker(teams, allFixtures) {
     const headerRow = document.getElementById('ticker-gw-headers');
     const teamMap = Object.fromEntries(teams.map(t => [t.id, t.short_name]));
     
-    // Get upcoming fixtures (not finished)
-    const upcoming = allFixtures.filter(f => !f.finished).slice(0, 100);
+    // Get upcoming Gameweeks
+    const upcoming = allFixtures.filter(f => !f.finished);
+    const nextGWs = [...new Set(upcoming.map(f => f.event))].filter(n => n != null).slice(0, 5);
     
-    // Determine the next 5 unique Gameweeks available
-    const nextGWs = [...new Set(upcoming.map(f => f.event))].filter(Boolean).slice(0, 5);
-    
-    // Update Headers
+    // Headers
     headerRow.innerHTML = '<th style="text-align: left; padding-left:15px;">Team</th>' + 
                           nextGWs.map(gw => `<th>GW${gw}</th>`).join('');
 
+    // Rows
     tickerBody.innerHTML = teams.map(team => {
-        const teamFixtures = nextGWs.map(gw => {
+        const cells = nextGWs.map(gw => {
             const f = upcoming.find(fixture => 
                 fixture.event === gw && (fixture.team_h === team.id || fixture.team_a === team.id)
             );
@@ -85,19 +101,21 @@ function renderTicker(teams, allFixtures) {
             if (!f) return `<td>-</td>`;
             
             const isHome = f.team_h === team.id;
-            const opponent = isHome ? teamMap[f.team_a] : teamMap[f.team_h];
-            const difficulty = isHome ? f.team_h_difficulty : f.team_a_difficulty;
-            const venue = isHome ? '(H)' : '(A)';
+            const oppId = isHome ? f.team_a : f.team_h;
+            const oppName = teamMap[oppId];
+            const diff = isHome ? f.team_h_difficulty : f.team_a_difficulty;
             
-            // Lowercase for Away, Uppercase for Home (Classic FPL style)
-            const displayOpp = isHome ? opponent.toUpperCase() : opponent.toLowerCase();
-
-            return `<td class="fdr-${difficulty}">${displayOpp} ${venue}</td>`;
+            return `<td class="fdr-${diff}">${isHome ? oppName.toUpperCase() : oppName.toLowerCase()} ${isHome ? '(H)' : '(A)'}</td>`;
         }).join('');
 
-        return `<tr><td class="team-cell">${team.short_name}</td>${teamFixtures}</tr>`;
+        return `<tr><td class="team-cell">${team.short_name}</td>${cells}</tr>`;
     }).join('');
-
-    document.getElementById('ticker-loader').style.display = 'none';
-    document.getElementById('ticker-table').style.display = 'table';
 }
+
+function renderPredictor() {
+    // ... insert your existing render() function logic here ...
+    // Note: ensure you rename it to renderPredictor or update the call
+}
+
+// Initial Call
+init();
