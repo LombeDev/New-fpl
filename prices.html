@@ -25,26 +25,29 @@
         .nav-item.active i { color: var(--fpl-primary); }
 
         /* Header */
-        .header { text-align: center; padding: 30px 0; background: #fff; border-bottom: 1px solid var(--border-color); }
+        .header { text-align: center; padding: 25px 0; background: #fff; border-bottom: 1px solid var(--border-color); }
         .header h1 { font-size: 24px; margin: 0 0 15px 0; font-weight: 800; }
         .timer-banner { background: #f1f5f9; padding: 10px 20px; border-radius: 4px; display: inline-flex; align-items: center; font-weight: bold; font-size: 13px; }
         .timer-box { background: var(--fpl-primary); color: #000; padding: 5px 12px; border-radius: 3px; margin-left: 10px; font-family: monospace; }
 
         .main-container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
 
-        /* Rise/Fall Toggle */
-        .toggle-container { display: flex; background: #fff; border: 1px solid var(--border-color); border-bottom: none; border-radius: 8px 8px 0 0; overflow: hidden; }
-        .toggle-btn { flex: 1; padding: 15px; text-align: center; font-weight: bold; cursor: pointer; color: var(--text-muted); border-bottom: 3px solid transparent; transition: 0.2s; }
-        .toggle-btn.active.rise { border-bottom-color: var(--fpl-primary); color: #000; background: #fafffb; }
-        .toggle-btn.active.fall { border-bottom-color: var(--fpl-danger); color: #000; background: #fffafb; }
+        /* Search & Toggle Row */
+        .controls-row { background: #fff; border: 1px solid var(--border-color); border-radius: 8px 8px 0 0; padding: 15px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
+        .search-box { flex: 2; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; min-width: 200px; }
+        
+        .toggle-container { display: flex; flex: 1; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; min-width: 250px; }
+        .toggle-btn { flex: 1; padding: 10px; text-align: center; font-weight: bold; cursor: pointer; color: var(--text-muted); font-size: 13px; border: none; background: #fff; }
+        .toggle-btn.active.rise { background: #f0fff4; color: #166534; border-bottom: 3px solid var(--fpl-primary); }
+        .toggle-btn.active.fall { background: #fff5f5; color: #991b1b; border-bottom: 3px solid var(--fpl-danger); }
 
         /* Table */
-        .table-wrap { background: #fff; border: 1px solid var(--border-color); border-radius: 0 0 8px 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; }
-        thead th { background: #0f172a; color: #fff; text-align: left; padding: 12px; font-size: 12px; text-transform: uppercase; }
+        .table-wrap { background: #fff; border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 8px 8px; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        thead th { background: #0f172a; color: #fff; text-align: left; padding: 12px; font-size: 11px; text-transform: uppercase; }
         tbody td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
 
-        .bar-bg { width: 100px; height: 6px; background: #e2e8f0; border-radius: 10px; margin-top: 5px; overflow: hidden; }
+        .bar-bg { width: 100px; height: 6px; background: #e2e8f0; border-radius: 10px; margin-top: 5px; }
         .bar-fill { height: 100%; border-radius: 10px; }
         
         .urgent { background: #dcfce7 !important; font-weight: bold; color: #166534; text-align: center; }
@@ -52,34 +55,35 @@
         .tonight { color: #ef4444; font-size: 10px; display: block; font-weight: 800; }
 
         #loader { padding: 40px; text-align: center; font-weight: bold; background: white; border: 1px solid var(--border-color); }
-        
-        .cache-controls { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 15px; padding: 10px; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .refresh-btn { cursor: pointer; color: #3b82f6; text-decoration: underline; border: none; background: none; font-size: 11px; }
-        .refresh-btn:hover { color: #2563eb; }
+        .cache-controls { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 15px; }
+        .refresh-btn { cursor: pointer; color: #3b82f6; border: none; background: none; text-decoration: underline; font-size: 11px; }
     </style>
 </head>
 <body>
 
     <nav class="top-nav">
         <a href="index.html" class="nav-item"><i class="fa-solid fa-trophy"></i>Home</a>
-        <a href="prices.html" class="nav-item active"><i class="fa-solid fa-dollar-sign"></i>Prices change predictor</a>
+        <a href="prices.html" class="nav-item active"><i class="fa-solid fa-dollar-sign"></i>Price Predictor</a>
         <a href="#" class="nav-item"><i class="fa-solid fa-soccer-ball"></i>Games</a>
     </nav>
 
     <div class="header">
         <h1>Live Price Change Predictor</h1>
         <div class="timer-banner">
-            Next price change countdown: <span id="timer" class="timer-box">--:--:--</span>
+            Next price change: <span id="timer" class="timer-box">--:--:--</span>
         </div>
     </div>
 
     <div class="main-container">
-        <div class="toggle-container">
-            <div id="btnRise" class="toggle-btn active rise">Price Rises</div>
-            <div id="btnFall" class="toggle-btn fall">Price Falls</div>
+        <div class="controls-row">
+            <input type="text" id="playerSearch" class="search-box" placeholder="Search for a player...">
+            <div class="toggle-container">
+                <button id="btnRise" class="toggle-btn active rise">Price Rises</button>
+                <button id="btnFall" class="toggle-btn fall">Price Falls</button>
+            </div>
         </div>
 
-        <div id="loader"><i class="fas fa-sync fa-spin"></i> Loading Data...</div>
+        <div id="loader"><i class="fas fa-sync fa-spin"></i> Checking FPL Servers...</div>
 
         <div class="table-wrap">
             <table>
@@ -97,17 +101,21 @@
         </div>
 
         <div class="cache-controls">
-            <span id="cacheStatus">Checking cache...</span>
-            <button class="refresh-btn" onclick="forceRefresh()"><i class="fas fa-redo"></i> Force Update</button>
+            <span id="cacheStatus">Syncing...</span> | 
+            <button class="refresh-btn" onclick="forceRefresh()">Force Update</button>
         </div>
     </div>
 
     <script>
         const API_URL = "https://fantasy.premierleague.com/api/bootstrap-static/";
-        const PROXY_URL = "https://api.allorigins.win/get?url=";
+        // Two proxies for better reliability
+        const PROXIES = [
+            "https://api.allorigins.win/get?url=",
+            "https://corsproxy.io/?url="
+        ];
         const CACHE_KEY = "fpl_price_data";
         const CACHE_TIME = "fpl_price_timestamp";
-        const AGGRESSIVE_LIMIT = 5 * 60 * 60 * 1000; // 5 HOURS CACHE
+        const AGGRESSIVE_LIMIT = 5 * 60 * 60 * 1000; // 5 Hours
 
         let allPlayers = [];
         let viewMode = 'rise';
@@ -116,47 +124,47 @@
             const lastFetched = localStorage.getItem(CACHE_TIME);
             const now = Date.now();
 
-            // STEP 1: Aggressive Cache Check (5-hour limit)
             if (!force && lastFetched && (now - lastFetched < AGGRESSIVE_LIMIT)) {
-                const data = JSON.parse(localStorage.getItem(CACHE_KEY));
-                processData(data);
+                processData(JSON.parse(localStorage.getItem(CACHE_KEY)));
                 updateCacheUI(lastFetched, true);
                 return;
             }
 
-            // STEP 2: Fetch if expired or forced
-            try {
-                document.getElementById('loader').style.display = 'block';
-                const response = await fetch(`${PROXY_URL}${encodeURIComponent(API_URL)}`);
-                if (!response.ok) throw new Error("403 Forbidden");
-                
-                const wrapper = await response.json();
-                const data = JSON.parse(wrapper.contents);
-
-                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-                localStorage.setItem(CACHE_TIME, now.toString());
-                
-                processData(data);
-                updateCacheUI(now, false);
-            } catch (err) {
-                console.error("API Error:", err);
-                if (localStorage.getItem(CACHE_KEY)) {
-                    processData(JSON.parse(localStorage.getItem(CACHE_KEY)));
-                    document.getElementById('cacheStatus').innerText = "⚠️ API Error. Using stored data.";
-                } else {
-                    document.getElementById('loader').innerHTML = "Access Denied (403). Try again later.";
+            // Attempt fetch with Proxy Fallback
+            let data = null;
+            for (let proxy of PROXIES) {
+                try {
+                    console.log(`Trying proxy: ${proxy}`);
+                    const response = await fetch(`${proxy}${encodeURIComponent(API_URL)}`);
+                    if (!response.ok) throw new Error("Network response error");
+                    
+                    const result = await response.json();
+                    // Handle AllOrigins wrapper vs direct proxy
+                    data = result.contents ? JSON.parse(result.contents) : result;
+                    if (data) break; 
+                } catch (e) {
+                    console.warn(`Proxy failed: ${proxy}`, e);
                 }
             }
-        }
 
-        function forceRefresh() {
-            init(true);
+            if (data) {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                localStorage.setItem(CACHE_TIME, now.toString());
+                processData(data);
+                updateCacheUI(now, false);
+            } else if (localStorage.getItem(CACHE_KEY)) {
+                processData(JSON.parse(localStorage.getItem(CACHE_KEY)));
+                document.getElementById('cacheStatus').innerText = "⚠️ Failed to sync. Using offline data.";
+                document.getElementById('loader').style.display = 'none';
+            } else {
+                document.getElementById('loader').innerHTML = "Failed to reach FPL. Try turning off VPN or refresh later.";
+            }
         }
 
         function updateCacheUI(time, isCached) {
             const date = new Date(parseInt(time));
             document.getElementById('cacheStatus').innerHTML = 
-                `Data valid for 5 hrs (Updated: <b>${date.toLocaleTimeString()}</b>).`;
+                `5hr Safe Mode Active (Last Sync: <b>${date.toLocaleTimeString()}</b>)`;
         }
 
         function processData(data) {
@@ -179,9 +187,13 @@
 
         function render() {
             const body = document.getElementById('predictor-body');
-            const filtered = allPlayers.filter(p => 
-                (viewMode === 'rise' ? p.prog >= -5 : p.prog < 0)
-            ).sort((a,b) => viewMode === 'rise' ? b.prog - a.prog : a.prog - b.prog);
+            const searchVal = document.getElementById('playerSearch').value.toLowerCase();
+            
+            const filtered = allPlayers.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchVal);
+                const matchesView = (viewMode === 'rise' ? p.prog >= -5 : p.prog < 0);
+                return matchesSearch && matchesView;
+            }).sort((a,b) => viewMode === 'rise' ? b.prog - a.prog : a.prog - b.prog);
 
             body.innerHTML = filtered.slice(0, 50).map(p => {
                 const isUrgent = Math.abs(p.pred) >= 100;
@@ -209,8 +221,21 @@
             }).join('');
         }
 
-        document.getElementById('btnRise').onclick = () => { viewMode = 'rise'; document.getElementById('btnRise').classList.add('active'); document.getElementById('btnFall').classList.remove('active'); render(); };
-        document.getElementById('btnFall').onclick = () => { viewMode = 'fall'; document.getElementById('btnFall').classList.add('active'); document.getElementById('btnRise').classList.remove('active'); render(); };
+        function forceRefresh() { init(true); }
+
+        document.getElementById('btnRise').onclick = () => { 
+            viewMode = 'rise'; 
+            document.getElementById('btnRise').classList.add('active'); 
+            document.getElementById('btnFall').classList.remove('active'); 
+            render(); 
+        };
+        document.getElementById('btnFall').onclick = () => { 
+            viewMode = 'fall'; 
+            document.getElementById('btnFall').classList.add('active'); 
+            document.getElementById('btnRise').classList.remove('active'); 
+            render(); 
+        };
+        document.getElementById('playerSearch').oninput = render;
 
         setInterval(() => {
             const now = new Date();
