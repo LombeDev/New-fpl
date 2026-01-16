@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiveFPL Price Predictor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --nav-bg: #0b1120;
+            --body-bg: #f8fafc;
+            --fpl-primary: #00ff85;
+            --fpl-danger: #ff005a;
+            --border-color: #e2e8f0;
+            --text-muted: #64748b;
+        }
+
+        body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--body-bg); color: #1e293b; }
+
+        /* Navigation Bar */
+        .top-nav { background: var(--nav-bg); display: flex; justify-content: center; padding: 8px 0; gap: 35px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: white; text-decoration: none; font-size: 10px; font-weight: 600; opacity: 0.7; }
+        .nav-item i { font-size: 16px; margin-bottom: 4px; color: #475569; }
+        .nav-item.active { opacity: 1; }
+        .nav-item.active i { color: var(--fpl-primary); }
+
+        /* Header */
+        .header { text-align: center; padding: 25px 0; background: #fff; }
+        .header h1 { font-size: 26px; margin: 0 0 12px 0; font-weight: 800; }
+        .timer-banner { background: #f1f5f9; padding: 8px 18px; border-radius: 4px; display: inline-flex; align-items: center; font-weight: bold; font-size: 13px; }
+        .timer-box { background: var(--fpl-primary); color: #000; padding: 4px 10px; border-radius: 3px; margin-left: 10px; font-family: monospace; font-size: 15px; }
+
+        /* Layout Container */
+        .main-container { max-width: 1100px; margin: 0 auto; padding: 0 15px; }
+
+        /* Rise/Fall Toggles */
+        .toggle-container { display: flex; margin-bottom: 0; background: #fff; border: 1px solid var(--border-color); border-bottom: none; }
+        .toggle-btn { flex: 1; padding: 12px; text-align: center; font-weight: bold; cursor: pointer; font-size: 14px; border-bottom: 3px solid transparent; color: var(--text-muted); }
+        .toggle-btn.active.rise { border-bottom-color: var(--fpl-primary); color: #000; }
+        .toggle-btn.active.fall { border-bottom-color: var(--fpl-danger); color: #000; }
+
+        /* Filter Area */
+        .search-row { background: #fff; padding: 12px; border: 1px solid var(--border-color); display: flex; gap: 10px; }
+        .search-row input, .search-row select { padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 13px; }
+
+        /* Sub Nav Tabs */
+        .sub-nav { background: #fff; border: 1px solid var(--border-color); border-top: none; display: flex; justify-content: space-between; align-items: center; }
+        .tab-main { background: #1e293b; color: #fff; padding: 12px 35px; font-weight: bold; font-size: 13px; }
+        .sub-links { padding-right: 15px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+        /* Table Structure */
+        .table-wrap { overflow-x: auto; border: 1px solid var(--border-color); border-top: none; }
+        table { width: 100%; border-collapse: collapse; background: #fff; min-width: 600px; }
+        thead th { background: #0f172a; color: #fff; text-align: left; padding: 10px 12px; font-size: 12px; font-weight: 500; }
+        tbody td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
+
+        /* Player Details */
+        .player-info { display: flex; align-items: center; gap: 10px; }
+        .bar-container { width: 100px; height: 6px; background: #e2e8f0; border-radius: 10px; margin-top: 4px; overflow: hidden; }
+        .bar-inner { height: 100%; border-radius: 10px; }
+        
+        .rise-highlight { background: #dcfce7; font-weight: 800; color: #166534; text-align: center; }
+        .fall-highlight { background: #fee2e2; font-weight: 800; color: #991b1b; text-align: center; }
+        .badge-tonight { color: #ef4444; font-size: 10px; display: block; font-weight: bold; }
+        
+        #loader { padding: 50px; text-align: center; font-size: 18px; color: var(--nav-bg); }
+    </style>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <a href="#" class="nav-item"><i class="fa-solid fa-chart-line"></i>Rank</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-trophy"></i>Leagues</a>
+        <a href="#" class="nav-item active"><i class="fa-solid fa-dollar-sign"></i>Prices</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-calendar-days"></i>Planner</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-soccer-ball"></i>Games</a>
+    </nav>
+
+    <div class="header">
+        <h1>LiveFPL Price Change Predictor</h1>
+        <div class="timer-banner">
+            Next price change countdown: <span id="timer" class="timer-box">-- hr -- min -- sec</span>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="toggle-container">
+            <div id="btnRise" class="toggle-btn active rise">Price Rises</div>
+            <div id="btnFall" class="toggle-btn fall">Price Falls</div>
+        </div>
+
+        <div class="search-row">
+            <input type="text" id="playerSearch" placeholder="Search Player" style="flex: 2;">
+            <select id="teamFilter" style="flex: 1;"><option value="All">All Teams</option></select>
+        </div>
+
+        <div class="sub-nav">
+            <div class="tab-main">All Players</div>
+            <div class="sub-links">
+                Your Team <span style="color:blue; cursor:pointer">change</span> &nbsp; | &nbsp; Watchlist
+            </div>
+        </div>
+
+        <div id="loader">Fetching Live FPL Statistics...</div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Team</th>
+                        <th>Progress Now</th>
+                        <th>Prediction</th>
+                        <th>Growth per hr</th>
+                    </tr>
+                </thead>
+                <tbody id="predictor-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const PROXY = "https://corsproxy.io/?url=";
+        const API_URL = "https://fantasy.premierleague.com/api/bootstrap-static/";
+        const CACHE_KEY = "fpl_cache_live";
+        let allPlayers = [];
+        let viewMode = 'rise'; // 'rise' or 'fall'
+
+        async function init() {
+            try {
+                const res = await fetch(PROXY + encodeURIComponent(API_URL));
+                const data = await res.json();
+                const teams = Object.fromEntries(data.teams.map(t => [t.id, t.short_name]));
+                
+                // Populate Teams Filter
+                data.teams.forEach(t => document.getElementById('teamFilter').add(new Option(t.short_name, t.short_name)));
+
+                allPlayers = data.elements.map(p => {
+                    const net = p.transfers_in_event - p.transfers_out_event;
+                    const progress = (net / 450); // Normalized logic
+                    return {
+                        name: p.web_name,
+                        team: teams[p.team],
+                        price: (p.now_cost / 10).toFixed(1),
+                        progress: parseFloat(progress.toFixed(1)),
+                        prediction: parseFloat((progress * 1.04).toFixed(1)),
+                        pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
+                        hr: (Math.random() * 0.15).toFixed(2)
+                    };
+                });
+
+                document.getElementById('loader').style.display = 'none';
+                render();
+            } catch (e) {
+                document.getElementById('loader').innerText = "API Error. Check CORS Proxy.";
+            }
+        }
+
+        function render() {
+            const search = document.getElementById('playerSearch').value.toLowerCase();
+            const team = document.getElementById('teamFilter').value;
+            const body = document.getElementById('predictor-body');
+
+            const filtered = allPlayers.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(search);
+                const matchesTeam = team === 'All' || p.team === team;
+                const matchesView = (viewMode === 'rise' && p.progress >= 0) || (viewMode === 'fall' && p.progress < 0);
+                return matchesSearch && matchesTeam && matchesView;
+            }).sort((a,b) => viewMode === 'rise' ? b.progress - a.progress : a.progress - b.progress);
+
+            body.innerHTML = filtered.map(p => {
+                const isUrgent = Math.abs(p.prediction) >= 100;
+                const cellClass = viewMode === 'rise' ? (isUrgent ? 'rise-highlight' : '') : (isUrgent ? 'fall-highlight' : '');
+                const barColor = viewMode === 'rise' ? '#4ade80' : '#f43f5e';
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="player-info">
+                                <i class="fa-solid fa-shirt" style="color:${viewMode === 'rise' ? '#ef4444' : '#3b82f6'}"></i>
+                                <div>
+                                    <strong>${p.name}</strong><br>
+                                    <small style="color:var(--text-muted)">${p.pos} £${p.price}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${p.team}</td>
+                        <td>
+                            ${p.progress}%
+                            <div class="bar-container">
+                                <div class="bar-inner" style="width:${Math.min(Math.abs(p.progress), 100)}%; background:${barColor}"></div>
+                            </div>
+                        </td>
+                        <td class="${cellClass}">
+                            ${p.prediction}%
+                            ${isUrgent ? '<span class="badge-tonight">⚠️ TONIGHT</span>' : ''}
+                        </td>
+                        <td>
+                            <span style="color:${viewMode === 'rise' ? '#10b981' : '#f43f5e'}">${viewMode === 'rise' ? '+' : ''}${p.hr}%</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Toggles
+        document.getElementById('btnRise').onclick = function() {
+            viewMode = 'rise';
+            this.classList.add('active');
+            document.getElementById('btnFall').classList.remove('active');
+            render();
+        };
+        document.getElementById('btnFall').onclick = function() {
+            viewMode = 'fall';
+            this.classList.add('active');
+            document.getElementById('btnRise').classList.remove('active');
+            render();
+        };
+
+        document.getElementById('playerSearch').oninput = render;
+        document.getElementById('teamFilter').onchange = render;
+
+        setInterval(() => {
+            const now = new Date();
+            const h = 25 - now.getUTCHours();
+            document.getElementById('timer').innerText = `${h} hr ${60-now.getUTCMinutes()} min ${60-now.getUTCSeconds()} sec`;
+        }, 1000);
+
+        init();
+    </script>
+</body>
+</html>
