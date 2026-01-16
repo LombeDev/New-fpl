@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Price Predictor</title>
+    <title>Price Predictor | LiveFPL Clone</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -13,57 +13,59 @@
             --fpl-danger: #ff005a;
             --border-color: #e2e8f0;
             --text-muted: #64748b;
+            --table-head: #0f172a;
         }
 
         body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--body-bg); color: #1e293b; }
 
         /* Navigation Bar */
         .top-nav { background: var(--nav-bg); display: flex; justify-content: center; padding: 8px 0; gap: 35px; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: white; text-decoration: none; font-size: 10px; font-weight: 600; opacity: 0.7; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: white; text-decoration: none; font-size: 10px; font-weight: 600; opacity: 0.7; border: none; background: none; cursor: pointer; }
         .nav-item i { font-size: 16px; margin-bottom: 4px; color: #475569; }
         .nav-item.active { opacity: 1; }
         .nav-item.active i { color: var(--fpl-primary); }
 
         /* Header */
-        .header { text-align: center; padding: 25px 0; background: #fff; }
+        .header { text-align: center; padding: 25px 0; background: #fff; border-bottom: 1px solid var(--border-color); }
         .header h1 { font-size: 26px; margin: 0 0 12px 0; font-weight: 800; }
         .timer-banner { background: #f1f5f9; padding: 8px 18px; border-radius: 4px; display: inline-flex; align-items: center; font-weight: bold; font-size: 13px; }
         .timer-box { background: var(--fpl-primary); color: #000; padding: 4px 10px; border-radius: 3px; margin-left: 10px; font-family: monospace; font-size: 15px; }
 
-        /* Layout Container */
-        .main-container { max-width: 1100px; margin: 0 auto; padding: 0 15px; }
+        .main-container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
 
         /* Rise/Fall Toggles */
-        .toggle-container { display: flex; margin-bottom: 0; background: #fff; border: 1px solid var(--border-color); border-bottom: none; }
-        .toggle-btn { flex: 1; padding: 12px; text-align: center; font-weight: bold; cursor: pointer; font-size: 14px; border-bottom: 3px solid transparent; color: var(--text-muted); }
-        .toggle-btn.active.rise { border-bottom-color: var(--fpl-primary); color: #000; }
-        .toggle-btn.active.fall { border-bottom-color: var(--fpl-danger); color: #000; }
+        .toggle-container { display: flex; background: #fff; border: 1px solid var(--border-color); border-bottom: none; border-radius: 8px 8px 0 0; overflow: hidden; }
+        .toggle-btn { flex: 1; padding: 14px; text-align: center; font-weight: bold; cursor: pointer; font-size: 14px; border-bottom: 3px solid transparent; color: var(--text-muted); transition: 0.2s; }
+        .toggle-btn.active.rise { border-bottom-color: var(--fpl-primary); color: #000; background: #f0fff4; }
+        .toggle-btn.active.fall { border-bottom-color: var(--fpl-danger); color: #000; background: #fff5f5; }
 
-        /* Filter Area */
-        .search-row { background: #fff; padding: 12px; border: 1px solid var(--border-color); display: flex; gap: 10px; }
-        .search-row input, .search-row select { padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 13px; }
+        /* Search & Filter */
+        .search-row { background: #fff; padding: 15px; border: 1px solid var(--border-color); display: flex; gap: 10px; }
+        .search-row input, .search-row select { padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; outline: none; }
+        .search-row input:focus { border-color: var(--fpl-primary); }
 
-        /* Sub Nav Tabs */
+        /* Sub Nav */
         .sub-nav { background: #fff; border: 1px solid var(--border-color); border-top: none; display: flex; justify-content: space-between; align-items: center; }
         .tab-main { background: #1e293b; color: #fff; padding: 12px 35px; font-weight: bold; font-size: 13px; }
-        .sub-links { padding-right: 15px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+        .sub-links { padding-right: 15px; font-size: 12px; color: var(--text-muted); }
 
-        /* Table Structure */
-        .table-wrap { overflow-x: auto; border: 1px solid var(--border-color); border-top: none; }
-        table { width: 100%; border-collapse: collapse; background: #fff; min-width: 600px; }
-        thead th { background: #0f172a; color: #fff; text-align: left; padding: 10px 12px; font-size: 12px; font-weight: 500; }
-        tbody td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
+        /* Table */
+        .table-wrap { overflow-x: auto; border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        table { width: 100%; border-collapse: collapse; background: #fff; min-width: 700px; }
+        thead th { background: var(--table-head); color: #fff; text-align: left; padding: 12px; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        tbody td { padding: 14px 12px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
 
-        /* Player Details */
-        .player-info { display: flex; align-items: center; gap: 10px; }
-        .bar-container { width: 100px; height: 6px; background: #e2e8f0; border-radius: 10px; margin-top: 4px; overflow: hidden; }
-        .bar-inner { height: 100%; border-radius: 10px; }
+        /* Player UI Elements */
+        .player-info { display: flex; align-items: center; gap: 12px; }
+        .bar-container { width: 120px; height: 7px; background: #e2e8f0; border-radius: 10px; margin-top: 6px; overflow: hidden; }
+        .bar-inner { height: 100%; border-radius: 10px; transition: width 0.5s ease-in-out; }
         
-        .rise-highlight { background: #dcfce7; font-weight: 800; color: #166534; text-align: center; }
-        .fall-highlight { background: #fee2e2; font-weight: 800; color: #991b1b; text-align: center; }
-        .badge-tonight { color: #ef4444; font-size: 10px; display: block; font-weight: bold; }
+        .rise-highlight { background: #dcfce7 !important; font-weight: 800; color: #166534; text-align: center; }
+        .fall-highlight { background: #fee2e2 !important; font-weight: 800; color: #991b1b; text-align: center; }
+        .badge-tonight { color: #ef4444; font-size: 10px; display: block; font-weight: 900; margin-top: 2px; }
         
-        #loader { padding: 50px; text-align: center; font-size: 18px; color: var(--nav-bg); }
+        #loader { padding: 60px; text-align: center; font-weight: bold; color: var(--nav-bg); background: white; border: 1px solid var(--border-color); }
+        .cache-info { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -88,7 +90,7 @@
         </div>
 
         <div class="search-row">
-            <input type="text" id="playerSearch" placeholder="Search Player" style="flex: 2;">
+            <input type="text" id="playerSearch" placeholder="Search Player Name..." style="flex: 2;">
             <select id="teamFilter" style="flex: 1;"><option value="All">All Teams</option></select>
         </div>
 
@@ -99,59 +101,99 @@
             </div>
         </div>
 
-        <div id="loader">Fetching Live FPL Statistics...</div>
+        <div id="loader">
+            <i class="fas fa-spinner fa-spin"></i> Loading Live FPL Data...
+        </div>
 
         <div class="table-wrap">
-            <table>
+            <table id="playerTable">
                 <thead>
                     <tr>
                         <th>Player</th>
                         <th>Team</th>
                         <th>Progress Now</th>
                         <th>Prediction</th>
-                        <th>Growth per hr</th>
+                        <th>Growth /hr</th>
                     </tr>
                 </thead>
                 <tbody id="predictor-body"></tbody>
             </table>
         </div>
+        <div id="cacheStatus" class="cache-info"></div>
     </div>
 
     <script>
         const PROXY = "https://corsproxy.io/?url=";
         const API_URL = "https://fantasy.premierleague.com/api/bootstrap-static/";
-        const CACHE_KEY = "fpl_cache_live";
+        const CACHE_KEY = "fpl_data_cache";
+        const CACHE_TIME_KEY = "fpl_cache_time";
+        const CACHE_DURATION = 10 * 60 * 1000; // 10 Minutes
+
         let allPlayers = [];
-        let viewMode = 'rise'; // 'rise' or 'fall'
+        let viewMode = 'rise';
 
         async function init() {
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+            const now = Date.now();
+
+            if (cachedData && cachedTime && (now - cachedTime < CACHE_DURATION)) {
+                console.log("Using Cached Data");
+                updateCacheLabel(cachedTime);
+                processData(JSON.parse(cachedData));
+                return;
+            }
+
             try {
                 const res = await fetch(PROXY + encodeURIComponent(API_URL));
+                if (!res.ok) throw new Error("Rate limit or API error");
                 const data = await res.json();
-                const teams = Object.fromEntries(data.teams.map(t => [t.id, t.short_name]));
                 
-                // Populate Teams Filter
-                data.teams.forEach(t => document.getElementById('teamFilter').add(new Option(t.short_name, t.short_name)));
-
-                allPlayers = data.elements.map(p => {
-                    const net = p.transfers_in_event - p.transfers_out_event;
-                    const progress = (net / 450); // Normalized logic
-                    return {
-                        name: p.web_name,
-                        team: teams[p.team],
-                        price: (p.now_cost / 10).toFixed(1),
-                        progress: parseFloat(progress.toFixed(1)),
-                        prediction: parseFloat((progress * 1.04).toFixed(1)),
-                        pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
-                        hr: (Math.random() * 0.15).toFixed(2)
-                    };
-                });
-
-                document.getElementById('loader').style.display = 'none';
-                render();
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                localStorage.setItem(CACHE_TIME_KEY, now.toString());
+                
+                updateCacheLabel(now);
+                processData(data);
             } catch (e) {
-                document.getElementById('loader').innerText = "API Error. Check CORS Proxy.";
+                if (cachedData) {
+                    processData(JSON.parse(cachedData));
+                    document.getElementById('cacheStatus').innerText = "⚠️ API Rate Limit reached. Using offline data.";
+                } else {
+                    document.getElementById('loader').innerText = "Failed to load data. Please refresh in a few minutes.";
+                }
             }
+        }
+
+        function updateCacheLabel(timestamp) {
+            const date = new Date(parseInt(timestamp));
+            document.getElementById('cacheStatus').innerText = "Last updated: " + date.toLocaleTimeString();
+        }
+
+        function processData(data) {
+            const teams = Object.fromEntries(data.teams.map(t => [t.id, t.short_name]));
+            const teamFilter = document.getElementById('teamFilter');
+            
+            if (teamFilter.options.length <= 1) {
+                data.teams.sort((a,b) => a.short_name.localeCompare(b.short_name))
+                          .forEach(t => teamFilter.add(new Option(t.short_name, t.short_name)));
+            }
+
+            allPlayers = data.elements.map(p => {
+                const net = p.transfers_in_event - p.transfers_out_event;
+                const progress = (net / 450); 
+                return {
+                    name: p.web_name,
+                    team: teams[p.team],
+                    price: (p.now_cost / 10).toFixed(1),
+                    progress: parseFloat(progress.toFixed(1)),
+                    prediction: parseFloat((progress * 1.05).toFixed(1)),
+                    pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
+                    hr: (Math.random() * 0.12).toFixed(2)
+                };
+            });
+
+            document.getElementById('loader').style.display = 'none';
+            render();
         }
 
         function render() {
@@ -162,14 +204,14 @@
             const filtered = allPlayers.filter(p => {
                 const matchesSearch = p.name.toLowerCase().includes(search);
                 const matchesTeam = team === 'All' || p.team === team;
-                const matchesView = (viewMode === 'rise' && p.progress >= 0) || (viewMode === 'fall' && p.progress < 0);
+                const matchesView = (viewMode === 'rise' && p.progress >= -10) || (viewMode === 'fall' && p.progress < 0);
                 return matchesSearch && matchesTeam && matchesView;
             }).sort((a,b) => viewMode === 'rise' ? b.progress - a.progress : a.progress - b.progress);
 
             body.innerHTML = filtered.map(p => {
                 const isUrgent = Math.abs(p.prediction) >= 100;
                 const cellClass = viewMode === 'rise' ? (isUrgent ? 'rise-highlight' : '') : (isUrgent ? 'fall-highlight' : '');
-                const barColor = viewMode === 'rise' ? '#4ade80' : '#f43f5e';
+                const barColor = viewMode === 'rise' ? '#00ff85' : '#ff005a';
 
                 return `
                     <tr>
@@ -218,12 +260,20 @@
         document.getElementById('playerSearch').oninput = render;
         document.getElementById('teamFilter').onchange = render;
 
-        setInterval(() => {
+        // Timer
+        function updateTimer() {
             const now = new Date();
-            const h = 25 - now.getUTCHours();
-            document.getElementById('timer').innerText = `${h} hr ${60-now.getUTCMinutes()} min ${60-now.getUTCSeconds()} sec`;
-        }, 1000);
+            const target = new Date();
+            target.setUTCHours(2, 30, 0); 
+            if (now > target) target.setDate(target.getDate() + 1);
+            const diff = target - now;
+            const h = Math.floor(diff / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            document.getElementById('timer').innerText = `${h} hr ${m} min ${s} sec`;
+        }
 
+        setInterval(updateTimer, 1000);
         init();
     </script>
 </body>
