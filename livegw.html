@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPL Live Match Center</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0b1120;
+            --card-bg: #ffffff;
+            --fpl-green: #00ff85;
+            --fpl-purple: #37003c;
+            --text-dark: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: white; }
+        
+        .main-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 350px; gap: 25px; }
+        
+        .header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .live-indicator { background: #ff2851; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; animation: pulse 2s infinite; }
+
+        /* Matches Section */
+        .section-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .match-card { background: var(--card-bg); border-radius: 8px; color: var(--text-dark); margin-bottom: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; }
+        .team-box { display: flex; align-items: center; gap: 10px; width: 40%; }
+        .team-box.away { justify-content: flex-end; }
+        .score-box { background: #f1f5f9; padding: 5px 15px; border-radius: 4px; font-weight: 900; font-size: 20px; }
+        .match-status { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+
+        /* Table Section */
+        .table-card { background: var(--card-bg); border-radius: 8px; color: var(--text-dark); padding: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; color: #64748b; font-size: 11px; padding-bottom: 10px; }
+        td { padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+        .pos { font-weight: 800; width: 25px; }
+        .pts { font-weight: 800; text-align: right; }
+        .live-row { background: #f0fff4; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @media (max-width: 900px) { .main-container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1 style="margin:0;">FPL Match Center</h1>
+        <div class="live-indicator"><i class="fas fa-circle"></i> LIVE UPDATES</div>
+    </div>
+
+    <div class="main-container">
+        <div class="matches-column">
+            <div class="section-title"><i class="fas fa-field-football" style="color:var(--fpl-green)"></i> Tonight's Games</div>
+            <div id="matches-list">
+                <div class="match-card">
+                    <div class="team-box">
+                        <img src="https://resources.premierleague.com/premierleague/badges/t1.png" width="30">
+                        <span style="font-weight:700">ARS</span>
+                    </div>
+                    <div style="text-align:center">
+                        <div class="score-box">2 - 1</div>
+                        <div class="match-status">64'</div>
+                    </div>
+                    <div class="team-box away">
+                        <span style="font-weight:700">LIV</span>
+                        <img src="https://resources.premierleague.com/premierleague/badges/t14.png" width="30">
+                    </div>
+                </div>
+
+                <div class="match-card">
+                    <div class="team-box">
+                        <img src="https://resources.premierleague.com/premierleague/badges/t43.png" width="30">
+                        <span style="font-weight:700">MCI</span>
+                    </div>
+                    <div style="text-align:center">
+                        <div class="score-box">0 - 0</div>
+                        <div class="match-status">20:00</div>
+                    </div>
+                    <div class="team-box away">
+                        <span style="font-weight:700">MUN</span>
+                        <img src="https://resources.premierleague.com/premierleague/badges/t11.png" width="30">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-column">
+            <div class="section-title">Live Standings</div>
+            <div class="table-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>POS</th>
+                            <th>CLUB</th>
+                            <th style="text-align:right">PTS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="live-table">
+                        <tr class="live-row">
+                            <td class="pos">1</td>
+                            <td><img src="https://resources.premierleague.com/premierleague/badges/t1.png" width="18"> Arsenal</td>
+                            <td class="pts">48</td>
+                        </tr>
+                        <tr>
+                            <td class="pos">2</td>
+                            <td><img src="https://resources.premierleague.com/premierleague/badges/t43.png" width="18"> Man City</td>
+                            <td class="pts">46</td>
+                        </tr>
+                        <tr class="live-row">
+                            <td class="pos">3</td>
+                            <td><img src="https://resources.premierleague.com/premierleague/badges/t14.png" width="18"> Liverpool</td>
+                            <td class="pts">44</td>
+                        </tr>
+                        <tr>
+                            <td class="pos">4</td>
+                            <td><img src="https://resources.premierleague.com/premierleague/badges/t8.png" width="18"> Chelsea</td>
+                            <td class="pts">41</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="font-size:10px; color:#94a3b8; margin-top:10px; text-align:center;">*Positions update live based on scores</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // In a real production environment, we would fetch live data from 
+        // the FPL 'fixtures' endpoint or a sports API.
+        // This script simulates the "Live" feel by highlighting active rows.
+        console.log("Live Match Center Initialized...");
+    </script>
+</body>
+</html>
