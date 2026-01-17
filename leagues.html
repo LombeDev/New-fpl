@@ -16,6 +16,7 @@
             --fpl-green: #00ff85;
             --fpl-pink: #e90052;
             --border-color: #e2e8f0;
+            --chip-purple: #37003c;
         }
 
         body.dark-mode {
@@ -34,140 +35,145 @@
             overflow-x: hidden;
         }
 
-        /* 2. HEADER AREA (STICKY) */
+        /* 2. TOP BRANDING BAR (FROM INDEX) */
+        .top-brand-bar {
+            padding: 10px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--bg-color); position: sticky; top: 0; z-index: 110;
+        }
+
+        .live-logo {
+            background: #000; color: #fff; padding: 6px 18px;
+            border-radius: 50px; font-weight: 900; font-size: 1.2rem;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .live-logo span { color: var(--fpl-green); }
+
+        .nav-btn { background:#eee; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; color: #000; }
+
+        /* 3. STICKY LEAGUE SELECTOR */
         .sticky-header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
+            position: sticky; top: 55px; z-index: 100;
+            background: var(--card-bg); border-bottom: 1px solid var(--border-color);
             padding: 10px 15px;
         }
 
         .selector-label {
-            font-size: 0.65rem;
-            font-weight: 800;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
+            font-size: 0.65rem; font-weight: 800; color: var(--text-muted);
+            text-transform: uppercase; margin-bottom: 5px;
+            display: flex; justify-content: space-between;
         }
 
         .live-badge {
-            background: var(--fpl-pink);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.55rem;
-            animation: pulse 2s infinite;
+            background: var(--fpl-pink); color: white; padding: 2px 6px;
+            border-radius: 4px; font-size: 0.55rem; animation: pulse 2s infinite;
         }
-
         @keyframes pulse { 0% {opacity:1} 50% {opacity:0.5} 100% {opacity:1} }
 
         #league-select {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-color);
-            color: var(--text-main);
-            font-weight: 700;
-            margin-bottom: 10px;
-            outline: none;
+            width: 100%; padding: 10px; border-radius: 8px;
+            border: 1px solid var(--border-color); background: var(--bg-color);
+            color: var(--text-main); font-weight: 700; margin-bottom: 10px; outline: none;
         }
 
-        /* SEARCH BAR STYLING */
-        .search-container {
-            position: relative;
-            display: flex;
-            align-items: center;
+        .search-container { position: relative; display: flex; align-items: center; }
+        .search-container i { position: absolute; left: 10px; color: var(--text-muted); font-size: 0.8rem; }
+        #team-search { 
+            width: 100%; padding: 8px 8px 8px 30px; border-radius: 6px; 
+            border: 1px solid var(--border-color); background: var(--bg-color);
+            color: var(--text-main); font-size: 0.85rem; outline: none;
         }
 
-        .search-container i {
-            position: absolute;
-            left: 10px;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
-        #team-search {
-            width: 100%;
-            padding: 8px 8px 8px 30px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-color);
-            color: var(--text-main);
-            font-size: 0.85rem;
-            outline: none;
-        }
-
-        /* 3. TABLE STYLING */
-        .standings-container { margin-bottom: 80px; }
-        .standings-table { width: 100%; border-collapse: collapse; }
+        /* 4. STANDINGS TABLE */
+        .standings-table { width: 100%; border-collapse: collapse; margin-bottom: 80px; }
         .standings-table th {
-            background: var(--bg-color);
-            color: var(--text-muted);
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-color); color: var(--text-muted);
+            font-size: 0.6rem; text-transform: uppercase;
+            padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border-color);
         }
-
-        .standings-table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
+        .standings-table td { padding: 12px 10px; border-bottom: 1px solid var(--border-color); }
+        .standing-row { cursor: pointer; transition: background 0.1s; }
+        .standing-row:active { background: rgba(0,0,0,0.05); }
 
         .rank-cell { width: 45px; text-align: center; font-weight: 900; }
-        .team-cell { line-height: 1.2; }
-        .entry-name { display: block; font-weight: 800; font-size: 0.85rem; }
+        .team-cell { line-height: 1.4; }
+        .entry-name-wrapper { display: flex; align-items: center; gap: 5px; }
+        .entry-name { font-weight: 800; font-size: 0.85rem; }
+        .chip-badge { font-size: 0.55rem; font-weight: 900; color: white; background: var(--chip-purple); padding: 1px 4px; border-radius: 3px; }
+        .cap-info { display: block; font-size: 0.7rem; color: var(--primary-blue); font-weight: 600; }
         .player-name { display: block; font-size: 0.7rem; color: var(--text-muted); }
         .pts-cell { width: 50px; text-align: center; font-weight: 800; font-size: 0.9rem; }
-
+        .hit-badge { color: var(--fpl-pink); font-size: 0.65rem; font-weight: 800; display: block; }
+        
         .up { color: var(--fpl-green); }
         .down { color: var(--fpl-pink); }
         .move-icon { font-size: 0.6rem; display: block; }
 
-        /* 4. BOTTOM NAV */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%;
-            background: var(--card-bg); border-top: 1px solid var(--border-color);
-            display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000;
+        /* 5. MODAL & MINI PITCH */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000;
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(4px);
         }
-        .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.65rem; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-        .nav-item.active { color: var(--primary-blue); }
+        .modal-content {
+            background: var(--card-bg); width: 92%; max-width: 400px;
+            border-radius: 15px; max-height: 85vh; overflow-y: auto; position: relative;
+        }
+        .modal-header { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--card-bg); z-index: 10; }
+        .mini-pitch { background: #2e7d32; margin: 10px; border-radius: 10px; padding: 15px 5px; display: flex; flex-direction: column; gap: 15px; }
+        .mini-row { display: flex; justify-content: center; gap: 8px; }
+        .mini-player { width: 65px; text-align: center; }
+        .mini-shirt { width: 35px; height: auto; margin-bottom: -4px; }
+        .mini-name { background: #000; color: #fff; font-size: 0.55rem; padding: 2px; border-radius: 2px; white-space: nowrap; overflow: hidden; }
+        .mini-pts { background: #fff; color: #000; font-size: 0.65rem; font-weight: 800; border-radius: 0 0 2px 2px; }
+
+        /* 6. BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
+        .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.65rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .nav-item.active { color: var(--primary-blue); font-weight: 700; }
     </style>
 </head>
-<body>
+<body class="light-mode">
+
+    <div class="top-brand-bar">
+        <button class="nav-btn"><i class="fa-solid fa-user"></i></button>
+        <div class="live-logo" onclick="window.location.href='index.html'">LIVE<span>▲</span>FPL</div>
+        <button class="nav-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
+    </div>
 
     <div class="sticky-header">
-        <div class="selector-label">
-            <span>Standings</span>
-            <span class="live-badge">LIVE</span>
-        </div>
+        <div class="selector-label"><span>Select League</span><span class="live-badge">LIVE UPDATING</span></div>
         <select id="league-select" onchange="loadStandings(this.value)"></select>
-        
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="team-search" placeholder="Search team or manager..." onkeyup="filterTable()">
         </div>
     </div>
 
-    <div class="standings-container">
-        <table class="standings-table">
-            <thead>
-                <tr>
-                    <th style="text-align: center;">#</th>
-                    <th>Team & Manager</th>
-                    <th style="text-align: center;">GW</th>
-                    <th style="text-align: center;">Total</th>
-                </tr>
-            </thead>
-            <tbody id="standings-body">
-                </tbody>
-        </table>
+    <table class="standings-table">
+        <thead>
+            <tr>
+                <th style="text-align: center;">#</th>
+                <th>Team / Captain</th>
+                <th style="text-align: center;">GW</th>
+                <th style="text-align: center;">Total</th>
+            </tr>
+        </thead>
+        <tbody id="standings-body"></tbody>
+    </table>
+
+    <div id="manager-modal" class="modal-overlay" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <span id="modal-team-name" style="font-weight: 800; display: block;">Team Name</span>
+                    <span id="modal-manager-name" style="font-size: 0.7rem; color: var(--text-muted);">Manager</span>
+                </div>
+                <i class="fa-solid fa-xmark" style="font-size: 1.5rem; cursor: pointer;" onclick="closeModal()"></i>
+            </div>
+            <div class="mini-pitch" id="mini-pitch"></div>
+        </div>
     </div>
 
     <nav class="bottom-nav">
@@ -181,13 +187,28 @@
     <script>
         const state = {
             fplId: localStorage.getItem('kopala_fpl_id'),
+            currentGW: 1,
+            playerMap: {},
             PROXY: "/.netlify/functions/fpl-proxy?endpoint="
         };
 
         document.addEventListener('DOMContentLoaded', async () => {
-            if(!state.fplId) return window.location.href = 'index.html';
-            await fetchManagerLeagues();
+            if(localStorage.getItem('theme') === 'dark') setTheme('dark');
+            await initStaticData();
+            if(state.fplId) await fetchManagerLeagues();
         });
+
+        async function initStaticData() {
+            try {
+                const res = await fetch(`${state.PROXY}bootstrap-static/`);
+                const data = await res.json();
+                data.elements.forEach(p => { 
+                    state.playerMap[p.id] = { name: p.web_name, code: p.code, pos: p.element_type }; 
+                });
+                const current = data.events.find(e => e.is_current);
+                if (current) state.currentGW = current.id;
+            } catch (e) { console.error(e); }
+        }
 
         async function fetchManagerLeagues() {
             try {
@@ -201,31 +222,84 @@
 
         async function loadStandings(leagueId) {
             const body = document.getElementById('standings-body');
-            body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Loading...</td></tr>';
+            body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; font-size:0.8rem;">Loading Live Data...</td></tr>';
             try {
                 const res = await fetch(`${state.PROXY}leagues-classic/${leagueId}/standings/`);
                 const data = await res.json();
-                body.innerHTML = data.standings.results.map(r => `
-                    <tr class="standing-row" data-search="${(r.entry_name + r.player_name).toLowerCase()}">
-                        <td class="rank-cell">
-                            ${r.rank}
-                            <i class="fa-solid ${r.last_rank > r.rank ? 'fa-caret-up up' : r.last_rank < r.rank ? 'fa-caret-down down' : 'fa-minus same'} move-icon"></i>
-                        </td>
+                const detailedResults = await Promise.all(data.standings.results.slice(0, 25).map(async (r) => {
+                    try {
+                        const pRes = await fetch(`${state.PROXY}entry/${r.entry}/event/${state.currentGW}/picks/`);
+                        const pData = await pRes.json();
+                        const cap = pData.picks.find(p => p.is_captain);
+                        return { ...r, captain: state.playerMap[cap.element].name, hits: pData.entry_history.event_transfers_cost, chip: pData.active_chip };
+                    } catch { return { ...r, captain: '---', hits: 0, chip: null }; }
+                }));
+
+                body.innerHTML = detailedResults.map(r => `
+                    <tr class="standing-row" onclick="openManagerDetail(${r.entry}, '${r.entry_name.replace(/'/g, "\\'")}', '${r.player_name.replace(/'/g, "\\'")}')" data-search="${(r.entry_name + r.player_name).toLowerCase()}">
+                        <td class="rank-cell">${r.rank} <i class="fa-solid ${r.last_rank > r.rank ? 'fa-caret-up up' : r.last_rank < r.rank ? 'fa-caret-down down' : 'fa-minus same'} move-icon"></i></td>
                         <td class="team-cell">
-                            <span class="entry-name">${r.entry_name}</span>
+                            <div class="entry-name-wrapper"><span class="entry-name">${r.entry_name}</span>${r.chip ? `<span class="chip-badge">${r.chip}</span>` : ''}</div>
+                            <span class="cap-info">Ⓒ ${r.captain}</span>
                             <span class="player-name">${r.player_name}</span>
                         </td>
-                        <td class="pts-cell">${r.event_total}</td>
+                        <td class="pts-cell">${r.event_total}${r.hits > 0 ? `<span class="hit-badge">-${r.hits}</span>` : ''}</td>
                         <td class="pts-cell" style="color:var(--primary-blue)">${r.total}</td>
                     </tr>
                 `).join('');
-            } catch (e) { console.error(e); }
+            } catch (e) { body.innerHTML = '<tr><td colspan="4">Error Loading.</td></tr>'; }
         }
 
+        async function openManagerDetail(entryId, teamName, managerName) {
+            document.getElementById('modal-team-name').textContent = teamName;
+            document.getElementById('modal-manager-name').textContent = managerName;
+            document.getElementById('manager-modal').style.display = 'flex';
+            const pitch = document.getElementById('mini-pitch');
+            pitch.innerHTML = '<p style="color:white; text-align:center; font-size:0.7rem;">Loading Squad...</p>';
+
+            const [pRes, liveRes] = await Promise.all([
+                fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`),
+                fetch(`${state.PROXY}event/${state.currentGW}/live/`)
+            ]);
+            const pData = await pRes.json();
+            const lData = await liveRes.json();
+            const ptsMap = {};
+            lData.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+
+            const players = pData.picks.map(p => ({
+                ...state.playerMap[p.element],
+                pts: ptsMap[p.element] * p.multiplier,
+                isCap: p.is_captain,
+                pos: p.position
+            }));
+
+            const renderP = (list) => list.map(p => `
+                <div class="mini-player">
+                    <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="mini-shirt">
+                    <div class="mini-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div>
+                    <div class="mini-pts">${p.pts}</div>
+                </div>`).join('');
+
+            pitch.innerHTML = `
+                <div class="mini-row">${renderP(players.filter(p => p.pos <= 11 && p.pos == 1))}</div>
+                <div class="mini-row">${renderP(players.filter(p => p.pos <= 11 && p.pos > 1 && players[p.pos-1].pos == p.pos))}</div>
+                <div class="mini-row" style="border-top:1px dashed rgba(255,255,255,0.2); padding-top:10px;">${renderP(players.filter(p => p.pos > 11))}</div>
+            `;
+        }
+
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            setTheme(isDark ? 'dark' : 'light');
+        }
+        function setTheme(theme) {
+            document.body.classList.toggle('dark-mode', theme === 'dark');
+            document.getElementById('theme-icon').className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            localStorage.setItem('theme', theme);
+        }
+        function closeModal() { document.getElementById('manager-modal').style.display = 'none'; }
         function filterTable() {
             const query = document.getElementById('team-search').value.toLowerCase();
-            const rows = document.querySelectorAll('.standing-row');
-            rows.forEach(row => {
+            document.querySelectorAll('.standing-row').forEach(row => {
                 row.style.display = row.getAttribute('data-search').includes(query) ? '' : 'none';
             });
         }
