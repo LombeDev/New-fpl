@@ -42,9 +42,25 @@
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex; flex-direction: column; min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* 2. TOP BRANDING BAR */
+        /* 2. LOADING OVERLAY */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 3. TOP BRANDING BAR */
         .top-brand-bar {
             padding: 10px 15px;
             display: flex; justify-content: space-between; align-items: center;
@@ -63,97 +79,34 @@
             width: 40px; height: 40px; color: var(--text-main); cursor: pointer;
         }
 
-        /* 3. LOGIN SCREEN STYLES (REVERSE ENGINEERED) */
-        .login-container {
-            max-width: 450px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .promo-card {
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 25px 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            background: var(--card-bg);
-        }
+        /* 4. LOGIN SCREEN STYLES */
+        #login-screen { display: none; }
+        .login-container { max-width: 450px; margin: 0 auto; padding: 20px; }
+        .promo-card { border: 1px solid var(--border-color); border-radius: 20px; padding: 25px 20px; text-align: center; margin-bottom: 20px; background: var(--card-bg); }
         .promo-card h3 { margin: 0; font-size: 1.1rem; line-height: 1.4; font-weight: 800; }
         .promo-link { color: var(--text-muted); font-size: 0.9rem; text-decoration: underline; margin-top: 10px; display: block; }
-
-        .login-card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 30px 24px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border-color);
-        }
-
-        .theme-toggle-pill {
-            display: flex; background: var(--border-color);
-            border-radius: 30px; padding: 4px; width: fit-content;
-            margin-left: auto; margin-bottom: 25px;
-        }
-        .toggle-btn {
-            border: none; padding: 8px 22px; border-radius: 20px;
-            font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s;
-            background: transparent; color: var(--text-muted);
-        }
+        .login-card { background: var(--card-bg); border-radius: 24px; padding: 30px 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); border: 1px solid var(--border-color); }
+        .theme-toggle-pill { display: flex; background: var(--border-color); border-radius: 30px; padding: 4px; width: fit-content; margin-left: auto; margin-bottom: 25px; }
+        .toggle-btn { border: none; padding: 8px 22px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s; background: transparent; color: var(--text-muted); }
         .toggle-btn.active { background: var(--primary-blue); color: white; }
-
         .login-card h2 { margin: 0 0 8px 0; font-size: 1.6rem; font-weight: 800; }
         .login-card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; }
+        .fpl-input { width: 100%; padding: 18px; border-radius: 12px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-main); font-size: 1rem; box-sizing: border-box; margin-bottom: 20px; }
+        .continue-btn { width: 100%; padding: 18px; background: var(--primary-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+        .find-id-btn { display: block; margin: 20px auto 0; background: none; border: none; color: var(--text-muted); font-size: 0.95rem; cursor: pointer; font-weight: 600; }
+        .info-box { background: var(--info-bg); border: 1px solid var(--info-border); border-radius: 12px; padding: 15px; margin-top: 25px; display: flex; gap: 12px; color: var(--info-text); font-size: 0.88rem; line-height: 1.5; }
 
-        .fpl-input {
-            width: 100%; padding: 18px; border-radius: 12px;
-            border: 1px solid var(--border-color); background-color: var(--input-bg);
-            color: var(--text-main); font-size: 1rem; box-sizing: border-box; margin-bottom: 20px;
-        }
-
-        .continue-btn {
-            width: 100%; padding: 18px; background: var(--primary-blue);
-            color: white; border: none; border-radius: 12px;
-            font-size: 1.1rem; font-weight: 700; cursor: pointer;
-        }
-
-        .find-id-btn {
-            display: block; margin: 20px auto 0; background: none; border: none;
-            color: var(--text-muted); font-size: 0.95rem; cursor: pointer; font-weight: 600;
-        }
-
-        .info-box {
-            background: var(--info-bg); border: 1px solid var(--info-border);
-            border-radius: 12px; padding: 15px; margin-top: 25px;
-            display: flex; gap: 12px; color: var(--info-text); font-size: 0.88rem; line-height: 1.5;
-        }
-
-        /* 4. DASHBOARD & PITCH STYLES */
-        .header-stats-grid {
-            display: grid; grid-template-columns: 1fr 1.2fr 1fr;
-            background: var(--card-bg); margin: 10px; padding: 12px;
-            border-radius: 12px; text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border-color);
-        }
+        /* 5. DASHBOARD & PITCH STYLES */
+        #dashboard { display: none; opacity: 0; transition: opacity 0.4s ease-in; }
+        .header-stats-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; background: var(--card-bg); margin: 10px; padding: 12px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
         .stat-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); display: block; }
         .stat-value { font-size: 1.1rem; font-weight: 800; display: block; margin: 2px 0; }
         .stat-sub { font-size: 0.6rem; font-weight: 600; color: var(--fpl-pink); }
         .safety-green { color: var(--fpl-green); }
 
-        .pitch-container {
-            background: #2e7d32; 
-            background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 100% 45px;
-            border-radius: 12px; margin: 10px; padding: 15px 5px;
-            min-height: 550px; display: flex; flex-direction: column; justify-content: space-around;
-        }
+        .pitch-container { background: #2e7d32; background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 100% 45px; border-radius: 12px; margin: 10px; padding: 15px 5px; min-height: 550px; display: flex; flex-direction: column; justify-content: space-around; }
         .pitch-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; }
-        .bench-row {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 10px 0; border-radius: 10px; margin-top: 15px;
-            border-top: 2px dashed rgba(255,255,255,0.2);
-        }
-
+        .bench-row { background: rgba(255, 255, 255, 0.15); padding: 10px 0; border-radius: 10px; margin-top: 15px; border-top: 2px dashed rgba(255,255,255,0.2); }
         .player-card { width: 72px; text-align: center; position: relative; }
         .shirt-img { width: 42px; height: auto; margin-bottom: -5px; position: relative; z-index: 2; }
         .p-info-box { position: relative; z-index: 1; border-radius: 3px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
@@ -162,22 +115,18 @@
         .p-own { background: #c8e6c9; color: #1b5e20; font-size: 0.55rem; font-weight: 700; display: flex; justify-content: space-around; padding: 1px 0; border-bottom: 1px solid #b2d8b4; }
         .p-fix { font-size: 0.5rem; font-weight: 800; padding: 1px 0; text-transform: uppercase; }
 
-        .fdr-2 { background: #00ff85; color: #000; }
-        .fdr-3 { background: #e2e8f0; color: #000; }
-        .fdr-4 { background: #ff185a; color: #fff; }
-        .fdr-5 { background: #80002d; color: #fff; }
-
-        /* 5. BOTTOM NAVIGATION */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%;
-            background: var(--nav-bg); border-top: 1px solid var(--border-color);
-            display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000;
-        }
+        /* 6. BOTTOM NAVIGATION */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
         .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.65rem; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
         .nav-item.active { color: var(--primary-blue); }
     </style>
 </head>
 <body>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; font-weight: 600; font-size: 0.9rem; color: var(--text-muted);">Syncing with FPL...</p>
+    </div>
 
     <div class="top-brand-bar">
         <button class="top-nav-btn"><i class="fa-solid fa-user"></i></button>
@@ -190,34 +139,24 @@
             <h3>The original, most-trusted FPL rank tool since 2025 ❤️</h3>
             <a href="#" class="promo-link">Get the full experience on the app <i class="fa-solid fa-up-right-from-square"></i></a>
         </div>
-
         <div class="login-card">
             <div class="theme-toggle-pill">
                 <button id="dark-btn" class="toggle-btn" onclick="setTheme('dark')">Dark</button>
                 <button id="light-btn" class="toggle-btn" onclick="setTheme('light')">Light</button>
             </div>
-
             <h2>Enter your FPL ID</h2>
             <p>We only use your public FPL ID on this device.</p>
-            
             <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste a link">
-            
             <button class="continue-btn" onclick="handleLogin()">Continue</button>
-            
-            <button class="find-id-btn">
-                <i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it
-            </button>
+            <button class="find-id-btn"><i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it</button>
         </div>
-
         <div class="info-box">
             <i class="fa-solid fa-circle-info" style="margin-top: 3px;"></i>
-            <div>
-                This is an initial test version of the app.
-            </div>
+            <div>This is an initial test version of the app.</div>
         </div>
     </div>
 
-    <div id="dashboard" style="display:none; padding-bottom: 80px;">
+    <div id="dashboard" style="padding-bottom: 80px;">
         <div class="header-stats-grid">
             <div>
                 <span class="stat-label" id="gw-label">GW Rank</span>
@@ -235,12 +174,10 @@
                 <span class="stat-sub">Avg: <span id="disp-avg">-</span></span>
             </div>
         </div>
-
         <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
             <select id="league-select" onchange="changeLeague(this.value)" style="padding: 5px; border-radius: 5px; max-width: 60%; background: var(--card-bg); color: var(--text-main); border-color: var(--border-color);"></select>
             <span id="disp-name" style="font-weight: 800; font-size: 0.8rem;">Manager</span>
         </div>
-
         <div id="pitch-view" class="pitch-container">
             <div id="starting-rows"></div>
             <div id="bench-row" class="pitch-row bench-row"></div>
@@ -248,16 +185,16 @@
     </div>
 
     <nav class="bottom-nav">
-        <button class="nav-item active">
+        <button class="nav-item active" onclick="window.location.href='index.html'">
             <i class="fa-solid fa-chart-line"></i><span>Rank</span>
         </button>
-        <button class="nav-item">
+        <button class="nav-item" onclick="window.location.href='leagues.html'">
             <i class="fa-solid fa-trophy"></i><span>Leagues</span>
         </button>
-        <button class="nav-item">
+        <button class="nav-item" onclick="window.location.href='prices.html'">
             <i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span>
         </button>
-        <button class="nav-item">
+        <button class="nav-item" onclick="window.location.href='games.html'">
             <i class="fa-solid fa-gamepad"></i><span>Games</span>
         </button>
         <button class="nav-item">
@@ -266,7 +203,7 @@
         <button class="nav-item">
             <i class="fa-solid fa-lightbulb"></i><span>What If</span>
         </button>
-        <button class="nav-item" onclick="logout()">
+        <button class="nav-item" onclick="window.location.href='about.html'">
             <i class="fa-solid fa-ellipsis"></i><span>More</span>
         </button>
     </nav>
@@ -282,18 +219,30 @@
 
         const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 
+        // SESSION GUARD & APP ENTRY
         document.addEventListener('DOMContentLoaded', async () => {
-            // Initialize Theme
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            setTheme(savedTheme);
-
+            setTheme(localStorage.getItem('theme') || 'light');
+            
+            // Start loading background data immediately
             await initAppData();
+            
             if (state.fplId) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
+                // If ID exists, fetch their specific manager team
                 await fetchManagerData();
+                hideLoader();
+                document.getElementById('dashboard').style.display = 'block';
+                // Small timeout to allow CSS opacity transition to fire
+                setTimeout(() => { document.getElementById('dashboard').style.opacity = '1'; }, 50);
+            } else {
+                // No ID found, show login immediately
+                hideLoader();
+                document.getElementById('login-screen').style.display = 'block';
             }
         });
+
+        function hideLoader() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
 
         async function initAppData() {
             try {
@@ -314,15 +263,11 @@
 
         async function handleLogin() {
             const val = document.getElementById('team-id-input').value.trim();
-            // Simple logic to extract ID if a URL is pasted
             const id = val.includes('/') ? val.split('/').filter(s => s && !isNaN(s)).pop() : val;
-            
             if(id && !isNaN(id)) { 
                 localStorage.setItem('kopala_fpl_id', id); 
                 location.reload(); 
-            } else {
-                alert("Please enter a valid numeric FPL ID");
-            }
+            } else { alert("Please enter a valid numeric FPL ID"); }
         }
 
         async function fetchManagerData() {
@@ -332,7 +277,6 @@
                 document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
                 document.getElementById('disp-total').textContent = data.summary_overall_points;
                 document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
-                
                 const leagues = data.leagues.classic.filter(l => l.league_type === 'x');
                 if (leagues.length > 0) {
                     const select = document.getElementById('league-select');
@@ -347,13 +291,10 @@
                 const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
                 const data = await res.json();
                 const standings = data.standings.results.slice(0, 10);
-                
                 const topScores = standings.map(s => s.event_total);
                 const avgLeague = Math.round(topScores.reduce((a, b) => a + b, 0) / topScores.length);
                 document.getElementById('disp-safety').textContent = Math.round(avgLeague * 0.9);
                 document.getElementById('disp-target').textContent = Math.max(...topScores);
-
-                // This section might be slow due to multiple fetches, simplified for this version
                 await renderPitch();
             } catch (e) { console.error("League Change Error:", e); }
         }
@@ -366,8 +307,7 @@
                         <div class="p-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div>
                         <div class="p-pts">${p.pts}</div>
                         <div class="p-own">
-                            <span>${state.leagueOwnership[p.id] || 0}%</span>
-                            <span>${state.leagueOwnership['eo_'+p.id] || 0}%</span>
+                            <span>0%</span><span>0%</span>
                         </div>
                         <div class="p-fix fdr-${p.fix.fdr}">${p.fix.opponent} (${p.fix.isHome ? 'H' : 'A'})</div>
                     </div>
@@ -384,29 +324,20 @@
                 const picks = await picksRes.json();
                 const live = await liveRes.json();
                 const fixtures = await fixturesRes.json();
-
                 document.getElementById('disp-gw-rank').textContent = picks.entry_history.rank ? picks.entry_history.rank.toLocaleString() : '-';
-
                 const ptsMap = {};
                 live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
                 const teamFixtures = {};
                 fixtures.forEach(f => {
-                    if(state.teamMap[f.team_h] && state.teamMap[f.team_a]) {
-                        teamFixtures[f.team_h] = { opponent: state.teamMap[f.team_a].short, isHome: true, fdr: f.team_h_difficulty };
-                        teamFixtures[f.team_a] = { opponent: state.teamMap[f.team_h].short, isHome: false, fdr: f.team_a_difficulty };
-                    }
+                    teamFixtures[f.team_h] = { opponent: state.teamMap[f.team_a].short, isHome: true, fdr: f.team_h_difficulty };
+                    teamFixtures[f.team_a] = { opponent: state.teamMap[f.team_h].short, isHome: false, fdr: f.team_a_difficulty };
                 });
-
                 const allPlayers = picks.picks.map(p => {
                     const base = state.playerMap[p.element];
-                    return { ...base, id: p.element, pts: (ptsMap[p.element] || 0) * (p.multiplier || 1), 
-                             isCap: p.is_captain, fix: teamFixtures[base.team] || { opponent: 'BYE', fdr: 2 }, 
-                             position: p.position };
+                    return { ...base, id: p.element, pts: (ptsMap[p.element] || 0) * (p.multiplier || 1), isCap: p.is_captain, fix: teamFixtures[base.team] || { opponent: 'BYE', fdr: 2 }, position: p.position };
                 });
-
                 const starting = allPlayers.filter(p => p.position <= 11);
                 const bench = allPlayers.filter(p => p.position > 11).sort((a,b) => a.position - b.position);
-
                 document.getElementById('starting-rows').innerHTML = [1, 2, 3, 4].map(pos => `
                     <div class="pitch-row">
                         ${starting.filter(p => p.pos === pos).map(p => createPlayerHTML(p)).join('')}
@@ -417,36 +348,17 @@
 
         function setTheme(theme) {
             document.body.classList.toggle('dark-mode', theme === 'dark');
-            
-            // Update the Top Bar Icon
             document.getElementById('theme-icon').className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-            
-            // Update the Login Pill Buttons
             const darkBtn = document.getElementById('dark-btn');
             const lightBtn = document.getElementById('light-btn');
-            
-            if (theme === 'dark') {
-                darkBtn.classList.add('active');
-                lightBtn.classList.remove('active');
-            } else {
-                lightBtn.classList.add('active');
-                darkBtn.classList.remove('active');
-            }
-
+            if (theme === 'dark') { darkBtn.classList.add('active'); lightBtn.classList.remove('active'); }
+            else { lightBtn.classList.add('active'); darkBtn.classList.remove('active'); }
             localStorage.setItem('theme', theme);
         }
 
-        function toggleTheme() { 
-            const isDark = document.body.classList.contains('dark-mode');
-            setTheme(isDark ? 'light' : 'dark'); 
-        }
+        function toggleTheme() { setTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark'); }
 
-        function logout() { 
-            if(confirm("Change FPL ID?")) {
-                localStorage.removeItem('kopala_fpl_id'); 
-                location.reload(); 
-            }
-        }
+        function logout() { if(confirm("Change FPL ID?")) { localStorage.removeItem('kopala_fpl_id'); location.reload(); } }
     </script>
 </body>
 </html>
