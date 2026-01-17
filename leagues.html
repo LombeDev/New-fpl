@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOPALA FPL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* 1. THEME & CORE STYLES */
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary-blue: #2563eb;
+            --fpl-green: #00ff85;
+            --fpl-pink: #e90052;
+            --nav-bg: #ffffff;
+            --border-color: #e2e8f0;
+        }
+
+        body.dark-mode {
+            --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f8fafc;
+            --text-muted: #94a3b8; --nav-bg: #1e293b; --border-color: #334155;
+        }
+
+        body {
+            margin: 0; padding: 0; background-color: var(--bg-color);
+            color: var(--text-main); font-family: -apple-system, system-ui, sans-serif;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        /* 2. NAVIGATION & HEADER */
+        .top-brand-bar { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-color); position: sticky; top: 0; z-index: 100; }
+        .live-logo { background: #000; color: #fff; padding: 6px 18px; border-radius: 50px; font-weight: 900; font-size: 1.2rem; display: flex; align-items: center; gap: 4px; }
+        .live-logo span { color: var(--fpl-green); }
+
+        .header-stats-grid {
+            display: grid; grid-template-columns: 1fr 1.2fr 1fr;
+            background: var(--card-bg); margin: 10px; padding: 12px;
+            border-radius: 12px; text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border-color);
+        }
+        .stat-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); display: block; }
+        .stat-value { font-size: 1.1rem; font-weight: 800; display: block; margin: 2px 0; }
+        .stat-sub { font-size: 0.6rem; font-weight: 600; color: var(--fpl-pink); }
+
+        /* 3. PITCH STYLING */
+        .pitch-container {
+            background: #2e7d32; 
+            background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 100% 45px;
+            border-radius: 12px; margin: 10px; padding: 15px 5px;
+            min-height: 550px; display: flex; flex-direction: column; justify-content: space-around;
+        }
+        .pitch-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; }
+        .bench-row { background: rgba(255, 255, 255, 0.15); padding: 10px 0; border-radius: 10px; margin-top: 15px; border-top: 2px dashed rgba(255,255,255,0.2); }
+
+        /* 4. PLAYER & LEAGUE CARDS */
+        .player-card { width: 72px; text-align: center; }
+        .shirt-img { width: 42px; height: auto; margin-bottom: -5px; position: relative; z-index: 2; }
+        .p-info-box { border-radius: 3px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); background: #fff; }
+        .p-name { background: #000; color: #fff; font-size: 0.6rem; font-weight: 700; padding: 2px 1px; }
+        .p-pts { color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; }
+        
+        .manager-card {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 15px; padding: 12px; display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 8px; cursor: pointer;
+        }
+        .rank-circle { width: 25px; height: 25px; background: #64748b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; margin-right: 10px; }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; }
+        .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.65rem; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .nav-item.active { color: var(--primary-blue); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="top-brand-bar">
+        <button class="nav-item" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+        <div class="live-logo">LIVE<span>▲</span>FPL</div>
+        <button class="nav-item" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
+    </div>
+
+    <div id="page-rank">
+        <div class="header-stats-grid">
+            <div><span class="stat-label">GW Rank</span><span class="stat-value" id="disp-gw-rank">-</span></div>
+            <div><span class="stat-label">Live Rank</span><span class="stat-value" id="disp-rank">0</span></div>
+            <div><span class="stat-label">Points</span><span class="stat-value" id="disp-total">0</span></div>
+        </div>
+        
+        <div style="padding: 10px; display: flex; justify-content: space-between;">
+            <span id="disp-name" style="font-weight: 800;">My Team</span>
+            <button onclick="switchPage('leagues')" style="border:none; background:none; color:var(--primary-blue); font-weight:bold;">Change Manager</button>
+        </div>
+
+        <div id="pitch-view" class="pitch-container">
+            <div id="starting-rows"></div>
+            <div id="bench-row" class="pitch-row bench-row"></div>
+        </div>
+    </div>
+
+    <div id="page-leagues" class="hidden" style="padding: 15px;">
+        <select id="league-page-select" onchange="loadStandings(this.value)" style="width:100%; padding:12px; border-radius:10px; margin-bottom:15px;"></select>
+        <div id="standings-list"></div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchPage('rank')"><i class="fa-solid fa-chart-line"></i><span>Rank</span></button>
+        <button class="nav-item" onclick="switchPage('leagues')"><i class="fa-solid fa-trophy"></i><span>Leagues</span></button>
+        <button class="nav-item" onclick="logout()"><i class="fa-solid fa-ellipsis"></i><span>More</span></button>
+    </nav>
+
+    <script>
+        const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
+        const state = {
+            userFplId: localStorage.getItem('kopala_fpl_id'),
+            activeManagerId: localStorage.getItem('kopala_fpl_id'),
+            currentGW: 1,
+            playerMap: {},
+            teamMap: {},
+            leagueOwnership: {}
+        };
+
+        async function init() {
+            if (!state.userFplId) {
+                const id = prompt("Enter FPL ID:");
+                localStorage.setItem('kopala_fpl_id', id);
+                location.reload();
+            }
+            await loadStaticData();
+            await fetchManagerInfo(state.userFplId);
+            await loadStandings(); // Initial league load
+            renderPitch(state.activeManagerId);
+        }
+
+        async function loadStaticData() {
+            const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
+            const data = await res.json();
+            data.elements.forEach(p => state.playerMap[p.id] = { name: p.web_name, code: p.code, pos: p.element_type, team: p.team });
+            data.teams.forEach(t => state.teamMap[t.id] = { short: t.short_name });
+            state.currentGW = data.events.find(e => e.is_current).id;
+        }
+
+        async function fetchManagerInfo(id) {
+            const res = await fetch(`${PROXY_ENDPOINT}entry/${id}/`);
+            const data = await res.json();
+            const leagues = data.leagues.classic.filter(l => l.league_type === 'x');
+            const select = document.getElementById('league-page-select');
+            select.innerHTML = leagues.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+        }
+
+        async function loadStandings(leagueId) {
+            const id = leagueId || document.getElementById('league-page-select').value;
+            if(!id) return;
+            const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${id}/standings/`);
+            const data = await res.json();
+            const list = document.getElementById('standings-list');
+            list.innerHTML = data.standings.results.map(m => `
+                <div class="manager-card" onclick="viewManager(${m.entry})">
+                    <div style="display:flex; align-items:center;">
+                        <div class="rank-circle">${m.rank}</div>
+                        <div>
+                            <div style="font-weight:800; font-size:0.9rem;">${m.entry_name}</div>
+                            <div style="font-size:0.7rem; color:var(--text-muted);">${m.player_name}</div>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:800;">${m.event_total}</div>
+                        <div style="font-size:0.7rem;">${m.total}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewManager(id) {
+            state.activeManagerId = id;
+            switchPage('rank');
+            renderPitch(id);
+        }
+
+        async function renderPitch(id) {
+            const [picksRes, liveRes, fixturesRes] = await Promise.all([
+                fetch(`${PROXY_ENDPOINT}entry/${id}/event/${state.currentGW}/picks/`),
+                fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/`),
+                fetch(`${PROXY_ENDPOINT}fixtures/?event=${state.currentGW}`)
+            ]);
+            const picks = await picksRes.json();
+            const live = await liveRes.json();
+            
+            // Stats Header
+            document.getElementById('disp-total').textContent = picks.entry_history.points;
+            document.getElementById('disp-rank').textContent = picks.entry_history.overall_rank.toLocaleString();
+            document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || "-").toLocaleString();
+
+            const ptsMap = {};
+            live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+
+            const allPlayers = picks.picks.map(p => ({
+                ...state.playerMap[p.element],
+                id: p.element,
+                pts: (ptsMap[p.element] || 0) * (p.multiplier || 1),
+                isCap: p.is_captain,
+                position: p.position
+            }));
+
+            const start = allPlayers.filter(p => p.position <= 11);
+            const bench = allPlayers.filter(p => p.position > 11).sort((a,b) => a.position - b.position);
+
+            document.getElementById('starting-rows').innerHTML = [1, 2, 3, 4].map(pos => `
+                <div class="pitch-row">
+                    ${start.filter(p => p.pos === pos).map(p => `
+                        <div class="player-card">
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="shirt-img">
+                            <div class="p-info-box">
+                                <div class="p-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div>
+                                <div class="p-pts">${p.pts}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+            
+            document.getElementById('bench-row').innerHTML = bench.map(p => `
+                <div class="player-card">
+                    <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="shirt-img">
+                    <div class="p-info-box">
+                        <div class="p-name">${p.name}</div>
+                        <div class="p-pts">${p.pts}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function switchPage(page) {
+            document.getElementById('page-rank').classList.toggle('hidden', page !== 'rank');
+            document.getElementById('page-leagues').classList.toggle('hidden', page !== 'leagues');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            // Logic to highlight correct nav icon
+        }
+
+        function toggleTheme() { document.body.classList.toggle('dark-mode'); }
+        function logout() { localStorage.clear(); location.reload(); }
+
+        init();
+    </script>
+</body>
+</html>
