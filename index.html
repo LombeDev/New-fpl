@@ -6,14 +6,13 @@
     <title>KOPALA FPL</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        /* 1. THEME VARIABLES */
+        /* 1. THEME & CORE STYLES */
         :root {
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
             --primary-blue: #2563eb;
-            --fpl-purple: #37003c;
             --fpl-green: #00ff85;
             --fpl-pink: #e90052;
             --nav-bg: #ffffff;
@@ -30,315 +29,172 @@
         }
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            transition: background 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            font-family: -apple-system, system-ui, sans-serif;
+            display: flex; flex-direction: column; min-height: 100vh;
         }
 
         /* 2. TOP BRANDING BAR */
         .top-brand-bar {
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bg-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            padding: 10px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--bg-color); position: sticky; top: 0; z-index: 100;
         }
 
         .live-logo {
-            background: #000;
-            color: #fff;
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-weight: 900;
-            font-size: 1.4rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            background: #000; color: #fff; padding: 6px 18px;
+            border-radius: 50px; font-weight: 900; font-size: 1.2rem;
+            display: flex; align-items: center; gap: 4px;
         }
-
         .live-logo span { color: var(--fpl-green); }
 
-        .header-icon-btn {
-            background: rgba(0,0,0,0.05);
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--text-main);
-        }
-
-        /* 3. LOGIN SCREEN */
-        #login-screen {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-            padding-top: 40px;
-        }
-
-        .login-card {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 420px;
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .theme-switcher {
-            background: #f1f5f9;
-            padding: 5px;
-            border-radius: 50px;
-            display: inline-flex;
-            margin-bottom: 25px;
-        }
-
-        body.dark-mode .theme-switcher { background: #334155; }
-
-        .theme-btn {
-            padding: 8px 20px;
-            border-radius: 50px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            background: transparent;
-            color: var(--text-muted);
-        }
-
-        .theme-btn.active { background: var(--primary-blue); color: white; }
-
-        input[type="number"] {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--bg-color);
-            color: var(--text-main);
-            font-size: 1rem;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-        }
-
-        .enter-id-btn {
-            width: 100%;
-            padding: 18px;
-            background: var(--primary-blue);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-        }
-
-        /* 4. DASHBOARD & PITCH */
-        #dashboard { padding-bottom: 90px; }
-
+        /* 3. DASHBOARD STATS HEADER */
         .header-stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            background: var(--card-bg);
-            margin: 10px;
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: grid; grid-template-columns: 1fr 1.2fr 1fr;
+            background: var(--card-bg); margin: 10px; padding: 12px;
+            border-radius: 12px; text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border-color);
         }
+        .stat-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); display: block; }
+        .stat-value { font-size: 1.1rem; font-weight: 800; display: block; margin: 2px 0; }
+        .rank-up { color: #00ff85; font-size: 0.8rem; }
 
+        /* 4. FOOTBALL PITCH STYLING */
         .pitch-container {
-            background: #2e7d32;
-            background-image: linear-gradient(rgba(255,255,255,0.05) 2px, transparent 2px);
-            background-size: 100% 40px;
-            border-radius: 15px;
-            padding: 20px 0;
-            margin: 10px;
-            min-height: 450px;
+            background: #2e7d32; 
+            background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 100% 45px;
+            border-radius: 12px; margin: 10px; padding: 15px 5px;
+            min-height: 500px; display: flex; flex-direction: column; justify-content: space-around;
         }
+        .pitch-row { display: flex; justify-content: center; gap: 5px; }
 
-        .pitch-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        /* 5. PLAYER CARD */
+        .player-card { width: 72px; text-align: center; position: relative; }
+        .shirt-img { width: 42px; height: auto; margin-bottom: -5px; position: relative; z-index: 2; }
+        
+        .p-info-box { position: relative; z-index: 1; border-radius: 3px; overflow: hidden; }
+        .p-name { background: #000; color: #fff; font-size: 0.6rem; font-weight: 700; padding: 2px 1px; }
+        .p-pts { background: #fff; color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; border-bottom: 1px solid #eee; }
+        .p-own { background: #c8e6c9; color: #1b5e20; font-size: 0.55rem; font-weight: 700; display: flex; justify-content: space-around; padding: 1px 0; border-bottom: 1px solid #b2d8b4; }
+        .p-fix { font-size: 0.5rem; font-weight: 800; padding: 1px 0; text-transform: uppercase; }
 
-        .player-card { width: 65px; text-align: center; }
-        .img-container img { width: 45px; height: auto; }
-        .p-name-bar { background: #000; color: #fff; font-size: 0.6rem; padding: 2px; border-radius: 2px 2px 0 0; }
-        .p-points-bar { background: #fff; color: #000; font-size: 0.8rem; font-weight: 800; }
-        .p-stat-bar { background: #c8e6c9; color: #1b5e20; font-size: 0.55rem; font-weight: 700; border-radius: 0 0 2px 2px; }
+        /* FDR Colors */
+        .fdr-2 { background: #00ff85; color: #000; }
+        .fdr-3 { background: #e2e8f0; color: #000; }
+        .fdr-4 { background: #ff185a; color: #fff; }
+        .fdr-5 { background: #80002d; color: #fff; }
 
-        /* 5. BOTTOM NAVIGATION */
+        /* 6. BOTTOM NAVIGATION */
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: var(--nav-bg);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            z-index: 1000;
+            position: fixed; bottom: 0; width: 100%;
+            background: var(--nav-bg); border-top: 1px solid var(--border-color);
+            display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000;
         }
-
-        .nav-item {
-            background: none;
-            border: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            font-weight: 600;
-            gap: 4px;
-            cursor: pointer;
-        }
-
+        .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.65rem; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
         .nav-item.active { color: var(--primary-blue); }
-        .nav-item i { font-size: 1.3rem; }
     </style>
 </head>
 <body>
 
     <div class="top-brand-bar">
-        <button class="header-icon-btn"><i class="fa-solid fa-user"></i></button>
+        <button class="nav-item" style="background:#eee; border-radius:50%; width:35px; height:35px;"><i class="fa-solid fa-user"></i></button>
         <div class="live-logo">LIVE<span>▲</span>FPL</div>
-        <button class="header-icon-btn" onclick="toggleThemeIcon()"><i class="fa-solid fa-sun" id="sun-moon-icon"></i></button>
+        <button class="nav-item" onclick="toggleTheme()" style="background:#eee; border-radius:50%; width:35px; height:35px;"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
     </div>
 
-    <div id="login-screen">
-        <div class="login-card">
-            <div class="theme-switcher">
-                <button class="theme-btn" id="dark-btn" onclick="setTheme('dark')">Dark</button>
-                <button class="theme-btn" id="light-btn" onclick="setTheme('light')">Light</button>
+    <div id="login-screen" style="padding: 40px 20px;">
+        <div style="background: var(--card-bg); border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <div style="margin-bottom: 20px;">
+                <span style="font-weight: 700; color: var(--text-muted);">Theme</span>
+                <button onclick="setTheme('dark')" style="padding: 5px 15px; border-radius: 50px; border: 1px solid #ccc; margin-left: 10px;">Dark</button>
+                <button onclick="setTheme('light')" style="padding: 5px 15px; border-radius: 50px; border: 1px solid #ccc; background: var(--primary-blue); color: white;">Light</button>
             </div>
-            <h2 style="margin: 0 0 10px 0;">Enter your FPL ID</h2>
-            <span style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 20px;">We only use your public FPL ID on this device.</span>
-            
-            <input type="number" id="team-id-input" placeholder="e.g. 1234567 or paste a link">
-            <button class="enter-id-btn" onclick="handleLogin()">Continue</button>
-            
-            <div style="margin-top: 20px;">
-                <a href="#" style="color: var(--text-muted); text-decoration: none; font-size: 0.85rem;">
-                    <i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it
-                </a>
-            </div>
+            <h2 style="margin-bottom:10px;">Enter your FPL ID</h2>
+            <input type="number" id="team-id-input" placeholder="e.g. 1234567" style="width:100%; padding:15px; margin-bottom:20px; border:2px solid var(--border-color); border-radius:10px;">
+            <button onclick="handleLogin()" style="width:100%; padding:15px; background:var(--primary-blue); color:white; border:none; border-radius:10px; font-weight:700;">Continue</button>
         </div>
     </div>
 
-    <div id="dashboard" style="display:none;">
+    <div id="dashboard" style="display:none; padding-bottom: 80px;">
         <div class="header-stats-grid">
-            <div><span style="font-size: 0.7rem; font-weight: 700;">GW Rank</span><br><b id="disp-gw-rank">-</b></div>
-            <div><span style="font-size: 0.7rem; font-weight: 700;">Live Rank</span><br><b id="disp-rank">0</b></div>
-            <div><span style="font-size: 0.7rem; font-weight: 700;">Points</span><br><b id="disp-total">0</b></div>
+            <div><span class="stat-label">GW Rank</span><span class="stat-value" id="disp-gw-rank">-</span></div>
+            <div><span class="stat-label">Live Rank</span><span class="stat-value" id="disp-rank">0</span></div>
+            <div><span class="stat-label">Points</span><span class="stat-value" id="disp-total">0</span></div>
         </div>
 
         <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
-            <select id="league-select" onchange="changeLeague(this.value)" style="padding: 5px; border-radius: 5px;"></select>
-            <span id="disp-name" style="font-weight: 800; font-size: 0.9rem;">Manager Name</span>
+            <select id="league-select" onchange="changeLeague(this.value)" style="padding: 5px; border-radius: 5px; max-width: 60%;"></select>
+            <span id="disp-name" style="font-weight: 800; font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Manager</span>
         </div>
 
-        <section id="table-view">
-            <table style="width: 100%; border-collapse: collapse;"><tbody id="league-body"></tbody></table>
-        </section>
-
-        <section id="pitch-view" style="display:none;">
-            <div id="fixtures-container"></div>
-        </section>
+        <div id="pitch-view" class="pitch-container">
+            </div>
     </div>
 
     <nav class="bottom-nav">
-        <button class="nav-item active" id="tab-table" onclick="showView('table')">
-            <i class="fa-solid fa-chart-line"></i><span>Rank</span>
-        </button>
-        <button class="nav-item" id="tab-pitch" onclick="showView('pitch')">
-            <i class="fa-solid fa-trophy"></i><span>Leagues</span>
-        </button>
-        <button class="nav-item" onclick="window.location.href='prices.html'">
-            <i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span>
-        </button>
-        <button class="nav-item" id="logout-btn">
-            <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
-        </button>
+        <button class="nav-item active"><i class="fa-solid fa-chart-line"></i><span>Rank</span></button>
+        <button class="nav-item"><i class="fa-solid fa-bolt"></i><span>Battle</span></button>
+        <button class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></button>
+        <button class="nav-item"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></button>
+        <button class="nav-item" onclick="logout()"><i class="fa-solid fa-ellipsis"></i><span>More</span></button>
     </nav>
 
     <script>
         const state = {
-            fplId: localStorage.getItem('kopala_fpl_id') || null,
-            activeView: localStorage.getItem('kopala_active_view') || 'table',
-            pitchPattern: localStorage.getItem('kopala_pitch_pattern') || 'p-vertical',
-            playerMap: {}, 
+            fplId: localStorage.getItem('kopala_fpl_id'),
             currentGW: 1,
-            imageCache: JSON.parse(localStorage.getItem('kopala_img_cache')) || {}
+            playerMap: {},
+            teamMap: {},
+            leagueOwnership: {}
         };
 
         const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Theme Init
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            setTheme(savedTheme);
-
+            // Theme setup
+            if(localStorage.getItem('theme') === 'dark') setTheme('dark');
+            
             await initAppData();
-
             if (state.fplId) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
-                showView(state.activeView);
                 await fetchManagerData();
             }
         });
-
-        function setTheme(theme) {
-            const body = document.body;
-            const darkBtn = document.getElementById('dark-btn');
-            const lightBtn = document.getElementById('light-btn');
-            const icon = document.getElementById('sun-moon-icon');
-
-            if (theme === 'dark') {
-                body.classList.add('dark-mode');
-                darkBtn?.classList.add('active');
-                lightBtn?.classList.remove('active');
-                if(icon) icon.className = 'fa-solid fa-moon';
-            } else {
-                body.classList.remove('dark-mode');
-                lightBtn?.classList.add('active');
-                darkBtn?.classList.remove('active');
-                if(icon) icon.className = 'fa-solid fa-sun';
-            }
-            localStorage.setItem('theme', theme);
-        }
 
         async function initAppData() {
             try {
                 const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
                 const data = await res.json();
+                
+                // Map Teams
+                data.teams.forEach(t => { state.teamMap[t.id] = { name: t.name, short: t.short_name }; });
+
+                // Map Players
                 data.elements.forEach(p => {
-                    state.playerMap[p.id] = { name: p.web_name, code: p.code, pos: p.element_type };
+                    state.playerMap[p.id] = { 
+                        name: p.web_name, 
+                        code: p.code, 
+                        pos: p.element_type,
+                        team: p.team 
+                    };
                 });
-                const activeGW = data.events.find(e => e.is_current) || data.events.find(e => !e.finished);
-                if (activeGW) state.currentGW = activeGW.id;
-            } catch (e) { console.error("Bootstrap error:", e); }
+
+                const current = data.events.find(e => e.is_current);
+                if (current) state.currentGW = current.id;
+            } catch (e) { console.error(e); }
         }
 
         async function handleLogin() {
-            const teamId = document.getElementById('team-id-input').value.trim();
-            if (!teamId) return;
-            try {
-                const res = await fetch(`${PROXY_ENDPOINT}entry/${teamId}/`);
-                if (!res.ok) throw new Error("ID Not Found");
-                localStorage.setItem('kopala_fpl_id', teamId);
-                window.location.reload();
-            } catch (error) { alert("Invalid Team ID."); }
+            const id = document.getElementById('team-id-input').value.trim();
+            if(id) {
+                localStorage.setItem('kopala_fpl_id', id);
+                location.reload();
+            }
         }
 
         async function fetchManagerData() {
@@ -346,78 +202,125 @@
                 const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/`);
                 const data = await res.json();
                 document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
-                document.getElementById('disp-total').textContent = data.summary_overall_points.toLocaleString();
+                document.getElementById('disp-total').textContent = data.summary_overall_points;
                 document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
                 
-                const classicLeagues = data.leagues.classic.filter(l => l.league_type === 'x');
-                if (classicLeagues.length > 0) {
+                const leagues = data.leagues.classic.filter(l => l.league_type === 'x');
+                if (leagues.length > 0) {
                     const select = document.getElementById('league-select');
-                    select.innerHTML = classicLeagues.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
-                    changeLeague(classicLeagues[0].id);
+                    select.innerHTML = leagues.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+                    await changeLeague(leagues[0].id);
                 }
-            } catch (e) { console.error("Manager data error", e); }
-        }
-
-        async function changeLeague(leagueId) {
-            const body = document.getElementById('league-body');
-            body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Loading Standings...</td></tr>';
-            try {
-                const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
-                const data = await res.json();
-                body.innerHTML = data.standings.results.map(r => `
-                    <tr onclick="toggleManagerExpansion(${r.entry})" style="border-bottom: 1px solid var(--border-color);">
-                        <td style="padding:15px; font-weight:800;">${r.rank}</td>
-                        <td style="padding:15px;"><b>${r.entry_name}</b><br><small>${r.player_name}</small></td>
-                        <td style="padding:15px; text-align:right;"><b>${r.event_total}</b><br><small>${r.total}</small></td>
-                    </tr>
-                `).join('');
-            } catch (err) { console.error("League error", err); }
-        }
-
-        async function toggleManagerExpansion(entryId) {
-            // This function creates the pitch view inside the table row
-            const existing = document.getElementById(`details-${entryId}`);
-            if (existing) { existing.remove(); return; }
-
-            const row = event.currentTarget;
-            const detailRow = document.createElement('tr');
-            detailRow.id = `details-${entryId}`;
-            detailRow.innerHTML = `<td colspan="3" style="padding:0;"><div class="pitch-container" id="pitch-${entryId}">Loading Pitch...</div></td>`;
-            row.parentNode.insertBefore(detailRow, row.nextSibling);
-
-            try {
-                const res = await fetch(`${PROXY_ENDPOINT}entry/${entryId}/event/${state.currentGW}/picks/`);
-                const picksData = await res.json();
-                const squad = picksData.picks.map(p => ({ ...state.playerMap[p.element], isCap: p.is_captain }));
-                
-                const container = document.getElementById(`pitch-${entryId}`);
-                container.innerHTML = [1, 2, 3, 4].map(pos => `
-                    <div class="pitch-row">
-                        ${squad.filter(p => p.pos === pos).map(p => `
-                            <div class="player-card">
-                                <div class="img-container"><img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png"></div>
-                                <div class="p-name-bar">${p.isCap ? '(C) ' : ''}${p.name}</div>
-                                <div class="p-points-bar">-</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `).join('');
             } catch (e) { console.error(e); }
         }
 
-        function showView(view) {
-            state.activeView = view;
-            localStorage.setItem('kopala_active_view', view);
-            document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
-            document.getElementById('pitch-view').style.display = view === 'pitch' ? 'block' : 'none';
-            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(view === 'table' ? 'tab-table' : 'tab-pitch').classList.add('active');
+        async function changeLeague(leagueId) {
+            try {
+                const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
+                const data = await res.json();
+                const standings = data.standings.results.slice(0, 15);
+                
+                let allPicks = [];
+                for (let i = 0; i < standings.length; i += 5) {
+                    const batch = standings.slice(i, i + 5);
+                    const picks = await Promise.all(batch.map(r => 
+                        fetch(`${PROXY_ENDPOINT}entry/${r.entry}/event/${state.currentGW}/picks/`).then(res => res.json())
+                    ));
+                    allPicks = [...allPicks, ...picks];
+                }
+
+                const counts = {};
+                allPicks.forEach(pData => {
+                    if(!pData.picks) return;
+                    pData.picks.forEach(p => {
+                        counts[p.element] = (counts[p.element] || 0) + 1;
+                        const eoKey = `eo_${p.element}`;
+                        counts[eoKey] = (counts[eoKey] || 0) + (p.multiplier || 1);
+                    });
+                });
+
+                const size = allPicks.length;
+                state.leagueOwnership = {};
+                Object.keys(counts).forEach(key => {
+                    state.leagueOwnership[key] = Math.round((counts[key] / size) * 100);
+                });
+
+                await renderPitch();
+            } catch (e) { console.error(e); }
         }
 
-        document.getElementById('logout-btn').addEventListener('click', () => {
+        async function renderPitch() {
+            const [picksRes, liveRes, fixturesRes] = await Promise.all([
+                fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/event/${state.currentGW}/picks/`),
+                fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/`),
+                fetch(`${PROXY_ENDPOINT}fixtures/?event=${state.currentGW}`)
+            ]);
+
+            const picks = await picksRes.json();
+            const live = await liveRes.json();
+            const fixtures = await fixturesRes.json();
+
+            const ptsMap = {};
+            live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+
+            const teamFixtures = {};
+            fixtures.forEach(f => {
+                teamFixtures[f.team_h] = { opponent: state.teamMap[f.team_a].short, isHome: true, fdr: f.team_h_difficulty };
+                teamFixtures[f.team_a] = { opponent: state.teamMap[f.team_h].short, isHome: false, fdr: f.team_a_difficulty };
+            });
+
+            const squad = picks.picks.map(p => {
+                const base = state.playerMap[p.element];
+                return {
+                    ...base,
+                    id: p.element,
+                    pts: (ptsMap[p.element] || 0) * (p.multiplier || 1),
+                    isCap: p.is_captain,
+                    fix: teamFixtures[base.team] || { opponent: 'BYE', fdr: 2 }
+                };
+            });
+
+            const pitch = document.getElementById('pitch-view');
+            pitch.innerHTML = [1, 2, 3, 4].map(pos => `
+                <div class="pitch-row">
+                    ${squad.filter(p => p.pos === pos).map(p => `
+                        <div class="player-card">
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="shirt-img">
+                            <div class="p-info-box">
+                                <div class="p-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div>
+                                <div class="p-pts">${p.pts}</div>
+                                <div class="p-own">
+                                    <span>${state.leagueOwnership[p.id] || 0}%</span>
+                                    <span>${state.leagueOwnership['eo_'+p.id] || 0}%</span>
+                                </div>
+                                <div class="p-fix fdr-${p.fix.fdr}">${p.fix.opponent} (${p.fix.isHome ? 'H' : 'A'})</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        function setTheme(theme) {
+            if(theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('theme-icon').className = 'fa-solid fa-moon';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('theme-icon').className = 'fa-solid fa-sun';
+            }
+            localStorage.setItem('theme', theme);
+        }
+
+        function toggleTheme() {
+            const isDark = document.body.classList.contains('dark-mode');
+            setTheme(isDark ? 'light' : 'dark');
+        }
+
+        function logout() {
             localStorage.removeItem('kopala_fpl_id');
-            window.location.reload();
-        });
+            location.reload();
+        }
     </script>
 </body>
 </html>
