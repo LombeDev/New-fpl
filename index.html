@@ -169,7 +169,7 @@
                 <span class="stat-sub safety-green">Safety: <span id="disp-safety">-</span></span>
             </div>
             <div>
-                <span class="stat-label">Points</span>
+                <span class="stat-label">GW Points</span>
                 <span class="stat-value" id="disp-total">0</span>
                 <span class="stat-sub">Avg: <span id="disp-avg">-</span></span>
             </div>
@@ -219,22 +219,16 @@
 
         const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 
-        // SESSION GUARD & APP ENTRY
         document.addEventListener('DOMContentLoaded', async () => {
             setTheme(localStorage.getItem('theme') || 'light');
-            
-            // Start loading background data immediately
             await initAppData();
             
             if (state.fplId) {
-                // If ID exists, fetch their specific manager team
                 await fetchManagerData();
                 hideLoader();
                 document.getElementById('dashboard').style.display = 'block';
-                // Small timeout to allow CSS opacity transition to fire
                 setTimeout(() => { document.getElementById('dashboard').style.opacity = '1'; }, 50);
             } else {
-                // No ID found, show login immediately
                 hideLoader();
                 document.getElementById('login-screen').style.display = 'block';
             }
@@ -275,13 +269,16 @@
                 const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/`);
                 const data = await res.json();
                 document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
-                document.getElementById('disp-total').textContent = data.summary_overall_points;
+                
+                // FIXED: Now correctly displays current Gameweek points
+                document.getElementById('disp-total').textContent = data.summary_event_points || 0;
+                
                 document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
                 const leagues = data.leagues.classic.filter(l => l.league_type === 'x');
                 if (leagues.length > 0) {
                     const select = document.getElementById('league-select');
                     select.innerHTML = leagues.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
-                    await changeLeague(leagues[0].id);
+                    await changeLeague(select.value);
                 }
             } catch (e) { console.error("Manager Data Error:", e); }
         }
