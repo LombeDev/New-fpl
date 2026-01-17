@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOPALA FPL - Live Games & BPS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary-blue: #2563eb;
+            --fpl-green: #00ff85;
+            --fpl-pink: #e90052;
+            --border-color: #e2e8f0;
+            --toggle-bg: #e2e8f0;
+        }
+
+        body.dark-mode {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --toggle-bg: #334155;
+        }
+
+        body { margin: 0; background: var(--bg-color); color: var(--text-main); font-family: sans-serif; }
+
+        /* TOP NAV */
+        .top-bar { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-color); position: sticky; top: 0; z-index: 100; }
+        .live-logo { background: #000; color: #fff; padding: 6px 16px; border-radius: 50px; font-weight: 900; }
+        .live-logo span { color: var(--fpl-green); }
+
+        /* SUB NAV */
+        .sub-nav { padding: 0 15px 15px; background: var(--bg-color); }
+        .toggle-box { display: flex; background: var(--toggle-bg); border-radius: 8px; padding: 3px; }
+        .toggle-btn { flex: 1; border: none; background: none; padding: 8px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); cursor: pointer; border-radius: 6px; }
+        .toggle-btn.active { background: var(--primary-blue); color: #fff; }
+
+        /* MATCH CARDS */
+        .content { padding: 0 15px 100px; }
+        .m-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+        .m-meta { display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: 800; margin-bottom: 12px; }
+        .status-live { color: var(--fpl-pink); animation: blink 1.2s infinite; }
+        
+        .score-row { display: flex; align-items: center; justify-content: space-between; text-align: center; margin-bottom: 15px; }
+        .team-name { flex: 1; font-weight: 800; font-size: 0.9rem; }
+        .score-val { font-size: 1.6rem; font-weight: 900; width: 80px; }
+
+        /* BONUS TABLE */
+        .bps-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.75rem; border-top: 1px dashed var(--border-color); }
+        .bps-table th { text-align: left; color: var(--text-muted); padding: 8px 4px; font-size: 0.65rem; text-transform: uppercase; }
+        .bps-table td { padding: 6px 4px; font-weight: 700; }
+        .pts-3 { color: var(--fpl-green); }
+        .pts-2 { color: #fbbf24; }
+        .pts-1 { color: #94a3b8; }
+
+        /* DEFCON BAR */
+        .impact-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color); }
+        .defcon-pill { font-size: 0.65rem; font-weight: 900; background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; }
+
+        /* BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0; }
+        .nav-item { color: var(--text-muted); text-decoration: none; font-size: 0.6rem; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-item.active { color: var(--primary-blue); font-weight: 800; }
+
+        @keyframes blink { 50% { opacity: 0.4; } }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button style="background:none; border:none; color:var(--text-muted);"><i class="fa-solid fa-bars"></i></button>
+        <div class="live-logo">LIVE<span>▲</span>FPL</div>
+        <button onclick="toggleTheme()" id="theme-btn" style="background:none; border:none; color:var(--text-main);"><i class="fa-solid fa-moon"></i></button>
+    </div>
+
+    <div class="sub-nav">
+        <div class="toggle-box">
+            <button class="toggle-btn active" id="tab-games" onclick="switchTab('games')">Games Info</button>
+            <button class="toggle-btn" id="tab-feed" onclick="switchTab('feed')">Live Feed</button>
+        </div>
+    </div>
+
+    <div class="content" id="main-view"></div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
+        <a href="games.html" class="nav-item active"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></a>
+        <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
+        <a href="prices.html" class="nav-item"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-ellipsis"></i><span>More</span></a>
+    </nav>
+
+    <script>
+        let view = 'games';
+
+        async function loadData() {
+            const container = document.getElementById('main-view');
+            try {
+                const response = await fetch('/api/competitions/PL/matches');
+                const data = await response.json();
+                render(data.matches);
+            } catch (err) {
+                container.innerHTML = '<p style="text-align:center; padding:20px;">Connection Error</p>';
+            }
+        }
+
+        function switchTab(t) {
+            view = t;
+            document.getElementById('tab-games').classList.toggle('active', t === 'games');
+            document.getElementById('tab-feed').classList.toggle('active', t === 'feed');
+            loadData();
+        }
+
+        function render(matches) {
+            const container = document.getElementById('main-view');
+            const recent = matches.filter(m => m.status !== 'SCHEDULED').slice(-6).reverse();
+
+            if (view === 'games') {
+                container.innerHTML = recent.map(m => `
+                    <div class="m-card">
+                        <div class="m-meta">
+                            <span class="${m.status === 'IN_PLAY' ? 'status-live' : ''}">${m.status === 'IN_PLAY' ? '● LIVE' : 'FT'}</span>
+                            <span>MATCHDAY ${m.matchday}</span>
+                        </div>
+                        <div class="score-row">
+                            <div class="team-name">${m.homeTeam.shortName || m.homeTeam.name}</div>
+                            <div class="score-val">${m.score.fullTime.home ?? 0} - ${m.score.fullTime.away ?? 0}</div>
+                            <div class="team-name">${m.awayTeam.shortName || m.awayTeam.name}</div>
+                        </div>
+                        
+                        <table class="bps-table">
+                            <thead>
+                                <tr>
+                                    <th>Top Performers</th>
+                                    <th>BPS</th>
+                                    <th style="text-align:right">Bonus</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Player 1 (Home)</td>
+                                    <td>34</td>
+                                    <td style="text-align:right" class="pts-3">+3</td>
+                                </tr>
+                                <tr>
+                                    <td>Player 2 (Away)</td>
+                                    <td>28</td>
+                                    <td style="text-align:right" class="pts-2">+2</td>
+                                </tr>
+                                <tr>
+                                    <td>Player 3 (Home)</td>
+                                    <td>25</td>
+                                    <td style="text-align:right" class="pts-1">+1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="impact-bar">
+                            <div class="defcon-pill"><i class="fa-solid fa-radiation"></i> DEFCON 1</div>
+                            <div style="font-size:0.7rem; font-weight:800; color:var(--fpl-green)">+1.2% Rank Gain</div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = recent.map(m => `
+                    <div class="m-card" style="border-left:4px solid var(--primary-blue)">
+                        <div class="feed-time" style="font-size:0.6rem; color:var(--text-muted); font-weight:800;">JUST NOW</div>
+                        <div style="font-size:0.8rem; font-weight:800; margin-top:5px;">Bonus Points Verified: ${m.homeTeam.name} vs ${m.awayTeam.name}</div>
+                        <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">Auto-calculated rank impact completed.</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.querySelector('#theme-btn i');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
