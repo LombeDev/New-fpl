@@ -138,14 +138,34 @@
     <script>
         const API_URL = "https://fantasy.premierleague.com/api/bootstrap-static/";
         const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
-        
+        const CACHE_KEY = "kopala_price_data";
+        const CACHE_TIME = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
+
         let allPlayers = [];
         let viewMode = 'rise';
 
         async function init() {
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            const now = Date.now();
+
+            if (cachedData) {
+                const { timestamp, data } = JSON.parse(cachedData);
+                if (now - timestamp < CACHE_TIME) {
+                    console.log("Loading Prices from 5-hour Cache");
+                    processData(data);
+                    return;
+                }
+            }
+
             try {
                 const response = await fetch(PROXY);
                 const data = await response.json();
+                
+                localStorage.setItem(CACHE_KEY, JSON.stringify({
+                    timestamp: now,
+                    data: data
+                }));
+
                 processData(data);
             } catch (e) {
                 document.getElementById('loader').innerText = "Error loading price data.";
@@ -210,7 +230,6 @@
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         }
 
-        // Initialize Theme
         if(localStorage.getItem('theme') === 'dark') {
             document.body.classList.add('dark-mode');
             document.getElementById('theme-icon').className = 'fa-solid fa-moon';
