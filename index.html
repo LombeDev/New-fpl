@@ -17,6 +17,10 @@
             --fpl-pink: #e90052;
             --nav-bg: #ffffff;
             --border-color: #e2e8f0;
+            --input-bg: #f8fafc;
+            --info-bg: #eff6ff;
+            --info-border: #bfdbfe;
+            --info-text: #1e40af;
         }
 
         body.dark-mode {
@@ -26,13 +30,17 @@
             --text-muted: #94a3b8;
             --nav-bg: #1e293b;
             --border-color: #334155;
+            --input-bg: #0f172a;
+            --info-bg: #1e293b;
+            --info-border: #334155;
+            --info-text: #94a3b8;
         }
 
         body {
             margin: 0; padding: 0;
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: -apple-system, system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex; flex-direction: column; min-height: 100vh;
         }
 
@@ -50,7 +58,76 @@
         }
         .live-logo span { color: var(--fpl-green); }
 
-        /* 3. DASHBOARD STATS HEADER */
+        .top-nav-btn {
+            background: var(--border-color); border: none; border-radius: 50%; 
+            width: 40px; height: 40px; color: var(--text-main); cursor: pointer;
+        }
+
+        /* 3. LOGIN SCREEN STYLES (REVERSE ENGINEERED) */
+        .login-container {
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .promo-card {
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+        }
+        .promo-card h3 { margin: 0; font-size: 1.1rem; line-height: 1.4; font-weight: 800; }
+        .promo-link { color: var(--text-muted); font-size: 0.9rem; text-decoration: underline; margin-top: 10px; display: block; }
+
+        .login-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 30px 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .theme-toggle-pill {
+            display: flex; background: var(--border-color);
+            border-radius: 30px; padding: 4px; width: fit-content;
+            margin-left: auto; margin-bottom: 25px;
+        }
+        .toggle-btn {
+            border: none; padding: 8px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s;
+            background: transparent; color: var(--text-muted);
+        }
+        .toggle-btn.active { background: var(--primary-blue); color: white; }
+
+        .login-card h2 { margin: 0 0 8px 0; font-size: 1.6rem; font-weight: 800; }
+        .login-card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; }
+
+        .fpl-input {
+            width: 100%; padding: 18px; border-radius: 12px;
+            border: 1px solid var(--border-color); background-color: var(--input-bg);
+            color: var(--text-main); font-size: 1rem; box-sizing: border-box; margin-bottom: 20px;
+        }
+
+        .continue-btn {
+            width: 100%; padding: 18px; background: var(--primary-blue);
+            color: white; border: none; border-radius: 12px;
+            font-size: 1.1rem; font-weight: 700; cursor: pointer;
+        }
+
+        .find-id-btn {
+            display: block; margin: 20px auto 0; background: none; border: none;
+            color: var(--text-muted); font-size: 0.95rem; cursor: pointer; font-weight: 600;
+        }
+
+        .info-box {
+            background: var(--info-bg); border: 1px solid var(--info-border);
+            border-radius: 12px; padding: 15px; margin-top: 25px;
+            display: flex; gap: 12px; color: var(--info-text); font-size: 0.88rem; line-height: 1.5;
+        }
+
+        /* 4. DASHBOARD & PITCH STYLES */
         .header-stats-grid {
             display: grid; grid-template-columns: 1fr 1.2fr 1fr;
             background: var(--card-bg); margin: 10px; padding: 12px;
@@ -62,7 +139,6 @@
         .stat-sub { font-size: 0.6rem; font-weight: 600; color: var(--fpl-pink); }
         .safety-green { color: var(--fpl-green); }
 
-        /* 4. FOOTBALL PITCH STYLING */
         .pitch-container {
             background: #2e7d32; 
             background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
@@ -72,14 +148,12 @@
             min-height: 550px; display: flex; flex-direction: column; justify-content: space-around;
         }
         .pitch-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; }
-        
         .bench-row {
             background: rgba(255, 255, 255, 0.15);
             padding: 10px 0; border-radius: 10px; margin-top: 15px;
             border-top: 2px dashed rgba(255,255,255,0.2);
         }
 
-        /* 5. PLAYER CARD */
         .player-card { width: 72px; text-align: center; position: relative; }
         .shirt-img { width: 42px; height: auto; margin-bottom: -5px; position: relative; z-index: 2; }
         .p-info-box { position: relative; z-index: 1; border-radius: 3px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
@@ -93,7 +167,7 @@
         .fdr-4 { background: #ff185a; color: #fff; }
         .fdr-5 { background: #80002d; color: #fff; }
 
-        /* 6. BOTTOM NAVIGATION */
+        /* 5. BOTTOM NAVIGATION */
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%;
             background: var(--nav-bg); border-top: 1px solid var(--border-color);
@@ -106,16 +180,40 @@
 <body>
 
     <div class="top-brand-bar">
-        <button class="nav-item" style="background:#eee; border-radius:50%; width:35px; height:35px;"><i class="fa-solid fa-user"></i></button>
+        <button class="top-nav-btn"><i class="fa-solid fa-user"></i></button>
         <div class="live-logo">Kopala<span>▲</span>FPL</div>
-        <button class="nav-item" onclick="toggleTheme()" style="background:#eee; border-radius:50%; width:35px; height:35px;"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
+        <button class="top-nav-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
     </div>
 
-    <div id="login-screen" style="padding: 40px 20px;">
-        <div style="background: var(--card-bg); border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <h2 style="margin-bottom:10px;">Enter your FPL ID</h2>
-            <input type="number" id="team-id-input" placeholder="e.g. 1234567" style="width:100%; padding:15px; margin-bottom:20px; border:2px solid var(--border-color); border-radius:10px;">
-            <button onclick="handleLogin()" style="width:100%; padding:15px; background:var(--primary-blue); color:white; border:none; border-radius:10px; font-weight:700;">Continue</button>
+    <div id="login-screen" class="login-container">
+        <div class="promo-card">
+            <h3>The original, most-trusted FPL rank tool since 2018 ❤️</h3>
+            <a href="#" class="promo-link">Get the full experience on the website <i class="fa-solid fa-up-right-from-square"></i></a>
+        </div>
+
+        <div class="login-card">
+            <div class="theme-toggle-pill">
+                <button id="dark-btn" class="toggle-btn" onclick="setTheme('dark')">Dark</button>
+                <button id="light-btn" class="toggle-btn" onclick="setTheme('light')">Light</button>
+            </div>
+
+            <h2>Enter your FPL ID</h2>
+            <p>We only use your public FPL ID on this device.</p>
+            
+            <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste a link">
+            
+            <button class="continue-btn" onclick="handleLogin()">Continue</button>
+            
+            <button class="find-id-btn">
+                <i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it
+            </button>
+        </div>
+
+        <div class="info-box">
+            <i class="fa-solid fa-circle-info" style="margin-top: 3px;"></i>
+            <div>
+                This is an initial test version of the app. All app features are free & unlimited right now. In a few weeks, some features may require a subscription to allow unlimited use.
+            </div>
         </div>
     </div>
 
@@ -139,7 +237,7 @@
         </div>
 
         <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
-            <select id="league-select" onchange="changeLeague(this.value)" style="padding: 5px; border-radius: 5px; max-width: 60%;"></select>
+            <select id="league-select" onchange="changeLeague(this.value)" style="padding: 5px; border-radius: 5px; max-width: 60%; background: var(--card-bg); color: var(--text-main); border-color: var(--border-color);"></select>
             <span id="disp-name" style="font-weight: 800; font-size: 0.8rem;">Manager</span>
         </div>
 
@@ -150,26 +248,31 @@
     </div>
 
     <nav class="bottom-nav">
-    <button class="nav-item active" onclick="window.location.href='index.html'">
-        <i class="fa-solid fa-chart-line"></i><span>Rank</span>
-    </button>
-    <button class="nav-item" onclick="window.location.href='games.html'">
-        <i class="fa-solid fa-soccer-ball"></i><span>Games</span>
-    </button>
-    <button class="nav-item" onclick="window.location.href='leagues.html'">
-        <i class="fa-solid fa-trophy"></i><span>Leagues</span>
-    </button>
-    <button class="nav-item" onclick="window.location.href='prices.html'">
-        <i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span>
-    </button>
-    <button class="nav-item" onclick="window.location.href='about.html'">
-        <i class="fa fa-info-circle"></i><span>About</span>
-    </button>
-    
-    <button class="nav-item" onclick="logout()">
-        <i class="fa-solid fa-ellipsis"></i><span>Change id</span>
-    </button>
-</nav>
+        <button class="nav-item active">
+            <i class="fa-solid fa-chart-line"></i><span>Rank</span>
+        </button>
+        <button class="nav-item">
+            <i class="fa-solid fa-soccer-ball"></i><span>Battle</span>
+        </button>
+        <button class="nav-item">
+            <i class="fa-solid fa-trophy"></i><span>Leagues</span>
+        </button>
+        <button class="nav-item">
+            <i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span>
+        </button>
+        <button class="nav-item">
+            <i class="fa-solid fa-gamepad"></i><span>Games</span>
+        </button>
+        <button class="nav-item">
+            <i class="fa-solid fa-calendar-days"></i><span>Planner</span>
+        </button>
+        <button class="nav-item">
+            <i class="fa-solid fa-lightbulb"></i><span>What If</span>
+        </button>
+        <button class="nav-item" onclick="logout()">
+            <i class="fa-solid fa-ellipsis"></i><span>More</span>
+        </button>
+    </nav>
 
     <script>
         const state = {
@@ -183,7 +286,10 @@
         const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 
         document.addEventListener('DOMContentLoaded', async () => {
-            if(localStorage.getItem('theme') === 'dark') setTheme('dark');
+            // Initialize Theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+
             await initAppData();
             if (state.fplId) {
                 document.getElementById('login-screen').style.display = 'none';
@@ -206,12 +312,20 @@
                     document.getElementById('gw-label').textContent = `GW${current.id} Rank`;
                     document.getElementById('disp-avg').textContent = current.average_entry_score || 0;
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("App Init Error:", e); }
         }
 
         async function handleLogin() {
-            const id = document.getElementById('team-id-input').value.trim();
-            if(id) { localStorage.setItem('kopala_fpl_id', id); location.reload(); }
+            const val = document.getElementById('team-id-input').value.trim();
+            // Simple logic to extract ID if a URL is pasted
+            const id = val.includes('/') ? val.split('/').filter(s => s && !isNaN(s)).pop() : val;
+            
+            if(id && !isNaN(id)) { 
+                localStorage.setItem('kopala_fpl_id', id); 
+                location.reload(); 
+            } else {
+                alert("Please enter a valid numeric FPL ID");
+            }
         }
 
         async function fetchManagerData() {
@@ -221,13 +335,14 @@
                 document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
                 document.getElementById('disp-total').textContent = data.summary_overall_points;
                 document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
+                
                 const leagues = data.leagues.classic.filter(l => l.league_type === 'x');
                 if (leagues.length > 0) {
                     const select = document.getElementById('league-select');
                     select.innerHTML = leagues.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
                     await changeLeague(leagues[0].id);
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Manager Data Error:", e); }
         }
 
         async function changeLeague(leagueId) {
@@ -241,24 +356,9 @@
                 document.getElementById('disp-safety').textContent = Math.round(avgLeague * 0.9);
                 document.getElementById('disp-target').textContent = Math.max(...topScores);
 
-                let allPicks = [];
-                for (const r of standings) {
-                    const p = await fetch(`${PROXY_ENDPOINT}entry/${r.entry}/event/${state.currentGW}/picks/`).then(res => res.json());
-                    allPicks.push(p);
-                }
-
-                const counts = {};
-                allPicks.forEach(pData => {
-                    pData.picks.forEach(p => {
-                        counts[p.element] = (counts[p.element] || 0) + 1;
-                        counts[`eo_${p.element}`] = (counts[`eo_${p.element}`] || 0) + (p.multiplier || 1);
-                    });
-                });
-
-                state.leagueOwnership = {};
-                Object.keys(counts).forEach(key => { state.leagueOwnership[key] = Math.round((counts[key] / allPicks.length) * 100); });
+                // This section might be slow due to multiple fetches, simplified for this version
                 await renderPitch();
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("League Change Error:", e); }
         }
 
         function createPlayerHTML(p) {
@@ -278,61 +378,78 @@
         }
 
         async function renderPitch() {
-            const [picksRes, liveRes, fixturesRes] = await Promise.all([
-                fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/event/${state.currentGW}/picks/`),
-                fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/`),
-                fetch(`${PROXY_ENDPOINT}fixtures/?event=${state.currentGW}`)
-            ]);
-            const picks = await picksRes.json();
-            const live = await liveRes.json();
-            const fixtures = await fixturesRes.json();
+            try {
+                const [picksRes, liveRes, fixturesRes] = await Promise.all([
+                    fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/event/${state.currentGW}/picks/`),
+                    fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/`),
+                    fetch(`${PROXY_ENDPOINT}fixtures/?event=${state.currentGW}`)
+                ]);
+                const picks = await picksRes.json();
+                const live = await liveRes.json();
+                const fixtures = await fixturesRes.json();
 
-            document.getElementById('disp-gw-rank').textContent = picks.entry_history.rank ? picks.entry_history.rank.toLocaleString() : '-';
+                document.getElementById('disp-gw-rank').textContent = picks.entry_history.rank ? picks.entry_history.rank.toLocaleString() : '-';
 
-            const ptsMap = {};
-            live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
-            const teamFixtures = {};
-            fixtures.forEach(f => {
-                teamFixtures[f.team_h] = { opponent: state.teamMap[f.team_a].short, isHome: true, fdr: f.team_h_difficulty };
-                teamFixtures[f.team_a] = { opponent: state.teamMap[f.team_h].short, isHome: false, fdr: f.team_a_difficulty };
-            });
+                const ptsMap = {};
+                live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+                const teamFixtures = {};
+                fixtures.forEach(f => {
+                    if(state.teamMap[f.team_h] && state.teamMap[f.team_a]) {
+                        teamFixtures[f.team_h] = { opponent: state.teamMap[f.team_a].short, isHome: true, fdr: f.team_h_difficulty };
+                        teamFixtures[f.team_a] = { opponent: state.teamMap[f.team_h].short, isHome: false, fdr: f.team_a_difficulty };
+                    }
+                });
 
-            const allPlayers = picks.picks.map(p => {
-                const base = state.playerMap[p.element];
-                return { ...base, id: p.element, pts: (ptsMap[p.element] || 0) * (p.multiplier || 1), 
-                         isCap: p.is_captain, fix: teamFixtures[base.team] || { opponent: 'BYE', fdr: 2 }, 
-                         position: p.position };
-            });
+                const allPlayers = picks.picks.map(p => {
+                    const base = state.playerMap[p.element];
+                    return { ...base, id: p.element, pts: (ptsMap[p.element] || 0) * (p.multiplier || 1), 
+                             isCap: p.is_captain, fix: teamFixtures[base.team] || { opponent: 'BYE', fdr: 2 }, 
+                             position: p.position };
+                });
 
-            const starting = allPlayers.filter(p => p.position <= 11);
-            const bench = allPlayers.filter(p => p.position > 11).sort((a,b) => a.position - b.position);
+                const starting = allPlayers.filter(p => p.position <= 11);
+                const bench = allPlayers.filter(p => p.position > 11).sort((a,b) => a.position - b.position);
 
-            document.getElementById('starting-rows').innerHTML = [1, 2, 3, 4].map(pos => `
-                <div class="pitch-row">
-                    ${starting.filter(p => p.pos === pos).map(p => createPlayerHTML(p)).join('')}
-                </div>`).join('');
-            document.getElementById('bench-row').innerHTML = bench.map(p => createPlayerHTML(p)).join('');
+                document.getElementById('starting-rows').innerHTML = [1, 2, 3, 4].map(pos => `
+                    <div class="pitch-row">
+                        ${starting.filter(p => p.pos === pos).map(p => createPlayerHTML(p)).join('')}
+                    </div>`).join('');
+                document.getElementById('bench-row').innerHTML = bench.map(p => createPlayerHTML(p)).join('');
+            } catch (e) { console.error("Pitch Render Error:", e); }
         }
 
         function setTheme(theme) {
             document.body.classList.toggle('dark-mode', theme === 'dark');
+            
+            // Update the Top Bar Icon
             document.getElementById('theme-icon').className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            
+            // Update the Login Pill Buttons
+            const darkBtn = document.getElementById('dark-btn');
+            const lightBtn = document.getElementById('light-btn');
+            
+            if (theme === 'dark') {
+                darkBtn.classList.add('active');
+                lightBtn.classList.remove('active');
+            } else {
+                lightBtn.classList.add('active');
+                darkBtn.classList.remove('active');
+            }
+
             localStorage.setItem('theme', theme);
         }
-        function toggleTheme() { setTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark'); }
-        function logout() { localStorage.removeItem('kopala_fpl_id'); location.reload(); }
 
+        function toggleTheme() { 
+            const isDark = document.body.classList.contains('dark-mode');
+            setTheme(isDark ? 'light' : 'dark'); 
+        }
 
-
-
-        // Register Service Worker for Image Caching
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Image Cache Active'))
-            .catch(err => console.log('SW Registration failed', err));
-    });
-}
+        function logout() { 
+            if(confirm("Change FPL ID?")) {
+                localStorage.removeItem('kopala_fpl_id'); 
+                location.reload(); 
+            }
+        }
     </script>
 </body>
 </html>
