@@ -4,32 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KOPALA FPL</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="/android-chrome-192x192.png">
     <style>
         /* 1. THEME VARIABLES */
         :root {
-            --bg-color: #ffffff;
+            --bg-color: #f0f2f5;
             --card-bg: #ffffff;
             --text-main: #1a1a1a;
-            --text-muted: #666;
-            --border-gray: #e1e1e1;
+            --text-muted: #64748b;
+            --border-gray: #e2e8f0;
+            --primary-blue: #2563eb;
             --fpl-purple: #37003c;
             --fpl-green: #00ff85;
-            --link-blue: #00a2ed;
             --fpl-pink: #e90052;
+            --nav-bg: #ffffff;
         }
 
         body.dark-mode {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-main: #f0f0f0;
-            --text-muted: #aaa;
-            --border-gray: #333;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-gray: #334155;
+            --nav-bg: #1e293b;
         }
 
         body {
@@ -39,316 +36,313 @@
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             transition: background 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        /* 2. CENTERED LOGIN SCREEN */
-        #login-screen {
+        /* 2. HEADER & LOGO */
+        .top-brand-bar {
+            padding: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            position: sticky;
+            top: 0;
+            background: var(--bg-color);
+            z-index: 100;
+        }
+
+        .live-logo {
+            background: #000;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .live-logo span { color: var(--fpl-green); }
+
+        /* 3. LOGIN SCREEN & CARDS */
+        #login-screen {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
             padding: 20px;
-            box-sizing: border-box;
+            padding-top: 40px;
         }
 
         .login-wrapper {
             width: 100%;
-            max-width: 400px;
-            text-align: center;
+            max-width: 450px;
         }
 
-        .brand-logo {
-            width: 64px;
-            height: 64px;
-            background: var(--fpl-purple);
-            color: var(--fpl-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.2rem;
-            font-weight: 900;
-            margin: 0 auto 24px;
-            border-radius: 8px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--link-blue);
-            margin-bottom: 10px;
-            text-align: left;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid var(--border-gray);
-            border-radius: 10px;
+        .promo-banner {
             background: var(--card-bg);
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        .theme-toggle-wrap {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-pill {
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 50px;
+            display: flex;
+        }
+
+        body.dark-mode .theme-pill { background: #334155; }
+
+        .theme-btn {
+            padding: 8px 20px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            background: transparent;
+            color: var(--text-muted);
+        }
+
+        .theme-btn.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        h2.form-title {
+            font-size: 1.5rem;
+            margin: 0 0 10px 0;
+            font-weight: 800;
+        }
+
+        .sub-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--border-gray);
+            border-radius: 12px;
+            background: var(--bg-color);
             color: var(--text-main);
+            font-size: 1rem;
+            margin-bottom: 20px;
             box-sizing: border-box;
         }
 
-        .action-button {
+        .continue-btn {
             width: 100%;
-            padding: 16px;
-            background: #00d46a;
-            color: var(--fpl-purple);
+            padding: 18px;
+            background: var(--primary-blue);
+            color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 700;
+            font-size: 1.1rem;
             cursor: pointer;
-            margin-top: 20px;
+            transition: transform 0.1s;
         }
 
-        
-       /* 4. FIXTURES & MATCH CENTER (PHOTO STYLE) */
-#fixtures-container {
-    background: var(--card-bg);
-    padding: 20px 10px;
-    max-width: 100%;
-    margin: 0 auto;
-}
+        .continue-btn:active { transform: scale(0.98); }
 
-.fixture-day-group {
-    margin-bottom: 30px;
-    text-align: center;
-}
+        /* 4. DASHBOARD & TABS */
+        #dashboard { padding-bottom: 80px; }
 
-.fixture-date-header {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    margin-bottom: 15px;
-    letter-spacing: 0.8px;
-}
-
-.fixture-row {
-    display: grid;
-    grid-template-columns: 1fr 100px 1fr; /* Centers the score perfectly */
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-gray);
-}
-
-.fixture-row:last-child {
-    border-bottom: none;
-}
-
-.fixture-team {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-main);
-}
-
-.team-home {
-    text-align: right;
-    padding-right: 15px;
-}
-
-.team-away {
-    text-align: left;
-    padding-left: 15px;
-}
-
-.fixture-score {
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: var(--fpl-pink); /* Using your pink/red variable */
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-}
-
-.score-dash {
-    opacity: 0.5;
-}
-        .tab-btn {
-            flex: 1;
+        .app-header {
             padding: 15px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-gray);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 5. BOTTOM NAVIGATION */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: var(--nav-bg);
+            border-top: 1px solid var(--border-gray);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 600;
+            gap: 4px;
             border: none;
             background: none;
-            font-weight: 700;
-            color: var(--text-muted);
             cursor: pointer;
-            border-bottom: 3px solid transparent;
-        }
-        .tab-btn.active {
-            color: var(--fpl-purple);
-            border-bottom-color: var(--fpl-purple);
         }
 
+        .nav-item i { font-size: 1.2rem; }
+        .nav-item.active { color: var(--primary-blue); }
+
+        /* Existing Content Styles */
+        .fixture-row {
+            display: grid;
+            grid-template-columns: 1fr 100px 1fr;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-gray);
+            background: var(--card-bg);
+        }
     </style>
 </head>
 <body>
-    <button id="installBtn" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 99; padding: 10px; background: var(--link-blue); color: white; border: none; border-radius: 5px;">
-        Install App
-    </button>
 
-   <div id="login-screen">
-    <div class="login-wrapper">
-        <div class="brand-header">
-            <div class="brand-logo">K</div>
-            <h1>KOPALA FPL</h1>
-        </div>
+    <div class="top-brand-bar">
+        <div class="live-logo">LIVE<span>▲</span>FPL</div>
+    </div>
 
-        <div class="simple-login-card">
-            <p class="login-instruction">Please enter any FPL ID to get started</p>
-            
-            <div class="input-area">
-                <input type="number" id="team-id-input" placeholder="ENTER YOUR FPL ID">
+    <div id="login-screen">
+        <div class="login-wrapper">
+            <div class="promo-banner">
+                <p style="font-weight: 700; margin: 0;">The original, most-trusted FPL rank tool since 2018 ❤️</p>
             </div>
 
-            <div class="login-footer-actions">
-                <a href="https://www.youtube.com/watch?v=5vXiVHdyxuY" target="_blank" class="help-link">
-                    How to get my FPL ID?
-                </a>
-                <button class="enter-id-btn" onclick="handleLogin()">Enter ID</button>
+            <div class="login-card">
+                <div class="theme-toggle-wrap">
+                    <span style="font-weight: 600; font-size: 0.9rem;">Theme</span>
+                    <div class="theme-pill">
+                        <button class="theme-btn" id="dark-btn" onclick="setTheme('dark')">Dark</button>
+                        <button class="theme-btn active" id="light-btn" onclick="setTheme('light')">Light</button>
+                    </div>
+                </div>
+
+                <h2 class="form-title">Enter your FPL ID</h2>
+                <span class="sub-text">We only use your public FPL ID on this device.</span>
+
+                <input type="number" id="team-id-input" placeholder="e.g. 1234567 or paste a link">
+                
+                <button class="continue-btn" onclick="handleLogin()">Continue</button>
+
+                <div style="margin-top: 20px; text-align: center;">
+                    <a href="https://www.youtube.com/watch?v=5vXiVHdyxuY" target="_blank" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">
+                        <i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
-    
+
     <div id="dashboard" style="display:none;">
-        <nav class="top-icon-nav">
-   
- <a href="prices.html" class="nav-item" style="text-decoration: none;">
-    <i class="fa-solid fa-dollar-sign" style="font-size: 20px; margin-bottom: 4px;"></i>
-    <span>Prices</span>
-</a>
-    <button class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m6.7 6.7 10.6 10.6"/><path d="m6.7 17.3 10.6-10.6"/></svg>
-        <span>Games</span>
-    </button>
-
-            <button id="theme-toggle" class="nav-item">
-        <span class="icon" style="font-size: 1.2rem; margin-bottom: 4px;">🌙</span>
-        <span class="text">Theme</span>
-    </button>
-
-    <button id="logout-btn" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-        <span>Logout</span>
-    </button>
-</nav>
-    
-</nav>
-        
-       
-
-        <header class="app-header" style="padding: 15px; border-bottom: 1px solid var(--border-gray); display: flex; justify-content: space-between; align-items: center;">
-            <div class="selector-wrapper">
-                <select id="league-select" onchange="changeLeague(this.value)" style="padding: 8px; border-radius: 5px;"></select>
-            </div>
-            <div class="header-actions">
-                
-                  </div>
-
-
-    
-    
+        <header class="app-header">
+            <select id="league-select" onchange="changeLeague(this.value)" style="padding: 8px; border-radius: 8px; border: 1px solid var(--border-gray);"></select>
+            <button onclick="logout()" style="background: none; border: none; color: var(--fpl-pink); font-weight: 700;">Logout</button>
         </header>
 
-        <div class="manager-dashboard">
-    <div class="status-header">
-        <span id="current-gw-title">Your Gameweek Status</span>
-    </div>
-
-    <div class="main-stats-container">
-       
-        <div class="status-box arrow-box">
-            <div id="rank-arrow" class="status-icon">▲</div>
-            <div class="status-text-wrap">
-                <p class="status-label">You're on a</p>
-                <h3 id="arrow-status-text">GREEN ARROW</h3>
-                <p class="status-detail">Rank: <span id="disp-rank">0</span></p>
-            </div>
-        </div>
-
-        <div class="status-box points-box">
-            <div class="status-icon-small">🔢</div>
-            <div class="status-text-wrap">
-                <p class="status-label">Gameweek points</p>
-                <h2 id="disp-gw">0 points</h2>
-                <p class="status-detail">Total: <span id="disp-total">0</span></p>
-            </div>
-        </div>
-    </div>
-
-    
-        <div class="impact-section diffs">
-    <div class="impact-header">
-        <span>🎲 DIFFERENTIALS</span>
-    </div>
-    <div class="impact-info">
-        % represents impact. Impact example: +80% means for every 1 point, you gain 0.8 points
-    </div>
-    <div class="player-impact-grid" id="diffs-list">
-        <div class="player-impact-card">
-            <div class="shirt-wrapper"><img src="https://resources.premierleague.com/premierleague25/photos/players/110x140/215379.png" alt="shirt"></div>
-            <div class="player-name-tag">Anderson</div>
-            <div class="player-pts-tag">7</div>
-            <div class="impact-badge gain">+96.8%</div>
-        </div>
-    </div>
-</div>
-
-<div class="impact-section threats">
-    <div class="impact-header warning">
-        <span>⚠️ THREATS</span>
-    </div>
-    <div class="player-impact-grid" id="threats-list">
-        </div>
-</div>
-        <h2 id="disp-name">Loading Manager...</h2>
-        <div class="mini-stat">
-            <span>Transfers: </span>
-            <span id="disp-transfers" class="highlight-stat">0</span>
-             <div class="manager-info-footer">
-        </div>
-    </div>
-</div>
-
-        <nav class="main-tabs">
-    <div class="tab-container">
-        <button class="tab-btn active" id="tab-table" onclick="showView('table')">Table</button>
-        <button class="tab-btn" id="tab-pitch" onclick="showView('pitch')">Games</button>
-    </div>
-</nav>
-
         <section id="table-view" class="view-content">
-            <table class="live-table" style="width: 100%; border-collapse: collapse;">
-                <thead style="background: #f9f9f9; font-size: 0.8rem;">
-    <tr>
-        <th style="padding:10px;">Pos</th>
-        <th>Team</th>
-
-        <th style="text-align:center;">Hits</th>
-        <th style="text-align:right;">GW/TP</th>
-    </tr>
-</thead>
+            <table style="width: 100%; border-collapse: collapse;">
                 <tbody id="league-body"></tbody>
             </table>
         </section>
 
         <section id="pitch-view" style="display:none;" class="view-content">
-    <div style="background: rgba(0,0,0,0.03); color: var(--text-muted); padding: 12px; text-align: center; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">
-        Fixtures & Results
+            <div id="fixtures-container"></div>
+        </section>
     </div>
-    <div id="fixtures-container">
-        </div>
-</section>
 
-       
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="showView('table')">
+            <i class="fa-solid fa-chart-line"></i><span>Rank</span>
+        </button>
+        <button class="nav-item" onclick="alert('Battle Feature Coming Soon!')">
+            <i class="fa-solid fa-bolt"></i><span>Battle</span>
+        </button>
+        <button class="nav-item" onclick="showView('table')">
+            <i class="fa-solid fa-trophy"></i><span>Leagues</span>
+        </button>
+        <button class="nav-item" onclick="window.location.href='prices.html'">
+            <i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span>
+        </button>
+        <button class="nav-item">
+            <i class="fa-solid fa-ellipsis"></i><span>More</span>
+        </button>
+    </nav>
 
+    <script>
+        // THEME LOGIC
+        function setTheme(theme) {
+            const body = document.body;
+            const darkBtn = document.getElementById('dark-btn');
+            const lightBtn = document.getElementById('light-btn');
 
-    <script src="script.js"></script>
-    <script src="bps.js"></script>
-    <script src="deadline.js"></script>
+            if (theme === 'dark') {
+                body.classList.add('dark-mode');
+                darkBtn.classList.add('active');
+                lightBtn.classList.remove('active');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark-mode');
+                lightBtn.classList.add('active');
+                darkBtn.classList.remove('active');
+                localStorage.setItem('theme', 'light');
+            }
+        }
 
+        // LOAD SAVED THEME
+        if(localStorage.getItem('theme') === 'dark') setTheme('dark');
+
+        // NAVIGATION LOGIC
+        function showView(viewId) {
+            document.getElementById('table-view').style.display = viewId === 'table' ? 'block' : 'none';
+            document.getElementById('pitch-view').style.display = viewId === 'pitch' ? 'block' : 'none';
+            
+            // Update active state in bottom nav
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        // PLACEHOLDER FOR YOUR EXISTING FUNCTIONS
+        function handleLogin() {
+            const id = document.getElementById('team-id-input').value;
+            if(id) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                // Your existing fetch logic from script.js would go here
+            }
+        }
+
+        function logout() {
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('dashboard').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
