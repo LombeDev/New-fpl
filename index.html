@@ -153,14 +153,12 @@
     <button class="nav-item active" onclick="window.location.href='index.html'">
         <i class="fa-solid fa-chart-line"></i><span>Rank</span>
     </button>
-         <button class="nav-item active" onclick="window.location.href='games.html'">
-        <i class="fa-solid fa-soccer-bal"></i><span>Games</span>
+    <button class="nav-item" onclick="window.location.href='games.html'">
+        <i class="fa-solid fa-soccer-ball"></i><span>Games</span>
     </button>
-    
     <button class="nav-item" onclick="window.location.href='leagues.html'">
         <i class="fa-solid fa-trophy"></i><span>Leagues</span>
     </button>
-    
     <button class="nav-item" onclick="window.location.href='prices.html'">
         <i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span>
     </button>
@@ -323,6 +321,18 @@
         }
         function toggleTheme() { setTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark'); }
         function logout() { localStorage.removeItem('kopala_fpl_id'); location.reload(); }
+
+
+
+
+        // Register Service Worker for Image Caching
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('Image Cache Active'))
+            .catch(err => console.log('SW Registration failed', err));
+    });
+}
     </script>
 </body>
 </html>
