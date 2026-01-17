@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOPALA FPL</title>
+    <title>KOPALA FPL | Live Rank & Stats</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         /* 1. THEME & CORE STYLES */
@@ -38,9 +38,27 @@
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex; flex-direction: column; min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* 2. TOP BRANDING BAR */
+        /* 2. LOADING SPINNER STYLES */
+        #loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center;
+            flex-direction: column; z-index: 9999; color: white;
+        }
+        .spinner {
+            width: 50px; height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid var(--fpl-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 3. TOP BRANDING BAR */
         .top-brand-bar {
             padding: 12px 15px;
             display: flex; justify-content: space-between; align-items: center;
@@ -69,12 +87,11 @@
         }
         body.dark-mode .circle-btn { background: #334155; color: #fff; }
 
-        /* 3. LOGIN SCREEN STYLING */
+        /* 4. LOGIN SCREEN */
         .login-container {
             max-width: 450px; margin: 20px auto; padding: 0 15px; text-align: center;
         }
         .trust-text { font-weight: 800; font-size: 1.1rem; margin-bottom: 5px; }
-        .experience-link { color: #3b82f6; font-size: 0.9rem; text-decoration: none; display: block; margin-bottom: 25px; }
 
         .login-card {
             background: var(--card-bg); border-radius: 24px; padding: 30px 20px;
@@ -112,15 +129,7 @@
             font-size: 0.9rem; margin-top: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%;
         }
 
-        .info-alert {
-            background: var(--alert-bg); border-radius: 16px; padding: 15px;
-            margin-top: 25px; display: flex; gap: 12px; text-align: left;
-            border: 1px solid rgba(37, 99, 235, 0.1);
-        }
-        .info-alert i { color: #2563eb; margin-top: 3px; }
-        .info-alert p { margin: 0; font-size: 0.85rem; line-height: 1.4; color: var(--text-main); }
-
-        /* 4. DASHBOARD STATS HEADER */
+        /* 5. DASHBOARD STATS */
         .header-stats-grid {
             display: grid; grid-template-columns: 1fr 1.2fr 1fr;
             background: var(--card-bg); margin: 10px; padding: 12px;
@@ -132,7 +141,7 @@
         .stat-sub { font-size: 0.6rem; font-weight: 600; color: var(--fpl-pink); }
         .safety-green { color: var(--fpl-green); }
 
-        /* 5. FOOTBALL PITCH STYLING */
+        /* 6. PITCH */
         .pitch-container {
             background: #2e7d32; 
             background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
@@ -149,7 +158,7 @@
             border-top: 2px dashed rgba(255,255,255,0.2);
         }
 
-        /* 6. PLAYER CARD */
+        /* 7. PLAYER CARD */
         .player-card { width: 72px; text-align: center; position: relative; }
         .shirt-img { width: 42px; height: auto; margin-bottom: -5px; position: relative; z-index: 2; }
         .p-info-box { position: relative; z-index: 1; border-radius: 3px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
@@ -163,7 +172,7 @@
         .fdr-4 { background: #ff185a; color: #fff; }
         .fdr-5 { background: #80002d; color: #fff; }
 
-        /* 7. BOTTOM NAVIGATION */
+        /* 8. BOTTOM NAVIGATION */
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%;
             background: var(--nav-bg); border-top: 1px solid var(--border-color);
@@ -175,6 +184,11 @@
 </head>
 <body>
 
+    <div id="loader-overlay">
+        <div class="spinner"></div>
+        <div id="loader-text" style="font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Crunching Data...</div>
+    </div>
+
     <div class="top-brand-bar">
         <div class="no-ads-badge"><i class="fa-solid fa-crown"></i> No Ads</div>
         <div class="live-logo">KOPALA<span>▲</span>FPL</div>
@@ -185,8 +199,7 @@
     </div>
 
     <div id="login-screen" class="login-container">
-        <h1 class="trust-text">The original, most trusted FPL rank tool since 2025 ❤️</h1>
-        
+        <h1 class="trust-text">The original, most trusted FPL rank tool ❤️</h1>
         <div class="login-card">
             <div class="theme-selector">
                 <span>Theme</span>
@@ -195,26 +208,15 @@
                     <button class="pill active" id="pill-light" onclick="setTheme('light')">Light</button>
                 </div>
             </div>
-
             <h2>Enter your FPL ID</h2>
-            <p>We only use your public FPL ID on this device.</p>
-            
-            <input type="number" id="team-id-input" placeholder="e.g. 1234567 or paste a link">
-            
+            <p>Your ID is the number in your FPL URL (e.g. entry/1234567)</p>
+            <input type="number" id="team-id-input" placeholder="e.g. 1234567">
             <button class="continue-btn" onclick="handleLogin()">Continue</button>
-            
-            <button class="find-id-btn">
-                <i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it
-            </button>
-        </div>
-
-        <div class="info-alert">
-            <i class="fa-solid fa-circle-info"></i>
-            <p>This is an initial test version of the app.</p>
+            <button class="find-id-btn"><i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it</button>
         </div>
     </div>
 
-    <div id="dashboard" style="display:none; padding-bottom: 80px;">
+    <div id="dashboard" style="display:none; padding-bottom: 100px;">
         <div class="header-stats-grid">
             <div>
                 <span class="stat-label" id="gw-label">GW Rank</span>
@@ -227,14 +229,15 @@
                 <span class="stat-sub safety-green">Safety: <span id="disp-safety">-</span></span>
             </div>
             <div>
-                <span class="stat-label">Points</span>
+                <span class="stat-label">Total Points</span>
                 <span class="stat-value" id="disp-total">0</span>
-                <span class="stat-sub">Avg: <span id="disp-avg">-</span></span>
+                <span class="stat-sub">Avg Score: <span id="disp-avg">-</span></span>
             </div>
         </div>
 
         <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
-               <span id="disp-name" style="font-weight: 800; font-size: 0.8rem;">Manager</span>
+            <select id="league-select" onchange="changeLeague(this.value)" style="padding: 8px; border-radius: 8px; max-width: 60%; font-weight: 700; border: 1px solid var(--border-color);"></select>
+            <span id="disp-name" style="font-weight: 800; font-size: 0.85rem; color: var(--primary-blue);">Manager Name</span>
         </div>
 
         <div id="pitch-view" class="pitch-container">
@@ -244,24 +247,11 @@
     </div>
 
     <nav class="bottom-nav">
-        <a href="index.html" class="nav-item active">
-            <i class="fa-solid fa-chart-line"></i><span>Rank</span>
-        </a>
-        <a href="games.html" class="nav-item">
-            <i class="fa-solid fa-soccer-ball"></i><span>Games</span>
-        </a>
-        <a href="leagues.html" class="nav-item">
-            <i class="fa-solid fa-trophy"></i><span>Leagues</span>
-        </a>
-        <a href="prices.html" class="nav-item">
-            <i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span>
-        </a>
-        <a href="about.html" class="nav-item">
-            <i class="fa fa-info-circle"></i><span>About</span>
-        </a>
-        <button class="nav-item" onclick="logout()">
-            <i class="fa-solid fa-ellipsis"></i><span>Change id</span>
-        </button>
+        <a href="#" class="nav-item active"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></a>
+        <button class="nav-item" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></button>
     </nav>
 
     <script>
@@ -275,15 +265,29 @@
 
         const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
 
+        // UI HELPERS
+        const showLoader = (text) => {
+            document.getElementById('loader-text').textContent = text || 'LOADING...';
+            document.getElementById('loader-overlay').style.display = 'flex';
+        };
+        const hideLoader = () => {
+            document.getElementById('loader-overlay').style.display = 'none';
+        };
+
+        // INITIALIZE APP
         document.addEventListener('DOMContentLoaded', async () => {
             const savedTheme = localStorage.getItem('theme') || 'light';
             setTheme(savedTheme);
 
-            await initAppData();
             if (state.fplId) {
+                showLoader('Fetching Global Data...');
+                await initAppData();
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
                 await fetchManagerData();
+                hideLoader();
+            } else {
+                await initAppData();
             }
         });
 
@@ -291,22 +295,39 @@
             try {
                 const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
                 const data = await res.json();
-                data.teams.forEach(t => { state.teamMap[t.id] = { name: t.name, short: t.short_name }; });
+                
+                // Map Teams
+                data.teams.forEach(t => { 
+                    state.teamMap[t.id] = { name: t.name, short: t.short_name }; 
+                });
+                
+                // Map Players
                 data.elements.forEach(p => {
                     state.playerMap[p.id] = { name: p.web_name, code: p.code, pos: p.element_type, team: p.team };
                 });
+
+                // Find Current Gameweek
                 const current = data.events.find(e => e.is_current);
                 if (current) {
                     state.currentGW = current.id;
                     document.getElementById('gw-label').textContent = `GW${current.id} Rank`;
                     document.getElementById('disp-avg').textContent = current.average_entry_score || 0;
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error("Critical Error:", e);
+                alert("Could not connect to FPL Servers. Please check your proxy.");
+            }
         }
 
         async function handleLogin() {
             const id = document.getElementById('team-id-input').value.trim();
-            if(id) { localStorage.setItem('kopala_fpl_id', id); location.reload(); }
+            if(id) { 
+                showLoader('Synchronizing Account...');
+                localStorage.setItem('kopala_fpl_id', id); 
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                alert("Please enter a valid Team ID");
+            }
         }
 
         async function fetchManagerData() {
@@ -316,126 +337,141 @@
                 document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
                 document.getElementById('disp-total').textContent = data.summary_overall_points;
                 document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
+                
                 const leagues = data.leagues.classic.filter(l => l.league_type === 'x');
                 if (leagues.length > 0) {
                     const select = document.getElementById('league-select');
                     select.innerHTML = leagues.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
                     await changeLeague(leagues[0].id);
+                } else {
+                    await renderPitch();
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error("Manager fetch error:", e);
+                hideLoader();
+            }
         }
 
         async function changeLeague(leagueId) {
+            showLoader('Calculating Live Ownership...');
             try {
                 const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
                 const data = await res.json();
-                const standings = data.standings.results.slice(0, 10);
+                const standings = data.standings.results.slice(0, 15); // Process top 15 for ownership
                 
                 const topScores = standings.map(s => s.event_total);
-                const avgLeague = Math.round(topScores.reduce((a, b) => a + b, 0) / topScores.length);
-                document.getElementById('disp-safety').textContent = Math.round(avgLeague * 0.9);
-                document.getElementById('disp-target').textContent = Math.max(...topScores);
+                document.getElementById('disp-safety').textContent = Math.round(Math.max(...topScores) * 0.85);
+                document.getElementById('disp-target').textContent = Math.max(...topScores, 0);
 
-                let allPicks = [];
-                for (const r of standings) {
-                    const p = await fetch(`${PROXY_ENDPOINT}entry/${r.entry}/event/${state.currentGW}/picks/`).then(res => res.json());
-                    allPicks.push(p);
-                }
+                // Batch fetch picks for ownership
+                const pickPromises = standings.map(r => fetch(`${PROXY_ENDPOINT}entry/${r.entry}/event/${state.currentGW}/picks/`).then(res => res.json()));
+                const allPicks = await Promise.all(pickPromises);
 
                 const counts = {};
                 allPicks.forEach(pData => {
-                    pData.picks.forEach(p => {
-                        counts[p.element] = (counts[p.element] || 0) + 1;
-                        counts[`eo_${p.element}`] = (counts[`eo_${p.element}`] || 0) + (p.multiplier || 1);
-                    });
+                    if(pData.picks) {
+                        pData.picks.forEach(p => {
+                            counts[p.element] = (counts[p.element] || 0) + 1;
+                            counts[`eo_${p.element}`] = (counts[`eo_${p.element}`] || 0) + (p.multiplier || 1);
+                        });
+                    }
                 });
 
                 state.leagueOwnership = {};
-                Object.keys(counts).forEach(key => { state.leagueOwnership[key] = Math.round((counts[key] / allPicks.length) * 100); });
+                Object.keys(counts).forEach(key => { 
+                    state.leagueOwnership[key] = Math.round((counts[key] / allPicks.length) * 100); 
+                });
+                
                 await renderPitch();
-            } catch (e) { console.error(e); }
-        }
-
-        function createPlayerHTML(p) {
-            return `
-                <div class="player-card">
-                    <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="shirt-img">
-                    <div class="p-info-box">
-                        <div class="p-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div>
-                        <div class="p-pts">${p.pts}</div>
-                        <div class="p-own">
-                            <span>${state.leagueOwnership[p.id] || 0}%</span>
-                            <span>${state.leagueOwnership['eo_'+p.id] || 0}%</span>
-                        </div>
-                        <div class="p-fix fdr-${p.fix.fdr}">${p.fix.opponent} (${p.fix.isHome ? 'H' : 'A'})</div>
-                    </div>
-                </div>`;
+            } catch (e) { 
+                console.error("League error:", e); 
+                await renderPitch(); 
+            }
+            hideLoader();
         }
 
         async function renderPitch() {
-            const [picksRes, liveRes, fixturesRes] = await Promise.all([
-                fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/event/${state.currentGW}/picks/`),
-                fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/`),
-                fetch(`${PROXY_ENDPOINT}fixtures/?event=${state.currentGW}`)
-            ]);
-            const picks = await picksRes.json();
-            const live = await liveRes.json();
-            const fixtures = await fixturesRes.json();
+            if (!state.playerMap || Object.keys(state.playerMap).length === 0) return;
+            try {
+                const [picksRes, liveRes, fixturesRes] = await Promise.all([
+                    fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/event/${state.currentGW}/picks/`),
+                    fetch(`${PROXY_ENDPOINT}event/${state.currentGW}/live/`),
+                    fetch(`${PROXY_ENDPOINT}fixtures/?event=${state.currentGW}`)
+                ]);
+                const picks = await picksRes.json();
+                const live = await liveRes.json();
+                const fixtures = await fixturesRes.json();
 
-            document.getElementById('disp-gw-rank').textContent = picks.entry_history.rank ? picks.entry_history.rank.toLocaleString() : '-';
+                document.getElementById('disp-gw-rank').textContent = picks.entry_history?.rank ? picks.entry_history.rank.toLocaleString() : 'N/A';
 
-            const ptsMap = {};
-            live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
-            const teamFixtures = {};
-            fixtures.forEach(f => {
-                teamFixtures[f.team_h] = { opponent: state.teamMap[f.team_a].short, isHome: true, fdr: f.team_h_difficulty };
-                teamFixtures[f.team_a] = { opponent: state.teamMap[f.team_h].short, isHome: false, fdr: f.team_a_difficulty };
-            });
+                const ptsMap = {};
+                live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+                
+                const teamFixtures = {};
+                fixtures.forEach(f => {
+                    teamFixtures[f.team_h] = { opponent: state.teamMap[f.team_a]?.short || '?', fdr: f.team_h_difficulty };
+                    teamFixtures[f.team_a] = { opponent: state.teamMap[f.team_h]?.short || '?', fdr: f.team_a_difficulty };
+                });
 
-            const allPlayers = picks.picks.map(p => {
-                const base = state.playerMap[p.element];
-                return { ...base, id: p.element, pts: (ptsMap[p.element] || 0) * (p.multiplier || 1), 
-                         isCap: p.is_captain, fix: teamFixtures[base.team] || { opponent: 'BYE', fdr: 2 }, 
-                         position: p.position };
-            });
+                const allPlayers = picks.picks.map(p => {
+                    const base = state.playerMap[p.element];
+                    return { 
+                        ...base, 
+                        id: p.element, 
+                        pts: (ptsMap[p.element] || 0) * (p.multiplier || 1), 
+                        isCap: p.multiplier > 1, 
+                        fix: teamFixtures[base.team] || { opponent: 'BYE', fdr: 3 }, 
+                        position: p.position 
+                    };
+                });
 
-            const starting = allPlayers.filter(p => p.position <= 11);
-            const bench = allPlayers.filter(p => p.position > 11).sort((a,b) => a.position - b.position);
+                const starting = allPlayers.filter(p => p.position <= 11);
+                const bench = allPlayers.filter(p => p.position > 11).sort((a,b) => a.position - b.position);
 
-            document.getElementById('starting-rows').innerHTML = [1, 2, 3, 4].map(pos => `
-                <div class="pitch-row">
-                    ${starting.filter(p => p.pos === pos).map(p => createPlayerHTML(p)).join('')}
-                </div>`).join('');
-            document.getElementById('bench-row').innerHTML = bench.map(p => createPlayerHTML(p)).join('');
+                // Render Starting XI by position type (1: GK, 2: DEF, 3: MID, 4: FWD)
+                document.getElementById('starting-rows').innerHTML = [1, 2, 3, 4].map(pos => `
+                    <div class="pitch-row">
+                        ${starting.filter(p => p.pos === pos).map(p => createPlayerHTML(p)).join('')}
+                    </div>`).join('');
+
+                // Render Bench
+                document.getElementById('bench-row').innerHTML = bench.map(p => createPlayerHTML(p)).join('');
+
+            } catch (e) { console.error("Pitch rendering error:", e); }
+        }
+
+        function createPlayerHTML(p) {
+            const own = state.leagueOwnership[p.id] || 0;
+            const eo = state.leagueOwnership['eo_'+p.id] || 0;
+            return `
+            <div class="player-card">
+                <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="shirt-img">
+                <div class="p-info-box">
+                    <div class="p-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div>
+                    <div class="p-pts">${p.pts}</div>
+                    <div class="p-own">
+                        <span><i class="fa-solid fa-users"></i> ${own}%</span>
+                        <span><i class="fa-solid fa-bolt"></i> ${eo}%</span>
+                    </div>
+                    <div class="p-fix fdr-${p.fix.fdr}">${p.fix.opponent}</div>
+                </div>
+            </div>`;
         }
 
         function setTheme(theme) {
             document.body.classList.toggle('dark-mode', theme === 'dark');
             const icon = document.getElementById('theme-icon');
             if(icon) icon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-            
-            const darkPill = document.getElementById('pill-dark');
-            const lightPill = document.getElementById('pill-light');
-            if(darkPill && lightPill) {
-                darkPill.className = theme === 'dark' ? 'pill active' : 'pill inactive';
-                lightPill.className = theme === 'light' ? 'pill active' : 'pill inactive';
+            const dp = document.getElementById('pill-dark'), lp = document.getElementById('pill-light');
+            if(dp && lp) {
+                dp.className = theme === 'dark' ? 'pill active' : 'pill inactive';
+                lp.className = theme === 'light' ? 'pill active' : 'pill inactive';
             }
             localStorage.setItem('theme', theme);
         }
 
-        function toggleTheme() {
-            setTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark');
-        }
-
+        function toggleTheme() { setTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark'); }
         function logout() { localStorage.removeItem('kopala_fpl_id'); location.reload(); }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('SW Registered'))
-                    .catch(err => console.log('SW failed', err));
-            });
-        }
     </script>
 </body>
 </html>
