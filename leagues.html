@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOPALA FPL - Mini Leagues</title>
+    <title>KOPALA FPL - Mini Leagues Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         /* 1. THEME & CORE STYLES */
@@ -35,7 +35,7 @@
             overflow-x: hidden;
         }
 
-        /* 2. TOP BRANDING BAR (FROM INDEX) */
+        /* 2. TOP BRANDING BAR */
         .top-brand-bar {
             padding: 10px 15px;
             display: flex; justify-content: space-between; align-items: center;
@@ -45,13 +45,13 @@
         .live-logo {
             background: #000; color: #fff; padding: 6px 18px;
             border-radius: 50px; font-weight: 900; font-size: 1.2rem;
-            display: flex; align-items: center; gap: 4px;
+            display: flex; align-items: center; gap: 4px; cursor: pointer;
         }
         .live-logo span { color: var(--fpl-green); }
 
         .nav-btn { background:#eee; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; color: #000; }
 
-        /* 3. STICKY LEAGUE SELECTOR */
+        /* 3. STICKY HEADER & SELECTORS */
         .sticky-header {
             position: sticky; top: 55px; z-index: 100;
             background: var(--card-bg); border-bottom: 1px solid var(--border-color);
@@ -76,7 +76,7 @@
             color: var(--text-main); font-weight: 700; margin-bottom: 10px; outline: none;
         }
 
-        .search-container { position: relative; display: flex; align-items: center; }
+        .search-container { position: relative; display: flex; align-items: center; margin-bottom: 10px; }
         .search-container i { position: absolute; left: 10px; color: var(--text-muted); font-size: 0.8rem; }
         #team-search { 
             width: 100%; padding: 8px 8px 8px 30px; border-radius: 6px; 
@@ -84,8 +84,15 @@
             color: var(--text-main); font-size: 0.85rem; outline: none;
         }
 
-        /* 4. STANDINGS TABLE */
-        .standings-table { width: 100%; border-collapse: collapse; margin-bottom: 80px; }
+        /* 4. HEATMAP & HISTORY STYLES */
+        .heatmap-container { padding: 12px; background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 15px; }
+        .heatmap-bar-wrapper { margin-bottom: 8px; }
+        .heatmap-label { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 3px; font-weight: 700; }
+        .heatmap-bar-bg { height: 6px; background: var(--bg-color); border-radius: 3px; overflow: hidden; }
+        .heatmap-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary-blue), var(--fpl-green)); transition: width 0.5s; }
+
+        /* 5. STANDINGS TABLE */
+        .standings-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .standings-table th {
             background: var(--bg-color); color: var(--text-muted);
             font-size: 0.6rem; text-transform: uppercase;
@@ -96,20 +103,16 @@
         .standing-row:active { background: rgba(0,0,0,0.05); }
 
         .rank-cell { width: 45px; text-align: center; font-weight: 900; }
-        .team-cell { line-height: 1.4; }
-        .entry-name-wrapper { display: flex; align-items: center; gap: 5px; }
-        .entry-name { font-weight: 800; font-size: 0.85rem; }
-        .chip-badge { font-size: 0.55rem; font-weight: 900; color: white; background: var(--chip-purple); padding: 1px 4px; border-radius: 3px; }
-        .cap-info { display: block; font-size: 0.7rem; color: var(--primary-blue); font-weight: 600; }
-        .player-name { display: block; font-size: 0.7rem; color: var(--text-muted); }
+        .entry-name { font-weight: 800; font-size: 0.85rem; display: block; }
+        .chip-badge { font-size: 0.55rem; font-weight: 900; color: white; background: var(--chip-purple); padding: 1px 4px; border-radius: 3px; margin-left: 5px; vertical-align: middle; }
+        .cap-info { font-size: 0.7rem; color: var(--primary-blue); font-weight: 600; display: block; }
+        .player-name { font-size: 0.7rem; color: var(--text-muted); display: block; }
         .pts-cell { width: 50px; text-align: center; font-weight: 800; font-size: 0.9rem; }
         .hit-badge { color: var(--fpl-pink); font-size: 0.65rem; font-weight: 800; display: block; }
-        
         .up { color: var(--fpl-green); }
         .down { color: var(--fpl-pink); }
-        .move-icon { font-size: 0.6rem; display: block; }
 
-        /* 5. MODAL & MINI PITCH */
+        /* 6. MODAL & MINI PITCH */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 2000;
@@ -117,18 +120,28 @@
             backdrop-filter: blur(4px);
         }
         .modal-content {
-            background: var(--card-bg); width: 92%; max-width: 400px;
-            border-radius: 15px; max-height: 85vh; overflow-y: auto; position: relative;
+            background: var(--card-bg); width: 95%; max-width: 420px;
+            border-radius: 15px; max-height: 90vh; overflow-y: auto; position: relative;
         }
         .modal-header { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--card-bg); z-index: 10; }
-        .mini-pitch { background: #2e7d32; margin: 10px; border-radius: 10px; padding: 15px 5px; display: flex; flex-direction: column; gap: 15px; }
-        .mini-row { display: flex; justify-content: center; gap: 8px; }
-        .mini-player { width: 65px; text-align: center; }
-        .mini-shirt { width: 35px; height: auto; margin-bottom: -4px; }
-        .mini-name { background: #000; color: #fff; font-size: 0.55rem; padding: 2px; border-radius: 2px; white-space: nowrap; overflow: hidden; }
+        
+        .mini-pitch { background: #2e7d32; margin: 10px; border-radius: 10px; padding: 15px 5px; display: flex; flex-direction: column; gap: 12px; position: relative; border: 2px solid rgba(255,255,255,0.2); }
+        .mini-row { display: flex; justify-content: center; gap: 5px; flex-wrap: nowrap; }
+        .mini-player { width: 70px; text-align: center; }
+        .mini-shirt { width: 38px; height: auto; margin-bottom: -4px; }
+        .mini-name { background: #000; color: #fff; font-size: 0.55rem; padding: 2px; border-radius: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .mini-pts { background: #fff; color: #000; font-size: 0.65rem; font-weight: 800; border-radius: 0 0 2px 2px; }
+        .bonus-badge { background: #ffeb3b; color: #000; font-size: 0.55rem; font-weight: 900; padding: 1px 3px; border-radius: 3px; position: absolute; top: -5px; right: 5px; }
 
-        /* 6. BOTTOM NAV */
+        /* 7. TRANSFERS & HISTORY */
+        .transfer-container { padding: 12px; background: var(--bg-color); margin: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .transfer-row { display: flex; justify-content: space-between; font-size: 0.7rem; padding: 4px 0; border-bottom: 1px dotted var(--border-color); }
+        .transfer-in { color: var(--fpl-green); font-weight: 700; }
+        .transfer-out { color: var(--fpl-pink); font-weight: 700; }
+        .live-dot { height: 6px; width: 6px; background-color: var(--fpl-green); border-radius: 50%; display: inline-block; margin-right: 5px; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% {opacity:1} 50% {opacity:0.3} 100% {opacity:1} }
+
+        /* 8. BOTTOM NAV */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
         .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.65rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
         .nav-item.active { color: var(--primary-blue); font-weight: 700; }
@@ -145,17 +158,31 @@
     <div class="sticky-header">
         <div class="selector-label"><span>Select League</span><span class="live-badge">LIVE UPDATING</span></div>
         <select id="league-select" onchange="loadStandings(this.value)"></select>
+        
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="team-search" placeholder="Search team or manager..." onkeyup="filterTable()">
         </div>
+
+        <div id="league-info-bar" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 8px;">
+            <div id="league-name-display" style="font-weight: 800; font-size: 0.9rem; color: var(--primary-blue);">League Name</div>
+            <div style="text-align: right;">
+                <span id="league-count" style="font-size: 0.6rem; color: var(--text-muted); display: block;">-- Managers</span>
+                <span id="current-gw-display" style="font-size: 0.65rem; font-weight: 800; color: var(--fpl-pink);">GW --</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="captain-heatmap" class="heatmap-container" style="margin: 15px; display: none;">
+        <h3 style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin: 0 0 10px 0;">Top Captains (Top 25)</h3>
+        <div id="heatmap-content"></div>
     </div>
 
     <table class="standings-table">
         <thead>
             <tr>
                 <th style="text-align: center;">#</th>
-                <th>Team / Captain</th>
+                <th>Team / Manager</th>
                 <th style="text-align: center;">GW</th>
                 <th style="text-align: center;">Total</th>
             </tr>
@@ -163,16 +190,24 @@
         <tbody id="standings-body"></tbody>
     </table>
 
+    <div id="league-history-section" style="padding: 0 15px 100px 15px;">
+        <h3 style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">League Top Scores</h3>
+        <div id="history-content" class="transfer-container" style="background: var(--card-bg);">
+            <p style="font-size: 0.7rem; text-align: center;">Select a league to see history.</p>
+        </div>
+    </div>
+
     <div id="manager-modal" class="modal-overlay" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <div>
-                    <span id="modal-team-name" style="font-weight: 800; display: block;">Team Name</span>
-                    <span id="modal-manager-name" style="font-size: 0.7rem; color: var(--text-muted);">Manager</span>
+                    <span id="modal-team-name" style="font-weight: 800; display: block; font-size: 1rem;">Team Name</span>
+                    <span id="modal-manager-name" style="font-size: 0.7rem; color: var(--text-muted);">Manager Name</span>
                 </div>
                 <i class="fa-solid fa-xmark" style="font-size: 1.5rem; cursor: pointer;" onclick="closeModal()"></i>
             </div>
             <div class="mini-pitch" id="mini-pitch"></div>
+            <div id="transfer-history-content"></div>
         </div>
     </div>
 
@@ -221,24 +256,52 @@
 
         async function loadStandings(leagueId) {
             const body = document.getElementById('standings-body');
-            body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; font-size:0.8rem;">Loading Live Data...</td></tr>';
+            const heatmapContent = document.getElementById('heatmap-content');
+            const heatmapEl = document.getElementById('captain-heatmap');
+            
+            body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Loading Live Standing...</td></tr>';
+            
             try {
                 const res = await fetch(`${state.PROXY}leagues-classic/${leagueId}/standings/`);
                 const data = await res.json();
+
+                // Update Header Labels
+                document.getElementById('league-name-display').textContent = data.league.name;
+                document.getElementById('league-count').textContent = `${data.standings.results.length} Managers`;
+                document.getElementById('current-gw-display').textContent = `GW ${state.currentGW}`;
+
+                const captainCounts = {};
                 const detailedResults = await Promise.all(data.standings.results.slice(0, 25).map(async (r) => {
                     try {
                         const pRes = await fetch(`${state.PROXY}entry/${r.entry}/event/${state.currentGW}/picks/`);
                         const pData = await pRes.json();
                         const cap = pData.picks.find(p => p.is_captain);
-                        return { ...r, captain: state.playerMap[cap.element].name, hits: pData.entry_history.event_transfers_cost, chip: pData.active_chip };
+                        const capName = state.playerMap[cap.element].name;
+
+                        captainCounts[capName] = (captainCounts[capName] || 0) + 1;
+
+                        return { ...r, captain: capName, hits: pData.entry_history.event_transfers_cost, chip: pData.active_chip };
                     } catch { return { ...r, captain: '---', hits: 0, chip: null }; }
                 }));
 
+                // Render Heatmap
+                const sortedCaps = Object.entries(captainCounts).sort((a,b) => b[1] - a[1]);
+                heatmapContent.innerHTML = sortedCaps.map(([name, count]) => {
+                    const pct = Math.round((count / detailedResults.length) * 100);
+                    return `
+                        <div class="heatmap-bar-wrapper">
+                            <div class="heatmap-label"><span>${name}</span><span>${pct}%</span></div>
+                            <div class="heatmap-bar-bg"><div class="heatmap-bar-fill" style="width:${pct}%"></div></div>
+                        </div>`;
+                }).join('');
+                heatmapEl.style.display = 'block';
+
+                // Render Table
                 body.innerHTML = detailedResults.map(r => `
                     <tr class="standing-row" onclick="openManagerDetail(${r.entry}, '${r.entry_name.replace(/'/g, "\\'")}', '${r.player_name.replace(/'/g, "\\'")}')" data-search="${(r.entry_name + r.player_name).toLowerCase()}">
-                        <td class="rank-cell">${r.rank} <i class="fa-solid ${r.last_rank > r.rank ? 'fa-caret-up up' : r.last_rank < r.rank ? 'fa-caret-down down' : 'fa-minus same'} move-icon"></i></td>
-                        <td class="team-cell">
-                            <div class="entry-name-wrapper"><span class="entry-name">${r.entry_name}</span>${r.chip ? `<span class="chip-badge">${r.chip}</span>` : ''}</div>
+                        <td class="rank-cell">${r.rank} <i class="fa-solid ${r.last_rank > r.rank ? 'fa-caret-up up' : r.last_rank < r.rank ? 'fa-caret-down down' : 'fa-minus'}"></i></td>
+                        <td>
+                            <span class="entry-name">${r.entry_name}${r.chip ? `<span class="chip-badge">${r.chip.toUpperCase()}</span>` : ''}</span>
                             <span class="cap-info">Ⓒ ${r.captain}</span>
                             <span class="player-name">${r.player_name}</span>
                         </td>
@@ -246,6 +309,8 @@
                         <td class="pts-cell" style="color:var(--primary-blue)">${r.total}</td>
                     </tr>
                 `).join('');
+
+                loadLeagueHistory(data.standings.results);
             } catch (e) { body.innerHTML = '<tr><td colspan="4">Error Loading.</td></tr>'; }
         }
 
@@ -254,36 +319,78 @@
             document.getElementById('modal-manager-name').textContent = managerName;
             document.getElementById('manager-modal').style.display = 'flex';
             const pitch = document.getElementById('mini-pitch');
-            pitch.innerHTML = '<p style="color:white; text-align:center; font-size:0.7rem;">Loading Squad...</p>';
+            const transDiv = document.getElementById('transfer-history-content');
+            pitch.innerHTML = '<p style="color:white; text-align:center; font-size:0.7rem; padding:20px;">Fetching Live Data...</p>';
+            transDiv.innerHTML = '';
 
-            const [pRes, liveRes] = await Promise.all([
-                fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`),
-                fetch(`${state.PROXY}event/${state.currentGW}/live/`)
-            ]);
-            const pData = await pRes.json();
-            const lData = await liveRes.json();
-            const ptsMap = {};
-            lData.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+            try {
+                const [pRes, liveRes, tRes] = await Promise.all([
+                    fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`),
+                    fetch(`${state.PROXY}event/${state.currentGW}/live/`),
+                    fetch(`${state.PROXY}entry/${entryId}/transfers/`)
+                ]);
+                const pData = await pRes.json();
+                const lData = await liveRes.json();
+                const tData = await tRes.json();
 
-            const players = pData.picks.map(p => ({
-                ...state.playerMap[p.element],
-                pts: ptsMap[p.element] * p.multiplier,
-                isCap: p.is_captain,
-                pos: p.position
-            }));
+                // 1. Calculate Bonus
+                const bonusMap = {};
+                const fixtures = [...new Set(lData.elements.map(el => el.explain[0]?.fixture))].filter(Boolean);
+                fixtures.forEach(f => {
+                    const players = lData.elements.filter(el => el.explain[0]?.fixture === f)
+                        .sort((a,b) => b.stats.bps - a.stats.bps);
+                    if(players[0]) bonusMap[players[0].id] = 3;
+                    if(players[1]) bonusMap[players[1].id] = 2;
+                    if(players[2]) bonusMap[players[2].id] = 1;
+                });
 
-            const renderP = (list) => list.map(p => `
-                <div class="mini-player">
-                    <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="mini-shirt">
-                    <div class="mini-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div>
-                    <div class="mini-pts">${p.pts}</div>
+                const players = pData.picks.map(p => {
+                    const stats = lData.elements.find(el => el.id === p.element);
+                    const b = bonusMap[p.element] || 0;
+                    return { ...state.playerMap[p.element], pts: ((stats?.stats.total_points || 0) + b) * p.multiplier, bonus: b, isCap: p.is_captain, pos: p.position };
+                });
+
+                const benchPts = players.filter(p => p.pos > 11).reduce((s, p) => s + p.pts, 0);
+                const totalLive = players.filter(p => p.pos <= 11).reduce((s, p) => s + p.pts, 0);
+
+                const renderP = (list) => list.map(p => `
+                    <div class="mini-player">
+                        <div style="position:relative">
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="mini-shirt">
+                            ${p.bonus > 0 ? `<span class="bonus-badge">+${p.bonus}</span>` : ''}
+                        </div>
+                        <div class="mini-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div>
+                        <div class="mini-pts">${p.pts}</div>
+                    </div>`).join('');
+
+                pitch.innerHTML = `
+                    <div style="text-align:center; color:white; font-size:0.7rem; font-weight:800; margin-bottom:10px;">
+                        <span class="live-dot"></span>LIVE: ${totalLive} | BENCH: ${benchPts}
+                    </div>
+                    <div class="mini-row">${renderP(players.filter(p => p.pos === 1))}</div>
+                    <div class="mini-row">${renderP(players.filter(p => p.pos >= 2 && p.pos <= 5))}</div>
+                    <div class="mini-row">${renderP(players.filter(p => p.pos >= 6 && p.pos <= 10))}</div>
+                    <div class="mini-row">${renderP(players.filter(p => p.pos === 11))}</div>
+                    <div style="border-top:1px dashed rgba(255,255,255,0.2); padding-top:10px; margin-top:10px;">
+                        <div class="mini-row">${renderP(players.filter(p => p.pos > 11))}</div>
+                    </div>`;
+
+                // 2. Transfers
+                const gwTrans = tData.filter(t => t.event === state.currentGW);
+                transDiv.innerHTML = `<div class="transfer-container"><div style="font-weight:800; font-size:0.65rem; color:var(--text-muted); margin-bottom:5px;">GW ${state.currentGW} TRANSFERS</div>` + 
+                    (gwTrans.length ? gwTrans.map(t => `<div class="transfer-row"><span class="transfer-in">IN: ${state.playerMap[t.element_in].name}</span><span class="transfer-out">OUT: ${state.playerMap[t.element_out].name}</span></div>`).join('') : '<div style="font-size:0.7rem;">No transfers</div>') + `</div>`;
+
+            } catch (e) { pitch.innerHTML = '<p style="color:white; text-align:center;">Error Loading Team.</p>'; }
+        }
+
+        function loadLeagueHistory(results) {
+            const hist = document.getElementById('history-content');
+            const topScores = [...results].sort((a,b) => b.event_total - a.event_total).slice(0, 3);
+            hist.innerHTML = topScores.map((m, i) => `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border-color);">
+                    <div style="font-size:0.75rem;"><strong>${i+1}. ${m.entry_name}</strong><br><small>${m.player_name}</small></div>
+                    <div style="font-weight:900; color:var(--fpl-green);">${m.event_total} Pts</div>
                 </div>`).join('');
-
-            pitch.innerHTML = `
-                <div class="mini-row">${renderP(players.filter(p => p.pos <= 11 && p.pos == 1))}</div>
-                <div class="mini-row">${renderP(players.filter(p => p.pos <= 11 && p.pos > 1 && players[p.pos-1].pos == p.pos))}</div>
-                <div class="mini-row" style="border-top:1px dashed rgba(255,255,255,0.2); padding-top:10px;">${renderP(players.filter(p => p.pos > 11))}</div>
-            `;
         }
 
         function toggleTheme() {
@@ -297,10 +404,8 @@
         }
         function closeModal() { document.getElementById('manager-modal').style.display = 'none'; }
         function filterTable() {
-            const query = document.getElementById('team-search').value.toLowerCase();
-            document.querySelectorAll('.standing-row').forEach(row => {
-                row.style.display = row.getAttribute('data-search').includes(query) ? '' : 'none';
-            });
+            const q = document.getElementById('team-search').value.toLowerCase();
+            document.querySelectorAll('.standing-row').forEach(r => r.style.display = r.getAttribute('data-search').includes(q) ? '' : 'none');
         }
     </script>
 </body>
