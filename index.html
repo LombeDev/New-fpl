@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOPALA FPL | 3D Live Rank</title>
+    <title>KOPALA FPL</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         /* 1. THEME & CORE STYLES */
@@ -18,6 +18,9 @@
             --nav-bg: #ffffff;
             --border-color: #e2e8f0;
             --input-bg: #f8fafc;
+            --info-bg: #eff6ff;
+            --info-border: #bfdbfe;
+            --info-text: #1e40af;
         }
 
         body.dark-mode {
@@ -28,6 +31,9 @@
             --nav-bg: #1e293b;
             --border-color: #334155;
             --input-bg: #0f172a;
+            --info-bg: #1e293b;
+            --info-border: #334155;
+            --info-text: #94a3b8;
         }
 
         body {
@@ -60,87 +66,54 @@
             display: flex; justify-content: space-between; align-items: center;
             background: var(--bg-color); position: sticky; top: 0; z-index: 100;
         }
+
         .live-logo {
             background: #000; color: #fff; padding: 6px 18px;
             border-radius: 50px; font-weight: 900; font-size: 1.2rem;
             display: flex; align-items: center; gap: 4px;
         }
         .live-logo span { color: var(--fpl-green); }
+
         .top-nav-btn {
             background: var(--border-color); border: none; border-radius: 50%; 
             width: 40px; height: 40px; color: var(--text-main); cursor: pointer;
         }
 
-        /* 4. LOGIN SCREEN */
+        /* 4. LOGIN SCREEN STYLES */
         #login-screen { display: none; }
         .login-container { max-width: 450px; margin: 0 auto; padding: 20px; }
-        .login-card { background: var(--card-bg); border-radius: 24px; padding: 30px 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
+        .promo-card { border: 1px solid var(--border-color); border-radius: 20px; padding: 25px 20px; text-align: center; margin-bottom: 20px; background: var(--card-bg); }
+        .promo-card h3 { margin: 0; font-size: 1.1rem; line-height: 1.4; font-weight: 800; }
+        .promo-link { color: var(--text-muted); font-size: 0.9rem; text-decoration: underline; margin-top: 10px; display: block; }
+        .login-card { background: var(--card-bg); border-radius: 24px; padding: 30px 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); border: 1px solid var(--border-color); }
+        .theme-toggle-pill { display: flex; background: var(--border-color); border-radius: 30px; padding: 4px; width: fit-content; margin-left: auto; margin-bottom: 25px; }
+        .toggle-btn { border: none; padding: 8px 22px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s; background: transparent; color: var(--text-muted); }
+        .toggle-btn.active { background: var(--primary-blue); color: white; }
+        .login-card h2 { margin: 0 0 8px 0; font-size: 1.6rem; font-weight: 800; }
+        .login-card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; }
         .fpl-input { width: 100%; padding: 18px; border-radius: 12px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-main); font-size: 1rem; box-sizing: border-box; margin-bottom: 20px; }
         .continue-btn { width: 100%; padding: 18px; background: var(--primary-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+        .find-id-btn { display: block; margin: 20px auto 0; background: none; border: none; color: var(--text-muted); font-size: 0.95rem; cursor: pointer; font-weight: 600; }
+        .info-box { background: var(--info-bg); border: 1px solid var(--info-border); border-radius: 12px; padding: 15px; margin-top: 25px; display: flex; gap: 12px; color: var(--info-text); font-size: 0.88rem; line-height: 1.5; }
 
-        /* 5. 3D PITCH DESIGN */
+        /* 5. DASHBOARD & PITCH STYLES */
         #dashboard { display: none; opacity: 0; transition: opacity 0.4s ease-in; }
-        .header-stats-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; background: var(--card-bg); margin: 10px; padding: 12px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); }
+        .header-stats-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; background: var(--card-bg); margin: 10px; padding: 12px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
         .stat-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); display: block; }
         .stat-value { font-size: 1.1rem; font-weight: 800; display: block; margin: 2px 0; }
+        .stat-sub { font-size: 0.6rem; font-weight: 600; color: var(--fpl-pink); }
+        .safety-green { color: var(--fpl-green); }
 
-        .pitch-wrapper {
-            position: relative;
-            margin: 10px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-        }
-
-        .pitch-container { 
-            background-color: #008042;
-            background-image: url('https://fantasy.premierleague.com/static/media/pitch-default.76632490.svg');
-            background-size: cover;
-            background-position: center;
-            padding: 25px 5px; 
-            min-height: 550px; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-around;
-            position: relative;
-        }
-
-        .pitch-brand-overlay {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%) rotate(-15deg);
-            font-size: 3.5rem;
-            font-weight: 900;
-            color: rgba(255, 255, 255, 0.07);
-            pointer-events: none;
-            text-transform: uppercase;
-            z-index: 1;
-        }
-
-        .pitch-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 10px; position: relative; z-index: 2; }
-        
-        .bench-area {
-            background: rgba(0, 0, 0, 0.15);
-            margin-top: 15px;
-            padding: 15px 0;
-            border-top: 2px dashed rgba(255,255,255,0.2);
-        }
-
-        /* 3D PLAYER CARDS */
-        .player-card { width: 72px; text-align: center; perspective: 1000px; }
-        .shirt-img { width: 44px; height: auto; margin-bottom: -5px; position: relative; z-index: 5; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
-        
-        .p-info-box { 
-            position: relative; 
-            z-index: 4; 
-            border-radius: 3px; 
-            overflow: hidden; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            background: white;
-        }
-        .p-name { background: #000; color: #fff; font-size: 0.6rem; font-weight: 700; padding: 2px 1px; white-space: nowrap; overflow: hidden; }
-        .p-pts { color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; border-bottom: 1px solid #eee; }
-        .p-fix { font-size: 0.5rem; font-weight: 800; padding: 1px 0; background: #f1f5f9; color: #475569; }
+        .pitch-container { background: #2e7d32; background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 100% 45px; border-radius: 12px; margin: 10px; padding: 15px 5px; min-height: 550px; display: flex; flex-direction: column; justify-content: space-around; }
+        .pitch-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; }
+        .bench-row { background: rgba(255, 255, 255, 0.15); padding: 10px 0; border-radius: 10px; margin-top: 15px; border-top: 2px dashed rgba(255,255,255,0.2); }
+        .player-card { width: 72px; text-align: center; position: relative; }
+        .shirt-img { width: 42px; height: auto; margin-bottom: -5px; position: relative; z-index: 2; }
+        .p-info-box { position: relative; z-index: 1; border-radius: 3px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .p-name { background: #000; color: #fff; font-size: 0.6rem; font-weight: 700; padding: 2px 1px; }
+        .p-pts { background: #fff; color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; border-bottom: 1px solid #eee; }
+        .p-own { background: #c8e6c9; color: #1b5e20; font-size: 0.55rem; font-weight: 700; display: flex; justify-content: space-around; padding: 1px 0; border-bottom: 1px solid #b2d8b4; }
+        .p-fix { font-size: 0.5rem; font-weight: 800; padding: 1px 0; text-transform: uppercase; }
 
         /* 6. BOTTOM NAVIGATION */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
@@ -152,7 +125,7 @@
 
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <p style="margin-top: 15px; font-weight: 600; font-size: 0.9rem; color: var(--text-muted);">Syncing 3D Data...</p>
+        <p style="margin-top: 15px; font-weight: 600; font-size: 0.9rem; color: var(--text-muted);">Syncing with FPL...</p>
     </div>
 
     <div class="top-brand-bar">
@@ -162,51 +135,84 @@
     </div>
 
     <div id="login-screen" class="login-container">
+        <div class="promo-card">
+            <h3>The original, most-trusted FPL rank tool since 2025 ❤️</h3>
+            <a href="#" class="promo-link">Get the full experience on the app <i class="fa-solid fa-up-right-from-square"></i></a>
+        </div>
         <div class="login-card">
-            <h2>Enter FPL ID</h2>
-            <p>Paste your ID to see your live 3D pitch.</p>
-            <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567">
-            <button class="continue-btn" onclick="handleLogin()">Enter Dashboard</button>
+            <div class="theme-toggle-pill">
+                <button id="dark-btn" class="toggle-btn" onclick="setTheme('dark')">Dark</button>
+                <button id="light-btn" class="toggle-btn" onclick="setTheme('light')">Light</button>
+            </div>
+            <h2>Enter your FPL ID</h2>
+            <p>We only use your public FPL ID on this device.</p>
+            <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste a link">
+            <button class="continue-btn" onclick="handleLogin()">Continue</button>
+            <button class="find-id-btn"><i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it</button>
+        </div>
+        <div class="info-box">
+            <i class="fa-solid fa-circle-info" style="margin-top: 3px;"></i>
+            <div>This is an initial test version of the app.</div>
         </div>
     </div>
 
+                 <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+             <span id="disp-name" style="font-weight: 800; font-size: 0.8rem;">Manager</span>
+        </div>
+
     <div id="dashboard" style="padding-bottom: 80px;">
         <div class="header-stats-grid">
+
             <div>
                 <span class="stat-label" id="gw-label">GW Rank</span>
                 <span class="stat-value" id="disp-gw-rank">-</span>
+                <span class="stat-sub">Target: <span id="disp-target">-</span></span>
             </div>
             <div>
                 <span class="stat-label">Live Rank</span>
                 <span class="stat-value" id="disp-rank">0</span>
+                <span class="stat-sub safety-green">Safety: <span id="disp-safety">-</span></span>
             </div>
             <div>
                 <span class="stat-label">GW Points</span>
                 <span class="stat-value" id="disp-total">0</span>
+                <span class="stat-sub">Avg: <span id="disp-avg">-</span></span>
             </div>
         </div>
-
-        <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
-            <select id="league-select" onchange="changeLeague(this.value)" style="padding: 5px; border-radius: 5px; background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color);"></select>
-            <span id="disp-name" style="font-weight: 800; font-size: 0.8rem;">Manager</span>
-        </div>
-
-        <div class="pitch-wrapper">
-            <div id="pitch-view" class="pitch-container">
-                <div class="pitch-brand-overlay">KOPALA FPL</div>
-                <div id="starting-rows"></div>
-                <div class="bench-area">
-                    <div id="bench-row" class="pitch-row"></div>
-                </div>
-            </div>
+       
+        <div id="pitch-view" class="pitch-container">
+            <div id="starting-rows"></div>
+            <div id="bench-row" class="pitch-row bench-row"></div>
         </div>
     </div>
 
+     <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <select id="league-select" onchange="changeLeague(this.value)" style="padding: 5px; border-radius: 5px; max-width: 60%; background: var(--card-bg); color: var(--text-main); border-color: var(--border-color);"></select>
+          
+        </div>
+
     <nav class="bottom-nav">
-        <button class="nav-item active" onclick="window.location.href='index.html'"><i class="fa-solid fa-chart-line"></i><span>Rank</span></button>
-        <button class="nav-item" onclick="window.location.href='leagues.html'"><i class="fa-solid fa-trophy"></i><span>Leagues</span></button>
-        <button class="nav-item"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></button>
-        <button class="nav-item" onclick="window.location.href='about.html'"><i class="fa-solid fa-ellipsis"></i><span>More</span></button>
+        <button class="nav-item active" onclick="window.location.href='index.html'">
+            <i class="fa-solid fa-chart-line"></i><span>Rank</span>
+        </button>
+        <button class="nav-item" onclick="window.location.href='leagues.html'">
+            <i class="fa-solid fa-trophy"></i><span>Leagues</span>
+        </button>
+        <button class="nav-item" onclick="window.location.href='prices.html'">
+            <i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span>
+        </button>
+        <button class="nav-item" onclick="window.location.href='games.html'">
+            <i class="fa-solid fa-gamepad"></i><span>Games</span>
+        </button>
+        <button class="nav-item">
+            <i class="fa-solid fa-calendar-days"></i><span>Planner</span>
+        </button>
+        <button class="nav-item">
+            <i class="fa-solid fa-lightbulb"></i><span>What If</span>
+        </button>
+        <button class="nav-item" onclick="window.location.href='about.html'">
+            <i class="fa-solid fa-ellipsis"></i><span>More</span>
+        </button>
     </nav>
 
     <script>
@@ -214,7 +220,8 @@
             fplId: localStorage.getItem('kopala_fpl_id'),
             currentGW: 1,
             playerMap: {},
-            teamMap: {}
+            teamMap: {},
+            leagueOwnership: {}
         };
 
         const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
@@ -234,13 +241,15 @@
             }
         });
 
-        function hideLoader() { document.getElementById('loading-overlay').style.display = 'none'; }
+        function hideLoader() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
 
         async function initAppData() {
             try {
                 const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
                 const data = await res.json();
-                data.teams.forEach(t => { state.teamMap[t.id] = { short: t.short_name }; });
+                data.teams.forEach(t => { state.teamMap[t.id] = { name: t.name, short: t.short_name }; });
                 data.elements.forEach(p => {
                     state.playerMap[p.id] = { name: p.web_name, code: p.code, pos: p.element_type, team: p.team };
                 });
@@ -248,16 +257,18 @@
                 if (current) {
                     state.currentGW = current.id;
                     document.getElementById('gw-label').textContent = `GW${current.id} Rank`;
+                    document.getElementById('disp-avg').textContent = current.average_entry_score || 0;
                 }
-            } catch (e) { console.error("Init Error", e); }
+            } catch (e) { console.error("App Init Error:", e); }
         }
 
         async function handleLogin() {
-            const id = document.getElementById('team-id-input').value.trim();
+            const val = document.getElementById('team-id-input').value.trim();
+            const id = val.includes('/') ? val.split('/').filter(s => s && !isNaN(s)).pop() : val;
             if(id && !isNaN(id)) { 
                 localStorage.setItem('kopala_fpl_id', id); 
                 location.reload(); 
-            }
+            } else { alert("Please enter a valid numeric FPL ID"); }
         }
 
         async function fetchManagerData() {
@@ -266,17 +277,45 @@
                 const data = await res.json();
                 document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
                 
-                // Show GW Points
+                // FIXED: Now correctly displays current Gameweek points
                 document.getElementById('disp-total').textContent = data.summary_event_points || 0;
-                document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
                 
+                document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
                 const leagues = data.leagues.classic.filter(l => l.league_type === 'x');
                 if (leagues.length > 0) {
                     const select = document.getElementById('league-select');
                     select.innerHTML = leagues.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
-                    await renderPitch();
+                    await changeLeague(select.value);
                 }
-            } catch (e) { console.error("Fetch Error", e); }
+            } catch (e) { console.error("Manager Data Error:", e); }
+        }
+
+        async function changeLeague(leagueId) {
+            try {
+                const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
+                const data = await res.json();
+                const standings = data.standings.results.slice(0, 10);
+                const topScores = standings.map(s => s.event_total);
+                const avgLeague = Math.round(topScores.reduce((a, b) => a + b, 0) / topScores.length);
+                document.getElementById('disp-safety').textContent = Math.round(avgLeague * 0.9);
+                document.getElementById('disp-target').textContent = Math.max(...topScores);
+                await renderPitch();
+            } catch (e) { console.error("League Change Error:", e); }
+        }
+
+        function createPlayerHTML(p) {
+            return `
+                <div class="player-card">
+                    <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="shirt-img">
+                    <div class="p-info-box">
+                        <div class="p-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div>
+                        <div class="p-pts">${p.pts}</div>
+                        <div class="p-own">
+                            <span>0%</span><span>0%</span>
+                        </div>
+                        <div class="p-fix fdr-${p.fix.fdr}">${p.fix.opponent} (${p.fix.isHome ? 'H' : 'A'})</div>
+                    </div>
+                </div>`;
         }
 
         async function renderPitch() {
@@ -289,59 +328,41 @@
                 const picks = await picksRes.json();
                 const live = await liveRes.json();
                 const fixtures = await fixturesRes.json();
-                
                 document.getElementById('disp-gw-rank').textContent = picks.entry_history.rank ? picks.entry_history.rank.toLocaleString() : '-';
-                
                 const ptsMap = {};
                 live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
-                
                 const teamFixtures = {};
                 fixtures.forEach(f => {
-                    teamFixtures[f.team_h] = { opp: state.teamMap[f.team_a].short };
-                    teamFixtures[f.team_a] = { opp: state.teamMap[f.team_h].short };
+                    teamFixtures[f.team_h] = { opponent: state.teamMap[f.team_a].short, isHome: true, fdr: f.team_h_difficulty };
+                    teamFixtures[f.team_a] = { opponent: state.teamMap[f.team_h].short, isHome: false, fdr: f.team_a_difficulty };
                 });
-
                 const allPlayers = picks.picks.map(p => {
-                    const b = state.playerMap[p.element];
-                    return { ...b, pts: (ptsMap[p.element] || 0) * (p.multiplier || 1), isCap: p.is_captain, fix: teamFixtures[b.team] || { opp: 'BYE' }, posId: p.position };
+                    const base = state.playerMap[p.element];
+                    return { ...base, id: p.element, pts: (ptsMap[p.element] || 0) * (p.multiplier || 1), isCap: p.is_captain, fix: teamFixtures[base.team] || { opponent: 'BYE', fdr: 2 }, position: p.position };
                 });
-
-                const starting = allPlayers.filter(p => p.posId <= 11);
-                const bench = allPlayers.filter(p => p.posId > 11).sort((a,b) => a.posId - b.posId);
-
-                // Build pitch rows based on FPL types (1: GK, 2: DEF, 3: MID, 4: FWD)
-                document.getElementById('starting-rows').innerHTML = [1, 2, 3, 4].map(type => `
+                const starting = allPlayers.filter(p => p.position <= 11);
+                const bench = allPlayers.filter(p => p.position > 11).sort((a,b) => a.position - b.position);
+                document.getElementById('starting-rows').innerHTML = [1, 2, 3, 4].map(pos => `
                     <div class="pitch-row">
-                        ${starting.filter(p => p.pos === type).map(p => `
-                            <div class="player-card">
-                                <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="shirt-img">
-                                <div class="p-info-box">
-                                    <div class="p-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div>
-                                    <div class="p-pts">${p.pts}</div>
-                                    <div class="p-fix">${p.fix.opp}</div>
-                                </div>
-                            </div>
-                        `).join('')}
+                        ${starting.filter(p => p.pos === pos).map(p => createPlayerHTML(p)).join('')}
                     </div>`).join('');
-
-                document.getElementById('bench-row').innerHTML = bench.map(p => `
-                    <div class="player-card">
-                        <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="shirt-img">
-                        <div class="p-info-box">
-                            <div class="p-name">${p.name}</div>
-                            <div class="p-pts">${p.pts}</div>
-                        </div>
-                    </div>`).join('');
-
-            } catch (e) { console.error("Pitch Error", e); }
+                document.getElementById('bench-row').innerHTML = bench.map(p => createPlayerHTML(p)).join('');
+            } catch (e) { console.error("Pitch Render Error:", e); }
         }
 
         function setTheme(theme) {
             document.body.classList.toggle('dark-mode', theme === 'dark');
             document.getElementById('theme-icon').className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            const darkBtn = document.getElementById('dark-btn');
+            const lightBtn = document.getElementById('light-btn');
+            if (theme === 'dark') { darkBtn.classList.add('active'); lightBtn.classList.remove('active'); }
+            else { lightBtn.classList.add('active'); darkBtn.classList.remove('active'); }
             localStorage.setItem('theme', theme);
         }
+
         function toggleTheme() { setTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark'); }
+
+        function logout() { if(confirm("Change FPL ID?")) { localStorage.removeItem('kopala_fpl_id'); location.reload(); } }
     </script>
 </body>
 </html>
