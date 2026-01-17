@@ -125,11 +125,13 @@
 
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <p style="margin-top: 15px; font-weight: 600; font-size: 0.9rem; color: var(--text-muted);">Syncing with FPL...</p>
+        <p style="margin-top: 15px; font-weight: 600; font-size: 0.9rem; color: var(--text-muted);">Loading layest data</p>
     </div>
 
     <div class="top-brand-bar">
-        <button class="top-nav-btn"><i class="fa-solid fa-user"></i></button>
+        <button id="auth-btn" class="top-nav-btn" onclick="handleAuthAction()">
+            <i class="fa-solid fa-user"></i>
+        </button>
         <div class="live-logo">Kopala<span>▲</span>FPL</div>
         <button class="top-nav-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
     </div>
@@ -150,11 +152,7 @@
             <button class="continue-btn" onclick="handleLogin()">Continue</button>
             <button class="find-id-btn"><i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it</button>
         </div>
-        <div class="info-box">
-            <i class="fa-solid fa-circle-info" style="margin-top: 3px;"></i>
-            <div>This is an initial test version of the app.</div>
-        </div>
-    </div>
+        
 
                  <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
              <span id="disp-name" style="font-weight: 800; font-size: 0.8rem;">Manager</span>
@@ -363,6 +361,27 @@
         function toggleTheme() { setTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark'); }
 
         function logout() { if(confirm("Change FPL ID?")) { localStorage.removeItem('kopala_fpl_id'); location.reload(); } }
+
+        // AUTH LOGIC (LOGIN / LOGOUT)
+        function handleAuthAction() {
+            if (state.fplId) {
+                if (confirm("Logout of Kopala FPL? \nThis will clear your FPL ID from this device.")) {
+                    localStorage.removeItem('kopala_fpl_id');
+                    location.reload();
+                }
+            } else {
+                document.getElementById('team-id-input').focus();
+            }
+        }
+
+        function updateAuthButton() {
+            const btn = document.getElementById('auth-btn');
+            if (state.fplId) {
+                btn.classList.add('logged-in');
+            } else {
+                btn.classList.remove('logged-in');
+            }
+        }
     </script>
 </body>
 </html>
