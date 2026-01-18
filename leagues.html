@@ -11,12 +11,12 @@
             --card-bg: #ffffff;
             --text-main: #1a1a1b;
             --text-muted: #5f6368;
-            --primary-blue: #3b82f6;
             --fpl-green: #00ff85;
             --fpl-pink: #e90052;
             --border-color: #dbdee1;
             --live-fpl-blue: #3876f2;
             --pitch-bg: #e2f3f5;
+            --pitch-grass: #2d5a27;
         }
 
         body.dark-mode {
@@ -37,11 +37,10 @@
             overflow-x: hidden;
         }
 
-        /* TOP BRANDING */
+        /* HEADER & CONTROLS */
         .top-brand-bar {
             padding: 10px 15px;
             display: flex; justify-content: space-between; align-items: center;
-            background: var(--bg-color);
         }
         .live-logo {
             background: #000; color: #fff; padding: 6px 18px;
@@ -50,11 +49,7 @@
         }
         .live-logo span { color: var(--fpl-green); }
 
-        /* LEAGUE CONTROLS */
-        .league-controls {
-            padding: 10px 15px;
-            display: flex; flex-direction: column; gap: 10px;
-        }
+        .league-controls { padding: 10px 15px; display: flex; flex-direction: column; gap: 10px; }
         .control-row { display: flex; gap: 8px; align-items: center; }
         
         #league-select {
@@ -69,7 +64,7 @@
             color: var(--text-main); cursor: pointer;
         }
 
-        .search-bar-wrapper { display: flex; gap: 8px; margin-top: 5px; }
+        .search-bar-wrapper { display: flex; gap: 8px; }
         #team-search {
             flex-grow: 1; padding: 12px; border-radius: 10px;
             border: 1px solid var(--border-color); background: var(--card-bg);
@@ -80,137 +75,75 @@
             background: var(--card-bg); font-weight: 700; color: var(--live-fpl-blue);
         }
 
-        /* MANAGER CARDS */
-        .league-title {
-            text-align: center; font-size: 0.9rem; font-weight: 800;
-            margin: 15px 0 5px 0;
-        }
-        .table-headers {
-            display: grid; grid-template-columns: 40px 1fr 80px 40px 60px 20px;
-            padding: 0 20px; font-size: 0.7rem; font-weight: 800; color: var(--text-muted);
-            text-transform: uppercase; margin-bottom: 10px;
-        }
-
+        /* CARDS */
         .manager-card {
             background: var(--card-bg);
             margin: 8px 12px;
-            border-radius: 18px;
+            border-radius: 20px;
             border: 1px solid var(--border-color);
             overflow: hidden;
-            transition: all 0.3s ease;
         }
+        .card-main-row { padding: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; position: relative; }
 
-        .card-main-row {
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-        }
-
-        .pos-indicator {
-            display: flex; flex-direction: column; align-items: center;
-            width: 30px; font-weight: 900;
-        }
+        .pos-indicator { display: flex; flex-direction: column; align-items: center; width: 30px; font-weight: 900; }
         .rank-up { color: var(--fpl-green); font-size: 0.6rem; }
         .rank-down { color: var(--fpl-pink); font-size: 0.6rem; }
 
         .manager-info { flex-grow: 1; }
-        .team-name { font-weight: 800; font-size: 0.9rem; display: block; }
+        .team-name { font-weight: 800; font-size: 0.85rem; display: block; }
         .mgr-name { font-size: 0.75rem; color: var(--text-muted); display: block; }
         
-        .meta-row { display: flex; align-items: center; gap: 5px; margin-top: 4px; }
-        .or-badge {
-            background: #eee; color: #000; font-size: 0.65rem;
-            font-weight: 800; padding: 2px 8px; border-radius: 10px;
-        }
-        .chip-badge {
-            background: var(--live-fpl-blue); color: white; font-size: 0.6rem;
-            font-weight: 800; padding: 2px 5px; border-radius: 4px;
-        }
-        .transfer-row {
-            font-size: 0.7rem; color: #64748b; font-weight: 600;
-            margin-top: 4px; font-style: italic;
-        }
+        .meta-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+        .or-badge { background: #eee; color: #000; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; }
+        .chip-badge { background: var(--live-fpl-blue); color: #fff; font-size: 0.6rem; font-weight: 900; padding: 2px 5px; border-radius: 4px; }
+        .transfer-row { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; margin-top: 4px; font-style: italic; }
 
-        .captain-section { text-align: center; width: 80px; }
-        .cap-name { font-weight: 800; font-size: 0.85rem; display: block; }
-        .cap-sub { font-size: 0.7rem; color: var(--text-muted); }
+        .points-section { text-align: right; width: 65px; }
+        .gw-pts { font-weight: 800; font-size: 0.9rem; display: block; }
+        .total-pts { font-weight: 900; font-size: 1rem; color: var(--live-fpl-blue); }
+        .yet-tag { font-size: 0.6rem; color: var(--text-muted); }
 
-        .points-section { text-align: right; width: 60px; }
-        .gw-pts { font-weight: 800; font-size: 0.85rem; display: block; }
-        .total-pts { font-weight: 900; font-size: 0.95rem; color: var(--live-fpl-blue); }
-        .yet-to-play { font-size: 0.6rem; color: var(--text-muted); }
-
-        .expand-arrow { transition: transform 0.3s; color: var(--border-color); }
-
-        /* PITCH EXPANSION */
-        .detail-pane {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-out;
-            background: var(--pitch-bg);
-        }
-        .detail-pane.active { max-height: 800px; border-top: 1px solid var(--border-color); }
-
-        .pitch-container {
-            padding: 20px 10px;
-            display: flex; flex-direction: column; gap: 15px;
-            background-image: radial-gradient(circle, rgba(255,255,255,0.2) 1px, transparent 1px);
-            background-size: 20px 20px;
+        /* PITCH AREA */
+        .detail-pane { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; background: var(--pitch-bg); }
+        .detail-pane.active { max-height: 1000px; border-top: 1px solid var(--border-color); }
+        .pitch-container { 
+            padding: 20px 10px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            background: linear-gradient(180deg, #2d5a27 0%, #3e7a37 100%);
         }
         .pitch-row { display: flex; justify-content: space-around; width: 100%; }
 
-        .pitch-player { width: 65px; text-align: center; position: relative; }
-        .jersey-wrapper { position: relative; display: inline-block; }
-        .p-jersey { width: 42px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1)); }
+        .pitch-player { width: 65px; text-align: center; }
+        .p-face { width: 55px; height: auto; margin-bottom: -5px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3)); }
         
-        .p-labels {
-            background: #fff; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-top: -2px; overflow: hidden;
-        }
-        .p-name { background: #1e293b; color: #fff; font-size: 0.55rem; padding: 2px; }
-        .p-points { font-size: 0.75rem; font-weight: 800; padding: 2px; border-bottom: 1px solid #eee; color: #000; }
-        .p-points.high { background: var(--fpl-green); }
-        .p-own { font-size: 0.55rem; color: #64748b; padding: 1px; }
+        .p-labels { background: #fff; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; z-index: 2; }
+        .p-name { background: #1e293b; color: #fff; font-size: 0.55rem; padding: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-pts { font-size: 0.75rem; font-weight: 800; color: #000; padding: 1px; }
+        .p-pts.high { background: var(--fpl-green); }
+        .p-own { font-size: 0.5rem; color: #64748b; padding-bottom: 2px; border-top: 1px solid #eee; }
 
         .c-badge, .v-badge {
-            position: absolute; bottom: 0; right: -5px;
-            background: #fff; width: 15px; height: 15px;
-            border-radius: 50%; font-size: 0.6rem; font-weight: 900;
+            position: absolute; top: -5px; right: -5px;
+            background: #000; color: #fff; font-size: 0.6rem; font-weight: 900;
+            width: 18px; height: 18px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            border: 1px solid #ccc; color: #000;
+            border: 1px solid var(--fpl-green); z-index: 3;
         }
 
         /* BOTTOM NAV */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 75px;
-            background: var(--card-bg); border-top: 1px solid var(--border-color);
-            display: grid; grid-template-columns: repeat(4, 1fr); z-index: 1000;
-        }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; gap: 4px; color: var(--text-muted);
-            text-decoration: none; font-size: 0.65rem; font-weight: 600;
-        }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--card-bg); border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(4, 1fr); z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-muted); font-size: 0.65rem; font-weight: 600; cursor: pointer; }
         .nav-item.active { color: var(--live-fpl-blue); }
         .nav-item i { font-size: 1.2rem; }
-
-        #slide-overlay {
-            position: fixed; top: 0; left: 100%; width: 100%; height: 100%;
-            background: var(--bg-color); z-index: 9999;
-            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        #slide-overlay.active { left: 0; }
     </style>
 </head>
 <body>
 
-    <div id="slide-overlay"></div>
-
     <div class="top-brand-bar">
-        <div class="icon-btn" style="border:none; background:none;"><i class="fa-solid fa-crown" style="color:#eab308"></i></div>
-        <div class="live-logo">Kopala<span>▲</span>FPL</div>
+        <div class="icon-btn" style="border:none;"><i class="fa-solid fa-crown" style="color:#eab308"></i></div>
+        <div class="live-logo">LIVE<span>▲</span>FPL</div>
         <div class="icon-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></div>
     </div>
 
@@ -218,50 +151,50 @@
         <div class="control-row">
             <select id="league-select" onchange="loadStandings(this.value)"></select>
             <div class="icon-btn"><i class="fa-solid fa-gear"></i></div>
-            <div class="icon-btn"><i class="fa-solid fa-chart-column"></i></div>
-            <div class="icon-btn"><i class="fa-solid fa-scale-balanced"></i></div>
         </div>
         <div class="search-bar-wrapper">
-            <input type="text" id="team-search" placeholder="Search league..." onkeyup="filterTable()">
+            <input type="text" id="team-search" placeholder="Search league...">
             <button class="action-btn">Find me</button>
-            <button class="action-btn" style="color:var(--text-main)">Detailed</button>
         </div>
-    </div>
-
-    <div class="league-title" id="league-display-name">Loading...</div>
-
-    <div class="table-headers">
-        <span>Pos</span>
-        <span>Manager</span>
-        <span style="text-align:center">(C)</span>
-        <span style="text-align:right">GW</span>
-        <span style="text-align:right">Total</span>
     </div>
 
     <div id="standings-container"></div>
 
     <nav class="bottom-nav">
-        <div class="nav-item" onclick="navTo(0, this)"><i class="fa-solid fa-chart-line"></i><span>Rank</span></div>
-        <div class="nav-item active" onclick="navTo(1, this)"><i class="fa-solid fa-trophy"></i><span>Leagues</span></div>
-        <div class="nav-item" onclick="navTo(2, this)"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></div>
-        <div class="nav-item" onclick="navTo(3, this)"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></div>
+        <div class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></div>
+        <div class="nav-item active"><i class="fa-solid fa-trophy"></i><span>Leagues</span></div>
+        <div class="nav-item"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></div>
+        <div class="nav-item"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></div>
     </nav>
 
     <script>
         const state = {
-            fplId: localStorage.getItem('kopala_id'),
+            fplId: localStorage.getItem('kopala_id') || '532432',
             currentGW: 1,
             playerMap: {},
+            elements: [],
             PROXY: "/.netlify/functions/fpl-proxy?endpoint="
         };
 
         async function init() {
-            if(localStorage.getItem('theme') === 'dark') setTheme('dark');
-            const res = await fetch(`${state.PROXY}bootstrap-static/`);
-            const data = await res.json();
-            data.elements.forEach(p => state.playerMap[p.id] = { name: p.web_name, code: p.code, team_code: p.team_code, own: p.selected_by_percent });
-            state.currentGW = data.events.find(e => e.is_current).id;
-            if(state.fplId) fetchLeagues();
+            try {
+                const res = await fetch(`${state.PROXY}bootstrap-static/`);
+                const data = await res.json();
+                state.elements = data.elements;
+                
+                data.elements.forEach(p => {
+                    state.playerMap[p.id] = { 
+                        name: p.web_name, 
+                        team_code: p.team_code, 
+                        photo: p.photo.replace('.jpg', '.png'),
+                        own: p.selected_by_percent 
+                    };
+                });
+                state.currentGW = data.events.find(e => e.is_current).id;
+                fetchLeagues();
+            } catch (err) {
+                console.error("Init failed", err);
+            }
         }
 
         async function fetchLeagues() {
@@ -274,17 +207,39 @@
 
         async function loadStandings(id) {
             const container = document.getElementById('standings-container');
-            container.innerHTML = '<p style="text-align:center; padding:20px;">Updating live table...</p>';
+            container.innerHTML = '<p style="text-align:center; padding:20px;">Fetching Live Data...</p>';
             
             const res = await fetch(`${state.PROXY}leagues-classic/${id}/standings/`);
             const data = await res.json();
-            document.getElementById('league-display-name').textContent = `${data.league.name} — Live GW ${state.currentGW}`;
 
-            const results = await Promise.all(data.standings.results.slice(0, 20).map(async (r) => {
-                const pRes = await fetch(`${state.PROXY}entry/${r.entry}/event/${state.currentGW}/picks/`);
-                const pData = await pRes.json();
-                const capId = pData.picks.find(p => p.is_captain).element;
-                return { ...r, captain: state.playerMap[capId].name, chip: pData.active_chip };
+            const results = await Promise.all(data.standings.results.slice(0, 15).map(async (r) => {
+                try {
+                    const [historyRes, picksRes] = await Promise.all([
+                        fetch(`${state.PROXY}entry/${r.entry}/history/`),
+                        fetch(`${state.PROXY}entry/${r.entry}/event/${state.currentGW}/picks/`)
+                    ]);
+                    const hist = await historyRes.json();
+                    const picks = await picksRes.json();
+                    
+                    const prevGW = state.currentGW - 1;
+                    let transferText = "No Transfers";
+                    if (prevGW > 0) {
+                        const prevPicksRes = await fetch(`${state.PROXY}entry/${r.entry}/event/${prevGW}/picks/`);
+                        const prevPicks = await prevPicksRes.json();
+                        const currentIds = picks.picks.map(p => p.element);
+                        const prevIds = prevPicks.picks.map(p => p.element);
+                        const outId = prevIds.find(id => !currentIds.includes(id));
+                        const inId = currentIds.find(id => !prevIds.includes(id));
+                        if (inId && outId) {
+                            transferText = `${state.playerMap[outId].name} → ${state.playerMap[inId].name}`;
+                        }
+                    }
+
+                    const orValue = hist.current[hist.current.length - 1].overall_rank;
+                    return { ...r, or: orValue, transfers: transferText, chip: picks.active_chip, picks: picks.picks };
+                } catch (e) {
+                    return r;
+                }
             }));
 
             container.innerHTML = results.map(r => `
@@ -292,99 +247,73 @@
                     <div class="card-main-row" onclick="toggleExpand(${r.entry})">
                         <div class="pos-indicator">
                             <span>${r.rank}</span>
-                            <i class="fa-solid fa-caret-up rank-up" style="display:${r.last_rank > r.rank ? 'block' : 'none'}"></i>
+                            <i class="fa-solid fa-caret-${r.last_rank > r.rank ? 'up rank-up' : 'down rank-down'}"></i>
                         </div>
                         <div class="manager-info">
                             <span class="team-name">${r.entry_name}</span>
                             <span class="mgr-name">${r.player_name}</span>
                             <div class="meta-row">
-                                <div class="or-badge">OR ${Math.round(r.rank_sort/1000)}K</div>
+                                <div class="or-badge">OR ${(r.or/1000000).toFixed(1)}M</div>
                                 ${r.chip ? `<div class="chip-badge">${r.chip.toUpperCase()}</div>` : ''}
                             </div>
-                            <div class="transfer-row">Grealish → Szoboszlai</div>
-                        </div>
-                        <div class="captain-section">
-                            <span class="cap-name">${r.captain}</span>
-                            <span class="cap-sub">Saka</span>
+                            <div class="transfer-row">${r.transfers}</div>
                         </div>
                         <div class="points-section">
                             <span class="gw-pts">${r.event_total}</span>
-                            <span class="yet-to-play">Yet 1</span>
+                            <span class="yet-tag">Yet 2</span>
                             <span class="total-pts">${r.total}</span>
                         </div>
-                        <i class="fa-solid fa-chevron-down expand-arrow"></i>
+                        <i class="fa-solid fa-chevron-down" style="font-size:0.7rem; color:#ccc; margin-left:10px;"></i>
                     </div>
-                    <div class="detail-pane" id="detail-${r.entry}"></div>
+                    <div class="detail-pane" id="detail-${r.entry}">
+                        <div class="pitch-container">
+                            <div class="pitch-row">${renderP(r.picks[0])}</div>
+                            <div class="pitch-row">${r.picks.slice(1,5).map(renderP).join('')}</div>
+                            <div class="pitch-row">${r.picks.slice(5,10).map(renderP).join('')}</div>
+                            <div class="pitch-row">${renderP(r.picks[10])}</div>
+                        </div>
+                    </div>
                 </div>
             `).join('');
         }
 
-        async function toggleExpand(id) {
-            const detail = document.getElementById(`detail-${id}`);
-            const arrow = document.querySelector(`#card-${id} .expand-arrow`);
+        function renderP(p) {
+            if (!p) return '';
+            const player = state.playerMap[p.element];
+            const liveData = state.elements.find(el => el.id === p.element);
+            const pts = (liveData ? liveData.event_points : 0) * p.multiplier;
+            const cap = p.is_captain ? '<div class="c-badge">C</div>' : (p.is_vice_captain ? '<div class="v-badge">V</div>' : '');
             
-            if (detail.classList.contains('active')) {
-                detail.classList.remove('active');
-                arrow.style.transform = 'rotate(0deg)';
-                return;
-            }
+            const photoUrl = `https://resources.premierleague.com/premierleague/photos/players/110x140/${player.photo}`;
+            const jerseyFallback = `https://fantasy.premierleague.com/dist/img/shirts/standard/s_${player.team_code}-66.png`;
 
-            document.querySelectorAll('.detail-pane').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.expand-arrow').forEach(a => a.style.transform = 'rotate(0deg)');
-
-            detail.classList.add('active');
-            arrow.style.transform = 'rotate(180deg)';
-            detail.innerHTML = '<p style="text-align:center; padding:20px; color:white;">Loading Team...</p>';
-
-            const [pRes, liveRes] = await Promise.all([
-                fetch(`${state.PROXY}entry/${id}/event/${state.currentGW}/picks/`),
-                fetch(`${state.PROXY}event/${state.currentGW}/live/`)
-            ]);
-            const pData = await pRes.json();
-            const lData = await liveRes.json();
-
-            const renderP = (p) => {
-                const live = lData.elements.find(el => el.id === p.element);
-                const stat = state.playerMap[p.element];
-                const pts = live.stats.total_points * p.multiplier;
-                const cap = p.is_captain ? '<div class="c-badge">C</div>' : (p.is_vice_captain ? '<div class="v-badge">V</div>' : '');
-
-                return `
-                    <div class="pitch-player">
-                        <div class="jersey-wrapper">
-                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/s_${stat.team_code}-66.png" class="p-jersey">
-                            ${cap}
-                        </div>
-                        <div class="p-labels">
-                            <div class="p-name">${stat.name}</div>
-                            <div class="p-points ${pts >= 5 ? 'high' : ''}">${pts}</div>
-                            <div class="p-own">${stat.own}%</div>
-                        </div>
+            return `
+                <div class="pitch-player">
+                    <div style="position:relative; display:inline-block;">
+                        <img src="${photoUrl}" 
+                             class="p-face" 
+                             onerror="this.src='${jerseyFallback}'; this.style.width='35px';">
+                        ${cap}
                     </div>
-                `;
-            };
-
-            const s = pData.picks;
-            detail.innerHTML = `
-                <div class="pitch-container">
-                    <div class="pitch-row">${renderP(s[0])}</div>
-                    <div class="pitch-row">${s.slice(1,5).map(renderP).join('')}</div>
-                    <div class="pitch-row">${s.slice(5,10).map(renderP).join('')}</div>
-                    <div class="pitch-row">${renderP(s[10])}</div>
+                    <div class="p-labels">
+                        <div class="p-name">${player.name}</div>
+                        <div class="p-pts ${pts >= 5 ? 'high' : ''}">${pts}</div>
+                        <div class="p-own">${player.own}%</div>
+                    </div>
                 </div>
             `;
         }
 
-        function toggleTheme() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        function toggleExpand(id) {
+            const el = document.getElementById(`detail-${id}`);
+            el.classList.toggle('active');
         }
 
-        function navTo(index, el) {
-            const pages = ['index.html', 'leagues.html', 'prices.html', 'games.html'];
-            document.getElementById('slide-overlay').classList.add('active');
-            setTimeout(() => window.location.href = pages[index], 400);
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('theme-icon');
+            icon.classList.toggle('fa-sun');
+            icon.classList.toggle('fa-moon');
         }
 
         init();
