@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KOPALA FPL - Members Area</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1a1a1b;
+            --text-muted: #5f6368;
+            --fpl-green: #00ff85;
+            --fpl-pink: #e90052;
+            --border-color: #dbdee1;
+            --live-fpl-blue: #3876f2;
+            --gold: #f39c12;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, system-ui, sans-serif;
+            padding-bottom: 90px;
+        }
+
+        /* HEADER DESIGN */
+        .top-nav {
+            background: #fff; padding: 10px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .no-ads-pill {
+            background: #f1f3f5; border: 1px solid #dee2e6;
+            padding: 5px 12px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 800; display: flex; align-items: center; gap: 5px;
+        }
+        .no-ads-pill i { color: var(--gold); }
+        .logo { font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; }
+        .logo span { color: var(--fpl-green); }
+
+        /* MEMBERS CONTROLS */
+        .controls-wrapper {
+            background: #fff; padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .member-header {
+            text-align: center; margin-bottom: 15px;
+        }
+        .member-header h2 { margin: 0; font-size: 1.1rem; color: var(--live-fpl-blue); }
+        .member-header p { margin: 5px 0 0; font-size: 0.75rem; color: var(--text-muted); font-weight: 700; }
+
+        .select-row { display: grid; grid-template-columns: 1fr 100px; gap: 8px; margin-bottom: 12px; }
+        select { padding: 8px; border-radius: 6px; border: 1px solid #ced4da; font-weight: 600; font-size: 0.85rem; }
+
+        .icon-grid { display: flex; justify-content: space-around; padding: 0 5px; margin-bottom: 10px; }
+        .icon-box {
+            width: 42px; height: 42px; border: 1px solid #dee2e6; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #495057; cursor: pointer;
+        }
+
+        #search-area { display: none; margin-bottom: 12px; }
+        #search-input {
+            width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--live-fpl-blue); outline: none; box-sizing: border-box; font-weight: 600;
+        }
+
+        /* TABLE STYLES */
+        .table-header {
+            background: #0b141b; color: #94a3b8; padding: 10px;
+            display: grid; grid-template-columns: 35px 1fr 35px 75px 40px 60px;
+            font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+        }
+
+        .manager-row { background: #fff; border-bottom: 1px solid #eee; }
+        .row-summary {
+            display: grid; grid-template-columns: 35px 1fr 35px 75px 40px 60px;
+            padding: 12px 10px; align-items: center; cursor: pointer;
+        }
+        .pos-cell { font-weight: 900; color: #6c757d; font-size: 0.9rem; }
+        .name-cell b { font-weight: 800; font-size: 0.85rem; display: block; }
+        .name-cell small { font-size: 0.7rem; color: #6c757d; }
+        .sub-badge { font-size: 0.55rem; color: #fff; background: var(--live-fpl-blue); padding: 1px 4px; border-radius: 3px; font-weight: 900; margin-top: 2px; display: inline-block; }
+        .free-badge { font-size: 0.55rem; color: #6c757d; background: #f1f3f5; padding: 1px 4px; border-radius: 3px; font-weight: 900; margin-top: 2px; display: inline-block; }
+        
+        .capt-cell { text-align: center; font-size: 0.7rem; line-height: 1.1; }
+        .capt-name { font-weight: 700; display: block; }
+        .vice-grey { font-size: 0.55rem; color: #adb5bd; }
+
+        .gw-pts-cell { font-weight: 700; font-size: 0.85rem; text-align: center; }
+        .total-pts-cell { font-weight: 900; font-size: 1rem; text-align: right; }
+
+        /* EXPANDED SQUAD VIEW */
+        .row-expansion {
+            max-height: 0; overflow: hidden; transition: max-height 0.4s ease; background: #f8f9fa;
+        }
+        .manager-row.active .row-expansion { max-height: 1200px; padding: 10px; border-top: 1px solid #eee; }
+
+        .expansion-meta { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+        .chip { background: #fff; border: 1px solid #dee2e6; padding: 3px 10px; border-radius: 15px; font-size: 0.65rem; font-weight: 700; }
+
+        .squad-scroller {
+            display: flex; overflow-x: auto; gap: 6px; padding-bottom: 10px; -webkit-overflow-scrolling: touch;
+        }
+        .player-card {
+            min-width: 80px; text-align: center; background: #fff; border: 1px solid #eee; border-radius: 5px; overflow: hidden;
+        }
+        .player-shirt { height: 38px; margin: 6px 0; }
+        .player-label { background: #1a1a1b; color: #fff; font-size: 0.65rem; padding: 4px 2px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-ownership { background: var(--fpl-green); font-size: 0.65rem; padding: 2px; font-weight: 700; }
+        .player-points { font-size: 0.9rem; font-weight: 900; padding: 6px 0; }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; height: 70px;
+            background: #fff; border-top: 1px solid #eee;
+            display: flex; justify-content: space-between; z-index: 1000;
+        }
+        .nav-item {
+            text-decoration: none; color: var(--text-muted);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 4px;
+        }
+        .nav-item.active { color: var(--live-fpl-blue); }
+        .nav-item i { font-size: 1.1rem; }
+        .nav-item span { font-size: 0.6rem; font-weight: 700; }
+    </style>
+</head>
+<body>
+
+    <header class="top-nav">
+        <div class="no-ads-pill"><i class="fa-solid fa-crown"></i> No Ads</div>
+        <div class="logo">Kopala<span>▲</span>FPL</div>
+        <div style="display:flex; gap:15px; font-size: 1.2rem; color: #555;">
+            <i class="fa-solid fa-circle-user"></i>
+            <i class="fa-solid fa-sun"></i>
+        </div>
+    </header>
+
+    <div class="controls-wrapper">
+        <div class="member-header">
+            <h2>Kopala EPL Members Area</h2>
+            <p>ID: 101712 • Season 2025/26</p>
+        </div>
+        
+        <div class="select-row">
+            <select id="sort-criteria" onchange="applySort()">
+                <option value="total">Total Points</option>
+                <option value="event">Gameweek Points</option>
+            </select>
+            <button onclick="applySort()" style="background:#fff; border:1px solid #ced4da; border-radius:6px; font-weight:800; cursor:pointer;">Sort ▼</button>
+        </div>
+
+        <div class="icon-grid">
+            <div class="icon-box" onclick="toggleSearch()"><i class="fa-solid fa-magnifying-glass"></i></div>
+            <div class="icon-box" onclick="location.reload()"><i class="fa-solid fa-rotate"></i></div>
+            <div class="icon-box"><i class="fa-solid fa-award"></i></div>
+        </div>
+
+        <div id="search-area">
+            <input type="text" id="search-input" placeholder="Search team or manager..." onkeyup="runFilter()">
+        </div>
+    </div>
+
+    <div class="table-header">
+        <span>Pos</span>
+        <span>Manager</span>
+        <span style="text-align:center;"><i class="fa-solid fa-crown"></i></span>
+        <span>(C)</span>
+        <span>GW</span>
+        <span style="text-align:right">Total</span>
+    </div>
+
+    <div id="manager-list-container"></div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
+        <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
+        <a href="prices.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
+        <a href="games.html" class="nav-item"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></a>
+        <a href="members.html" class="nav-item active"><i class="fa-solid fa-users-viewfinder"></i><span>Members</span></a>
+        <a href="https://wa.me/260964836842?text=Hello%20Kopala%20FPL%20Support" class="nav-item" target="_blank">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span>Support</span>
+        </a>
+        <a href="more.html" class="nav-item"><i class="fa-solid fa-ellipsis"></i><span>More</span></a>
+    </nav>
+
+    <script>
+        const state = {
+            leagueId: '101712',
+            currentGW: 1,
+            playerMap: {},
+            elements: [],
+            PROXY: "/.netlify/functions/fpl-proxy?endpoint=",
+            // EDIT THIS ARRAY WITH SUBSCRIBER ENTRY IDs
+            subscribers: [532432, 101712, 123456] 
+        };
+
+        async function init() {
+            try {
+                const staticRes = await fetch(`${state.PROXY}bootstrap-static/`);
+                const staticData = await staticRes.json();
+                state.elements = staticData.elements;
+                state.currentGW = staticData.events.find(e => e.is_current).id;
+                
+                staticData.elements.forEach(p => {
+                    state.playerMap[p.id] = { 
+                        name: p.web_name, 
+                        team: p.team_code,
+                        own: p.selected_by_percent
+                    };
+                });
+
+                loadStandings(state.leagueId);
+            } catch (err) { console.error("Initialization failed", err); }
+        }
+
+        async function loadStandings(id) {
+            const container = document.getElementById('manager-list-container');
+            container.innerHTML = '<p style="text-align:center; padding:30px; font-weight:700;">Syncing Kopala EPL Data...</p>';
+            
+            const res = await fetch(`${state.PROXY}leagues-classic/${id}/standings/`);
+            const data = await res.json();
+            
+            container.innerHTML = data.standings.results.map((r, i) => {
+                const isSub = state.subscribers.includes(r.entry);
+                
+                return `
+                    <div class="manager-row" id="entry-${r.entry}">
+                        <div class="row-summary" onclick="expandManager(${r.entry})">
+                            <span class="pos-cell">${i+1}</span>
+                            <div class="name-cell">
+                                <b>${r.entry_name} ${isSub ? '<i class="fa-solid fa-circle-check" style="color:var(--live-fpl-blue); font-size:0.7rem;"></i>' : ''}</b>
+                                <small>${r.player_name}</small>
+                                <span class="${isSub ? 'sub-badge' : 'free-badge'}">${isSub ? 'SUBSCRIBED' : 'FREE USER'}</span>
+                            </div>
+                            
+                            <span style="text-align:center;">
+                                ${isSub ? '<i class="fa-solid fa-crown" style="color:var(--gold);"></i>' : '<i class="fa-solid fa-user" style="color:#eee;"></i>'}
+                            </span>
+
+                            <div class="capt-cell" id="cap-box-${r.entry}">
+                                <span class="capt-name">---</span>
+                                <span class="vice-grey">---</span>
+                            </div>
+                            <span class="gw-pts-cell">${r.event_total}</span>
+                            <span class="total-pts-cell">${r.total.toLocaleString()}</span>
+                        </div>
+                        <div class="row-expansion" id="exp-${r.entry}">
+                            <div class="expansion-meta" id="meta-box-${r.entry}">
+                                <span class="chip">LOADING SQUAD...</span>
+                            </div>
+                            <div class="squad-scroller" id="squad-box-${r.entry}"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function expandManager(entryId) {
+            const row = document.getElementById(`entry-${entryId}`);
+            const squadBox = document.getElementById(`squad-box-${entryId}`);
+            row.classList.toggle('active');
+
+            if (row.classList.contains('active') && squadBox.innerHTML === "") {
+                const res = await fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`);
+                const data = await res.json();
+                
+                squadBox.innerHTML = data.picks.map(pick => {
+                    const p = state.playerMap[pick.element];
+                    const live = state.elements.find(el => el.id === pick.element);
+                    const displayPts = (live ? live.event_points : 0) * pick.multiplier;
+
+                    if (pick.is_captain) document.querySelector(`#cap-box-${entryId} .capt-name`).innerText = p.name;
+                    if (pick.is_vice_captain) document.querySelector(`#cap-box-${entryId} .vice-grey`).innerText = p.name;
+
+                    return `
+                        <div class="player-card">
+                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/s_${p.team}-66.png" class="player-shirt">
+                            <div class="player-label">${p.name}${pick.is_captain ? ' (C)' : ''}</div>
+                            <div class="player-ownership">${p.own}%</div>
+                            <div class="player-points">${displayPts}</div>
+                        </div>`;
+                }).join('');
+
+                document.getElementById(`meta-box-${entryId}`).innerHTML = `
+                    <span class="chip">TV £${(data.entry_history.value / 10).toFixed(1)}</span>
+                    <span class="chip">BANK £${(data.entry_history.bank / 10).toFixed(1)}</span>
+                    <span class="chip">CHIP: ${data.active_chip || 'NONE'}</span>
+                `;
+            }
+        }
+
+        function toggleSearch() {
+            const el = document.getElementById('search-area');
+            el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+            if(el.style.display === 'block') document.getElementById('search-input').focus();
+        }
+
+        function runFilter() {
+            const val = document.getElementById('search-input').value.toLowerCase();
+            document.querySelectorAll('.manager-row').forEach(row => {
+                const text = row.querySelector('.name-cell').innerText.toLowerCase();
+                row.style.display = text.includes(val) ? 'block' : 'none';
+            });
+        }
+
+        function applySort() {
+            const list = document.getElementById('manager-list-container');
+            const cards = Array.from(list.querySelectorAll('.manager-row'));
+            const criteria = document.getElementById('sort-criteria').value;
+
+            cards.sort((a, b) => {
+                const valA = parseInt(a.querySelector(criteria === 'total' ? '.total-pts-cell' : '.gw-pts-cell').innerText.replace(/,/g, ''));
+                const valB = parseInt(b.querySelector(criteria === 'total' ? '.total-pts-cell' : '.gw-pts-cell').innerText.replace(/,/g, ''));
+                return valB - valA;
+            });
+
+            cards.forEach(c => list.appendChild(c));
+            document.querySelectorAll('.pos-cell').forEach((p, idx) => p.innerText = idx + 1);
+        }
+
+        init();
+    </script>
+</body>
+</html>
