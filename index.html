@@ -11,7 +11,7 @@
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
-            --primary-blue: #2563eb;
+            --primary-blue: #37003c; /* FPL Purple */
             --fpl-green: #00ff85;
             --border-color: #e2e8f0;
             --input-bg: #f8fafc;
@@ -32,6 +32,7 @@
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow-x: hidden;
+            padding-bottom: 80px;
         }
 
         /* LOADING OVERLAY */
@@ -41,131 +42,90 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid var(--border-color);
-            border-top: 4px solid var(--primary-blue);
-            border-radius: 50%;
+            width: 40px; height: 40px; border: 4px solid var(--border-color);
+            border-top: 4px solid var(--fpl-green); border-radius: 50%;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* TOP BRANDING BAR */
-        .top-brand-bar {
-            padding: 10px 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--bg-color); position: sticky; top: 0; z-index: 100;
-        }
-        .live-logo {
-            background: #000; color: #fff; padding: 6px 18px;
-            border-radius: 50px; font-weight: 900; font-size: 1.2rem;
-            display: flex; align-items: center; gap: 4px;
-        }
-        .live-logo span { color: var(--fpl-green); }
-
-        /* HEADER STATS SECTION */
-        .manager-header {
-            padding: 10px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        /* HEADER STATS */
+        .manager-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
         .header-stats-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1.5fr 1fr; 
-            background: var(--card-bg); 
-            margin: 0 10px 15px 10px; 
-            padding: 15px 10px; 
-            border-radius: 20px; 
-            text-align: center; 
+            display: grid; grid-template-columns: 1fr 1.5fr 1fr; 
+            background: var(--card-bg); margin: 0 10px 15px 10px; 
+            padding: 15px 10px; border-radius: 20px; text-align: center; 
             border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
-        .stat-column {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            border-right: 1px solid var(--border-color);
-        }
+        .stat-column { display: flex; flex-direction: column; justify-content: center; border-right: 1px solid var(--border-color); }
         .stat-column:last-child { border-right: none; }
-        .stat-label { 
-            font-size: 0.7rem; font-weight: 700; color: var(--text-muted); 
-            margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 4px;
-        }
+        .stat-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; }
         .stat-value { font-size: 1.1rem; font-weight: 900; color: var(--text-main); }
         .stat-subtext { font-size: 0.6rem; color: var(--text-muted); margin-top: 4px; }
 
         /* TOGGLE PILL */
-        .rank-toggle-box {
-            display: inline-flex; background: var(--input-bg); padding: 2px;
-            border-radius: 50px; border: 1px solid var(--border-color);
-        }
-        .toggle-btn {
-            font-size: 0.55rem; padding: 2px 8px; border-radius: 50px;
-            cursor: pointer; color: var(--text-muted);
-        }
-        .toggle-btn.active { background: var(--primary-blue); color: white; }
-        .trend-up { color: #00ff85; font-size: 0.75rem; }
+        .rank-toggle-box { display: inline-flex; background: var(--input-bg); padding: 2px; border-radius: 50px; border: 1px solid var(--border-color); }
+        .toggle-btn { font-size: 0.55rem; padding: 2px 8px; border-radius: 50px; cursor: pointer; color: var(--text-muted); }
+        .toggle-btn.active { background: #37003c; color: white; }
+        .trend-up { font-size: 0.75rem; }
 
         /* CIRCULAR PITCH */
         .pitch-container { 
-            position: relative;
-            background-color: #2e7d32;
-            background-image: repeating-radial-gradient(
-                circle at 50% 50%,
-                #388e3c,
-                #388e3c 25px,
-                #2e7d32 25px,
-                #2e7d32 50px
-            );
-            width: 100%; padding: 30px 0 20px 0; min-height: 550px; 
+            position: relative; background-color: #2e7d32;
+            background-image: repeating-radial-gradient(circle at 50% 50%, #388e3c, #388e3c 25px, #2e7d32 25px, #2e7d32 50px);
+            width: 100%; padding: 30px 0 20px 0; min-height: 520px; 
             display: flex; flex-direction: column; justify-content: space-around;
             border-top-left-radius: 25px; border-top-right-radius: 25px;
         }
-        .pitch-row { display: flex; justify-content: center; gap: 5px; position: relative; z-index: 2; }
-        .bench-area { background: rgba(0,0,0,0.15); padding: 15px 0; display: flex; justify-content: center; gap: 8px; }
+        .pitch-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 8px; }
+        .bench-area { background: rgba(0,0,0,0.2); padding: 15px 0; display: flex; justify-content: center; gap: 5px; }
 
         /* PLAYER CARDS */
-        .player-card { width: 70px; text-align: center; }
+        .player-card { width: 72px; text-align: center; }
         .shirt-img { width: 42px; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.3)); position: relative; z-index: 3;}
-        .p-info-box { border-radius: 2px; overflow: hidden; margin-top: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
-        .p-name { background: #000; color: #fff; font-size: 0.58rem; padding: 2px 1px; font-weight: bold; }
+        .p-info-box { border-radius: 3px; overflow: hidden; margin-top: -6px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); position: relative; z-index: 2;}
+        .p-name { background: #000; color: #fff; font-size: 0.55rem; padding: 2px 1px; font-weight: 700; white-space: nowrap; }
         .p-pts { background: #fff; color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; }
+        .p-own { background: #00ff85; color: #000; font-size: 0.5rem; font-weight: 800; padding: 1px 0; border-top: 1px solid #eee; }
+        .p-fix { font-size: 0.48rem; font-weight: 800; padding: 2px 0; text-transform: uppercase; color: #000; }
 
-        /* LOGIN */
-        #login-screen { display: none; padding: 20px; text-align: center; }
-        .login-card { background: var(--card-bg); border-radius: 24px; padding: 30px; border: 1px solid var(--border-color); max-width: 400px; margin: 40px auto; }
-        .fpl-input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--input-bg); margin-bottom: 20px; box-sizing: border-box; }
-        .continue-btn { width: 100%; padding: 15px; background: var(--primary-blue); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        /* FDR Colors */
+        .fdr-1, .fdr-2 { background: #00ff85; }
+        .fdr-3 { background: #e7e7e7; }
+        .fdr-4 { background: #ff1751; color: #fff !important; }
+        .fdr-5 { background: #80072d; color: #fff !important; }
+
+        /* LOGIN SCREEN */
+        #login-screen { position: fixed; inset: 0; background: var(--bg-color); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+        .login-box { background: var(--card-bg); padding: 30px; border-radius: 24px; text-align: center; width: 85%; max-width: 350px; border: 1px solid var(--border-color); }
+        .login-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); margin: 15px 0; text-align: center; box-sizing: border-box; }
+        .login-btn { background: #37003c; color: white; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 700; width: 100%; }
 
         /* NAV */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; border-top: 1px solid #ddd; display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; }
         .nav-item { color: var(--text-muted); font-size: 0.65rem; font-weight: 600; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px;}
-        .nav-item.active { color: var(--primary-blue); }
+        .nav-item.active { color: #37003c; }
     </style>
 </head>
 <body>
 
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <p style="margin-top: 15px; font-weight: 600; color: var(--text-muted);">Syncing Live Pitch...</p>
-    </div>
-
-    <div class="top-brand-bar">
-        <button onclick="handleLogout()" style="background:none; border:none; color:var(--text-main); cursor:pointer;"><i class="fa-solid fa-user"></i></button>
-        <div class="live-logo">KOPALA<span>▲</span>FPL</div>
-        <button onclick="document.body.classList.toggle('dark-mode')" style="background:none; border:none; color:var(--text-main); cursor:pointer;"><i class="fa-solid fa-moon"></i></button>
+        <p style="margin-top: 15px; font-weight: 700; color: #37003c;">CALCULATING LIVE DATA...</p>
     </div>
 
     <div id="login-screen">
-        <div class="login-card">
-            <h2>Enter Team ID</h2>
-            <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567">
-            <button class="continue-btn" onclick="handleLogin()">View Live Team</button>
+        <div class="login-box">
+            <h2 style="margin:0; font-weight:900;">KOPALA FPL</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Enter Team ID to start</p>
+            <input type="number" id="team-id-input" class="login-input" placeholder="e.g. 542231">
+            <button class="login-btn" onclick="handleLogin()">ENTER DASHBOARD</button>
         </div>
     </div>
 
     <div id="dashboard" style="display:none;">
         <div class="manager-header">
-            <span id="disp-name" style="font-weight: 900; font-size: 1rem;">Manager Name</span>
+            <span id="disp-name" style="font-weight: 900; font-size: 1.1rem;">-</span>
             <div style="display: flex; gap: 15px; color: var(--text-muted);">
                 <i class="fa-solid fa-pen"></i><i class="fa-solid fa-gear"></i><i class="fa-solid fa-plus"></i>
             </div>
@@ -207,107 +167,171 @@
     <nav class="bottom-nav">
         <a href="#" class="nav-item active"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
         <a href="#" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-users"></i><span>Squad</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-shield-halved"></i><span>Safety</span></a>
+        <a href="javascript:handleLogout()" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i><span>Exit</span></a>
     </nav>
 
     <script>
         const state = {
-            fplId: localStorage.getItem('fpl_team_id'),
+            fplId: localStorage.getItem('kopala_id'),
             playerMap: {}, teamMap: {}, currentGW: 1,
             ranks: { pre: 0, post: 0, old: 0 },
-            safetyData: { average: 0, delta: 0 }
+            safetyData: { average: 0, delta: 0 },
+            ownership: {}
         };
 
         const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
 
         document.addEventListener('DOMContentLoaded', async () => {
-            await initStaticData();
-            if (state.fplId) fetchAndRender();
-            else showLogin();
+            if (state.fplId) {
+                document.getElementById('login-screen').style.display = 'none';
+                await initData();
+                await fetchAndRender();
+            }
         });
 
-        async function initStaticData() {
+        async function initData() {
             try {
                 const res = await fetch(`${PROXY}bootstrap-static/`);
                 const data = await res.json();
-                data.teams.forEach(t => state.teamMap[t.id] = { code: t.code });
-                data.elements.forEach(p => state.playerMap[p.id] = { name: p.web_name, team_code: state.teamMap[p.team].code, pos: p.element_type });
+                data.teams.forEach(t => state.teamMap[t.id] = { short: t.short_name, code: t.code });
+                data.elements.forEach(p => state.playerMap[p.id] = { 
+                    name: p.web_name, team: p.team, team_code: state.teamMap[p.team].code, pos: p.element_type 
+                });
                 const curr = data.events.find(e => e.is_current);
                 state.currentGW = curr.id;
                 state.safetyData.average = curr.average_entry_score || 0;
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Static Init Fail", e); }
         }
 
         async function fetchAndRender() {
             document.getElementById('loading-overlay').style.display = 'flex';
             try {
-                const [entryRes, picksRes, liveRes] = await Promise.all([
+                const [entryRes, picksRes, liveRes, fixRes] = await Promise.all([
                     fetch(`${PROXY}entry/${state.fplId}/`),
                     fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`),
-                    fetch(`${PROXY}event/${state.currentGW}/live/`)
+                    fetch(`${PROXY}event/${state.currentGW}/live/`),
+                    fetch(`${PROXY}fixtures/?event=${state.currentGW}`)
                 ]);
+                
                 const entry = await entryRes.json();
                 const picks = await picksRes.json();
                 const live = await liveRes.json();
+                const fixtures = await fixRes.json();
 
+                // 1. SET RANKS
                 state.ranks.post = entry.summary_overall_rank || 0;
                 state.ranks.pre = picks.entry_history.overall_rank || 0;
                 state.ranks.old = state.ranks.pre;
-                
+
+                // 2. SET SAFETY
                 const currentPts = entry.summary_event_points || 0;
                 state.safetyData.delta = currentPts - state.safetyData.average;
 
+                // 3. MAP FIXTURES
+                const fixMap = {};
+                fixtures.forEach(f => {
+                    fixMap[f.team_h] = { opp: state.teamMap[f.team_a].short, h: true, fdr: f.team_h_difficulty };
+                    fixMap[f.team_a] = { opp: state.teamMap[f.team_h].short, h: false, fdr: f.team_a_difficulty };
+                });
+
+                // 4. MAP LIVE POINTS
+                const ptsMap = {};
+                live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+
+                // 5. CALCULATE MINI-LEAGUE EO (Sampling First Classic League)
+                if (entry.leagues.classic.length > 0) {
+                    await calculateLeagueEO(entry.leagues.classic[0].id);
+                }
+
+                // UI UPDATES
                 document.getElementById('disp-name').textContent = `${entry.player_first_name} ${entry.player_last_name}`;
                 document.getElementById('disp-total').textContent = currentPts;
                 document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || 0).toLocaleString();
                 document.getElementById('disp-safety').innerHTML = `Safety: ${state.safetyData.average} &nbsp; Δ:${state.safetyData.delta >= 0 ? '+' : ''}${state.safetyData.delta}`;
 
-                const liveDataMap = {};
-                live.elements.forEach(el => liveDataMap[el.id] = el.stats.total_points);
-                
-                renderPitch(picks.picks, liveDataMap);
+                renderPlayers(picks.picks, ptsMap, fixMap);
                 updateRankDisplay('post');
+                
                 document.getElementById('dashboard').style.display = 'block';
-                document.getElementById('login-screen').style.display = 'none';
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Fetch Error", e); }
             document.getElementById('loading-overlay').style.display = 'none';
         }
 
-        function renderPitch(picks, liveData) {
+        async function calculateLeagueEO(leagueId) {
+            try {
+                const res = await fetch(`${PROXY}leagues-classic/${leagueId}/standings/`);
+                const data = await res.json();
+                const topManagers = data.standings.results.slice(0, 15); // Sample top 15 for speed
+                
+                let tally = {};
+                const promises = topManagers.map(m => fetch(`${PROXY}entry/${m.entry}/event/${state.currentGW}/picks/`).then(r => r.json()));
+                const allPicks = await Promise.all(promises);
+
+                allPicks.forEach(p => {
+                    p.picks.forEach(pick => {
+                        if (pick.position <= 11) {
+                            tally[pick.element] = (tally[pick.element] || 0) + 1;
+                            if (pick.is_captain) tally[pick.element] += 1; // Effective Ownership includes Captaincy
+                        }
+                    });
+                });
+
+                for (let id in tally) {
+                    state.ownership[id] = ((tally[id] / topManagers.length) * 100).toFixed(0);
+                }
+            } catch (e) { console.warn("EO Tally failed", e); }
+        }
+
+        function renderPlayers(picks, ptsMap, fixMap) {
             ['gk-row', 'def-row', 'mid-row', 'fwd-row', 'bench-row'].forEach(id => document.getElementById(id).innerHTML = '');
+            
             picks.forEach(p => {
                 const meta = state.playerMap[p.element];
-                const pts = (liveData[p.element] || 0) * (p.multiplier || 1);
-                const isGK = meta.pos === 1;
+                const pts = (ptsMap[p.element] || 0) * (p.multiplier || 1);
+                const fix = fixMap[meta.team] || { opp: 'BYE', fdr: 3 };
+                const eo = state.ownership[p.element] || 0;
+                
                 const html = `
                     <div class="player-card">
-                        <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${isGK ? '_1' : ''}-66.png" class="shirt-img">
+                        <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png" class="shirt-img">
                         <div class="p-info-box">
                             <div class="p-name">${p.is_captain ? 'Ⓒ ' : ''}${meta.name}</div>
                             <div class="p-pts">${pts}</div>
+                            <div class="p-own">EO: ${eo}%</div>
+                            <div class="p-fix fdr-${fix.fdr}">${fix.opp} (${fix.h ? 'H' : 'A'})</div>
                         </div>
                     </div>`;
-                let row = p.position > 11 ? 'bench-row' : (meta.pos === 1 ? 'gk-row' : meta.pos === 2 ? 'def-row' : meta.pos === 3 ? 'mid-row' : 'fwd-row');
-                document.getElementById(row).innerHTML += html;
+                
+                const rowId = p.position > 11 ? 'bench-row' : (meta.pos === 1 ? 'gk-row' : meta.pos === 2 ? 'def-row' : meta.pos === 3 ? 'mid-row' : 'fwd-row');
+                document.getElementById(rowId).innerHTML += html;
             });
         }
 
         function updateRankDisplay(type) {
-            document.getElementById('btn-pre').classList.toggle('active', type === 'pre');
-            document.getElementById('btn-post').classList.toggle('active', type === 'post');
-            const val = type === 'post' ? state.ranks.post : state.ranks.pre;
-            document.getElementById('disp-rank').textContent = val.toLocaleString();
-            const diff = ((state.ranks.old - state.ranks.post) / state.ranks.old * 100).toFixed(2);
-            document.getElementById('disp-old-rank').textContent = `Old: ${state.ranks.old.toLocaleString()} (${diff >= 0 ? '+' : ''}${diff}%)`;
-            const icon = document.getElementById('rank-trend');
-            icon.className = state.ranks.post <= state.ranks.old ? "fa-solid fa-circle-up trend-up" : "fa-solid fa-circle-down trend-up";
-            icon.style.color = state.ranks.post <= state.ranks.old ? "#00ff85" : "#ff1751";
+            const isPost = type === 'post';
+            document.getElementById('btn-pre').classList.toggle('active', !isPost);
+            document.getElementById('btn-post').classList.toggle('active', isPost);
+            
+            const currentVal = isPost ? state.ranks.post : state.ranks.pre;
+            document.getElementById('disp-rank').textContent = currentVal.toLocaleString();
+            
+            const diffVal = state.ranks.old - state.ranks.post;
+            const diffPercent = ((diffVal / state.ranks.old) * 100).toFixed(2);
+            document.getElementById('disp-old-rank').textContent = `Old: ${state.ranks.old.toLocaleString()} (${diffPercent >= 0 ? '+' : ''}${diffPercent}%)`;
+            
+            const trend = document.getElementById('rank-trend');
+            const up = state.ranks.post <= state.ranks.old;
+            trend.className = up ? "fa-solid fa-circle-up trend-up" : "fa-solid fa-circle-down trend-up";
+            trend.style.color = up ? "#00ff85" : "#ff1751";
         }
 
-        function toggleRank(type) { updateRankDisplay(type); }
-        function handleLogin() { const id = document.getElementById('team-id-input').value.trim(); if(id) { localStorage.setItem('fpl_team_id', id); location.reload(); } }
-        function handleLogout() { if(confirm("Logout?")) { localStorage.removeItem('fpl_team_id'); location.reload(); } }
-        function showLogin() { document.getElementById('login-screen').style.display = 'block'; document.getElementById('loading-overlay').style.display = 'none'; }
+        function toggleRank(t) { updateRankDisplay(t); }
+        function handleLogin() { 
+            const val = document.getElementById('team-id-input').value; 
+            if(val) { localStorage.setItem('kopala_id', val); location.reload(); }
+        }
+        function handleLogout() { localStorage.removeItem('kopala_id'); location.reload(); }
     </script>
 </body>
 </html>
