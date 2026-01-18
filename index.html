@@ -83,18 +83,18 @@
         .stat-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); display: block; }
         .stat-value { font-size: 1.1rem; font-weight: 800; display: block; margin: 2px 0; }
 
-        /* 6. FULL-SCREEN PITCH DESIGN */
+        /* 6. CIRCULAR PITCH DESIGN (Updated) */
         .pitch-container { 
             position: relative;
             background-color: #2e7d32;
-            /* Grass Pattern & Half-Pitch Lines */
-            background-image: 
-                radial-gradient(circle at 50% 100%, transparent 58px, rgba(255,255,255,0.2) 60px, transparent 62px), /* Kickoff Circle */
-                linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.2)), /* Halfway Line */
-                linear-gradient(90deg, transparent 50%, rgba(255,255,255,0.03) 50%); /* Grass Shades */
-            background-size: 100% 100%, 100% 2px, 40px 100%;
-            background-position: center bottom, center bottom, left top;
-            background-repeat: no-repeat, no-repeat, repeat;
+            /* Concentric Circle Pattern */
+            background-image: repeating-radial-gradient(
+                circle at 50% 50%,
+                #388e3c,
+                #388e3c 30px,
+                #2e7d32 30px,
+                #2e7d32 60px
+            );
             
             width: 100%; 
             padding: 40px 0 20px 0; 
@@ -104,20 +104,18 @@
             justify-content: space-around;
         }
 
-        /* Penalty Box (Top) */
+        /* Removed white line pitch markings (Penalty boxes and halfway line) */
         .pitch-container::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 50%;
-            transform: translateX(-50%);
-            width: 65%;
-            height: 90px;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-top: none;
+            display: none;
         }
 
         .pitch-row { display: flex; justify-content: center; gap: 4px; position: relative; z-index: 2; }
-        .bench-row { background: rgba(0, 0, 0, 0.15); padding: 15px 0; border-top: 2px dashed rgba(255,255,255,0.2); margin-top: 10px; }
+        .bench-row { 
+            background: rgba(0, 0, 0, 0.15); 
+            padding: 15px 0; 
+            margin-top: 10px; 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+        }
 
         /* 7. PLAYER CARDS */
         .player-card { width: 70px; text-align: center; }
@@ -185,7 +183,7 @@
             <div id="bench-row" class="pitch-row bench-row"></div>
         </div>
 
-        <div style="padding: 15px;">
+        <div style="padding: 15px; padding-bottom: 80px;">
             <label style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; display: block;">SWITCH LEAGUE</label>
             <select id="league-select" onchange="changeLeague(this.value)" style="width: 100%; padding: 12px; border-radius: 8px; background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color);"></select>
         </div>
@@ -271,7 +269,7 @@
             try {
                 const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
                 const data = await res.json();
-                const standings = data.standings.results.slice(0, 40); // Sample 40 for EO
+                const standings = data.standings.results.slice(0, 40); 
                 await calculateLeagueOwnership(standings);
                 await renderPitch();
             } catch (e) { console.error("League Change Error", e); }
