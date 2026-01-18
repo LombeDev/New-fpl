@@ -7,14 +7,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
-            --bg-color: #f8fafc;
+            --bg-color: #f3f4f6;
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
-            --primary-blue: #37003c; /* FPL Purple */
+            --primary-blue: #2563eb;
+            --fpl-purple: #37003c;
             --fpl-green: #00ff85;
             --border-color: #e2e8f0;
-            --input-bg: #f8fafc;
+            --input-bg: #ffffff;
         }
 
         body.dark-mode {
@@ -35,41 +36,39 @@
             padding-bottom: 80px;
         }
 
-        /* LOADING OVERLAY */
-        #loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-color); z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid var(--border-color);
-            border-top: 4px solid var(--fpl-green); border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* --- LOGIN SCREEN (MATCHES LIVEFPL) --- */
+        #login-screen { display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; }
+        .brand-header { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 400px; margin-bottom: 20px; }
+        .live-logo-main { background: #000; color: #fff; padding: 8px 20px; border-radius: 50px; font-weight: 900; font-size: 1.4rem; display: flex; align-items: center; gap: 4px; }
+        .live-logo-main span { color: var(--fpl-green); }
+        .trust-banner { font-size: 0.9rem; font-weight: 700; text-align: center; margin-bottom: 20px; max-width: 300px; }
+        .login-card { background: var(--card-bg); border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid var(--border-color); box-sizing: border-box; }
+        .theme-toggle-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .toggle-group { display: flex; background: #f1f5f9; padding: 4px; border-radius: 50px; }
+        .theme-btn { padding: 6px 16px; border-radius: 50px; border: none; font-size: 0.8rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); }
+        .theme-btn.active { background: var(--primary-blue); color: white; }
+        .fpl-input { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); background: #f8fafc; font-size: 1rem; margin-bottom: 20px; box-sizing: border-box; }
+        .continue-btn { width: 100%; padding: 16px; background: var(--primary-blue); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        .info-box { margin-top: 25px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 15px; display: flex; gap: 12px; width: 100%; max-width: 400px; box-sizing: border-box; }
+        .info-box p { font-size: 0.75rem; color: #1e40af; margin: 0; line-height: 1.4; }
 
-        /* HEADER STATS */
-        .manager-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
+        /* --- DASHBOARD HEADER --- */
         .header-stats-grid { 
             display: grid; grid-template-columns: 1fr 1.5fr 1fr; 
             background: var(--card-bg); margin: 0 10px 15px 10px; 
             padding: 15px 10px; border-radius: 20px; text-align: center; 
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
-        .stat-column { display: flex; flex-direction: column; justify-content: center; border-right: 1px solid var(--border-color); }
+        .stat-column { border-right: 1px solid var(--border-color); }
         .stat-column:last-child { border-right: none; }
         .stat-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; }
-        .stat-value { font-size: 1.1rem; font-weight: 900; color: var(--text-main); }
+        .stat-value { font-size: 1.1rem; font-weight: 900; }
         .stat-subtext { font-size: 0.6rem; color: var(--text-muted); margin-top: 4px; }
+        .rank-toggle-box { display: inline-flex; background: #f1f5f9; padding: 2px; border-radius: 50px; }
+        .toggle-pill { font-size: 0.55rem; padding: 2px 8px; border-radius: 50px; cursor: pointer; color: var(--text-muted); }
+        .toggle-pill.active { background: var(--primary-blue); color: white; }
 
-        /* TOGGLE PILL */
-        .rank-toggle-box { display: inline-flex; background: var(--input-bg); padding: 2px; border-radius: 50px; border: 1px solid var(--border-color); }
-        .toggle-btn { font-size: 0.55rem; padding: 2px 8px; border-radius: 50px; cursor: pointer; color: var(--text-muted); }
-        .toggle-btn.active { background: #37003c; color: white; }
-        .trend-up { font-size: 0.75rem; }
-
-        /* CIRCULAR PITCH */
+        /* --- PITCH AREA --- */
         .pitch-container { 
             position: relative; background-color: #2e7d32;
             background-image: repeating-radial-gradient(circle at 50% 50%, #388e3c, #388e3c 25px, #2e7d32 25px, #2e7d32 50px);
@@ -77,60 +76,66 @@
             display: flex; flex-direction: column; justify-content: space-around;
             border-top-left-radius: 25px; border-top-right-radius: 25px;
         }
-        .pitch-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 8px; }
-        .bench-area { background: rgba(0,0,0,0.2); padding: 15px 0; display: flex; justify-content: center; gap: 5px; }
-
-        /* PLAYER CARDS */
+        .pitch-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 10px; }
         .player-card { width: 72px; text-align: center; }
         .shirt-img { width: 42px; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.3)); position: relative; z-index: 3;}
-        .p-info-box { border-radius: 3px; overflow: hidden; margin-top: -6px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); position: relative; z-index: 2;}
+        .p-info-box { border-radius: 3px; overflow: hidden; margin-top: -6px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); background: #fff; position: relative; z-index: 2;}
         .p-name { background: #000; color: #fff; font-size: 0.55rem; padding: 2px 1px; font-weight: 700; white-space: nowrap; }
-        .p-pts { background: #fff; color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; }
-        .p-own { background: #00ff85; color: #000; font-size: 0.5rem; font-weight: 800; padding: 1px 0; border-top: 1px solid #eee; }
-        .p-fix { font-size: 0.48rem; font-weight: 800; padding: 2px 0; text-transform: uppercase; color: #000; }
+        .p-pts { color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; }
+        .p-own { background: #00ff85; color: #000; font-size: 0.5rem; font-weight: 800; border-top: 1px solid #eee; }
+        .p-fix { font-size: 0.48rem; font-weight: 800; padding: 2px 0; background: #e7e7e7; text-transform: uppercase; }
 
-        /* FDR Colors */
-        .fdr-1, .fdr-2 { background: #00ff85; }
-        .fdr-3 { background: #e7e7e7; }
-        .fdr-4 { background: #ff1751; color: #fff !important; }
-        .fdr-5 { background: #80072d; color: #fff !important; }
+        /* --- PROFILE DRAWER --- */
+        #profile-drawer {
+            position: fixed; bottom: -100%; left: 0; width: 100%; height: 60%;
+            background: var(--card-bg); border-top-left-radius: 30px; border-top-right-radius: 30px;
+            z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+            padding: 25px; box-sizing: border-box;
+        }
+        #profile-drawer.open { bottom: 0; }
+        .profile-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; background: var(--bg-color); margin-bottom: 10px; cursor: pointer; }
 
-        /* LOGIN SCREEN */
-        #login-screen { position: fixed; inset: 0; background: var(--bg-color); display: flex; align-items: center; justify-content: center; z-index: 10000; }
-        .login-box { background: var(--card-bg); padding: 30px; border-radius: 24px; text-align: center; width: 85%; max-width: 350px; border: 1px solid var(--border-color); }
-        .login-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); margin: 15px 0; text-align: center; box-sizing: border-box; }
-        .login-btn { background: #37003c; color: white; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 700; width: 100%; }
-
-        /* NAV */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; }
         .nav-item { color: var(--text-muted); font-size: 0.65rem; font-weight: 600; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px;}
-        .nav-item.active { color: #37003c; }
+        .nav-item.active { color: var(--primary-blue); }
     </style>
 </head>
 <body>
 
-    <div id="loading-overlay">
-        <div class="spinner"></div>
-        <p style="margin-top: 15px; font-weight: 700; color: #37003c;">CALCULATING LIVE DATA...</p>
-    </div>
-
     <div id="login-screen">
-        <div class="login-box">
-            <h2 style="margin:0; font-weight:900;">KOPALA FPL</h2>
-            <p style="font-size: 0.8rem; color: var(--text-muted);">Enter Team ID to start</p>
-            <input type="number" id="team-id-input" class="login-input" placeholder="e.g. 542231">
-            <button class="login-btn" onclick="handleLogin()">ENTER DASHBOARD</button>
+        <div class="brand-header">
+            <div class="live-logo-main">LIVE<span>▲</span>FPL</div>
+            <i class="fa-solid fa-sun" style="font-size: 1.4rem;" onclick="setTheme('light')"></i>
+        </div>
+        <div class="trust-banner">The original, most-trusted FPL rank tool since 2018 ❤️</div>
+        <div class="login-card">
+            <div class="theme-toggle-row">
+                <span style="font-weight: 700; font-size: 0.9rem;">Theme</span>
+                <div class="toggle-group">
+                    <button class="theme-btn" id="dark-toggle" onclick="setTheme('dark')">Dark</button>
+                    <button class="theme-btn active" id="light-toggle" onclick="setTheme('light')">Light</button>
+                </div>
+            </div>
+            <h2>Enter your FPL ID</h2>
+            <p>We only use your public FPL ID on this device.</p>
+            <input type="number" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567">
+            <button class="continue-btn" onclick="handleLogin()">Continue</button>
+        </div>
+        <div class="info-box">
+            <i class="fa-solid fa-circle-info" style="color:var(--primary-blue)"></i>
+            <p>This is a test version. All app features are free & unlimited. Future versions may require a subscription for unlimited use.</p>
         </div>
     </div>
 
     <div id="dashboard" style="display:none;">
-        <div class="manager-header">
-            <span id="disp-name" style="font-weight: 900; font-size: 1.1rem;">-</span>
-            <div style="display: flex; gap: 15px; color: var(--text-muted);">
-                <i class="fa-solid fa-pen"></i><i class="fa-solid fa-gear"></i><i class="fa-solid fa-plus"></i>
+        <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+            <span id="disp-name" style="font-weight: 900; font-size: 1.1rem; cursor:pointer;" onclick="toggleDrawer()">- <i class="fa-solid fa-chevron-down" style="font-size:0.7rem"></i></span>
+            <div style="display: flex; gap: 18px; color: var(--text-muted);">
+                <i class="fa-solid fa-rotate" onclick="fetchAndRender()"></i>
+                <i class="fa-solid fa-plus" onclick="logout()"></i>
             </div>
         </div>
-        
+
         <div class="header-stats-grid">
             <div class="stat-column">
                 <span class="stat-label">GW Rank</span>
@@ -139,17 +144,15 @@
             <div class="stat-column">
                 <span class="stat-label"> Live Rank
                     <div class="rank-toggle-box">
-                        <span class="toggle-btn" onclick="toggleRank('pre')" id="btn-pre">Pre</span>
-                        <span class="toggle-btn active" onclick="toggleRank('post')" id="btn-post">Post</span>
+                        <span class="toggle-pill" id="btn-pre" onclick="toggleRank('pre')">Pre</span>
+                        <span class="toggle-pill active" id="btn-post" onclick="toggleRank('post')">Post</span>
                     </div>
                 </span>
-                <span class="stat-value">
-                    <span id="disp-rank">0</span> <i id="rank-trend" class="fa-solid fa-circle-up trend-up"></i>
-                </span>
+                <span class="stat-value" id="disp-rank">0</span>
                 <span class="stat-subtext" id="disp-old-rank">Old: -</span>
             </div>
             <div class="stat-column">
-                <span class="stat-label">Points <i class="fa-regular fa-circle-question" style="font-size:0.6rem"></i></span>
+                <span class="stat-label">Points</span>
                 <span class="stat-value" id="disp-total">0</span>
                 <span class="stat-subtext" id="disp-safety">Safety: 0 &nbsp; Δ: 0</span>
             </div>
@@ -161,19 +164,28 @@
             <div id="mid-row" class="pitch-row"></div>
             <div id="fwd-row" class="pitch-row"></div>
         </div>
-        <div id="bench-row" class="bench-area"></div>
+    </div>
+
+    <div id="profile-drawer">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+            <h3 style="margin:0">Saved Profiles</h3>
+            <i class="fa-solid fa-xmark" onclick="toggleDrawer()"></i>
+        </div>
+        <div id="profile-list"></div>
+        <button class="continue-btn" style="margin-top:20px; background:#f1f5f9; color:#000;" onclick="logout()">+ Add New Team</button>
     </div>
 
     <nav class="bottom-nav">
         <a href="#" class="nav-item active"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
         <a href="#" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-shield-halved"></i><span>Safety</span></a>
-        <a href="javascript:handleLogout()" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i><span>Exit</span></a>
+        <a href="#" onclick="toggleDrawer()" class="nav-item"><i class="fa-solid fa-users-viewfinder"></i><span>Profiles</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-ellipsis"></i><span>More</span></a>
     </nav>
 
     <script>
         const state = {
             fplId: localStorage.getItem('kopala_id'),
+            profiles: JSON.parse(localStorage.getItem('fpl_profiles') || '[]'),
             playerMap: {}, teamMap: {}, currentGW: 1,
             ranks: { pre: 0, post: 0, old: 0 },
             safetyData: { average: 0, delta: 0 },
@@ -182,156 +194,133 @@
 
         const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (state.fplId) {
-                document.getElementById('login-screen').style.display = 'none';
-                await initData();
-                await fetchAndRender();
+        function setTheme(mode) {
+            document.body.classList.toggle('dark-mode', mode === 'dark');
+            document.getElementById('dark-toggle').classList.toggle('active', mode === 'dark');
+            document.getElementById('light-toggle').classList.toggle('active', mode === 'light');
+        }
+
+        function toggleDrawer() { document.getElementById('profile-drawer').classList.toggle('open'); renderProfiles(); }
+        function renderProfiles() {
+            document.getElementById('profile-list').innerHTML = state.profiles.map(p => `
+                <div class="profile-item" onclick="switchProfile('${p.id}')">
+                    <div><b>${p.name}</b><br><small>ID: ${p.id}</small></div>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </div>`).join('');
+        }
+
+        async function switchProfile(id) {
+            localStorage.setItem('kopala_id', id);
+            state.fplId = id;
+            toggleDrawer();
+            await fetchAndRender();
+        }
+
+        async function handleLogin() {
+            const id = document.getElementById('team-id-input').value;
+            if(!id) return;
+            localStorage.setItem('kopala_id', id);
+            state.fplId = id;
+            await initData();
+            await fetchAndRender();
+            saveProfile();
+        }
+
+        function saveProfile() {
+            const name = document.getElementById('disp-name').textContent.split(' ')[0];
+            if(!state.profiles.find(p => p.id === state.fplId)) {
+                state.profiles.push({ id: state.fplId, name });
+                localStorage.setItem('fpl_profiles', JSON.stringify(state.profiles));
             }
-        });
+        }
 
         async function initData() {
-            try {
-                const res = await fetch(`${PROXY}bootstrap-static/`);
-                const data = await res.json();
-                data.teams.forEach(t => state.teamMap[t.id] = { short: t.short_name, code: t.code });
-                data.elements.forEach(p => state.playerMap[p.id] = { 
-                    name: p.web_name, team: p.team, team_code: state.teamMap[p.team].code, pos: p.element_type 
-                });
-                const curr = data.events.find(e => e.is_current);
-                state.currentGW = curr.id;
-                state.safetyData.average = curr.average_entry_score || 0;
-            } catch (e) { console.error("Static Init Fail", e); }
+            const res = await fetch(`${PROXY}bootstrap-static/`);
+            const data = await res.json();
+            data.teams.forEach(t => state.teamMap[t.id] = { short: t.short_name, code: t.code });
+            data.elements.forEach(p => state.playerMap[p.id] = { name: p.web_name, team: p.team, team_code: state.teamMap[p.team].code, pos: p.element_type });
+            const curr = data.events.find(e => e.is_current);
+            state.currentGW = curr.id;
+            state.safetyData.average = curr.average_entry_score;
         }
 
-        async function fetchAndRender() {
-            document.getElementById('loading-overlay').style.display = 'flex';
-            try {
-                const [entryRes, picksRes, liveRes, fixRes] = await Promise.all([
-                    fetch(`${PROXY}entry/${state.fplId}/`),
-                    fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`),
-                    fetch(`${PROXY}event/${state.currentGW}/live/`),
-                    fetch(`${PROXY}fixtures/?event=${state.currentGW}`)
-                ]);
-                
-                const entry = await entryRes.json();
-                const picks = await picksRes.json();
-                const live = await liveRes.json();
-                const fixtures = await fixRes.json();
-
-                // 1. SET RANKS
-                state.ranks.post = entry.summary_overall_rank || 0;
-                state.ranks.pre = picks.entry_history.overall_rank || 0;
-                state.ranks.old = state.ranks.pre;
-
-                // 2. SET SAFETY
-                const currentPts = entry.summary_event_points || 0;
-                state.safetyData.delta = currentPts - state.safetyData.average;
-
-                // 3. MAP FIXTURES
-                const fixMap = {};
-                fixtures.forEach(f => {
-                    fixMap[f.team_h] = { opp: state.teamMap[f.team_a].short, h: true, fdr: f.team_h_difficulty };
-                    fixMap[f.team_a] = { opp: state.teamMap[f.team_h].short, h: false, fdr: f.team_a_difficulty };
-                });
-
-                // 4. MAP LIVE POINTS
-                const ptsMap = {};
-                live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
-
-                // 5. CALCULATE MINI-LEAGUE EO (Sampling First Classic League)
-                if (entry.leagues.classic.length > 0) {
-                    await calculateLeagueEO(entry.leagues.classic[0].id);
-                }
-
-                // UI UPDATES
-                document.getElementById('disp-name').textContent = `${entry.player_first_name} ${entry.player_last_name}`;
-                document.getElementById('disp-total').textContent = currentPts;
-                document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || 0).toLocaleString();
-                document.getElementById('disp-safety').innerHTML = `Safety: ${state.safetyData.average} &nbsp; Δ:${state.safetyData.delta >= 0 ? '+' : ''}${state.safetyData.delta}`;
-
-                renderPlayers(picks.picks, ptsMap, fixMap);
-                updateRankDisplay('post');
-                
-                document.getElementById('dashboard').style.display = 'block';
-            } catch (e) { console.error("Fetch Error", e); }
-            document.getElementById('loading-overlay').style.display = 'none';
-        }
-
-        async function calculateLeagueEO(leagueId) {
+        async function calculateEO(leagueId) {
             try {
                 const res = await fetch(`${PROXY}leagues-classic/${leagueId}/standings/`);
                 const data = await res.json();
-                const topManagers = data.standings.results.slice(0, 15); // Sample top 15 for speed
-                
+                const top = data.standings.results.slice(0, 15);
                 let tally = {};
-                const promises = topManagers.map(m => fetch(`${PROXY}entry/${m.entry}/event/${state.currentGW}/picks/`).then(r => r.json()));
-                const allPicks = await Promise.all(promises);
-
-                allPicks.forEach(p => {
-                    p.picks.forEach(pick => {
-                        if (pick.position <= 11) {
-                            tally[pick.element] = (tally[pick.element] || 0) + 1;
-                            if (pick.is_captain) tally[pick.element] += 1; // Effective Ownership includes Captaincy
-                        }
-                    });
-                });
-
-                for (let id in tally) {
-                    state.ownership[id] = ((tally[id] / topManagers.length) * 100).toFixed(0);
-                }
-            } catch (e) { console.warn("EO Tally failed", e); }
+                const picks = await Promise.all(top.map(m => fetch(`${PROXY}entry/${m.entry}/event/${state.currentGW}/picks/`).then(r => r.json())));
+                picks.forEach(p => p.picks.forEach(pick => {
+                    if(pick.position <= 11) {
+                        tally[pick.element] = (tally[pick.element] || 0) + 1;
+                        if(pick.is_captain) tally[pick.element] += 1;
+                    }
+                }));
+                for(let id in tally) state.ownership[id] = ((tally[id] / top.length) * 100).toFixed(0);
+            } catch(e) { console.warn("EO Failed"); }
         }
 
-        function renderPlayers(picks, ptsMap, fixMap) {
-            ['gk-row', 'def-row', 'mid-row', 'fwd-row', 'bench-row'].forEach(id => document.getElementById(id).innerHTML = '');
-            
-            picks.forEach(p => {
+        async function fetchAndRender() {
+            const [entryRes, picksRes, liveRes, fixRes] = await Promise.all([
+                fetch(`${PROXY}entry/${state.fplId}/`),
+                fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`),
+                fetch(`${PROXY}event/${state.currentGW}/live/`),
+                fetch(`${PROXY}fixtures/?event=${state.currentGW}`)
+            ]);
+            const entry = await entryRes.json();
+            const picks = await picksRes.json();
+            const live = await liveRes.json();
+            const fixtures = await fixRes.json();
+
+            state.ranks = { post: entry.summary_overall_rank, pre: picks.entry_history.overall_rank, old: picks.entry_history.overall_rank };
+            document.getElementById('disp-name').innerHTML = `${entry.player_first_name} <i class="fa-solid fa-chevron-down" style="font-size:0.7rem"></i>`;
+            document.getElementById('disp-total').textContent = entry.summary_event_points;
+            document.getElementById('disp-gw-rank').textContent = picks.entry_history.rank.toLocaleString();
+            document.getElementById('disp-safety').innerHTML = `Safety: ${state.safetyData.average} &nbsp; Δ:${entry.summary_event_points - state.safetyData.average}`;
+
+            if(entry.leagues.classic.length > 0) await calculateEO(entry.leagues.classic[0].id);
+
+            const ptsMap = {}; live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+            const fixMap = {}; fixtures.forEach(f => {
+                fixMap[f.team_h] = { opp: state.teamMap[f.team_a].short, h: true };
+                fixMap[f.team_a] = { opp: state.teamMap[f.team_h].short, h: false };
+            });
+
+            renderPitch(picks.picks, ptsMap, fixMap);
+            updateRankDisplay('post');
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('login-screen').style.display = 'none';
+        }
+
+        function renderPitch(picks, ptsMap, fixMap) {
+            ['gk-row', 'def-row', 'mid-row', 'fwd-row'].forEach(id => document.getElementById(id).innerHTML = '');
+            picks.slice(0, 11).forEach(p => {
                 const meta = state.playerMap[p.element];
                 const pts = (ptsMap[p.element] || 0) * (p.multiplier || 1);
-                const fix = fixMap[meta.team] || { opp: 'BYE', fdr: 3 };
-                const eo = state.ownership[p.element] || 0;
-                
-                const html = `
+                const f = fixMap[meta.team] || { opp: 'BYE', h: true };
+                document.getElementById(meta.pos === 1 ? 'gk-row' : meta.pos === 2 ? 'def-row' : meta.pos === 3 ? 'mid-row' : 'fwd-row').innerHTML += `
                     <div class="player-card">
                         <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png" class="shirt-img">
                         <div class="p-info-box">
                             <div class="p-name">${p.is_captain ? 'Ⓒ ' : ''}${meta.name}</div>
                             <div class="p-pts">${pts}</div>
-                            <div class="p-own">EO: ${eo}%</div>
-                            <div class="p-fix fdr-${fix.fdr}">${fix.opp} (${fix.h ? 'H' : 'A'})</div>
+                            <div class="p-own">EO: ${state.ownership[p.element] || 0}%</div>
+                            <div class="p-fix">${f.opp} (${f.h ? 'H' : 'A'})</div>
                         </div>
                     </div>`;
-                
-                const rowId = p.position > 11 ? 'bench-row' : (meta.pos === 1 ? 'gk-row' : meta.pos === 2 ? 'def-row' : meta.pos === 3 ? 'mid-row' : 'fwd-row');
-                document.getElementById(rowId).innerHTML += html;
             });
         }
 
-        function updateRankDisplay(type) {
-            const isPost = type === 'post';
-            document.getElementById('btn-pre').classList.toggle('active', !isPost);
-            document.getElementById('btn-post').classList.toggle('active', isPost);
-            
-            const currentVal = isPost ? state.ranks.post : state.ranks.pre;
-            document.getElementById('disp-rank').textContent = currentVal.toLocaleString();
-            
-            const diffVal = state.ranks.old - state.ranks.post;
-            const diffPercent = ((diffVal / state.ranks.old) * 100).toFixed(2);
-            document.getElementById('disp-old-rank').textContent = `Old: ${state.ranks.old.toLocaleString()} (${diffPercent >= 0 ? '+' : ''}${diffPercent}%)`;
-            
-            const trend = document.getElementById('rank-trend');
-            const up = state.ranks.post <= state.ranks.old;
-            trend.className = up ? "fa-solid fa-circle-up trend-up" : "fa-solid fa-circle-down trend-up";
-            trend.style.color = up ? "#00ff85" : "#ff1751";
+        function updateRankDisplay(t) {
+            document.getElementById('disp-rank').textContent = state.ranks[t].toLocaleString();
+            document.getElementById('btn-pre').classList.toggle('active', t === 'pre');
+            document.getElementById('btn-post').classList.toggle('active', t === 'post');
         }
 
         function toggleRank(t) { updateRankDisplay(t); }
-        function handleLogin() { 
-            const val = document.getElementById('team-id-input').value; 
-            if(val) { localStorage.setItem('kopala_id', val); location.reload(); }
-        }
-        function handleLogout() { localStorage.removeItem('kopala_id'); location.reload(); }
+        function logout() { localStorage.removeItem('kopala_id'); location.reload(); }
+        if(state.fplId) { initData().then(fetchAndRender); }
     </script>
 </body>
 </html>
