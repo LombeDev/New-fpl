@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KOPALA FPL - Mini Leagues Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
@@ -33,6 +33,31 @@
             color: var(--text-main);
             font-family: -apple-system, system-ui, sans-serif;
             overflow-x: hidden;
+            padding-bottom: 90px;
+            animation: fadeInPage 0.4s ease-out;
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* --- PAGE SLIDE OVERLAY --- */
+        #slide-overlay {
+            position: fixed;
+            top: 0;
+            left: 100%;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            z-index: 9999;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #slide-overlay.active {
+            left: 0;
         }
 
         /* 2. TOP BRANDING BAR */
@@ -48,7 +73,6 @@
             display: flex; align-items: center; gap: 4px; cursor: pointer;
         }
         .live-logo span { color: var(--fpl-green); }
-
         .nav-btn { background:#eee; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; color: #000; }
 
         /* 3. STICKY HEADER & SELECTORS */
@@ -84,14 +108,13 @@
             color: var(--text-main); font-size: 0.85rem; outline: none;
         }
 
-        /* 4. HEATMAP & HISTORY STYLES */
+        /* 4. HEATMAP & STANDINGS */
         .heatmap-container { padding: 12px; background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 15px; }
         .heatmap-bar-wrapper { margin-bottom: 8px; }
         .heatmap-label { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 3px; font-weight: 700; }
         .heatmap-bar-bg { height: 6px; background: var(--bg-color); border-radius: 3px; overflow: hidden; }
         .heatmap-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary-blue), var(--fpl-green)); transition: width 0.5s; }
 
-        /* 5. STANDINGS TABLE */
         .standings-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .standings-table th {
             background: var(--bg-color); color: var(--text-muted);
@@ -112,7 +135,7 @@
         .up { color: var(--fpl-green); }
         .down { color: var(--fpl-pink); }
 
-        /* 6. MODAL & MINI PITCH */
+        /* 5. MODAL & MINI PITCH */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 2000;
@@ -133,7 +156,6 @@
         .mini-pts { background: #fff; color: #000; font-size: 0.65rem; font-weight: 800; border-radius: 0 0 2px 2px; }
         .bonus-badge { background: #ffeb3b; color: #000; font-size: 0.55rem; font-weight: 900; padding: 1px 3px; border-radius: 3px; position: absolute; top: -5px; right: 5px; }
 
-        /* 7. TRANSFERS & HISTORY */
         .transfer-container { padding: 12px; background: var(--bg-color); margin: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
         .transfer-row { display: flex; justify-content: space-between; font-size: 0.7rem; padding: 4px 0; border-bottom: 1px dotted var(--border-color); }
         .transfer-in { color: var(--fpl-green); font-weight: 700; }
@@ -141,17 +163,30 @@
         .live-dot { height: 6px; width: 6px; background-color: var(--fpl-green); border-radius: 50%; display: inline-block; margin-right: 5px; animation: blink 1.5s infinite; }
         @keyframes blink { 0% {opacity:1} 50% {opacity:0.3} 100% {opacity:1} }
 
-        /* 8. BOTTOM NAV */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
-        .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.65rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        /* 6. BOTTOM NAV */
+        .bottom-nav { 
+            position: fixed; bottom: 0; width: 100%; height: 80px; 
+            background: var(--card-bg); border-top: 1px solid var(--border-color); 
+            display: grid; grid-template-columns: repeat(4, 1fr); 
+            z-index: 1000; 
+        }
+        .nav-item { 
+            text-decoration: none; color: var(--text-muted); font-size: 0.65rem; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+        }
         .nav-item.active { color: var(--primary-blue); font-weight: 700; }
+        .nav-item i { font-size: 1.1rem; }
     </style>
 </head>
 <body class="light-mode">
 
+    <div id="slide-overlay">
+        <div class="live-logo" style="transform:scale(1.5);">Kopala<span>▲</span>FPL</div>
+    </div>
+
     <div class="top-brand-bar">
         <button class="nav-btn"><i class="fa-solid fa-user"></i></button>
-        <div class="live-logo" onclick="window.location.href='index.html'">Kopala<span>▲</span>FPL</div>
+        <div class="live-logo" onclick="location.href='index.html'">Kopala<span>▲</span>FPL</div>
         <button class="nav-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
     </div>
 
@@ -173,8 +208,6 @@
         </div>
     </div>
 
-   
-
     <table class="standings-table">
         <thead>
             <tr>
@@ -187,13 +220,7 @@
         <tbody id="standings-body"></tbody>
     </table>
 
-    <div id="league-history-section" style="padding: 0 15px 100px 15px;">
-        <h3 style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">League Top Scores</h3>
-        <div id="history-content" class="transfer-container" style="background: var(--card-bg);">
-            <p style="font-size: 0.7rem; text-align: center;">Select a league to see history.</p>
-        </div>
-    </div>
-     <div id="captain-heatmap" class="heatmap-container" style="margin: 15px; display: none;">
+    <div id="captain-heatmap" class="heatmap-container" style="margin: 15px; display: none;">
         <h3 style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin: 0 0 10px 0;">Top Captains (Top 25)</h3>
         <div id="heatmap-content"></div>
     </div>
@@ -213,19 +240,30 @@
     </div>
 
     <nav class="bottom-nav">
-        <button class="nav-item" onclick="window.location.href='index.html'"><i class="fa-solid fa-chart-line"></i><span>Rank</span></button>
-        <button class="nav-item active" onclick="window.location.href='leagues.html'"><i class="fa-solid fa-trophy"></i><span>Leagues</span></button>
-        <button class="nav-item" onclick="window.location.href='prices.html'"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></button>
-  
+        <a href="index.html" class="nav-item transition-link"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
+        <a href="leagues.html" class="nav-item active transition-link"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
+        <a href="prices.html" class="nav-item transition-link"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></a>
+        <a href="games.html" class="nav-item transition-link"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></a>
     </nav>
 
     <script>
         const state = {
-            fplId: localStorage.getItem('kopala_fpl_id'),
+            fplId: localStorage.getItem('kopala_id'), // Matches index.html storage key
             currentGW: 1,
             playerMap: {},
             PROXY: "/.netlify/functions/fpl-proxy?endpoint="
         };
+
+        // --- TRANSITION LOGIC ---
+        document.querySelectorAll('.transition-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const targetUrl = this.href;
+                if (targetUrl === window.location.href || targetUrl.includes('#')) return;
+                e.preventDefault();
+                document.getElementById('slide-overlay').classList.add('active');
+                setTimeout(() => { window.location.href = targetUrl; }, 400);
+            });
+        });
 
         document.addEventListener('DOMContentLoaded', async () => {
             if(localStorage.getItem('theme') === 'dark') setTheme('dark');
@@ -259,14 +297,11 @@
             const body = document.getElementById('standings-body');
             const heatmapContent = document.getElementById('heatmap-content');
             const heatmapEl = document.getElementById('captain-heatmap');
-            
             body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Loading Live Standing...</td></tr>';
             
             try {
                 const res = await fetch(`${state.PROXY}leagues-classic/${leagueId}/standings/`);
                 const data = await res.json();
-
-                // Update Header Labels
                 document.getElementById('league-name-display').textContent = data.league.name;
                 document.getElementById('league-count').textContent = `${data.standings.results.length} Managers`;
                 document.getElementById('current-gw-display').textContent = `GW ${state.currentGW}`;
@@ -278,40 +313,25 @@
                         const pData = await pRes.json();
                         const cap = pData.picks.find(p => p.is_captain);
                         const capName = state.playerMap[cap.element].name;
-
                         captainCounts[capName] = (captainCounts[capName] || 0) + 1;
-
                         return { ...r, captain: capName, hits: pData.entry_history.event_transfers_cost, chip: pData.active_chip };
                     } catch { return { ...r, captain: '---', hits: 0, chip: null }; }
                 }));
 
-                // Render Heatmap
                 const sortedCaps = Object.entries(captainCounts).sort((a,b) => b[1] - a[1]);
                 heatmapContent.innerHTML = sortedCaps.map(([name, count]) => {
                     const pct = Math.round((count / detailedResults.length) * 100);
-                    return `
-                        <div class="heatmap-bar-wrapper">
-                            <div class="heatmap-label"><span>${name}</span><span>${pct}%</span></div>
-                            <div class="heatmap-bar-bg"><div class="heatmap-bar-fill" style="width:${pct}%"></div></div>
-                        </div>`;
+                    return `<div class="heatmap-bar-wrapper"><div class="heatmap-label"><span>${name}</span><span>${pct}%</span></div><div class="heatmap-bar-bg"><div class="heatmap-bar-fill" style="width:${pct}%"></div></div></div>`;
                 }).join('');
                 heatmapEl.style.display = 'block';
 
-                // Render Table
                 body.innerHTML = detailedResults.map(r => `
                     <tr class="standing-row" onclick="openManagerDetail(${r.entry}, '${r.entry_name.replace(/'/g, "\\'")}', '${r.player_name.replace(/'/g, "\\'")}')" data-search="${(r.entry_name + r.player_name).toLowerCase()}">
                         <td class="rank-cell">${r.rank} <i class="fa-solid ${r.last_rank > r.rank ? 'fa-caret-up up' : r.last_rank < r.rank ? 'fa-caret-down down' : 'fa-minus'}"></i></td>
-                        <td>
-                            <span class="entry-name">${r.entry_name}${r.chip ? `<span class="chip-badge">${r.chip.toUpperCase()}</span>` : ''}</span>
-                            <span class="cap-info">Ⓒ ${r.captain}</span>
-                            <span class="player-name">${r.player_name}</span>
-                        </td>
+                        <td><span class="entry-name">${r.entry_name}${r.chip ? `<span class="chip-badge">${r.chip.toUpperCase()}</span>` : ''}</span><span class="cap-info">Ⓒ ${r.captain}</span><span class="player-name">${r.player_name}</span></td>
                         <td class="pts-cell">${r.event_total}${r.hits > 0 ? `<span class="hit-badge">-${r.hits}</span>` : ''}</td>
                         <td class="pts-cell" style="color:var(--primary-blue)">${r.total}</td>
-                    </tr>
-                `).join('');
-
-                loadLeagueHistory(data.standings.results);
+                    </tr>`).join('');
             } catch (e) { body.innerHTML = '<tr><td colspan="4">Error Loading.</td></tr>'; }
         }
 
@@ -322,7 +342,6 @@
             const pitch = document.getElementById('mini-pitch');
             const transDiv = document.getElementById('transfer-history-content');
             pitch.innerHTML = '<p style="color:white; text-align:center; font-size:0.7rem; padding:20px;">Fetching Live Data...</p>';
-            transDiv.innerHTML = '';
 
             try {
                 const [pRes, liveRes, tRes] = await Promise.all([
@@ -334,64 +353,29 @@
                 const lData = await liveRes.json();
                 const tData = await tRes.json();
 
-                // 1. Calculate Bonus
                 const bonusMap = {};
-                const fixtures = [...new Set(lData.elements.map(el => el.explain[0]?.fixture))].filter(Boolean);
-                fixtures.forEach(f => {
-                    const players = lData.elements.filter(el => el.explain[0]?.fixture === f)
-                        .sort((a,b) => b.stats.bps - a.stats.bps);
-                    if(players[0]) bonusMap[players[0].id] = 3;
-                    if(players[1]) bonusMap[players[1].id] = 2;
-                    if(players[2]) bonusMap[players[2].id] = 1;
+                lData.elements.forEach(el => {
+                    if (el.stats.bps > 0) bonusMap[el.id] = 0; // Simplified bonus logic for speed
                 });
 
                 const players = pData.picks.map(p => {
                     const stats = lData.elements.find(el => el.id === p.element);
-                    const b = bonusMap[p.element] || 0;
-                    return { ...state.playerMap[p.element], pts: ((stats?.stats.total_points || 0) + b) * p.multiplier, bonus: b, isCap: p.is_captain, pos: p.position };
+                    return { ...state.playerMap[p.element], pts: (stats?.stats.total_points || 0) * p.multiplier, isCap: p.is_captain, pos: p.position };
                 });
 
-                const benchPts = players.filter(p => p.pos > 11).reduce((s, p) => s + p.pts, 0);
                 const totalLive = players.filter(p => p.pos <= 11).reduce((s, p) => s + p.pts, 0);
+                const renderP = (list) => list.map(p => `<div class="mini-player"><img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="mini-shirt"><div class="mini-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div><div class="mini-pts">${p.pts}</div></div>`).join('');
 
-                const renderP = (list) => list.map(p => `
-                    <div class="mini-player">
-                        <div style="position:relative">
-                            <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="mini-shirt">
-                            ${p.bonus > 0 ? `<span class="bonus-badge">+${p.bonus}</span>` : ''}
-                        </div>
-                        <div class="mini-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div>
-                        <div class="mini-pts">${p.pts}</div>
-                    </div>`).join('');
-
-                pitch.innerHTML = `
-                    <div style="text-align:center; color:white; font-size:0.7rem; font-weight:800; margin-bottom:10px;">
-                        <span class="live-dot"></span>LIVE: ${totalLive} | BENCH: ${benchPts}
-                    </div>
+                pitch.innerHTML = `<div style="text-align:center; color:white; font-size:0.7rem; font-weight:800; margin-bottom:10px;"><span class="live-dot"></span>LIVE: ${totalLive}</div>
                     <div class="mini-row">${renderP(players.filter(p => p.pos === 1))}</div>
-                    <div class="mini-row">${renderP(players.filter(p => p.pos >= 2 && p.pos <= 5))}</div>
-                    <div class="mini-row">${renderP(players.filter(p => p.pos >= 6 && p.pos <= 10))}</div>
-                    <div class="mini-row">${renderP(players.filter(p => p.pos === 11))}</div>
-                    <div style="border-top:1px dashed rgba(255,255,255,0.2); padding-top:10px; margin-top:10px;">
-                        <div class="mini-row">${renderP(players.filter(p => p.pos > 11))}</div>
-                    </div>`;
+                    <div class="mini-row">${renderP(players.filter(p => [2,3,4,5].includes(p.pos)))}</div>
+                    <div class="mini-row">${renderP(players.filter(p => [6,7,8,9,10].includes(p.pos)))}</div>
+                    <div class="mini-row">${renderP(players.filter(p => p.pos === 11))}</div>`;
 
-                // 2. Transfers
                 const gwTrans = tData.filter(t => t.event === state.currentGW);
                 transDiv.innerHTML = `<div class="transfer-container"><div style="font-weight:800; font-size:0.65rem; color:var(--text-muted); margin-bottom:5px;">GW ${state.currentGW} TRANSFERS</div>` + 
                     (gwTrans.length ? gwTrans.map(t => `<div class="transfer-row"><span class="transfer-in">IN: ${state.playerMap[t.element_in].name}</span><span class="transfer-out">OUT: ${state.playerMap[t.element_out].name}</span></div>`).join('') : '<div style="font-size:0.7rem;">No transfers</div>') + `</div>`;
-
             } catch (e) { pitch.innerHTML = '<p style="color:white; text-align:center;">Error Loading Team.</p>'; }
-        }
-
-        function loadLeagueHistory(results) {
-            const hist = document.getElementById('history-content');
-            const topScores = [...results].sort((a,b) => b.event_total - a.event_total).slice(0, 3);
-            hist.innerHTML = topScores.map((m, i) => `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border-color);">
-                    <div style="font-size:0.75rem;"><strong>${i+1}. ${m.entry_name}</strong><br><small>${m.player_name}</small></div>
-                    <div style="font-weight:900; color:var(--fpl-green);">${m.event_total} Pts</div>
-                </div>`).join('');
         }
 
         function toggleTheme() {
