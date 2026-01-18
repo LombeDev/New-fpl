@@ -116,9 +116,9 @@
         .pitch-row { display: flex; justify-content: space-around; width: 100%; }
 
         .pitch-player { width: 65px; text-align: center; }
-        .p-face { width: 55px; height: auto; margin-bottom: -5px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3)); }
+        .p-face { height: 50px; width: auto; margin-bottom: -4px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3)); display: block; margin-left: auto; margin-right: auto;}
         
-        .p-labels { background: #fff; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; z-index: 2; }
+        .p-labels { background: #fff; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; z-index: 2; width: 100%;}
         .p-name { background: #1e293b; color: #fff; font-size: 0.55rem; padding: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .p-pts { font-size: 0.75rem; font-weight: 800; color: #000; padding: 1px; }
         .p-pts.high { background: var(--fpl-green); }
@@ -141,11 +141,14 @@
 </head>
 <body>
 
-    <div class="top-brand-bar">
-        <div class="icon-btn" style="border:none;"><i class="fa-solid fa-crown" style="color:#eab308"></i></div>
-        <div class="live-logo">LIVE<span>▲</span>FPL</div>
-        <div class="icon-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></div>
-    </div>
+     <header class="top-nav">
+        <div class="no-ads"><i class="fa-solid fa-crown"></i> NO ADS</div>
+        <div class="logo-container">Kopala<span>▲</span>FPL</div>
+        <div style="display:flex; gap:12px;">
+            <i class="fa-solid fa-moon" onclick="toggleTheme()" style="cursor:pointer;"></i>
+            <i class="fa-solid fa-plus" onclick="logout()" style="cursor:pointer;"></i>
+        </div>
+    </header>
 
     <div class="league-controls">
         <div class="control-row">
@@ -160,12 +163,17 @@
 
     <div id="standings-container"></div>
 
-    <nav class="bottom-nav">
-        <div class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></div>
-        <div class="nav-item active"><i class="fa-solid fa-trophy"></i><span>Leagues</span></div>
-        <div class="nav-item"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></div>
-        <div class="nav-item"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></div>
+  <nav class="bottom-nav">
+        <div class="nav-item active" onclick="navTo(0, this)"><i class="fa-solid fa-chart-line"></i><span>Rank</span></div>
+        <div class="nav-item" onclick="navTo(1, this)"><i class="fa-solid fa-trophy"></i><span>Leagues</span></div>
+        <div class="nav-item" onclick="navTo(2, this)"><i class="fa-solid fa-chart-simple"></i><span>Prices</span></div>
+        <div class="nav-item" onclick="navTo(2, this)"><i class="fa fa-bolt"></i><span>Bonus</span></div>
+        <div class="nav-item" onclick="navTo(3, this)"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></div>
+        <div class="nav-item"><i class="fa-solid fa-lightbulb"></i><span>What If</span></div>
+        <div class="nav-item"><i class="fa fa-info-circle"></i><span>About</span></div>
+        <div class="nav-item" onclick="toggleDrawer()"><i class="fa-solid fa-ellipsis"></i><span>More</span></div>
     </nav>
+
 
     <script>
         const state = {
@@ -224,15 +232,17 @@
                     const prevGW = state.currentGW - 1;
                     let transferText = "No Transfers";
                     if (prevGW > 0) {
-                        const prevPicksRes = await fetch(`${state.PROXY}entry/${r.entry}/event/${prevGW}/picks/`);
-                        const prevPicks = await prevPicksRes.json();
-                        const currentIds = picks.picks.map(p => p.element);
-                        const prevIds = prevPicks.picks.map(p => p.element);
-                        const outId = prevIds.find(id => !currentIds.includes(id));
-                        const inId = currentIds.find(id => !prevIds.includes(id));
-                        if (inId && outId) {
-                            transferText = `${state.playerMap[outId].name} → ${state.playerMap[inId].name}`;
-                        }
+                        try {
+                            const prevPicksRes = await fetch(`${state.PROXY}entry/${r.entry}/event/${prevGW}/picks/`);
+                            const prevPicks = await prevPicksRes.json();
+                            const currentIds = picks.picks.map(p => p.element);
+                            const prevIds = prevPicks.picks.map(p => p.element);
+                            const outId = prevIds.find(id => !currentIds.includes(id));
+                            const inId = currentIds.find(id => !prevIds.includes(id));
+                            if (inId && outId) {
+                                transferText = `${state.playerMap[outId].name} → ${state.playerMap[inId].name}`;
+                            }
+                        } catch(e) {}
                     }
 
                     const orValue = hist.current[hist.current.length - 1].overall_rank;
@@ -284,15 +294,17 @@
             const pts = (liveData ? liveData.event_points : 0) * p.multiplier;
             const cap = p.is_captain ? '<div class="c-badge">C</div>' : (p.is_vice_captain ? '<div class="v-badge">V</div>' : '');
             
+            // Player face URL
             const photoUrl = `https://resources.premierleague.com/premierleague/photos/players/110x140/${player.photo}`;
             const jerseyFallback = `https://fantasy.premierleague.com/dist/img/shirts/standard/s_${player.team_code}-66.png`;
 
             return `
                 <div class="pitch-player">
-                    <div style="position:relative; display:inline-block;">
+                    <div style="position:relative; display:inline-block; min-height:50px;">
                         <img src="${photoUrl}" 
                              class="p-face" 
-                             onerror="this.src='${jerseyFallback}'; this.style.width='35px';">
+                             alt="${player.name}"
+                             onerror="this.onerror=null; this.src='${jerseyFallback}'; this.style.height='35px'; this.style.marginTop='10px';">
                         ${cap}
                     </div>
                     <div class="p-labels">
@@ -312,8 +324,11 @@
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
             const icon = document.getElementById('theme-icon');
-            icon.classList.toggle('fa-sun');
-            icon.classList.toggle('fa-moon');
+            if (icon.classList.contains('fa-sun')) {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            } else {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            }
         }
 
         init();
