@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOPALA FPL</title>
+    <title>KOPALA FPL - PRO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         /* 1. THEME & CORE STYLES */
@@ -83,41 +83,70 @@
         .stat-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); display: block; }
         .stat-value { font-size: 1.1rem; font-weight: 800; display: block; margin: 2px 0; }
 
-        /* 6. FULL-SCREEN PITCH DESIGN */
+        /* 6. PRO PITCH DESIGN */
         .pitch-container { 
             position: relative;
-            background-color: #2e7d32;
-            /* Grass Pattern & Half-Pitch Lines */
+            background-color: #388e3c;
             background-image: 
-                radial-gradient(circle at 50% 100%, transparent 58px, rgba(255,255,255,0.2) 60px, transparent 62px), /* Kickoff Circle */
-                linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.2)), /* Halfway Line */
-                linear-gradient(90deg, transparent 50%, rgba(255,255,255,0.03) 50%); /* Grass Shades */
-            background-size: 100% 100%, 100% 2px, 40px 100%;
-            background-position: center bottom, center bottom, left top;
-            background-repeat: no-repeat, no-repeat, repeat;
-            
+                linear-gradient(90deg, #388e3c 50%, #2e7d32 50%),
+                linear-gradient(rgba(255,255,255,0.2) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(255,255,255,0.2) 2px, transparent 2px),
+                linear-gradient(-90deg, rgba(255,255,255,0.2) 2px, transparent 2px);
+            background-size: 80px 100%, 100% 100%, 100% 100%, 100% 100%;
             width: 100%; 
-            padding: 40px 0 20px 0; 
-            min-height: 580px; 
+            padding: 50px 0 20px 0; 
+            min-height: 600px; 
             display: flex; 
             flex-direction: column; 
             justify-content: space-around;
+            overflow: hidden;
         }
 
-        /* Penalty Box (Top) */
+        /* Penalty Area & Penalty Spot */
         .pitch-container::before {
             content: "";
             position: absolute;
             top: 0; left: 50%;
             transform: translateX(-50%);
-            width: 65%;
+            width: 60%;
             height: 90px;
-            border: 2px solid rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
             border-top: none;
+            background-image: radial-gradient(rgba(255,255,255,0.5) 2px, transparent 3px);
+            background-position: center 65px;
+            background-repeat: no-repeat;
+        }
+
+        /* Penalty Arc (D-Box) */
+        .pitch-container::after {
+            content: "";
+            position: absolute;
+            top: 90px; left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 30px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: none;
+            border-bottom-left-radius: 50px;
+            border-bottom-right-radius: 50px;
+        }
+
+        .half-field-lines {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 2px;
+            background: rgba(255,255,255,0.3);
+        }
+        .kickoff-circle {
+            position: absolute;
+            bottom: -60px; left: 50%;
+            transform: translateX(-50%);
+            width: 120px; height: 120px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
         }
 
         .pitch-row { display: flex; justify-content: center; gap: 4px; position: relative; z-index: 2; }
-        .bench-row { background: rgba(0, 0, 0, 0.15); padding: 15px 0; border-top: 2px dashed rgba(255,255,255,0.2); margin-top: 10px; }
+        .bench-row { background: rgba(0, 0, 0, 0.15); padding: 15px 0; border-top: 2px dashed rgba(255,255,255,0.2); margin-top: 20px; }
 
         /* 7. PLAYER CARDS */
         .player-card { width: 70px; text-align: center; }
@@ -132,9 +161,31 @@
             filter: blur(2px); z-index: 1;
         }
         .p-info-box { border-radius: 3px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        .p-name { background: #000; color: #fff; font-size: 0.58rem; font-weight: 700; padding: 2px 1px; }
-        .p-pts { background: #fff; color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; }
-        .p-own { background: #c8e6c9; color: #1b5e20; font-size: 0.55rem; font-weight: 700; padding: 1px 0; border-top: 1px solid rgba(0,0,0,0.05); }
+        
+        .p-name { 
+            background: #000; color: #fff; font-size: 0.58rem; 
+            font-weight: 700; padding: 2px 1px; white-space: nowrap; 
+            display: flex; align-items: center; justify-content: center; gap: 2px;
+        }
+        
+        /* Live Playing Indicator */
+        .live-dot { width: 6px; height: 6px; background: #00ff85; border-radius: 50%; box-shadow: 0 0 5px #00ff85; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        /* Points Colors */
+        .p-pts { background: #fff; color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; position: relative; }
+        .p-pts.high-score { background: #00ff85; color: #000; }
+        .p-pts.yellow-card { background: #ffd600; color: #000; }
+        .p-pts.red-card { background: #ff1751; color: #fff; }
+
+        /* Bonus Badge */
+        .bonus-badge {
+            position: absolute; right: 2px; top: 1px;
+            font-size: 0.45rem; background: var(--primary-blue); color: white;
+            padding: 1px 2px; border-radius: 2px; line-height: 1;
+        }
+
+        .p-own { background: #c8e6c9; color: #1b5e20; font-size: 0.55rem; font-weight: 700; padding: 1px 0; }
         .p-fix { font-size: 0.5rem; font-weight: 800; padding: 2px 0; text-transform: uppercase; color: #fff; }
 
         /* FDR Colors */
@@ -149,11 +200,11 @@
         .nav-item.active { color: var(--primary-blue); }
     </style>
 </head>
-<body class="light-mode">
+<body>
 
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <p style="margin-top: 15px; font-weight: 600; color: var(--text-muted);">Loading Pitch...</p>
+        <p style="margin-top: 15px; font-weight: 600; color: var(--text-muted);">Syncing Live Pitch...</p>
     </div>
 
     <div class="top-brand-bar">
@@ -165,14 +216,16 @@
     <div id="login-screen">
         <div class="login-card">
             <h2>Enter FPL ID</h2>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px;">To view your live rank and league data.</p>
             <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567">
             <button class="continue-btn" onclick="handleLogin()">View Dashboard</button>
         </div>
     </div>
 
     <div id="dashboard">
-        <div style="padding: 10px 15px;"><span id="disp-name" style="font-weight: 800; font-size: 0.9rem;"></span></div>
+        <div style="padding: 10px 15px; display: flex; justify-content: space-between;">
+            <span id="disp-name" style="font-weight: 800; font-size: 0.9rem;"></span>
+            <span id="live-indicator" style="font-size: 0.7rem; color: var(--fpl-green); font-weight: 700; display: none;"><i class="fa-solid fa-circle-dot"></i> LIVE</span>
+        </div>
         
         <div class="header-stats-grid">
             <div><span class="stat-label">GW Rank</span><span class="stat-value" id="disp-gw-rank">-</span></div>
@@ -182,11 +235,12 @@
         
         <div id="pitch-view" class="pitch-container">
             <div id="starting-rows"></div>
+            <div class="half-field-lines"></div>
+            <div class="kickoff-circle"></div>
             <div id="bench-row" class="pitch-row bench-row"></div>
         </div>
 
         <div style="padding: 15px;">
-            <label style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; display: block;">SWITCH LEAGUE</label>
             <select id="league-select" onchange="changeLeague(this.value)" style="width: 100%; padding: 12px; border-radius: 8px; background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color);"></select>
         </div>
     </div>
@@ -204,7 +258,8 @@
             currentGW: 1,
             playerMap: {},
             teamMap: {},
-            leagueOwnership: {}
+            leagueOwnership: {},
+            liveStats: {}
         };
 
         const PROXY_ENDPOINT = "/.netlify/functions/fpl-proxy?endpoint=";
@@ -239,7 +294,7 @@
                 });
                 const current = data.events.find(e => e.is_current);
                 if (current) state.currentGW = current.id;
-            } catch (e) { console.error("Init Error", e); }
+            } catch (e) { console.error(e); }
         }
 
         async function handleLogin() {
@@ -264,17 +319,17 @@
                     select.innerHTML = leagues.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
                     await changeLeague(select.value);
                 }
-            } catch (e) { console.error("Fetch Manager Error", e); }
+            } catch (e) { console.error(e); }
         }
 
         async function changeLeague(leagueId) {
             try {
                 const res = await fetch(`${PROXY_ENDPOINT}leagues-classic/${leagueId}/standings/`);
                 const data = await res.json();
-                const standings = data.standings.results.slice(0, 40); // Sample 40 for EO
+                const standings = data.standings.results.slice(0, 30);
                 await calculateLeagueOwnership(standings);
                 await renderPitch();
-            } catch (e) { console.error("League Change Error", e); }
+            } catch (e) { console.error(e); }
         }
 
         async function calculateLeagueOwnership(standings) {
@@ -294,13 +349,26 @@
             const isGK = p.pos === 1;
             const jerseyUrl = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.team_code}${isGK ? '_1' : ''}-66.png`;
             const own = state.leagueOwnership[p.id] || 0;
+            const live = state.liveStats[p.id] || { pts: 0, yc: 0, rc: 0, bonus: 0, active: false };
+            
+            let ptsClass = "";
+            if (live.rc > 0) ptsClass = "red-card";
+            else if (live.yc > 0) ptsClass = "yellow-card";
+            else if (p.pts >= 8) ptsClass = "high-score";
+
             return `
                 <div class="player-card">
                     <img src="${jerseyUrl}" class="shirt-img">
                     <div class="shirt-shadow"></div>
                     <div class="p-info-box">
-                        <div class="p-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div>
-                        <div class="p-pts">${p.pts}</div>
+                        <div class="p-name">
+                            ${live.active ? '<span class="live-dot"></span>' : ''}
+                            ${p.isCap ? 'Ⓒ ' : ''}${p.name}
+                        </div>
+                        <div class="p-pts ${ptsClass}">
+                            ${p.pts}
+                            ${live.bonus > 0 ? `<span class="bonus-badge">+${live.bonus}</span>` : ''}
+                        </div>
                         <div class="p-own">EO: ${own}%</div>
                         <div class="p-fix fdr-${p.fix.fdr}">${p.fix.opponent} (${p.fix.isHome ? 'H' : 'A'})</div>
                     </div>
@@ -317,22 +385,35 @@
                 const picks = await picksRes.json();
                 const live = await liveRes.json();
                 const fixtures = await fixturesRes.json();
+
+                // Map Live Data
+                state.liveStats = {};
+                live.elements.forEach(el => {
+                    const bonus = el.explain?.[0]?.stats?.find(s => s.identifier === 'bonus')?.value || 0;
+                    state.liveStats[el.id] = {
+                        pts: el.stats.total_points,
+                        yc: el.stats.yellow_cards,
+                        rc: el.stats.red_cards,
+                        bonus: bonus,
+                        active: el.stats.minutes > 0 && el.stats.minutes < 90 // Simple active check
+                    };
+                });
                 
                 document.getElementById('disp-gw-rank').textContent = picks.entry_history.rank ? picks.entry_history.rank.toLocaleString() : '-';
-                
-                const ptsMap = {};
-                live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
                 
                 const teamFixtures = {};
                 fixtures.forEach(f => {
                     teamFixtures[f.team_h] = { opponent: state.teamMap[f.team_a]?.short || 'TBC', isHome: true, fdr: f.team_h_difficulty };
                     teamFixtures[f.team_a] = { opponent: state.teamMap[f.team_h]?.short || 'TBC', isHome: false, fdr: f.team_a_difficulty };
+                    if(!f.finished && !f.started === false) document.getElementById('live-indicator').style.display = 'block';
                 });
 
                 const allPlayers = picks.picks.map(p => {
                     const base = state.playerMap[p.element];
+                    const liveData = state.liveStats[p.element] || { pts: 0 };
                     return { 
-                        ...base, id: p.element, pts: (ptsMap[p.element] || 0) * (p.multiplier || 1), 
+                        ...base, id: p.element, 
+                        pts: liveData.pts * (p.multiplier || 1), 
                         isCap: p.is_captain, fix: teamFixtures[base.team] || { opponent: 'BYE', fdr: 3 }, position: p.position 
                     };
                 });
