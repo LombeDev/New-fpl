@@ -329,6 +329,30 @@
         } else {
             document.getElementById('login-screen').style.display = 'flex';
         }
+
+        function navTo(index, el) {
+    // 1. Highlight the clicked item immediately
+    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+    el.classList.add('active');
+
+    // 2. Define the page routes
+    const pages = ['index.html', 'leagues.html', 'prices.html', 'games.html'];
+    const target = pages[index];
+
+    // 3. Don't reload if already on the page
+    if (window.location.pathname.includes(target)) return;
+
+    // 4. Trigger the slide animation
+    const overlay = document.getElementById('slide-overlay');
+    if (overlay) {
+        overlay.classList.add('active');
+        setTimeout(() => {
+            window.location.href = target;
+        }, 400); // Matches the 0.4s CSS transition
+    } else {
+        window.location.href = target;
+    }
+}
     </script>
 </body>
 </html>
