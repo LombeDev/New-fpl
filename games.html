@@ -60,9 +60,9 @@
         .status-live { color: var(--fpl-pink); animation: blink 1.2s infinite; }
         
         .score-row { display: flex; align-items: center; justify-content: space-between; text-align: center; }
-        .team-name { flex: 1; font-weight: 800; font-size: 0.85rem; }
-        .score-val { font-size: 1.5rem; font-weight: 900; width: 70px; color: var(--text-main); }
-        .vs-val { font-size: 0.8rem; color: var(--text-muted); }
+        .team-name { flex: 1; font-weight: 800; font-size: 0.85rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        .score-val { font-size: 1.5rem; font-weight: 900; width: 75px; color: var(--text-main); }
+        .vs-val { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
 
         /* STANDINGS TABLE */
         .table-wrap { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
@@ -97,7 +97,7 @@
     </div>
 
     <div class="content" id="main-view">
-        <div id="loader"><i class="fas fa-spinner fa-spin"></i> Loading Pitch Data...</div>
+        <div id="loader"><i class="fas fa-spinner fa-spin"></i> Fetching Games...</div>
     </div>
 
     <nav class="bottom-nav">
@@ -155,25 +155,41 @@
                     renderFeed();
                 }
             } catch (err) {
-                container.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fa-solid fa-circle-exclamation" style="color:var(--fpl-pink); font-size:2rem;"></i><p style="margin-top:10px; font-weight:800;">API Limit Reached<br><span style="font-size:0.7rem; font-weight:400; color:var(--text-muted);">Please try again in 60 seconds.</span></p></div>';
+                container.innerHTML = '<p style="text-align:center; padding:40px;">API limit reached or connection lost.</p>';
             }
         }
 
         function renderMatches(matches) {
             const container = document.getElementById('main-view');
+            
+            // Filter categories
             const live = matches.filter(m => ['IN_PLAY', 'PAUSED'].includes(m.status));
-            const finished = matches.filter(m => m.status === 'FINISHED').slice(-5).reverse();
-            const upcoming = matches.filter(m => ['SCHEDULED', 'TIMED'].includes(m.status)).slice(0, 5);
+            
+            // Show all finished games from the MOST RECENT matchday
+            const maxMatchdayFinished = Math.max(...matches.filter(m => m.status === 'FINISHED').map(m => m.matchday));
+            const recentResults = matches.filter(m => m.matchday === maxMatchdayFinished && m.status === 'FINISHED').reverse();
+
+            // Show all scheduled games from the NEXT matchday
+            const minMatchdayUpcoming = Math.min(...matches.filter(m => ['SCHEDULED', 'TIMED'].includes(m.status)).map(m => m.matchday));
+            const upcomingFixtures = matches.filter(m => m.matchday === minMatchdayUpcoming && ['SCHEDULED', 'TIMED'].includes(m.status));
 
             let html = '';
+            
             if (live.length > 0) {
                 html += '<div class="section-title">Live Scores</div>';
                 html += live.map(m => matchCard(m)).join('');
             }
-            html += '<div class="section-title">Recent Results</div>';
-            html += finished.map(m => matchCard(m)).join('');
-            html += '<div class="section-title">Upcoming Fixtures</div>';
-            html += upcoming.map(m => matchCard(m)).join('');
+
+            if (recentResults.length > 0) {
+                html += `<div class="section-title">Results: Matchday ${maxMatchdayFinished}</div>`;
+                html += recentResults.map(m => matchCard(m)).join('');
+            }
+
+            if (upcomingFixtures.length > 0) {
+                html += `<div class="section-title">Fixtures: Matchday ${minMatchdayUpcoming}</div>`;
+                html += upcomingFixtures.map(m => matchCard(m)).join('');
+            }
+
             container.innerHTML = html;
         }
 
@@ -181,17 +197,25 @@
             const isLive = ['IN_PLAY', 'PAUSED'].includes(m.status);
             const homeScore = m.score.fullTime.home;
             const awayScore = m.score.fullTime.away;
-            const date = new Date(m.utcDate).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            
+            // Date formatting
+            const dateObj = new Date(m.utcDate);
+            const dateStr = dateObj.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+            const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             return `
                 <div class="m-card">
                     <div class="m-meta">
                         <span class="${isLive ? 'status-live' : ''}">${isLive ? '● LIVE' : m.status}</span>
-                        <span>${date}</span>
+                        <span>${dateStr} • ${timeStr}</span>
                     </div>
                     <div class="score-row">
                         <div class="team-name">${m.homeTeam.shortName || m.homeTeam.name}</div>
-                        <div class="score-val">${homeScore ?? ''} <span class="vs-val">${homeScore !== null ? ':' : 'vs'}</span> ${awayScore ?? ''}</div>
+                        <div class="score-val">
+                            ${homeScore ?? ''} 
+                            <span class="vs-val">${homeScore !== null ? ':' : 'vs'}</span> 
+                            ${awayScore ?? ''}
+                        </div>
                         <div class="team-name">${m.awayTeam.shortName || m.awayTeam.name}</div>
                     </div>
                 </div>
@@ -201,7 +225,7 @@
         function renderTable(table) {
             const container = document.getElementById('main-view');
             container.innerHTML = `
-                <div class="section-title">Premier League Table</div>
+                <div class="section-title">League Table</div>
                 <div class="table-wrap">
                     <table class="std-table">
                         <thead>
@@ -224,18 +248,11 @@
         }
 
         function renderFeed() {
-            const matchCache = JSON.parse(localStorage.getItem('pl-matches'));
-            const lastUpdate = matchCache ? new Date(matchCache.timestamp).toLocaleTimeString() : 'Never';
-            
             document.getElementById('main-view').innerHTML = `
-                <div class="section-title">Connection Status</div>
+                <div class="section-title">System Info</div>
                 <div class="m-card" style="border-left: 4px solid var(--fpl-green)">
-                    <div style="font-size:0.8rem; font-weight:800;">Proxy Pipeline: Active</div>
-                    <div style="font-size:0.7rem; color:var(--text-muted); margin-top:5px;">Netlify Redirects routing to Football-Data API.</div>
-                </div>
-                <div class="m-card" style="border-left: 4px solid var(--primary-blue)">
-                    <div style="font-size:0.8rem; font-weight:800;">Local Cache</div>
-                    <div style="font-size:0.7rem; color:var(--text-muted); margin-top:5px;">Last Match Refresh: ${lastUpdate}</div>
+                    <div style="font-size:0.8rem; font-weight:800;">Matchday Syncing</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted); margin-top:5px;">Currently showing full matchday schedules for active and upcoming rounds.</div>
                 </div>
             `;
         }
