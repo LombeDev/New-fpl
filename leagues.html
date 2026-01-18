@@ -16,6 +16,7 @@
             --fpl-pink: #e90052;
             --border-color: #dbdee1;
             --live-fpl-blue: #3876f2;
+            --pitch-bg: #e2f3f5;
         }
 
         body.dark-mode {
@@ -24,6 +25,7 @@
             --text-main: #f5f6f7;
             --text-muted: #94a3b8;
             --border-color: #2d3b48;
+            --pitch-bg: #16212a;
         }
 
         body {
@@ -35,7 +37,7 @@
             overflow-x: hidden;
         }
 
-        /* 1. TOP BRANDING */
+        /* TOP BRANDING */
         .top-brand-bar {
             padding: 10px 15px;
             display: flex; justify-content: space-between; align-items: center;
@@ -48,7 +50,7 @@
         }
         .live-logo span { color: var(--fpl-green); }
 
-        /* 2. LEAGUE HEADER & CONTROLS */
+        /* LEAGUE CONTROLS */
         .league-controls {
             padding: 10px 15px;
             display: flex; flex-direction: column; gap: 10px;
@@ -64,95 +66,125 @@
             background: var(--card-bg); border: 1px solid var(--border-color);
             border-radius: 8px; width: 45px; height: 45px;
             display: flex; align-items: center; justify-content: center;
-            color: var(--text-main); cursor: pointer; transition: 0.2s;
+            color: var(--text-main); cursor: pointer;
         }
-        .icon-btn:active { transform: scale(0.95); background: var(--bg-color); }
 
         .search-bar-wrapper { display: flex; gap: 8px; margin-top: 5px; }
         #team-search {
             flex-grow: 1; padding: 12px; border-radius: 10px;
             border: 1px solid var(--border-color); background: var(--card-bg);
-            color: var(--text-main); outline: none;
+            color: var(--text-main);
         }
         .action-btn {
             padding: 0 15px; border-radius: 10px; border: 1px solid var(--border-color);
             background: var(--card-bg); font-weight: 700; color: var(--live-fpl-blue);
-            cursor: pointer;
         }
 
-        /* 3. MANAGER CARDS */
+        /* MANAGER CARDS */
         .league-title {
             text-align: center; font-size: 0.9rem; font-weight: 800;
             margin: 15px 0 5px 0;
         }
         .table-headers {
-            display: grid; grid-template-columns: 40px 1fr 80px 60px 20px;
-            padding: 0 25px; font-size: 0.7rem; font-weight: 800; color: var(--text-muted);
-            text-transform: uppercase; margin-bottom: 5px;
+            display: grid; grid-template-columns: 40px 1fr 80px 40px 60px 20px;
+            padding: 0 20px; font-size: 0.7rem; font-weight: 800; color: var(--text-muted);
+            text-transform: uppercase; margin-bottom: 10px;
         }
 
         .manager-card {
             background: var(--card-bg);
             margin: 8px 12px;
-            padding: 15px;
             border-radius: 18px;
             border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card-main-row {
+            padding: 15px;
             display: flex;
             align-items: center;
             gap: 12px;
             cursor: pointer;
-            transition: 0.2s;
         }
-        .manager-card:active { background: rgba(0,0,0,0.05); }
 
         .pos-indicator {
             display: flex; flex-direction: column; align-items: center;
-            width: 30px; font-weight: 900; font-size: 1.1rem;
+            width: 30px; font-weight: 900;
         }
         .rank-up { color: var(--fpl-green); font-size: 0.6rem; }
         .rank-down { color: var(--fpl-pink); font-size: 0.6rem; }
 
-        .manager-info { flex-grow: 1; overflow: hidden; }
-        .team-name { font-weight: 800; font-size: 0.9rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .manager-info { flex-grow: 1; }
+        .team-name { font-weight: 800; font-size: 0.9rem; display: block; }
         .mgr-name { font-size: 0.75rem; color: var(--text-muted); display: block; }
+        
+        .meta-row { display: flex; align-items: center; gap: 5px; margin-top: 4px; }
         .or-badge {
             background: #eee; color: #000; font-size: 0.65rem;
             font-weight: 800; padding: 2px 8px; border-radius: 10px;
-            display: inline-block; margin-top: 4px;
         }
-        body.dark-mode .or-badge { background: #2d3b48; color: #fff; }
+        .chip-badge {
+            background: var(--live-fpl-blue); color: white; font-size: 0.6rem;
+            font-weight: 800; padding: 2px 5px; border-radius: 4px;
+        }
+        .transfer-row {
+            font-size: 0.7rem; color: #64748b; font-weight: 600;
+            margin-top: 4px; font-style: italic;
+        }
 
         .captain-section { text-align: center; width: 80px; }
         .cap-name { font-weight: 800; font-size: 0.85rem; display: block; }
+        .cap-sub { font-size: 0.7rem; color: var(--text-muted); }
 
         .points-section { text-align: right; width: 60px; }
-        .gw-pts { font-weight: 800; font-size: 0.9rem; display: block; color: var(--text-main); }
-        .total-pts { font-weight: 900; font-size: 1rem; color: var(--live-fpl-blue); }
+        .gw-pts { font-weight: 800; font-size: 0.85rem; display: block; }
+        .total-pts { font-weight: 900; font-size: 0.95rem; color: var(--live-fpl-blue); }
+        .yet-to-play { font-size: 0.6rem; color: var(--text-muted); }
 
-        /* 4. MODAL & PITCH STYLE */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 2000;
-            display: none; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
+        .expand-arrow { transition: transform 0.3s; color: var(--border-color); }
+
+        /* PITCH EXPANSION */
+        .detail-pane {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            background: var(--pitch-bg);
         }
-        .modal-content {
-            background: var(--card-bg); width: 95%; max-width: 400px;
-            border-radius: 25px; padding-bottom: 20px; overflow: hidden;
-        }
+        .detail-pane.active { max-height: 800px; border-top: 1px solid var(--border-color); }
+
         .pitch-container {
-            background: #2e7d32; padding: 20px 10px; margin: 10px;
-            border-radius: 15px; display: flex; flex-direction: column; gap: 10px;
+            padding: 20px 10px;
+            display: flex; flex-direction: column; gap: 15px;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.2) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
-        .pitch-row { display: flex; justify-content: center; gap: 5px; }
-        .player-node { width: 65px; text-align: center; color: white; }
-        .player-node img { width: 40px; }
-        .player-node .p-name { font-size: 0.55rem; background: #000; padding: 2px; border-radius: 3px; }
-        .player-node .p-pts { font-size: 0.6rem; background: #fff; color: #000; font-weight: 800; border-radius: 0 0 3px 3px; }
+        .pitch-row { display: flex; justify-content: space-around; width: 100%; }
 
-        /* 5. BOTTOM NAV */
+        .pitch-player { width: 65px; text-align: center; position: relative; }
+        .jersey-wrapper { position: relative; display: inline-block; }
+        .p-jersey { width: 42px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1)); }
+        
+        .p-labels {
+            background: #fff; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: -2px; overflow: hidden;
+        }
+        .p-name { background: #1e293b; color: #fff; font-size: 0.55rem; padding: 2px; }
+        .p-points { font-size: 0.75rem; font-weight: 800; padding: 2px; border-bottom: 1px solid #eee; color: #000; }
+        .p-points.high { background: var(--fpl-green); }
+        .p-own { font-size: 0.55rem; color: #64748b; padding: 1px; }
+
+        .c-badge, .v-badge {
+            position: absolute; bottom: 0; right: -5px;
+            background: #fff; width: 15px; height: 15px;
+            border-radius: 50%; font-size: 0.6rem; font-weight: 900;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid #ccc; color: #000;
+        }
+
+        /* BOTTOM NAV */
         .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 80px;
+            position: fixed; bottom: 0; width: 100%; height: 75px;
             background: var(--card-bg); border-top: 1px solid var(--border-color);
             display: grid; grid-template-columns: repeat(4, 1fr); z-index: 1000;
         }
@@ -162,7 +194,7 @@
             text-decoration: none; font-size: 0.65rem; font-weight: 600;
         }
         .nav-item.active { color: var(--live-fpl-blue); }
-        .nav-item i { font-size: 1.3rem; }
+        .nav-item i { font-size: 1.2rem; }
 
         #slide-overlay {
             position: fixed; top: 0; left: 100%; width: 100%; height: 100%;
@@ -185,42 +217,28 @@
     <div class="league-controls">
         <div class="control-row">
             <select id="league-select" onchange="loadStandings(this.value)"></select>
-            <div class="icon-btn" onclick="alert('League Settings coming soon!')"><i class="fa-solid fa-gear"></i></div>
-            <div class="icon-btn" onclick="toggleHeatmap()"><i class="fa-solid fa-chart-column"></i></div>
-            <div class="icon-btn" onclick="alert('League Comparison coming soon!')"><i class="fa-solid fa-scale-balanced"></i></div>
+            <div class="icon-btn"><i class="fa-solid fa-gear"></i></div>
+            <div class="icon-btn"><i class="fa-solid fa-chart-column"></i></div>
+            <div class="icon-btn"><i class="fa-solid fa-scale-balanced"></i></div>
         </div>
         <div class="search-bar-wrapper">
-            <input type="text" id="team-search" placeholder="Search team or manager..." onkeyup="filterTable()">
-            <button class="action-btn" onclick="findMe()">Find me</button>
-            <button class="action-btn" style="color:var(--text-main)" onclick="alert('Detailed analysis loading...')">Detailed</button>
+            <input type="text" id="team-search" placeholder="Search league..." onkeyup="filterTable()">
+            <button class="action-btn">Find me</button>
+            <button class="action-btn" style="color:var(--text-main)">Detailed</button>
         </div>
     </div>
 
-    <div class="league-title" id="league-display-name">Loading Live Data...</div>
+    <div class="league-title" id="league-display-name">Loading...</div>
 
     <div class="table-headers">
         <span>Pos</span>
         <span>Manager</span>
         <span style="text-align:center">(C)</span>
+        <span style="text-align:right">GW</span>
         <span style="text-align:right">Total</span>
     </div>
 
     <div id="standings-container"></div>
-
-    <div id="league-stats" style="display:none; padding: 15px; background: var(--card-bg); margin: 12px; border-radius: 18px; border: 1px solid var(--border-color);">
-        <h4 style="margin:0 0 10px 0; font-size:0.75rem;">Top Captain Choices</h4>
-        <div id="captain-stats-content"></div>
-    </div>
-
-    <div id="manager-modal" class="modal-overlay" onclick="closeModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div style="padding:15px; display:flex; justify-content:space-between; align-items:center;">
-                <h3 id="modal-team-name" style="margin:0; font-size:1rem;">Team Name</h3>
-                <i class="fa-solid fa-xmark" onclick="closeModal()" style="font-size:1.2rem;"></i>
-            </div>
-            <div class="pitch-container" id="modal-pitch"></div>
-        </div>
-    </div>
 
     <nav class="bottom-nav">
         <div class="nav-item" onclick="navTo(0, this)"><i class="fa-solid fa-chart-line"></i><span>Rank</span></div>
@@ -234,19 +252,16 @@
             fplId: localStorage.getItem('kopala_id'),
             currentGW: 1,
             playerMap: {},
-            PROXY: "/.netlify/functions/fpl-proxy?endpoint=",
-            results: []
+            PROXY: "/.netlify/functions/fpl-proxy?endpoint="
         };
 
         async function init() {
             if(localStorage.getItem('theme') === 'dark') setTheme('dark');
-            try {
-                const res = await fetch(`${state.PROXY}bootstrap-static/`);
-                const data = await res.json();
-                data.elements.forEach(p => state.playerMap[p.id] = { name: p.web_name, code: p.code });
-                state.currentGW = data.events.find(e => e.is_current).id;
-                if(state.fplId) fetchLeagues();
-            } catch(e) { console.error("Init Error", e); }
+            const res = await fetch(`${state.PROXY}bootstrap-static/`);
+            const data = await res.json();
+            data.elements.forEach(p => state.playerMap[p.id] = { name: p.web_name, code: p.code, team_code: p.team_code, own: p.selected_by_percent });
+            state.currentGW = data.events.find(e => e.is_current).id;
+            if(state.fplId) fetchLeagues();
         }
 
         async function fetchLeagues() {
@@ -263,79 +278,63 @@
             
             const res = await fetch(`${state.PROXY}leagues-classic/${id}/standings/`);
             const data = await res.json();
-            state.results = data.standings.results;
-            
             document.getElementById('league-display-name').textContent = `${data.league.name} — Live GW ${state.currentGW}`;
 
-            // Fetch top 20 captains
-            const detailed = await Promise.all(state.results.slice(0, 20).map(async (r) => {
+            const results = await Promise.all(data.standings.results.slice(0, 20).map(async (r) => {
                 const pRes = await fetch(`${state.PROXY}entry/${r.entry}/event/${state.currentGW}/picks/`);
                 const pData = await pRes.json();
                 const capId = pData.picks.find(p => p.is_captain).element;
-                return { ...r, captain: state.playerMap[capId].name };
+                return { ...r, captain: state.playerMap[capId].name, chip: pData.active_chip };
             }));
 
-            container.innerHTML = detailed.map(r => `
-                <div class="manager-card" onclick="openManager(${r.entry}, '${r.entry_name}')" data-name="${(r.entry_name + r.player_name).toLowerCase()}">
-                    <div class="pos-indicator">
-                        <span>${r.rank}</span>
-                        <i class="fa-solid fa-caret-up rank-up" style="display:${r.last_rank > r.rank ? 'block' : 'none'}"></i>
+            container.innerHTML = results.map(r => `
+                <div class="manager-card" id="card-${r.entry}">
+                    <div class="card-main-row" onclick="toggleExpand(${r.entry})">
+                        <div class="pos-indicator">
+                            <span>${r.rank}</span>
+                            <i class="fa-solid fa-caret-up rank-up" style="display:${r.last_rank > r.rank ? 'block' : 'none'}"></i>
+                        </div>
+                        <div class="manager-info">
+                            <span class="team-name">${r.entry_name}</span>
+                            <span class="mgr-name">${r.player_name}</span>
+                            <div class="meta-row">
+                                <div class="or-badge">OR ${Math.round(r.rank_sort/1000)}K</div>
+                                ${r.chip ? `<div class="chip-badge">${r.chip.toUpperCase()}</div>` : ''}
+                            </div>
+                            <div class="transfer-row">Grealish → Szoboszlai</div>
+                        </div>
+                        <div class="captain-section">
+                            <span class="cap-name">${r.captain}</span>
+                            <span class="cap-sub">Saka</span>
+                        </div>
+                        <div class="points-section">
+                            <span class="gw-pts">${r.event_total}</span>
+                            <span class="yet-to-play">Yet 1</span>
+                            <span class="total-pts">${r.total}</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-down expand-arrow"></i>
                     </div>
-                    <div class="manager-info">
-                        <span class="team-name">${r.entry_name}</span>
-                        <span class="mgr-name">${r.player_name}</span>
-                        <div class="or-badge">OR ${Math.round(r.rank_sort/1000)}K</div>
-                    </div>
-                    <div class="captain-section">
-                        <span class="cap-name">${r.captain}</span>
-                    </div>
-                    <div class="points-section">
-                        <span class="gw-pts">${r.event_total}</span>
-                        <span class="total-pts">${r.total}</span>
-                    </div>
+                    <div class="detail-pane" id="detail-${r.entry}"></div>
                 </div>
             `).join('');
         }
 
-        // BUTTON: Find Me
-        function findMe() {
-            const myCard = [...document.querySelectorAll('.manager-card')].find(card => 
-                card.innerHTML.includes(state.fplId) || card.textContent.toLowerCase().includes('benson') // Example fallback
-            );
-            if (myCard) {
-                myCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                myCard.style.border = '2px solid var(--live-fpl-blue)';
-            } else {
-                alert("Manager not found in top standings.");
+        async function toggleExpand(id) {
+            const detail = document.getElementById(`detail-${id}`);
+            const arrow = document.querySelector(`#card-${id} .expand-arrow`);
+            
+            if (detail.classList.contains('active')) {
+                detail.classList.remove('active');
+                arrow.style.transform = 'rotate(0deg)';
+                return;
             }
-        }
 
-        // BUTTON: Stats/Heatmap
-        function toggleHeatmap() {
-            const stats = document.getElementById('league-stats');
-            if(stats.style.display === 'none') {
-                stats.style.display = 'block';
-                const counts = {};
-                document.querySelectorAll('.cap-name').forEach(el => counts[el.textContent] = (counts[el.textContent] || 0) + 1);
-                document.getElementById('captain-stats-content').innerHTML = Object.entries(counts)
-                    .sort((a,b) => b[1]-a[1])
-                    .map(([name, count]) => `<div style="font-size:0.7rem; margin-bottom:5px;">${name}: <b>${count} managers</b></div>`).join('');
-            } else {
-                stats.style.display = 'none';
-            }
-        }
+            document.querySelectorAll('.detail-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.expand-arrow').forEach(a => a.style.transform = 'rotate(0deg)');
 
-        // Search Filter
-        function filterTable() {
-            const q = document.getElementById('team-search').value.toLowerCase();
-            document.querySelectorAll('.manager-card').forEach(c => c.style.display = c.dataset.name.includes(q) ? 'flex' : 'none');
-        }
-
-        async function openManager(id, name) {
-            document.getElementById('modal-team-name').textContent = name;
-            document.getElementById('manager-modal').style.display = 'flex';
-            const pitch = document.getElementById('modal-pitch');
-            pitch.innerHTML = '<p style="color:white; text-align:center;">Loading squad...</p>';
+            detail.classList.add('active');
+            arrow.style.transform = 'rotate(180deg)';
+            detail.innerHTML = '<p style="text-align:center; padding:20px; color:white;">Loading Team...</p>';
 
             const [pRes, liveRes] = await Promise.all([
                 fetch(`${state.PROXY}entry/${id}/event/${state.currentGW}/picks/`),
@@ -344,25 +343,37 @@
             const pData = await pRes.json();
             const lData = await liveRes.json();
 
-            const render = (posArr) => posArr.map(p => {
+            const renderP = (p) => {
                 const live = lData.elements.find(el => el.id === p.element);
-                return `<div class="player-node">
-                    <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${state.playerMap[p.element].code}.png">
-                    <div class="p-name">${state.playerMap[p.element].name}</div>
-                    <div class="p-pts">${live.stats.total_points * p.multiplier}</div>
-                </div>`;
-            }).join('');
+                const stat = state.playerMap[p.element];
+                const pts = live.stats.total_points * p.multiplier;
+                const cap = p.is_captain ? '<div class="c-badge">C</div>' : (p.is_vice_captain ? '<div class="v-badge">V</div>' : '');
 
-            const squad = pData.picks;
-            pitch.innerHTML = `
-                <div class="pitch-row">${render(squad.slice(0,1))}</div>
-                <div class="pitch-row">${render(squad.slice(1,5))}</div>
-                <div class="pitch-row">${render(squad.slice(5,10))}</div>
-                <div class="pitch-row">${render(squad.slice(10,11))}</div>
+                return `
+                    <div class="pitch-player">
+                        <div class="jersey-wrapper">
+                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/s_${stat.team_code}-66.png" class="p-jersey">
+                            ${cap}
+                        </div>
+                        <div class="p-labels">
+                            <div class="p-name">${stat.name}</div>
+                            <div class="p-points ${pts >= 5 ? 'high' : ''}">${pts}</div>
+                            <div class="p-own">${stat.own}%</div>
+                        </div>
+                    </div>
+                `;
+            };
+
+            const s = pData.picks;
+            detail.innerHTML = `
+                <div class="pitch-container">
+                    <div class="pitch-row">${renderP(s[0])}</div>
+                    <div class="pitch-row">${s.slice(1,5).map(renderP).join('')}</div>
+                    <div class="pitch-row">${s.slice(5,10).map(renderP).join('')}</div>
+                    <div class="pitch-row">${renderP(s[10])}</div>
+                </div>
             `;
         }
-
-        function closeModal() { document.getElementById('manager-modal').style.display = 'none'; }
 
         function toggleTheme() {
             const isDark = document.body.classList.toggle('dark-mode');
@@ -372,7 +383,6 @@
 
         function navTo(index, el) {
             const pages = ['index.html', 'leagues.html', 'prices.html', 'games.html'];
-            if (window.location.pathname.includes(pages[index])) return;
             document.getElementById('slide-overlay').classList.add('active');
             setTimeout(() => window.location.href = pages[index], 400);
         }
