@@ -6,7 +6,6 @@
     <title>KOPALA FPL - Live Games & Tables</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        /* 1. THEME & CORE STYLES */
         :root {
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
@@ -30,7 +29,7 @@
 
         body { margin: 0; padding: 0; background: var(--bg-color); color: var(--text-main); font-family: -apple-system, system-ui, sans-serif; transition: 0.3s; }
 
-        /* 2. TOP BRANDING BAR */
+        /* TOP BRANDING BAR */
         .top-brand-bar {
             padding: 10px 15px;
             display: flex; justify-content: space-between; align-items: center;
@@ -44,19 +43,19 @@
         .live-logo span { color: var(--fpl-green); }
         .nav-btn { background:#eee; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; color: #000; display: flex; align-items: center; justify-content: center; }
 
-        /* 3. SUB NAV / TABS */
+        /* SUB NAV / TABS */
         .sub-nav { padding: 0 15px 15px; background: var(--bg-color); }
         .toggle-box { display: flex; background: var(--toggle-bg); border-radius: 10px; padding: 3px; gap: 4px; }
         .toggle-btn { flex: 1; border: none; background: none; padding: 10px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); cursor: pointer; border-radius: 8px; transition: 0.2s; }
         .toggle-btn.active { background: var(--primary-blue); color: #fff; }
 
-        /* 4. CONTENT CONTAINERS */
+        /* CONTENT CONTAINERS */
         .content { padding: 0 15px 100px; }
         .section-title { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; margin: 20px 0 10px; color: var(--text-muted); letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
         .section-title::after { content: ""; flex: 1; height: 1px; background: var(--border-color); }
 
-        /* 5. MATCH CARDS */
-        .m-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 12px; transition: transform 0.2s; }
+        /* MATCH CARDS */
+        .m-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
         .m-meta { display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: 800; margin-bottom: 10px; }
         .status-live { color: var(--fpl-pink); animation: blink 1.2s infinite; }
         
@@ -65,21 +64,20 @@
         .score-val { font-size: 1.5rem; font-weight: 900; width: 70px; color: var(--text-main); }
         .vs-val { font-size: 0.8rem; color: var(--text-muted); }
 
-        /* 6. STANDINGS TABLE */
-        .table-wrap { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; margin-top: 10px; }
+        /* STANDINGS TABLE */
+        .table-wrap { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
         .std-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
         .std-table th { background: var(--bg-color); padding: 12px 10px; text-align: left; color: var(--text-muted); font-size: 0.6rem; text-transform: uppercase; }
         .std-table td { padding: 12px 10px; border-bottom: 1px solid var(--border-color); font-weight: 700; }
-        .pos-col { width: 25px; color: var(--text-muted); font-size: 0.7rem; }
         .pts-col { color: var(--primary-blue); text-align: right; }
 
-        /* 7. BOTTOM NAV */
+        /* BOTTOM NAV */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; }
         .nav-item { color: var(--text-muted); text-decoration: none; font-size: 0.65rem; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .nav-item.active { color: var(--primary-blue); font-weight: 800; }
 
         @keyframes blink { 50% { opacity: 0.4; } }
-        #loader { text-align: center; padding: 50px; color: var(--text-muted); font-weight: 800; font-size: 0.9rem; }
+        #loader { text-align: center; padding: 50px; color: var(--text-muted); font-weight: 800; }
     </style>
 </head>
 <body>
@@ -99,7 +97,7 @@
     </div>
 
     <div class="content" id="main-view">
-        <div id="loader"><i class="fas fa-spinner fa-spin"></i> Analyzing Pitch Data...</div>
+        <div id="loader"><i class="fas fa-spinner fa-spin"></i> Loading Pitch Data...</div>
     </div>
 
     <nav class="bottom-nav">
@@ -111,49 +109,40 @@
     </nav>
 
     <script>
-        // API CONFIGURATION
-        const MATCHES_URL = '/.netlify/functions/fpl-proxy?endpoint=competitions/PL/matches';
-        const TABLE_URL = '/.netlify/functions/fpl-proxy?endpoint=competitions/PL/standings';
+        const MATCHES_URL = '/api/competitions/PL/matches';
+        const TABLE_URL = '/api/competitions/PL/standings';
         
         const CACHE_TIMES = {
-            matches: 60 * 1000,    // 1 Minute for scores
-            table: 60 * 60 * 1000  // 1 Hour for standings
+            matches: 60 * 1000, 
+            table: 3600 * 1000 
         };
 
         let currentView = 'matches';
 
-        // 1. DATA FETCHING WITH CACHE LOGIC
         async function fetchWithCache(key, url, ttl) {
             const cached = localStorage.getItem(key);
             const now = Date.now();
 
             if (cached) {
                 const { data, timestamp } = JSON.parse(cached);
-                if (now - timestamp < ttl) {
-                    console.log(`Using cached data for: ${key}`);
-                    return data;
-                }
+                if (now - timestamp < ttl) return data;
             }
 
             const response = await fetch(url);
-            if (!response.ok) throw new Error('Rate Limit');
+            if (!response.ok) throw new Error('API Error');
             const data = await response.json();
             
             localStorage.setItem(key, JSON.stringify({ data, timestamp: now }));
             return data;
         }
 
-        // 2. TAB SWITCHING LOGIC
         async function switchTab(tab) {
             currentView = tab;
-            
-            // Update UI Buttons
             document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${tab}`).classList.add('active');
             
-            // Show Loader
             const container = document.getElementById('main-view');
-            container.innerHTML = '<div id="loader"><i class="fas fa-spinner fa-spin"></i> Refreshing...</div>';
+            container.innerHTML = '<div id="loader"><i class="fas fa-spinner fa-spin"></i> Syncing...</div>';
 
             try {
                 if (tab === 'matches') {
@@ -166,31 +155,25 @@
                     renderFeed();
                 }
             } catch (err) {
-                container.innerHTML = '<p style="text-align:center; padding:40px; color:var(--fpl-pink); font-weight:800;">API Limit Reached. Please wait 1 minute.</p>';
+                container.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fa-solid fa-circle-exclamation" style="color:var(--fpl-pink); font-size:2rem;"></i><p style="margin-top:10px; font-weight:800;">API Limit Reached<br><span style="font-size:0.7rem; font-weight:400; color:var(--text-muted);">Please try again in 60 seconds.</span></p></div>';
             }
         }
 
-        // 3. RENDERING FUNCTIONS
         function renderMatches(matches) {
             const container = document.getElementById('main-view');
-            
             const live = matches.filter(m => ['IN_PLAY', 'PAUSED'].includes(m.status));
             const finished = matches.filter(m => m.status === 'FINISHED').slice(-5).reverse();
             const upcoming = matches.filter(m => ['SCHEDULED', 'TIMED'].includes(m.status)).slice(0, 5);
 
             let html = '';
-
             if (live.length > 0) {
                 html += '<div class="section-title">Live Scores</div>';
                 html += live.map(m => matchCard(m)).join('');
             }
-
             html += '<div class="section-title">Recent Results</div>';
             html += finished.map(m => matchCard(m)).join('');
-
             html += '<div class="section-title">Upcoming Fixtures</div>';
             html += upcoming.map(m => matchCard(m)).join('');
-
             container.innerHTML = html;
         }
 
@@ -218,22 +201,16 @@
         function renderTable(table) {
             const container = document.getElementById('main-view');
             container.innerHTML = `
-                <div class="section-title">League Standing</div>
+                <div class="section-title">Premier League Table</div>
                 <div class="table-wrap">
                     <table class="std-table">
                         <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Team</th>
-                                <th>PL</th>
-                                <th>GD</th>
-                                <th style="text-align:right">PTS</th>
-                            </tr>
+                            <tr><th>#</th><th>Team</th><th>PL</th><th>GD</th><th style="text-align:right">PTS</th></tr>
                         </thead>
                         <tbody>
                             ${table.map(t => `
                                 <tr>
-                                    <td class="pos-col">${t.position}</td>
+                                    <td>${t.position}</td>
                                     <td>${t.team.shortName || t.team.name}</td>
                                     <td>${t.playedGames}</td>
                                     <td>${t.goalDifference}</td>
@@ -247,36 +224,37 @@
         }
 
         function renderFeed() {
+            const matchCache = JSON.parse(localStorage.getItem('pl-matches'));
+            const lastUpdate = matchCache ? new Date(matchCache.timestamp).toLocaleTimeString() : 'Never';
+            
             document.getElementById('main-view').innerHTML = `
-                <div class="section-title">Kopala Live Feed</div>
+                <div class="section-title">Connection Status</div>
                 <div class="m-card" style="border-left: 4px solid var(--fpl-green)">
-                    <div style="font-size:0.6rem; font-weight:800; color:var(--text-muted)">SYSTEM CHECK</div>
-                    <div style="font-size:0.8rem; font-weight:800; margin-top:5px;">Data Pipeline: Healthy</div>
-                    <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">Football-Data.org API is currently providing matchday updates.</div>
+                    <div style="font-size:0.8rem; font-weight:800;">Proxy Pipeline: Active</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted); margin-top:5px;">Netlify Redirects routing to Football-Data API.</div>
+                </div>
+                <div class="m-card" style="border-left: 4px solid var(--primary-blue)">
+                    <div style="font-size:0.8rem; font-weight:800;">Local Cache</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted); margin-top:5px;">Last Match Refresh: ${lastUpdate}</div>
                 </div>
             `;
         }
 
-        // 4. UTILITY FUNCTIONS
         function forceRefresh() {
             const icon = document.getElementById('refresh-icon');
             icon.classList.add('fa-spin');
-            
             localStorage.removeItem('pl-matches');
             localStorage.removeItem('pl-table');
-            
             switchTab(currentView);
             setTimeout(() => icon.classList.remove('fa-spin'), 1000);
         }
 
         function toggleTheme() {
             const isDark = document.body.classList.toggle('dark-mode');
-            const icon = document.getElementById('theme-icon');
-            icon.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         }
 
-        // 5. INITIALIZATION
         if(localStorage.getItem('theme') === 'dark') {
             document.body.classList.add('dark-mode');
             document.getElementById('theme-icon').className = 'fa-solid fa-moon';
