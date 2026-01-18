@@ -107,13 +107,38 @@
         .pitch-container { background: #2e7d32; background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 100% 45px; border-radius: 12px; margin: 10px; padding: 15px 5px; min-height: 550px; display: flex; flex-direction: column; justify-content: space-around; }
         .pitch-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; }
         .bench-row { background: rgba(255, 255, 255, 0.15); padding: 10px 0; border-radius: 10px; margin-top: 15px; border-top: 2px dashed rgba(255,255,255,0.2); }
+        
+        /* Updated Player Card & Jersey CSS */
         .player-card { width: 72px; text-align: center; position: relative; }
-        .shirt-img { width: 42px; height: auto; margin-bottom: -5px; position: relative; z-index: 2; }
+        .shirt-img { 
+            width: 50px; 
+            height: auto; 
+            margin-bottom: 2px; 
+            position: relative; 
+            z-index: 2; 
+            filter: drop-shadow(0 3px 3px rgba(0,0,0,0.3));
+        }
+        .shirt-shadow {
+            width: 30px;
+            height: 6px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 50%;
+            margin: -8px auto 6px auto;
+            filter: blur(3px);
+            z-index: 1;
+        }
         .p-info-box { position: relative; z-index: 1; border-radius: 3px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .p-name { background: #000; color: #fff; font-size: 0.6rem; font-weight: 700; padding: 2px 1px; }
         .p-pts { background: #fff; color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; border-bottom: 1px solid #eee; }
         .p-own { background: #c8e6c9; color: #1b5e20; font-size: 0.55rem; font-weight: 700; display: flex; justify-content: space-around; padding: 1px 0; border-bottom: 1px solid #b2d8b4; }
-        .p-fix { font-size: 0.5rem; font-weight: 800; padding: 1px 0; text-transform: uppercase; }
+        .p-fix { font-size: 0.5rem; font-weight: 800; padding: 2px 0; text-transform: uppercase; color: #fff; }
+
+        /* FDR Colors */
+        .fdr-1 { background: #00ff85; color: #000; }
+        .fdr-2 { background: #01fc7a; color: #000; }
+        .fdr-3 { background: #e7e7e7; color: #000; }
+        .fdr-4 { background: #ff1751; color: #fff; }
+        .fdr-5 { background: #80072d; color: #fff; }
 
         /* 6. BOTTOM NAVIGATION */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
@@ -158,13 +183,12 @@
         </div>
     </div>
 
-                 <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
-             <span id="disp-name" style="font-weight: 800; font-size: 0.8rem;"></span>
-        </div>
+    <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+         <span id="disp-name" style="font-weight: 800; font-size: 0.8rem;"></span>
+    </div>
 
     <div id="dashboard" style="padding-bottom: 80px;">
         <div class="header-stats-grid">
-
             <div>
                 <span class="stat-label" id="gw-label">GW Rank</span>
                 <span class="stat-value" id="disp-gw-rank">-</span>
@@ -181,17 +205,16 @@
                 <span class="stat-sub">Avg: <span id="disp-avg">-</span></span>
             </div>
         </div>
-       
+        
         <div id="pitch-view" class="pitch-container">
             <div id="starting-rows"></div>
             <div id="bench-row" class="pitch-row bench-row"></div>
         </div>
     </div>
 
-     <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
-            <select id="league-select" onchange="changeLeague(this.value)" style="padding: 5px; border-radius: 5px; max-width: 60%; background: var(--card-bg); color: var(--text-main); border-color: var(--border-color);"></select>
-          
-        </div>
+    <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <select id="league-select" onchange="changeLeague(this.value)" style="padding: 5px; border-radius: 5px; max-width: 60%; background: var(--card-bg); color: var(--text-main); border-color: var(--border-color);"></select>
+    </div>
 
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="window.location.href='index.html'">
@@ -206,11 +229,9 @@
         <button class="nav-item" onclick="window.location.href='games.html'">
             <i class="fa-solid fa-gamepad"></i><span>Games</span>
         </button>
-    
         <button class="nav-item">
             <i class="fa-solid fa-lightbulb"></i><span>What If</span>
         </button>
-        
     </nav>
 
     <script>
@@ -247,10 +268,22 @@
             try {
                 const res = await fetch(`${PROXY_ENDPOINT}bootstrap-static/`);
                 const data = await res.json();
-                data.teams.forEach(t => { state.teamMap[t.id] = { name: t.name, short: t.short_name }; });
-                data.elements.forEach(p => {
-                    state.playerMap[p.id] = { name: p.web_name, code: p.code, pos: p.element_type, team: p.team };
+                
+                data.teams.forEach(t => { 
+                    state.teamMap[t.id] = { name: t.name, short: t.short_name, code: t.code }; 
                 });
+
+                data.elements.forEach(p => {
+                    const teamInfo = state.teamMap[p.team];
+                    state.playerMap[p.id] = { 
+                        name: p.web_name, 
+                        code: p.code, 
+                        pos: p.element_type, 
+                        team: p.team,
+                        team_code: teamInfo ? teamInfo.code : 1
+                    };
+                });
+
                 const current = data.events.find(e => e.is_current);
                 if (current) {
                     state.currentGW = current.id;
@@ -274,11 +307,9 @@
                 const res = await fetch(`${PROXY_ENDPOINT}entry/${state.fplId}/`);
                 const data = await res.json();
                 document.getElementById('disp-name').textContent = `${data.player_first_name} ${data.player_last_name}`;
-                
-                // FIXED: Now correctly displays current Gameweek points
                 document.getElementById('disp-total').textContent = data.summary_event_points || 0;
-                
                 document.getElementById('disp-rank').textContent = (data.summary_overall_rank || 0).toLocaleString();
+                
                 const leagues = data.leagues.classic.filter(l => l.league_type === 'x');
                 if (leagues.length > 0) {
                     const select = document.getElementById('league-select');
@@ -302,9 +333,13 @@
         }
 
         function createPlayerHTML(p) {
+            const isGK = p.pos === 1;
+            const jerseyUrl = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.team_code}${isGK ? '_1' : ''}-66.png`;
+
             return `
                 <div class="player-card">
-                    <img src="https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png" class="shirt-img">
+                    <img src="${jerseyUrl}" class="shirt-img">
+                    <div class="shirt-shadow"></div>
                     <div class="p-info-box">
                         <div class="p-name">${p.isCap ? 'Ⓒ ' : ''}${p.name}</div>
                         <div class="p-pts">${p.pts}</div>
@@ -326,24 +361,38 @@
                 const picks = await picksRes.json();
                 const live = await liveRes.json();
                 const fixtures = await fixturesRes.json();
+                
                 document.getElementById('disp-gw-rank').textContent = picks.entry_history.rank ? picks.entry_history.rank.toLocaleString() : '-';
+                
                 const ptsMap = {};
                 live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+                
                 const teamFixtures = {};
                 fixtures.forEach(f => {
                     teamFixtures[f.team_h] = { opponent: state.teamMap[f.team_a].short, isHome: true, fdr: f.team_h_difficulty };
                     teamFixtures[f.team_a] = { opponent: state.teamMap[f.team_h].short, isHome: false, fdr: f.team_a_difficulty };
                 });
+
                 const allPlayers = picks.picks.map(p => {
                     const base = state.playerMap[p.element];
-                    return { ...base, id: p.element, pts: (ptsMap[p.element] || 0) * (p.multiplier || 1), isCap: p.is_captain, fix: teamFixtures[base.team] || { opponent: 'BYE', fdr: 2 }, position: p.position };
+                    return { 
+                        ...base, 
+                        id: p.element, 
+                        pts: (ptsMap[p.element] || 0) * (p.multiplier || 1), 
+                        isCap: p.is_captain, 
+                        fix: teamFixtures[base.team] || { opponent: 'BYE', fdr: 3 }, 
+                        position: p.position 
+                    };
                 });
+
                 const starting = allPlayers.filter(p => p.position <= 11);
                 const bench = allPlayers.filter(p => p.position > 11).sort((a,b) => a.position - b.position);
-                document.getElementById('starting-rows').innerHTML = [1, 2, 3, 4].map(pos => `
+                
+                document.getElementById('starting-rows').innerHTML = [1, 2, 3, 4].map(posType => `
                     <div class="pitch-row">
-                        ${starting.filter(p => p.pos === pos).map(p => createPlayerHTML(p)).join('')}
+                        ${starting.filter(p => p.pos === posType).map(p => createPlayerHTML(p)).join('')}
                     </div>`).join('');
+                
                 document.getElementById('bench-row').innerHTML = bench.map(p => createPlayerHTML(p)).join('');
             } catch (e) { console.error("Pitch Render Error:", e); }
         }
@@ -360,9 +409,6 @@
 
         function toggleTheme() { setTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark'); }
 
-        function logout() { if(confirm("Change FPL ID?")) { localStorage.removeItem('kopala_fpl_id'); location.reload(); } }
-
-        // AUTH LOGIC (LOGIN / LOGOUT)
         function handleAuthAction() {
             if (state.fplId) {
                 if (confirm("Logout of Kopala FPL? \nThis will clear your FPL ID from this device.")) {
@@ -371,15 +417,6 @@
                 }
             } else {
                 document.getElementById('team-id-input').focus();
-            }
-        }
-
-        function updateAuthButton() {
-            const btn = document.getElementById('auth-btn');
-            if (state.fplId) {
-                btn.classList.add('logged-in');
-            } else {
-                btn.classList.remove('logged-in');
             }
         }
     </script>
