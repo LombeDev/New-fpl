@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KOPALA FPL - Members Area</title>
+    <title>Members Area</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
@@ -28,129 +28,112 @@
             color: var(--text-main);
             font-family: -apple-system, system-ui, sans-serif;
             padding-bottom: 90px;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
         /* HEADER DESIGN */
         .top-nav {
-            background: #fff; padding: 10px 15px;
+            background: #fff; padding: 8px 12px;
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid var(--border-color);
         }
         .no-ads-pill {
             background: #f1f3f5; border: 1px solid #dee2e6;
-            padding: 5px 12px; border-radius: 20px;
-            font-size: 0.75rem; font-weight: 800; display: flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; gap: 4px;
         }
         .no-ads-pill i { color: var(--gold); }
-        .logo { font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; }
+        .logo { font-size: 1.2rem; font-weight: 900; letter-spacing: -1px; }
         .logo span { color: var(--fpl-green); }
 
         /* MEMBERS CONTROLS */
         .controls-wrapper {
-            background: #fff; padding: 12px;
+            background: #fff; padding: 10px;
             border-bottom: 1px solid var(--border-color);
         }
-        .member-header {
-            text-align: center; margin-bottom: 15px;
-        }
-        .member-header h2 { margin: 0; font-size: 1.1rem; color: var(--live-fpl-blue); }
-        .member-header p { margin: 5px 0 0; font-size: 0.75rem; color: var(--text-muted); font-weight: 700; }
+        .member-header h2 { margin: 0; font-size: 1rem; color: var(--live-fpl-blue); text-align: center;}
+        .member-header p { margin: 3px 0 10px; font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-align: center;}
         
-        .stats-bar {
-            display: flex; justify-content: center; gap: 10px; margin-bottom: 10px;
-        }
-        .stat-badge {
-            font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 4px; background: #eee;
-        }
+        .stats-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; }
+        .stat-badge { font-size: 0.6rem; font-weight: 800; padding: 3px 6px; border-radius: 4px; background: #eee; }
 
-        .select-row { display: grid; grid-template-columns: 1fr 100px; gap: 8px; margin-bottom: 12px; }
-        select { padding: 8px; border-radius: 6px; border: 1px solid #ced4da; font-weight: 600; font-size: 0.85rem; }
+        .select-row { display: grid; grid-template-columns: 1fr 80px; gap: 6px; margin-bottom: 10px; }
+        select { padding: 6px; border-radius: 6px; border: 1px solid #ced4da; font-weight: 600; font-size: 0.75rem; }
+        .sort-btn { background:#fff; border:1px solid #ced4da; border-radius:6px; font-weight:800; font-size: 0.75rem; cursor:pointer; }
 
-        .icon-grid { display: flex; justify-content: space-around; padding: 0 5px; margin-bottom: 10px; }
+        .icon-grid { display: flex; justify-content: space-around; margin-bottom: 5px; }
         .icon-box {
-            width: 42px; height: 42px; border: 1px solid #dee2e6; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #495057; cursor: pointer;
-            transition: all 0.2s;
+            width: 36px; height: 36px; border: 1px solid #dee2e6; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #495057; cursor: pointer;
         }
-        .icon-box.active-filter {
-            background-color: var(--live-fpl-blue);
-            color: white;
-            border-color: var(--live-fpl-blue);
-        }
+        .icon-box.active-filter { background-color: var(--live-fpl-blue); color: white; border-color: var(--live-fpl-blue); }
 
-        #search-area { display: none; margin-bottom: 12px; }
+        #search-area { display: none; margin-bottom: 10px; }
         #search-input {
-            width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--live-fpl-blue); outline: none; box-sizing: border-box; font-weight: 600;
+            width: 100%; padding: 10px; border-radius: 8px; border: 2px solid var(--live-fpl-blue); outline: none; box-sizing: border-box; font-size: 0.8rem;
         }
 
-        /* TABLE STYLES - REMOVED ONE COLUMN */
+        /* MOBILE OPTIMIZED TABLE */
         .table-header {
-            background: #0b141b; color: #94a3b8; padding: 10px;
-            display: grid; grid-template-columns: 35px 1fr 70px 80px 45px 65px;
-            font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+            background: #0b141b; color: #94a3b8; padding: 8px 5px;
+            display: grid; 
+            grid-template-columns: 25px 1fr 45px 50px 30px 45px;
+            font-size: 0.55rem; font-weight: 800; text-transform: uppercase;
+            align-items: center;
         }
 
-        .manager-row { background: #fff; border-bottom: 1px solid #eee; }
+        .manager-row { background: #fff; border-bottom: 1px solid #eee; width: 100%; }
         .row-summary {
-            display: grid; grid-template-columns: 35px 1fr 70px 80px 45px 65px;
-            padding: 12px 10px; align-items: center; cursor: pointer;
+            display: grid; 
+            grid-template-columns: 25px 1fr 45px 50px 30px 45px;
+            padding: 10px 5px; align-items: center; cursor: pointer;
+            width: 100%; box-sizing: border-box;
         }
-        .pos-cell { font-weight: 900; color: #6c757d; font-size: 0.9rem; }
-        .name-cell b { font-weight: 800; font-size: 0.85rem; display: block; }
-        .name-cell small { font-size: 0.7rem; color: #6c757d; }
         
-        .status-badge { font-size: 0.6rem; padding: 2px 4px; border-radius: 4px; font-weight: 800; text-align: center; }
-        .status-paid { background: var(--success-bg); color: var(--success-green); border: 1px solid #c3e6cb; }
-        .status-pending { background: var(--warning-bg); color: var(--warning-yellow); border: 1px solid #ffeeba; }
+        .pos-cell { font-weight: 900; color: #6c757d; font-size: 0.75rem; }
+        .name-cell { overflow: hidden; }
+        .name-cell b { font-weight: 800; font-size: 0.7rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .name-cell small { font-size: 0.6rem; color: #6c757d; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .status-badge { font-size: 0.5rem; padding: 2px 3px; border-radius: 3px; font-weight: 800; text-align: center; }
+        .status-paid { background: var(--success-bg); color: var(--success-green); }
+        .status-pending { background: var(--warning-bg); color: var(--warning-yellow); }
 
-        .capt-cell { text-align: center; font-size: 0.7rem; line-height: 1.1; }
-        .capt-name { font-weight: 700; display: block; }
-        .vice-grey { font-size: 0.55rem; color: #adb5bd; }
+        .capt-cell { text-align: center; font-size: 0.6rem; line-height: 1; overflow: hidden; }
+        .capt-name { font-weight: 700; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .gw-pts-cell { font-weight: 700; font-size: 0.85rem; text-align: center; }
-        .total-pts-cell { font-weight: 900; font-size: 1rem; text-align: right; }
+        .gw-pts-cell { font-weight: 700; font-size: 0.75rem; text-align: center; }
+        .total-pts-cell { font-weight: 900; font-size: 0.8rem; text-align: right; }
 
-        /* EXPANDED SQUAD VIEW */
-        .row-expansion {
-            max-height: 0; overflow: hidden; transition: max-height 0.4s ease; background: #f8f9fa;
+        /* JUMP TO TOP BUTTON */
+        #scrollTopBtn {
+            display: none; position: fixed; bottom: 80px; right: 20px; z-index: 99;
+            border: none; outline: none; background-color: var(--live-fpl-blue);
+            color: white; cursor: pointer; width: 40px; height: 40px;
+            border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.2); font-size: 1.2rem;
         }
-        .manager-row.active .row-expansion { max-height: 1200px; padding: 10px; border-top: 1px solid #eee; }
-
-        .expansion-meta { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-        .chip { background: #fff; border: 1px solid #dee2e6; padding: 3px 10px; border-radius: 15px; font-size: 0.65rem; font-weight: 700; }
-
-        .squad-scroller {
-            display: flex; overflow-x: auto; gap: 6px; padding-bottom: 10px; -webkit-overflow-scrolling: touch;
-        }
-        .player-card {
-            min-width: 80px; text-align: center; background: #fff; border: 1px solid #eee; border-radius: 5px; overflow: hidden;
-        }
-        .player-shirt { height: 38px; margin: 6px 0; }
-        .player-label { background: #1a1a1b; color: #fff; font-size: 0.65rem; padding: 4px 2px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .player-ownership { background: var(--fpl-green); font-size: 0.65rem; padding: 2px; font-weight: 700; }
-        .player-points { font-size: 0.9rem; font-weight: 900; padding: 6px 0; }
 
         /* BOTTOM NAV */
         .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 70px;
+            position: fixed; bottom: 0; width: 100%; height: 60px;
             background: #fff; border-top: 1px solid #eee;
-            display: flex; justify-content: space-between; z-index: 1000;
+            display: flex; justify-content: space-around; z-index: 1000;
         }
-        .nav-item {
-            text-decoration: none; color: var(--text-muted);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 4px;
-        }
+        .nav-item { text-decoration: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
         .nav-item.active { color: var(--live-fpl-blue); }
-        .nav-item i { font-size: 1.1rem; }
-        .nav-item span { font-size: 0.6rem; font-weight: 700; }
+        .nav-item i { font-size: 0.9rem; }
+        .nav-item span { font-size: 0.55rem; font-weight: 700; }
     </style>
 </head>
 <body>
 
+    <button onclick="topFunction()" id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-chevron-up"></i></button>
+
     <header class="top-nav">
         <div class="no-ads-pill"><i class="fa-solid fa-crown"></i> No Ads</div>
         <div class="logo">Kopala<span>▲</span>FPL</div>
-        <div style="display:flex; gap:15px; font-size: 1.2rem; color: #555;">
+        <div style="display:flex; gap:12px; font-size: 1rem; color: #555;">
             <i class="fa-solid fa-circle-user"></i>
             <i class="fa-solid fa-sun"></i>
         </div>
@@ -158,39 +141,38 @@
 
     <div class="controls-wrapper">
         <div class="member-header">
-            <h2>Members Area</h2>
-            <p>Season 2025/26</p>
+            <h2>Kopala EPL Members</h2>
+            <p>Season 25/26</p>
         </div>
 
-        <div class="stats-bar" id="stats-bar">
-            <span class="stat-badge" style="background:#d1ecf1; color:#0c5460;">Total: <span id="count-total">0</span></span>
-            <span class="stat-badge" style="background:#d4edda; color:#155724;">Paid: <span id="count-paid">0</span></span>
+        <div class="stats-bar">
+            <span class="stat-badge">Total: <span id="count-total">0</span></span>
+            <span class="stat-badge">Paid: <span id="count-paid">0</span></span>
         </div>
         
         <div class="select-row">
             <select id="sort-criteria" onchange="applySort()">
                 <option value="total">Total Points</option>
-                <option value="event">Gameweek Points</option>
+                <option value="event">GW Points</option>
             </select>
-            <button onclick="applySort()" style="background:#fff; border:1px solid #ced4da; border-radius:6px; font-weight:800; cursor:pointer;">Sort ▼</button>
+            <button class="sort-btn" onclick="applySort()">Sort ▼</button>
         </div>
 
         <div class="icon-grid">
-            <div class="icon-box" onclick="toggleSearch()" title="Search"><i class="fa-solid fa-magnifying-glass"></i></div>
-            <div class="icon-box" onclick="togglePaidOnly()" id="filter-paid-btn" title="Filter Paid Only"><i class="fa-solid fa-filter"></i></div>
-            <div class="icon-box" onclick="location.reload()" title="Refresh Data"><i class="fa-solid fa-rotate"></i></div>
-            <div class="icon-box" title="Awards"><i class="fa-solid fa-award"></i></div>
+            <div class="icon-box" onclick="toggleSearch()"><i class="fa-solid fa-magnifying-glass"></i></div>
+            <div class="icon-box" onclick="togglePaidOnly()" id="filter-paid-btn"><i class="fa-solid fa-filter"></i></div>
+            <div class="icon-box" onclick="location.reload()"><i class="fa-solid fa-rotate"></i></div>
         </div>
 
         <div id="search-area">
-            <input type="text" id="search-input" placeholder="Search name, team or status..." onkeyup="runFilter()">
+            <input type="text" id="search-input" placeholder="Search name or team..." onkeyup="runFilter()">
         </div>
     </div>
 
     <div class="table-header">
-        <span>Pos</span>
-        <span>Name</span>
-        <span>St</span>
+        <span>#</span>
+        <span>Manager</span>
+        <span>Status</span>
         <span>(C)</span>
         <span>GW</span>
         <span style="text-align:right">Tot</span>
@@ -199,16 +181,13 @@
     <div id="manager-list-container"></div>
 
     <nav class="bottom-nav">
-        <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
-        <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
-        <a href="prices.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
-        <a href="games.html" class="nav-item"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></a>
-        <a href="members.html" class="nav-item active"><i class="fa-solid fa-users-viewfinder"></i><span>Members</span></a>
-        <a href="https://wa.me/260964836842?text=Hello%20Kopala%20FPL%20Support" class="nav-item" target="_blank">
+        <a href="#" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
+        <a href="#" class="nav-item active"><i class="fa fa-user-secret"></i><span>Members</span></a>
+        <a href="https://wa.me/260964836842" class="nav-item" target="_blank">
             <i class="fa-brands fa-whatsapp"></i>
             <span>Support</span>
         </a>
-        <a href="more.html" class="nav-item"><i class="fa-solid fa-ellipsis"></i><span>More</span></a>
     </nav>
 
     <script>
@@ -219,7 +198,7 @@
             elements: [],
             PROXY: "/.netlify/functions/fpl-proxy?endpoint=",
             showingPaidOnly: false,
-            subscribers: [532432], 
+            // List of paid entries for verification
             paidNames: [
                 "Benson Mwelwa", "Cosmas Mwenya", "Dee Dinga", "Gerard Kabaso", 
                 "Kambikambi Kangwa", "Kennedy Chibuye", "Lombe Simakando", 
@@ -229,6 +208,20 @@
             ]
         };
 
+        // Scroll to top logic
+        window.onscroll = function() { scrollFunction() };
+        function scrollFunction() {
+            const btn = document.getElementById("scrollTopBtn");
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                btn.style.display = "block";
+            } else {
+                btn.style.display = "none";
+            }
+        }
+        function topFunction() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
         async function init() {
             try {
                 const staticRes = await fetch(`${state.PROXY}bootstrap-static/`);
@@ -237,20 +230,19 @@
                 state.currentGW = staticData.events.find(e => e.is_current).id;
                 
                 staticData.elements.forEach(p => {
-                    state.playerMap[p.id] = { 
-                        name: p.web_name, 
-                        team: p.team_code,
-                        own: p.selected_by_percent
-                    };
+                    state.playerMap[p.id] = { name: p.web_name, team: p.team_code };
                 });
 
                 loadStandings(state.leagueId);
-            } catch (err) { console.error("Initialization failed", err); }
+            } catch (err) { 
+                console.error("Initialization failed", err);
+                document.getElementById('manager-list-container').innerHTML = '<p style="text-align:center; padding:20px;">Error loading data. Please refresh.</p>';
+            }
         }
 
         async function loadStandings(id) {
             const container = document.getElementById('manager-list-container');
-            container.innerHTML = '<p style="text-align:center; padding:30px; font-weight:700;">Syncing Kopala EPL Data...</p>';
+            container.innerHTML = '<p style="text-align:center; padding:30px; font-weight:700;">Syncing EPL Data...</p>';
             
             const res = await fetch(`${state.PROXY}leagues-classic/${id}/standings/`);
             const data = await res.json();
@@ -258,44 +250,34 @@
             let paidCount = 0;
 
             container.innerHTML = data.standings.results.map((r, i) => {
-                const normalizedPlayer = r.player_name.toLowerCase();
-                const normalizedTeam = r.entry_name.toLowerCase();
-                
-                const hasPaidName = state.paidNames.some(name => {
+                const isSub = state.paidNames.some(name => {
                     const n = name.toLowerCase().trim();
-                    return normalizedPlayer.includes(n) || normalizedTeam.includes(n);
+                    return r.player_name.toLowerCase().includes(n) || r.entry_name.toLowerCase().includes(n);
                 });
                 
-                const isSub = state.subscribers.includes(r.entry) || hasPaidName;
                 if (isSub) paidCount++;
 
                 return `
-                    <div class="manager-row" id="entry-${r.entry}">
-                        <div class="row-summary" onclick="expandManager(${r.entry})">
+                    <div class="manager-row">
+                        <div class="row-summary">
                             <span class="pos-cell">${i+1}</span>
                             <div class="name-cell">
-                                <b>${r.entry_name} ${isSub ? '<i class="fa-solid fa-circle-check" style="color:var(--fpl-pink); font-size:0.85rem; margin-left:3px;"></i>' : ''}</b>
+                                <b>${r.entry_name} ${isSub ? '<i class="fa-solid fa-circle-check" style="color:var(--fpl-pink); font-size:0.75rem; margin-left:3px;"></i>' : ''}</b>
                                 <small>${r.player_name}</small>
                             </div>
 
                             <div>
                                 <span class="status-badge ${isSub ? 'status-paid' : 'status-pending'}">
-                                    ${isSub ? 'PAID' : 'PENDING'}
+                                    ${isSub ? 'PAID' : 'PEND'}
                                 </span>
                             </div>
-                            
-                            <div class="capt-cell" id="cap-box-${r.entry}">
+
+                            <div class="capt-cell" id="cap-${r.entry}">
                                 <span class="capt-name">---</span>
-                                <span class="vice-grey">---</span>
                             </div>
+                            
                             <span class="gw-pts-cell">${r.event_total}</span>
                             <span class="total-pts-cell">${r.total.toLocaleString()}</span>
-                        </div>
-                        <div class="row-expansion" id="exp-${r.entry}">
-                            <div class="expansion-meta" id="meta-box-${r.entry}">
-                                <span class="chip">LOADING SQUAD...</span>
-                            </div>
-                            <div class="squad-scroller" id="squad-box-${r.entry}"></div>
                         </div>
                     </div>
                 `;
@@ -303,40 +285,19 @@
 
             document.getElementById('count-total').innerText = data.standings.results.length;
             document.getElementById('count-paid').innerText = paidCount;
+            
+            // Fetch captains for all visible entries
+            data.standings.results.forEach(r => fetchCaptain(r.entry));
         }
 
-        async function expandManager(entryId) {
-            const row = document.getElementById(`entry-${entryId}`);
-            const squadBox = document.getElementById(`squad-box-${entryId}`);
-            row.classList.toggle('active');
-
-            if (row.classList.contains('active') && squadBox.innerHTML === "") {
+        async function fetchCaptain(entryId) {
+            try {
                 const res = await fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`);
                 const data = await res.json();
-                
-                squadBox.innerHTML = data.picks.map(pick => {
-                    const p = state.playerMap[pick.element];
-                    const live = state.elements.find(el => el.id === pick.element);
-                    const displayPts = (live ? live.event_points : 0) * pick.multiplier;
-
-                    if (pick.is_captain) document.querySelector(`#cap-box-${entryId} .capt-name`).innerText = p.name;
-                    if (pick.is_vice_captain) document.querySelector(`#cap-box-${entryId} .vice-grey`).innerText = p.name;
-
-                    return `
-                        <div class="player-card">
-                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/s_${p.team}-66.png" class="player-shirt">
-                            <div class="player-label">${p.name}${pick.is_captain ? ' (C)' : ''}</div>
-                            <div class="player-ownership">${p.own}%</div>
-                            <div class="player-points">${displayPts}</div>
-                        </div>`;
-                }).join('');
-
-                document.getElementById(`meta-box-${entryId}`).innerHTML = `
-                    <span class="chip">TV £${(data.entry_history.value / 10).toFixed(1)}</span>
-                    <span class="chip">BANK £${(data.entry_history.bank / 10).toFixed(1)}</span>
-                    <span class="chip">CHIP: ${data.active_chip || 'NONE'}</span>
-                `;
-            }
+                const captPick = data.picks.find(p => p.is_captain);
+                const p = state.playerMap[captPick.element];
+                document.getElementById(`cap-${entryId}`).innerHTML = `<span class="capt-name">${p.name}</span>`;
+            } catch (e) {}
         }
 
         function toggleSearch() {
@@ -346,9 +307,8 @@
         }
 
         function togglePaidOnly() {
-            const btn = document.getElementById('filter-paid-btn');
             state.showingPaidOnly = !state.showingPaidOnly;
-            btn.classList.toggle('active-filter', state.showingPaidOnly);
+            document.getElementById('filter-paid-btn').classList.toggle('active-filter', state.showingPaidOnly);
             runFilter();
         }
 
@@ -357,11 +317,9 @@
             const rows = document.querySelectorAll('.manager-row');
 
             rows.forEach(row => {
-                const nameText = row.querySelector('.name-cell').innerText.toLowerCase();
-                const statusBadge = row.querySelector('.status-badge');
-                const isPaid = statusBadge.innerText.includes('PAID');
-
-                const matchesSearch = nameText.includes(val) || statusBadge.innerText.toLowerCase().includes(val);
+                const nameText = row.innerText.toLowerCase();
+                const isPaid = row.querySelector('.status-badge').innerText.includes('PAID');
+                const matchesSearch = nameText.includes(val);
                 const matchesPaidFilter = !state.showingPaidOnly || isPaid;
 
                 row.style.display = (matchesSearch && matchesPaidFilter) ? 'block' : 'none';
