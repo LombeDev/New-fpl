@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOPALA FPL - Price Change Predictions</title>
+    <title>KOPALA FPL - Price Predictions</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        /* 1. THEME & CORE STYLES */
         :root {
-            --bg-color: #f8fafc;
+            --bg-color: #f0f4f8;
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
             --primary-blue: #2563eb;
             --fpl-green: #00ff85;
             --fpl-pink: #e90052;
-            --border-color: #e2e8f0;
+            --border-color: #d1d5db;
         }
 
         body.dark-mode {
@@ -31,14 +30,15 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, system-ui, sans-serif;
-            overflow-x: hidden;
+            padding-bottom: 80px;
         }
 
-        /* 2. TOP BRANDING BAR */
+        /* TOP BRANDING */
         .top-brand-bar {
             padding: 10px 15px;
             display: flex; justify-content: space-between; align-items: center;
-            background: var(--bg-color); position: sticky; top: 0; z-index: 110;
+            background: var(--card-bg); position: sticky; top: 0; z-index: 110;
+            border-bottom: 1px solid var(--border-color);
         }
         .live-logo {
             background: #000; color: #fff; padding: 6px 18px;
@@ -46,262 +46,284 @@
             display: flex; align-items: center; gap: 4px; cursor: pointer;
         }
         .live-logo span { color: var(--fpl-green); }
-        .nav-btn { background:#eee; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; color: #000; }
+        .nav-btn { background:#eee; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; }
+        .dark-mode .nav-btn { background: #334155; color: white; }
 
-        /* 3. HEADER & TIMER */
-        .header { text-align: center; padding: 20px 15px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); }
-        .header h1 { font-size: 1.1rem; margin: 0 0 10px 0; font-weight: 800; letter-spacing: -0.5px; }
-        .timer-banner { background: var(--bg-color); padding: 8px 15px; border-radius: 50px; display: inline-flex; align-items: center; font-weight: 800; font-size: 0.7rem; color: var(--text-muted); }
-        .timer-box { color: var(--fpl-pink); margin-left: 8px; font-family: monospace; font-size: 0.8rem; }
-
-        /* 4. CONTROLS & FILTERING */
-        .main-container { padding: 15px; margin-bottom: 80px; }
-        .controls-row { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        
-        .search-box { 
-            width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--border-color);
-            background: var(--card-bg); color: var(--text-main); outline: none; box-sizing: border-box;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        /* TIMER BANNER */
+        .info-banner {
+            background: var(--card-bg); margin: 10px; padding: 15px; border-radius: 12px;
+            border: 1px solid var(--border-color); text-align: center; font-size: 0.85rem;
         }
+        .info-banner b { color: var(--fpl-pink); font-family: monospace; font-size: 1rem; }
 
-        .toggle-container { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); }
-        .toggle-btn { flex: 1; padding: 12px; border: none; background: var(--card-bg); color: var(--text-muted); font-weight: 800; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
-        .toggle-btn.active.rise { background: var(--fpl-green); color: #000; }
-        .toggle-btn.active.fall { background: var(--fpl-pink); color: #fff; }
-
-        .pos-filter-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; }
-        .pos-chip { 
-            padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border-color); 
-            background: var(--card-bg); font-size: 0.7rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+        /* FILTERS */
+        .controls { padding: 0 10px; display: flex; flex-direction: column; gap: 10px; }
+        .search-box {
+            padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);
+            background: var(--card-bg); color: var(--text-main); outline: none;
+        }
+        .pos-filter-row { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0; scrollbar-width: none; }
+        .pos-chip {
+            padding: 6px 15px; border-radius: 20px; border: 1px solid var(--border-color);
+            background: var(--card-bg); font-size: 0.75rem; font-weight: 700; cursor: pointer; white-space: nowrap;
         }
         .pos-chip.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
 
-        /* 5. TABLE STYLING */
-        .table-wrap { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; }
-        thead th { background: var(--bg-color); color: var(--text-muted); text-align: left; padding: 12px; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        tbody td { padding: 14px 12px; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
-        
-        .player-info { display: flex; flex-direction: column; }
-        .team-tag { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; }
-        
-        .bar-bg { width: 100%; max-width: 80px; height: 6px; background: #e2e8f0; border-radius: 10px; margin-top: 5px; position: relative; }
-        .bar-fill { height: 100%; border-radius: 10px; transition: width 0.8s ease-out; }
-        
-        .urgent { background: rgba(0, 255, 133, 0.08) !important; }
-        .urgent-fall { background: rgba(233, 0, 82, 0.08) !important; }
-        .tonight-badge { 
-            display: inline-block; background: var(--fpl-pink); color: white; 
-            font-size: 0.55rem; padding: 1px 5px; border-radius: 3px; font-weight: 900; margin-top: 3px;
+        /* PREDICTIONS LAYOUT */
+        .predictions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+        @media (max-width: 700px) { .predictions-grid { grid-template-columns: 1fr; } }
+
+        .pred-card {
+            background: var(--card-bg); border-radius: 15px; border: 1px solid var(--border-color);
+            display: flex; flex-direction: column; overflow: hidden;
         }
+        .card-header { padding: 15px; font-weight: 800; font-size: 0.95rem; border-bottom: 1px solid var(--border-color); }
+        .section-subhead { background: #f8fafc; padding: 8px 15px; font-weight: 700; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+        .dark-mode .section-subhead { background: #2d3748; }
 
-        /* 6. BOTTOM NAV */
+        /* PLAYER ROWS */
+        .player-row { display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid var(--border-color); }
+        .add-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 5px; font-size: 0.9rem; margin-right: 5px; }
+        .add-btn.active { color: #facc15; }
+        .player-meta { flex: 1; display: flex; flex-direction: column; }
+        .player-name { font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+        .player-name:hover { text-decoration: underline; }
+        .bar-row { display: flex; align-items: center; gap: 8px; }
+        
+        .progress-container { width: 60px; height: 6px; background: #e2e8f0; border-radius: 10px; margin-top: 4px; overflow: hidden; }
+        .dark-mode .progress-container { background: #334155; }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.4s; }
+        
+        .momentum-icon { font-size: 0.65rem; margin-top: 3px; }
+        .momentum-up { color: var(--fpl-green); }
+        .momentum-down { color: var(--fpl-pink); }
+        
+        .player-price { font-weight: 800; font-size: 0.85rem; margin-right: 10px; }
+        .trend-icon { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; color: white; }
+        .trend-up { background: var(--fpl-green); }
+        .trend-down { background: var(--fpl-pink); }
+
+        .toggle-link { padding: 12px; text-align: center; font-size: 0.75rem; color: var(--primary-blue); cursor: pointer; font-weight: 700; border-top: 1px solid var(--border-color); }
+        .none-msg { padding: 15px; color: var(--text-muted); font-size: 0.8rem; font-style: italic; }
+
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card-bg); width: 90%; max-width: 350px; border-radius: 20px; padding: 20px; }
+        .history-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+
+        /* BOTTOM NAV */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
-        .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.65rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; }
+        .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.65rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-decoration: none; gap: 4px; }
         .nav-item.active { color: var(--primary-blue); font-weight: 700; }
-
-        #loader { padding: 40px; text-align: center; font-size: 0.9rem; color: var(--text-muted); }
     </style>
 </head>
 <body>
 
     <div class="top-brand-bar">
         <button class="nav-btn"><i class="fa-solid fa-user"></i></button>
-        <div class="live-logo" onclick="window.location.href='index.html'">Kopala<span>▲</span>FPL</div>
+        <div class="live-logo" onclick="location.reload()">Kopala<span>▲</span>FPL</div>
         <button class="nav-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
     </div>
 
-    <div class="header">
-        <h1>Price Change Predictor</h1>
-        <div class="timer-banner">
-            Next Change: <span id="timer" class="timer-box">--:--:--</span>
+    <div class="info-banner">
+        Next price change expected in:<br>
+        <b id="timer">00:00:00</b>
+    </div>
+
+    <div class="controls">
+        <input type="text" id="playerSearch" class="search-box" placeholder="Search players...">
+        <div class="pos-filter-row">
+            <div class="pos-chip active" data-pos="ALL">All Players</div>
+            <div class="pos-chip" data-pos="MY_TEAM"><i class="fa-solid fa-star"></i> My Team</div>
+            <div class="pos-chip" data-pos="GKP">GKP</div>
+            <div class="pos-chip" data-pos="DEF">DEF</div>
+            <div class="pos-chip" data-pos="MID">MID</div>
+            <div class="pos-chip" data-pos="FWD">FWD</div>
         </div>
     </div>
 
-    <div class="main-container">
-        <div class="controls-row">
-            <input type="text" id="playerSearch" class="search-box" placeholder="Search players...">
-            
-            <div class="pos-filter-row">
-                <div class="pos-chip active" data-pos="ALL">ALL</div>
-                <div class="pos-chip" data-pos="GKP">GKP</div>
-                <div class="pos-chip" data-pos="DEF">DEF</div>
-                <div class="pos-chip" data-pos="MID">MID</div>
-                <div class="pos-chip" data-pos="FWD">FWD</div>
-            </div>
-
-            <div class="toggle-container">
-                <button id="btnRise" class="toggle-btn active rise"><i class="fa-solid fa-arrow-trend-up"></i> Likely Rises</button>
-                <button id="btnFall" class="toggle-btn fall"><i class="fa-solid fa-arrow-trend-down"></i> Likely Falls</button>
-            </div>
+    <div class="predictions-grid">
+        <div class="pred-card">
+            <div class="card-header">Predicted Rises tonight</div>
+            <div id="rises-tonight"></div>
+            <div class="section-subhead">Maybe (≥95%)</div>
+            <div id="rises-maybe"></div>
+            <div class="toggle-link" onclick="toggleLowOwned()">Show low owned</div>
         </div>
 
-        <div id="loader"><i class="fas fa-sync fa-spin"></i> Tracking Market Movements...</div>
+        <div class="pred-card">
+            <div class="card-header">Predicted Falls tonight</div>
+            <div id="falls-tonight"></div>
+            <div class="section-subhead">Maybe (≥95%)</div>
+            <div id="falls-maybe"></div>
+            <div class="toggle-link" onclick="toggleLowOwned()">Show low owned</div>
+        </div>
+    </div>
 
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Player</th>
-                        <th>Target</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-                <tbody id="predictor-body"></tbody>
-            </table>
+    <div id="priceModal" class="modal-overlay" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="modalPlayerName" style="margin:0; font-size:1rem;">History</h2>
+            </div>
+            <hr>
+            <div id="modalBody"></div>
+            <button onclick="closeModal()" style="width:100%; margin-top:15px; padding:10px; border-radius:10px; border:none; background:var(--primary-blue); color:white;">Close</button>
         </div>
     </div>
 
     <nav class="bottom-nav">
-        <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
-        <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
-        <a href="prices.html" class="nav-item active"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></a>
-        <a href="games.html" class="nav-item"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
+        <a href="#" class="nav-item active"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></a>
         <button class="nav-item"><i class="fa-solid fa-ellipsis"></i><span>More</span></button>
     </nav>
 
     <script>
         const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
-        const CACHE_KEY = "kopala_price_data";
-        const CACHE_TIME = 10 * 60 * 1000; // Refreshes every 10 mins
-
         let allPlayers = [];
-        let viewMode = 'rise';
         let posFilter = 'ALL';
+        let showLowOwned = false;
+        let myTeam = JSON.parse(localStorage.getItem('fpl_my_team')) || [];
 
         async function init() {
-            const cached = localStorage.getItem(CACHE_KEY);
-            if (cached) {
-                const { timestamp, data } = JSON.parse(cached);
-                if (Date.now() - timestamp < CACHE_TIME) {
-                    processData(data);
-                    return;
-                }
-            }
-
             try {
                 const response = await fetch(PROXY);
                 const data = await response.json();
-                localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data: data }));
                 processData(data);
             } catch (e) {
-                document.getElementById('loader').innerText = "Market data currently unavailable.";
+                console.error("Failed to load data");
             }
         }
 
         function processData(data) {
-            const teams = Object.fromEntries(data.teams.map(t => [t.id, t.short_name]));
             allPlayers = data.elements.map(p => {
-                // FPL Price Change Logic: Usually ~10,000 net transfers in a day for a move.
-                // We use a simplified 'target' percentage based on event transfers.
+                const ownership = parseFloat(p.selected_by_percent);
                 const net = p.transfers_in_event - p.transfers_out_event;
-                let target = (net / 20000) * 100; // 20k is a rough threshold
-                
+                const threshold = (ownership * 1500) + 4500;
+                let target = (net / threshold) * 100;
+
                 return {
+                    id: p.id,
                     name: p.web_name,
-                    team: teams[p.team],
                     price: (p.now_cost / 10).toFixed(1),
                     target: parseFloat(target.toFixed(1)),
-                    pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type]
+                    pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
+                    ownership: ownership,
+                    velocity: (p.transfers_in_event + p.transfers_out_event)
                 };
             });
-            document.getElementById('loader').style.display = 'none';
             render();
         }
 
+        function togglePlayerInTeam(id) {
+            const idx = myTeam.indexOf(id);
+            if(idx > -1) myTeam.splice(idx, 1);
+            else myTeam.push(id);
+            localStorage.setItem('fpl_my_team', JSON.stringify(myTeam));
+            render();
+        }
+
+        function toggleLowOwned() {
+            showLowOwned = !showLowOwned;
+            document.querySelectorAll('.toggle-link').forEach(l => l.innerText = showLowOwned ? "Hide low owned" : "Show low owned");
+            render();
+        }
+
+        async function openPriceHistory(id, name) {
+            document.getElementById('modalPlayerName').innerText = name;
+            document.getElementById('priceModal').style.display = 'flex';
+            const body = document.getElementById('modalBody');
+            body.innerHTML = 'Loading...';
+            try {
+                const res = await fetch(`/.netlify/functions/fpl-proxy?endpoint=element-summary/${id}/`);
+                const data = await res.json();
+                body.innerHTML = data.history.slice(-5).reverse().map(h => `
+                    <div class="history-row">
+                        <span>GW ${h.round}</span>
+                        <span>£${(h.value/10).toFixed(1)}</span>
+                    </div>
+                `).join('');
+            } catch (e) { body.innerHTML = "Error loading history"; }
+        }
+
+        function closeModal() { document.getElementById('priceModal').style.display = 'none'; }
+
         function render() {
-            const body = document.getElementById('predictor-body');
             const searchVal = document.getElementById('playerSearch').value.toLowerCase();
-            
             const filtered = allPlayers.filter(p => {
                 const matchesSearch = p.name.toLowerCase().includes(searchVal);
-                const matchesPos = (posFilter === 'ALL' || p.pos === posFilter);
-                const matchesView = (viewMode === 'rise' ? p.target >= -10 : p.target < 0);
-                return matchesSearch && matchesPos && matchesView;
-            }).sort((a,b) => viewMode === 'rise' ? b.target - a.target : a.target - b.target);
+                const matchesPos = posFilter === 'MY_TEAM' ? myTeam.includes(p.id) : (posFilter === 'ALL' || p.pos === posFilter);
+                const matchesOwn = showLowOwned || p.ownership > 1.0;
+                return matchesSearch && matchesPos && matchesOwn;
+            });
 
-            body.innerHTML = filtered.slice(0, 50).map(p => {
-                const val = Math.abs(p.target);
-                const isUrgent = val >= 95;
-                const highlight = isUrgent ? (viewMode === 'rise' ? 'urgent' : 'urgent-fall') : '';
-                const barColor = viewMode === 'rise' ? 'var(--fpl-green)' : 'var(--fpl-pink)';
+            updateBucket('rises-tonight', filtered.filter(p => p.target >= 100), 'rise');
+            updateBucket('rises-maybe', filtered.filter(p => p.target >= 95 && p.target < 100), 'rise');
+            updateBucket('falls-tonight', filtered.filter(p => p.target <= -100), 'fall');
+            updateBucket('falls-maybe', filtered.filter(p => p.target <= -95 && p.target > -100), 'fall');
+        }
 
+        function updateBucket(id, list, type) {
+            const container = document.getElementById(id);
+            if(list.length === 0) {
+                container.innerHTML = '<div class="none-msg">None</div>';
+                return;
+            }
+            container.innerHTML = list.slice(0, 10).map(p => {
+                const owned = myTeam.includes(p.id);
+                const progress = Math.min(Math.abs(p.target), 100);
+                const momIcon = p.velocity > 50000 ? '<i class="fa-solid fa-angles-up momentum-up"></i>' : '';
+                
                 return `
-                    <tr class="${highlight}">
-                        <td>
-                            <div class="player-info">
-                                <strong>${p.name}</strong>
-                                <span class="team-tag">${p.team} • ${p.pos}</span>
+                    <div class="player-row">
+                        <button class="add-btn ${owned ? 'active' : ''}" onclick="togglePlayerInTeam(${p.id})">
+                            <i class="fa-solid ${owned ? 'fa-star' : 'fa-plus'}"></i>
+                        </button>
+                        <div class="player-meta">
+                            <div class="player-name" onclick="openPriceHistory(${p.id}, '${p.name}')">${p.name}</div>
+                            <div class="bar-row">
+                                <div class="progress-container">
+                                    <div class="progress-fill" style="width:${progress}%; background:${type==='rise'?'var(--fpl-green)':'var(--fpl-pink)'}"></div>
+                                </div>
+                                <span class="momentum-icon">${momIcon}</span>
                             </div>
-                        </td>
-                        <td>
-                            <span style="font-weight:800; font-size:0.75rem; color:${val > 80 ? barColor : 'inherit'}">${p.target}%</span>
-                            <div class="bar-bg">
-                                <div class="bar-fill" style="width:${Math.min(val, 100)}%; background:${barColor}"></div>
-                            </div>
-                        </td>
-                        <td>
-                            <div style="font-weight:900;">£${p.price}</div>
-                            ${isUrgent ? '<span class="tonight-badge">PREDICTED</span>' : ''}
-                        </td>
-                    </tr>
+                        </div>
+                        <div class="player-price">£${p.price}</div>
+                        <div class="trend-icon ${type==='rise'?'trend-up':'trend-down'}">
+                            <i class="fa-solid fa-arrow-${type==='rise'?'up':'down'}"></i>
+                        </div>
+                    </div>
                 `;
             }).join('');
         }
 
-        // Event Listeners for Filters
-        document.querySelectorAll('.pos-chip').forEach(chip => {
-            chip.onclick = (e) => {
-                document.querySelectorAll('.pos-chip').forEach(c => c.classList.remove('active'));
-                e.target.classList.add('active');
-                posFilter = e.target.getAttribute('data-pos');
-                render();
-            };
-        });
-
-        document.getElementById('btnRise').onclick = () => { 
-            viewMode = 'rise'; 
-            document.getElementById('btnRise').classList.add('active'); 
-            document.getElementById('btnFall').classList.remove('active'); 
-            render(); 
-        };
-        
-        document.getElementById('btnFall').onclick = () => { 
-            viewMode = 'fall'; 
-            document.getElementById('btnFall').classList.add('active'); 
-            document.getElementById('btnRise').classList.remove('active'); 
-            render(); 
-        };
-
-        document.getElementById('playerSearch').oninput = render;
-
-        // Timer Logic (UTC 01:30 is the standard change time)
+        // Logic for Timer, Search, Filters
         function updateTimer() {
             const now = new Date();
             let target = new Date();
             target.setUTCHours(1, 30, 0, 0);
             if (now > target) target.setUTCDate(target.getUTCDate() + 1);
-            
             const diff = target - now;
-            const h = Math.floor(diff / 3600000);
-            const m = Math.floor((diff % 3600000) / 60000);
-            const s = Math.floor((diff % 60000) / 1000);
-            
-            document.getElementById('timer').innerText = 
-                `${h.toString().padStart(2, '0')}h ${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`;
+            const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+            const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+            const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = `${h}:${m}:${s}`;
         }
         setInterval(updateTimer, 1000);
 
-        // Theme Toggle
+        document.getElementById('playerSearch').oninput = render;
+        document.querySelectorAll('.pos-chip').forEach(c => {
+            c.onclick = () => {
+                document.querySelectorAll('.pos-chip').forEach(x => x.classList.remove('active'));
+                c.classList.add('active');
+                posFilter = c.getAttribute('data-pos');
+                render();
+            };
+        });
+
         function toggleTheme() {
             const isDark = document.body.classList.toggle('dark-mode');
             document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        }
-
-        if(localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('theme-icon').className = 'fa-solid fa-moon';
         }
 
         init();
