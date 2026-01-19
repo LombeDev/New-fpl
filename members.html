@@ -99,9 +99,6 @@
         .name-cell b { font-weight: 800; font-size: 0.85rem; display: block; }
         .name-cell small { font-size: 0.7rem; color: #6c757d; }
         
-        .sub-badge { font-size: 0.55rem; color: #fff; background: var(--live-fpl-blue); padding: 1px 4px; border-radius: 3px; font-weight: 900; margin-top: 2px; display: inline-block; }
-        .free-badge { font-size: 0.55rem; color: #6c757d; background: #f1f3f5; padding: 1px 4px; border-radius: 3px; font-weight: 900; margin-top: 2px; display: inline-block; }
-        
         .status-badge { font-size: 0.6rem; padding: 2px 4px; border-radius: 4px; font-weight: 800; text-align: center; }
         .status-paid { background: var(--success-bg); color: var(--success-green); border: 1px solid #c3e6cb; }
         .status-pending { background: var(--warning-bg); color: var(--warning-yellow); border: 1px solid #ffeeba; }
@@ -161,7 +158,7 @@
 
     <div class="controls-wrapper">
         <div class="member-header">
-            <h2>Kopala EPL Members Area</h2>
+            <h2>Members Area</h2>
             <p>Season 2025/26</p>
         </div>
 
@@ -223,14 +220,13 @@
             elements: [],
             PROXY: "/.netlify/functions/fpl-proxy?endpoint=",
             showingPaidOnly: false,
-            // Manual subscriber IDs
             subscribers: [532432], 
-            // Paid member names list
             paidNames: [
                 "Benson Mwelwa", "Cosmas Mwenya", "Dee Dinga", "Gerard Kabaso", 
                 "Kambikambi Kangwa", "Kennedy Chibuye", "Lombe Simakando", 
                 "Maurice Mwale", "Mwamba Mubanga", "Nelson Mumbi", 
-                "Philip Mapulanga", "Sheila Chomba"
+                "Philip Mapulanga", "Sheila Chomba", "Armari25", 
+                "cosmas randie mwenya", "The Hollows", "Gerhard kabaso"
             ]
         };
 
@@ -263,12 +259,15 @@
             let paidCount = 0;
 
             container.innerHTML = data.standings.results.map((r, i) => {
-                // Determine if they are a paid subscriber by name or ID
-                const hasPaidName = state.paidNames.some(name => 
-                    r.player_name.toLowerCase().trim() === name.toLowerCase().trim()
-                );
-                const isSub = state.subscribers.includes(r.entry) || hasPaidName;
+                const normalizedPlayer = r.player_name.toLowerCase();
+                const normalizedTeam = r.entry_name.toLowerCase();
                 
+                const hasPaidName = state.paidNames.some(name => {
+                    const n = name.toLowerCase().trim();
+                    return normalizedPlayer.includes(n) || normalizedTeam.includes(n);
+                });
+                
+                const isSub = state.subscribers.includes(r.entry) || hasPaidName;
                 if (isSub) paidCount++;
 
                 return `
@@ -276,9 +275,8 @@
                         <div class="row-summary" onclick="expandManager(${r.entry})">
                             <span class="pos-cell">${i+1}</span>
                             <div class="name-cell">
-                                <b>${r.entry_name} ${isSub ? '<i class="fa-solid fa-circle-check" style="color:var(--live-fpl-blue); font-size:0.7rem;"></i>' : ''}</b>
+                                <b>${r.entry_name} ${isSub ? '<i class="fa-solid fa-circle-check" style="color:var(--fpl-pink); font-size:0.85rem; margin-left:3px;"></i>' : ''}</b>
                                 <small>${r.player_name}</small>
-                                <span class="${isSub ? 'sub-badge' : 'free-badge'}">${isSub ? 'SUBSCRIBED' : 'FREE USER'}</span>
                             </div>
 
                             <div>
@@ -308,7 +306,6 @@
                 `;
             }).join('');
 
-            // Update Counters
             document.getElementById('count-total').innerText = data.standings.results.length;
             document.getElementById('count-paid').innerText = paidCount;
         }
@@ -356,12 +353,7 @@
         function togglePaidOnly() {
             const btn = document.getElementById('filter-paid-btn');
             state.showingPaidOnly = !state.showingPaidOnly;
-            
-            if (state.showingPaidOnly) {
-                btn.classList.add('active-filter');
-            } else {
-                btn.classList.remove('active-filter');
-            }
+            btn.classList.toggle('active-filter', state.showingPaidOnly);
             runFilter();
         }
 
@@ -377,11 +369,7 @@
                 const matchesSearch = nameText.includes(val) || statusBadge.innerText.toLowerCase().includes(val);
                 const matchesPaidFilter = !state.showingPaidOnly || isPaid;
 
-                if (matchesSearch && matchesPaidFilter) {
-                    row.style.display = 'block';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = (matchesSearch && matchesPaidFilter) ? 'block' : 'none';
             });
         }
 
