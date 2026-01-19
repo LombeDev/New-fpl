@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOPALA FPL - Live Games & Tables</title>
+    <title>KOPALA FPL - Live Games</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
-            --bg-color: #f8fafc;
+            --bg-color: #f1f5f9;
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
@@ -15,7 +15,9 @@
             --fpl-green: #00ff85;
             --fpl-pink: #e90052;
             --border-color: #e2e8f0;
-            --toggle-bg: #e2e8f0;
+            --done-badge: #1e3a8a;
+            --live-badge: #e90052;
+            --expand-mint: #a7ffd6;
         }
 
         body.dark-mode {
@@ -24,80 +26,86 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
-            --toggle-bg: #334155;
+            --done-badge: #3b82f6;
         }
 
-        body { margin: 0; padding: 0; background: var(--bg-color); color: var(--text-main); font-family: -apple-system, system-ui, sans-serif; transition: 0.3s; }
+        body { margin: 0; padding: 0; background: var(--bg-color); color: var(--text-main); font-family: -apple-system, system-ui, sans-serif; }
 
-        /* TOP BRANDING BAR */
         .top-brand-bar {
-            padding: 10px 15px;
-            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 15px; display: flex; justify-content: space-between; align-items: center;
             background: var(--bg-color); position: sticky; top: 0; z-index: 110;
         }
         .live-logo {
             background: #000; color: #fff; padding: 6px 18px;
             border-radius: 50px; font-weight: 900; font-size: 1.2rem;
-            display: flex; align-items: center; gap: 4px; cursor: pointer;
+            display: flex; align-items: center; gap: 4px;
         }
         .live-logo span { color: var(--fpl-green); }
         .nav-btn { background:#eee; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; color: #000; display: flex; align-items: center; justify-content: center; }
 
-        /* SUB NAV / TABS */
         .sub-nav { padding: 0 15px 15px; background: var(--bg-color); }
-        .toggle-box { display: flex; background: var(--toggle-bg); border-radius: 10px; padding: 3px; gap: 4px; }
-        .toggle-btn { flex: 1; border: none; background: none; padding: 10px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); cursor: pointer; border-radius: 8px; transition: 0.2s; }
+        .toggle-box { display: flex; background: #e2e8f0; border-radius: 10px; padding: 3px; gap: 4px; }
+        .dark-mode .toggle-box { background: #334155; }
+        .toggle-btn { flex: 1; border: none; background: none; padding: 10px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); cursor: pointer; border-radius: 8px; }
         .toggle-btn.active { background: var(--primary-blue); color: #fff; }
 
-        /* CONTENT CONTAINERS */
-        .content { padding: 0 15px 100px; }
-        .section-title { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; margin: 20px 0 10px; color: var(--text-muted); letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
-        .section-title::after { content: ""; flex: 1; height: 1px; background: var(--border-color); }
+        .content { padding: 0 12px 100px; }
+        .gw-header { border-left: 4px solid var(--fpl-green); padding-left: 10px; margin: 15px 4px; font-size: 1.1rem; font-weight: 600; }
 
-        /* MATCH CARDS */
-        .m-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-        .m-meta { display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: 800; margin-bottom: 10px; }
-        .status-live { color: var(--fpl-pink); animation: blink 1.2s infinite; }
-        
-        .score-row { display: flex; align-items: center; justify-content: space-between; text-align: center; }
-        .team-name { flex: 1; font-weight: 800; font-size: 0.85rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
-        .score-val { font-size: 1.5rem; font-weight: 900; width: 75px; color: var(--text-main); }
-        .vs-val { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
+        /* MATCH CARD UI */
+        .m-card { 
+            background: var(--card-bg); border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            margin-bottom: 20px; overflow: hidden; border: 1px solid var(--border-color);
+        }
+        .m-main { display: flex; align-items: flex-start; justify-content: space-between; padding: 20px 10px; }
+        .team-box { flex: 1.2; text-align: center; }
+        .kit-img { width: 65px; height: auto; margin-bottom: 8px; }
+        .team-name { font-weight: 800; font-size: 0.8rem; display: block; }
+        .eo-text { font-size: 0.6rem; color: var(--text-muted); display: block; margin-top: 4px; }
 
-        /* STANDINGS TABLE */
-        .table-wrap { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
-        .std-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        .std-table th { background: var(--bg-color); padding: 12px 10px; text-align: left; color: var(--text-muted); font-size: 0.6rem; text-transform: uppercase; }
-        .std-table td { padding: 12px 10px; border-bottom: 1px solid var(--border-color); font-weight: 700; }
-        .pts-col { color: var(--primary-blue); text-align: right; }
+        .score-center { flex: 1; text-align: center; }
+        .status-badge { 
+            color: #fff; padding: 4px 12px; border-radius: 4px; 
+            font-size: 0.65rem; font-weight: 900; display: inline-block; margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+        .badge-done { background: var(--done-badge); }
+        .badge-live { background: var(--live-badge); animation: pulse 1.5s infinite; }
+        .score-val { font-size: 1.6rem; font-weight: 500; letter-spacing: 6px; color: var(--text-main); }
+        .score-divider { height: 1px; background: #cbd5e1; margin: 10px auto; width: 70%; }
+
+        .m-footer { background: #fdfdfd; border-top: 1px solid var(--border-color); padding: 10px; font-size: 0.7rem; text-align: center; }
+        .dark-mode .m-footer { background: #1e293b; }
+        .bonus-pts { background: var(--primary-blue); color: #fff; padding: 1px 4px; border-radius: 2px; font-weight: 800; margin-left: 2px; }
+
+        .expand-btn { background: var(--expand-mint); border: none; width: 100%; padding: 12px; font-size: 0.7rem; font-weight: 700; color: #004d2c; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
         /* BOTTOM NAV */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; }
         .nav-item { color: var(--text-muted); text-decoration: none; font-size: 0.65rem; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .nav-item.active { color: var(--primary-blue); font-weight: 800; }
-
-        @keyframes blink { 50% { opacity: 0.4; } }
-        #loader { text-align: center; padding: 50px; color: var(--text-muted); font-weight: 800; }
     </style>
 </head>
 <body>
 
     <div class="top-brand-bar">
-        <button class="nav-btn" onclick="forceRefresh()"><i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i></button>
-        <div class="live-logo" onclick="window.location.href='index.html'">Kopala<span>▲</span>FPL</div>
-        <button class="nav-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
+        <button class="nav-btn" onclick="fetchMatches()"><i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i></button>
+        <div class="live-logo">KOPALA<span>▲</span>FPL</div>
+        <button class="nav-btn" onclick="document.body.classList.toggle('dark-mode')"><i class="fa-solid fa-moon"></i></button>
     </div>
 
     <div class="sub-nav">
         <div class="toggle-box">
             <button class="toggle-btn active" id="tab-matches" onclick="switchTab('matches')">Matches</button>
             <button class="toggle-btn" id="tab-table" onclick="switchTab('table')">Standings</button>
-         
         </div>
     </div>
 
     <div class="content" id="main-view">
-        <div id="loader"><i class="fas fa-spinner fa-spin"></i> Fetching Games...</div>
+        <div id="gw-title" class="gw-header">Loading Games...</div>
+        <div id="games-list"></div>
     </div>
 
     <nav class="bottom-nav">
@@ -105,179 +113,82 @@
         <a href="games.html" class="nav-item active"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></a>
         <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
         <a href="prices.html" class="nav-item"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></a>
-    
     </nav>
 
     <script>
-        const MATCHES_URL = '/api/competitions/PL/matches';
-        const TABLE_URL = '/api/competitions/PL/standings';
-        
-        const CACHE_TIMES = {
-            matches: 60 * 1000, 
-            table: 3600 * 1000 
-        };
+        // API Configuration (Proxy required for CORS)
+        const API_URL = "https://api.football-data.org/v4/competitions/PL/matches";
+        const API_KEY = "YOUR_API_KEY"; // Replace with your key from football-data.org
 
-        let currentView = 'matches';
-
-        async function fetchWithCache(key, url, ttl) {
-            const cached = localStorage.getItem(key);
-            const now = Date.now();
-
-            if (cached) {
-                const { data, timestamp } = JSON.parse(cached);
-                if (now - timestamp < ttl) return data;
-            }
-
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('API Error');
-            const data = await response.json();
-            
-            localStorage.setItem(key, JSON.stringify({ data, timestamp: now }));
-            return data;
-        }
-
-        async function switchTab(tab) {
-            currentView = tab;
-            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            
-            const container = document.getElementById('main-view');
-            container.innerHTML = '<div id="loader"><i class="fas fa-spinner fa-spin"></i> Syncing...</div>';
-
-            try {
-                if (tab === 'matches') {
-                    const data = await fetchWithCache('pl-matches', MATCHES_URL, CACHE_TIMES.matches);
-                    renderMatches(data.matches);
-                } else if (tab === 'table') {
-                    const data = await fetchWithCache('pl-table', TABLE_URL, CACHE_TIMES.table);
-                    renderTable(data.standings[0].table);
-                } else {
-                    renderFeed();
-                }
-            } catch (err) {
-                container.innerHTML = '<p style="text-align:center; padding:40px;">API limit reached or connection lost.</p>';
-            }
-        }
-
-        function renderMatches(matches) {
-            const container = document.getElementById('main-view');
-            
-            // Filter categories
-            const live = matches.filter(m => ['IN_PLAY', 'PAUSED'].includes(m.status));
-            
-            // Show all finished games from the MOST RECENT matchday
-            const maxMatchdayFinished = Math.max(...matches.filter(m => m.status === 'FINISHED').map(m => m.matchday));
-            const recentResults = matches.filter(m => m.matchday === maxMatchdayFinished && m.status === 'FINISHED').reverse();
-
-            // Show all scheduled games from the NEXT matchday
-            const minMatchdayUpcoming = Math.min(...matches.filter(m => ['SCHEDULED', 'TIMED'].includes(m.status)).map(m => m.matchday));
-            const upcomingFixtures = matches.filter(m => m.matchday === minMatchdayUpcoming && ['SCHEDULED', 'TIMED'].includes(m.status));
-
-            let html = '';
-            
-            if (live.length > 0) {
-                html += '<div class="section-title">Live Scores</div>';
-                html += live.map(m => matchCard(m)).join('');
-            }
-
-            if (recentResults.length > 0) {
-                html += `<div class="section-title">Results: Matchday ${maxMatchdayFinished}</div>`;
-                html += recentResults.map(m => matchCard(m)).join('');
-            }
-
-            if (upcomingFixtures.length > 0) {
-                html += `<div class="section-title">Fixtures: Matchday ${minMatchdayUpcoming}</div>`;
-                html += upcomingFixtures.map(m => matchCard(m)).join('');
-            }
-
-            container.innerHTML = html;
-        }
-
-        function matchCard(m) {
-            const isLive = ['IN_PLAY', 'PAUSED'].includes(m.status);
-            const homeScore = m.score.fullTime.home;
-            const awayScore = m.score.fullTime.away;
-            
-            // Date formatting
-            const dateObj = new Date(m.utcDate);
-            const dateStr = dateObj.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
-            const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            return `
-                <div class="m-card">
-                    <div class="m-meta">
-                        <span class="${isLive ? 'status-live' : ''}">${isLive ? '● LIVE' : m.status}</span>
-                        <span>${dateStr} • ${timeStr}</span>
-                    </div>
-                    <div class="score-row">
-                        <div class="team-name">${m.homeTeam.shortName || m.homeTeam.name}</div>
-                        <div class="score-val">
-                            ${homeScore ?? ''} 
-                            <span class="vs-val">${homeScore !== null ? ':' : 'vs'}</span> 
-                            ${awayScore ?? ''}
-                        </div>
-                        <div class="team-name">${m.awayTeam.shortName || m.awayTeam.name}</div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderTable(table) {
-            const container = document.getElementById('main-view');
-            container.innerHTML = `
-                <div class="section-title">League Table</div>
-                <div class="table-wrap">
-                    <table class="std-table">
-                        <thead>
-                            <tr><th>#</th><th>Team</th><th>PL</th><th>GD</th><th style="text-align:right">PTS</th></tr>
-                        </thead>
-                        <tbody>
-                            ${table.map(t => `
-                                <tr>
-                                    <td>${t.position}</td>
-                                    <td>${t.team.shortName || t.team.name}</td>
-                                    <td>${t.playedGames}</td>
-                                    <td>${t.goalDifference}</td>
-                                    <td class="pts-col">${t.points}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        }
-
-        function renderFeed() {
-            document.getElementById('main-view').innerHTML = `
-                <div class="section-title">System Info</div>
-                <div class="m-card" style="border-left: 4px solid var(--fpl-green)">
-                    <div style="font-size:0.8rem; font-weight:800;">Matchday Syncing</div>
-                    <div style="font-size:0.7rem; color:var(--text-muted); margin-top:5px;">Currently showing full matchday schedules for active and upcoming rounds.</div>
-                </div>
-            `;
-        }
-
-        function forceRefresh() {
+        async function fetchMatches() {
             const icon = document.getElementById('refresh-icon');
             icon.classList.add('fa-spin');
-            localStorage.removeItem('pl-matches');
-            localStorage.removeItem('pl-table');
-            switchTab(currentView);
-            setTimeout(() => icon.classList.remove('fa-spin'), 1000);
+            
+            try {
+                // In a real environment, use your Netlify function as a proxy to hide the API key
+                const response = await fetch('/.netlify/functions/fpl-proxy?endpoint=matches');
+                const data = await response.json();
+                
+                const matches = data.matches;
+                const currentGW = matches[0].matchday;
+                document.getElementById('gw-title').innerText = `Gameweek ${currentGW} Games`;
+                
+                renderMatches(matches);
+            } catch (error) {
+                console.error("Fetch error:", error);
+                document.getElementById('games-list').innerHTML = "<p>Unable to load live data. Please check API proxy.</p>";
+            } finally {
+                icon.classList.remove('fa-spin');
+            }
         }
 
-        function toggleTheme() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        function renderMatches(matchData) {
+            const list = document.getElementById('games-list');
+            list.innerHTML = matchData.map(m => {
+                const isLive = m.status === 'IN_PLAY' || m.status === 'PAUSED';
+                const statusLabel = m.status === 'FINISHED' ? 'Done' : (isLive ? 'Live' : 'Scheduled');
+                const badgeClass = m.status === 'FINISHED' ? 'badge-done' : (isLive ? 'badge-live' : 'badge-done');
+                
+                return `
+                    <div class="m-card">
+                        <div class="m-main">
+                            <div class="team-box">
+                                <img src="https://crests.football-data.org/${m.homeTeam.id}.png" class="kit-img">
+                                <span class="team-name">${m.homeTeam.shortName}</span>
+                                <span class="eo-text">Total Top10k EO:<br>--</span>
+                            </div>
+
+                            <div class="score-center">
+                                <div class="status-badge ${badgeClass}">${statusLabel}</div>
+                                <div class="score-val">${m.score.fullTime.home ?? 0} : ${m.score.fullTime.away ?? 0}</div>
+                                <div class="score-divider"></div>
+                            </div>
+
+                            <div class="team-box">
+                                <img src="https://crests.football-data.org/${m.awayTeam.id}.png" class="kit-img">
+                                <span class="team-name">${m.awayTeam.shortName}</span>
+                                <span class="eo-text">Total Top10k EO:<br>--</span>
+                            </div>
+                        </div>
+                        
+                        <div class="m-footer">
+                            <span class="bonus-label">Bonus (Official) /</span>
+                            <span style="font-size:0.65rem; color:var(--text-muted)"> Data syncing...</span>
+                        </div>
+
+                        <button class="expand-btn">Click here to expand top10k ownership and live points</button>
+                    </div>
+                `;
+            }).join('');
         }
 
-        if(localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('theme-icon').className = 'fa-solid fa-moon';
+        function switchTab(tab) {
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            // Table logic would go here
         }
 
-        switchTab('matches');
+        fetchMatches();
     </script>
 </body>
 </html>
