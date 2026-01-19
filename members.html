@@ -32,7 +32,7 @@
             scroll-behavior: smooth;
         }
 
-        /* HEADER DESIGN */
+        /* HEADER */
         .top-nav {
             background: #fff; padding: 8px 12px;
             display: flex; justify-content: space-between; align-items: center;
@@ -43,11 +43,10 @@
             padding: 4px 10px; border-radius: 20px;
             font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; gap: 4px;
         }
-        .no-ads-pill i { color: var(--gold); }
         .logo { font-size: 1.2rem; font-weight: 900; letter-spacing: -1px; }
         .logo span { color: var(--fpl-green); }
 
-        /* MEMBERS CONTROLS */
+        /* CONTROLS */
         .controls-wrapper {
             background: #fff; padding: 10px;
             border-bottom: 1px solid var(--border-color);
@@ -74,21 +73,18 @@
             width: 100%; padding: 10px; border-radius: 8px; border: 2px solid var(--live-fpl-blue); outline: none; box-sizing: border-box; font-size: 0.8rem;
         }
 
-        /* MOBILE OPTIMIZED TABLE */
+        /* TABLE */
         .table-header {
             background: #0b141b; color: #94a3b8; padding: 8px 5px;
-            display: grid; 
-            grid-template-columns: 25px 1fr 45px 50px 30px 45px;
+            display: grid; grid-template-columns: 25px 1fr 45px 50px 30px 45px;
             font-size: 0.55rem; font-weight: 800; text-transform: uppercase;
             align-items: center;
         }
 
         .manager-row { background: #fff; border-bottom: 1px solid #eee; width: 100%; }
         .row-summary {
-            display: grid; 
-            grid-template-columns: 25px 1fr 45px 50px 30px 45px;
+            display: grid; grid-template-columns: 25px 1fr 45px 50px 30px 45px;
             padding: 10px 5px; align-items: center; cursor: pointer;
-            width: 100%; box-sizing: border-box;
         }
         
         .pos-cell { font-weight: 900; color: #6c757d; font-size: 0.75rem; }
@@ -106,15 +102,28 @@
         .gw-pts-cell { font-weight: 700; font-size: 0.75rem; text-align: center; }
         .total-pts-cell { font-weight: 900; font-size: 0.8rem; text-align: right; }
 
-        /* JUMP TO TOP BUTTON */
+        /* SQUAD EXPANSION */
+        .row-expansion {
+            max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; background: #f8f9fa;
+        }
+        .manager-row.active .row-expansion { max-height: 1200px; padding: 10px 5px; border-top: 1px solid #eee; }
+
+        .expansion-meta { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
+        .chip { background: #fff; border: 1px solid #dee2e6; padding: 2px 6px; border-radius: 10px; font-size: 0.55rem; font-weight: 700; }
+
+        .squad-scroller { display: flex; overflow-x: auto; gap: 5px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+        .player-card { min-width: 70px; text-align: center; background: #fff; border: 1px solid #eee; border-radius: 4px; overflow: hidden; }
+        .player-shirt { height: 32px; margin: 4px 0; }
+        .player-label { background: #1a1a1b; color: #fff; font-size: 0.55rem; padding: 3px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-ownership { background: var(--fpl-green); font-size: 0.55rem; font-weight: 700; }
+        .player-points { font-size: 0.8rem; font-weight: 900; padding: 4px 0; }
+
         #scrollTopBtn {
             display: none; position: fixed; bottom: 80px; right: 20px; z-index: 99;
-            border: none; outline: none; background-color: var(--live-fpl-blue);
-            color: white; cursor: pointer; width: 40px; height: 40px;
-            border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.2); font-size: 1.2rem;
+            border: none; background-color: var(--live-fpl-blue); color: white; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
-        /* BOTTOM NAV */
+        /* NAVIGATION */
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; height: 60px;
             background: #fff; border-top: 1px solid #eee;
@@ -128,7 +137,7 @@
 </head>
 <body>
 
-    <button onclick="topFunction()" id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-chevron-up"></i></button>
+    <button onclick="topFunction()" id="scrollTopBtn"><i class="fa-solid fa-chevron-up"></i></button>
 
     <header class="top-nav">
         <div class="no-ads-pill"><i class="fa-solid fa-crown"></i> No Ads</div>
@@ -144,12 +153,10 @@
             <h2>Kopala EPL Members</h2>
             <p>Season 25/26</p>
         </div>
-
         <div class="stats-bar">
             <span class="stat-badge">Total: <span id="count-total">0</span></span>
             <span class="stat-badge">Paid: <span id="count-paid">0</span></span>
         </div>
-        
         <div class="select-row">
             <select id="sort-criteria" onchange="applySort()">
                 <option value="total">Total Points</option>
@@ -157,37 +164,29 @@
             </select>
             <button class="sort-btn" onclick="applySort()">Sort ▼</button>
         </div>
-
         <div class="icon-grid">
             <div class="icon-box" onclick="toggleSearch()"><i class="fa-solid fa-magnifying-glass"></i></div>
             <div class="icon-box" onclick="togglePaidOnly()" id="filter-paid-btn"><i class="fa-solid fa-filter"></i></div>
             <div class="icon-box" onclick="location.reload()"><i class="fa-solid fa-rotate"></i></div>
         </div>
-
         <div id="search-area">
-            <input type="text" id="search-input" placeholder="Search name or team..." onkeyup="runFilter()">
+            <input type="text" id="search-input" placeholder="Search..." onkeyup="runFilter()">
         </div>
     </div>
 
     <div class="table-header">
-        <span>#</span>
-        <span>Manager</span>
-        <span>Status</span>
-        <span>(C)</span>
-        <span>GW</span>
-        <span style="text-align:right">Tot</span>
+        <span>#</span><span>Manager</span><span>Status</span><span>(C)</span><span>GW</span><span style="text-align:right">Tot</span>
     </div>
 
     <div id="manager-list-container"></div>
 
     <nav class="bottom-nav">
-        <a href="#" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
-        <a href="#" class="nav-item active"><i class="fa fa-user-secret"></i><span>Members</span></a>
-        <a href="https://wa.me/260964836842" class="nav-item" target="_blank">
-            <i class="fa-brands fa-whatsapp"></i>
-            <span>Support</span>
-        </a>
+        <a href="index.html" class="nav-item"><i class="fa fa-line-chart"></i><span>Rank</span></a>
+        <a href="leagues.html" class="nav-item"><i class="fa fa-trophy"></i><span>Leagues</span></a>
+        <a href="prices.html" class="nav-item"><i class="fa fa-money"></i><span>Prices</span></a>
+        <a href="games.html" class="nav-item"><i class="fa fa-futbol-o"></i><span>Games</span></a>
+        <a href="members.html" class="nav-item active"><i class="fa-solid fa-users-viewfinder"></i><span>Members</span></a>
+        <a href="https://wa.me/260964836842" class="nav-item" target="_blank"><i class="fa-brands fa-whatsapp"></i><span>Support</span></a>
     </nav>
 
     <script>
@@ -198,29 +197,15 @@
             elements: [],
             PROXY: "/.netlify/functions/fpl-proxy?endpoint=",
             showingPaidOnly: false,
-            // List of paid entries for verification
-            paidNames: [
-                "Benson Mwelwa", "Cosmas Mwenya", "Dee Dinga", "Gerard Kabaso", 
-                "Kambikambi Kangwa", "Kennedy Chibuye", "Lombe Simakando", 
-                "Maurice Mwale", "Mwamba Mubanga", "Nelson Mumbi", 
-                "Philip Mapulanga", "Sheila Chomba", "Armari25", 
-                "cosmas randie mwenya", "The Hollows", "Gerhard kabaso"
-            ]
+            paidNames: ["Benson Mwelwa", "Cosmas Mwenya", "Dee Dinga", "Gerard Kabaso", "Kambikambi Kangwa", "Kennedy Chibuye", "Lombe Simakando", "Maurice Mwale", "Mwamba Mubanga", "Nelson Mumbi", "Philip Mapulanga", "Sheila Chomba", "Armari25", "cosmas randie mwenya", "The Hollows", "Gerhard kabaso"]
         };
 
-        // Scroll to top logic
-        window.onscroll = function() { scrollFunction() };
-        function scrollFunction() {
+        // Scroll Logic
+        window.onscroll = function() {
             const btn = document.getElementById("scrollTopBtn");
-            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-                btn.style.display = "block";
-            } else {
-                btn.style.display = "none";
-            }
-        }
-        function topFunction() {
-            window.scrollTo({top: 0, behavior: 'smooth'});
-        }
+            btn.style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "block" : "none";
+        };
+        function topFunction() { window.scrollTo({top: 0, behavior: 'smooth'}); }
 
         async function init() {
             try {
@@ -228,117 +213,96 @@
                 const staticData = await staticRes.json();
                 state.elements = staticData.elements;
                 state.currentGW = staticData.events.find(e => e.is_current).id;
-                
                 staticData.elements.forEach(p => {
-                    state.playerMap[p.id] = { name: p.web_name, team: p.team_code };
+                    state.playerMap[p.id] = { name: p.web_name, team: p.team_code, own: p.selected_by_percent };
                 });
-
                 loadStandings(state.leagueId);
-            } catch (err) { 
-                console.error("Initialization failed", err);
-                document.getElementById('manager-list-container').innerHTML = '<p style="text-align:center; padding:20px;">Error loading data. Please refresh.</p>';
-            }
+            } catch (err) { console.error("Load Error", err); }
         }
 
         async function loadStandings(id) {
             const container = document.getElementById('manager-list-container');
-            container.innerHTML = '<p style="text-align:center; padding:30px; font-weight:700;">Syncing EPL Data...</p>';
-            
             const res = await fetch(`${state.PROXY}leagues-classic/${id}/standings/`);
             const data = await res.json();
-            
             let paidCount = 0;
 
             container.innerHTML = data.standings.results.map((r, i) => {
-                const isSub = state.paidNames.some(name => {
-                    const n = name.toLowerCase().trim();
-                    return r.player_name.toLowerCase().includes(n) || r.entry_name.toLowerCase().includes(n);
-                });
-                
+                const isSub = state.paidNames.some(name => r.player_name.toLowerCase().includes(name.toLowerCase()) || r.entry_name.toLowerCase().includes(name.toLowerCase()));
                 if (isSub) paidCount++;
-
                 return `
-                    <div class="manager-row">
-                        <div class="row-summary">
+                    <div class="manager-row" id="row-${r.entry}">
+                        <div class="row-summary" onclick="expandManager(${r.entry})">
                             <span class="pos-cell">${i+1}</span>
                             <div class="name-cell">
-                                <b>${r.entry_name} ${isSub ? '<i class="fa-solid fa-circle-check" style="color:var(--fpl-pink); font-size:0.75rem; margin-left:3px;"></i>' : ''}</b>
+                                <b>${r.entry_name} ${isSub ? '<i class="fa-solid fa-circle-check" style="color:var(--fpl-pink); font-size:0.7rem;"></i>' : ''}</b>
                                 <small>${r.player_name}</small>
                             </div>
-
-                            <div>
-                                <span class="status-badge ${isSub ? 'status-paid' : 'status-pending'}">
-                                    ${isSub ? 'PAID' : 'PEND'}
-                                </span>
-                            </div>
-
-                            <div class="capt-cell" id="cap-${r.entry}">
-                                <span class="capt-name">---</span>
-                            </div>
-                            
+                            <div><span class="status-badge ${isSub ? 'status-paid' : 'status-pending'}">${isSub ? 'PAID' : 'PEND'}</span></div>
+                            <div class="capt-cell" id="cap-${r.entry}"><span class="capt-name">---</span></div>
                             <span class="gw-pts-cell">${r.event_total}</span>
                             <span class="total-pts-cell">${r.total.toLocaleString()}</span>
                         </div>
-                    </div>
-                `;
+                        <div class="row-expansion" id="exp-${r.entry}">
+                            <div class="expansion-meta" id="meta-${r.entry}"><span class="chip">Fetching Team...</span></div>
+                            <div class="squad-scroller" id="squad-${r.entry}"></div>
+                        </div>
+                    </div>`;
             }).join('');
-
             document.getElementById('count-total').innerText = data.standings.results.length;
             document.getElementById('count-paid').innerText = paidCount;
-            
-            // Fetch captains for all visible entries
-            data.standings.results.forEach(r => fetchCaptain(r.entry));
         }
 
-        async function fetchCaptain(entryId) {
-            try {
+        async function expandManager(entryId) {
+            const row = document.getElementById(`row-${entryId}`);
+            const squadBox = document.getElementById(`squad-${entryId}`);
+            const metaBox = document.getElementById(`meta-${entryId}`);
+            row.classList.toggle('active');
+
+            if (row.classList.contains('active') && squadBox.innerHTML === "") {
                 const res = await fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`);
                 const data = await res.json();
-                const captPick = data.picks.find(p => p.is_captain);
-                const p = state.playerMap[captPick.element];
-                document.getElementById(`cap-${entryId}`).innerHTML = `<span class="capt-name">${p.name}</span>`;
-            } catch (e) {}
+                
+                squadBox.innerHTML = data.picks.map(pick => {
+                    const p = state.playerMap[pick.element];
+                    const live = state.elements.find(el => el.id === pick.element);
+                    const pts = (live ? live.event_points : 0) * pick.multiplier;
+                    if (pick.is_captain) document.getElementById(`cap-${entryId}`).innerHTML = `<span class="capt-name">${p.name}</span>`;
+                    return `
+                        <div class="player-card">
+                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/s_${p.team}-66.png" class="player-shirt">
+                            <div class="player-label">${p.name}</div>
+                            <div class="player-ownership">${p.own}%</div>
+                            <div class="player-points">${pts}</div>
+                        </div>`;
+                }).join('');
+
+                metaBox.innerHTML = `
+                    <span class="chip">TV: £${(data.entry_history.value/10).toFixed(1)}</span>
+                    <span class="chip">Bank: £${(data.entry_history.bank/10).toFixed(1)}</span>
+                    <span class="chip">Chip: ${data.active_chip || 'None'}</span>
+                `;
+            }
         }
 
-        function toggleSearch() {
-            const el = document.getElementById('search-area');
-            el.style.display = (el.style.display === 'block') ? 'none' : 'block';
-            if(el.style.display === 'block') document.getElementById('search-input').focus();
-        }
-
-        function togglePaidOnly() {
-            state.showingPaidOnly = !state.showingPaidOnly;
-            document.getElementById('filter-paid-btn').classList.toggle('active-filter', state.showingPaidOnly);
-            runFilter();
-        }
-
+        function toggleSearch() { const s = document.getElementById('search-area'); s.style.display = (s.style.display === 'block') ? 'none' : 'block'; }
+        function togglePaidOnly() { state.showingPaidOnly = !state.showingPaidOnly; document.getElementById('filter-paid-btn').classList.toggle('active-filter'); runFilter(); }
+        
         function runFilter() {
-            const val = document.getElementById('search-input').value.toLowerCase().trim();
-            const rows = document.querySelectorAll('.manager-row');
-
-            rows.forEach(row => {
-                const nameText = row.innerText.toLowerCase();
-                const isPaid = row.querySelector('.status-badge').innerText.includes('PAID');
-                const matchesSearch = nameText.includes(val);
-                const matchesPaidFilter = !state.showingPaidOnly || isPaid;
-
-                row.style.display = (matchesSearch && matchesPaidFilter) ? 'block' : 'none';
+            const val = document.getElementById('search-input').value.toLowerCase();
+            document.querySelectorAll('.manager-row').forEach(row => {
+                const isPaid = row.querySelector('.status-badge').innerText === 'PAID';
+                row.style.display = (row.innerText.toLowerCase().includes(val) && (!state.showingPaidOnly || isPaid)) ? 'block' : 'none';
             });
         }
 
         function applySort() {
             const list = document.getElementById('manager-list-container');
-            const cards = Array.from(list.querySelectorAll('.manager-row'));
-            const criteria = document.getElementById('sort-criteria').value;
-
-            cards.sort((a, b) => {
-                const valA = parseInt(a.querySelector(criteria === 'total' ? '.total-pts-cell' : '.gw-pts-cell').innerText.replace(/,/g, ''));
-                const valB = parseInt(b.querySelector(criteria === 'total' ? '.total-pts-cell' : '.gw-pts-cell').innerText.replace(/,/g, ''));
+            const crit = document.getElementById('sort-criteria').value;
+            Array.from(list.children).sort((a, b) => {
+                const valA = parseInt(a.querySelector(crit === 'total' ? '.total-pts-cell' : '.gw-pts-cell').innerText.replace(/,/g, ''));
+                const valB = parseInt(b.querySelector(crit === 'total' ? '.total-pts-cell' : '.gw-pts-cell').innerText.replace(/,/g, ''));
                 return valB - valA;
-            });
-
-            cards.forEach(c => list.appendChild(c));
-            document.querySelectorAll('.pos-cell').forEach((p, idx) => p.innerText = idx + 1);
+            }).forEach(c => list.appendChild(c));
         }
 
         init();
