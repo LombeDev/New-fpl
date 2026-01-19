@@ -16,7 +16,7 @@
             --fpl-pink: #e90052;
             --border-color: #e2e8f0;
             --done-badge: #1e3a8a;
-            --live-badge: #e90052;
+            --live-badge: #334155; 
             --expand-mint: #a7ffd6;
         }
 
@@ -27,7 +27,6 @@
 
         body { margin: 0; padding: 0; background: var(--bg-color); color: var(--text-main); font-family: -apple-system, system-ui, sans-serif; transition: background 0.3s; }
 
-        /* TOP BRANDING */
         .top-brand-bar {
             padding: 10px 15px; display: flex; justify-content: space-between; align-items: center;
             background: var(--bg-color); position: sticky; top: 0; z-index: 110;
@@ -43,7 +42,7 @@
         .content { padding: 0 12px 100px; }
         .gw-header { border-left: 4px solid var(--fpl-green); padding-left: 10px; margin: 15px 4px; font-size: 1.1rem; font-weight: 600; }
 
-        /* MATCH CARD UI */
+        /* MATCH CARD */
         .m-card { 
             background: var(--card-bg); border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.08);
             margin-bottom: 20px; overflow: hidden; border: 1px solid var(--border-color);
@@ -56,29 +55,25 @@
         .score-center { flex: 1; text-align: center; }
         .status-badge { color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 0.65rem; font-weight: 900; display: inline-block; margin-bottom: 12px; text-transform: uppercase; }
         .badge-done { background: var(--done-badge); }
-        .badge-live { background: var(--live-badge); animation: blink 1.5s infinite; }
+        .badge-live { background: var(--live-badge); }
         
         .score-val { font-size: 1.6rem; font-weight: 500; letter-spacing: 6px; color: var(--text-main); }
         .score-divider { height: 1px; background: #cbd5e1; margin: 10px auto; width: 70%; }
-        .events-list { font-size: 0.65rem; line-height: 1.4; font-weight: 600; }
-        .assist-icon { background: var(--fpl-pink); color: #fff; font-size: 0.5rem; padding: 1px 3px; border-radius: 2px; margin-left: 3px; }
 
         .m-footer { background: #fdfdfd; border-top: 1px solid var(--border-color); padding: 10px; font-size: 0.7rem; text-align: center; }
         .dark-mode .m-footer { background: #1e293b; }
         .bonus-player { margin: 0 5px; font-weight: 600; }
         .pts-pill { background: var(--primary-blue); color: #fff; padding: 1px 4px; border-radius: 3px; font-weight: 800; margin-left: 2px; }
 
-        /* DRAWER LOGIC */
+        /* DRAWER */
         .expand-btn { background: var(--expand-mint); border: none; width: 100%; padding: 12px; font-size: 0.7rem; font-weight: 700; color: #004d2c; cursor: pointer; border-top: 1px solid var(--border-color); }
         .drawer { display: none; padding: 12px; background: var(--bg-color); border-top: 1px solid var(--border-color); }
         .drawer.active { display: block; }
-        .drawer-header { display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: 900; color: var(--text-muted); margin-bottom: 8px; }
+        .drawer-header { display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: 900; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
         .own-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.75rem; align-items: center; }
         .live-pts-badge { background: var(--fpl-green); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; }
 
-        @keyframes blink { 50% { opacity: 0.5; } }
-
-        /* NAVIGATION */
+        /* BOTTOM NAV */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; }
         .nav-item { color: var(--text-muted); text-decoration: none; font-size: 0.65rem; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .nav-item.active { color: var(--primary-blue); font-weight: 800; }
@@ -106,25 +101,23 @@
 
     <script>
         let players = [];
-        const teamShorts = { 1:"ARS", 2:"AVL", 3:"BOU", 4:"BRE", 5:"BHA", 6:"CHE", 7:"CRY", 8:"EVE", 9:"FUL", 10:"IPS", 11:"LEI", 12:"LIV", 13:"MCI", 14:"MUN", 15:"NEW", 16:"NFO", 17:"SOU", 18:"TOT", 19:"WHU", 20:"WOL" };
+        let teams = [];
 
         async function init() {
             const icon = document.getElementById('refresh-icon');
             icon.classList.add('fa-spin');
             
             try {
-                // 1. Fetch Bootstrap for player info
-                const boot = await fetch('/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/');
-                const bootData = await boot.json();
+                const bootRes = await fetch('/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/');
+                const bootData = await bootRes.json();
                 players = bootData.elements;
+                teams = bootData.teams;
 
-                // 2. Identify Current GW
                 const currentGW = bootData.events.find(e => e.is_current)?.id || 1;
                 document.getElementById('gw-title').innerText = `Gameweek ${currentGW} Games`;
 
-                // 3. Fetch Fixtures
-                const fix = await fetch(`/.netlify/functions/fpl-proxy?endpoint=fixtures/?event=${currentGW}`);
-                const fixData = await fix.json();
+                const fixRes = await fetch(`/.netlify/functions/fpl-proxy?endpoint=fixtures/?event=${currentGW}`);
+                const fixData = await fixRes.json();
                 
                 renderGames(fixData);
             } catch (err) {
@@ -138,7 +131,7 @@
             document.getElementById(`drawer-${id}`).classList.toggle('active');
         }
 
-        function calculatePoints(pid, fixture) {
+        function calculateLivePoints(pid, fixture) {
             let pts = 0;
             const p = players.find(x => x.id === pid);
             if (!p) return 0;
@@ -146,13 +139,14 @@
             fixture.stats.forEach(s => {
                 const entry = s.h.find(item => item.element === pid) || s.a.find(item => item.element === pid);
                 if (entry) {
-                    if (s.identifier === 'goals_scored') pts += (p.element_type <= 2 ? 6 : p.element_type === 3 ? 5 : 4) * entry.value;
+                    if (s.identifier === 'goals_scored') pts += (p.element_type === 1 ? 6 : p.element_type === 2 ? 6 : p.element_type === 3 ? 5 : 4) * entry.value;
                     if (s.identifier === 'assists') pts += 3 * entry.value;
                     if (s.identifier === 'yellow_cards') pts -= 1 * entry.value;
                     if (s.identifier === 'red_cards') pts -= 3 * entry.value;
+                    if (s.identifier === 'own_goals') pts -= 2 * entry.value;
                 }
             });
-            if (fixture.started) pts += 2;
+            if (fixture.started) pts += 2; 
             return pts;
         }
 
@@ -160,31 +154,25 @@
             const list = document.getElementById('games-list');
             list.innerHTML = fixtures.map(f => {
                 const isLive = f.started && !f.finished;
-                
-                // Bonus & Scorers
-                let bonusMarkup = "";
-                let eventsMarkup = "";
-                
-                const goals = f.stats.find(s => s.identifier === 'goals_scored');
-                const assists = f.stats.find(s => s.identifier === 'assists');
-                
-                if(goals) {
-                    eventsMarkup = [...goals.h, ...goals.a].map(g => {
-                        const name = players.find(p => p.id === g.element)?.web_name;
-                        return `<div>${name} <i class="fa-solid fa-soccer-ball"></i></div>`;
-                    }).join('');
-                }
+                const homeTeam = teams.find(t => t.id === f.team_h);
+                const awayTeam = teams.find(t => t.id === f.team_a);
 
+                // Use team.code for correct jersey mapping
+                const hKit = `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${homeTeam.code}-66.webp`;
+                const aKit = `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${awayTeam.code}-66.webp`;
+
+                let bonusMarkup = "";
                 const bonusStat = f.stats.find(s => s.identifier === (f.finished ? "bonus" : "bps"));
                 if (bonusStat) {
                     const top3 = [...bonusStat.h, ...bonusStat.a].sort((a,b) => b.value - a.value).slice(0,3);
                     bonusMarkup = top3.map((p, i) => {
                         const name = players.find(x => x.id === p.element)?.web_name;
-                        return `<span class="bonus-player">${name} <span class="pts-pill">${f.finished ? p.value : (3-i)}</span></span>`;
+                        const pts = f.finished ? p.value : (3-i);
+                        return `<span class="bonus-player">${name} <span class="pts-pill">${pts}</span></span>`;
                     }).join('');
                 }
 
-                const matchTopOwned = players
+                const matchPlayers = players
                     .filter(p => p.team === f.team_h || p.team === f.team_a)
                     .sort((a,b) => b.selected_by_percent - a.selected_by_percent)
                     .slice(0, 5);
@@ -193,30 +181,29 @@
                     <div class="m-card">
                         <div class="m-main">
                             <div class="team-box">
-                                <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${f.team_h}-66.webp" class="kit-img">
-                                <span class="team-name">${teamShorts[f.team_h]}</span>
+                                <img src="${hKit}" class="kit-img" onerror="this.src='https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_0-66.webp'">
+                                <span class="team-name">${homeTeam.short_name}</span>
                             </div>
                             <div class="score-center">
                                 <div class="status-badge ${isLive ? 'badge-live' : 'badge-done'}">${f.finished ? 'Done' : (isLive ? 'Live' : 'Scheduled')}</div>
                                 <div class="score-val">${f.team_h_score ?? 0} : ${f.team_a_score ?? 0}</div>
                                 <div class="score-divider"></div>
-                                <div class="events-list">${eventsMarkup}</div>
                             </div>
                             <div class="team-box">
-                                <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${f.team_a}-66.webp" class="kit-img">
-                                <span class="team-name">${teamShorts[f.team_a]}</span>
+                                <img src="${aKit}" class="kit-img" onerror="this.src='https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_0-66.webp'">
+                                <span class="team-name">${awayTeam.short_name}</span>
                             </div>
                         </div>
                         <div class="m-footer">
-                            <span style="font-weight:400">${f.finished ? 'Bonus (Official)' : 'Live Bonus'} /</span> ${bonusMarkup || 'No data'}
+                            <span style="font-weight:400">${f.finished ? 'Bonus (Official)' : 'Live Bonus'} /</span> ${bonusMarkup || 'Waiting...'}
                         </div>
                         <button class="expand-btn" onclick="toggleDrawer(${f.id})">Expand Ownership & Points</button>
                         <div class="drawer" id="drawer-${f.id}">
                             <div class="drawer-header"><span>Player (% Own)</span><span>Live Pts</span></div>
-                            ${matchTopOwned.map(p => `
+                            ${matchPlayers.map(p => `
                                 <div class="own-row">
                                     <span>${p.web_name} (${p.selected_by_percent}%)</span>
-                                    <span class="live-pts-badge">${f.started ? calculatePoints(p.id, f) : 0}</span>
+                                    <span class="live-pts-badge">${f.started ? calculateLivePoints(p.id, f) : 0}</span>
                                 </div>
                             `).join('')}
                         </div>
