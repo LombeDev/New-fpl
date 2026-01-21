@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KOPALA FPL - Live Games</title>
+    <title>Games - Kopala FPL</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
@@ -33,9 +33,10 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, system-ui, sans-serif;
+            transition: background 0.3s ease;
         }
 
-        /* --- TOP NAV --- */
+        /* --- TOP NAV (Standardized) --- */
         .top-nav {
             position: fixed; top: 0; width: 100%; height: 60px;
             background: var(--card-bg); border-bottom: 1px solid var(--border-color);
@@ -43,16 +44,14 @@
             padding: 0 15px; box-sizing: border-box; z-index: 3000;
         }
         .logo-container {
-            color: #000; font-weight: 900; font-size: 1.4rem;
-            display: flex; align-items: center; gap: 2px; letter-spacing: -1px;
+            font-weight: 900; font-size: 1.4rem;
+            display: flex; align-items: center; letter-spacing: -1px;
         }
-        .dark-mode .logo-container { color: #fff; }
         .logo-container span { color: var(--fpl-green); }
         
-        .no-ads { 
-            color: #b8860b; background: #fffdf0; font-size: 0.7rem; font-weight: 700; 
-            border: 1px solid #eab308; padding: 4px 10px; border-radius: 6px; 
-            display: flex; align-items: center;
+        .nav-icon-btn {
+            font-size: 1.2rem; color: var(--text-main); cursor: pointer;
+            width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;
         }
 
         /* --- CONTENT AREA --- */
@@ -64,50 +63,41 @@
             padding-left: 10px; padding-right: 10px;
         }
 
-
-.nav-item i {
-    font-size: 1.4rem !important; /* Forces the icon size */
-    display: inline-block !important; /* Ensures it renders as a box */
-    height: 24px;
-    width: 24px;
-    margin-bottom: 2px;
-}
-
-
-        
-
         .gw-header { border-left: 4px solid var(--fpl-green); padding-left: 10px; margin: 15px 0; font-size: 1.1rem; font-weight: 800; }
 
         /* MATCH CARD */
         .m-card { 
             background: var(--card-bg); border-radius: 15px; 
             margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .m-main { display: flex; align-items: center; justify-content: space-between; padding: 15px 10px; }
         .team-box { flex: 1; text-align: center; }
-        .kit-img { width: 45px; height: auto; margin-bottom: 5px; }
-        .team-name { font-weight: 800; font-size: 0.75rem; display: block; }
+        .kit-img { width: 40px; height: auto; margin-bottom: 5px; }
+        .team-name { font-weight: 800; font-size: 0.75rem; display: block; text-transform: uppercase; }
 
         .score-center { flex: 1.2; text-align: center; }
         .status-badge { color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 0.6rem; font-weight: 900; display: inline-block; margin-bottom: 8px; text-transform: uppercase; }
         .badge-done { background: var(--done-badge); }
         .badge-live { background: var(--live-badge); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        .badge-sched { background: var(--text-muted); }
         
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         .score-val { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: var(--text-main); }
 
-        .m-footer { background: var(--bg-color); padding: 10px; font-size: 0.65rem; text-align: center; border-top: 1px solid var(--border-color); }
-        .bonus-player { margin: 0 4px; font-weight: 700; }
-        .pts-pill { background: var(--primary-blue); color: #fff; padding: 1px 5px; border-radius: 3px; font-weight: 800; }
+        .m-footer { background: var(--bg-color); padding: 10px; font-size: 0.65rem; text-align: center; border-top: 1px solid var(--border-color); color: var(--text-muted); }
+        .bonus-player { margin: 0 4px; font-weight: 700; color: var(--text-main); }
+        .pts-pill { background: var(--primary-blue); color: #fff; padding: 1px 5px; border-radius: 3px; font-weight: 800; margin-left: 2px; }
 
         /* DRAWER */
-        .expand-btn { background: var(--expand-mint); border: none; width: 100%; padding: 10px; font-size: 0.65rem; font-weight: 700; color: var(--text-main); cursor: pointer; border-top: 1px solid var(--border-color); }
-        .drawer { display: none; padding: 12px; background: var(--card-bg); }
+        .expand-btn { background: var(--expand-mint); border: none; width: 100%; padding: 12px; font-size: 0.7rem; font-weight: 700; color: var(--text-main); cursor: pointer; border-top: 1px solid var(--border-color); }
+        .drawer { display: none; padding: 5px 15px; background: var(--card-bg); }
         .drawer.active { display: block; }
-        .own-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.75rem; align-items: center; }
+        .own-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); font-size: 0.8rem; align-items: center; }
+        .own-row:last-child { border-bottom: none; }
         .live-pts-badge { background: var(--fpl-green); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; }
 
-        /* --- BOTTOM NAV (8-Item Grid) --- */
+        /* --- BOTTOM NAV (8-Item Standard) --- */
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; height: 80px;
             background: var(--card-bg); border-top: 1px solid var(--border-color);
@@ -118,18 +108,24 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px;
         }
-        .nav-item i { font-size: 1.2rem; }
         .nav-item.active { color: var(--primary-blue); }
+        .nav-item i { font-size: 1.2rem; display: block; }
     </style>
 </head>
-<body>
+<body class="dark-mode">
 
     <header class="top-nav">
-        <div class="no-ads"><i class="fa-solid fa-crown"></i> NO ADS</div>
+        <div class="nav-icon-btn">
+            <i class="fa-solid fa-circle-user"></i>
+        </div>
         <div class="logo-container">Kopala<span>▲</span>FPL</div>
-        <div style="display:flex; gap:15px; align-items: center;">
-            <i class="fa-solid fa-rotate" onclick="init()" id="refresh-icon" style="cursor:pointer; font-size: 1.1rem;"></i>
-            <i class="fa fa-moon-o" id="theme-icon" onclick="toggleTheme()" style="cursor:pointer; font-size:1.1rem;"></i>
+        <div style="display:flex; gap:5px;">
+            <div class="nav-icon-btn" onclick="init()">
+                <i class="fa-solid fa-rotate" id="refresh-icon"></i>
+            </div>
+            <div class="nav-icon-btn" onclick="toggleTheme()">
+                <i class="fa-solid fa-sun" id="theme-icon"></i>
+            </div>
         </div>
     </header>
 
@@ -139,40 +135,15 @@
     </main>
 
     <nav class="bottom-nav">
-    <div class="nav-item" onclick="location.href='index.html'">
-        <i class="fa-solid fa-chart-line"></i>
-        <span>Rank</span>
-    </div>
-
-    <div class="nav-item" onclick="location.href='leagues.html'">
-        <i class="fa-solid fa-trophy"></i>
-        <span>Leagues</span>
-    </div>
-    <div class="nav-item active" onclick="location.href='prices.html'">
-        <i class="fa-solid fa-tags"></i>
-        <span>Prices</span>
-    </div>
-    <div class="nav-item" onclick="location.href='games.html'">
-        <i class="fa-solid fa-futbol"></i>
-        <span>Games</span>
-    </div>
-    <div class="nav-item" onclick="location.href='members.html'">
-        <i class="fa fa-user-secret"></i>
-        <span>Members area</span>
-    </div>
-    <div class="nav-item" onclick="location.href=''">
-        <i class="fa fa-comments"></i>
-        <span>Support</span>
-    </div>
-        <div class="nav-item" onclick="location.href=''">
-        <i class="fa fa-info-circle"></i>
-        <span>About</span>
-    </div>
-    <div class="nav-item">
-        <i class="fa fa-ellipsis-h"></i>
-        <span>More</span>
-    </div>
-</nav>
+        <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
+        <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
+        <a href="prices.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
+        <a href="games.html" class="nav-item active"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
+        <a href="members.html" class="nav-item"><i class="fa-solid fa-user-tie"></i><span>Members</span></a>
+        <a href="https://wa.me/260964836842" class="nav-item"><i class="fa fa-comments"></i><span>Support</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-circle-info"></i><span>About</span></a>
+        <a href="#" class="nav-item"><i class="fa fa-ellipsis-h"></i><span>More</span></a>
+    </nav>
 
     <script>
         let players = [];
@@ -202,7 +173,12 @@
         }
 
         function toggleDrawer(id) {
-            document.getElementById(`drawer-${id}`).classList.toggle('active');
+            const drawer = document.getElementById(`drawer-${id}`);
+            const btn = drawer.previousElementSibling;
+            const isActive = drawer.classList.toggle('active');
+            btn.innerHTML = isActive ? 
+                `Hide Stats <i class="fa-solid fa-chevron-up"></i>` : 
+                `Expand Stats <i class="fa-solid fa-chevron-down"></i>`;
         }
 
         function calculateLivePoints(pid, fixture) {
@@ -236,7 +212,7 @@
                     const top3 = [...bonusStat.h, ...bonusStat.a].sort((a,b) => b.value - a.value).slice(0,3);
                     bonusMarkup = top3.map((p, i) => {
                         const name = players.find(x => x.id === p.element)?.web_name;
-                        return `<span class="bonus-player">${name} <span class="pts-pill">${f.finished ? p.value : (3-i)}</span></span>`;
+                        return `<span class="bonus-player">${name}<span class="pts-pill">${f.finished ? p.value : (3-i)}</span></span>`;
                     }).join('');
                 }
 
@@ -253,7 +229,9 @@
                                 <span class="team-name">${hTeam.short_name}</span>
                             </div>
                             <div class="score-center">
-                                <div class="status-badge ${isLive ? 'badge-live' : 'badge-done'}">${f.finished ? 'Finished' : (isLive ? 'Live' : 'Scheduled')}</div>
+                                <div class="status-badge ${f.finished ? 'badge-done' : (isLive ? 'badge-live' : 'badge-sched')}">
+                                    ${f.finished ? 'Finished' : (isLive ? 'Live' : 'Scheduled')}
+                                </div>
                                 <div class="score-val">${f.team_h_score ?? 0} : ${f.team_a_score ?? 0}</div>
                             </div>
                             <div class="team-box">
@@ -262,13 +240,13 @@
                             </div>
                         </div>
                         <div class="m-footer">
-                            <span style="opacity:0.7">${f.finished ? 'Bonus' : 'BPS'}</span> ${bonusMarkup || '---'}
+                            <span style="opacity:0.7">${f.finished ? 'BONUS' : 'BPS TOP 3'}</span><br>${bonusMarkup || '---'}
                         </div>
                         <button class="expand-btn" onclick="toggleDrawer(${f.id})">Expand Stats <i class="fa-solid fa-chevron-down"></i></button>
                         <div class="drawer" id="drawer-${f.id}">
                             ${matchPlayers.map(p => `
                                 <div class="own-row">
-                                    <span>${p.web_name} <small>(${p.selected_by_percent}%)</small></span>
+                                    <span>${p.web_name} <small style="color:var(--text-muted)">(${p.selected_by_percent}%)</small></span>
                                     <span class="live-pts-badge">${f.started ? calculateLivePoints(p.id, f) : 0}</span>
                                 </div>
                             `).join('')}
