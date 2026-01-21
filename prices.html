@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KOPALA FPL - Price Predictor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
-            --bg-color: #f1f5f9;
+            --bg-color: #f3f4f6;
             --card-bg: #ffffff;
-            --text-main: #0f172a;
+            --text-main: #1e293b;
             --text-muted: #64748b;
             --primary-blue: #2563eb;
             --fpl-green: #00ff85;
             --fpl-pink: #e90052;
-            --border-color: #cbd5e1;
+            --border-color: #e2e8f0;
         }
 
         body.dark-mode {
@@ -30,168 +30,167 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, system-ui, sans-serif;
-            padding-bottom: 80px;
         }
 
-        /* HEADER BRANDING */
-        .top-brand-bar {
-            padding: 8px 12px;
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--card-bg); position: sticky; top: 0; z-index: 110;
-            border-bottom: 1px solid var(--border-color);
+        /* --- TOP NAV --- */
+        .top-nav {
+            position: fixed; top: 0; width: 100%; height: 60px;
+            background: var(--card-bg); border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; box-sizing: border-box; z-index: 3000;
         }
-        .live-logo {
-            background: #000; color: #fff; padding: 4px 12px;
-            border-radius: 50px; font-weight: 900; font-size: 0.9rem;
-            display: flex; align-items: center; gap: 4px;
+        .logo-container {
+            color: #000; font-weight: 900; font-size: 1.4rem;
+            display: flex; align-items: center; gap: 2px; letter-spacing: -1px;
         }
-        .live-logo span { color: var(--fpl-green); }
-        .nav-btn { background:none; border:none; color: var(--text-muted); font-size: 1.1rem; cursor:pointer; }
+        .dark-mode .logo-container { color: #fff; }
+        .logo-container span { color: var(--fpl-green); }
+        
+        .no-ads { 
+            color: #b8860b; background: #fffdf0; font-size: 0.7rem; font-weight: 700; 
+            border: 1px solid #eab308; padding: 4px 10px; border-radius: 6px; 
+            display: flex; align-items: center;
+        }
 
-        /* TIMER INFO */
+        /* --- CONTENT AREA --- */
+        .page-content {
+            padding-top: 70px;
+            padding-bottom: 90px;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* TIMER & CONTROLS */
         .info-banner {
-            background: var(--card-bg); margin: 8px; padding: 10px; border-radius: 8px;
+            background: var(--card-bg); margin: 8px; padding: 10px; border-radius: 12px;
             border: 1px solid var(--border-color); text-align: center; font-size: 0.75rem;
         }
         #timer { color: var(--fpl-pink); font-weight: 800; font-family: monospace; }
 
-        /* SEARCH & FILTERS */
         .controls { padding: 0 8px; display: flex; flex-direction: column; gap: 8px; }
         .search-box {
-            padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);
-            background: var(--card-bg); color: var(--text-main); font-size: 0.8rem; outline: none;
+            padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);
+            background: var(--card-bg); color: var(--text-main); font-size: 0.9rem; outline: none;
         }
-        .pos-filter-row { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0; scrollbar-width: none; }
+        .pos-filter-row { display: flex; gap: 6px; overflow-x: auto; padding: 5px 0; scrollbar-width: none; }
         .pos-chip {
-            padding: 5px 12px; border-radius: 15px; border: 1px solid var(--border-color);
-            background: var(--card-bg); font-size: 0.65rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+            padding: 6px 14px; border-radius: 50px; border: 1px solid var(--border-color);
+            background: var(--card-bg); font-size: 0.7rem; font-weight: 700; cursor: pointer; white-space: nowrap;
         }
         .pos-chip.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
 
-        /* FIXED SIDE-BY-SIDE GRID */
-        .predictions-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; /* Forced side-by-side */
-            gap: 8px; 
-            padding: 8px; 
-        }
+        /* PREDICTIONS GRID */
+        .predictions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; }
+        .pred-card { background: var(--card-bg); border-radius: 15px; border: 1px solid var(--border-color); overflow: hidden; }
+        .card-header { padding: 10px; font-weight: 800; font-size: 0.75rem; border-bottom: 1px solid var(--border-color); text-transform: uppercase; }
+        .section-subhead { background: var(--bg-color); padding: 6px 10px; font-weight: 700; font-size: 0.6rem; color: var(--text-muted); }
 
-        .pred-card {
-            background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color);
-            display: flex; flex-direction: column; overflow: hidden;
-        }
-        .card-header { 
-            padding: 8px 10px; font-weight: 800; font-size: 0.7rem; 
-            border-bottom: 1px solid var(--border-color); text-transform: uppercase;
-        }
-        .section-subhead { 
-            background: #f8fafc; padding: 6px 10px; font-weight: 700; 
-            font-size: 0.6rem; color: var(--text-muted); 
-        }
-        .dark-mode .section-subhead { background: #2d3748; }
-
-        /* COMPACT PLAYER ROWS */
-        .player-row { 
-            display: flex; align-items: center; padding: 6px 8px; 
-            border-bottom: 1px solid var(--border-color); cursor: pointer;
-        }
-        .player-row:active { background: rgba(0,0,0,0.05); }
-        .add-btn { background: none; border: none; color: var(--text-muted); font-size: 0.7rem; padding: 0; margin-right: 4px; }
+        /* PLAYER ROWS */
+        .player-row { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); }
+        .add-btn { background: none; border: none; color: var(--text-muted); font-size: 0.8rem; margin-right: 6px; }
         .add-btn.active { color: #facc15; }
-        
-        .player-meta { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .player-meta { flex: 1; overflow: hidden; }
         .player-name { font-weight: 700; font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        .progress-container { width: 35px; height: 4px; background: #e2e8f0; border-radius: 10px; margin-top: 3px; }
+        .progress-container { width: 40px; height: 4px; background: #e2e8f0; border-radius: 10px; margin-top: 4px; }
         .dark-mode .progress-container { background: #334155; }
-        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.3s ease-in-out; }
-        
-        .player-price { font-weight: 800; font-size: 0.7rem; margin: 0 4px; }
-        .trend-icon { 
-            min-width: 14px; height: 14px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 8px; color: white; 
-        }
+        .progress-fill { height: 100%; border-radius: 10px; }
+        .player-price { font-weight: 800; font-size: 0.75rem; margin: 0 5px; }
+        .trend-icon { min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: white; }
         .trend-up { background: var(--fpl-green); }
         .trend-down { background: var(--fpl-pink); }
 
-        .toggle-link { padding: 8px; text-align: center; font-size: 0.65rem; color: var(--primary-blue); font-weight: 700; border-top: 1px solid var(--border-color); cursor: pointer; }
-        .none-msg { padding: 10px; color: var(--text-muted); font-size: 0.6rem; font-style: italic; }
+        /* --- BOTTOM NAV (8-Item) --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; height: 80px;
+            background: var(--card-bg); border-top: 1px solid var(--border-color);
+            display: grid; grid-template-columns: repeat(8, 1fr);
+            padding: 5px 0; box-sizing: border-box; z-index: 3000;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px;
+        }
+        .nav-item i { font-size: 1.2rem; }
+        .nav-item.active { color: var(--primary-blue); }
 
         /* MODAL */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card-bg); width: 80%; max-width: 280px; border-radius: 15px; padding: 15px; }
-        .history-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color); font-size: 0.75rem; }
-
-        /* BOTTOM NAV */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 8px 0; }
-        .nav-item { color: var(--text-muted); font-size: 0.6rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .nav-item.active { color: var(--primary-blue); font-weight: 700; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card-bg); width: 85%; max-width: 300px; border-radius: 20px; padding: 20px; }
     </style>
 </head>
 <body>
 
-    <div class="top-brand-bar">
-        <button class="nav-btn"><i class="fa-solid fa-user"></i></button>
-        <div class="live-logo">KOPALA<span>▲</span>FPL</div>
-        <button class="nav-btn" onclick="document.body.classList.toggle('dark-mode')"><i class="fa-solid fa-moon"></i></button>
-    </div>
-
-    <div class="info-banner">
-        Price window closes in: <span id="timer">00:00:00</span>
-    </div>
-
-    <div class="controls">
-        <input type="text" id="playerSearch" class="search-box" placeholder="Search player name...">
-        <div class="pos-filter-row">
-            <div class="pos-chip active" data-pos="ALL">All</div>
-            <div class="pos-chip" data-pos="MY_TEAM">My Team</div>
-            <div class="pos-chip" data-pos="GKP">GKP</div>
-            <div class="pos-chip" data-pos="DEF">DEF</div>
-            <div class="pos-chip" data-pos="MID">MID</div>
-            <div class="pos-chip" data-pos="FWD">FWD</div>
+    <header class="top-nav">
+        <div class="no-ads"><i class="fa-solid fa-crown"></i> NO ADS</div>
+        <div class="logo-container">LIVE<span>▲</span>FPL</div>
+        <div style="display:flex; gap:15px; align-items: center;">
+            <i class="fa-solid fa-user-circle" style="cursor:pointer; font-size: 1.2rem;"></i>
+            <i class="fa-solid fa-sun" id="theme-icon" onclick="toggleTheme()" style="cursor:pointer; font-size:1.1rem;"></i>
         </div>
-    </div>
+    </header>
 
-    <div class="predictions-grid">
-        <div class="pred-card">
-            <div class="card-header" style="color:var(--fpl-green)">Rises</div>
-            <div id="rises-tonight"></div>
-            <div class="section-subhead">Maybe (≥95%)</div>
-            <div id="rises-maybe"></div>
-            <div class="toggle-link" onclick="toggleLowOwned()">Show low owned</div>
+    <main class="page-content">
+        <div class="info-banner">
+            Price window closes in: <span id="timer">00:00:00</span>
         </div>
 
-        <div class="pred-card">
-            <div class="card-header" style="color:var(--fpl-pink)">Falls</div>
-            <div id="falls-tonight"></div>
-            <div class="section-subhead">Maybe (≥95%)</div>
-            <div id="falls-maybe"></div>
-            <div class="toggle-link" onclick="toggleLowOwned()">Show low owned</div>
+        <div class="controls">
+            <input type="text" id="playerSearch" class="search-box" placeholder="Search player name...">
+            <div class="pos-filter-row">
+                <div class="pos-chip active" data-pos="ALL">All</div>
+                <div class="pos-chip" data-pos="MY_TEAM">My Team</div>
+                <div class="pos-chip" data-pos="GKP">GKP</div>
+                <div class="pos-chip" data-pos="DEF">DEF</div>
+                <div class="pos-chip" data-pos="MID">MID</div>
+                <div class="pos-chip" data-pos="FWD">FWD</div>
+            </div>
         </div>
-    </div>
+
+        <div class="predictions-grid">
+            <div class="pred-card">
+                <div class="card-header" style="color:#10b981">Rises</div>
+                <div id="rises-tonight"></div>
+                <div class="section-subhead">Maybe (≥95%)</div>
+                <div id="rises-maybe"></div>
+            </div>
+            <div class="pred-card">
+                <div class="card-header" style="color:var(--fpl-pink)">Falls</div>
+                <div id="falls-tonight"></div>
+                <div class="section-subhead">Maybe (≥95%)</div>
+                <div id="falls-maybe"></div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <div class="nav-item" onclick="location.href='index.html'"><i class="fa-solid fa-chart-line"></i><span>Rank</span></div>
+        <div class="nav-item" onclick="location.href='battle.html'"><i class="fa-solid fa-swords"></i><span>Battle</span></div>
+        <div class="nav-item" onclick="location.href='leagues.html'"><i class="fa-solid fa-trophy"></i><span>Leagues</span></div>
+        <div class="nav-item active" onclick="location.href='prices.html'"><i class="fa-solid fa-dollar-sign"></i><span>Prices</span></div>
+        <div class="nav-item" onclick="location.href='games.html'"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></div>
+        <div class="nav-item" onclick="location.href='planner.html'"><i class="fa-solid fa-calendar-days"></i><span>Planner</span></div>
+        <div class="nav-item" onclick="location.href='whatif.html'"><i class="fa-solid fa-lightbulb"></i><span>What If</span></div>
+        <div class="nav-item"><i class="fa-solid fa-ellipsis"></i><span>More</span></div>
+    </nav>
 
     <div id="priceModal" class="modal-overlay" onclick="this.style.display='none'">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="modalPlayerName" style="font-size: 0.9rem; margin:0 0 10px 0;"></h3>
+            <h3 id="modalPlayerName" style="margin:0 0 15px 0; font-size:1rem;"></h3>
             <div id="modalBody"></div>
-            <button onclick="document.getElementById('priceModal').style.display='none'" style="width:100%; margin-top:15px; padding:8px; border:none; background:var(--primary-blue); color:white; border-radius:8px;">Close</button>
+            <button onclick="document.getElementById('priceModal').style.display='none'" style="width:100%; margin-top:15px; padding:12px; border:none; background:var(--primary-blue); color:white; border-radius:10px; font-weight:700;">Close</button>
         </div>
     </div>
-
-    <nav class="bottom-nav">
-        <a href="#" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
-        <a href="#" class="nav-item active"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-ellipsis"></i><span>More</span></a>
-    </nav>
 
     <script>
         const BOOTSTRAP = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
         let allPlayers = [];
         let posFilter = 'ALL';
-        let showLowOwned = false;
         let myTeam = JSON.parse(localStorage.getItem('fpl_my_team')) || [];
+
+        function toggleTheme() { 
+            const isDark = document.body.classList.toggle('dark-mode');
+            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
 
         async function init() {
             try {
@@ -203,12 +202,9 @@
                 allPlayers = data.elements.map(p => {
                     const own = parseFloat(p.selected_by_percent);
                     const net = p.transfers_in_event - p.transfers_out_event;
-                    
                     const riseThresh = ((own * 1300) + 4000) * decay;
                     const fallThresh = (own * 0.12) * 10000 * decay;
-
                     let target = net > 0 ? (net / riseThresh) * 100 : (net / fallThresh) * 100;
-
                     return {
                         id: p.id, name: p.web_name,
                         price: (p.now_cost / 10).toFixed(1),
@@ -218,7 +214,7 @@
                     };
                 });
                 render();
-            } catch (e) { console.error("API Error", e); }
+            } catch (e) { console.error(e); }
         }
 
         function render() {
@@ -226,14 +222,13 @@
             const filtered = allPlayers.filter(p => {
                 const mSearch = p.name.toLowerCase().includes(query);
                 const mPos = posFilter === 'MY_TEAM' ? myTeam.includes(p.id) : (posFilter === 'ALL' || p.pos === posFilter);
-                const mOwn = showLowOwned || p.own > 1.0;
-                return mSearch && mPos && mOwn;
+                return mSearch && mPos;
             });
 
             const draw = (id, list, type) => {
                 const el = document.getElementById(id);
-                if(!list.length) return el.innerHTML = '<div class="none-msg">None</div>';
-                el.innerHTML = list.slice(0, 10).map(p => `
+                if(!list.length) return el.innerHTML = '<div style="padding:10px; font-size:0.6rem; color:var(--text-muted)">None</div>';
+                el.innerHTML = list.slice(0, 12).map(p => `
                     <div class="player-row" onclick="openHistory(${p.id}, '${p.name}')">
                         <button class="add-btn ${myTeam.includes(p.id)?'active':''}" onclick="event.stopPropagation(); toggleTeam(${p.id})">
                             <i class="fa-solid ${myTeam.includes(p.id)?'fa-star':'fa-plus'}"></i>
@@ -241,7 +236,7 @@
                         <div class="player-meta">
                             <div class="player-name">${p.name}</div>
                             <div class="progress-container">
-                                <div class="progress-fill" style="width:${Math.min(Math.abs(p.target),100)}%; background:${type==='rise'?'var(--fpl-green)':'var(--fpl-pink)'}"></div>
+                                <div class="progress-fill" style="width:${Math.min(Math.abs(p.target),100)}%; background:${type==='rise'?'#10b981':'var(--fpl-pink)'}"></div>
                             </div>
                         </div>
                         <div class="player-price">£${p.price}</div>
@@ -265,11 +260,6 @@
             render();
         }
 
-        function toggleLowOwned() {
-            showLowOwned = !showLowOwned;
-            render();
-        }
-
         async function openHistory(id, name) {
             document.getElementById('modalPlayerName').innerText = name;
             document.getElementById('priceModal').style.display = 'flex';
@@ -279,7 +269,9 @@
                 const res = await fetch(`/.netlify/functions/fpl-proxy?endpoint=element-summary/${id}/`);
                 const data = await res.json();
                 body.innerHTML = data.history.slice(-5).reverse().map(h => `
-                    <div class="history-row"><span>GW ${h.round}</span><span>£${(h.value/10).toFixed(1)}</span></div>
+                    <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color); font-size:0.8rem;">
+                        <span>GW ${h.round}</span><span>£${(h.value/10).toFixed(1)}</span>
+                    </div>
                 `).join('');
             } catch (e) { body.innerHTML = 'Error'; }
         }
