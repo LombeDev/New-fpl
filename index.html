@@ -159,7 +159,10 @@
     <div id="login-screen" style="display:none;">
         <div class="promo-card">
             <h3>Used by fpl managers since 2025 ❤️</h3>
-            <a href="" class="promo-link">Get the full experience on the app <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7rem;"></i></a>
+            <a href="#" id="install-pwa-link" class="promo-link">
+    Get the full experience on the app 
+    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7rem;"></i>
+</a>
         </div>
 
         <div class="login-card">
@@ -308,6 +311,46 @@
         } else {
             document.getElementById('login-screen').style.display = 'flex';
         }
+
+
+
+        let deferredPrompt;
+const installLink = document.getElementById('install-pwa-link');
+
+// 1. Listen for the browser's install prompt
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+    // Optional: Show the link only if the app isn't installed
+    installLink.style.display = 'inline-block';
+});
+
+// 2. Handle the click event on your link
+installLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (!deferredPrompt) {
+        // If the prompt isn't available, the app might already be installed 
+        // or the browser doesn't support it.
+        alert("To install: Tap your browser menu and select 'Add to Home Screen'");
+        return;
+    }
+    // Show the install prompt
+    deferredPrompt.prompt();
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response to the install prompt: ${outcome}`);
+    // We've used the prompt, and can't use it again
+    deferredPrompt = null;
+});
+
+// 3. Hide the link if the app is successfully installed
+window.addEventListener('appinstalled', () => {
+    installLink.style.display = 'none';
+    deferredPrompt = null;
+    console.log('PWA was installed');
+});
     </script>
 </body>
 </html>
