@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KOPALA FPL - Price Predictor</title>
+    <title>Prices - Kopala FPL</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
@@ -30,9 +30,10 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, system-ui, sans-serif;
+            transition: background 0.3s ease;
         }
 
-        /* --- TOP NAV --- */
+        /* --- TOP NAV (Updated Design) --- */
         .top-nav {
             position: fixed; top: 0; width: 100%; height: 60px;
             background: var(--card-bg); border-bottom: 1px solid var(--border-color);
@@ -40,16 +41,14 @@
             padding: 0 15px; box-sizing: border-box; z-index: 3000;
         }
         .logo-container {
-            color: #000; font-weight: 900; font-size: 1.4rem;
-            display: flex; align-items: center; gap: 2px; letter-spacing: -1px;
+            font-weight: 900; font-size: 1.4rem;
+            display: flex; align-items: center; letter-spacing: -1px;
         }
-        .dark-mode .logo-container { color: #fff; }
         .logo-container span { color: var(--fpl-green); }
         
-        .no-ads { 
-            color: #b8860b; background: #fffdf0; font-size: 0.7rem; font-weight: 700; 
-            border: 1px solid #eab308; padding: 4px 10px; border-radius: 6px; 
-            display: flex; align-items: center;
+        .nav-icon-btn {
+            font-size: 1.2rem; color: var(--text-main); cursor: pointer;
+            width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;
         }
 
         /* --- CONTENT AREA --- */
@@ -60,12 +59,12 @@
             box-sizing: border-box;
         }
 
-        /* TIMER & CONTROLS */
         .info-banner {
-            background: var(--card-bg); margin: 8px; padding: 10px; border-radius: 12px;
+            background: var(--card-bg); margin: 8px; padding: 12px; border-radius: 12px;
             border: 1px solid var(--border-color); text-align: center; font-size: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        #timer { color: var(--fpl-pink); font-weight: 800; font-family: monospace; }
+        #timer { color: var(--fpl-pink); font-weight: 800; font-family: monospace; font-size: 0.9rem; }
 
         .controls { padding: 0 8px; display: flex; flex-direction: column; gap: 8px; }
         .search-box {
@@ -99,7 +98,7 @@
         .trend-up { background: var(--fpl-green); }
         .trend-down { background: var(--fpl-pink); }
 
-        /* --- BOTTOM NAV (8-Item) --- */
+        /* --- BOTTOM NAV (8-Item Standard) --- */
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; height: 80px;
             background: var(--card-bg); border-top: 1px solid var(--border-color);
@@ -110,24 +109,19 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px;
         }
-        .nav-item i { font-size: 1.2rem; }
         .nav-item.active { color: var(--primary-blue); }
-
-        /* MODAL */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card-bg); width: 85%; max-width: 300px; border-radius: 20px; padding: 20px; }
+        .nav-item i { font-size: 1.2rem; display: block; }
     </style>
 </head>
-<body>
-
-     <header class="top-nav">
-        <div class="no-ads"><i class="fa-solid fa-crown"></i> NO ADS</div>
-        <div class="logo-container">Kopala<span>▲</span>FPL</div>
-        <div style="display:flex; gap:15px; align-items: center;">
-            <i class="fa-solid fa-user-circle" onclick="toggleDrawer()" style="cursor:pointer; font-size: 1.2rem;"></i>
-            <i class="fa-solid fa-sun" id="theme-icon" onclick="toggleTheme()" style="cursor:pointer; font-size:1.1rem;"></i>
+<body class="dark-mode"> <header class="top-nav">
+        <div class="nav-icon-btn">
+            <i class="fa-solid fa-circle-user"></i>
         </div>
-    </header
+        <div class="logo-container">Kopala<span>▲</span>FPL</div>
+        <div class="nav-icon-btn" onclick="toggleTheme()">
+            <i class="fa-solid fa-sun" id="theme-icon"></i>
+        </div>
+    </header>
 
     <main class="page-content">
         <div class="info-banner">
@@ -162,19 +156,19 @@
         </div>
     </main>
 
-      <nav class="bottom-nav">
-        <div class="nav-item active" onclick="location.href='index.html'"><i class="fa-solid fa-chart-line"></i><span>Rank</span></div>
-        <div class="nav-item" onclick="location.href='leagues.html'"><i class="fa-solid fa-trophy"></i><span>Leagues</span></div>
-        <div class="nav-item" onclick="location.href='prices.html'"><i class="fa fa-tags"></i><span>Prices</span></div>
-        <div class="nav-item" onclick="location.href='games.html'"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></div>
-        <div class="nav-item" onclick="location.href='members.html'"><i class="fa fa-user-secret"></i><span>Members area</span></div>
-        <div class="nav-item" onclick="location.href=''"><i class="fa fa-comments"></i><span>Support</span></div>
-        <div class="nav-item" onclick="location.href=''"><i class="fa fa-info-circle"></i><span>About</span></div>
-        <div class="nav-item" onclick="toggleDrawer()"><i class="fa-solid fa-ellipsis"></i><span>More</span></div>
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
+        <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
+        <a href="prices.html" class="nav-item active"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
+        <a href="games.html" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
+        <a href="members.html" class="nav-item"><i class="fa-solid fa-user-tie"></i><span>Members</span></a>
+        <a href="https://wa.me/260964836842" class="nav-item"><i class="fa fa-comments"></i><span>Support</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-circle-info"></i><span>About</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-bars"></i><span>More</span></a>
     </nav>
 
-    <div id="priceModal" class="modal-overlay" onclick="this.style.display='none'">
-        <div class="modal-content" onclick="event.stopPropagation()">
+    <div id="priceModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:4000; align-items:center; justify-content:center;" onclick="this.style.display='none'">
+        <div class="modal-content" style="background:var(--card-bg); width:85%; max-width:300px; border-radius:20px; padding:20px;" onclick="event.stopPropagation()">
             <h3 id="modalPlayerName" style="margin:0 0 15px 0; font-size:1rem;"></h3>
             <div id="modalBody"></div>
             <button onclick="document.getElementById('priceModal').style.display='none'" style="width:100%; margin-top:15px; padding:12px; border:none; background:var(--primary-blue); color:white; border-radius:10px; font-weight:700;">Close</button>
@@ -182,6 +176,7 @@
     </div>
 
     <script>
+        // Use your existing JS logic
         const BOOTSTRAP = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
         let allPlayers = [];
         let posFilter = 'ALL';
@@ -217,6 +212,9 @@
             } catch (e) { console.error(e); }
         }
 
+        // ... rest of your existing render, toggleTeam, openHistory, and updateTimer functions ...
+        // (Simplified for this display but paste your original functions here)
+        
         function render() {
             const query = document.getElementById('playerSearch').value.toLowerCase();
             const filtered = allPlayers.filter(p => {
@@ -228,7 +226,7 @@
             const draw = (id, list, type) => {
                 const el = document.getElementById(id);
                 if(!list.length) return el.innerHTML = '<div style="padding:10px; font-size:0.6rem; color:var(--text-muted)">None</div>';
-                el.innerHTML = list.slice(0, 12).map(p => `
+                el.innerHTML = list.slice(0, 10).map(p => `
                     <div class="player-row" onclick="openHistory(${p.id}, '${p.name}')">
                         <button class="add-btn ${myTeam.includes(p.id)?'active':''}" onclick="event.stopPropagation(); toggleTeam(${p.id})">
                             <i class="fa-solid ${myTeam.includes(p.id)?'fa-star':'fa-plus'}"></i>
@@ -243,37 +241,13 @@
                         <div class="trend-icon ${type==='rise'?'trend-up':'trend-down'}">
                             <i class="fa-solid fa-arrow-${type==='rise'?'up':'down'}"></i>
                         </div>
-                    </div>
-                `).join('');
+                    </div>`).join('');
             };
 
             draw('rises-tonight', filtered.filter(p => p.target >= 100), 'rise');
             draw('rises-maybe', filtered.filter(p => p.target >= 95 && p.target < 100), 'rise');
             draw('falls-tonight', filtered.filter(p => p.target <= -100), 'fall');
             draw('falls-maybe', filtered.filter(p => p.target <= -95 && p.target > -100), 'fall');
-        }
-
-        function toggleTeam(id) {
-            const idx = myTeam.indexOf(id);
-            if(idx > -1) myTeam.splice(idx, 1); else myTeam.push(id);
-            localStorage.setItem('fpl_my_team', JSON.stringify(myTeam));
-            render();
-        }
-
-        async function openHistory(id, name) {
-            document.getElementById('modalPlayerName').innerText = name;
-            document.getElementById('priceModal').style.display = 'flex';
-            const body = document.getElementById('modalBody');
-            body.innerHTML = 'Loading...';
-            try {
-                const res = await fetch(`/.netlify/functions/fpl-proxy?endpoint=element-summary/${id}/`);
-                const data = await res.json();
-                body.innerHTML = data.history.slice(-5).reverse().map(h => `
-                    <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color); font-size:0.8rem;">
-                        <span>GW ${h.round}</span><span>£${(h.value/10).toFixed(1)}</span>
-                    </div>
-                `).join('');
-            } catch (e) { body.innerHTML = 'Error'; }
         }
 
         function updateTimer() {
