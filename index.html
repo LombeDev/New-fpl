@@ -46,7 +46,17 @@
         .dark-mode .logo-container { color: #fff; }
         .logo-container span { color: var(--fpl-green); }
         
-        .no-ads-pill i { color: #f39c12; }
+        .nav-icon-btn {
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: var(--text-main);
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         /* --- CONTENT AREA --- */
         .page-content {
             padding-top: 70px;
@@ -55,7 +65,7 @@
             box-sizing: border-box;
         }
 
-        /* --- BOTTOM NAV (8-Item Grid) --- */
+        /* --- BOTTOM NAV --- */
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; height: 80px;
             background: var(--card-bg); border-top: 1px solid var(--border-color);
@@ -67,7 +77,7 @@
             color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px;
             cursor: pointer;
         }
-        .nav-item i { font-size: 1.2rem; }
+        .nav-item i { font-size: 1.2rem; display: block; height: 20px; }
         .nav-item.active { color: var(--primary-blue); }
 
         /* --- PITCH & UI ELEMENTS --- */
@@ -120,18 +130,21 @@
     </div>
 
     <header class="top-nav">
-        <div class="no-ads"><i class="fa-solid fa-crown"></i> NO ADS</div>
+        <div class="nav-icon-btn" onclick="toggleDrawer()">
+            <i class="fa-solid fa-circle-user"></i>
+        </div>
         <div class="logo-container">Kopala<span>▲</span>FPL</div>
-        <div style="display:flex; gap:15px; align-items: center;">
-            <i class="fa-solid fa-user-circle" onclick="toggleDrawer()" style="cursor:pointer; font-size: 1.2rem;"></i>
-            <i class="fa-solid fa-sun" id="theme-icon" onclick="toggleTheme()" style="cursor:pointer; font-size:1.1rem;"></i>
+        <div style="display:flex; gap:10px; align-items: center;">
+            <div class="nav-icon-btn" onclick="toggleTheme()">
+                <i class="fa-solid fa-moon" id="theme-icon"></i>
+            </div>
         </div>
     </header>
 
     <main class="page-content">
         <div style="padding: 10px 15px; display:flex; justify-content:space-between; align-items:center;">
             <span id="disp-name" onclick="toggleDrawer()" style="font-weight:900; cursor:pointer;">Manager Name <i class="fa-solid fa-chevron-down"></i></span>
-            <i class="fa-solid fa-rotate" onclick="fetchAndRender()"></i>
+            <i class="fa-solid fa-rotate" onclick="fetchAndRender()" style="cursor:pointer;"></i>
         </div>
         
         <div class="header-stats-grid">
@@ -160,24 +173,25 @@
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="location.href='index.html'"><i class="fa-solid fa-chart-line"></i><span>Rank</span></div>
         <div class="nav-item" onclick="location.href='leagues.html'"><i class="fa-solid fa-trophy"></i><span>Leagues</span></div>
-        <div class="nav-item" onclick="location.href='prices.html'"><i class="fa fa-tags"></i><span>Prices</span></div>
-        <div class="nav-item" onclick="location.href='games.html'"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></div>
-        <div class="nav-item" onclick="location.href='members.html'"><i class="fa fa-user-secret"></i><span>Members area</span></div>
-        <div class="nav-item" onclick="location.href=''"><i class="fa fa-comments"></i><span>Support</span></div>
-        <div class="nav-item" onclick="location.href=''"><i class="fa fa-info-circle"></i><span>About</span></div>
-        <div class="nav-item" onclick="toggleDrawer()"><i class="fa-solid fa-ellipsis"></i><span>More</span></div>
+        <div class="nav-item" onclick="location.href='prices.html'"><i class="fa-solid fa-tags"></i><span>Prices</span></div>
+        <div class="nav-item" onclick="location.href='games.html'"><i class="fa-solid fa-futbol"></i><span>Games</span></div>
+        <div class="nav-item" onclick="location.href='members.html'"><i class="fa-solid fa-user-tie"></i><span>Members</span></div>
+        <div class="nav-item" onclick="location.href='#'"><i class="fa-solid fa-comment-dots"></i><span>Support</span></div>
+        <div class="nav-item" onclick="location.href='#'"><i class="fa-solid fa-circle-info"></i><span>About</span></div>
+        <div class="nav-item" onclick="toggleDrawer()"><i class="fa-solid fa-bars"></i><span>More</span></div>
     </nav>
 
     <div id="profile-drawer">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <h3 style="margin:0;">Profiles</h3>
-            <i class="fa-solid fa-xmark" onclick="toggleDrawer()" style="font-size:1.5rem;"></i>
+            <i class="fa-solid fa-xmark" onclick="toggleDrawer()" style="font-size:1.5rem; cursor:pointer;"></i>
         </div>
         <div id="profile-list"></div>
         <button class="continue-btn" style="margin-top:10px; background:#f1f5f9; color:#000;" onclick="logout()">+ Add Team</button>
     </div>
 
     <script>
+        /* [Same script logic as before] */
         const state = {
             fplId: localStorage.getItem('kopala_id'),
             profiles: JSON.parse(localStorage.getItem('fpl_profiles') || '[]'),
@@ -214,43 +228,47 @@
         }
 
         async function initData() {
-            const res = await fetch(`${PROXY}bootstrap-static/`);
-            const data = await res.json();
-            data.teams.forEach(t => state.teamMap[t.id] = { code: t.code });
-            data.elements.forEach(p => state.playerMap[p.id] = { name: p.web_name, team_code: state.teamMap[p.team].code, pos: p.element_type });
-            state.currentGW = data.events.find(e => e.is_current).id;
+            try {
+                const res = await fetch(`${PROXY}bootstrap-static/`);
+                const data = await res.json();
+                data.teams.forEach(t => state.teamMap[t.id] = { code: t.code });
+                data.elements.forEach(p => state.playerMap[p.id] = { name: p.web_name, team_code: state.teamMap[p.team].code, pos: p.element_type });
+                state.currentGW = data.events.find(e => e.is_current).id;
+            } catch(e) { console.error("Init failed", e); }
         }
 
         async function fetchAndRender() {
-            const [entryRes, picksRes, liveRes] = await Promise.all([
-                fetch(`${PROXY}entry/${state.fplId}/`),
-                fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`),
-                fetch(`${PROXY}event/${state.currentGW}/live/`)
-            ]);
-            const entry = await entryRes.json();
-            const picks = await picksRes.json();
-            const live = await liveRes.json();
+            try {
+                const [entryRes, picksRes, liveRes] = await Promise.all([
+                    fetch(`${PROXY}entry/${state.fplId}/`),
+                    fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`),
+                    fetch(`${PROXY}event/${state.currentGW}/live/`)
+                ]);
+                const entry = await entryRes.json();
+                const picks = await picksRes.json();
+                const live = await liveRes.json();
 
-            document.getElementById('disp-name').innerHTML = `${entry.player_first_name} <i class="fa-solid fa-chevron-down"></i>`;
-            document.getElementById('disp-total').textContent = entry.summary_event_points;
-            document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
-            document.getElementById('disp-gw-rank').textContent = picks.entry_history.rank.toLocaleString();
+                document.getElementById('disp-name').innerHTML = `${entry.player_first_name} <i class="fa-solid fa-chevron-down"></i>`;
+                document.getElementById('disp-total').textContent = picks.entry_history.points;
+                document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
+                document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || 0).toLocaleString();
 
-            const ptsMap = {};
-            live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
-            renderPitch(picks.picks, ptsMap);
+                const ptsMap = {};
+                live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+                renderPitch(picks.picks, ptsMap);
 
-            // Update Profiles list if name is new
-            if(!state.profiles.find(p => p.id === state.fplId)) {
-                state.profiles.push({id: state.fplId, name: entry.player_first_name});
-                localStorage.setItem('fpl_profiles', JSON.stringify(state.profiles));
-            }
+                if(!state.profiles.find(p => p.id === state.fplId)) {
+                    state.profiles.push({id: state.fplId, name: entry.player_first_name});
+                    localStorage.setItem('fpl_profiles', JSON.stringify(state.profiles));
+                }
+            } catch(e) { console.error("Fetch failed", e); }
         }
 
         function renderPitch(picks, ptsMap) {
             ['gk-row', 'def-row', 'mid-row', 'fwd-row'].forEach(id => document.getElementById(id).innerHTML = '');
             picks.slice(0, 11).forEach(p => {
                 const meta = state.playerMap[p.element];
+                if(!meta) return;
                 const pts = (ptsMap[p.element] || 0) * (p.multiplier || 1);
                 const row = meta.pos === 1 ? 'gk-row' : meta.pos === 2 ? 'def-row' : meta.pos === 3 ? 'mid-row' : 'fwd-row';
                 document.getElementById(row).innerHTML += `
