@@ -22,6 +22,7 @@
             --fpl-green: #00ff85;
             --fpl-pink: #e90052;
             --border-color: #e2e8f0;
+            --locked-gold: #facc15;
         }
 
         body.dark-mode {
@@ -40,63 +41,38 @@
             transition: background 0.3s ease;
         }
 
-        /* --- TOP NAV (Updated Design) --- */
         .top-nav {
             position: fixed; top: 0; width: 100%; height: 60px;
             background: var(--card-bg); border-bottom: 1px solid var(--border-color);
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 15px; box-sizing: border-box; z-index: 3000;
         }
-        .logo-container {
-            font-weight: 900; font-size: 1.4rem;
-            display: flex; align-items: center; letter-spacing: -1px;
-        }
+        .logo-container { font-weight: 900; font-size: 1.4rem; display: flex; align-items: center; letter-spacing: -1px; }
         .logo-container span { color: var(--fpl-green); }
-        
-        .nav-icon-btn {
-            font-size: 1.2rem; color: var(--text-main); cursor: pointer;
-            width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;
-        }
+        .nav-icon-btn { font-size: 1.2rem; color: var(--text-main); cursor: pointer; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; }
 
-        /* --- CONTENT AREA --- */
-        .page-content {
-            padding-top: 70px;
-            padding-bottom: 90px;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        .info-banner {
-            background: var(--card-bg); margin: 8px; padding: 12px; border-radius: 12px;
-            border: 1px solid var(--border-color); text-align: center; font-size: 0.75rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
+        .page-content { padding-top: 70px; padding-bottom: 90px; min-height: 100vh; box-sizing: border-box; }
+        .info-banner { background: var(--card-bg); margin: 8px; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; font-size: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         #timer { color: var(--fpl-pink); font-weight: 800; font-family: monospace; font-size: 0.9rem; }
 
         .controls { padding: 0 8px; display: flex; flex-direction: column; gap: 8px; }
-        .search-box {
-            padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);
-            background: var(--card-bg); color: var(--text-main); font-size: 0.9rem; outline: none;
-        }
+        .search-box { padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 0.9rem; outline: none; }
         .pos-filter-row { display: flex; gap: 6px; overflow-x: auto; padding: 5px 0; scrollbar-width: none; }
-        .pos-chip {
-            padding: 6px 14px; border-radius: 50px; border: 1px solid var(--border-color);
-            background: var(--card-bg); font-size: 0.7rem; font-weight: 700; cursor: pointer; white-space: nowrap;
-        }
+        .pos-chip { padding: 6px 14px; border-radius: 50px; border: 1px solid var(--border-color); background: var(--card-bg); font-size: 0.7rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
         .pos-chip.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
 
-        /* PREDICTIONS GRID */
         .predictions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; }
         .pred-card { background: var(--card-bg); border-radius: 15px; border: 1px solid var(--border-color); overflow: hidden; }
         .card-header { padding: 10px; font-weight: 800; font-size: 0.75rem; border-bottom: 1px solid var(--border-color); text-transform: uppercase; }
         .section-subhead { background: var(--bg-color); padding: 6px 10px; font-weight: 700; font-size: 0.6rem; color: var(--text-muted); }
 
-        /* PLAYER ROWS */
-        .player-row { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); }
+        .player-row { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); position: relative; }
+        .player-row.locked { background: rgba(250, 204, 21, 0.05); }
         .add-btn { background: none; border: none; color: var(--text-muted); font-size: 0.8rem; margin-right: 6px; }
         .add-btn.active { color: #facc15; }
         .player-meta { flex: 1; overflow: hidden; }
         .player-name { font-weight: 700; font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .day-label { font-size: 0.55rem; color: var(--text-muted); margin-left: 4px; font-weight: 400; }
         .progress-container { width: 40px; height: 4px; background: #e2e8f0; border-radius: 10px; margin-top: 4px; }
         .dark-mode .progress-container { background: #334155; }
         .progress-fill { height: 100%; border-radius: 10px; }
@@ -105,29 +81,17 @@
         .trend-up { background: var(--fpl-green); }
         .trend-down { background: var(--fpl-pink); }
 
-        /* --- BOTTOM NAV (8-Item Standard) --- */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 80px;
-            background: var(--card-bg); border-top: 1px solid var(--border-color);
-            display: grid; grid-template-columns: repeat(8, 1fr);
-            padding: 5px 0; box-sizing: border-box; z-index: 3000;
-        }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px;
-        }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--card-bg); border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(8, 1fr); padding: 5px 0; box-sizing: border-box; z-index: 3000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px; }
         .nav-item.active { color: var(--primary-blue); }
         .nav-item i { font-size: 1.2rem; display: block; }
     </style>
 </head>
-<body class="dark-mode"> <header class="top-nav">
-        <div class="nav-icon-btn">
-            <i class="fa-solid fa-circle-user"></i>
-        </div>
+<body class="dark-mode">
+    <header class="top-nav">
+        <div class="nav-icon-btn"><i class="fa-solid fa-circle-user"></i></div>
         <div class="logo-container">Kopala<span>▲</span>FPL</div>
-        <div class="nav-icon-btn" onclick="toggleTheme()">
-            <i class="fa-solid fa-sun" id="theme-icon"></i>
-        </div>
+        <div class="nav-icon-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></div>
     </header>
 
     <main class="page-content">
@@ -174,16 +138,7 @@
         <a href="#" class="nav-item"><i class="fa fa-ellipsis-h"></i><span>More</span></a>
     </nav>
 
-    <div id="priceModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:4000; align-items:center; justify-content:center;" onclick="this.style.display='none'">
-        <div class="modal-content" style="background:var(--card-bg); width:85%; max-width:300px; border-radius:20px; padding:20px;" onclick="event.stopPropagation()">
-            <h3 id="modalPlayerName" style="margin:0 0 15px 0; font-size:1rem;"></h3>
-            <div id="modalBody"></div>
-            <button onclick="document.getElementById('priceModal').style.display='none'" style="width:100%; margin-top:15px; padding:12px; border:none; background:var(--primary-blue); color:white; border-radius:10px; font-weight:700;">Close</button>
-        </div>
-    </div>
-
     <script>
-        // Use your existing JS logic
         const BOOTSTRAP = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
         let allPlayers = [];
         let posFilter = 'ALL';
@@ -206,11 +161,15 @@
                     const net = p.transfers_in_event - p.transfers_out_event;
                     const riseThresh = ((own * 1300) + 4000) * decay;
                     const fallThresh = (own * 0.12) * 10000 * decay;
+                    
                     let target = net > 0 ? (net / riseThresh) * 100 : (net / fallThresh) * 100;
+                    // Cap at 100 for display logic
+                    let displayTarget = Math.min(Math.max(target, -100.1), 100.1); 
+
                     return {
                         id: p.id, name: p.web_name,
                         price: (p.now_cost / 10).toFixed(1),
-                        target: parseFloat(target.toFixed(1)),
+                        target: parseFloat(displayTarget.toFixed(1)),
                         pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
                         own: own
                     };
@@ -219,9 +178,6 @@
             } catch (e) { console.error(e); }
         }
 
-        // ... rest of your existing render, toggleTeam, openHistory, and updateTimer functions ...
-        // (Simplified for this display but paste your original functions here)
-        
         function render() {
             const query = document.getElementById('playerSearch').value.toLowerCase();
             const filtered = allPlayers.filter(p => {
@@ -233,35 +189,43 @@
             const draw = (id, list, type) => {
                 const el = document.getElementById(id);
                 if(!list.length) return el.innerHTML = '<div style="padding:10px; font-size:0.6rem; color:var(--text-muted)">None</div>';
-                el.innerHTML = list.slice(0, 10).map(p => `
-                    <div class="player-row" onclick="openHistory(${p.id}, '${p.name}')">
+                
+                el.innerHTML = list.slice(0, 15).map(p => {
+                    const isLocked = Math.abs(p.target) >= 100;
+                    const dayLabel = isLocked ? "Tonight" : (Math.abs(p.target) >= 90 ? "Tomorrow" : "");
+                    
+                    return `
+                    <div class="player-row ${isLocked ? 'locked' : ''}">
                         <button class="add-btn ${myTeam.includes(p.id)?'active':''}" onclick="event.stopPropagation(); toggleTeam(${p.id})">
                             <i class="fa-solid ${myTeam.includes(p.id)?'fa-star':'fa-plus'}"></i>
                         </button>
                         <div class="player-meta">
-                            <div class="player-name">${p.name}</div>
+                            <div class="player-name">${p.name} <span class="day-label">${dayLabel}</span></div>
                             <div class="progress-container">
-                                <div class="progress-fill" style="width:${Math.min(Math.abs(p.target),100)}%; background:${type==='rise'?'#10b981':'var(--fpl-pink)'}"></div>
+                                <div class="progress-fill" style="width:${Math.min(Math.abs(p.target),100)}%; background:${isLocked ? 'var(--locked-gold)' : (type==='rise'?'#10b981':'var(--fpl-pink)')}"></div>
                             </div>
                         </div>
-                        <div class="player-price">£${p.price}</div>
+                        <div class="player-price" style="color:${isLocked ? 'var(--locked-gold)' : 'inherit'}">${Math.abs(p.target)}%</div>
                         <div class="trend-icon ${type==='rise'?'trend-up':'trend-down'}">
                             <i class="fa-solid fa-arrow-${type==='rise'?'up':'down'}"></i>
                         </div>
-                    </div>`).join('');
+                    </div>`;
+                }).join('');
             };
 
-            draw('rises-tonight', filtered.filter(p => p.target >= 100), 'rise');
-            draw('rises-maybe', filtered.filter(p => p.target >= 95 && p.target < 100), 'rise');
-            draw('falls-tonight', filtered.filter(p => p.target <= -100), 'fall');
-            draw('falls-maybe', filtered.filter(p => p.target <= -95 && p.target > -100), 'fall');
+            draw('rises-tonight', filtered.filter(p => p.target >= 100).sort((a,b) => b.target - a.target), 'rise');
+            draw('rises-maybe', filtered.filter(p => p.target >= 95 && p.target < 100).sort((a,b) => b.target - a.target), 'rise');
+            draw('falls-tonight', filtered.filter(p => p.target <= -100).sort((a,b) => a.target - b.target), 'fall');
+            draw('falls-maybe', filtered.filter(p => p.target <= -95 && p.target > -100).sort((a,b) => a.target - b.target), 'fall');
         }
 
         function updateTimer() {
             const now = new Date();
             let target = new Date();
-            target.setUTCHours(1, 30, 0, 0);
+            // Reset window specifically at 02:30 UTC
+            target.setUTCHours(2, 30, 0, 0);
             if (now > target) target.setUTCDate(target.getUTCDate() + 1);
+            
             const diff = target - now;
             const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
             const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
@@ -279,6 +243,14 @@
                 render();
             };
         });
+
+        function toggleTeam(id) {
+            const idx = myTeam.indexOf(id);
+            if(idx > -1) myTeam.splice(idx, 1);
+            else myTeam.push(id);
+            localStorage.setItem('fpl_my_team', JSON.stringify(myTeam));
+            render();
+        }
 
         init();
     </script>
