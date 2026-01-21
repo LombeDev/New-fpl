@@ -64,7 +64,63 @@
             box-sizing: border-box;
         }
 
-        /* --- BOTTOM NAV (Standard 8-Item) --- */
+        /* --- LOGIN SCREEN (IMAGE MATCH) --- */
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); z-index: 5000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .login-promo-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .login-promo-card h3 { margin: 0; font-size: 1.1rem; line-height: 1.4; font-weight: 800; }
+        .login-promo-card a { color: var(--text-muted); text-decoration: underline; font-size: 0.85rem; display: inline-block; margin-top: 8px; }
+
+        .login-main-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 25px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+
+        .theme-toggle-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .theme-toggle-row span { font-weight: 700; color: var(--text-muted); }
+        .toggle-group { display: flex; background: var(--bg-color); padding: 4px; border-radius: 30px; }
+        .toggle-btn { padding: 8px 20px; border-radius: 25px; border: none; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .toggle-btn.active { background: var(--primary-blue); color: #fff; }
+        .toggle-btn.inactive { background: transparent; color: var(--text-muted); }
+
+        .login-main-card h2 { margin: 0 0 10px 0; font-size: 1.5rem; font-weight: 900; }
+        .login-main-card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px; }
+
+        .fpl-input { 
+            width: 100%; padding: 18px; border-radius: 12px; border: 1px solid var(--border-color); 
+            font-size: 1rem; margin-bottom: 15px; box-sizing: border-box; 
+            background: var(--bg-color); color: var(--text-main); font-weight: 500;
+        }
+        .continue-btn { 
+            width: 100%; padding: 18px; background: var(--primary-blue); color: white; 
+            border: none; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; 
+        }
+
+        .find-id-btn { margin-top: 25px; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        /* --- REST OF UI --- */
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; height: 80px;
             background: var(--card-bg); border-top: 1px solid var(--border-color);
@@ -78,7 +134,6 @@
         .nav-item.active { color: var(--primary-blue); }
         .nav-item i { font-size: 1.2rem; display: block; }
 
-        /* --- UI ELEMENTS --- */
         .header-stats-grid { 
             display: grid; grid-template-columns: 1fr 1.5fr 1fr; 
             background: var(--card-bg); margin: 0 12px 15px 12px; 
@@ -99,16 +154,6 @@
         .p-name { background: #000; color: #fff; font-size: 0.55rem; padding: 2px 0; font-weight: 700; white-space: nowrap; overflow: hidden; }
         .p-pts { color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; }
 
-        /* --- LOGIN & PROFILE --- */
-        #login-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-color); z-index: 5000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
-        }
-        .login-card { background: var(--card-bg); border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; border: 1px solid var(--border-color); text-align: center;}
-        .fpl-input { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); font-size: 1rem; margin-bottom: 15px; box-sizing: border-box; background: var(--bg-color); color: var(--text-main); }
-        .continue-btn { width: 100%; padding: 16px; background: var(--primary-blue); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
-
         #profile-drawer {
             position: fixed; bottom: -100%; left: 0; width: 100%; height: 60%;
             background: var(--card-bg); border-top-left-radius: 30px; border-top-right-radius: 30px;
@@ -121,12 +166,29 @@
 <body class="dark-mode">
 
     <div id="login-screen" style="display:none;">
-        <div class="logo-container" style="margin-bottom:20px; transform:scale(1.5);">Kopala<span>▲</span>FPL</div>
-        <div class="login-card">
-            <h2 style="margin-top:0;">FPL Team ID</h2>
-            <p style="color:var(--text-muted); font-size: 0.8rem; margin-bottom: 20px;">Enter your Team ID to see your live rank and squad.</p>
-            <input type="number" id="team-id-input" class="fpl-input" placeholder="e.g. 123456">
+        <div class="login-promo-card">
+            <h3>The original, most-trusted KOPALA FPL rank tool since 2018 ❤️</h3>
+            <a href="#">Get the full experience on the website <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i></a>
+        </div>
+
+        <div class="login-main-card">
+            <div class="theme-toggle-row">
+                <span>Theme</span>
+                <div class="toggle-group">
+                    <button id="dark-toggle" class="toggle-btn active" onclick="setInitialTheme('dark')">Dark</button>
+                    <button id="light-toggle" class="toggle-btn inactive" onclick="setInitialTheme('light')">Light</button>
+                </div>
+            </div>
+
+            <h2>Enter your FPL ID</h2>
+            <p>We only use your public FPL ID on this device.</p>
+            
+            <input type="number" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste a link">
             <button class="continue-btn" onclick="handleLogin()">Continue</button>
+
+            <div class="find-id-btn" onclick="alert('Find ID steps: 1. Go to FPL Website, 2. Click Points tab, 3. The number in the URL is your ID!')">
+                <i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it
+            </div>
         </div>
     </div>
 
@@ -186,13 +248,6 @@
     </div>
 
     <script>
-        // PWA Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW failed', err));
-            });
-        }
-
         const state = {
             fplId: localStorage.getItem('kopala_id'),
             profiles: JSON.parse(localStorage.getItem('fpl_profiles') || '[]'),
@@ -200,6 +255,21 @@
         };
 
         const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
+
+        // Login Theme Toggles
+        function setInitialTheme(mode) {
+            const darkBtn = document.getElementById('dark-toggle');
+            const lightBtn = document.getElementById('light-toggle');
+            if(mode === 'dark') {
+                document.body.classList.add('dark-mode');
+                darkBtn.className = 'toggle-btn active';
+                lightBtn.className = 'toggle-btn inactive';
+            } else {
+                document.body.classList.remove('dark-mode');
+                darkBtn.className = 'toggle-btn inactive';
+                lightBtn.className = 'toggle-btn active';
+            }
+        }
 
         function toggleTheme() { 
             const isDark = document.body.classList.toggle('dark-mode');
@@ -222,8 +292,12 @@
         }
 
         async function handleLogin() {
-            const id = document.getElementById('team-id-input').value;
-            if(!id) return;
+            const idInput = document.getElementById('team-id-input').value;
+            // Handle paste of link
+            const idMatch = idInput.match(/\d+/);
+            const id = idMatch ? idMatch[0] : null;
+            
+            if(!id) return alert("Please enter a valid Team ID");
             localStorage.setItem('kopala_id', id);
             location.reload();
         }
