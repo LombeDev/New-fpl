@@ -2,113 +2,151 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KOPALA FPL - Live Games</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare script.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
-            --bg-color: #f1f5f9;
+            --bg-color: #f3f4f6;
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
             --primary-blue: #2563eb;
             --fpl-green: #00ff85;
-            --fpl-pink: #e90052;
             --border-color: #e2e8f0;
             --done-badge: #1e3a8a;
-            --live-badge: #334155; 
-            --expand-mint: #a7ffd6;
+            --live-badge: #e90052; 
+            --expand-mint: #f1f5f9;
         }
 
         body.dark-mode {
-            --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f8fafc;
-            --text-muted: #94a3b8; --border-color: #334155;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --expand-mint: #2d3748;
         }
 
-        body { margin: 0; padding: 0; background: var(--bg-color); color: var(--text-main); font-family: -apple-system, system-ui, sans-serif; transition: background 0.3s; }
-
-        .top-brand-bar {
-            padding: 10px 15px; display: flex; justify-content: space-between; align-items: center;
-            background: var(--bg-color); position: sticky; top: 0; z-index: 110;
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, system-ui, sans-serif;
         }
-        .live-logo {
-            background: #000; color: #fff; padding: 6px 18px;
-            border-radius: 50px; font-weight: 900; font-size: 1.2rem;
-            display: flex; align-items: center; gap: 4px;
-        }
-        .live-logo span { color: var(--fpl-green); }
-        .nav-btn { background:#eee; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; color: #000; display: flex; align-items: center; justify-content: center; }
 
-        .content { padding: 0 12px 100px; }
-        .gw-header { border-left: 4px solid var(--fpl-green); padding-left: 10px; margin: 15px 4px; font-size: 1.1rem; font-weight: 600; }
+        /* --- TOP NAV --- */
+        .top-nav {
+            position: fixed; top: 0; width: 100%; height: 60px;
+            background: var(--card-bg); border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; box-sizing: border-box; z-index: 3000;
+        }
+        .logo-container {
+            color: #000; font-weight: 900; font-size: 1.4rem;
+            display: flex; align-items: center; gap: 2px; letter-spacing: -1px;
+        }
+        .dark-mode .logo-container { color: #fff; }
+        .logo-container span { color: var(--fpl-green); }
+        
+        .no-ads { 
+            color: #b8860b; background: #fffdf0; font-size: 0.7rem; font-weight: 700; 
+            border: 1px solid #eab308; padding: 4px 10px; border-radius: 6px; 
+            display: flex; align-items: center;
+        }
+
+        /* --- CONTENT AREA --- */
+        .page-content {
+            padding-top: 70px;
+            padding-bottom: 90px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            padding-left: 10px; padding-right: 10px;
+        }
+
+        .gw-header { border-left: 4px solid var(--fpl-green); padding-left: 10px; margin: 15px 0; font-size: 1.1rem; font-weight: 800; }
 
         /* MATCH CARD */
         .m-card { 
-            background: var(--card-bg); border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-            margin-bottom: 20px; overflow: hidden; border: 1px solid var(--border-color);
+            background: var(--card-bg); border-radius: 15px; 
+            margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border-color);
         }
-        .m-main { display: flex; align-items: flex-start; justify-content: space-between; padding: 20px 10px; }
-        .team-box { flex: 1.2; text-align: center; }
-        .kit-img { width: 65px; height: auto; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
-        .team-name { font-weight: 800; font-size: 0.8rem; display: block; }
+        .m-main { display: flex; align-items: center; justify-content: space-between; padding: 15px 10px; }
+        .team-box { flex: 1; text-align: center; }
+        .kit-img { width: 45px; height: auto; margin-bottom: 5px; }
+        .team-name { font-weight: 800; font-size: 0.75rem; display: block; }
 
-        .score-center { flex: 1; text-align: center; }
-        .status-badge { color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 0.65rem; font-weight: 900; display: inline-block; margin-bottom: 12px; text-transform: uppercase; }
+        .score-center { flex: 1.2; text-align: center; }
+        .status-badge { color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 0.6rem; font-weight: 900; display: inline-block; margin-bottom: 8px; text-transform: uppercase; }
         .badge-done { background: var(--done-badge); }
-        .badge-live { background: var(--live-badge); }
+        .badge-live { background: var(--live-badge); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         
-        .score-val { font-size: 1.6rem; font-weight: 500; letter-spacing: 6px; color: var(--text-main); }
-        .score-divider { height: 1px; background: #cbd5e1; margin: 10px auto; width: 70%; }
+        .score-val { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: var(--text-main); }
 
-        .m-footer { background: #fdfdfd; border-top: 1px solid var(--border-color); padding: 10px; font-size: 0.7rem; text-align: center; }
-        .dark-mode .m-footer { background: #1e293b; }
-        .bonus-player { margin: 0 5px; font-weight: 600; }
-        .pts-pill { background: var(--primary-blue); color: #fff; padding: 1px 4px; border-radius: 3px; font-weight: 800; margin-left: 2px; }
+        .m-footer { background: var(--bg-color); padding: 10px; font-size: 0.65rem; text-align: center; border-top: 1px solid var(--border-color); }
+        .bonus-player { margin: 0 4px; font-weight: 700; }
+        .pts-pill { background: var(--primary-blue); color: #fff; padding: 1px 5px; border-radius: 3px; font-weight: 800; }
 
         /* DRAWER */
-        .expand-btn { background: var(--expand-mint); border: none; width: 100%; padding: 12px; font-size: 0.7rem; font-weight: 700; color: #004d2c; cursor: pointer; border-top: 1px solid var(--border-color); }
-        .drawer { display: none; padding: 12px; background: var(--bg-color); border-top: 1px solid var(--border-color); }
+        .expand-btn { background: var(--expand-mint); border: none; width: 100%; padding: 10px; font-size: 0.65rem; font-weight: 700; color: var(--text-main); cursor: pointer; border-top: 1px solid var(--border-color); }
+        .drawer { display: none; padding: 12px; background: var(--card-bg); }
         .drawer.active { display: block; }
-        .drawer-header { display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: 900; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
         .own-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.75rem; align-items: center; }
         .live-pts-badge { background: var(--fpl-green); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; }
 
-        /* BOTTOM NAV */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; }
-        .nav-item { color: var(--text-muted); text-decoration: none; font-size: 0.65rem; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .nav-item.active { color: var(--primary-blue); font-weight: 800; }
+        /* --- BOTTOM NAV (8-Item Grid) --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; height: 80px;
+            background: var(--card-bg); border-top: 1px solid var(--border-color);
+            display: grid; grid-template-columns: repeat(8, 1fr);
+            padding: 5px 0; box-sizing: border-box; z-index: 3000;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px;
+        }
+        .nav-item i { font-size: 1.2rem; }
+        .nav-item.active { color: var(--primary-blue); }
     </style>
 </head>
 <body>
 
-    <div class="top-brand-bar">
-        <button class="nav-btn" onclick="init()"><i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i></button>
-        <div class="live-logo">KOPALA<span>▲</span>FPL</div>
-        <button class="nav-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="theme-icon"></i></button>
-    </div>
+    <header class="top-nav">
+        <div class="no-ads"><i class="fa-solid fa-crown"></i> NO ADS</div>
+        <div class="logo-container">LIVE<span>▲</span>FPL</div>
+        <div style="display:flex; gap:15px; align-items: center;">
+            <i class="fa-solid fa-rotate" onclick="init()" id="refresh-icon" style="cursor:pointer; font-size: 1.1rem;"></i>
+            <i class="fa-solid fa-sun" id="theme-icon" onclick="toggleTheme()" style="cursor:pointer; font-size:1.1rem;"></i>
+        </div>
+    </header>
 
-    <div class="content" id="main-view">
+    <main class="page-content">
         <div id="gw-title" class="gw-header">Loading Matchday...</div>
         <div id="games-list"></div>
-    </div>
+    </main>
 
     <nav class="bottom-nav">
-        <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
-        <a href="games.html" class="nav-item active"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></a>
-        <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
-        <a href="prices.html" class="nav-item"><i class="fa-solid fa-money-bill-trend-up"></i><span>Prices</span></a>
+        <div class="nav-item" onclick="location.href='index.html'"><i class="fa-solid fa-chart-line"></i><span>Rank</span></div>
+        <div class="nav-item" onclick="location.href='battle.html'"><i class="fa-solid fa-swords"></i><span>Battle</span></div>
+        <div class="nav-item" onclick="location.href='leagues.html'"><i class="fa-solid fa-trophy"></i><span>Leagues</span></div>
+        <div class="nav-item" onclick="location.href='prices.html'"><i class="fa-solid fa-dollar-sign"></i><span>Prices</span></div>
+        <div class="nav-item active" onclick="location.href='games.html'"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></div>
+        <div class="nav-item" onclick="location.href='planner.html'"><i class="fa-solid fa-calendar-days"></i><span>Planner</span></div>
+        <div class="nav-item" onclick="location.href='whatif.html'"><i class="fa-solid fa-lightbulb"></i><span>What If</span></div>
+        <div class="nav-item"><i class="fa-solid fa-ellipsis"></i><span>More</span></div>
     </nav>
 
     <script>
         let players = [];
         let teams = [];
+        const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
 
         async function init() {
             const icon = document.getElementById('refresh-icon');
             icon.classList.add('fa-spin');
-            
             try {
-                const bootRes = await fetch('/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/');
+                const bootRes = await fetch(`${PROXY}bootstrap-static/`);
                 const bootData = await bootRes.json();
                 players = bootData.elements;
                 teams = bootData.teams;
@@ -116,9 +154,8 @@
                 const currentGW = bootData.events.find(e => e.is_current)?.id || 1;
                 document.getElementById('gw-title').innerText = `Gameweek ${currentGW} Games`;
 
-                const fixRes = await fetch(`/.netlify/functions/fpl-proxy?endpoint=fixtures/?event=${currentGW}`);
+                const fixRes = await fetch(`${PROXY}fixtures/?event=${currentGW}`);
                 const fixData = await fixRes.json();
-                
                 renderGames(fixData);
             } catch (err) {
                 document.getElementById('gw-title').innerText = "Update Failed";
@@ -135,11 +172,10 @@
             let pts = 0;
             const p = players.find(x => x.id === pid);
             if (!p) return 0;
-
             fixture.stats.forEach(s => {
                 const entry = s.h.find(item => item.element === pid) || s.a.find(item => item.element === pid);
                 if (entry) {
-                    if (s.identifier === 'goals_scored') pts += (p.element_type === 1 ? 6 : p.element_type === 2 ? 6 : p.element_type === 3 ? 5 : 4) * entry.value;
+                    if (s.identifier === 'goals_scored') pts += (p.element_type <= 2 ? 6 : p.element_type === 3 ? 5 : 4) * entry.value;
                     if (s.identifier === 'assists') pts += 3 * entry.value;
                     if (s.identifier === 'yellow_cards') pts -= 1 * entry.value;
                     if (s.identifier === 'red_cards') pts -= 3 * entry.value;
@@ -154,12 +190,8 @@
             const list = document.getElementById('games-list');
             list.innerHTML = fixtures.map(f => {
                 const isLive = f.started && !f.finished;
-                const homeTeam = teams.find(t => t.id === f.team_h);
-                const awayTeam = teams.find(t => t.id === f.team_a);
-
-                // Use team.code for correct jersey mapping
-                const hKit = `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${homeTeam.code}-66.webp`;
-                const aKit = `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${awayTeam.code}-66.webp`;
+                const hTeam = teams.find(t => t.id === f.team_h);
+                const aTeam = teams.find(t => t.id === f.team_a);
 
                 let bonusMarkup = "";
                 const bonusStat = f.stats.find(s => s.identifier === (f.finished ? "bonus" : "bps"));
@@ -167,8 +199,7 @@
                     const top3 = [...bonusStat.h, ...bonusStat.a].sort((a,b) => b.value - a.value).slice(0,3);
                     bonusMarkup = top3.map((p, i) => {
                         const name = players.find(x => x.id === p.element)?.web_name;
-                        const pts = f.finished ? p.value : (3-i);
-                        return `<span class="bonus-player">${name} <span class="pts-pill">${pts}</span></span>`;
+                        return `<span class="bonus-player">${name} <span class="pts-pill">${f.finished ? p.value : (3-i)}</span></span>`;
                     }).join('');
                 }
 
@@ -181,34 +212,31 @@
                     <div class="m-card">
                         <div class="m-main">
                             <div class="team-box">
-                                <img src="${hKit}" class="kit-img" onerror="this.src='https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_0-66.webp'">
-                                <span class="team-name">${homeTeam.short_name}</span>
+                                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${hTeam.code}-66.png" class="kit-img">
+                                <span class="team-name">${hTeam.short_name}</span>
                             </div>
                             <div class="score-center">
-                                <div class="status-badge ${isLive ? 'badge-live' : 'badge-done'}">${f.finished ? 'Done' : (isLive ? 'Live' : 'Scheduled')}</div>
+                                <div class="status-badge ${isLive ? 'badge-live' : 'badge-done'}">${f.finished ? 'Finished' : (isLive ? 'Live' : 'Scheduled')}</div>
                                 <div class="score-val">${f.team_h_score ?? 0} : ${f.team_a_score ?? 0}</div>
-                                <div class="score-divider"></div>
                             </div>
                             <div class="team-box">
-                                <img src="${aKit}" class="kit-img" onerror="this.src='https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_0-66.webp'">
-                                <span class="team-name">${awayTeam.short_name}</span>
+                                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${aTeam.code}-66.png" class="kit-img">
+                                <span class="team-name">${aTeam.short_name}</span>
                             </div>
                         </div>
                         <div class="m-footer">
-                            <span style="font-weight:400">${f.finished ? 'Bonus (Official)' : 'Live Bonus'} /</span> ${bonusMarkup || 'Waiting...'}
+                            <span style="opacity:0.7">${f.finished ? 'Bonus' : 'BPS'}</span> ${bonusMarkup || '---'}
                         </div>
-                        <button class="expand-btn" onclick="toggleDrawer(${f.id})">Expand Ownership & Points</button>
+                        <button class="expand-btn" onclick="toggleDrawer(${f.id})">Expand Stats <i class="fa-solid fa-chevron-down"></i></button>
                         <div class="drawer" id="drawer-${f.id}">
-                            <div class="drawer-header"><span>Player (% Own)</span><span>Live Pts</span></div>
                             ${matchPlayers.map(p => `
                                 <div class="own-row">
-                                    <span>${p.web_name} (${p.selected_by_percent}%)</span>
+                                    <span>${p.web_name} <small>(${p.selected_by_percent}%)</small></span>
                                     <span class="live-pts-badge">${f.started ? calculateLivePoints(p.id, f) : 0}</span>
                                 </div>
                             `).join('')}
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }).join('');
         }
 
