@@ -30,13 +30,13 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden; /* Critical for sliding effect */
+            overflow: hidden;
         }
 
         /* --- SPA SLIDING SYSTEM --- */
         #viewport {
             display: flex;
-            width: 400%; /* 4 sections: Rank, Leagues, Prices, Games */
+            width: 400%; /* Rank, Leagues, Prices, Games */
             height: 100vh;
             transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -45,13 +45,12 @@
             width: 25%;
             height: 100vh;
             overflow-y: auto;
-            padding-top: 65px;
+            padding-top: 70px;
             padding-bottom: 90px;
             box-sizing: border-box;
-            position: relative;
         }
 
-        /* --- TOP NAV --- */
+        /* --- TOP NAV (Updated to match screenshot) --- */
         .top-nav {
             position: fixed; top: 0; width: 100%; height: 60px;
             background: var(--card-bg); border-bottom: 1px solid var(--border-color);
@@ -59,37 +58,51 @@
             padding: 0 15px; box-sizing: border-box; z-index: 3000;
         }
         .logo-container {
-            background: #000; color: #fff; padding: 6px 16px;
-            border-radius: 50px; font-weight: 900; font-size: 1.1rem;
-            display: flex; align-items: center; gap: 3px;
+            color: #000; font-weight: 900; font-size: 1.4rem;
+            display: flex; align-items: center; gap: 2px; letter-spacing: -1px;
         }
+        .dark-mode .logo-container { color: #fff; }
         .logo-container span { color: var(--fpl-green); }
-        .no-ads { color: #a16207; font-size: 0.65rem; font-weight: 700; border: 1px solid #eab308; padding: 2px 8px; border-radius: 4px; }
+        
+        .no-ads { 
+            color: #b8860b; background: #fffdf0; font-size: 0.7rem; font-weight: 700; 
+            border: 1px solid #eab308; padding: 4px 10px; border-radius: 6px; 
+            display: flex; align-items: center;
+        }
 
-        /* --- LOGIN SCREEN --- */
+        /* --- BOTTOM NAV (8-Item Grid) --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; height: 80px;
+            background: var(--card-bg); border-top: 1px solid var(--border-color);
+            display: grid; grid-template-columns: repeat(8, 1fr);
+            padding: 5px 0; box-sizing: border-box; z-index: 3000;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px;
+        }
+        .nav-item i { font-size: 1.2rem; }
+        .nav-item.active { color: var(--primary-blue); }
+
+        /* --- LOGIN & PROFILE --- */
         #login-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-color); z-index: 5000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
         }
         .login-card { background: var(--card-bg); border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; border: 1px solid var(--border-color); }
-        .fpl-input { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); font-size: 1rem; margin-bottom: 15px; box-sizing: border-box; }
-        .continue-btn { width: 100%; padding: 16px; background: var(--primary-blue); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        .fpl-input { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); font-size: 1rem; margin-bottom: 15px; }
+        .continue-btn { width: 100%; padding: 16px; background: var(--primary-blue); color: white; border: none; border-radius: 12px; font-weight: 700; }
 
-        /* --- DASHBOARD ELEMENTS --- */
+        /* --- PITCH & STATS --- */
         .header-stats-grid { 
             display: grid; grid-template-columns: 1fr 1.5fr 1fr; 
             background: var(--card-bg); margin: 0 10px 15px 10px; 
             padding: 15px 10px; border-radius: 20px; text-align: center; border: 1px solid var(--border-color);
         }
         .stat-value { font-size: 1.1rem; font-weight: 900; }
-        .rank-toggle-box { display: inline-flex; background: #f1f5f9; padding: 2px; border-radius: 50px; margin-top: 4px; }
-        .toggle-pill { font-size: 0.55rem; padding: 2px 8px; border-radius: 50px; cursor: pointer; color: var(--text-muted); }
-        .toggle-pill.active { background: var(--primary-blue); color: white; }
-
-        /* --- PITCH --- */
         .pitch-container { 
-            position: relative; background-color: var(--pitch-green);
+            background-color: var(--pitch-green);
             background-image: repeating-radial-gradient(circle at 50% 50%, #388e3c, #388e3c 25px, #2e7d32 25px, #2e7d32 50px);
             width: 100%; padding: 20px 0; min-height: 520px; display: flex; flex-direction: column; justify-content: space-around;
             border-radius: 25px 25px 0 0;
@@ -100,38 +113,21 @@
         .p-name { background: #000; color: #fff; font-size: 0.55rem; padding: 2px 0; font-weight: 700; }
         .p-pts { color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; }
 
-        /* --- BOTTOM NAV --- */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 80px;
-            background: var(--card-bg); border-top: 1px solid var(--border-color);
-            display: grid; grid-template-columns: repeat(8, 1fr);
-            padding: 5px 0; box-sizing: border-box; z-index: 3000;
-        }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px; cursor: pointer;
-        }
-        .nav-item i { font-size: 1.1rem; }
-        .nav-item.active { color: var(--primary-blue); }
-
-        /* --- PROFILE DRAWER --- */
         #profile-drawer {
             position: fixed; bottom: -100%; left: 0; width: 100%; height: 60%;
             background: var(--card-bg); border-top-left-radius: 30px; border-top-right-radius: 30px;
-            z-index: 4000; transition: 0.4s ease; padding: 25px; box-sizing: border-box;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+            z-index: 4000; transition: 0.4s ease; padding: 25px; box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
         }
         #profile-drawer.open { bottom: 0; }
-        .profile-item { display: flex; justify-content: space-between; padding: 15px; background: var(--bg-color); border-radius: 12px; margin-bottom: 10px; cursor: pointer; }
+        .profile-item { display: flex; justify-content: space-between; padding: 15px; background: var(--bg-color); border-radius: 12px; margin-bottom: 10px; }
     </style>
 </head>
-<body class="light-mode">
+<body>
 
     <div id="login-screen" style="display:none;">
-        <div class="logo-container" style="margin-bottom:20px; transform:scale(1.5);">Kopala<span>▲</span>FPL</div>
+        <div class="logo-container" style="margin-bottom:20px; transform:scale(1.5);">LIVE<span>▲</span>FPL</div>
         <div class="login-card">
-            <h2 style="margin-top:0;">Please enter your FPL team id to Login</h2>
-            <p style="font-size:0.8rem; color:var(--text-muted);">Enter your Team ID to.</p>
+            <h2 style="margin-top:0;">Enter FPL Team ID</h2>
             <input type="number" id="team-id-input" class="fpl-input" placeholder="e.g. 123456">
             <button class="continue-btn" onclick="handleLogin()">Continue</button>
         </div>
@@ -139,18 +135,18 @@
 
     <header class="top-nav">
         <div class="no-ads"><i class="fa-solid fa-crown"></i> NO ADS</div>
-        <div class="logo-container">Kopala<span>▲</span>FPL</div>
-        <div style="display:flex; gap:12px;">
-            <i class="fa-solid fa-moon" onclick="toggleTheme()" style="cursor:pointer;"></i>
-            <i class="fa-solid fa-plus" onclick="logout()" style="cursor:pointer;"></i>
+        <div class="logo-container">LIVE<span>▲</span>FPL</div>
+        <div style="display:flex; gap:15px; align-items: center;">
+            <i class="fa-solid fa-user-circle" onclick="toggleDrawer()" style="cursor:pointer; font-size: 1.2rem;"></i>
+            <i class="fa-solid fa-sun" id="theme-icon" onclick="toggleTheme()" style="cursor:pointer; font-size:1.1rem;"></i>
         </div>
     </header>
 
     <div id="viewport">
         <section class="page" id="rank-view">
             <div style="padding: 10px 15px; display:flex; justify-content:space-between; align-items:center;">
-                <span id="disp-name" onclick="toggleDrawer()" style="font-weight:900; cursor:pointer;">Manager Name <i class="fa-solid fa-chevron-down" style="font-size:0.7rem;"></i></span>
-                <i class="fa-solid fa-rotate" onclick="fetchAndRender()" style="color:var(--text-muted);"></i>
+                <span id="disp-name" onclick="toggleDrawer()" style="font-weight:900; cursor:pointer;">Manager Name <i class="fa-solid fa-chevron-down"></i></span>
+                <i class="fa-solid fa-rotate" onclick="fetchAndRender()"></i>
             </div>
             
             <div class="header-stats-grid">
@@ -159,11 +155,7 @@
                     <div class="stat-value" id="disp-gw-rank">-</div>
                 </div>
                 <div style="border-right: 1px solid var(--border-color);">
-                    <div style="font-size:0.65rem; font-weight:700;">Live Rank 
-                        <div class="rank-toggle-box">
-                            <span class="toggle-pill active" id="btn-post">Post</span>
-                        </div>
-                    </div>
+                    <div style="font-size:0.65rem; font-weight:700;">Live Rank</div>
                     <div class="stat-value" id="disp-rank">0</div>
                 </div>
                 <div>
@@ -181,40 +173,26 @@
         </section>
 
         <section class="page">
-            <div style="padding:20px;">
-                <h2>Leagues</h2>
-                <div id="leagues-list" style="background:var(--card-bg); border-radius:15px; padding:10px;">
-                    <p style="color:var(--text-muted);">Loading your leagues...</p>
-                </div>
-            </div>
+            <div style="padding:20px;"><h2>Leagues</h2><div id="leagues-list"></div></div>
         </section>
 
         <section class="page">
-            <div style="padding:20px;">
-                <h2>Price Changes</h2>
-                <div style="background:var(--card-bg); border-radius:15px; padding:20px; text-align:center;">
-                    <i class="fa-solid fa-chart-line" style="font-size:3rem; color:var(--primary-blue); margin-bottom:15px;"></i>
-                    <p>Live price data will be updated soon.</p>
-                </div>
-            </div>
+            <div style="padding:20px;"><h2>Price Changes</h2><p>Data loading...</p></div>
         </section>
 
         <section class="page">
-            <div style="padding:20px;">
-                <h2>Live Games</h2>
-                <div id="fixtures-list" style="display:grid; gap:10px;">
-                    </div>
-            </div>
+            <div style="padding:20px;"><h2>Live Games</h2><div id="fixtures-list"></div></div>
         </section>
     </div>
 
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="navTo(0, this)"><i class="fa-solid fa-chart-line"></i><span>Rank</span></div>
+        <div class="nav-item" onclick="navTo(1, this)"><i class="fa-solid fa-swords"></i><span>Battle</span></div>
         <div class="nav-item" onclick="navTo(1, this)"><i class="fa-solid fa-trophy"></i><span>Leagues</span></div>
-        <div class="nav-item" onclick="navTo(2, this)"><i class="fa-solid fa-tags"></i><span>Prices</span></div>
+        <div class="nav-item" onclick="navTo(2, this)"><i class="fa-solid fa-dollar-sign"></i><span>Prices</span></div>
         <div class="nav-item" onclick="navTo(3, this)"><i class="fa-solid fa-soccer-ball"></i><span>Games</span></div>
-        <div class="nav-item"><i class="fa fa-user-secret"></i><span>Members area</span></div>
-        <div class="nav-item"><i class="fa fa-whatsapp"></i><span>Support</span></div>
+        <div class="nav-item" onclick="navTo(3, this)"><i class="fa-solid fa-calendar-days"></i><span>Planner</span></div>
+        <div class="nav-item" onclick="navTo(0, this)"><i class="fa-solid fa-lightbulb"></i><span>What If</span></div>
         <div class="nav-item" onclick="toggleDrawer()"><i class="fa-solid fa-ellipsis"></i><span>More</span></div>
     </nav>
 
@@ -224,7 +202,7 @@
             <i class="fa-solid fa-xmark" onclick="toggleDrawer()" style="font-size:1.5rem;"></i>
         </div>
         <div id="profile-list"></div>
-        <button class="continue-btn" style="margin-top:10px; background:#f1f5f9; color:#000;" onclick="logout()">+ Add Another Team</button>
+        <button class="continue-btn" style="margin-top:10px; background:#f1f5f9; color:#000;" onclick="logout()">+ Add Team</button>
     </div>
 
     <script>
@@ -236,48 +214,33 @@
 
         const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
 
-        // --- NAVIGATION ---
         function navTo(pageIndex, element) {
             document.getElementById('viewport').style.transform = `translateX(-${pageIndex * 25}%)`;
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             element.classList.add('active');
         }
 
-        function toggleTheme() { document.body.classList.toggle('dark-mode'); }
+        function toggleTheme() { 
+            const isDark = document.body.classList.toggle('dark-mode');
+            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+        
         function toggleDrawer() { document.getElementById('profile-drawer').classList.toggle('open'); renderProfiles(); }
         
         function renderProfiles() {
-            const list = document.getElementById('profile-list');
-            list.innerHTML = state.profiles.map(p => `
+            document.getElementById('profile-list').innerHTML = state.profiles.map(p => `
                 <div class="profile-item" onclick="switchProfile('${p.id}')">
                     <b>${p.name}</b><span>ID: ${p.id}</span>
                 </div>
             `).join('');
         }
 
-        async function switchProfile(id) {
-            localStorage.setItem('kopala_id', id);
-            state.fplId = id;
-            toggleDrawer();
-            await fetchAndRender();
-        }
-
-        // --- DATA LOGIC ---
         async function handleLogin() {
             const id = document.getElementById('team-id-input').value;
             if(!id) return;
             localStorage.setItem('kopala_id', id);
             state.fplId = id;
-            document.getElementById('login-screen').style.display = 'none';
-            await initData();
-            await fetchAndRender();
-            
-            // Save Profile
-            const mgrName = document.getElementById('disp-name').textContent.split(' ')[0];
-            if(!state.profiles.find(p => p.id === id)) {
-                state.profiles.push({id, name: mgrName});
-                localStorage.setItem('fpl_profiles', JSON.stringify(state.profiles));
-            }
+            location.reload();
         }
 
         async function initData() {
@@ -298,7 +261,7 @@
             const picks = await picksRes.json();
             const live = await liveRes.json();
 
-            document.getElementById('disp-name').innerHTML = `${entry.player_first_name} <i class="fa-solid fa-chevron-down" style="font-size:0.7rem"></i>`;
+            document.getElementById('disp-name').innerHTML = `${entry.player_first_name} <i class="fa-solid fa-chevron-down"></i>`;
             document.getElementById('disp-total').textContent = entry.summary_event_points;
             document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
             document.getElementById('disp-gw-rank').textContent = picks.entry_history.rank.toLocaleString();
@@ -324,36 +287,11 @@
 
         function logout() { localStorage.removeItem('kopala_id'); location.reload(); }
 
-        // Start
         if(state.fplId) {
             initData().then(fetchAndRender);
         } else {
             document.getElementById('login-screen').style.display = 'flex';
         }
-
-        function navTo(index, el) {
-    // 1. Highlight the clicked item immediately
-    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-    el.classList.add('active');
-
-    // 2. Define the page routes
-    const pages = ['index.html', 'leagues.html', 'prices.html', 'games.html', 'bonus.html', 'whatif.html', 'about.html'];
-    const target = pages[index];
-
-    // 3. Don't reload if already on the page
-    if (window.location.pathname.includes(target)) return;
-
-    // 4. Trigger the slide animation
-    const overlay = document.getElementById('slide-overlay');
-    if (overlay) {
-        overlay.classList.add('active');
-        setTimeout(() => {
-            window.location.href = target;
-        }, 400); // Matches the 0.4s CSS transition
-    } else {
-        window.location.href = target;
-    }
-}
     </script>
 </body>
 </html>
