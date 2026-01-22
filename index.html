@@ -81,6 +81,45 @@
             box-sizing: border-box;
         }
 
+        :root {
+    --hub-green: #00ff85;
+    --overlay-bg: rgba(255, 255, 255, 0.95);
+}
+
+.loading-overlay {
+    position: fixed;
+    inset: 0; /* Shorthand for top, bottom, left, right: 0 */
+    background-color: var(--overlay-bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    transition: opacity 0.3s ease, visibility 0.3s;
+}
+
+.loading-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* The Fantasy Hub Ball */
+.loading-ball {
+    width: 24px; /* Small like the Hub's loader */
+    height: 24px;
+    background-color: var(--hub-green);
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(0, 255, 133, 0.4);
+    animation: hub-bounce 0.6s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
+}
+
+@keyframes hub-bounce {
+    from { transform: translateY(10px); }
+    to { transform: translateY(-10px); }
+}
+        
+
         /* Theme Toggle Row */
         .theme-row {
             display: flex;
@@ -356,6 +395,62 @@ window.addEventListener('appinstalled', () => {
     deferredPrompt = null;
     console.log('PWA was installed');
 });
+
+        // 1. Create and inject the loader into the DOM automatically
+const injectLoader = () => {
+    const loaderHTML = `
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-ball"></div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('afterbegin', loaderHTML);
+};
+
+// 2. Logic to control the loader
+const Loader = {
+    el: null,
+    init() {
+        injectLoader();
+        this.el = document.getElementById('loading-overlay');
+        
+        // Hide when the page/PWA is fully loaded
+        window.addEventListener('load', () => this.hide());
+    },
+    show() {
+        if (this.el) this.el.classList.remove('hidden');
+    },
+    hide() {
+        if (this.el) this.el.classList.add('hidden');
+    }
+};
+
+// Initialize the loader
+document.addEventListener('DOMContentLoaded', () => {
+    Loader.init();
+
+    // Show loader for all internal link clicks
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('a');
+        if (link && link.href && !link.hash && link.target !== '_blank') {
+            // Only show if it's a different page
+            if (link.href !== window.location.href) {
+                Loader.show();
+            }
+        }
+    });
+});
+
+// Example: Show loader during Fetch API calls
+async function fetchData(url) {
+    Loader.show();
+    try {
+        const response = await fetch(url);
+        return await response.json();
+    } finally {
+        Loader.hide(); // Hide when done
+    }
+}
+        
     </script>
 </body>
 </html>
