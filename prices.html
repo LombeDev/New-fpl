@@ -69,6 +69,7 @@
 
         .predictions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; }
         .pred-card { background: var(--card-bg); border-radius: 15px; border: 1px solid var(--border-color); overflow: hidden; }
+        .full-width-card { grid-column: span 2; margin-top: 8px; }
         .card-header { padding: 10px; font-weight: 800; font-size: 0.75rem; border-bottom: 1px solid var(--border-color); text-transform: uppercase; }
         .section-subhead { background: var(--bg-color); padding: 6px 10px; font-weight: 700; font-size: 0.6rem; color: var(--text-muted); }
 
@@ -130,6 +131,11 @@
                 <div class="section-subhead">Maybe (≥95%)</div>
                 <div id="falls-maybe"></div>
             </div>
+            
+            <div class="pred-card full-width-card">
+                <div class="card-header" style="color:var(--primary-blue)">Changed Last Night</div>
+                <div id="recently-changed"></div>
+            </div>
         </div>
     </main>
 
@@ -147,6 +153,7 @@
     <script>
         const BOOTSTRAP = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
         let allPlayers = [];
+        let changedPlayers = []; 
         let posFilter = 'ALL';
         let myTeam = JSON.parse(localStorage.getItem('fpl_my_team')) || [];
 
@@ -160,59 +167,52 @@
                 const res = await fetch(BOOTSTRAP);
                 const data = await res.json();
                 
-                // Determine Gameweek context
                 const currentGW = data.events.find(e => e.is_current)?.id || 1;
-                
-                // DECAY: Thresholds lower slightly each week to account for inactive accounts
                 const decay = Math.max(0.6, 1 - (currentGW * 0.015));
-                
-                // WILDCARD ESTIMATION: FPL ignores WC/FH. We assume ~10% of transfers don't count.
                 const wcFactor = 0.9; 
 
-                allPlayers = data.elements.map(p => {
+                const processed = data.elements.map(p => {
                     const own = parseFloat(p.selected_by_percent);
                     const netTransfersRaw = p.transfers_in_event - p.transfers_out_event;
-                    
-                    // Effective net transfers after ignoring estimated wildcards
                     const net = netTransfersRaw * wcFactor;
 
-                    // RISE LOGIC: Fixed threshold adjusted by ownership and decay
                     const riseThresh = ((own * 1400) + 4500) * decay;
-
-                    // FALL LOGIC: Percentage of ownership (approx 15-20%) adjusted by decay
                     const fallThresh = (own * 0.18) * 10000 * decay;
                     
                     let target = 0;
-                    if (net > 0) {
-                        target = (net / riseThresh) * 100;
-                    } else if (net < 0) {
-                        // Math.abs used to calculate percentage relative to the fall threshold
-                        target = (net / fallThresh) * 100;
-                    }
-
-                    // Cap at 100 for display logic
-                    let displayTarget = Math.min(Math.max(target, -100.1), 100.1); 
+                    if (net > 0) target = (net / riseThresh) * 100;
+                    else if (net < 0) target = (net / fallThresh) * 100;
 
                     return {
                         id: p.id, 
                         name: p.web_name,
                         price: (p.now_cost / 10).toFixed(1),
-                        target: parseFloat(displayTarget.toFixed(1)),
+                        target: parseFloat(Math.min(Math.max(target, -100.1), 100.1).toFixed(1)),
                         pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
-                        own: own
+                        own: own,
+                        changed: p.cost_change_event !== 0,
+                        changeType: p.cost_change_event > 0 ? 'rise' : 'fall'
                     };
                 });
+
+                allPlayers = processed.filter(p => !p.changed);
+                changedPlayers = processed.filter(p => p.changed);
+                
                 render();
             } catch (e) { console.error(e); }
         }
 
         function render() {
             const query = document.getElementById('playerSearch').value.toLowerCase();
-            const filtered = allPlayers.filter(p => {
+            
+            const filterFn = p => {
                 const mSearch = p.name.toLowerCase().includes(query);
                 const mPos = posFilter === 'MY_TEAM' ? myTeam.includes(p.id) : (posFilter === 'ALL' || p.pos === posFilter);
                 return mSearch && mPos;
-            });
+            };
+
+            const filteredActive = allPlayers.filter(filterFn);
+            const filteredChanged = changedPlayers.filter(filterFn);
 
             const draw = (id, list, type) => {
                 const el = document.getElementById(id);
@@ -224,40 +224,40 @@
                 el.innerHTML = list.slice(0, 20).map(p => {
                     const absTarget = Math.abs(p.target);
                     const isLocked = absTarget >= 100;
-                    const dayLabel = isLocked ? "Tonight" : (absTarget >= 90 ? "Soon" : "");
+                    const dayLabel = p.changed ? "Done" : (isLocked ? "Tonight" : (absTarget >= 90 ? "Soon" : ""));
+                    const rowType = p.changed ? p.changeType : type;
                     
                     return `
-                    <div class="player-row ${isLocked ? 'locked' : ''}">
+                    <div class="player-row ${isLocked && !p.changed ? 'locked' : ''}">
                         <button class="add-btn ${myTeam.includes(p.id)?'active':''}" onclick="event.stopPropagation(); toggleTeam(${p.id})">
                             <i class="fa-solid ${myTeam.includes(p.id)?'fa-star':'fa-plus'}"></i>
                         </button>
                         <div class="player-meta">
                             <div class="player-name">${p.name} <span class="day-label">${dayLabel}</span></div>
                             <div class="progress-container">
-                                <div class="progress-fill" style="width:${Math.min(absTarget,100)}%; background:${isLocked ? 'var(--locked-gold)' : (type==='rise'?'#10b981':'var(--fpl-pink)')}"></div>
+                                <div class="progress-fill" style="width:${p.changed ? 100 : Math.min(absTarget,100)}%; background:${p.changed ? 'var(--primary-blue)' : (isLocked ? 'var(--locked-gold)' : (rowType==='rise'?'#10b981':'var(--fpl-pink)'))}"></div>
                             </div>
                         </div>
-                        <div class="player-price" style="color:${isLocked ? 'var(--locked-gold)' : 'inherit'}">${absTarget.toFixed(1)}%</div>
-                        <div class="trend-icon ${type==='rise'?'trend-up':'trend-down'}">
-                            <i class="fa-solid fa-arrow-${type==='rise'?'up':'down'}"></i>
+                        <div class="player-price" style="color:inherit">£${p.price}</div>
+                        <div class="trend-icon ${rowType==='rise'?'trend-up':'trend-down'}">
+                            <i class="fa-solid fa-arrow-${rowType==='rise'?'up':'down'}"></i>
                         </div>
                     </div>`;
                 }).join('');
             };
 
-            draw('rises-tonight', filtered.filter(p => p.target >= 100).sort((a,b) => b.target - a.target), 'rise');
-            draw('rises-maybe', filtered.filter(p => p.target >= 95 && p.target < 100).sort((a,b) => b.target - a.target), 'rise');
-            draw('falls-tonight', filtered.filter(p => p.target <= -100).sort((a,b) => a.target - b.target), 'fall');
-            draw('falls-maybe', filtered.filter(p => p.target <= -95 && p.target > -100).sort((a,b) => a.target - b.target), 'fall');
+            draw('rises-tonight', filteredActive.filter(p => p.target >= 100).sort((a,b) => b.target - a.target), 'rise');
+            draw('rises-maybe', filteredActive.filter(p => p.target >= 95 && p.target < 100).sort((a,b) => b.target - a.target), 'rise');
+            draw('falls-tonight', filteredActive.filter(p => p.target <= -100).sort((a,b) => a.target - b.target), 'fall');
+            draw('falls-maybe', filteredActive.filter(p => p.target <= -95 && p.target > -100).sort((a,b) => a.target - b.target), 'fall');
+            draw('recently-changed', filteredChanged, null);
         }
 
         function updateTimer() {
             const now = new Date();
             let target = new Date();
-            // FPL price changes usually happen around 01:30 - 02:30 UTC
             target.setUTCHours(2, 30, 0, 0);
             if (now > target) target.setUTCDate(target.getUTCDate() + 1);
-            
             const diff = target - now;
             const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
             const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
@@ -267,7 +267,6 @@
 
         setInterval(updateTimer, 1000);
         document.getElementById('playerSearch').oninput = render;
-        
         document.querySelectorAll('.pos-chip').forEach(c => {
             c.onclick = () => {
                 document.querySelectorAll('.pos-chip').forEach(x => x.classList.remove('active'));
