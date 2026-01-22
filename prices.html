@@ -33,10 +33,11 @@
             --border-color: #334155;
         }
 
-* {
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
-}
+        * {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            box-sizing: border-box;
+        }
 
         body {
             margin: 0; padding: 0;
@@ -50,18 +51,18 @@
             position: fixed; top: 0; width: 100%; height: 60px;
             background: var(--card-bg); border-bottom: 1px solid var(--border-color);
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 15px; box-sizing: border-box; z-index: 3000;
+            padding: 0 15px; z-index: 3000;
         }
         .logo-container { font-weight: 900; font-size: 1.4rem; display: flex; align-items: center; letter-spacing: -1px; }
         .logo-container span { color: var(--fpl-green); }
         .nav-icon-btn { font-size: 1.2rem; color: var(--text-main); cursor: pointer; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; }
 
-        .page-content { padding-top: 70px; padding-bottom: 90px; min-height: 100vh; box-sizing: border-box; }
+        .page-content { padding-top: 70px; padding-bottom: 90px; min-height: 100vh; }
         .info-banner { background: var(--card-bg); margin: 8px; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; font-size: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         #timer { color: var(--fpl-pink); font-weight: 800; font-family: monospace; font-size: 0.9rem; }
 
         .controls { padding: 0 8px; display: flex; flex-direction: column; gap: 8px; }
-        .search-box { padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 0.9rem; outline: none; }
+        .search-box { padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 0.9rem; outline: none; width: 100%; }
         .pos-filter-row { display: flex; gap: 6px; overflow-x: auto; padding: 5px 0; scrollbar-width: none; }
         .pos-chip { padding: 6px 14px; border-radius: 50px; border: 1px solid var(--border-color); background: var(--card-bg); font-size: 0.7rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
         .pos-chip.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
@@ -73,7 +74,7 @@
 
         .player-row { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); position: relative; }
         .player-row.locked { background: rgba(250, 204, 21, 0.05); }
-        .add-btn { background: none; border: none; color: var(--text-muted); font-size: 0.8rem; margin-right: 6px; }
+        .add-btn { background: none; border: none; color: var(--text-muted); font-size: 0.8rem; margin-right: 6px; cursor: pointer; }
         .add-btn.active { color: #facc15; }
         .player-meta { flex: 1; overflow: hidden; }
         .player-name { font-weight: 700; font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -86,7 +87,7 @@
         .trend-up { background: var(--fpl-green); }
         .trend-down { background: var(--fpl-pink); }
 
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--card-bg); border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(8, 1fr); padding: 5px 0; box-sizing: border-box; z-index: 3000; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--card-bg); border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(8, 1fr); padding: 5px 0; z-index: 3000; }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px; }
         .nav-item.active { color: var(--primary-blue); }
         .nav-item i { font-size: 1.2rem; display: block; }
@@ -158,21 +159,43 @@
             try {
                 const res = await fetch(BOOTSTRAP);
                 const data = await res.json();
+                
+                // Determine Gameweek context
                 const currentGW = data.events.find(e => e.is_current)?.id || 1;
-                const decay = Math.max(0.65, 1 - (currentGW * 0.012));
+                
+                // DECAY: Thresholds lower slightly each week to account for inactive accounts
+                const decay = Math.max(0.6, 1 - (currentGW * 0.015));
+                
+                // WILDCARD ESTIMATION: FPL ignores WC/FH. We assume ~10% of transfers don't count.
+                const wcFactor = 0.9; 
 
                 allPlayers = data.elements.map(p => {
                     const own = parseFloat(p.selected_by_percent);
-                    const net = p.transfers_in_event - p.transfers_out_event;
-                    const riseThresh = ((own * 1300) + 4000) * decay;
-                    const fallThresh = (own * 0.12) * 10000 * decay;
+                    const netTransfersRaw = p.transfers_in_event - p.transfers_out_event;
                     
-                    let target = net > 0 ? (net / riseThresh) * 100 : (net / fallThresh) * 100;
+                    // Effective net transfers after ignoring estimated wildcards
+                    const net = netTransfersRaw * wcFactor;
+
+                    // RISE LOGIC: Fixed threshold adjusted by ownership and decay
+                    const riseThresh = ((own * 1400) + 4500) * decay;
+
+                    // FALL LOGIC: Percentage of ownership (approx 15-20%) adjusted by decay
+                    const fallThresh = (own * 0.18) * 10000 * decay;
+                    
+                    let target = 0;
+                    if (net > 0) {
+                        target = (net / riseThresh) * 100;
+                    } else if (net < 0) {
+                        // Math.abs used to calculate percentage relative to the fall threshold
+                        target = (net / fallThresh) * 100;
+                    }
+
                     // Cap at 100 for display logic
                     let displayTarget = Math.min(Math.max(target, -100.1), 100.1); 
 
                     return {
-                        id: p.id, name: p.web_name,
+                        id: p.id, 
+                        name: p.web_name,
                         price: (p.now_cost / 10).toFixed(1),
                         target: parseFloat(displayTarget.toFixed(1)),
                         pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
@@ -193,11 +216,15 @@
 
             const draw = (id, list, type) => {
                 const el = document.getElementById(id);
-                if(!list.length) return el.innerHTML = '<div style="padding:10px; font-size:0.6rem; color:var(--text-muted)">None</div>';
+                if(!list.length) {
+                    el.innerHTML = '<div style="padding:10px; font-size:0.6rem; color:var(--text-muted)">None</div>';
+                    return;
+                }
                 
-                el.innerHTML = list.slice(0, 15).map(p => {
-                    const isLocked = Math.abs(p.target) >= 100;
-                    const dayLabel = isLocked ? "Tonight" : (Math.abs(p.target) >= 90 ? "Tomorrow" : "");
+                el.innerHTML = list.slice(0, 20).map(p => {
+                    const absTarget = Math.abs(p.target);
+                    const isLocked = absTarget >= 100;
+                    const dayLabel = isLocked ? "Tonight" : (absTarget >= 90 ? "Soon" : "");
                     
                     return `
                     <div class="player-row ${isLocked ? 'locked' : ''}">
@@ -207,10 +234,10 @@
                         <div class="player-meta">
                             <div class="player-name">${p.name} <span class="day-label">${dayLabel}</span></div>
                             <div class="progress-container">
-                                <div class="progress-fill" style="width:${Math.min(Math.abs(p.target),100)}%; background:${isLocked ? 'var(--locked-gold)' : (type==='rise'?'#10b981':'var(--fpl-pink)')}"></div>
+                                <div class="progress-fill" style="width:${Math.min(absTarget,100)}%; background:${isLocked ? 'var(--locked-gold)' : (type==='rise'?'#10b981':'var(--fpl-pink)')}"></div>
                             </div>
                         </div>
-                        <div class="player-price" style="color:${isLocked ? 'var(--locked-gold)' : 'inherit'}">${Math.abs(p.target)}%</div>
+                        <div class="player-price" style="color:${isLocked ? 'var(--locked-gold)' : 'inherit'}">${absTarget.toFixed(1)}%</div>
                         <div class="trend-icon ${type==='rise'?'trend-up':'trend-down'}">
                             <i class="fa-solid fa-arrow-${type==='rise'?'up':'down'}"></i>
                         </div>
@@ -227,7 +254,7 @@
         function updateTimer() {
             const now = new Date();
             let target = new Date();
-            // Reset window specifically at 02:30 UTC
+            // FPL price changes usually happen around 01:30 - 02:30 UTC
             target.setUTCHours(2, 30, 0, 0);
             if (now > target) target.setUTCDate(target.getUTCDate() + 1);
             
@@ -240,6 +267,7 @@
 
         setInterval(updateTimer, 1000);
         document.getElementById('playerSearch').oninput = render;
+        
         document.querySelectorAll('.pos-chip').forEach(c => {
             c.onclick = () => {
                 document.querySelectorAll('.pos-chip').forEach(x => x.classList.remove('active'));
