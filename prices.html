@@ -40,57 +40,59 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, system-ui, sans-serif;
-            padding-top: 60px;
+            padding-top: 70px;
             padding-bottom: 90px;
+            transition: background 0.3s ease;
         }
 
-        /* Top Navigation */
+        /* Top Navigation Restored */
         .top-nav {
             position: fixed; top: 0; width: 100%; height: 60px;
             background: var(--card-bg); border-bottom: 1px solid var(--border-color);
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 15px; z-index: 3000;
         }
-        .logo-container { font-weight: 900; font-size: 1.4rem; letter-spacing: -1px; }
+        .logo-container { font-weight: 900; font-size: 1.4rem; display: flex; align-items: center; letter-spacing: -1px; }
         .logo-container span { color: var(--fpl-green); }
+        .nav-icon-btn { font-size: 1.2rem; color: var(--text-main); cursor: pointer; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; }
 
-        /* Summary Section Layout */
+        /* Prediction Summary Restored */
         .summary-section { margin: 8px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
         .section-title { padding: 12px; text-align: center; font-weight: 700; font-size: 1rem; border-bottom: 1px solid var(--border-color); }
         .summary-filter { background: var(--bg-color); padding: 8px; font-size: 0.7rem; text-align: center; border-bottom: 1px solid var(--border-color); }
         
         .summary-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .summary-table th { background: var(--header-dark); color: white; padding: 10px; font-size: 0.75rem; text-transform: uppercase; }
-        .summary-table td { border: 1px solid var(--border-color); padding: 10px; vertical-align: top; height: 120px; text-align: center; }
+        .summary-table th { background: var(--header-dark); color: white; padding: 10px; font-size: 0.7rem; text-transform: uppercase; }
+        .summary-table td { border: 1px solid var(--border-color); padding: 10px; vertical-align: top; height: 125px; text-align: center; }
         .label-row { background: var(--bg-color); color: var(--text-muted); font-size: 0.65rem; font-weight: 700; text-align: center; padding: 5px !important; }
 
-        /* Shirt Component Style */
-        .shirt-card { display: inline-flex; flex-direction: column; align-items: center; margin: 4px; width: 70px; }
-        .shirt-img { width: 45px; height: 52px; object-fit: contain; }
+        /* Shirt Graphics */
+        .shirt-card { display: inline-flex; flex-direction: column; align-items: center; margin: 4px; width: 68px; }
+        .shirt-img { width: 42px; height: 50px; object-fit: contain; }
         .shirt-name { background: #000; color: #fff; font-size: 0.55rem; font-weight: 800; width: 100%; padding: 2px 0; margin-top: 2px; border-radius: 2px; text-transform: uppercase; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         .shirt-meta { font-size: 0.5rem; color: var(--text-muted); margin: 1px 0; }
-        .shirt-percent { color: #fff; font-size: 0.65rem; font-weight: 900; width: 100%; border-radius: 2px; padding: 2px 0; }
+        .shirt-percent { color: #fff; font-size: 0.6rem; font-weight: 900; width: 100%; border-radius: 2px; padding: 2px 0; }
 
-        /* Transfers Table Style */
+        /* Transfer Table */
         .transfer-section { margin: 8px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
         .transfer-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
         .transfer-table th { background: var(--header-dark); color: white; padding: 12px 8px; text-align: left; }
         .transfer-table td { padding: 10px 8px; border-bottom: 1px solid var(--border-color); }
-        .player-cell { display: flex; align-items: center; gap: 6px; }
-        .rank-num { font-weight: 800; color: var(--text-muted); }
+        .player-cell { display: flex; align-items: center; gap: 5px; }
 
-        /* Bottom Menu */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--card-bg); border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(4, 1fr); z-index: 3000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 0.6rem; font-weight: 700; }
+        /* Bottom Nav Restored to 8 Items */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--card-bg); border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(8, 1fr); padding: 5px 0; z-index: 3000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px; }
         .nav-item.active { color: var(--primary-blue); }
-        .nav-item i { font-size: 1.3rem; margin-bottom: 4px; }
+        .nav-item i { font-size: 1.2rem; display: block; }
     </style>
 </head>
 <body class="dark-mode">
 
     <header class="top-nav">
+        <div class="nav-icon-btn"><i class="fa-solid fa-circle-user"></i></div>
         <div class="logo-container">Kopala<span>▲</span>FPL</div>
-        <div onclick="document.body.classList.toggle('dark-mode')"><i class="fa-solid fa-moon"></i></div>
+        <div class="nav-icon-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></div>
     </header>
 
     <main>
@@ -98,7 +100,7 @@
             <div class="section-title">Summary of Predictions</div>
             <div class="summary-filter">
                 <input type="checkbox" id="minOwnCheck" checked>
-                Only show fallers owned by more than <input type="number" id="minOwnVal" value="1" style="width:40px; text-align:center; border:1px solid var(--border-color); border-radius:4px"> %
+                Only show fallers owned by more than <input type="number" id="minOwnVal" value="1" style="width:35px; text-align:center"> %
             </div>
             <table class="summary-table">
                 <thead>
@@ -129,31 +131,39 @@
                         <th>Number</th>
                     </tr>
                 </thead>
-                <tbody id="transfer-list">
-                    </tbody>
+                <tbody id="transfer-list"></tbody>
             </table>
         </div>
     </main>
 
     <nav class="bottom-nav">
-        <a href="#" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
-        <a href="#" class="nav-item active"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-ellipsis-h"></i><span>More</span></a>
+        <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
+        <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
+        <a href="prices.html" class="nav-item active"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
+        <a href="games.html" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
+        <a href="members.html" class="nav-item"><i class="fa-solid fa-user-tie"></i><span>Members</span></a>
+        <a href="https://wa.me/260964836842" class="nav-item"><i class="fa fa-comments"></i><span>Support</span></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-circle-info"></i><span>About</span></a>
+        <a href="#" class="nav-item"><i class="fa fa-ellipsis-h"></i><span>More</span></a>
     </nav>
 
     <script>
-        const API_URL = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
+        const PROXY_URL = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
 
-        async function fetchData() {
+        function toggleTheme() { 
+            const isDark = document.body.classList.toggle('dark-mode');
+            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+
+        async function init() {
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(PROXY_URL);
                 const data = await response.json();
                 
                 const currentGW = data.events.find(e => e.is_current)?.id || 1;
                 const decay = Math.max(0.6, 1 - (currentGW * 0.015));
 
-                const allPlayers = data.elements.map(p => {
+                const players = data.elements.map(p => {
                     const own = parseFloat(p.selected_by_percent);
                     const net = (p.transfers_in_event - p.transfers_out_event) * 0.9;
                     const riseThresh = ((own * 1400) + 4500) * decay;
@@ -174,15 +184,14 @@
                     };
                 });
 
-                // Filter 1: Remove players who changed price yesterday
-                const activePlayers = allPlayers.filter(p => !p.changed);
-                
-                renderUI(activePlayers, allPlayers);
+                const active = players.filter(p => !p.changed);
+                renderSummary(active);
+                renderTransfers(players);
 
-            } catch (err) { console.error("Data Fetch Error:", err); }
+            } catch (err) { console.error(err); }
         }
 
-        function createShirtNode(p, isRise) {
+        function getShirtHTML(p, isRise) {
             const color = isRise ? "#10b981" : "#e90052";
             const absTarget = Math.abs(p.target);
             const shirtUrl = `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp`;
@@ -197,42 +206,41 @@
             `;
         }
 
-        function renderUI(active, all) {
+        function renderSummary(active) {
             const minOwn = parseFloat(document.getElementById('minOwnVal').value) || 0;
-            const filterOn = document.getElementById('minOwnCheck').checked;
-            const fallFilter = (p) => filterOn ? p.own >= minOwn : true;
+            const useFilter = document.getElementById('minOwnCheck').checked;
+            const filterFalls = (p) => useFilter ? p.own >= minOwn : true;
 
-            // Sort and Render Summary
-            document.getElementById('r-reached').innerHTML = active.filter(p => p.target >= 105).slice(0, 3).map(p => createShirtNode(p, true)).join('');
-            document.getElementById('r-projected').innerHTML = active.filter(p => p.target >= 100 && p.target < 105).slice(0, 3).map(p => createShirtNode(p, true)).join('');
-            document.getElementById('r-close').innerHTML = active.filter(p => p.target >= 90 && p.target < 100).slice(0, 3).map(p => createShirtNode(p, true)).join('');
+            document.getElementById('r-reached').innerHTML = active.filter(p => p.target >= 105).slice(0, 2).map(p => getShirtHTML(p, true)).join('');
+            document.getElementById('r-projected').innerHTML = active.filter(p => p.target >= 100 && p.target < 105).slice(0, 2).map(p => getShirtHTML(p, true)).join('');
+            document.getElementById('r-close').innerHTML = active.filter(p => p.target >= 95 && p.target < 100).slice(0, 2).map(p => getShirtHTML(p, true)).join('');
 
-            document.getElementById('f-reached').innerHTML = active.filter(p => p.target <= -105 && fallFilter(p)).slice(0, 3).map(p => createShirtNode(p, false)).join('');
-            document.getElementById('f-projected').innerHTML = active.filter(p => p.target <= -100 && p.target > -105 && fallFilter(p)).slice(0, 3).map(p => createShirtNode(p, false)).join('');
-            document.getElementById('f-close').innerHTML = active.filter(p => p.target <= -90 && p.target > -100 && fallFilter(p)).slice(0, 3).map(p => createShirtNode(p, false)).join('');
+            document.getElementById('f-reached').innerHTML = active.filter(p => p.target <= -105 && filterFalls(p)).slice(0, 2).map(p => getShirtHTML(p, false)).join('');
+            document.getElementById('f-projected').innerHTML = active.filter(p => p.target <= -100 && p.target > -105 && filterFalls(p)).slice(0, 2).map(p => getShirtHTML(p, false)).join('');
+            document.getElementById('f-close').innerHTML = active.filter(p => p.target <= -95 && p.target > -100 && filterFalls(p)).slice(0, 2).map(p => getShirtHTML(p, false)).join('');
+        }
 
-            // Render Transfers Table
-            const topIn = [...all].sort((a,b) => b.in - a.in).slice(0, 5);
-            const topOut = [...all].sort((a,b) => b.out - a.out).slice(0, 5);
+        function renderTransfers(players) {
+            const topIn = [...players].sort((a,b) => b.in - a.in).slice(0, 5);
+            const topOut = [...players].sort((a,b) => b.out - a.out).slice(0, 5);
             
-            let transHtml = '';
+            let html = '';
             for(let i=0; i<5; i++) {
-                transHtml += `
+                html += `
                     <tr>
-                        <td><span class="rank-num">${i+1}</span></td>
+                        <td><strong>${i+1}</strong></td>
                         <td><div class="player-cell"><img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${topIn[i].teamCode}-66.webp" width="18"> ${topIn[i].name}</div></td>
                         <td><div class="player-cell"><img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${topOut[i].teamCode}-66.webp" width="18"> ${topOut[i].name}</div></td>
-                        <td><strong>${topIn[i].in.toLocaleString()}</strong></td>
+                        <td>${topIn[i].in.toLocaleString()}</td>
                     </tr>
                 `;
             }
-            document.getElementById('transfer-list').innerHTML = transHtml;
+            document.getElementById('transfer-list').innerHTML = html;
         }
 
-        // Initialize and Listeners
-        fetchData();
-        document.getElementById('minOwnVal').addEventListener('input', fetchData);
-        document.getElementById('minOwnCheck').addEventListener('change', fetchData);
+        init();
+        document.getElementById('minOwnVal').oninput = init;
+        document.getElementById('minOwnCheck').onchange = init;
     </script>
 </body>
 </html>
