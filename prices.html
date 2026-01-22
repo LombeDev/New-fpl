@@ -54,9 +54,12 @@
         .countdown-display { background: var(--fpl-green); color: #000; font-weight: 900; padding: 5px 12px; border-radius: 4px; font-family: monospace; }
 
         /* Sections */
-        .summary-section, .watchlist-section, .transfers-section { margin: 8px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; margin-bottom: 15px; }
+        .summary-section, .watchlist-section, .history-section, .transfers-section { margin: 8px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; margin-bottom: 15px; }
         .section-title { padding: 12px; text-align: center; font-weight: 700; border-bottom: 1px solid var(--border-color); display: flex; justify-content: center; align-items: center; gap: 8px; }
         
+        .filter-bar { background: var(--bg-color); padding: 10px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; font-size: 0.75rem; border-bottom: 1px solid var(--border-color); }
+        .filter-bar select, .filter-bar input { padding: 5px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); }
+
         .summary-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .summary-table th { background: var(--header-dark); color: white; padding: 10px; font-size: 0.7rem; }
         .summary-table td { border: 1px solid var(--border-color); padding: 10px; text-align: center; min-height: 120px; vertical-align: top; }
@@ -71,11 +74,10 @@
         .watchlist-container { display: flex; flex-wrap: wrap; justify-content: center; padding: 10px; gap: 5px; min-height: 50px; }
         .empty-msg { font-size: 0.75rem; color: var(--text-muted); padding: 20px; text-align: center; width: 100%; }
 
-        /* Transfers Table */
-        .transfer-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-        .transfer-table th { background: var(--header-dark); color: white; padding: 10px; text-align: left; }
-        .transfer-table td { border-bottom: 1px solid var(--border-color); padding: 10px; }
-        .transfer-name { font-weight: 700; }
+        /* Tables */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        .data-table th { background: var(--header-dark); color: white; padding: 10px; text-align: left; }
+        .data-table td { border-bottom: 1px solid var(--border-color); padding: 10px; }
         .count-in { color: var(--fpl-green); font-weight: 800; }
         .count-out { color: var(--fpl-pink); font-weight: 800; }
 
@@ -84,6 +86,10 @@
         .shirt-img { width: 45px; height: 50px; object-fit: contain; }
         .shirt-name { background: #000; color: #fff; font-size: 0.55rem; width: 100%; padding: 2px; border-radius: 2px; margin-top: 2px; text-transform: uppercase; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         .shirt-percent { color: #fff; font-size: 0.6rem; font-weight: 900; width: 100%; padding: 2px; border-radius: 2px; margin-top: 2px; }
+
+        /* Progress Bar in Modal */
+        .progress-container { width: 100%; height: 10px; background: var(--bg-color); border-radius: 5px; margin: 10px 0; overflow: hidden; }
+        .progress-fill { height: 100%; transition: width 0.5s ease; }
 
         /* Modal */
         .modal { display: none; position: fixed; z-index: 4000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; padding: 20px; }
@@ -95,7 +101,7 @@
         .stat-box { background: var(--bg-color); padding: 10px; border-radius: 8px; font-size: 0.8rem; }
         .stat-val { display: block; font-weight: 800; color: var(--primary-blue); font-size: 1.1rem; }
 
-        /* Bottom Nav (8 Items) */
+        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--card-bg); border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(8, 1fr); z-index: 3000; }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px; }
         .nav-item.active { color: var(--primary-blue); }
@@ -117,20 +123,26 @@
         </div>
 
         <div class="summary-section">
-            <div class="section-title">Summary of Predictions</div>
-            <div style="text-align:center; padding: 8px; font-size: 0.7rem; background: var(--bg-color);">
-                <input type="checkbox" id="minOwnCheck" checked> Only show fallers > <input type="number" id="minOwnVal" value="1" style="width:30px"> %
+            <div class="section-title">Price Predictions</div>
+            <div class="filter-bar">
+                <select id="teamFilter" onchange="render()">
+                    <option value="all">All Teams</option>
+                </select>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <input type="checkbox" id="minOwnCheck" checked onchange="render()">
+                    <span>Min Own: <input type="number" id="minOwnVal" value="1" style="width:30px" oninput="render()"> %</span>
+                </div>
             </div>
             <table class="summary-table">
                 <thead>
                     <tr><th style="border-right: 1px solid #444;">Predicted Rises</th><th>Predicted Falls</th></tr>
                 </thead>
                 <tbody id="summary-grid">
-                    <tr><td colspan="2" class="label-row">Already reached target</td></tr>
+                    <tr><td colspan="2" class="label-row">Ready for Price Change</td></tr>
                     <tr><td id="r-reached"></td><td id="f-reached"></td></tr>
-                    <tr><td colspan="2" class="label-row">Projected to reach target</td></tr>
+                    <tr><td colspan="2" class="label-row">Rising / Falling Fast</td></tr>
                     <tr><td id="r-projected"></td><td id="f-projected"></td></tr>
-                    <tr><td colspan="2" class="label-row">Others who will be close</td></tr>
+                    <tr><td colspan="2" class="label-row">Approaching Target</td></tr>
                     <tr><td id="r-close"></td><td id="f-close"></td></tr>
                 </tbody>
             </table>
@@ -153,9 +165,19 @@
             </div>
         </div>
 
+        <div class="history-section">
+            <div class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Price Changes</div>
+            <table class="data-table">
+                <thead>
+                    <tr><th>Player</th><th>Team</th><th>Change</th><th>Price</th></tr>
+                </thead>
+                <tbody id="history-body"></tbody>
+            </table>
+        </div>
+
         <div class="transfers-section">
-            <div class="section-title"><i class="fa-solid fa-right-left"></i> Top Daily Transfers</div>
-            <table class="transfer-table">
+            <div class="section-title"><i class="fa-solid fa-right-left"></i> Popular Transfers</div>
+            <table class="data-table">
                 <thead>
                     <tr><th>Player</th><th>Net (Today)</th></tr>
                 </thead>
@@ -171,11 +193,17 @@
             <img id="modal-shirt" src="" style="width: 80px;">
             <h2 id="modal-name" style="margin: 10px 0 5px;">Player Name</h2>
             <div id="modal-pos" style="color: var(--text-muted); font-size: 0.9rem;">MID | Team</div>
+            
+            <div class="progress-container">
+                <div id="modal-progress" class="progress-fill"></div>
+            </div>
+            <div id="modal-target-text" style="font-size: 0.8rem; font-weight: 800; margin-bottom: 10px;">0% to target</div>
+
             <div class="stat-grid">
                 <div class="stat-box">Price <span class="stat-val" id="modal-price">£0.0</span></div>
-                <div class="stat-box">Target <span class="stat-val" id="modal-target">0%</span></div>
-                <div class="stat-box">Ownership <span class="stat-val" id="modal-own">0%</span></div>
-                <div class="stat-box">Net Transfers <span class="stat-val" id="modal-net">0</span></div>
+                <div class="stat-box">Owned <span class="stat-val" id="modal-own">0%</span></div>
+                <div class="stat-box">In <span class="stat-val" id="modal-in" style="color:var(--fpl-green)">0</span></div>
+                <div class="stat-box">Out <span class="stat-val" id="modal-out" style="color:var(--fpl-pink)">0</span></div>
             </div>
         </div>
     </div>
@@ -194,6 +222,7 @@
     <script>
         const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
         let playerData = [];
+        let teamMap = {};
         let watchlist = JSON.parse(localStorage.getItem('fpl_watchlist')) || [];
         let currentModalPlayerId = null;
 
@@ -206,68 +235,94 @@
             try {
                 const res = await fetch(PROXY);
                 const data = await res.json();
-                const currentGW = data.events.find(e => e.is_current)?.id || 1;
-                const decay = Math.max(0.6, 1 - (currentGW * 0.015));
+                
+                // Build team lookup and populate filter dropdown
+                data.teams.forEach(t => { 
+                    teamMap[t.id] = t.name;
+                    const opt = document.createElement('option');
+                    opt.value = t.id; opt.innerText = t.name;
+                    document.getElementById('teamFilter').appendChild(opt);
+                });
 
+                // Real-world logic factors
+                const wildcardFactor = 0.88; // Simulating 12% non-scoring transfers (WC/FH)
+                
                 playerData = data.elements.map(p => {
-                    const net = p.transfers_in_event - p.transfers_out_event;
-                    const riseThresh = ((p.selected_by_percent * 1400) + 4500) * decay;
-                    const fallThresh = (p.selected_by_percent * 0.18) * 10000 * decay;
-                    const target = net > 0 ? (net / riseThresh) * 100 : (net / fallThresh) * 100;
+                    const price = p.now_cost / 10;
+                    const own = parseFloat(p.selected_by_percent);
+                    const netEvent = (p.transfers_in_event - p.transfers_out_event) * wildcardFactor;
+                    
+                    let target = 0;
+                    if (netEvent > 0) {
+                        const threshold = Math.max(4000, (own * 1200) + (price * 500));
+                        target = (netEvent / threshold) * 100;
+                    } else {
+                        const threshold = Math.max(3000, (own * 1100));
+                        target = (netEvent / threshold) * 100;
+                    }
 
                     return {
                         id: p.id,
                         name: p.web_name,
-                        price: (p.now_cost / 10).toFixed(1),
+                        price: price.toFixed(1),
                         target: parseFloat(target.toFixed(2)),
-                        own: p.selected_by_percent,
+                        own: own,
                         pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
+                        teamId: p.team,
                         teamCode: p.team_code,
-                        net: net,
+                        in: p.transfers_in_event,
+                        out: p.transfers_out_event,
+                        costChange: p.cost_change_event / 10,
                         changed: p.cost_change_event !== 0
                     };
                 });
                 render();
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Error fetching data:", e); }
         }
 
-        function handleSearch(val) {
-            const resultsDiv = document.getElementById('searchResults');
-            if (val.length < 2) { resultsDiv.style.display = 'none'; return; }
-            const filtered = playerData.filter(p => p.name.toLowerCase().includes(val.toLowerCase())).slice(0, 5);
-            if (filtered.length > 0) {
-                resultsDiv.innerHTML = filtered.map(p => `
-                    <div class="search-item" onclick="openModal(${p.id}); document.getElementById('searchResults').style.display='none';">
-                        <span>${p.name}</span><span style="color:var(--text-muted)">${p.pos}</span>
-                    </div>`).join('');
-                resultsDiv.style.display = 'block';
-            } else { resultsDiv.style.display = 'none'; }
-        }
+        function render() {
+            const selectedTeam = document.getElementById('teamFilter').value;
+            const minOwn = parseFloat(document.getElementById('minOwnVal').value) || 0;
+            const filterOn = document.getElementById('minOwnCheck').checked;
+            
+            const teamFilter = (p) => selectedTeam === "all" || p.teamId == selectedTeam;
+            const fallFilter = (p) => filterOn ? p.own >= minOwn : true;
 
-        function openModal(id) {
-            currentModalPlayerId = id;
-            const p = playerData.find(x => x.id === id);
-            document.getElementById('modal-shirt').src = `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp`;
-            document.getElementById('modal-name').innerText = p.name;
-            document.getElementById('modal-pos').innerText = `${p.pos} | £${p.price}`;
-            document.getElementById('modal-price').innerText = `£${p.price}`;
-            document.getElementById('modal-target').innerText = `${p.target}%`;
-            document.getElementById('modal-own').innerText = `${p.own}%`;
-            document.getElementById('modal-net').innerText = p.net.toLocaleString();
-            document.getElementById('modal-fav').className = watchlist.includes(id) ? 'fa-solid fa-star fav-btn active' : 'fa-solid fa-star fav-btn';
-            document.getElementById('playerModal').style.display = 'flex';
-        }
+            const active = playerData.filter(p => !p.changed && teamFilter(p));
 
-        function toggleWatchlist() {
-            const idx = watchlist.indexOf(currentModalPlayerId);
-            if (idx > -1) watchlist.splice(idx, 1);
-            else watchlist.push(currentModalPlayerId);
-            localStorage.setItem('fpl_watchlist', JSON.stringify(watchlist));
-            openModal(currentModalPlayerId);
-            render();
-        }
+            // Summary Sorting
+            document.getElementById('r-reached').innerHTML = active.filter(p => p.target >= 100).sort((a,b)=>b.target-a.target).slice(0,3).map(p => getShirt(p)).join('');
+            document.getElementById('r-projected').innerHTML = active.filter(p => p.target >= 90 && p.target < 100).sort((a,b)=>b.target-a.target).slice(0,3).map(p => getShirt(p)).join('');
+            document.getElementById('r-close').innerHTML = active.filter(p => p.target >= 75 && p.target < 90).sort((a,b)=>b.target-a.target).slice(0,3).map(p => getShirt(p)).join('');
+            
+            document.getElementById('f-reached').innerHTML = active.filter(p => p.target <= -100 && fallFilter(p)).sort((a,b)=>a.target-b.target).slice(0,3).map(p => getShirt(p)).join('');
+            document.getElementById('f-projected').innerHTML = active.filter(p => p.target <= -90 && p.target > -100 && fallFilter(p)).sort((a,b)=>a.target-b.target).slice(0,3).map(p => getShirt(p)).join('');
+            document.getElementById('f-close').innerHTML = active.filter(p => p.target <= -75 && p.target > -90 && fallFilter(p)).sort((a,b)=>a.target-b.target).slice(0,3).map(p => getShirt(p)).join('');
 
-        function closeModal() { document.getElementById('playerModal').style.display = 'none'; }
+            // History Table
+            const history = playerData.filter(p => p.changed).sort((a,b) => Math.abs(b.costChange) - Math.abs(a.costChange));
+            document.getElementById('history-body').innerHTML = history.length ? history.map(p => `
+                <tr onclick="openModal(${p.id})">
+                    <td>${p.name}</td><td>${teamMap[p.teamId]}</td>
+                    <td class="${p.costChange > 0 ? 'count-in' : 'count-out'}">${p.costChange > 0 ? '+' : ''}${p.costChange.toFixed(1)}</td>
+                    <td>£${p.price}</td>
+                </tr>`).join('') : '<tr><td colspan="4" class="empty-msg">No changes in last update</td></tr>';
+
+            // Transfers Table
+            const filteredTransfers = playerData.filter(teamFilter);
+            const topIn = [...filteredTransfers].sort((a,b) => b.in - a.in).slice(0, 5);
+            const topOut = [...filteredTransfers].sort((a,b) => b.out - a.out).slice(0, 5);
+            let tHtml = '<tr><td colspan="2" class="label-row">Most Bought Today</td></tr>';
+            topIn.forEach(p => tHtml += `<tr onclick="openModal(${p.id})"><td>${p.name} (${p.pos})</td><td class="count-in">+${p.in.toLocaleString()}</td></tr>`);
+            tHtml += '<tr><td colspan="2" class="label-row">Most Sold Today</td></tr>';
+            topOut.forEach(p => tHtml += `<tr onclick="openModal(${p.id})"><td>${p.name} (${p.pos})</td><td class="count-out">-${p.out.toLocaleString()}</td></tr>`);
+            document.getElementById('transfer-body').innerHTML = tHtml;
+
+            // Watchlist
+            let wp = playerData.filter(p => watchlist.includes(p.id));
+            if (document.getElementById('sortWatchlist').checked) wp.sort((a,b) => Math.abs(b.target) - Math.abs(a.target));
+            document.getElementById('watchlist-grid').innerHTML = wp.length ? wp.map(p => getShirt(p)).join('') : '<div class="empty-msg">No players on watchlist</div>';
+        }
 
         function getShirt(p) {
             const color = p.target > 0 ? "#10b981" : "#e90052";
@@ -279,51 +334,54 @@
                 </div>`;
         }
 
-        function render() {
-            const active = playerData.filter(p => !p.changed);
-            const minOwn = parseFloat(document.getElementById('minOwnVal').value) || 0;
-            const filterOn = document.getElementById('minOwnCheck').checked;
-            const fFilter = (p) => filterOn ? p.own >= minOwn : true;
-
-            // Summary
-            document.getElementById('r-reached').innerHTML = active.filter(p => p.target >= 105).slice(0,3).map(p => getShirt(p)).join('');
-            document.getElementById('r-projected').innerHTML = active.filter(p => p.target >= 100 && p.target < 105).slice(0,3).map(p => getShirt(p)).join('');
-            document.getElementById('r-close').innerHTML = active.filter(p => p.target >= 95 && p.target < 100).slice(0,3).map(p => getShirt(p)).join('');
-            document.getElementById('f-reached').innerHTML = active.filter(p => p.target <= -105 && fFilter(p)).slice(0,3).map(p => getShirt(p)).join('');
-            document.getElementById('f-projected').innerHTML = active.filter(p => p.target <= -100 && p.target > -105 && fFilter(p)).slice(0,3).map(p => getShirt(p)).join('');
-            document.getElementById('f-close').innerHTML = active.filter(p => p.target <= -95 && p.target > -100 && fFilter(p)).slice(0,3).map(p => getShirt(p)).join('');
-
-            // Watchlist
-            const watchGrid = document.getElementById('watchlist-grid');
-            let wp = playerData.filter(p => watchlist.includes(p.id));
-            if (document.getElementById('sortWatchlist').checked) wp.sort((a,b) => Math.abs(b.target) - Math.abs(a.target));
-            watchGrid.innerHTML = wp.length > 0 ? wp.map(p => getShirt(p)).join('') : '<div class="empty-msg">No players added to watchlist yet.</div>';
-
-            // Top Transfers Table
-            const topIn = [...playerData].sort((a,b) => b.net - a.net).slice(0, 5);
-            const topOut = [...playerData].sort((a,b) => a.net - b.net).slice(0, 5);
-            let tHtml = '<tr><td colspan="2" class="label-row">Most Purchased Today</td></tr>';
-            topIn.forEach(p => tHtml += `<tr onclick="openModal(${p.id})"><td><span class="transfer-name">${p.name}</span> (${p.pos})</td><td class="count-in">+${p.net.toLocaleString()}</td></tr>`);
-            tHtml += '<tr><td colspan="2" class="label-row">Most Sold Today</td></tr>';
-            topOut.forEach(p => tHtml += `<tr onclick="openModal(${p.id})"><td><span class="transfer-name">${p.name}</span> (${p.pos})</td><td class="count-out">${p.net.toLocaleString()}</td></tr>`);
-            document.getElementById('transfer-body').innerHTML = tHtml;
+        function handleSearch(val) {
+            const resDiv = document.getElementById('searchResults');
+            if (val.length < 2) { resDiv.style.display = 'none'; return; }
+            const matches = playerData.filter(p => p.name.toLowerCase().includes(val.toLowerCase())).slice(0,5);
+            resDiv.innerHTML = matches.map(p => `<div class="search-item" onclick="openModal(${p.id}); document.getElementById('playerSearch').value=''; resDiv.style.display='none';"><span>${p.name}</span><span style="color:var(--text-muted)">${p.pos}</span></div>`).join('');
+            resDiv.style.display = 'block';
         }
 
+        function openModal(id) {
+            currentModalPlayerId = id;
+            const p = playerData.find(x => x.id === id);
+            document.getElementById('modal-shirt').src = `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp`;
+            document.getElementById('modal-name').innerText = p.name;
+            document.getElementById('modal-pos').innerText = `${p.pos} | ${teamMap[p.teamId]}`;
+            document.getElementById('modal-price').innerText = `£${p.price}`;
+            document.getElementById('modal-own').innerText = `${p.own}%`;
+            document.getElementById('modal-in').innerText = p.in.toLocaleString();
+            document.getElementById('modal-out').innerText = p.out.toLocaleString();
+            const fill = document.getElementById('modal-progress');
+            fill.style.width = Math.min(100, Math.abs(p.target)) + '%';
+            fill.style.background = p.target >= 0 ? 'var(--fpl-green)' : 'var(--fpl-pink)';
+            document.getElementById('modal-target-text').innerText = `${Math.abs(p.target).toFixed(1)}% to ${p.target >= 0 ? 'RISE' : 'FALL'}`;
+            document.getElementById('modal-fav').className = watchlist.includes(id) ? 'fa-solid fa-star fav-btn active' : 'fa-solid fa-star fav-btn';
+            document.getElementById('playerModal').style.display = 'flex';
+        }
+
+        function toggleWatchlist() {
+            const idx = watchlist.indexOf(currentModalPlayerId);
+            if (idx > -1) watchlist.splice(idx, 1); else watchlist.push(currentModalPlayerId);
+            localStorage.setItem('fpl_watchlist', JSON.stringify(watchlist));
+            openModal(currentModalPlayerId); render();
+        }
+
+        function closeModal() { document.getElementById('playerModal').style.display = 'none'; }
+
+        // Price Change Countdown
         setInterval(() => {
-            const now = new Date();
-            let target = new Date();
-            target.setUTCHours(2, 30, 0, 0);
+            const now = new Date(), target = new Date();
+            target.setUTCHours(2, 30, 0, 0); // FPL Daily update time
             if (now > target) target.setDate(target.getDate() + 1);
-            const diff = target - now;
-            const h = Math.floor(diff/3600000).toString().padStart(2,'0');
-            const m = Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
-            const s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
+            const d = target - now;
+            const h = Math.floor(d/3600000).toString().padStart(2,'0');
+            const m = Math.floor((d%3600000)/60000).toString().padStart(2,'0');
+            const s = Math.floor((d%60000)/1000).toString().padStart(2,'0');
             document.getElementById('price-timer').innerText = `${h} hr ${m} min ${s} sec`;
         }, 1000);
 
         init();
-        document.getElementById('minOwnVal').oninput = render;
-        document.getElementById('minOwnCheck').onchange = render;
     </script>
 </body>
 </html>
