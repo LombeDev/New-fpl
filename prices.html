@@ -45,7 +45,7 @@
             transition: background 0.3s ease;
         }
 
-        /* Top Navigation Restored */
+        /* Top Navigation */
         .top-nav {
             position: fixed; top: 0; width: 100%; height: 60px;
             background: var(--card-bg); border-bottom: 1px solid var(--border-color);
@@ -56,7 +56,11 @@
         .logo-container span { color: var(--fpl-green); }
         .nav-icon-btn { font-size: 1.2rem; color: var(--text-main); cursor: pointer; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; }
 
-        /* Prediction Summary Restored */
+        /* Timer Banner */
+        .info-banner { background: var(--card-bg); margin: 8px; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; font-size: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        #timer { color: var(--fpl-pink); font-weight: 800; font-family: monospace; font-size: 0.9rem; }
+
+        /* Summary Section */
         .summary-section { margin: 8px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
         .section-title { padding: 12px; text-align: center; font-weight: 700; font-size: 1rem; border-bottom: 1px solid var(--border-color); }
         .summary-filter { background: var(--bg-color); padding: 8px; font-size: 0.7rem; text-align: center; border-bottom: 1px solid var(--border-color); }
@@ -80,7 +84,7 @@
         .transfer-table td { padding: 10px 8px; border-bottom: 1px solid var(--border-color); }
         .player-cell { display: flex; align-items: center; gap: 5px; }
 
-        /* Bottom Nav Restored to 8 Items */
+        /* Bottom Nav (8 Items) */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--card-bg); border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(8, 1fr); padding: 5px 0; z-index: 3000; }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px; }
         .nav-item.active { color: var(--primary-blue); }
@@ -96,6 +100,10 @@
     </header>
 
     <main>
+        <div class="info-banner">
+            Price window closes in: <span id="timer">00:00:00</span>
+        </div>
+
         <div class="summary-section">
             <div class="section-title">Summary of Predictions</div>
             <div class="summary-filter">
@@ -155,6 +163,18 @@
             document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         }
 
+        function updateTimer() {
+            const now = new Date();
+            let target = new Date();
+            target.setUTCHours(2, 30, 0, 0); // Price changes usually at 02:30 AM UK
+            if (now > target) target.setUTCDate(target.getUTCDate() + 1);
+            const diff = target - now;
+            const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+            const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+            const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = `${h}:${m}:${s}`;
+        }
+
         async function init() {
             try {
                 const response = await fetch(PROXY_URL);
@@ -168,7 +188,6 @@
                     const net = (p.transfers_in_event - p.transfers_out_event) * 0.9;
                     const riseThresh = ((own * 1400) + 4500) * decay;
                     const fallThresh = (own * 0.18) * 10000 * decay;
-                    
                     let target = net > 0 ? (net / riseThresh) * 100 : (net / fallThresh) * 100;
                     
                     return {
@@ -238,6 +257,7 @@
             document.getElementById('transfer-list').innerHTML = html;
         }
 
+        setInterval(updateTimer, 1000);
         init();
         document.getElementById('minOwnVal').oninput = init;
         document.getElementById('minOwnCheck').onchange = init;
