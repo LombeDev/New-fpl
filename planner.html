@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kopala FPL - Pro Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --fpl-green: #00ff85;
+            --fpl-purple: #37003c;
+            --fpl-pink: #e90052;
+            --pitch-bg: #008d4f;
+            --pitch-line: rgba(255,255,255,0.2);
+            --text-main: #1e293b;
+        }
+
+        body {
+            margin: 0; font-family: -apple-system, sans-serif;
+            background: #e2e8f0; color: var(--text-main);
+            padding-bottom: 100px;
+        }
+
+        /* Top Header */
+        .control-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 5px; padding: 10px; background: #fff; border-bottom: 1px solid #cbd5e1;
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .control-item {
+            text-align: center; border: 1px solid #e2e8f0;
+            padding: 5px; border-radius: 8px; font-size: 0.7rem;
+        }
+        .control-item b { display: block; font-size: 1rem; color: var(--fpl-purple); }
+
+        /* Save Toast */
+        #save-status {
+            position: fixed; top: 70px; right: 10px; font-size: 0.7rem;
+            background: #10b981; color: white; padding: 4px 10px;
+            border-radius: 20px; display: none; z-index: 2000;
+        }
+
+        /* Pitch UI */
+        .pitch {
+            background: var(--pitch-bg);
+            background-image: linear-gradient(var(--pitch-line) 2px, transparent 2px);
+            background-size: 100% 40px;
+            margin: 10px; border-radius: 12px; padding: 20px 0;
+            display: flex; flex-direction: column; gap: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .lineup-row { display: flex; justify-content: center; gap: 8px; }
+
+        /* Player Card */
+        .player-card {
+            width: 78px; position: relative;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .shirt { width: 55px; height: 60px; object-fit: contain; cursor: pointer; transition: transform 0.1s; }
+        .shirt:active { transform: scale(0.9); }
+        
+        .badge-c, .badge-v {
+            position: absolute; left: 5px; top: 0;
+            background: #000; color: #fff; width: 18px; height: 18px;
+            border-radius: 50%; font-size: 10px; font-weight: 900;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid #fff; z-index: 5;
+        }
+
+        .btn-x {
+            position: absolute; right: 5px; top: 0;
+            background: rgba(0,0,0,0.7); color: #fff; border-radius: 50%;
+            width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+            font-size: 12px; cursor: pointer; z-index: 5;
+        }
+
+        .name-plate {
+            width: 100%; background: #000; color: #fff;
+            font-size: 0.65rem; font-weight: 700; text-align: center;
+            padding: 2px 0; border-radius: 2px; margin-top: 3px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .fixture-plate {
+            width: 100%; background: var(--fpl-green); color: #000;
+            font-size: 0.6rem; font-weight: 800; text-align: center;
+            padding: 2px 0; border-radius: 2px;
+        }
+
+        /* Bench Row */
+        .bench {
+            background: #fff; margin: 10px; border-radius: 12px;
+            padding: 15px 5px; display: flex; justify-content: space-around;
+            border: 2px solid #cbd5e1;
+        }
+
+        /* Modal */
+        .modal {
+            display: none; position: fixed; z-index: 3000;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); align-items: center; justify-content: center;
+        }
+        .modal-box {
+            background: #fff; width: 90%; max-width: 400px;
+            border-radius: 15px; padding: 20px;
+        }
+        .search-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 10px; font-size: 1rem; }
+        .list-item { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; }
+
+        /* Menu */
+        .menu {
+            position: fixed; bottom: 0; width: 100%; height: 75px;
+            background: #fff; display: grid; grid-template-columns: repeat(5, 1fr);
+            border-top: 1px solid #ddd; z-index: 1000;
+        }
+        .menu-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; color: #64748b; text-decoration: none; gap: 4px; }
+        .menu-item.active { color: var(--fpl-purple); font-weight: 800; }
+    </style>
+</head>
+<body>
+
+    <div id="save-status">Team Saved!</div>
+
+    <div class="control-grid">
+        <div class="control-item">Transfers<b id="transfer-count">0</b></div>
+        <div class="control-item">Bank<b id="bank-val">£1.8m</b></div>
+        <div class="control-item">Cost<b id="cost-val">£0.0</b></div>
+        <div class="control-item" style="background:var(--fpl-purple); color:white;">GW<b>23</b></div>
+    </div>
+
+    <div class="pitch">
+        <div class="lineup-row" id="row-GKP"></div>
+        <div class="lineup-row" id="row-DEF"></div>
+        <div class="lineup-row" id="row-MID"></div>
+        <div class="lineup-row" id="row-FWD"></div>
+    </div>
+
+    <div class="bench" id="row-BENCH"></div>
+
+    <div id="searchModal" class="modal">
+        <div class="modal-box">
+            <h3 style="margin: 0 0 15px 0">Add Player</h3>
+            <input type="text" id="pSearch" class="search-box" placeholder="Search by name..." oninput="drawList(this.value)">
+            <div id="pList" style="max-height: 350px; overflow-y: auto;"></div>
+            <button onclick="closeMod()" style="width:100%; margin-top:15px; padding:12px; background:#f1f5f9; border:none; border-radius:8px; font-weight: 600;">Cancel</button>
+        </div>
+    </div>
+
+    <nav class="menu">
+        <a href="#" class="menu-item active"><i class="fa-solid fa-square-poll-horizontal"></i><span>Planner</span></a>
+        <a href="prices.html" class="menu-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
+        <a href="#" class="menu-item"><i class="fa-solid fa-futbol"></i><span>Fixtures</span></a>
+        <a href="#" class="menu-item"><i class="fa-solid fa-users-viewfinder"></i><span>Scout</span></a>
+        <a href="#" class="menu-item"><i class="fa-solid fa-ellipsis"></i><span>More</span></a>
+    </nav>
+
+    <script>
+        const BOOTSTRAP = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
+        const FIXTURES = "/.netlify/functions/fpl-proxy?endpoint=fixtures/";
+        
+        let allPlayers = [];
+        let teams = {};
+        let nextFixtures = [];
+        let captainId = localStorage.getItem('fpl_planner_cap') || null;
+        let viceId = localStorage.getItem('fpl_planner_vice') || null;
+        let transfers = parseInt(localStorage.getItem('fpl_planner_trans')) || 0;
+
+        let team = JSON.parse(localStorage.getItem('fpl_planner_team')) || {
+            GKP: [null], DEF: [null, null, null],
+            MID: [null, null, null, null, null], FWD: [null, null],
+            BENCH: [null, null, null, null]
+        };
+        
+        let activeSlot = { pos: '', idx: 0 };
+
+        async function init() {
+            try {
+                const [bootRes, fixRes] = await Promise.all([fetch(BOOTSTRAP), fetch(FIXTURES)]);
+                const bootData = await bootRes.json();
+                const fixData = await fixRes.json();
+                
+                allPlayers = bootData.elements;
+                bootData.teams.forEach(t => { teams[t.id] = t.short_name; });
+                
+                const currentGW = bootData.events.find(e => e.is_next)?.id || 1;
+                nextFixtures = fixData.filter(f => f.event === currentGW);
+
+                render();
+            } catch (e) { console.error("Initialization failed", e); }
+        }
+
+        function getFixtureInfo(teamId) {
+            const fix = nextFixtures.find(f => f.team_h === teamId || f.team_a === teamId);
+            if (!fix) return "N/A";
+            const isHome = fix.team_h === teamId;
+            const oppId = isHome ? fix.team_a : fix.team_h;
+            return `${teams[oppId]} (${isHome ? 'H' : 'A'})`;
+        }
+
+        function render() {
+            let totalCost = 0;
+            ['GKP', 'DEF', 'MID', 'FWD', 'BENCH'].forEach(pos => {
+                const el = document.getElementById(`row-${pos}`);
+                el.innerHTML = team[pos].map((p, i) => {
+                    if(!p) return `
+                        <div class="player-card" onclick="openMod('${pos}', ${i})">
+                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_0-66.webp" class="shirt" style="opacity:0.3; filter:grayscale(1)">
+                            <div class="name-plate">EMPTY</div>
+                            <div class="fixture-plate" style="background:#64748b; color:#fff">£0.0</div>
+                        </div>`;
+                    
+                    totalCost += p.now_cost / 10;
+                    const isC = String(p.id) === String(captainId);
+                    const isV = String(p.id) === String(viceId);
+
+                    return `
+                        <div class="player-card">
+                            <div class="btn-x" onclick="removeP('${pos}', ${i})">&times;</div>
+                            ${isC ? '<div class="badge-c">C</div>' : ''}
+                            ${isV ? '<div class="badge-v">V</div>' : ''}
+                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.team_code}-66.webp" class="shirt" onclick="setCap(${p.id})">
+                            <div class="name-plate">${p.web_name}</div>
+                            <div class="fixture-plate">${getFixtureInfo(p.team)}</div>
+                        </div>`;
+                }).join('');
+            });
+
+            document.getElementById('cost-val').innerText = `£${totalCost.toFixed(1)}m`;
+            document.getElementById('bank-val').innerText = `£${(100 + 1.8 - totalCost).toFixed(1)}m`;
+            document.getElementById('transfer-count').innerText = transfers;
+            saveTeam();
+        }
+
+        function saveTeam() {
+            localStorage.setItem('fpl_planner_team', JSON.stringify(team));
+            localStorage.setItem('fpl_planner_cap', captainId);
+            localStorage.setItem('fpl_planner_vice', viceId);
+            localStorage.setItem('fpl_planner_trans', transfers);
+            
+            const toast = document.getElementById('save-status');
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 1500);
+        }
+
+        function openMod(pos, idx) {
+            activeSlot = { pos, idx };
+            document.getElementById('searchModal').style.display = 'flex';
+            drawList('');
+        }
+
+        function drawList(query) {
+            const list = document.getElementById('pList');
+            const posId = { 'GKP': 1, 'DEF': 2, 'MID': 3, 'FWD': 4 }[activeSlot.pos];
+            
+            const filtered = allPlayers
+                .filter(p => !posId || p.element_type === posId)
+                .filter(p => p.web_name.toLowerCase().includes(query.toLowerCase()))
+                .slice(0, 15);
+
+            list.innerHTML = filtered.map(p => `
+                <div class="list-item" onclick="addP(${p.id})">
+                    <span>${p.web_name} (${teams[p.team]})</span><b>£${(p.now_cost/10).toFixed(1)}</b>
+                </div>
+            `).join('');
+        }
+
+        function addP(id) {
+            const player = allPlayers.find(x => x.id === id);
+            team[activeSlot.pos][activeSlot.idx] = player;
+            transfers++;
+            closeMod(); render();
+        }
+
+        function removeP(pos, idx) {
+            if (String(team[pos][idx]?.id) === String(captainId)) captainId = null;
+            if (String(team[pos][idx]?.id) === String(viceId)) viceId = null;
+            team[pos][idx] = null;
+            render();
+        }
+
+        function setCap(id) {
+            const sid = String(id);
+            if (captainId === sid) { captainId = null; viceId = sid; }
+            else if (viceId === sid) { viceId = null; }
+            else { captainId = sid; }
+            render();
+        }
+
+        function closeMod() { document.getElementById('searchModal').style.display = 'none'; }
+
+        init();
+    </script>
+</body>
+</html>
