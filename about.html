@@ -3,161 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopala FPL - Netlify Live Fix</title>
+    <title>Kopala FPL - Ultra Nano</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --blue: #2563eb; --green: #27ae60; --dark: #0f172a; --gray: #f8fafc; }
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
-        body { background: #fff; font-size: 0.6rem; color: #334155; }
-        
-        .header { padding: 6px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 6px; background: #fff; position: sticky; top: 0; z-index: 100; }
-        input { flex: 1; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.75rem; height: 30px; outline: none; }
-        button { padding: 0 14px; background: var(--blue); color: #fff; border: none; border-radius: 4px; font-weight: 800; cursor: pointer; font-size: 0.65rem; }
+        :root {
+            --primary-blue: #2563eb;
+            --pitch-green: #27ae60;
+            --dark-header: #1e293b;
+            --bg-gray: #f1f5f9;
+        }
 
-        .stats-container { padding: 6px; background: var(--gray); border-bottom: 2px solid #e2e8f0; }
-        table { width: 100%; border-collapse: collapse; text-align: center; }
-        th { background: var(--dark); color: white; padding: 4px; font-size: 0.5rem; text-transform: uppercase; }
-        td { border-bottom: 1px solid #e2e8f0; padding: 6px 2px; font-weight: 800; font-size: 0.65rem; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: #fff; margin: 0; padding: 0; overflow-x: hidden; }
 
-        .pitch-title { text-align: center; padding: 6px; font-weight: 900; background: #fff; font-size: 0.6rem; letter-spacing: 0.5px; }
-        .pitch { background: var(--green); padding: 12px 0; display: flex; flex-direction: column; gap: 8px; min-height: 250px; }
-        .row { display: flex; justify-content: center; gap: 4px; }
-        
-        .card { width: 45px; display: flex; flex-direction: column; align-items: center; position: relative; }
-        .status-chip { font-size: 5px; background: rgba(15, 23, 42, 0.9); color: white; padding: 1px 3px; border-radius: 20px; position: absolute; top: -6px; z-index: 10; border: 0.5px solid rgba(255,255,255,0.2); }
-        .jersey { width: 18px; margin-bottom: 2px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
-        .card-inner { background: #fff; border: 1px solid #1e293b; border-radius: 3px; width: 100%; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .p-name { background: var(--dark); color: #fff; font-size: 0.38rem; height: 13px; display: flex; align-items: center; justify-content: center; font-weight: 800; text-transform: uppercase; white-space: nowrap; overflow: hidden; }
-        .p-pts { text-align: center; font-size: 0.6rem; font-weight: 900; padding: 2px 0; color: var(--dark); }
-        .p-bar { height: 2px; background: #f1f5f9; position: relative; }
-        .p-fill { height: 100%; position: absolute; background: var(--blue); }
+        /* --- MICROSCOPIC HEADER --- */
+        .app-header { padding: 3px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; gap: 3px; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .minimal-input { flex: 1; padding: 2px 6px; border-radius: 4px; border: 1px solid #e2e8f0; background: var(--bg-gray); font-size: 0.65rem; height: 22px; outline: none; }
+        .btn { padding: 0 6px; border-radius: 4px; border: none; font-weight: 700; height: 22px; font-size: 0.6rem; cursor: pointer; color: #fff; }
+
+        /* --- COMPARISON TABLE --- */
+        .comp-section { width: 100vw; background: #fff; padding: 3px; border-bottom: 2px solid var(--bg-gray); }
+        .comp-header { background: linear-gradient(90deg, #3b82f6, #06b6d4); padding: 3px; text-align: center; border-radius: 4px; }
+        .comp-header h4 { margin: 0; font-size: 0.6rem; color: #fff; text-transform: uppercase; }
+        .comp-table { width: 100%; border-collapse: collapse; font-size: 0.5rem; margin-top: 2px; }
+        .comp-table th { background: var(--dark-header); color: #fff; padding: 2px; }
+        .comp-table td { padding: 3px 1px; border-bottom: 0.5px solid #eee; text-align: center; font-weight: 700; }
+        .see-more { display: block; text-align: center; color: var(--primary-blue); font-size: 0.45rem; padding: 4px; cursor: pointer; font-weight: 800; text-decoration: underline; }
+
+        /* --- DENSE PITCH SECTIONS --- */
+        .section-wrapper { width: 100vw; border-bottom: 2px solid var(--bg-gray); }
+        .p-title { padding: 3px; text-align: center; background: #fff; border-bottom: 0.5px solid #eee; }
+        .p-title h3 { margin: 0; font-size: 0.6rem; font-weight: 800; color: var(--dark-header); }
+
+        .pitch-main { background: var(--pitch-green); width: 100%; min-height: 220px; padding: 6px 0; display: flex; flex-direction: column; justify-content: space-around; }
+
+        /* --- NANO CARDS --- */
+        .pitch-row { display: flex; justify-content: center; gap: 1px; width: 100%; }
+        .mini-card { width: 18%; max-width: 42px; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .match-status { font-size: 4px; color: #fff; background: rgba(0,0,0,0.7); padding: 0 2px; border-radius: 2px; position: absolute; top: -3px; z-index: 5; }
+        .mini-jersey { width: 14px; height: auto; margin-bottom: 1px; }
+        .card-body { width: 100%; background: #fff; border-radius: 2px; border: 0.5px solid #333; overflow: hidden; }
+        .card-name-strip { background: var(--dark-header); color: #fff; height: 11px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .p-name { font-size: 0.35rem; font-weight: 800; transform: scale(0.9); }
+        .card-data { padding: 1px 0; text-align: center; font-weight: 900; font-size: 0.45rem; line-height: 1; }
+        .p-impact { font-size: 0.3rem; color: #64748b; display: flex; align-items: center; justify-content: center; gap: 1px; }
+        .red-dot { background: #f43f5e; border-radius: 50%; width: 4px; height: 4px; display: inline-block; }
+
+        /* --- PRICE FOOTER --- */
+        .card-footer { padding: 1px; border-top: 0.3px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 0.25rem; }
+        .price-bar { flex: 1; height: 1px; background: #ddd; margin: 0 1px; position: relative; }
+        .price-fill { position: absolute; height: 100%; }
 
         .hidden { display: none; }
-        #status-msg { font-size: 0.55rem; text-align: center; padding: 15px; color: var(--blue); font-weight: 600; }
+        .expanded-list { font-size: 0.5rem; background: #fdfdfd; padding: 4px; border: 0.5px solid #ddd; margin: 2px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <input type="number" id="fpl-id" placeholder="Enter FPL Team ID">
-    <button onclick="syncNetlify()">SYNC LIVE</button>
-</div>
+    <header class="app-header">
+        <input type="text" id="fpl-id-input" placeholder="ID" class="minimal-input">
+        <button onclick="handleFetch()" class="btn" style="background:var(--primary-blue);">SYNC</button>
+        <button onclick="switchTeam()" id="switch-btn" class="btn hidden" style="background:#64748b;">SW</button>
+    </header>
 
-<div id="status-msg">Waiting for ID...</div>
-
-<main id="app-content" class="hidden">
-    <div class="stats-container">
-        <table>
-            <thead><tr><th>Metric</th><th>You</th><th>GW Avg</th><th>GW Max</th></tr></thead>
-            <tbody id="table-body"></tbody>
-        </table>
-    </div>
-
-    <div class="pitch-title">LIVE SQUAD PERFORMANCE</div>
-    <div class="pitch" id="squad-pitch">
-        <div id="r-1" class="row"></div><div id="r-2" class="row"></div>
-        <div id="r-3" class="row"></div><div id="r-4" class="row"></div>
-    </div>
-
-    <div class="pitch-title" style="border-top: 2px solid #eee">HIGH RISK THREATS</div>
-    <div class="pitch" id="threat-pitch" style="background: #1e293b; min-height: 140px;">
-        <div id="tr-1" class="row"></div><div id="tr-2" class="row"></div>
-    </div>
-</main>
-
-<script>
-async function syncNetlify() {
-    const idInput = document.getElementById('fpl-id').value;
-    if(!idInput) return;
-    
-    const msg = document.getElementById('status-msg');
-    msg.innerText = "Connecting to Netlify Rewrite...";
-
-    try {
-        const boot = await fetch('/fpl-api/bootstrap-static/').then(r => r.json());
-        // Find the correct Gameweek even if FPL has multiple events marked
-        const currentEvent = boot.events.find(e => e.is_current) || boot.events[0];
-        const gw = currentEvent.id;
-
-        const [live, picks] = await Promise.all([
-            fetch(`/fpl-api/event/${gw}/live/`).then(r => r.json()),
-            fetch(`/fpl-api/entry/${idInput}/event/${gw}/picks/`).then(r => r.json())
-        ]);
-
-        render(boot, live, picks);
-        msg.classList.add('hidden');
-        document.getElementById('app-content').classList.remove('hidden');
-    } catch(err) {
-        msg.innerHTML = `<span style="color:red">Error: Failed to fetch. Ensure _redirects is deployed.</span>`;
-        console.error("FPL Sync Error:", err);
-    }
-}
-
-function render(boot, live, picks) {
-    const playerMap = {};
-    boot.elements.forEach(p => playerMap[p.id] = p);
-    
-    const liveMap = {};
-    live.elements.forEach(l => liveMap[l.id] = l.stats);
-
-    // FIX: Safely access Gameweek data with optional chaining
-    const activeGWData = boot.events.find(e => e.id === picks.event);
-    const avgScore = activeGWData?.average_entry_score || 0;
-    const maxScore = activeGWData?.highest_score || 0;
-
-    document.getElementById('table-body').innerHTML = `
-        <tr>
-            <td>Points</td>
-            <td>${picks?.entry_history?.points || 0}</td>
-            <td>${avgScore}</td>
-            <td>${maxScore}</td>
-        </tr>
-        <tr>
-            <td>Transfers</td>
-            <td>${picks?.entry_history?.event_transfers || 0}</td>
-            <td>--</td>
-            <td>--</td>
-        </tr>
-    `;
-
-    // Pitch Cleanup
-    ['r-1','r-2','r-3','r-4','tr-1','tr-2'].forEach(id => document.getElementById(id).innerHTML = '');
-
-    // Squad Rendering
-    picks.picks.slice(0, 11).forEach(pk => {
-        const p = playerMap[pk.element];
-        const s = liveMap[pk.element] || { total_points: 0, minutes: 0 };
-        if (p) {
-            document.getElementById(`r-${p.element_type}`).innerHTML += createCard(p, s, pk.is_captain);
-        }
-    });
-
-    // Threats Rendering
-    const owned = picks.picks.map(x => x.element);
-    const threats = boot.elements
-        .filter(p => !owned.includes(p.id))
-        .sort((a,b) => (liveMap[b.id]?.total_points || 0) - (liveMap[a.id]?.total_points || 0))
-        .slice(0, 8);
-
-    threats.forEach((p, i) => {
-        const s = liveMap[p.id] || { total_points: 0, minutes: 0 };
-        document.getElementById(i < 4 ? 'tr-1' : 'tr-2').innerHTML += createCard(p, s, false);
-    });
-}
-
-function createCard(p, s, isCap) {
-    const pts = isCap ? (s.total_points * 2) : s.total_points;
-    const time = s.minutes > 0 ? (s.minutes >= 90 ? 'FT' : s.minutes + "'") : 'WAIT';
-    return `
-        <div class="card">
-            <div class="status-chip">${time}</div>
-            <img class="jersey" src="https://draft.premierleague.com/img/shirts/standard/shirt_${p.team_code}${p.element_type===1?'_1':''}-66.png">
-            <div class="card-inner">
-                <div class="p-name">${p.web_name}</div>
-                <div class="p-pts">${pts}${isCap ? '<span style="font-size:4px"> (C)</span>' : ''}</div>
-                <div class="p-bar"><div class="p-fill" style="width:75%"></div></div>
+    <main id="dashboard" class="hidden">
+        <section class="comp-section">
+            <div class="comp-header"><h4>Squad Comparison Metrics</h4></div>
+            <table class="comp-table">
+                <thead><tr><th>Stat</th><th>You</th><th>10k</th><th>All</th><th>Leg</th></tr></thead>
+                <tbody id="comp-body"></tbody>
+            </table>
+            <div class="see-more" onclick="toggleExpand()">See More Ownership Details</div>
+            <div id="expansion-panel" class="hidden expanded-list">
+                <strong>Top 10k Meta:</strong> Haaland (92%), Salah (74%), Palmer (61%).
             </div>
-        </div>`;
-}
-</script>
+        </section>
+
+        <section class="section-wrapper">
+            <div class="p-title"><h3>Live Squad</h3></div>
+            <div class="pitch-main">
+                <div id="evt-gk" class="pitch-row"></div>
+                <div id="evt-def" class="pitch-row"></div>
+                <div id="evt-mid" class="pitch-row"></div>
+                <div id="evt-fwd" class="pitch-row"></div>
+            </div>
+        </section>
+
+        <section class="section-wrapper">
+            <div class="p-title"><h3>High Risk Threats</h3></div>
+            <div class="pitch-main">
+                <div id="thr-row-1" class="pitch-row"></div>
+                <div id="thr-row-2" class="pitch-row"></div>
+                <div id="thr-row-3" class="pitch-row"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const PROXY = "https://corsproxy.io/?";
+        const STORAGE_KEY = 'fpl_id_autosave';
+        let state = { liveMap: {}, fixtures: [] };
+
+        window.onload = () => {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if(saved) { document.getElementById('fpl-id-input').value = saved; handleFetch(); }
+        };
+
+        async function handleFetch() {
+            const id = document.getElementById('fpl-id-input').value;
+            if(!id) return;
+            localStorage.setItem(STORAGE_KEY, id);
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('switch-btn').classList.remove('hidden');
+            await loadData(id);
+        }
+
+        async function loadData(id) {
+            try {
+                const boot = await (await fetch(PROXY + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"))).json();
+                const currentGW = boot.events.find(e => e.is_current).id;
+                const picks = await (await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/event/${currentGW}/picks/`))).json();
+                const live = await (await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${currentGW}/live/`))).json();
+                state.fixtures = await (await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/fixtures/?event=${currentGW}`))).json();
+
+                live.elements.forEach(l => state.liveMap[l.id] = l.stats);
+
+                renderComparison();
+                renderPitch('evt', picks.picks.slice(0, 11), boot.elements, true);
+                const owned = picks.picks.map(p => p.element);
+                const threats = boot.elements.filter(p => !owned.includes(p.id))
+                                .sort((a,b) => (state.liveMap[b.id]?.total_points || 0) - (state.liveMap[a.id]?.total_points || 0)).slice(0, 13);
+                renderPitch('thr', threats, boot.elements, false);
+            } catch(e) { console.error(e); }
+        }
+
+        function renderComparison() {
+            const rows = [
+                { s: 'Final Score', y: '36', t: '40.2', o: '39.1', l: '40.4' },
+                { s: 'Fixtures', y: '12', t: '12.1', o: '12.1', l: '12.0' },
+                { s: 'Captain', y: '4', t: '4.3', o: '4.8', l: '4.4' }
+            ];
+            document.getElementById('comp-body').innerHTML = rows.map(r => `
+                <tr><td style="text-align:left;">${r.s}</td><td>${r.y}</td><td>${r.t}</td><td>${r.o}</td><td>${r.l}</td></tr>
+            `).join('');
+        }
+
+        function toggleExpand() { document.getElementById('expansion-panel').classList.toggle('hidden'); }
+
+        function getMatchStatus(teamId) {
+            const fix = state.fixtures.find(f => f.team_a === teamId || f.team_h === teamId);
+            if(!fix) return "N/A";
+            return fix.finished ? "FT" : (fix.started ? "LIVE" : "WAIT");
+        }
+
+        function switchTeam() {
+            document.getElementById('fpl-id-input').value = '';
+            document.getElementById('dashboard').classList.add('hidden');
+        }
+
+        function renderPitch(prefix, players, allData, isEvent) {
+            const rows = isEvent ? ['evt-gk', 'evt-def', 'evt-mid', 'evt-fwd'] : ['thr-row-1', 'thr-row-2', 'thr-row-3'];
+            rows.forEach(r => document.getElementById(r).innerHTML = '');
+
+            players.forEach((p, i) => {
+                const id = p.element || p.id;
+                const meta = allData.find(x => x.id === id);
+                const stats = state.liveMap[id] || { total_points: 0 };
+                const mStatus = getMatchStatus(meta.team);
+                let target = isEvent ? {1:'evt-gk', 2:'evt-def', 3:'evt-mid', 4:'evt-fwd'}[meta.element_type] : (i < 3 ? rows[0] : i < 8 ? rows[1] : rows[2]);
+
+                const progress = meta.cost_change_event >= 0 ? (meta.chance_of_rising_next_round || 0) : (meta.chance_of_falling_next_round || 0);
+
+                document.getElementById(target).innerHTML += `
+                    <div class="mini-card">
+                        <div class="match-status">${mStatus}</div>
+                        <img class="mini-jersey" src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.element_type===1?'_1':''}-66.png">
+                        <div class="card-body">
+                            <div class="card-name-strip"><span class="p-name">${meta.web_name}</span></div>
+                            <div class="card-data">
+                                ${p.multiplier > 1 ? stats.total_points * p.multiplier : stats.total_points}
+                                <div class="p-impact">23k <span class="red-dot"></span></div>
+                            </div>
+                            <div class="card-footer">
+                                <span style="color:${meta.cost_change_event>=0?'#27ae60':'#f43f5e'}">${progress}%</span>
+                                <div class="price-bar"><div class="price-fill" style="width:${progress}%; background:${meta.cost_change_event>=0?'#27ae60':'#f43f5e'}"></div></div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+    </script>
 </body>
 </html>
