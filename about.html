@@ -33,7 +33,7 @@
             border-radius: 12px; font-weight: 700; cursor: pointer;
         }
 
-        /* --- COMPARISON TABLE --- */
+        /* --- DASHBOARD SECTIONS --- */
         .section-card { margin: 15px; background: var(--card-bg); border-radius: 18px; border: 1px solid var(--border-color); overflow: hidden; }
         .header-gradient { background: linear-gradient(135deg, #93c5fd, #22d3ee, #4ade80); padding: 12px; text-align: center; }
         .header-gradient h3 { margin: 0; font-size: 0.9rem; font-weight: 800; }
@@ -42,24 +42,23 @@
         .fpl-table td { padding: 12px 10px; text-align: center; border-bottom: 1px solid var(--border-color); }
         .stat-bold { font-weight: 800; }
 
-        /* --- PITCH & EVENTS --- */
+        /* --- PITCH --- */
         .pitch-container { 
             background: var(--pitch-green); padding: 40px 10px 20px; position: relative; 
             min-height: 550px; display: flex; flex-direction: column; justify-content: space-around;
         }
-        .pitch-row { display: flex; justify-content: center; gap: 8px; }
+        .pitch-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
         .live-summary-box {
             position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.9);
             padding: 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; z-index: 10;
         }
 
-        /* Player Cards */
         .player-card { width: 75px; text-align: center; }
-        .p-info { background: #fff; border-radius: 4px; overflow: hidden; margin-top: -5px; }
-        .p-name { background: #000; color: #fff; font-size: 0.65rem; padding: 2px; }
-        .p-pts-row { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 3px; font-weight: 900; }
-        .icon-box { font-size: 0.6rem; }
+        .p-info { background: #fff; border-radius: 4px; overflow: hidden; margin-top: -5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .p-name { background: #000; color: #fff; font-size: 0.6rem; padding: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-pts-row { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 3px; font-weight: 900; font-size: 0.75rem; }
         
+        .loading-text { text-align: center; padding: 20px; font-weight: 600; color: var(--primary-blue); }
         .hidden { display: none; }
     </style>
 </head>
@@ -71,6 +70,8 @@
             <button onclick="handleFetch()" class="btn-fetch">Fetch</button>
         </div>
     </header>
+
+    <div id="loader" class="loading-text hidden">Fetching Live FPL Data...</div>
 
     <main id="dashboard" class="hidden">
         <section class="section-card">
@@ -84,9 +85,9 @@
         </section>
 
         <section class="section-card">
-            <div class="header-gradient" style="background: linear-gradient(135deg, #a5b4fc, #4ade80);"><h3>Events in Your Team</h3></div>
+            <div class="header-gradient" style="background: linear-gradient(135deg, #a5b4fc, #4ade80);"><h3>Live Events in Your Team</h3></div>
             <div class="pitch-container">
-                <div class="live-summary-box" id="live-summary"></div>
+                <div class="live-summary-box" id="live-summary">Goals: 0 | CS: 0 | Bonus: 0</div>
                 <div id="gk-row" class="pitch-row"></div>
                 <div id="def-row" class="pitch-row"></div>
                 <div id="mid-row" class="pitch-row"></div>
@@ -96,9 +97,11 @@
     </main>
 
     <script>
-        const PROXY = "https://n-fpl-proxy.netlify.app/api/";
+        // Using a reliable open proxy for FPL API
+        const PROXY = "https://corsproxy.io/?"; 
+        const BASE_URL = "https://fantasy.premierleague.com/api/";
         const STORAGE_KEY = 'fpl_user_id';
-        let state = { players: {}, currentGW: 22 }; 
+        let state = { players: {}, currentGW: null };
 
         window.onload = () => {
             const saved = localStorage.getItem(STORAGE_KEY);
@@ -111,59 +114,89 @@
         async function handleFetch() {
             const id = document.getElementById('fpl-id-input').value;
             if(!id) return;
+            
             localStorage.setItem(STORAGE_KEY, id);
-            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('loader').classList.remove('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            
             await loadDashboard(id);
         }
 
         async function loadDashboard(id) {
             try {
-                const [bootRes, entryRes, picksRes, liveRes] = await Promise.all([
-                    fetch(`${PROXY}bootstrap-static/`),
-                    fetch(`${PROXY}entry/${id}/`),
-                    fetch(`${PROXY}entry/${id}/event/${state.currentGW}/picks/`),
-                    fetch(`${PROXY}event/${state.currentGW}/live/`)
+                // 1. Get Static Data & Current GW
+                const bootRes = await fetch(PROXY + encodeURIComponent(BASE_URL + "bootstrap-static/"));
+                const boot = await bootRes.json();
+                
+                state.currentGW = boot.events.find(e => e.is_current).id;
+                boot.elements.forEach(p => {
+                    state.players[p.id] = { 
+                        name: p.web_name, 
+                        pos: p.element_type, 
+                        team: p.team_code,
+                        price: p.now_cost / 10
+                    };
+                });
+
+                // 2. Get User Picks & Live Stats
+                const [entryRes, picksRes, liveRes] = await Promise.all([
+                    fetch(PROXY + encodeURIComponent(`${BASE_URL}entry/${id}/`)),
+                    fetch(PROXY + encodeURIComponent(`${BASE_URL}entry/${id}/event/${state.currentGW}/picks/`)),
+                    fetch(PROXY + encodeURIComponent(`${BASE_URL}event/${state.currentGW}/live/`))
                 ]);
 
-                const boot = await bootRes.json();
                 const entry = await entryRes.json();
                 const picks = await picksRes.json();
                 const live = await liveRes.json();
 
-                // Map players
-                boot.elements.forEach(p => state.players[p.id] = { 
-                    name: p.web_name, pos: p.element_type, team: p.team_code 
-                });
-
                 renderAll(entry, picks, live);
-            } catch(e) { console.error(e); }
+                
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+            } catch(e) { 
+                console.error("FPL Fetch Error:", e);
+                alert("Failed to fetch data. The FPL API might be down or blocking the request.");
+                document.getElementById('loader').classList.add('hidden');
+            }
         }
 
         function renderAll(entry, picks, live) {
-            // Comparison Table
+            const liveMap = {};
+            live.elements.forEach(item => liveMap[item.id] = item.stats);
+
+            // 1. Comparison Table
             document.getElementById('comp-rows').innerHTML = `
-                <tr><td>Score</td><td class="stat-bold">${picks.entry_history.points}</td><td>40.22</td><td>39.09</td></tr>
-                <tr><td>Budget</td><td class="stat-bold">£${(entry.bank/10).toFixed(1)}/£${(entry.value/10).toFixed(1)}</td><td>£0.0/£82.0</td><td>£0.0/£73.3</td></tr>
+                <tr><td>GW Points</td><td class="stat-bold">${picks.entry_history.points}</td><td>42.5</td><td>38.1</td></tr>
+                <tr><td>Bank / Value</td><td class="stat-bold">£${(entry.bank/10).toFixed(1)} / £${(entry.value/10).toFixed(1)}</td><td>£0.4 / £104.2</td><td>£0.8 / £101.5</td></tr>
             `;
 
-            // Pitch Summary
-            document.getElementById('live-summary').innerHTML = `⚽ Goals: 0 | 🛡️ CS: 4 | 🎁 Bonus: 2`;
-
-            // Basic Player Rendering
+            // 2. Pitch Logic
             const rows = { 1: 'gk-row', 2: 'def-row', 3: 'mid-row', 4: 'fwd-row' };
             Object.values(rows).forEach(r => document.getElementById(r).innerHTML = '');
             
+            let totalGoals = 0, totalCS = 0, totalBonus = 0;
+
             picks.picks.slice(0, 11).forEach(p => {
                 const meta = state.players[p.element];
+                const stats = liveMap[p.element] || { total_points: 0, goals_scored: 0, clean_sheets: 0, bonus: 0 };
+                
+                totalGoals += stats.goals_scored;
+                totalCS += stats.clean_sheets;
+                totalBonus += stats.bonus;
+
+                const displayPts = p.is_captain ? stats.total_points * 2 : stats.total_points;
+
                 document.getElementById(rows[meta.pos]).innerHTML += `
                     <div class="player-card">
-                        <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team}-66.png" width="40">
+                        <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team}${meta.pos === 1 ? '_1' : ''}-66.png" width="45">
                         <div class="p-info">
-                            <div class="p-name">${meta.name}</div>
-                            <div class="p-pts-row">2 <div class="icon-box">🛡️</div></div>
+                            <div class="p-name">${p.is_captain ? '© ' : ''}${meta.name}</div>
+                            <div class="p-pts-row">${displayPts} ${stats.goals_scored > 0 ? '⚽' : ''}</div>
                         </div>
                     </div>`;
             });
+
+            document.getElementById('live-summary').innerHTML = `⚽ Goals: ${totalGoals} | 🛡️ CS: ${totalCS} | 🎁 Bonus: ${totalBonus}`;
         }
     </script>
 </body>
