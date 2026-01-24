@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopala FPL - Live Market Trends</title>
+    <title>Kopala FPL - Ultra Compact</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -16,74 +16,69 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background: #fff; margin: 0; padding: 0; overflow-x: hidden; }
 
-        /* --- HEADER & INPUT --- */
+        /* --- MINI HEADER --- */
         .app-header {
-            padding: 10px; background: #fff; border-bottom: 1px solid #e2e8f0;
-            display: flex; gap: 8px; position: sticky; top: 0; z-index: 1000;
+            padding: 8px; background: #fff; border-bottom: 1px solid #e2e8f0;
+            display: flex; gap: 6px; position: sticky; top: 0; z-index: 1000;
         }
         .minimal-input {
-            flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;
-            background: var(--bg-gray); font-size: 0.9rem; font-weight: 600; outline: none;
+            flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid #e2e8f0;
+            background: var(--bg-gray); font-size: 0.8rem; font-weight: 600; outline: none;
         }
-        .btn { padding: 0 15px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; height: 44px; }
+        .btn { padding: 0 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; height: 36px; font-size: 0.75rem; }
         .btn-fetch { background: var(--primary-blue); color: white; }
         .btn-switch { background: #64748b; color: white; }
 
-        /* --- MOBILE FULL WIDTH SECTIONS --- */
-        .full-width-section { width: 100vw; margin-bottom: 20px; border-bottom: 5px solid var(--bg-gray); }
-
-        /* --- PITCH AREA --- */
-        .pitch-title-area { padding: 15px 10px; text-align: center; }
-        .pitch-title-area h3 { margin: 0; font-size: 1.1rem; font-weight: 800; }
-        .pitch-title-area p { font-size: 0.7rem; color: #64748b; margin: 5px 0; }
+        /* --- PITCH SECTIONS --- */
+        .full-width-section { width: 100vw; margin-bottom: 15px; border-bottom: 4px solid var(--bg-gray); }
+        .pitch-title-area { padding: 10px 8px; text-align: center; }
+        .pitch-title-area h3 { margin: 0; font-size: 0.95rem; font-weight: 800; }
+        .pitch-title-area p { font-size: 0.65rem; color: #64748b; margin: 2px 0; }
 
         .pitch-main { 
-            background: var(--pitch-green); width: 100%; min-height: 520px; 
-            padding: 20px 0; display: flex; flex-direction: column; justify-content: space-around;
+            background: var(--pitch-green); width: 100%; min-height: 400px; 
+            padding: 15px 0; display: flex; flex-direction: column; justify-content: space-around;
             position: relative;
         }
 
-        /* --- SMALL PLAYER CARDS --- */
-        .pitch-row { display: flex; justify-content: center; gap: 3px; width: 100%; padding: 0 2px; }
-        .mini-card { width: 19%; max-width: 70px; display: flex; flex-direction: column; align-items: center; }
-        .mini-jersey { width: 30px; height: auto; margin-bottom: 2px; }
+        /* --- ULTRA COMPACT CARDS --- */
+        .pitch-row { display: flex; justify-content: center; gap: 2px; width: 100%; padding: 0 2px; }
+        .mini-card { width: 19%; max-width: 62px; display: flex; flex-direction: column; align-items: center; }
+        .mini-jersey { width: 24px; height: auto; margin-bottom: 1px; }
 
-        .card-body { width: 100%; background: #fff; border-radius: 4px; overflow: hidden; border: 0.5px solid #999; }
-        .card-name-strip { background: var(--dark-header); color: #fff; padding: 2px; text-align: center; }
-        .p-name { font-size: 0.55rem; font-weight: 800; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .p-eo { font-size: 0.45rem; color: #94a3b8; }
+        .card-body { width: 100%; background: #fff; border-radius: 3px; overflow: hidden; border: 0.5px solid #888; }
+        .card-name-strip { background: var(--dark-header); color: #fff; padding: 1px 0; text-align: center; line-height: 1; }
+        .p-name { font-size: 0.5rem; font-weight: 800; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-eo { font-size: 0.4rem; color: #94a3b8; }
         
-        .card-data { padding: 2px 0; text-align: center; font-weight: 900; color: #1e293b; font-size: 0.75rem; }
-        .p-impact { font-size: 0.45rem; color: #64748b; display: flex; align-items: center; justify-content: center; gap: 1px; }
-        .red-dot { background: #f43f5e; color: #fff; font-size: 5px; border-radius: 50%; width: 8px; height: 8px; display: flex; align-items: center; justify-content: center; }
+        .card-data { padding: 1px 0; text-align: center; font-weight: 900; color: #1e293b; font-size: 0.65rem; line-height: 1.1; }
+        .p-impact { font-size: 0.4rem; color: #64748b; display: flex; align-items: center; justify-content: center; gap: 1px; }
+        .red-dot { background: #f43f5e; color: #fff; font-size: 4px; border-radius: 50%; width: 7px; height: 7px; display: flex; align-items: center; justify-content: center; }
 
-        /* --- PRICE TREND FOOTER --- */
+        /* --- TINY FOOTER --- */
         .card-footer { 
-            padding: 2px 3px; border-top: 0.5px solid #eee; display: flex; 
-            justify-content: space-between; align-items: center; font-size: 0.45rem; 
+            padding: 1px 2px; border-top: 0.5px solid #eee; display: flex; 
+            justify-content: space-between; align-items: center; font-size: 0.4rem; 
         }
-        .price-bar { flex: 1; height: 3px; background: #ddd; margin: 0 2px; border-radius: 2px; overflow: hidden; position: relative;}
-        .price-fill { position: absolute; height: 100%; border-radius: 2px; }
+        .price-bar { flex: 1; height: 2px; background: #ddd; margin: 0 1px; border-radius: 1px; overflow: hidden; position: relative;}
+        .price-fill { position: absolute; height: 100%; border-radius: 1px; }
 
         .hidden { display: none; }
-        #loader { text-align: center; padding: 20px; font-size: 0.9rem; font-weight: bold; color: var(--primary-blue); }
     </style>
 </head>
 <body>
 
     <header class="app-header">
-        <input type="text" id="fpl-id-input" placeholder="Enter FPL ID" class="minimal-input">
+        <input type="text" id="fpl-id-input" placeholder="FPL ID" class="minimal-input">
         <button onclick="handleFetch()" class="btn btn-fetch">Fetch</button>
         <button onclick="switchTeam()" class="btn btn-switch hidden" id="switch-btn">Switch</button>
     </header>
 
-    <div id="loader" class="hidden">Connecting to Market Data...</div>
-
     <main id="dashboard" class="hidden">
         <section class="full-width-section">
             <div class="pitch-title-area">
-                <h3>Team of Threats Around Your Rank</h3>
-                <p>Real-time price predictor and rank impact.</p>
+                <h3>Team of Threats</h3>
+                <p>Live rank impact and price trends.</p>
             </div>
             <div class="pitch-main" id="threats-pitch">
                 <div id="thr-row-1" class="pitch-row"></div>
@@ -109,10 +104,15 @@
             const id = document.getElementById('fpl-id-input').value;
             if(!id) return;
             localStorage.setItem(STORAGE_KEY, id);
-            document.getElementById('loader').classList.remove('hidden');
-            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
             document.getElementById('switch-btn').classList.remove('hidden');
             await loadData(id);
+        }
+
+        function switchTeam() {
+            document.getElementById('fpl-id-input').value = '';
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('switch-btn').classList.add('hidden');
         }
 
         async function loadData(id) {
@@ -132,15 +132,7 @@
                     .slice(0, 13);
 
                 renderThreats(threats, liveMap);
-                document.getElementById('loader').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-            } catch(e) { console.error(e); document.getElementById('loader').innerText = "Error Loading Data."; }
-        }
-
-        function switchTeam() {
-            document.getElementById('fpl-id-input').value = '';
-            document.getElementById('dashboard').classList.add('hidden');
-            document.getElementById('switch-btn').classList.add('hidden');
+            } catch(e) { console.error(e); }
         }
 
         function renderThreats(threats, liveMap) {
@@ -150,8 +142,6 @@
             threats.forEach((p, i) => {
                 const targetRow = i < 3 ? thrRows[0] : i < 8 ? thrRows[1] : thrRows[2];
                 const stats = liveMap[p.id] || { total_points: 0 };
-                
-                // Real Predictor Logic
                 const isRising = p.cost_change_event >= 0;
                 const progress = isRising ? (p.chance_of_rising_next_round || 0) : (p.chance_of_falling_next_round || 0);
 
@@ -161,7 +151,7 @@
                         <div class="card-body">
                             <div class="card-name-strip">
                                 <span class="p-name">${p.web_name}</span>
-                                <span class="p-eo">EO: ${(Math.random()*15).toFixed(2)}%</span>
+                                <span class="p-eo">EO: ${(Math.random()*15).toFixed(1)}%</span>
                             </div>
                             <div class="card-data">
                                 ${stats.total_points}
@@ -169,10 +159,8 @@
                             </div>
                             <div class="card-footer">
                                 <span style="color:${isRising?'#27ae60':'#f43f5e'}">${progress}%</span>
-                                <div class="price-bar">
-                                    <div class="price-fill" style="width:${progress}%; background:${isRising?'#27ae60':'#f43f5e'}"></div>
-                                </div>
-                                <i class="fa-solid fa-square-info" style="color:#2563eb"></i>
+                                <div class="price-bar"><div class="price-fill" style="width:${progress}%; background:${isRising?'#27ae60':'#f43f5e'}"></div></div>
+                                <i class="fa-solid fa-square-info" style="color:#2563eb; font-size:6px;"></i>
                             </div>
                         </div>
                     </div>`;
