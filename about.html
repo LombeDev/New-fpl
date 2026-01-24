@@ -61,7 +61,7 @@
 <body>
 
     <header class="app-header">
-        <input type="text" id="fpl-id-input" placeholder="ID" class="minimal-input">
+        <input type="text" id="fpl-id-input" placeholder="Enter Team ID" class="minimal-input">
         <button onclick="handleFetch()" class="btn" style="background:var(--primary-blue);">SYNC</button>
         <button onclick="switchTeam()" id="switch-btn" class="btn hidden" style="background:#64748b;">SW</button>
     </header>
@@ -70,17 +70,17 @@
         <section class="comp-section">
             <div class="comp-header"><h4>Squad Comparison Metrics</h4></div>
             <table class="comp-table">
-                <thead><tr><th>Stat</th><th>You</th><th>10k</th><th>All</th><th>Leg</th></tr></thead>
+                <thead><tr><th>Stat</th><th>You</th><th>Avg</th><th>Top</th><th>GW</th></tr></thead>
                 <tbody id="comp-body"></tbody>
             </table>
             <div class="see-more" onclick="toggleExpand()">See More Ownership Details</div>
             <div id="expansion-panel" class="hidden expanded-list">
-                <strong>Top 10k Meta:</strong> Haaland (92%), Salah (74%), Palmer (61%).
+                <p>Calculated based on live data and bootstrap averages.</p>
             </div>
         </section>
 
         <section class="section-wrapper">
-            <div class="p-title"><h3>Live Squad</h3></div>
+            <div class="p-title"><h3 id="gw-title">Live Squad</h3></div>
             <div class="pitch-main">
                 <div id="evt-gk" class="pitch-row"></div>
                 <div id="evt-def" class="pitch-row"></div>
@@ -102,11 +102,20 @@
     <script>
         const PROXY = "https://corsproxy.io/?";
         const STORAGE_KEY = 'fpl_id_autosave';
-        let state = { liveMap: {}, fixtures: [] };
+        let state = { 
+            liveMap: {}, 
+            fixtures: [], 
+            bootData: null, 
+            currentGW: null,
+            userPoints: 0 
+        };
 
         window.onload = () => {
             const saved = localStorage.getItem(STORAGE_KEY);
-            if(saved) { document.getElementById('fpl-id-input').value = saved; handleFetch(); }
+            if(saved) { 
+                document.getElementById('fpl-id-input').value = saved; 
+                handleFetch(); 
+            }
         };
 
         async function handleFetch() {
@@ -120,45 +129,72 @@
 
         async function loadData(id) {
             try {
+                // 1. Fetch Bootstrap & Identify Gameweek
                 const boot = await (await fetch(PROXY + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"))).json();
-                const currentGW = boot.events.find(e => e.is_current).id;
-                const picks = await (await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/event/${currentGW}/picks/`))).json();
-                const live = await (await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${currentGW}/live/`))).json();
-                state.fixtures = await (await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/fixtures/?event=${currentGW}`))).json();
+                state.bootData = boot;
+                state.currentGW = boot.events.find(e => e.is_current) || boot.events.find(e => e.is_next);
+                
+                document.getElementById('gw-title').innerText = `GW ${state.currentGW.id} Live Squad`;
 
+                // 2. Fetch User Picks & Live Stats
+                const picks = await (await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/event/${state.currentGW.id}/picks/`))).json();
+                const live = await (await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${state.currentGW.id}/live/`))).json();
+                state.fixtures = await (await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/fixtures/?event=${state.currentGW.id}`))).json();
+
+                // Map live stats for easy lookup
                 live.elements.forEach(l => state.liveMap[l.id] = l.stats);
 
+                // 3. Calculate User Live Points (Starting 11 only)
+                state.userPoints = picks.picks.reduce((acc, p) => {
+                    if (p.position <= 11) {
+                        const pts = (state.liveMap[p.element]?.total_points || 0) * p.multiplier;
+                        return acc + pts;
+                    }
+                    return acc;
+                }, 0);
+
+                // 4. Render UI Components
                 renderComparison();
                 renderPitch('evt', picks.picks.slice(0, 11), boot.elements, true);
-                const owned = picks.picks.map(p => p.element);
-                const threats = boot.elements.filter(p => !owned.includes(p.id))
-                                .sort((a,b) => (state.liveMap[b.id]?.total_points || 0) - (state.liveMap[a.id]?.total_points || 0)).slice(0, 13);
+                
+                // Threats Logic: Filter players user doesn't own, sort by live points
+                const ownedIds = picks.picks.map(p => p.element);
+                const threats = boot.elements
+                    .filter(p => !ownedIds.includes(p.id))
+                    .sort((a,b) => (state.liveMap[b.id]?.total_points || 0) - (state.liveMap[a.id]?.total_points || 0))
+                    .slice(0, 13);
                 renderPitch('thr', threats, boot.elements, false);
-            } catch(e) { console.error(e); }
+
+            } catch(e) { 
+                console.error("FPL Sync Error:", e); 
+                alert("Error fetching data. Check Team ID or Proxy status.");
+            }
         }
 
         function renderComparison() {
+            const gw = state.currentGW;
             const rows = [
-                { s: 'Final Score', y: '36', t: '40.2', o: '39.1', l: '40.4' },
-                { s: 'Fixtures', y: '12', t: '12.1', o: '12.1', l: '12.0' },
-                { s: 'Captain', y: '4', t: '4.3', o: '4.8', l: '4.4' }
+                { s: 'Points', y: state.userPoints, avg: gw.average_entry_score, top: gw.highest_score, info: `GW${gw.id}` },
+                { s: 'Avg/Plyr', y: (state.userPoints/11).toFixed(1), avg: (gw.average_entry_score/11).toFixed(1), top: '---', info: '-' }
             ];
+            
             document.getElementById('comp-body').innerHTML = rows.map(r => `
-                <tr><td style="text-align:left;">${r.s}</td><td>${r.y}</td><td>${r.t}</td><td>${r.o}</td><td>${r.l}</td></tr>
+                <tr>
+                    <td style="text-align:left;">${r.s}</td>
+                    <td style="color:var(--primary-blue)">${r.y}</td>
+                    <td>${r.avg}</td>
+                    <td>${r.top}</td>
+                    <td>${r.info}</td>
+                </tr>
             `).join('');
         }
-
-        function toggleExpand() { document.getElementById('expansion-panel').classList.toggle('hidden'); }
 
         function getMatchStatus(teamId) {
             const fix = state.fixtures.find(f => f.team_a === teamId || f.team_h === teamId);
             if(!fix) return "N/A";
-            return fix.finished ? "FT" : (fix.started ? "LIVE" : "WAIT");
-        }
-
-        function switchTeam() {
-            document.getElementById('fpl-id-input').value = '';
-            document.getElementById('dashboard').classList.add('hidden');
+            if(fix.finished_provisional) return "FT";
+            if(fix.started) return "LIVE";
+            return "WAIT";
         }
 
         function renderPitch(prefix, players, allData, isEvent) {
@@ -170,9 +206,18 @@
                 const meta = allData.find(x => x.id === id);
                 const stats = state.liveMap[id] || { total_points: 0 };
                 const mStatus = getMatchStatus(meta.team);
-                let target = isEvent ? {1:'evt-gk', 2:'evt-def', 3:'evt-mid', 4:'evt-fwd'}[meta.element_type] : (i < 3 ? rows[0] : i < 8 ? rows[1] : rows[2]);
+                
+                // Determine which row to append to
+                let target;
+                if(isEvent) {
+                    target = {1:'evt-gk', 2:'evt-def', 3:'evt-mid', 4:'evt-fwd'}[meta.element_type];
+                } else {
+                    target = (i < 3 ? rows[0] : i < 8 ? rows[1] : rows[2]);
+                }
 
+                // Price change progress
                 const progress = meta.cost_change_event >= 0 ? (meta.chance_of_rising_next_round || 0) : (meta.chance_of_falling_next_round || 0);
+                const points = (isEvent && p.multiplier > 0) ? stats.total_points * p.multiplier : stats.total_points;
 
                 document.getElementById(target).innerHTML += `
                     <div class="mini-card">
@@ -181,8 +226,8 @@
                         <div class="card-body">
                             <div class="card-name-strip"><span class="p-name">${meta.web_name}</span></div>
                             <div class="card-data">
-                                ${p.multiplier > 1 ? stats.total_points * p.multiplier : stats.total_points}
-                                <div class="p-impact">23k <span class="red-dot"></span></div>
+                                ${points}
+                                <div class="p-impact">${(meta.selected_by_percent)}% <span class="red-dot" style="background:${mStatus==='LIVE'?'#22c55e':''}"></span></div>
                             </div>
                             <div class="card-footer">
                                 <span style="color:${meta.cost_change_event>=0?'#27ae60':'#f43f5e'}">${progress}%</span>
@@ -191,6 +236,13 @@
                         </div>
                     </div>`;
             });
+        }
+
+        function toggleExpand() { document.getElementById('expansion-panel').classList.toggle('hidden'); }
+        
+        function switchTeam() {
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload();
         }
     </script>
 </body>
