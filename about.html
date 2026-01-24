@@ -3,34 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopala FPL - Netlify Live</title>
+    <title>Kopala FPL - Netlify Live Fix</title>
     <style>
         :root { --blue: #2563eb; --green: #27ae60; --dark: #0f172a; --gray: #f8fafc; }
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
         body { background: #fff; font-size: 0.6rem; color: #334155; }
         
-        /* HEADER */
         .header { padding: 6px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 6px; background: #fff; position: sticky; top: 0; z-index: 100; }
         input { flex: 1; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.75rem; height: 30px; outline: none; }
         button { padding: 0 14px; background: var(--blue); color: #fff; border: none; border-radius: 4px; font-weight: 800; cursor: pointer; font-size: 0.65rem; }
 
-        /* LIVE STATS TABLE */
         .stats-container { padding: 6px; background: var(--gray); border-bottom: 2px solid #e2e8f0; }
         table { width: 100%; border-collapse: collapse; text-align: center; }
         th { background: var(--dark); color: white; padding: 4px; font-size: 0.5rem; text-transform: uppercase; }
         td { border-bottom: 1px solid #e2e8f0; padding: 6px 2px; font-weight: 800; font-size: 0.65rem; }
 
-        /* NANO PITCH */
         .pitch-title { text-align: center; padding: 6px; font-weight: 900; background: #fff; font-size: 0.6rem; letter-spacing: 0.5px; }
         .pitch { background: var(--green); padding: 12px 0; display: flex; flex-direction: column; gap: 8px; min-height: 250px; }
         .row { display: flex; justify-content: center; gap: 4px; }
         
-        /* PLAYER CARDS */
         .card { width: 45px; display: flex; flex-direction: column; align-items: center; position: relative; }
         .status-chip { font-size: 5px; background: rgba(15, 23, 42, 0.9); color: white; padding: 1px 3px; border-radius: 20px; position: absolute; top: -6px; z-index: 10; border: 0.5px solid rgba(255,255,255,0.2); }
         .jersey { width: 18px; margin-bottom: 2px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
         .card-inner { background: #fff; border: 1px solid #1e293b; border-radius: 3px; width: 100%; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .p-name { background: var(--dark); color: #fff; font-size: 0.38rem; height: 13px; display: flex; align-items: center; justify-content: center; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
+        .p-name { background: var(--dark); color: #fff; font-size: 0.38rem; height: 13px; display: flex; align-items: center; justify-content: center; font-weight: 800; text-transform: uppercase; white-space: nowrap; overflow: hidden; }
         .p-pts { text-align: center; font-size: 0.6rem; font-weight: 900; padding: 2px 0; color: var(--dark); }
         .p-bar { height: 2px; background: #f1f5f9; position: relative; }
         .p-fill { height: 100%; position: absolute; background: var(--blue); }
@@ -51,7 +47,7 @@
 <main id="app-content" class="hidden">
     <div class="stats-container">
         <table>
-            <thead><tr><th>Metric</th><th>You</th><th>GW Avg</th><th>Top 10k</th></tr></thead>
+            <thead><tr><th>Metric</th><th>You</th><th>GW Avg</th><th>GW Max</th></tr></thead>
             <tbody id="table-body"></tbody>
         </table>
     </div>
@@ -70,28 +66,29 @@
 
 <script>
 async function syncNetlify() {
-    const id = document.getElementById('fpl-id').value;
-    if(!id) return;
+    const idInput = document.getElementById('fpl-id').value;
+    if(!idInput) return;
     
     const msg = document.getElementById('status-msg');
-    msg.innerText = "Fetching via Netlify Edge...";
+    msg.innerText = "Connecting to Netlify Rewrite...";
 
     try {
-        // We use /fpl-api/ which Netlify will rewrite to the real FPL API
-        const boot = await (await fetch('/fpl-api/bootstrap-static/')).json();
-        const gw = boot.events.find(e => e.is_current).id;
+        const boot = await fetch('/fpl-api/bootstrap-static/').then(r => r.json());
+        // Find the correct Gameweek even if FPL has multiple events marked
+        const currentEvent = boot.events.find(e => e.is_current) || boot.events[0];
+        const gw = currentEvent.id;
 
         const [live, picks] = await Promise.all([
             fetch(`/fpl-api/event/${gw}/live/`).then(r => r.json()),
-            fetch(`/fpl-api/entry/${id}/event/${gw}/picks/`).then(r => r.json())
+            fetch(`/fpl-api/entry/${idInput}/event/${gw}/picks/`).then(r => r.json())
         ]);
 
         render(boot, live, picks);
         msg.classList.add('hidden');
         document.getElementById('app-content').classList.remove('hidden');
     } catch(err) {
-        msg.innerHTML = `<span style="color:red">Error: Ensure your _redirects file is deployed.</span>`;
-        console.error(err);
+        msg.innerHTML = `<span style="color:red">Error: Failed to fetch. Ensure _redirects is deployed.</span>`;
+        console.error("FPL Sync Error:", err);
     }
 }
 
@@ -102,23 +99,39 @@ function render(boot, live, picks) {
     const liveMap = {};
     live.elements.forEach(l => liveMap[l.id] = l.stats);
 
-    // Stats Table
-    const curGW = boot.events.find(e => e.id === picks.event);
+    // FIX: Safely access Gameweek data with optional chaining
+    const activeGWData = boot.events.find(e => e.id === picks.event);
+    const avgScore = activeGWData?.average_entry_score || 0;
+    const maxScore = activeGWData?.highest_score || 0;
+
     document.getElementById('table-body').innerHTML = `
-        <tr><td>Points</td><td>${picks.entry_history.points}</td><td>${curGW.average_entry_score}</td><td>${curGW.highest_score}</td></tr>
-        <tr><td>Transfers</td><td>${picks.entry_history.event_transfers}</td><td>1.2</td><td>0.8</td></tr>
+        <tr>
+            <td>Points</td>
+            <td>${picks?.entry_history?.points || 0}</td>
+            <td>${avgScore}</td>
+            <td>${maxScore}</td>
+        </tr>
+        <tr>
+            <td>Transfers</td>
+            <td>${picks?.entry_history?.event_transfers || 0}</td>
+            <td>--</td>
+            <td>--</td>
+        </tr>
     `;
 
-    // Pitch
-    ['r-1','r-2','r-3','r-4'].forEach(id => document.getElementById(id).innerHTML = '');
+    // Pitch Cleanup
+    ['r-1','r-2','r-3','r-4','tr-1','tr-2'].forEach(id => document.getElementById(id).innerHTML = '');
+
+    // Squad Rendering
     picks.picks.slice(0, 11).forEach(pk => {
         const p = playerMap[pk.element];
-        const s = liveMap[pk.element];
-        document.getElementById(`r-${p.element_type}`).innerHTML += createCard(p, s, pk.is_captain);
+        const s = liveMap[pk.element] || { total_points: 0, minutes: 0 };
+        if (p) {
+            document.getElementById(`r-${p.element_type}`).innerHTML += createCard(p, s, pk.is_captain);
+        }
     });
 
-    // Threats
-    ['tr-1','tr-2'].forEach(id => document.getElementById(id).innerHTML = '');
+    // Threats Rendering
     const owned = picks.picks.map(x => x.element);
     const threats = boot.elements
         .filter(p => !owned.includes(p.id))
@@ -126,21 +139,22 @@ function render(boot, live, picks) {
         .slice(0, 8);
 
     threats.forEach((p, i) => {
-        document.getElementById(i < 4 ? 'tr-1' : 'tr-2').innerHTML += createCard(p, liveMap[p.id], false);
+        const s = liveMap[p.id] || { total_points: 0, minutes: 0 };
+        document.getElementById(i < 4 ? 'tr-1' : 'tr-2').innerHTML += createCard(p, s, false);
     });
 }
 
 function createCard(p, s, isCap) {
-    const pts = isCap ? s.total_points * 2 : s.total_points;
-    const time = s.minutes > 0 ? (s.minutes === 90 ? 'FT' : s.minutes + "'") : 'WAIT';
+    const pts = isCap ? (s.total_points * 2) : s.total_points;
+    const time = s.minutes > 0 ? (s.minutes >= 90 ? 'FT' : s.minutes + "'") : 'WAIT';
     return `
         <div class="card">
             <div class="status-chip">${time}</div>
             <img class="jersey" src="https://draft.premierleague.com/img/shirts/standard/shirt_${p.team_code}${p.element_type===1?'_1':''}-66.png">
             <div class="card-inner">
                 <div class="p-name">${p.web_name}</div>
-                <div class="p-pts">${pts}</div>
-                <div class="p-bar"><div class="p-fill" style="width:70%"></div></div>
+                <div class="p-pts">${pts}${isCap ? '<span style="font-size:4px"> (C)</span>' : ''}</div>
+                <div class="p-bar"><div class="p-fill" style="width:75%"></div></div>
             </div>
         </div>`;
 }
