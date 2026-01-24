@@ -33,10 +33,10 @@
             --border-color: #334155;
         }
 
-* {
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
-}
+        * {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
 
         body {
             margin: 0; padding: 0;
@@ -54,15 +54,20 @@
             box-sizing: border-box;
         }
 
+        /* Unified Width for both Top and Bottom containers */
+        .promo-card, .login-card {
+            width: 100%;
+            max-width: 400px; /* Forces both to be the same width */
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+        }
+
         /* Top Promotion Card */
         .promo-card {
-            background: var(--card-bg);
             border-radius: 24px;
             padding: 20px;
-            width: 100%;
-            max-width: 400px;
             margin-bottom: 16px;
-            border: 1px solid var(--border-color);
             text-align: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
@@ -71,14 +76,9 @@
 
         /* Main Entry Card */
         .login-card {
-            background: var(--card-bg);
             border-radius: 28px;
             padding: 30px;
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid var(--border-color);
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            box-sizing: border-box;
         }
 
         /* Theme Toggle Row */
@@ -165,9 +165,9 @@
         <div class="promo-card">
             <h3>Used by fpl managers since 2025 ❤️</h3>
             <a href="#" id="install-pwa-link" class="promo-link">
-    Download the Kopala FPL app on iOS & Android 
-    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7rem;"></i>
-</a>
+                Download the Kopala FPL app on iOS & Android 
+                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7rem;"></i>
+            </a>
         </div>
 
         <div class="login-card">
@@ -185,8 +185,8 @@
             <button class="continue-btn" onclick="handleLogin()">Continue</button>
 
            <div class="find-id-link" onclick="window.open('https://youtu.be/gZqblBRbAjw?si=IQ-hmIEES27jDaTn', '_blank')">
-    <i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it
-</div>
+                <i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it
+            </div>
         </div>
     </div>
 
@@ -235,7 +235,6 @@
 
         const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
 
-        // Sync theme with toggle buttons
         function setTheme(mode) {
             const body = document.body;
             const darkBtn = document.getElementById('btn-dark');
@@ -317,45 +316,30 @@
             document.getElementById('login-screen').style.display = 'flex';
         }
 
-
-
         let deferredPrompt;
-const installLink = document.getElementById('install-pwa-link');
+        const installLink = document.getElementById('install-pwa-link');
 
-// 1. Listen for the browser's install prompt
-window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent the mini-infobar from appearing on mobile
-    e.preventDefault();
-    // Stash the event so it can be triggered later.
-    deferredPrompt = e;
-    // Optional: Show the link only if the app isn't installed
-    installLink.style.display = 'inline-block';
-});
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installLink.style.display = 'inline-block';
+        });
 
-// 2. Handle the click event on your link
-installLink.addEventListener('click', async (e) => {
-    e.preventDefault();
-    if (!deferredPrompt) {
-        // If the prompt isn't available, the app might already be installed 
-        // or the browser doesn't support it.
-        alert("To install: Tap your browser menu and select 'Add to Home Screen'");
-        return;
-    }
-    // Show the install prompt
-    deferredPrompt.prompt();
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response to the install prompt: ${outcome}`);
-    // We've used the prompt, and can't use it again
-    deferredPrompt = null;
-});
+        installLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (!deferredPrompt) {
+                alert("To install: Tap your browser menu and select 'Add to Home Screen'");
+                return;
+            }
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+        });
 
-// 3. Hide the link if the app is successfully installed
-window.addEventListener('appinstalled', () => {
-    installLink.style.display = 'none';
-    deferredPrompt = null;
-    console.log('PWA was installed');
-});
+        window.addEventListener('appinstalled', () => {
+            installLink.style.display = 'none';
+            deferredPrompt = null;
+        });
     </script>
 </body>
 </html>
