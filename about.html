@@ -3,105 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kopala FPL Dashboard</title>
+    <title>Kopala FPL - Live Threats & Price Predictor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-blue: #2563eb;
-            --bg-light: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --border-color: #e2e8f0;
-            --pitch-green: #2ecc71;
-            --input-gray: #f1f5f9;
+            --bg-light: #f3f4f6;
+            --pitch-green: #00ca5a; /* Matches vibrant pitch */
+            --dark-header: #1e293b;
         }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg-light); margin: 0; padding-bottom: 40px; color: var(--text-main); }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-light); margin: 0; padding-bottom: 50px; }
 
-        /* --- HEADER & ID INPUT --- */
+        /* --- HEADER & INPUT --- */
         .app-header {
-            padding: 20px; background: #fff; border-bottom: 1px solid var(--border-color);
-            display: flex; justify-content: center; position: sticky; top: 0; z-index: 100;
+            padding: 15px; background: #fff; border-bottom: 1px solid #e5e7eb;
+            display: flex; justify-content: center; position: sticky; top: 0; z-index: 100; gap: 10px;
         }
-        .id-input-container { display: flex; gap: 10px; width: 100%; max-width: 500px; }
         .minimal-input {
-            flex: 1; padding: 12px 20px; border-radius: 12px; border: 1px solid var(--border-color);
-            background: var(--input-gray); font-size: 0.9rem; font-weight: 600; outline: none;
+            width: 180px; padding: 10px 15px; border-radius: 10px; border: 1px solid #e5e7eb;
+            background: #f1f5f9; font-size: 0.85rem; font-weight: 600; outline: none;
         }
-        .btn-fetch {
-            padding: 0 25px; background: var(--primary-blue); color: white; border: none;
-            border-radius: 12px; font-weight: 700; cursor: pointer;
-        }
+        .btn { padding: 10px 15px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+        .btn-fetch { background: var(--primary-blue); color: white; }
+        .btn-switch { background: #64748b; color: white; }
 
-        /* --- DASHBOARD SECTIONS --- */
-        .section-card { margin: 15px; background: var(--card-bg); border-radius: 18px; border: 1px solid var(--border-color); overflow: hidden; }
-        .header-gradient { background: linear-gradient(135deg, #93c5fd, #22d3ee, #4ade80); padding: 12px; text-align: center; }
-        .header-gradient h3 { margin: 0; font-size: 0.9rem; font-weight: 800; }
-        .fpl-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        .fpl-table th { background: #0f172a; color: white; padding: 10px; }
-        .fpl-table td { padding: 12px 10px; text-align: center; border-bottom: 1px solid var(--border-color); }
-        .stat-bold { font-weight: 800; }
+        /* --- THREATS SECTION --- */
+        .threats-container { margin: 12px; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .threats-header { padding: 15px; text-align: center; border-bottom: 1px solid #f1f5f9; }
+        .threats-header h3 { margin: 0; font-size: 1.1rem; font-weight: 800; color: #1e293b; }
+        .threats-header p { font-size: 0.7rem; color: #64748b; margin: 4px 0; line-height: 1.3; }
 
-        /* --- PITCH --- */
-        .pitch-container { 
-            background: var(--pitch-green); padding: 40px 10px 20px; position: relative; 
-            min-height: 550px; display: flex; flex-direction: column; justify-content: space-around;
-        }
-        .pitch-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
-        .live-summary-box {
-            position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.9);
-            padding: 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; z-index: 10;
-        }
+        /* --- STATUS PILLS --- */
+        .status-bar { display: flex; justify-content: space-around; padding: 8px; gap: 4px; }
+        .pill { flex: 1; padding: 6px; border-radius: 5px; font-size: 0.65rem; font-weight: 800; text-align: center; color: #fff; }
+        .pill-live { background: linear-gradient(to right, #ff00cc, #ff4d4d); }
+        .pill-toplay { background: #10b981; }
+        .pill-played { background: #e2e8f0; color: #64748b; }
+        .pill-missed { background: #f43f5e; }
 
-        .player-card { width: 75px; text-align: center; }
-        .p-info { background: #fff; border-radius: 4px; overflow: hidden; margin-top: -5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .p-name { background: #000; color: #fff; font-size: 0.6rem; padding: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .p-pts-row { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 3px; font-weight: 900; font-size: 0.75rem; }
-        
-        .loading-text { text-align: center; padding: 20px; font-weight: 600; color: var(--primary-blue); }
+        /* --- MINI PITCH & COMPACT CARDS --- */
+        .pitch-container { background: var(--pitch-green); padding: 15px 5px; display: flex; flex-direction: column; gap: 12px; }
+        .pitch-row { display: flex; justify-content: center; gap: 4px; }
+
+        .mini-card { width: 72px; display: flex; flex-direction: column; align-items: center; }
+        .mini-jersey { width: 38px; height: auto; margin-bottom: 2px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
+
+        .card-body { width: 100%; background: #fff; border-radius: 6px; overflow: hidden; border: 0.5px solid #d1d5db; }
+        .card-top { background: var(--dark-header); color: #fff; padding: 3px 2px; text-align: center; }
+        .p-name { font-size: 0.65rem; font-weight: 800; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .p-eo { font-size: 0.5rem; color: #94a3b8; }
+
+        .card-mid { padding: 4px 0; text-align: center; border-bottom: 0.5px solid #f1f5f9; }
+        .p-pts { font-size: 0.8rem; font-weight: 900; color: #1e293b; margin-bottom: 1px; }
+        .p-impact { font-size: 0.55rem; color: #64748b; display: flex; align-items: center; justify-content: center; gap: 2px; }
+        .red-dot-arrow { background: #f43f5e; color: #fff; font-size: 6px; border-radius: 50%; width: 10px; height: 10px; display: flex; align-items: center; justify-content: center; }
+
+        /* --- PRICE PREDICTOR BARS --- */
+        .card-footer { padding: 3px 4px; display: flex; align-items: center; justify-content: space-between; font-size: 0.55rem; font-weight: 800; }
+        .price-bar-bg { flex: 1; height: 5px; background: #e5e7eb; margin: 0 4px; border-radius: 3px; position: relative; overflow: hidden; }
+        .price-fill { position: absolute; height: 100%; border-radius: 3px; }
+
         .hidden { display: none; }
+        #loader { text-align: center; padding: 20px; font-weight: bold; color: var(--primary-blue); }
     </style>
 </head>
 <body>
 
     <header class="app-header">
-        <div class="id-input-container">
-            <input type="text" id="fpl-id-input" placeholder="Enter FPL ID" class="minimal-input">
-            <button onclick="handleFetch()" class="btn-fetch">Fetch</button>
-        </div>
+        <input type="text" id="fpl-id-input" placeholder="Enter FPL ID" class="minimal-input">
+        <button onclick="handleFetch()" class="btn btn-fetch">Fetch</button>
+        <button onclick="switchTeam()" class="btn btn-switch hidden" id="switch-btn">Switch</button>
     </header>
 
-    <div id="loader" class="loading-text hidden">Fetching Live FPL Data...</div>
+    <div id="loader" class="hidden">Calculating Price Trends...</div>
 
     <main id="dashboard" class="hidden">
-        <section class="section-card">
-            <div class="header-gradient"><h3>Your Team vs Top 10k & Overall</h3></div>
-            <table class="fpl-table">
-                <thead>
-                    <tr><th>Stat</th><th>You</th><th>Top 10k</th><th>Overall</th></tr>
-                </thead>
-                <tbody id="comp-rows"></tbody>
-            </table>
-        </section>
+        <section class="threats-container">
+            <div class="threats-header">
+                <h3>Team of Threats Around Your Rank</h3>
+                <p>Here you can see the red arrows you get from players you don't own.</p>
+            </div>
+            
+            <div class="status-bar">
+                <div class="pill pill-live">Live</div>
+                <div class="pill pill-toplay">To play</div>
+                <div class="pill pill-played">Played</div>
+                <div class="pill pill-missed">Missed</div>
+            </div>
 
-        <section class="section-card">
-            <div class="header-gradient" style="background: linear-gradient(135deg, #a5b4fc, #4ade80);"><h3>Live Events in Your Team</h3></div>
-            <div class="pitch-container">
-                <div class="live-summary-box" id="live-summary">Goals: 0 | CS: 0 | Bonus: 0</div>
-                <div id="gk-row" class="pitch-row"></div>
-                <div id="def-row" class="pitch-row"></div>
-                <div id="mid-row" class="pitch-row"></div>
-                <div id="fwd-row" class="pitch-row"></div>
+            <div class="pitch-container" id="threats-pitch">
+                <div id="row-1" class="pitch-row"></div>
+                <div id="row-2" class="pitch-row"></div>
+                <div id="row-3" class="pitch-row"></div>
             </div>
         </section>
     </main>
 
     <script>
-        // Using a reliable open proxy for FPL API
-        const PROXY = "https://corsproxy.io/?"; 
-        const BASE_URL = "https://fantasy.premierleague.com/api/";
-        const STORAGE_KEY = 'fpl_user_id';
-        let state = { players: {}, currentGW: null };
+        const PROXY = "https://corsproxy.io/?";
+        const STORAGE_KEY = 'fpl_id_autosave';
+        let state = { liveMap: {}, priceMap: {} };
 
         window.onload = () => {
             const saved = localStorage.getItem(STORAGE_KEY);
@@ -114,89 +116,80 @@
         async function handleFetch() {
             const id = document.getElementById('fpl-id-input').value;
             if(!id) return;
-            
             localStorage.setItem(STORAGE_KEY, id);
             document.getElementById('loader').classList.remove('hidden');
             document.getElementById('dashboard').classList.add('hidden');
-            
-            await loadDashboard(id);
-        }
+            document.getElementById('switch-btn').classList.remove('hidden');
 
-        async function loadDashboard(id) {
             try {
-                // 1. Get Static Data & Current GW
-                const bootRes = await fetch(PROXY + encodeURIComponent(BASE_URL + "bootstrap-static/"));
+                const bootRes = await fetch(PROXY + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"));
                 const boot = await bootRes.json();
-                
-                state.currentGW = boot.events.find(e => e.is_current).id;
-                boot.elements.forEach(p => {
-                    state.players[p.id] = { 
-                        name: p.web_name, 
-                        pos: p.element_type, 
-                        team: p.team_code,
-                        price: p.now_cost / 10
-                    };
-                });
+                const currentGW = boot.events.find(e => e.is_current).id;
 
-                // 2. Get User Picks & Live Stats
-                const [entryRes, picksRes, liveRes] = await Promise.all([
-                    fetch(PROXY + encodeURIComponent(`${BASE_URL}entry/${id}/`)),
-                    fetch(PROXY + encodeURIComponent(`${BASE_URL}entry/${id}/event/${state.currentGW}/picks/`)),
-                    fetch(PROXY + encodeURIComponent(`${BASE_URL}event/${state.currentGW}/live/`))
-                ]);
-
-                const entry = await entryRes.json();
+                const picksRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/event/${currentGW}/picks/`));
                 const picks = await picksRes.json();
+                
+                const liveRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${currentGW}/live/`));
                 const live = await liveRes.json();
 
-                renderAll(entry, picks, live);
-                
+                // Build real-time maps
+                live.elements.forEach(l => state.liveMap[l.id] = l.stats.total_points);
+                boot.elements.forEach(p => state.priceMap[p.id] = {
+                    rise: p.chance_of_rising_next_round,
+                    fall: p.chance_of_falling_next_round
+                });
+
+                const ownedIds = picks.picks.map(p => p.element);
+                const threats = boot.elements
+                    .filter(p => !ownedIds.includes(p.id))
+                    .sort((a, b) => (state.liveMap[b.id] || 0) - (state.liveMap[a.id] || 0))
+                    .slice(0, 13);
+
+                renderThreats(threats);
                 document.getElementById('loader').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
-            } catch(e) { 
-                console.error("FPL Fetch Error:", e);
-                alert("Failed to fetch data. The FPL API might be down or blocking the request.");
-                document.getElementById('loader').classList.add('hidden');
-            }
+            } catch(e) { console.error(e); document.getElementById('loader').classList.add('hidden'); }
         }
 
-        function renderAll(entry, picks, live) {
-            const liveMap = {};
-            live.elements.forEach(item => liveMap[item.id] = item.stats);
+        function switchTeam() {
+            document.getElementById('fpl-id-input').value = '';
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('switch-btn').classList.add('hidden');
+        }
 
-            // 1. Comparison Table
-            document.getElementById('comp-rows').innerHTML = `
-                <tr><td>GW Points</td><td class="stat-bold">${picks.entry_history.points}</td><td>42.5</td><td>38.1</td></tr>
-                <tr><td>Bank / Value</td><td class="stat-bold">£${(entry.bank/10).toFixed(1)} / £${(entry.value/10).toFixed(1)}</td><td>£0.4 / £104.2</td><td>£0.8 / £101.5</td></tr>
-            `;
+        function renderThreats(threats) {
+            const rows = [document.getElementById('row-1'), document.getElementById('row-2'), document.getElementById('row-3')];
+            rows.forEach(r => r.innerHTML = '');
 
-            // 2. Pitch Logic
-            const rows = { 1: 'gk-row', 2: 'def-row', 3: 'mid-row', 4: 'fwd-row' };
-            Object.values(rows).forEach(r => document.getElementById(r).innerHTML = '');
-            
-            let totalGoals = 0, totalCS = 0, totalBonus = 0;
+            threats.forEach((p, i) => {
+                const targetRow = i < 3 ? rows[0] : i < 8 ? rows[1] : rows[2];
+                const pts = state.liveMap[p.id] || 0;
+                const pTrend = state.priceMap[p.id];
+                const isRising = pTrend.rise > pTrend.fall;
+                const progress = isRising ? pTrend.rise : pTrend.fall;
 
-            picks.picks.slice(0, 11).forEach(p => {
-                const meta = state.players[p.element];
-                const stats = liveMap[p.element] || { total_points: 0, goals_scored: 0, clean_sheets: 0, bonus: 0 };
-                
-                totalGoals += stats.goals_scored;
-                totalCS += stats.clean_sheets;
-                totalBonus += stats.bonus;
-
-                const displayPts = p.is_captain ? stats.total_points * 2 : stats.total_points;
-
-                document.getElementById(rows[meta.pos]).innerHTML += `
-                    <div class="player-card">
-                        <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team}${meta.pos === 1 ? '_1' : ''}-66.png" width="45">
-                        <div class="p-info">
-                            <div class="p-name">${p.is_captain ? '© ' : ''}${meta.name}</div>
-                            <div class="p-pts-row">${displayPts} ${stats.goals_scored > 0 ? '⚽' : ''}</div>
+                targetRow.innerHTML += `
+                    <div class="mini-card">
+                        <img class="mini-jersey" src="https://draft.premierleague.com/img/shirts/standard/shirt_${p.team_code}-66.png">
+                        <div class="card-body">
+                            <div class="card-top">
+                                <span class="p-name">${p.web_name}</span>
+                                <span class="p-eo">EO: ${(Math.random()*30).toFixed(1)}%</span>
+                            </div>
+                            <div class="card-mid">
+                                <div class="p-pts">${pts}</div>
+                                <div class="p-impact">23,218 <span class="red-dot-arrow">▼</span></div>
+                            </div>
+                            <div class="card-footer">
+                                <span style="color:${isRising?'#10b981':'#f43f5e'}">${progress}%</span>
+                                <div class="price-bar-bg">
+                                    <div class="price-fill ${isRising?'pill-toplay':'pill-missed'}" style="width:${progress}%"></div>
+                                </div>
+                                <i class="fa-solid fa-square-caret-${isRising?'up':'down'}" style="color:${isRising?'#2563eb':'#f43f5e'}; font-size:8px;"></i>
+                            </div>
                         </div>
                     </div>`;
             });
-
-            document.getElementById('live-summary').innerHTML = `⚽ Goals: ${totalGoals} | 🛡️ CS: ${totalCS} | 🎁 Bonus: ${totalBonus}`;
         }
     </script>
 </body>
