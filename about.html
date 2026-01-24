@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kopala FPL Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --border-color: #e2e8f0;
+            --pitch-green: #2ecc71;
+            --input-gray: #f1f5f9;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg-light); margin: 0; padding-bottom: 40px; color: var(--text-main); }
+
+        /* --- HEADER & ID INPUT --- */
+        .app-header {
+            padding: 20px; background: #fff; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: center; position: sticky; top: 0; z-index: 100;
+        }
+        .id-input-container { display: flex; gap: 10px; width: 100%; max-width: 500px; }
+        .minimal-input {
+            flex: 1; padding: 12px 20px; border-radius: 12px; border: 1px solid var(--border-color);
+            background: var(--input-gray); font-size: 0.9rem; font-weight: 600; outline: none;
+        }
+        .btn-fetch {
+            padding: 0 25px; background: var(--primary-blue); color: white; border: none;
+            border-radius: 12px; font-weight: 700; cursor: pointer;
+        }
+
+        /* --- COMPARISON TABLE --- */
+        .section-card { margin: 15px; background: var(--card-bg); border-radius: 18px; border: 1px solid var(--border-color); overflow: hidden; }
+        .header-gradient { background: linear-gradient(135deg, #93c5fd, #22d3ee, #4ade80); padding: 12px; text-align: center; }
+        .header-gradient h3 { margin: 0; font-size: 0.9rem; font-weight: 800; }
+        .fpl-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .fpl-table th { background: #0f172a; color: white; padding: 10px; }
+        .fpl-table td { padding: 12px 10px; text-align: center; border-bottom: 1px solid var(--border-color); }
+        .stat-bold { font-weight: 800; }
+
+        /* --- PITCH & EVENTS --- */
+        .pitch-container { 
+            background: var(--pitch-green); padding: 40px 10px 20px; position: relative; 
+            min-height: 550px; display: flex; flex-direction: column; justify-content: space-around;
+        }
+        .pitch-row { display: flex; justify-content: center; gap: 8px; }
+        .live-summary-box {
+            position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.9);
+            padding: 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; z-index: 10;
+        }
+
+        /* Player Cards */
+        .player-card { width: 75px; text-align: center; }
+        .p-info { background: #fff; border-radius: 4px; overflow: hidden; margin-top: -5px; }
+        .p-name { background: #000; color: #fff; font-size: 0.65rem; padding: 2px; }
+        .p-pts-row { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 3px; font-weight: 900; }
+        .icon-box { font-size: 0.6rem; }
+        
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="id-input-container">
+            <input type="text" id="fpl-id-input" placeholder="Enter FPL ID" class="minimal-input">
+            <button onclick="handleFetch()" class="btn-fetch">Fetch</button>
+        </div>
+    </header>
+
+    <main id="dashboard" class="hidden">
+        <section class="section-card">
+            <div class="header-gradient"><h3>Your Team vs Top 10k & Overall</h3></div>
+            <table class="fpl-table">
+                <thead>
+                    <tr><th>Stat</th><th>You</th><th>Top 10k</th><th>Overall</th></tr>
+                </thead>
+                <tbody id="comp-rows"></tbody>
+            </table>
+        </section>
+
+        <section class="section-card">
+            <div class="header-gradient" style="background: linear-gradient(135deg, #a5b4fc, #4ade80);"><h3>Events in Your Team</h3></div>
+            <div class="pitch-container">
+                <div class="live-summary-box" id="live-summary"></div>
+                <div id="gk-row" class="pitch-row"></div>
+                <div id="def-row" class="pitch-row"></div>
+                <div id="mid-row" class="pitch-row"></div>
+                <div id="fwd-row" class="pitch-row"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const PROXY = "https://n-fpl-proxy.netlify.app/api/";
+        const STORAGE_KEY = 'fpl_user_id';
+        let state = { players: {}, currentGW: 22 }; 
+
+        window.onload = () => {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if(saved) {
+                document.getElementById('fpl-id-input').value = saved;
+                handleFetch();
+            }
+        };
+
+        async function handleFetch() {
+            const id = document.getElementById('fpl-id-input').value;
+            if(!id) return;
+            localStorage.setItem(STORAGE_KEY, id);
+            document.getElementById('dashboard').classList.remove('hidden');
+            await loadDashboard(id);
+        }
+
+        async function loadDashboard(id) {
+            try {
+                const [bootRes, entryRes, picksRes, liveRes] = await Promise.all([
+                    fetch(`${PROXY}bootstrap-static/`),
+                    fetch(`${PROXY}entry/${id}/`),
+                    fetch(`${PROXY}entry/${id}/event/${state.currentGW}/picks/`),
+                    fetch(`${PROXY}event/${state.currentGW}/live/`)
+                ]);
+
+                const boot = await bootRes.json();
+                const entry = await entryRes.json();
+                const picks = await picksRes.json();
+                const live = await liveRes.json();
+
+                // Map players
+                boot.elements.forEach(p => state.players[p.id] = { 
+                    name: p.web_name, pos: p.element_type, team: p.team_code 
+                });
+
+                renderAll(entry, picks, live);
+            } catch(e) { console.error(e); }
+        }
+
+        function renderAll(entry, picks, live) {
+            // Comparison Table
+            document.getElementById('comp-rows').innerHTML = `
+                <tr><td>Score</td><td class="stat-bold">${picks.entry_history.points}</td><td>40.22</td><td>39.09</td></tr>
+                <tr><td>Budget</td><td class="stat-bold">£${(entry.bank/10).toFixed(1)}/£${(entry.value/10).toFixed(1)}</td><td>£0.0/£82.0</td><td>£0.0/£73.3</td></tr>
+            `;
+
+            // Pitch Summary
+            document.getElementById('live-summary').innerHTML = `⚽ Goals: 0 | 🛡️ CS: 4 | 🎁 Bonus: 2`;
+
+            // Basic Player Rendering
+            const rows = { 1: 'gk-row', 2: 'def-row', 3: 'mid-row', 4: 'fwd-row' };
+            Object.values(rows).forEach(r => document.getElementById(r).innerHTML = '');
+            
+            picks.picks.slice(0, 11).forEach(p => {
+                const meta = state.players[p.element];
+                document.getElementById(rows[meta.pos]).innerHTML += `
+                    <div class="player-card">
+                        <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team}-66.png" width="40">
+                        <div class="p-info">
+                            <div class="p-name">${meta.name}</div>
+                            <div class="p-pts-row">2 <div class="icon-box">🛡️</div></div>
+                        </div>
+                    </div>`;
+            });
+        }
+    </script>
+</body>
+</html>
