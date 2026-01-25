@@ -1,216 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopala FPL - Master Edition</title>
-    <style>
-        :root {
-            --primary: #2563eb; --pitch: #27ae60; --dark: #1e293b; --bg: #f1f5f9;
-            --danger: #ef4444; --success: #10b981; --bench: #64748b; --out-gray: #e2e8f0;
-            --bonus: #fbbf24; --cap-gold: #f59e0b;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kopala FPL - Pro Analytics</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --pitch: #27ae60;
+            --dark: #1e293b;
+            --bg: #f1f5f9;
+            --danger: #ef4444;
+            --success: #10b981;
+            --bench: #64748b;
+            --out-gray: #e2e8f0;
+        }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 40px; color: #334155; }
-        header { background: #fff; padding: 10px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 8px; position: sticky; top: 0; z-index: 1000; }
-        input { flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; outline: none; }
-        button { background: var(--primary); color: #fff; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 40px; color: #334155; }
+        
+        header { background: #fff; padding: 10px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 8px; position: sticky; top: 0; z-index: 1000; }
+        input { flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; outline: none; }
+        button { background: var(--primary); color: #fff; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-        .container { width: 96%; max-width: 500px; margin: 15px auto; display: flex; flex-direction: column; gap: 15px; }
-        .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; }
-        .card-header { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
-        .card-header h3 { margin: 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .container { width: 96%; max-width: 500px; margin: 15px auto; display: flex; flex-direction: column; gap: 20px; }
+        .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; }
+        
+        /* Headers */
+        .card-header { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+        .card-header h3 { margin: 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header-blue { background: linear-gradient(90deg, #93c5fd, #fff); }
+        .header-dark { background: linear-gradient(90deg, #334155, #fff); color: #fff !important; }
+        .header-pop { background: linear-gradient(90deg, #60a5fa, #fff); }
 
-        /* Theme Variants */
-        .header-blue { background: linear-gradient(90deg, #93c5fd, #fff); }
-        .header-dark { background: linear-gradient(90deg, #334155, #fff); color: #fff !important; }
-        .header-cap { background: linear-gradient(90deg, #fbbf24, #fff); }
-        .header-ceiling { background: linear-gradient(90deg, #34d399, #fff); }
+        /* Pitch UI */
+        .pitch { background: var(--pitch); background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 20px 20px; padding: 15px 5px; display: flex; flex-direction: column; gap: 10px; }
+        .pitch-row { display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; }
+        
+        .player-mini { width: 60px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .jersey { width: 25px; margin-bottom: 2px; }
+        .name-tag { background: var(--dark); color: #fff; font-size: 0.5rem; width: 100%; padding: 2px 0; border-radius: 3px 3px 0 0; white-space: nowrap; overflow: hidden; }
+        .pts-tag { width: 100%; font-size: 0.75rem; font-weight: 800; padding: 3px 0; border-radius: 0 0 3px 3px; border: 1px solid #ddd; }
+        .pts-in { background: var(--success); color: #fff; }
+        .pts-out { background: var(--out-gray); color: #000; }
 
-        /* Pitch UI */
-        .pitch { background: var(--pitch); background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 20px 20px; padding: 15px 5px; display: flex; flex-direction: column; gap: 10px; }
-        .pitch-row { display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; }
-        .player-mini { width: 60px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .jersey { width: 25px; margin-bottom: 2px; }
-        .name-tag { background: var(--dark); color: #fff; font-size: 0.5rem; width: 100%; padding: 2px 0; border-radius: 3px 3px 0 0; }
-        .pts-tag { width: 100%; font-size: 0.75rem; font-weight: 800; padding: 3px 0; border-radius: 0 0 3px 3px; border: 1px solid #ddd; }
-        .pts-in { background: var(--success); color: #fff; }
-        .pts-out { background: var(--out-gray); color: #000; }
+        /* Table UI */
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        th { background: #1e293b; color: #fff; padding: 8px; text-align: center; }
+        td { padding: 10px 5px; border-bottom: 1px solid #f1f5f9; text-align: center; vertical-align: middle; }
+        
+        .hit-badge { background: #fee2e2; color: #ef4444; font-size: 0.6rem; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+        .vol-badge { font-size: 0.6rem; color: #64748b; display: block; margin-top: 2px; }
+        .rise-alert { color: var(--success); font-weight: bold; margin-left: 2px; }
 
-        /* Captaincy Grid */
-        .cap-grid { display: grid; grid-template-columns: 1fr 1fr; padding: 15px; gap: 10px; text-align: center; }
-        .cap-pts { font-size: 1.4rem; font-weight: 900; color: var(--primary); display: block; }
-        .label-sm { font-size: 0.6rem; color: #64748b; text-transform: uppercase; }
-
-        /* Table UI */
-        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-        th { background: #1e293b; color: #fff; padding: 8px; }
-        td { padding: 10px 5px; border-bottom: 1px solid #f1f5f9; text-align: center; }
-        .bonus-tag { background: var(--bonus); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-
-        .hidden { display: none; }
-    </style>
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
 
-    <header>
-        <input type="number" id="team-id" placeholder="Enter Team ID">
-        <button onclick="fetchFPLData()">SYNC MASTER</button>
-    </header>
+    <header>
+        <input type="number" id="team-id" placeholder="Enter Team ID">
+        <button onclick="fetchFPLData()">SYNC DATA</button>
+    </header>
 
-    <div id="main-content" class="container hidden">
-        
-        <section class="card">
-            <div class="card-header header-cap"><h3>Captaincy Battle (vs 10k Shield)</h3></div>
-            <div class="cap-grid">
-                <div><span class="label-sm">Your Captain</span><br><b id="u-cap-name">---</b><br><span id="u-cap-pts" class="cap-pts">0</span></div>
-                <div><span class="label-sm">Haaland (173% EO)</span><br><b>MCI (H)</b><br><span id="s-cap-pts" class="cap-pts">0</span></div>
-            </div>
-            <div id="battle-msg" style="padding:10px; font-size:0.7rem; text-align:center; background:#f8fafc; border-top:1px solid #eee;"></div>
-        </section>
+    <div id="main-content" class="container hidden">
+        
+        <section class="card">
+            <div class="card-header"><h3>Live Starting XI</h3> <span id="live-total" style="font-weight:bold; color:var(--primary)">0 Pts</span></div>
+            <div class="pitch" id="pitch-main">
+                <div id="p-gk" class="pitch-row"></div>
+                <div id="p-def" class="pitch-row"></div>
+                <div id="p-mid" class="pitch-row"></div>
+                <div id="p-fwd" class="pitch-row"></div>
+            </div>
+        </section>
 
-        <section class="card">
-            <div class="card-header header-ceiling"><h3>Theoretical Max (Ceiling)</h3></div>
-            <div style="padding: 15px; text-align: center;">
-                <div id="ceiling-display" style="font-size:1.5rem; font-weight:800; color:var(--success)">0 / 0</div>
-                <div id="remaining-info" class="label-sm">Calculating remaining potential...</div>
-            </div>
-        </section>
+        <section class="card">
+            <div class="card-header"><h3>Bench Watch</h3></div>
+            <div class="pitch" style="background: var(--bench); min-height: 80px;">
+                <div id="p-bench" class="pitch-row"></div>
+            </div>
+        </section>
 
-        <section class="card">
-            <div class="card-header"><h3>Live Starting XI</h3> <span id="live-total" style="font-weight:bold; color:var(--primary)">0 Pts</span></div>
-            <div class="pitch">
-                <div id="p-gk" class="pitch-row"></div>
-                <div id="p-def" class="pitch-row"></div>
-                <div id="p-mid" class="pitch-row"></div>
-                <div id="p-fwd" class="pitch-row"></div>
-            </div>
-        </section>
+        <section class="card">
+            <div class="card-header header-blue"><h3>Your Transfers</h3> <span id="hit-val"></span></div>
+            <table>
+                <thead><tr><th>No</th><th>In</th><th>Out</th><th>Gain</th></tr></thead>
+                <tbody id="user-tr-body"></tbody>
+                <tr style="background:#f8fafc; font-weight:bold">
+                    <td colspan="3" style="text-align:left; padding-left:10px;">Net GW Gain</td>
+                    <td id="user-net-total">0</td>
+                </tr>
+            </table>
+        </section>
 
-        <section class="card">
-            <div class="card-header header-blue"><h3>Your Transfers</h3> <span id="hit-val"></span></div>
-            <table>
-                <thead><tr><th>No</th><th>In</th><th>Out</th><th>Gain</th></tr></thead>
-                <tbody id="user-tr-body"></tbody>
-            </table>
-        </section>
+        <section class="card">
+            <div class="card-header header-pop"><h3>Popular Transfers (Top 10k)</h3></div>
+            <table>
+                <thead><tr><th>% / Vol</th><th>Player In</th><th>Player Out</th><th>Gain</th></tr></thead>
+                <tbody id="top-tr-body"></tbody>
+            </table>
+        </section>
 
-        <section class="card">
-            <div class="card-header header-dark" style="background:linear-gradient(90deg, #ef4444, #fff); color:#fff;"><h3>Top 10k Safety Net</h3></div>
-            <table>
-                <thead><tr><th>Player</th><th>EO%</th><th>Points Risk</th><th>Status</th></tr></thead>
-                <tbody id="safety-body"></tbody>
-            </table>
-        </section>
+        <section class="card">
+            <div class="card-header header-dark"><h3>Non-Owned Threats</h3></div>
+            <div class="pitch" style="background:#334155">
+                <div id="p-threats" class="pitch-row"></div>
+            </div>
+        </section>
 
-        <section class="card">
-            <div class="card-header"><h3>Bench Watch</h3></div>
-            <div class="pitch" style="background: var(--bench); min-height: 80px;">
-                <div id="p-bench" class="pitch-row"></div>
-            </div>
-        </section>
-    </div>
+    </div>
 
-    <script>
-        const PROXY = "https://corsproxy.io/?";
-        let state = { live: {}, boot: null, gw: null, owned: [] };
+    <script>
+        const PROXY = "https://corsproxy.io/?";
+        let state = { live: {}, boot: null, gw: null };
 
-        async function fetchFPLData() {
-            const id = document.getElementById('team-id').value;
-            if(!id) return alert("Enter Team ID");
+        async function fetchFPLData() {
+            const id = document.getElementById('team-id').value;
+            if(!id) return alert("Enter Team ID");
 
-            try {
-                const bootRes = await fetch(PROXY + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"));
-                state.boot = await bootRes.json();
-                state.gw = state.boot.events.find(e => e.is_current).id;
+            try {
+                const bootRes = await fetch(PROXY + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"));
+                state.boot = await bootRes.json();
+                state.gw = state.boot.events.find(e => e.is_current).id;
 
-                const [liveRes, picksRes, transRes, histRes] = await Promise.all([
-                    fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${state.gw}/live/`)),
-                    fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/event/${state.gw}/picks/`)),
-                    fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/transfers/`)),
-                    fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/history/`))
-                ]);
+                const liveRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${state.gw}/live/`));
+                const liveData = await liveRes.json();
+                liveData.elements.forEach(el => state.live[el.id] = el.stats);
 
-                const liveData = await liveRes.json();
-                liveData.elements.forEach(el => state.live[el.id] = el.stats);
-                
-                const picksData = await picksRes.json();
-                state.owned = picksData.picks;
-                
-                const transData = await transRes.json();
-                const histData = await histRes.json();
-                const hits = histData.current.find(h => h.event === state.gw)?.event_transfers_cost || 0;
+                const picksRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/event/${state.gw}/picks/`));
+                const picksData = await picksRes.json();
+                
+                const transRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/transfers/`));
+                const transData = await transRes.json();
 
-                renderMasterUI(state.owned, transData.filter(t => t.event === state.gw), hits);
-                document.getElementById('main-content').classList.remove('hidden');
-            } catch (err) { alert("Data Sync Error"); }
-        }
+                const histRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/history/`));
+                const histData = await histRes.json();
+                const hits = histData.current.find(h => h.event === state.gw)?.event_transfers_cost || 0;
 
-        function createPlayerCard(id, mult = 1, isOut = false) {
-            const p = state.boot.elements.find(x => x.id === id);
-            const pts = (state.live[id]?.total_points || 0) * mult;
-            return `
-                <div class="player-mini">
-                    <img class="jersey" src="https://draft.premierleague.com/img/shirts/standard/shirt_${p.team_code}${p.element_type===1?'_1':''}-66.png">
-                    <div class="name-tag">${p.web_name}</div>
-                    <div class="pts-tag ${isOut ? 'pts-out' : 'pts-in'}">${pts}</div>
-                </div>`;
-        }
+                renderUI(picksData.picks, transData.filter(t => t.event === state.gw), hits);
+                document.getElementById('main-content').classList.remove('hidden');
+            } catch (err) { alert("Data Sync Error"); }
+        }
 
-        function renderMasterUI(picks, userTransfers, hits) {
-            ['p-gk','p-def','p-mid','p-fwd','p-bench','user-tr-body','safety-body'].forEach(id => document.getElementById(id).innerHTML = '');
+        function createPlayerCard(id, mult = 1, isOut = false) {
+            const p = state.boot.elements.find(x => x.id === id);
+            const pts = (state.live[id]?.total_points || 0) * mult;
+            const willRise = p.transfers_in_event > 200000; // Simplified Rise Logic
 
-            let squadTotal = 0; let ceilingPotential = 0; let leftToPlay = 0;
-            
-            picks.forEach(pick => {
-                const p = state.boot.elements.find(x => x.id === pick.element);
-                const l = state.live[pick.element];
-                const html = createPlayerCard(pick.element, pick.multiplier);
-                
-                if(pick.position <= 11) {
-                    const row = {1:'p-gk', 2:'p-def', 3:'p-mid', 4:'p-fwd'}[p.element_type];
-                    document.getElementById(row).innerHTML += html;
-                    squadTotal += (l?.total_points || 0) * pick.multiplier;
-                    
-                    if ((l?.minutes || 0) < 60) {
-                        leftToPlay++;
-                        ceilingPotential += (p.element_type === 2 ? 6 : 5) * pick.multiplier;
-                    }
-                } else {
-                    document.getElementById('p-bench').innerHTML += html;
-                }
-            });
+            return `
+                <div class="player-mini">
+                    <img class="jersey" src="https://draft.premierleague.com/img/shirts/standard/shirt_${p.team_code}${p.element_type===1?'_1':''}-66.png">
+                    <div class="name-tag">${p.web_name}${willRise && !isOut ? '<span class="rise-alert">↑</span>' : ''}</div>
+                    <div class="pts-tag ${isOut ? 'pts-out' : 'pts-in'}">${pts}</div>
+                </div>`;
+        }
 
-            // Update Captaincy
-            const cap = picks.find(p => p.is_captain);
-            const capName = state.boot.elements.find(e => e.id === cap.element).web_name;
-            const uCapPts = (state.live[cap.element]?.total_points || 0) * 2;
-            const hCapPts = (state.live[351]?.total_points || 0) * 1.73; // Haaland 2026 typical EO
-            document.getElementById('u-cap-name').innerText = capName;
-            document.getElementById('u-cap-pts').innerText = uCapPts;
-            document.getElementById('s-cap-pts').innerText = hCapPts.toFixed(1);
-            document.getElementById('battle-msg').innerText = uCapPts >= hCapPts ? `Gaining ${ (uCapPts-hCapPts).toFixed(1) } pts on Top 10k!` : `Losing ${ (hCapPts-uCapPts).toFixed(1) } pts to Haaland shield.`;
+        function renderUI(picks, userTransfers, hits) {
+            ['p-gk','p-def','p-mid','p-fwd','p-bench','p-threats','user-tr-body','top-tr-body'].forEach(id => document.getElementById(id).innerHTML = '');
 
-            // Update Ceiling
-            document.getElementById('ceiling-display').innerText = `${squadTotal} / ${squadTotal + ceilingPotential}`;
-            document.getElementById('remaining-info').innerText = `${leftToPlay} players still have explosive potential`;
+            let squadTotal = 0;
+            picks.forEach(pick => {
+                const p = state.boot.elements.find(x => x.id === pick.element);
+                const html = createPlayerCard(pick.element, pick.multiplier);
+                if(pick.position <= 11) {
+                    const row = {1:'p-gk', 2:'p-def', 3:'p-mid', 4:'p-fwd'}[p.element_type];
+                    document.getElementById(row).innerHTML += html;
+                    squadTotal += (state.live[pick.element]?.total_points || 0) * pick.multiplier;
+                } else {
+                    document.getElementById('p-bench').innerHTML += html;
+                }
+            });
+            document.getElementById('live-total').innerText = squadTotal + " Pts";
 
-            // Update Safety Net
-            const shields = [{id:351, n:"Haaland", eo:173}, {id:11, n:"Semenyo", eo:37}, {id:5, n:"Gabriel", eo:80}];
-            document.getElementById('safety-body').innerHTML = shields.map(s => {
-                const isOwned = picks.some(p => p.element === s.id);
-                const risk = ((state.live[s.id]?.total_points || 0) * (s.eo/100)).toFixed(1);
-                return `<tr><td>${s.n}</td><td>${s.eo}%</td><td style="color:${isOwned?'green':'red'}">${isOwned?'SAFE':'-'+risk}</td><td><b>${isOwned?'OWNED':'THREAT'}</b></td></tr>`;
-            }).join('');
+            // User Transfers
+            let rawGain = 0;
+            userTransfers.forEach((t, i) => {
+                const gain = (state.live[t.element_in]?.total_points || 0) - (state.live[t.element_out]?.total_points || 0);
+                rawGain += gain;
+                document.getElementById('user-tr-body').innerHTML += `<tr><td>${i+1}</td><td>${createPlayerCard(t.element_in)}</td><td>${createPlayerCard(t.element_out, 1, true)}</td><td style="font-weight:bold">${gain}</td></tr>`;
+            });
+            document.getElementById('hit-val').innerHTML = hits > 0 ? `<span class="hit-badge">-${hits} HIT</span>` : '';
+            document.getElementById('user-net-total').innerText = (rawGain - hits);
 
-            // Rest of UI
-            document.getElementById('live-total').innerText = squadTotal + " Pts";
-            userTransfers.forEach((t, i) => {
-                const gain = (state.live[t.element_in]?.total_points || 0) - (state.live[t.element_out]?.total_points || 0);
-                document.getElementById('user-tr-body').innerHTML += `<tr><td>${i+1}</td><td>${createPlayerCard(t.element_in)}</td><td>${createPlayerCard(t.element_out, 1, true)}</td><td style="font-weight:bold">${gain}</td></tr>`;
-            });
-            document.getElementById('hit-val').innerHTML = hits > 0 ? `<span style="background:#fee2e2; color:#ef4444; padding:2px 5px; border-radius:4px;">-${hits} HIT</span>` : '';
-        }
-    </script>
+            // Top 10k & Volume
+            const trends = [
+                { p: "9.54%", in: 233, out: 355 }, // Simulated Top 10k data
+                { p: "4.18%", in: 91, out: 355 },
+                { p: "3.34%", in: 233, out: 567 }
+            ];
+
+            trends.forEach(t => {
+                const pIn = state.boot.elements.find(e => e.id === t.in);
+                const gain = (state.live[t.in]?.total_points || 0) - (state.live[t.out]?.total_points || 0);
+                const vol = (pIn.transfers_in_event - pIn.transfers_out_event).toLocaleString();
+                
+                document.getElementById('top-tr-body').innerHTML += `
+                    <tr>
+                        <td>${t.p}<br><span class="vol-badge">${vol} vol</span></td>
+                        <td>${createPlayerCard(t.in)}</td>
+                        <td>${createPlayerCard(t.out, 1, true)}</td>
+                        <td style="font-weight:bold">${gain}</td>
+                    </tr>`;
+            });
+
+            // Threats
+            const owned = picks.map(p => p.element);
+            state.boot.elements
+                .filter(e => !owned.includes(e.id))
+                .sort((a,b) => (state.live[b.id]?.total_points || 0) - (state.live[a.id]?.total_points || 0))
+                .slice(0, 5)
+                .forEach(t => document.getElementById('p-threats').innerHTML += createPlayerCard(t.id));
+        }
+    </script>
 </body>
 </html>
