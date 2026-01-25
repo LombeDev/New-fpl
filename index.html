@@ -157,6 +157,23 @@
         .p-info-box { border-radius: 4px; overflow: hidden; margin-top: -6px; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
         .p-name { background: #000; color: #fff; font-size: 0.55rem; padding: 2px 0; font-weight: 700; white-space: nowrap; overflow: hidden; }
         .p-pts { color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; }
+
+
+
+
+        .shake {
+    animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.fpl-input {
+    transition: border-color 0.3s ease;
+}
     </style>
 </head>
 <body class="dark-mode">
@@ -170,26 +187,28 @@
             </a>
         </div>
 
-        <div class="login-card">
-            <div class="theme-row">
-                <span class="theme-label">Theme</span>
-                <div class="toggle-container">
-                    <button id="btn-dark" class="toggle-btn active" onclick="setTheme('dark')">Dark</button>
-                    <button id="btn-light" class="toggle-btn inactive" onclick="setTheme('light')">Light</button>
-                </div>
-            </div>
-
-            <h2>Enter your FPL ID</h2>
-            
-            <input type="number" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste a link">
-            <button class="continue-btn" onclick="handleLogin()">Continue</button>
-
-           <div class="find-id-link" onclick="window.open('https://youtu.be/gZqblBRbAjw?si=IQ-hmIEES27jDaTn', '_blank')">
-                <i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it
-            </div>
+      <div class="login-card">
+    <div class="theme-row">
+        <span class="theme-label">Theme</span>
+        <div class="toggle-container">
+            <button id="btn-dark" class="toggle-btn active" onclick="setTheme('dark')">Dark</button>
+            <button id="btn-light" class="toggle-btn inactive" onclick="setTheme('light')">Light</button>
         </div>
     </div>
 
+    <h2>Enter your FPL ID</h2>
+    
+    <div class="input-group">
+        <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste a link">
+        <div id="error-msg" class="error-text" style="display: none; color: #ff4d4d; font-size: 0.8rem; margin-top: 5px; text-align: left;"></div>
+    </div>
+
+    <button id="continue-btn" class="continue-btn" onclick="handleLogin()">Continue</button>
+
+    <div class="find-id-link" onclick="window.open('https://youtu.be/gZqblBRbAjw?si=IQ-hmIEES27jDaTn', '_blank')">
+        <i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it
+    </div>
+</div>
     <header class="top-nav">
         <div class="nav-icon-btn"><i class="fa-solid fa-circle-user"></i></div>
         <div class="logo-container">Kopala<span>▲</span>FPL</div>
@@ -336,6 +355,55 @@
             installLink.style.display = 'none';
             deferredPrompt = null;
         });
+
+
+        function handleLogin() {
+    const inputField = document.getElementById('team-id-input');
+    const errorDisplay = document.getElementById('error-msg');
+    const btn = document.getElementById('continue-btn');
+    let rawValue = inputField.value.trim();
+
+    // 1. Reset state
+    errorDisplay.style.display = 'none';
+    inputField.style.borderColor = '';
+
+    // 2. Smart Extraction (Regex for URL or ID)
+    // This looks for digits after '/entry/' or just returns the digits if it's a raw number
+    const idMatch = rawValue.match(/(?:entry\/)(\d+)/) || rawValue.match(/^\d+$/);
+    const fplId = idMatch ? (Array.isArray(idMatch) ? idMatch[1] || idMatch[0] : idMatch[0]) : null;
+
+    // 3. Validation Logic
+    if (!rawValue) {
+        showError("Please enter an ID or paste a link");
+        return;
+    }
+
+    if (!fplId) {
+        showError("Invalid format. Enter a number or a valid FPL URL");
+        return;
+    }
+
+    // 4. Success State
+    btn.innerText = "Loading...";
+    btn.disabled = true;
+    
+    console.log("Proceeding with FPL ID:", fplId);
+    // Proceed with your API call or redirect here
+    // window.location.href = `/team/${fplId}`;
+}
+
+function showError(message) {
+    const inputField = document.getElementById('team-id-input');
+    const errorDisplay = document.getElementById('error-msg');
+    
+    errorDisplay.innerText = message;
+    errorDisplay.style.display = 'block';
+    inputField.style.borderColor = '#ff4d4d';
+    
+    // Optional: Add a shake animation class here
+    inputField.classList.add('shake');
+    setTimeout(() => inputField.classList.remove('shake'), 500);
+}
     </script>
 </body>
 </html>
