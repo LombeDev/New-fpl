@@ -146,18 +146,46 @@
         .rise-alert { color: var(--success); font-weight: bold; margin-left: 2px; }
 
         .hidden { display: none; }
+
+
+        /* Validation Styling */
+.input-error {
+    border: 2px solid var(--danger) !important;
+    background-color: #fff1f2 !important;
+}
+
+.error-text {
+    color: var(--danger);
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-top: 4px;
+    display: none;
+}
+
+/* Shake Animation for incorrect input */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.2s ease-in-out 0s 2;
+}
     </style>
 </head>
 <body>
 
    
-
-  
-       <div class="sync-container">
-    <input type="number" id="team-id" placeholder="Enter Team ID">
-    <button onclick="fetchFPLData()">SYNC DATA</button>
+<div class="sync-container">
+    <div style="flex: 1; display: flex; flex-direction: column;">
+        <input type="text" id="team-id" placeholder="Enter Team ID or Paste Link">
+        <span id="id-error" class="error-text">ID not found. Please try again.</span>
+    </div>
+    <button id="sync-btn" onclick="fetchFPLData()">Continue</button>
 </div>
-   
+  
+       
 
     <div id="main-content" class="container hidden">
         
@@ -247,9 +275,82 @@
         let state = { live: {}, boot: null, gw: null };
 
         async function fetchFPLData() {
-            const id = document.getElementById('team-id').value;
-            if(!id) return alert("Enter Team ID");
+    const inputEl = document.getElementById('team-id');
+    const errorEl = document.getElementById('id-error');
+    const syncBtn = document.getElementById('sync-btn');
+    let rawValue = inputEl.value.trim();
 
+    // 1. Reset visual states
+    inputEl.classList.remove('input-error', 'shake');
+    errorEl.style.display = 'none';
+
+    // 2. Smart Extraction (If they paste a URL like .../entry/12345/...)
+    if (rawValue.includes('entry/')) {
+        const match = rawValue.match(/entry\/(\d+)/);
+        if (match) rawValue = match[1];
+    }
+
+    const id = parseInt(rawValue);
+
+    // 3. Basic Validation (Is it a number?)
+    if (!id || isNaN(id)) {
+        triggerError("Invalid ID Format");
+        return;
+    }
+
+    try {
+        // Show loading state
+        syncBtn.disabled = true;
+        syncBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
+        // 4. API Validation: Check if the team actually exists
+        const entryCheck = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/`));
+        
+        if (!entryCheck.ok) {
+            throw new Error("ID not found");
+        }
+
+        const entryData = await entryCheck.json();
+
+        // 5. Proceed with rest of the data fetching if valid
+        const bootRes = await fetch(PROXY + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"));
+        state.boot = await bootRes.json();
+        state.gw = state.boot.events.find(e => e.is_current).id;
+
+        const liveRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${state.gw}/live/`));
+        const liveData = await liveRes.json();
+        liveData.elements.forEach(el => state.live[el.id] = el.stats);
+
+        const picksRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/event/${state.gw}/picks/`));
+        const picksData = await picksRes.json();
+        
+        const transRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/transfers/`));
+        const transData = await transRes.json();
+
+        const histRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/history/`));
+        const histData = await histRes.json();
+
+        // Render UI only after all data is confirmed
+        renderUI(picksData.picks, transData.filter(t => t.event === state.gw), histData, entryData);
+        document.getElementById('main-content').classList.remove('hidden');
+        
+        // Hide the sync container after success (optional)
+        // document.querySelector('.sync-container').style.display = 'none';
+
+    } catch (err) {
+        triggerError(err.message === "ID not found" ? "Team ID does not exist" : "Connection Error");
+    } finally {
+        syncBtn.disabled = false;
+        syncBtn.innerText = "SYNC DATA";
+    }
+
+    // Helper to handle error UI
+    function triggerError(msg) {
+        inputEl.classList.add('input-error', 'shake');
+        errorEl.innerText = msg;
+        errorEl.style.display = 'block';
+    }
+}
             try {
                 const bootRes = await fetch(PROXY + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"));
                 state.boot = await bootRes.json();
