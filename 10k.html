@@ -172,18 +172,100 @@
 .shake {
     animation: shake 0.2s ease-in-out 0s 2;
 }
+
+
+
+
+        /* Native App Feel Enhancements */
+:root {
+    --card-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+    --glass-bg: rgba(255, 255, 255, 0.85);
+}
+
+/* Prevent text selection & pull-to-refresh feel */
+body {
+    user-select: none;
+    -webkit-user-select: none;
+    overscroll-behavior-y: contain; /* Prevents "bounce" in some browsers */
+}
+
+/* Glassmorphism Sticky Nav */
+header {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: env(safe-area-inset-top) 15px 10px; /* Supports Notch phones */
+    height: auto;
+}
+
+/* Native Card Look */
+.card {
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    box-shadow: var(--card-shadow);
+    margin-bottom: 12px;
+}
+
+/* Floating Bottom Navigation */
+.bottom-nav {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    padding-bottom: env(safe-area-inset-bottom); /* Fix for Home Indicator */
+    height: calc(70px + env(safe-area-inset-bottom));
+}
+
+/* Active Nav Indicator */
+.nav-item.active i {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+    color: var(--primary);
+}
+
+/* Smooth Input */
+#team-id {
+    border: 1.5px solid #e2e8f0;
+    transition: all 0.3s ease;
+    font-size: 16px; /* Prevents iOS auto-zoom on focus */
+}
+
+#team-id:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Styled Button */
+#sync-btn {
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    transition: transform 0.1s active;
+}
+
+#sync-btn:active {
+    transform: scale(0.96);
+}
     </style>
 </head>
 <body>
 
-   
-<div class="sync-container">
+<header>
+    <div style="display:flex; align-items:center; gap:10px; width:100%;">
+        <div class="logo-container" style="font-size: 1.1rem;">Kopala<span>▲</span>FPL</div>
+        <div style="flex:1"></div> <div onclick="resetTeamID()" style="cursor:pointer; font-size: 1.4rem; color: var(--dark);">
+            <i class="fa-solid fa-circle-user"></i>
+        </div>
+    </div>
+</header>
+
+<div class="sync-container" style="background: white; border-radius: 16px; margin: 20px 10px; border: 1px solid #e2e8f0;">
     <div style="flex: 1; display: flex; flex-direction: column;">
-        <input type="text" id="team-id" placeholder="Enter Team ID or Paste Link">
+        <input type="text" id="team-id" placeholder="Paste FPL ID here...">
         <span id="id-error" class="error-text">ID not found. Please try again.</span>
     </div>
-    <button id="sync-btn" onclick="fetchFPLData()">Continue</button>
-</div>
+    <button id="sync-btn" onclick="fetchFPLData()">Sync</button>
+</div>>
   
        
 
