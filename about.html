@@ -11,89 +11,66 @@
             --pitch-green: #27ae60;
             --dark-header: #1e293b;
             --bg-gray: #f1f5f9;
+            --danger-red: #ef4444;
+            --bench-gray: #64748b;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background: #fff; margin: 0; padding: 0; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-gray); margin: 0; padding: 0; overflow-x: hidden; }
 
         /* --- HEADER --- */
-        .app-header { padding: 5px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; gap: 5px; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .minimal-input { flex: 1; padding: 2px 8px; border-radius: 4px; border: 1px solid #e2e8f0; background: var(--bg-gray); font-size: 0.75rem; height: 28px; outline: none; }
-        .btn { padding: 0 10px; border-radius: 4px; border: none; font-weight: 700; height: 28px; font-size: 0.65rem; cursor: pointer; color: #fff; }
+        .app-header { padding: 8px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; gap: 6px; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .minimal-input { flex: 1; padding: 4px 10px; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; font-size: 0.8rem; height: 32px; outline: none; }
+        .btn { padding: 0 12px; border-radius: 6px; border: none; font-weight: 700; height: 32px; font-size: 0.7rem; cursor: pointer; color: #fff; }
 
-        /* --- COMPARISON TABLE --- */
-        .comp-section { width: 100vw; background: #fff; padding: 5px; border-bottom: 2px solid var(--bg-gray); }
-        .comp-header { background: linear-gradient(90deg, #3b82f6, #06b6d4); padding: 4px; text-align: center; border-radius: 4px; }
-        .comp-header h4 { margin: 0; font-size: 0.7rem; color: #fff; text-transform: uppercase; }
-        .comp-table { width: 100%; border-collapse: collapse; font-size: 0.6rem; margin-top: 4px; }
-        .comp-table th { background: var(--dark-header); color: #fff; padding: 4px; }
-        .comp-table td { padding: 5px 2px; border-bottom: 0.5px solid #eee; text-align: center; font-weight: 700; }
+        /* --- SECTION SPACING --- */
+        .section-wrapper { width: 96%; margin: 12px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; }
+        .p-title { padding: 8px; background: #fff; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+        .p-title h3 { margin: 0; font-size: 0.7rem; font-weight: 800; color: var(--dark-header); text-transform: uppercase; }
 
-        /* --- PITCH SECTIONS --- */
-        .section-wrapper { width: 100vw; border-bottom: 4px solid var(--bg-gray); }
-        .p-title { padding: 5px; text-align: center; background: #fff; border-bottom: 1px solid #eee; }
-        .p-title h3 { margin: 0; font-size: 0.75rem; font-weight: 800; color: var(--dark-header); }
+        /* --- PITCH STYLES --- */
+        .pitch-main { background: var(--pitch-green); background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 15px 15px; width: 100%; padding: 12px 0; display: flex; flex-direction: column; gap: 10px; }
+        .bench-pitch { background: #94a3b8; }
+        .threat-pitch { background: #334155; }
 
-        .pitch-main { 
-            background: var(--pitch-green); 
-            background-image: repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.05) 40px, rgba(255,255,255,0.05) 80px);
-            width: 100%; 
-            min-height: 320px; 
-            padding: 10px 0; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-around; 
-        }
+        /* --- CARDS --- */
+        .pitch-row { display: flex; justify-content: center; gap: 6px; width: 100%; }
+        .mini-card { width: 18%; max-width: 55px; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .match-status { font-size: 6px; color: #fff; background: rgba(0,0,0,0.8); padding: 1px 3px; border-radius: 2px; position: absolute; top: -5px; z-index: 5; }
+        .mini-jersey { width: 22px; height: auto; margin-bottom: 2px; }
+        .card-body { width: 100%; background: #fff; border-radius: 4px; border: 1px solid #1e293b; overflow: hidden; }
+        .card-name-strip { background: var(--dark-header); color: #fff; height: 13px; display: flex; align-items: center; justify-content: center; font-size: 0.45rem; font-weight: 800; }
+        .card-data { padding: 3px 0; text-align: center; font-weight: 900; font-size: 0.65rem; }
+        .p-impact { font-size: 0.35rem; color: #64748b; font-weight: 400; }
 
-        /* --- UPDATED LARGER CARDS --- */
-        .pitch-row { display: flex; justify-content: center; gap: 4px; width: 100%; margin-bottom: 5px; }
-        .mini-card { width: 18%; max-width: 52px; display: flex; flex-direction: column; align-items: center; position: relative; }
-        
-        .match-status { font-size: 6px; color: #fff; background: rgba(0,0,0,0.8); padding: 1px 3px; border-radius: 2px; position: absolute; top: -5px; z-index: 5; font-weight: 900; }
-        
-        .mini-jersey { width: 22px; height: auto; margin-bottom: 2px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
-        
-        .card-body { width: 100%; background: #fff; border-radius: 3px; border: 1px solid #333; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        
-        .card-name-strip { background: var(--dark-header); color: #fff; height: 14px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .p-name { font-size: 0.45rem; font-weight: 800; white-space: nowrap; }
-        
-        .card-data { padding: 2px 0; text-align: center; font-weight: 900; font-size: 0.6rem; line-height: 1.1; }
-        .p-impact { font-size: 0.35rem; color: #64748b; display: flex; align-items: center; justify-content: center; gap: 2px; }
-        .red-dot { background: #f43f5e; border-radius: 50%; width: 5px; height: 5px; display: inline-block; }
-
-        /* --- PRICE FOOTER --- */
-        .card-footer { padding: 1px 2px; border-top: 0.5px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 0.35rem; background: #fafafa; }
-        .price-bar { flex: 1; height: 2px; background: #eee; margin: 0 2px; position: relative; border-radius: 1px; }
-        .price-fill { position: absolute; height: 100%; border-radius: 1px; }
+        /* --- TABLES --- */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.65rem; }
+        .data-table th { background: #f8fafc; padding: 8px; color: #64748b; border-bottom: 1px solid #e2e8f0; }
+        .data-table td { padding: 8px; border-bottom: 1px solid #f1f5f9; text-align: center; font-weight: 700; }
 
         .hidden { display: none; }
-        .see-more { display: block; text-align: center; color: var(--primary-blue); font-size: 0.5rem; padding: 6px; cursor: pointer; font-weight: 800; }
+        .lost-pts { color: var(--danger-red); }
     </style>
 </head>
 <body>
 
     <header class="app-header">
-        <input type="text" id="fpl-id-input" placeholder="Team ID" class="minimal-input">
+        <input type="number" id="fpl-id-input" placeholder="Team ID" class="minimal-input">
         <button onclick="handleFetch()" class="btn" style="background:var(--primary-blue);">SYNC</button>
-        <button onclick="switchTeam()" id="switch-btn" class="btn hidden" style="background:#64748b;">SW</button>
+        <button onclick="switchTeam()" id="switch-btn" class="btn hidden" style="background:#64748b;">NEW</button>
     </header>
 
     <main id="dashboard" class="hidden">
-        <section class="comp-section">
-            <div class="comp-header"><h4>Squad Metrics</h4></div>
-            <table class="comp-table">
-                <thead><tr><th>Stat</th><th>You</th><th>Avg</th><th>Top</th><th>GW</th></tr></thead>
+        <section class="section-wrapper">
+            <div class="p-title"><h3>Net Rank Impact (Vs Top 10k)</h3></div>
+            <table class="data-table">
+                <thead><tr><th>Metric</th><th>Live Pts</th><th>Avg</th><th>Top Score</th></tr></thead>
                 <tbody id="comp-body"></tbody>
             </table>
-            <div class="see-more" onclick="toggleExpand()">+ More Details</div>
-            <div id="expansion-panel" class="hidden" style="font-size: 0.5rem; padding: 5px;">
-                Ownership and rank impacts calculated live.
-            </div>
         </section>
 
         <section class="section-wrapper">
-            <div class="p-title"><h3 id="gw-title">Live Squad</h3></div>
+            <div class="p-title"><h3>Live Starting XI</h3></div>
             <div class="pitch-main">
                 <div id="evt-gk" class="pitch-row"></div>
                 <div id="evt-def" class="pitch-row"></div>
@@ -103,11 +80,17 @@
         </section>
 
         <section class="section-wrapper">
-            <div class="p-title"><h3>Threat Tracker</h3></div>
-            <div class="pitch-main">
+            <div class="p-title"><h3>Bench Watch</h3> <span id="bench-total" style="font-size:0.6rem; font-weight:bold"></span></div>
+            <div class="pitch-main bench-pitch">
+                <div id="bench-row" class="pitch-row"></div>
+            </div>
+        </section>
+
+        <section class="section-wrapper">
+            <div class="p-title"><h3 style="color:var(--danger-red)">Threat Tracker</h3></div>
+            <div class="pitch-main threat-pitch">
                 <div id="thr-row-1" class="pitch-row"></div>
                 <div id="thr-row-2" class="pitch-row"></div>
-                <div id="thr-row-3" class="pitch-row"></div>
             </div>
         </section>
     </main>
@@ -115,7 +98,7 @@
     <script>
         const PROXY = "https://corsproxy.io/?";
         const STORAGE_KEY = 'fpl_id_autosave';
-        let state = { liveMap: {}, fixtures: [], bootData: null, currentGW: null, userPoints: 0 };
+        let state = { liveMap: {}, fixtures: [], bootData: null, currentGW: null, userPoints: 0, benchPoints: 0 };
 
         window.onload = () => {
             const saved = localStorage.getItem(STORAGE_KEY);
@@ -136,84 +119,81 @@
                 const boot = await (await fetch(PROXY + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"))).json();
                 state.bootData = boot;
                 state.currentGW = boot.events.find(e => e.is_current) || boot.events.find(e => e.is_next);
-                document.getElementById('gw-title').innerText = `GW ${state.currentGW.id} Active`;
-
+                
                 const picks = await (await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/event/${state.currentGW.id}/picks/`))).json();
                 const live = await (await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${state.currentGW.id}/live/`))).json();
                 state.fixtures = await (await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/fixtures/?event=${state.currentGW.id}`))).json();
 
                 live.elements.forEach(l => state.liveMap[l.id] = l.stats);
-
-                state.userPoints = picks.picks.reduce((acc, p) => {
-                    if (p.position <= 11) {
-                        return acc + ((state.liveMap[p.element]?.total_points || 0) * p.multiplier);
-                    }
-                    return acc;
-                }, 0);
-
-                renderComparison();
-                renderPitch('evt', picks.picks.slice(0, 11), boot.elements, true);
                 
+                // Reset Points
+                state.userPoints = 0;
+                state.benchPoints = 0;
+
+                // Render Squad & Bench
+                renderPitch('evt', picks.picks.filter(p => p.position <= 11), boot.elements, true);
+                renderPitch('bench', picks.picks.filter(p => p.position > 11), boot.elements, false, 'bench-row');
+                
+                document.getElementById('bench-total').innerText = `${state.benchPoints} PTS TRAPPED`;
+
+                // Render Comparison
+                renderComparison();
+                
+                // Threats
                 const ownedIds = picks.picks.map(p => p.element);
-                const threats = boot.elements
-                    .filter(p => !ownedIds.includes(p.id))
-                    .sort((a,b) => (state.liveMap[b.id]?.total_points || 0) - (state.liveMap[a.id]?.total_points || 0))
-                    .slice(0, 13);
-                renderPitch('thr', threats, boot.elements, false);
+                const threats = boot.elements.filter(p => !ownedIds.includes(p.id))
+                    .sort((a,b) => (state.liveMap[b.id]?.total_points || 0) - (state.liveMap[a.id]?.total_points || 0)).slice(0, 8);
+                renderPitch('thr', threats, boot.elements, false, 'thr-row-1');
+
             } catch(e) { console.error(e); }
         }
 
         function renderComparison() {
             const gw = state.currentGW;
-            const rows = [
-                { s: 'GW Pts', y: state.userPoints, avg: gw.average_entry_score, top: gw.highest_score, info: `GW${gw.id}` },
-                { s: 'Pt/Plyr', y: (state.userPoints/11).toFixed(1), avg: (gw.average_entry_score/11).toFixed(1), top: '---', info: '-' }
-            ];
-            document.getElementById('comp-body').innerHTML = rows.map(r => `
-                <tr><td style="text-align:left;">${r.s}</td><td style="color:var(--primary-blue)">${r.y}</td><td>${r.avg}</td><td>${r.top}</td><td>${r.info}</td></tr>
-            `).join('');
+            document.getElementById('comp-body').innerHTML = `
+                <tr><td style="text-align:left">Your Team</td><td style="color:var(--primary-blue)">${state.userPoints}</td><td>${gw.average_entry_score}</td><td>${gw.highest_score}</td></tr>
+                <tr><td style="text-align:left">Safety Margin</td><td colspan="3">${(state.userPoints - gw.average_entry_score).toFixed(1)} pts above average</td></tr>
+            `;
         }
 
         function getMatchStatus(teamId) {
             const fix = state.fixtures.find(f => f.team_a === teamId || f.team_h === teamId);
-            if(!fix) return "N/A";
-            return fix.finished_provisional ? "FT" : (fix.started ? "LIVE" : "WAIT");
+            return fix ? (fix.finished_provisional ? "FT" : (fix.started ? "LIVE" : "WAIT")) : "N/A";
         }
 
-        function renderPitch(prefix, players, allData, isEvent) {
-            const rows = isEvent ? ['evt-gk', 'evt-def', 'evt-mid', 'evt-fwd'] : ['thr-row-1', 'thr-row-2', 'thr-row-3'];
-            rows.forEach(r => document.getElementById(r).innerHTML = '');
+        function renderPitch(type, players, allData, isStarting, customRowId = null) {
+            if(isStarting) {
+                ['evt-gk', 'evt-def', 'evt-mid', 'evt-fwd'].forEach(id => document.getElementById(id).innerHTML = '');
+            } else if(customRowId) {
+                document.getElementById(customRowId).innerHTML = '';
+            }
 
             players.forEach((p, i) => {
                 const id = p.element || p.id;
                 const meta = allData.find(x => x.id === id);
                 const stats = state.liveMap[id] || { total_points: 0 };
-                const mStatus = getMatchStatus(meta.team);
-                let target = isEvent ? {1:'evt-gk', 2:'evt-def', 3:'evt-mid', 4:'evt-fwd'}[meta.element_type] : (i < 3 ? rows[0] : i < 8 ? rows[1] : rows[2]);
+                const pts = (isStarting ? stats.total_points * p.multiplier : stats.total_points);
+                
+                if(isStarting) state.userPoints += pts;
+                else if(type === 'bench') state.benchPoints += pts;
 
-                const progress = meta.cost_change_event >= 0 ? (meta.chance_of_rising_next_round || 0) : (meta.chance_of_falling_next_round || 0);
-                const points = (isEvent && p.multiplier > 0) ? stats.total_points * p.multiplier : stats.total_points;
-
+                const target = isStarting ? {1:'evt-gk', 2:'evt-def', 3:'evt-mid', 4:'evt-fwd'}[meta.element_type] : customRowId;
+                
                 document.getElementById(target).innerHTML += `
                     <div class="mini-card">
-                        <div class="match-status">${mStatus}</div>
+                        <div class="match-status">${getMatchStatus(meta.team)}</div>
                         <img class="mini-jersey" src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.element_type===1?'_1':''}-66.png">
                         <div class="card-body">
-                            <div class="card-name-strip"><span class="p-name">${meta.web_name}</span></div>
-                            <div class="card-data">
-                                ${points}
-                                <div class="p-impact">${meta.selected_by_percent}% <span class="red-dot" style="background:${mStatus==='LIVE'?'#22c55e':''}"></span></div>
-                            </div>
-                            <div class="card-footer">
-                                <span style="color:${meta.cost_change_event>=0?'#27ae60':'#f43f5e'}">${progress}%</span>
-                                <div class="price-bar"><div class="price-fill" style="width:${progress}%; background:${meta.cost_change_event>=0?'#27ae60':'#f43f5e'}"></div></div>
+                            <div class="card-name-strip">${meta.web_name}</div>
+                            <div class="card-data ${type==='bench' && pts > 2 ? 'lost-pts' : ''}">
+                                ${pts}${p.multiplier > 1 ? ' <span style="font-size:8px">©</span>' : ''}
+                                <div class="p-impact">${meta.selected_by_percent}%</div>
                             </div>
                         </div>
                     </div>`;
             });
         }
 
-        function toggleExpand() { document.getElementById('expansion-panel').classList.toggle('hidden'); }
         function switchTeam() { localStorage.removeItem(STORAGE_KEY); location.reload(); }
     </script>
 </body>
