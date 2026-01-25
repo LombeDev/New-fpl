@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kopala FPL - Pro Analytics</title>
+
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kopala FPL">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5323/5323982.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
     <style>
         :root {
             --primary: #2563eb;
@@ -18,6 +27,56 @@
         }
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 40px; color: #334155; }
+
+         * {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+
+         /* Theme Toggle Row */
+        .theme-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .theme-label { font-weight: 700; color: var(--text-muted); font-size: 1.1rem; }
+        .toggle-container { display: flex; background: var(--bg-color); padding: 5px; border-radius: 40px; gap: 4px; }
+        .toggle-btn {
+            border: none; padding: 10px 22px; border-radius: 30px; 
+            font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: 0.2s;
+        }
+        .toggle-btn.active { background: var(--primary-blue); color: white; }
+        .toggle-btn.inactive { background: transparent; color: var(--text-muted); }
+
+
+        
+/* --- NAV & STATS (Hidden until Login) --- */
+        .top-nav {
+            position: fixed; top: 0; width: 100%; height: 60px;
+            background: var(--card-bg); border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; box-sizing: border-box; z-index: 3000;
+        }
+
+ .logo-container { font-weight: 900; font-size: 1.4rem; letter-spacing: -1px; color: var(--text-main); }
+        .logo-container span { color: var(--fpl-green); }
+        .page-content { padding-top: 75px; padding-bottom: 100px; min-height: 100vh; box-sizing: border-box; }
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; height: 80px;
+            background: var(--card-bg); border-top: 1px solid var(--border-color);
+            display: grid; grid-template-columns: repeat(8, 1fr);
+            padding: 5px 0; box-sizing: border-box; z-index: 3000;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px;
+        }
+        .nav-item.active { color: var(--primary-blue); }
+        .nav-item i { font-size: 1.2rem; display: block; }
+
+
         
         header { background: #fff; padding: 10px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 8px; position: sticky; top: 0; z-index: 1000; }
         input { flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; outline: none; }
@@ -64,6 +123,12 @@
     </style>
 </head>
 <body>
+
+    <header class="top-nav">
+        <div class="nav-icon-btn"><i class="fa-solid fa-circle-user"></i></div>
+        <div class="logo-container">Kopala<span>▲</span>FPL</div>
+        <div class="nav-icon-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></div>
+    </header>
 
     <header>
         <input type="number" id="team-id" placeholder="Enter Team ID">
@@ -140,6 +205,18 @@
         </section>
 
     </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item active"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
+        <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
+        <a href="prices.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
+        <a href="games.html" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
+        <a href="members.html" class="nav-item"><i class="fa-solid fa-user-tie"></i><span>Members</span></a>
+        <a href="10k.html" class="nav-item"><i class="fa-solid fa-circle-info"></i><span>You vs top 10k</span></a>
+        <a href="https://wa.me/260964836842" class="nav-item"><i class="fa fa-comments"></i><span>Support</span></a>
+        
+        <a href="#" class="nav-item"><i class="fa fa-ellipsis-h"></i><span>More</span></a>
+    </nav>
 
     <script>
         const PROXY = "https://corsproxy.io/?";
