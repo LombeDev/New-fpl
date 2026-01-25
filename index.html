@@ -18,6 +18,7 @@
             --pitch-green: #2e7d32;
             --danger: #ef4444;
             --success: #10b981;
+            --bench-bg: #64748b;
         }
 
         body.dark-mode {
@@ -26,15 +27,17 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
+            --bench-bg: #1e293b;
         }
 
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; outline: none; }
 
         body {
             margin: 0; padding: 0;
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden;
         }
 
         /* --- LOGIN SCREEN --- */
@@ -45,7 +48,7 @@
         }
 
         .promo-card, .login-card { width: 100%; max-width: 400px; background: var(--card-bg); border: 1px solid var(--border-color); }
-        .promo-card { border-radius: 24px; padding: 20px; margin-bottom: 16px; text-align: center; }
+        .promo-card { border-radius: 24px; padding: 20px; margin-bottom: 16px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .promo-card h3 { margin: 0; font-size: 1.1rem; font-weight: 800; }
         
         .login-card { border-radius: 28px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
@@ -66,7 +69,7 @@
             border: none; border-radius: 16px; font-weight: 800; font-size: 1rem; cursor: pointer; 
         }
 
-        /* --- NAV & CONTENT --- */
+        /* --- TOP NAVIGATION --- */
         .top-nav {
             position: fixed; top: 0; width: 100%; height: 60px;
             background: var(--card-bg); border-bottom: 1px solid var(--border-color);
@@ -76,27 +79,31 @@
         .logo-container { font-weight: 900; font-size: 1.3rem; letter-spacing: -1px; }
         .logo-container span { color: var(--fpl-green); }
 
-        .page-content { padding: 75px 12px 100px; max-width: 500px; margin: 0 auto; }
+        .page-content { padding: 75px 12px 100px; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
-        /* --- RANK DASHBOARD TILES --- */
-        .rank-card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border-color); overflow: hidden; margin-bottom: 20px; }
-        .rank-header { padding: 15px; background: linear-gradient(135deg, rgba(37,99,235,0.1), transparent); }
+        /* --- RANK TILES --- */
+        .card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border-color); overflow: hidden; }
         .rank-grid { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--border-color); gap: 1px; }
-        .stat-tile { background: var(--card-bg); padding: 15px 5px; text-align: center; }
-        .stat-tile span { display: block; font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-        .stat-tile strong { font-size: 0.95rem; font-weight: 900; }
+        .stat-tile { background: var(--card-bg); padding: 12px 5px; text-align: center; }
+        .stat-tile span { display: block; font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
+        .stat-tile strong { font-size: 0.95rem; font-weight: 900; color: var(--text-main); }
 
-        /* --- PITCH --- */
+        /* --- PITCH UI --- */
         .pitch-container { 
             background-color: var(--pitch-green);
             background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 20px 20px;
-            padding: 20px 0; border-radius: 20px; display: flex; flex-direction: column; gap: 15px;
+            padding: 15px 5px; border-radius: 20px; display: flex; flex-direction: column; gap: 10px;
         }
-        .pitch-row { display: flex; justify-content: center; gap: 8px; }
-        .player-card { width: 65px; text-align: center; }
-        .p-info { background: #fff; border-radius: 4px; margin-top: -5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); overflow: hidden; }
-        .p-name { background: #000; color: #fff; font-size: 0.55rem; padding: 2px; font-weight: 700; }
-        .p-pts { color: #000; font-size: 0.8rem; font-weight: 800; padding: 2px; }
+        .pitch-row { display: flex; justify-content: center; gap: 4px; }
+        .player-mini { width: 62px; text-align: center; }
+        .name-tag { background: #000; color: #fff; font-size: 0.5rem; padding: 2px; border-radius: 3px 3px 0 0; white-space: nowrap; overflow: hidden; }
+        .pts-tag { background: #fff; color: #000; font-size: 0.75rem; font-weight: 800; padding: 2px; border-radius: 0 0 3px 3px; }
+
+        /* --- TABLES --- */
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; color: var(--text-main); }
+        th { background: var(--bg-color); color: var(--text-muted); padding: 10px; text-align: center; border-bottom: 1px solid var(--border-color); }
+        td { padding: 10px 5px; border-bottom: 1px solid var(--border-color); text-align: center; }
+        .card-header { padding: 12px 15px; font-weight: 800; font-size: 0.85rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; }
 
         /* --- BOTTOM NAV --- */
         .bottom-nav {
@@ -119,7 +126,7 @@
     <div id="login-screen">
         <div class="promo-card">
             <h3>Used by FPL managers since 2025 ❤️</h3>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Kopala Pro Analytics v2.0</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Kopala Pro Analytics v2.1</div>
         </div>
 
         <div class="login-card">
@@ -136,10 +143,6 @@
             
             <input type="number" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567">
             <button class="continue-btn" onclick="handleLogin()">Continue</button>
-
-            <div style="margin-top: 20px; text-align: center; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; cursor: pointer;" onclick="window.open('https://fantasy.premierleague.com/entry/1/history', '_blank')">
-                <i class="fa-solid fa-question-circle"></i> Where is my ID?
-            </div>
         </div>
     </div>
 
@@ -149,50 +152,72 @@
         <div onclick="toggleTheme()"><i class="fa-solid fa-moon" id="theme-icon"></i></div>
     </header>
 
-    <main class="page-content">
-        <section class="rank-card">
-            <div class="rank-header">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h2 id="disp-name" style="margin:0; font-size: 1.1rem; font-weight: 900;">Manager Name</h2>
-                    <span id="disp-gw" style="font-size: 0.75rem; font-weight: 800; color: var(--primary-blue);">GW --</span>
-                </div>
+    <main id="main-app" class="page-content hidden">
+        
+        <section class="card">
+            <div style="padding: 15px; border-bottom: 1px solid var(--border-color);">
+                <div id="disp-name" style="font-weight: 900; font-size: 1.1rem;">Manager Name</div>
+                <div id="disp-gw" style="font-size: 0.75rem; color: var(--primary-blue); font-weight: 700;">GW --</div>
             </div>
             <div class="rank-grid">
-                <div class="stat-tile"><span>GW Live</span><strong id="tile-gw-pts">0</strong></div>
+                <div class="stat-tile"><span>GW Pts</span><strong id="tile-gw-pts">0</strong></div>
                 <div class="stat-tile"><span>Total</span><strong id="tile-total-pts">0</strong></div>
                 <div class="stat-tile"><span>Benched</span><strong id="tile-bench-pts">0</strong></div>
                 <div class="stat-tile"><span>GW Rank</span><strong id="tile-gw-rank">0</strong></div>
                 <div class="stat-tile"><span>Overall</span><strong id="tile-overall-rank">0</strong></div>
-                <div class="stat-tile"><span>Change %</span><strong id="tile-change">0%</strong></div>
+                <div class="stat-tile"><span>Change</span><strong id="tile-change">0%</strong></div>
             </div>
         </section>
 
-        <div class="pitch-container">
-            <div id="gk-row" class="pitch-row"></div>
-            <div id="def-row" class="pitch-row"></div>
-            <div id="mid-row" class="pitch-row"></div>
-            <div id="fwd-row" class="pitch-row"></div>
-        </div>
+        <section class="card">
+            <div class="card-header">LIVE SQUAD <span id="live-total" style="color: var(--primary-blue)">0 Pts</span></div>
+            <div class="pitch-container">
+                <div id="gk-row" class="pitch-row"></div>
+                <div id="def-row" class="pitch-row"></div>
+                <div id="mid-row" class="pitch-row"></div>
+                <div id="fwd-row" class="pitch-row"></div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">BENCH</div>
+            <div class="pitch-container" style="background: var(--bench-bg); min-height: 80px;">
+                <div id="p-bench" class="pitch-row"></div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">YOUR TRANSFERS <span id="hit-val"></span></div>
+            <table>
+                <thead><tr><th>In</th><th>Out</th><th>Gain</th></tr></thead>
+                <tbody id="user-tr-body"></tbody>
+            </table>
+        </section>
+
+        <section class="card">
+            <div class="card-header">NON-OWNED THREATS</div>
+            <div class="pitch-container" style="background: var(--text-main);">
+                <div id="p-threats" class="pitch-row"></div>
+            </div>
+        </section>
+
     </main>
 
     <nav class="bottom-nav">
         <a href="#" class="nav-item active"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
         <a href="#" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
         <a href="#" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
+        <a href="https://wa.me/260964836842" class="nav-item"><i class="fa-brands fa-whatsapp"></i><span>Support</span></a>
         <a href="#" class="nav-item" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i><span>Exit</span></a>
     </nav>
 
     <script>
         const PROXY = "https://corsproxy.io/?";
         const state = {
-            fplId: localStorage.getItem('kopala_user_id'),
-            boot: null,
-            live: {},
-            gw: null
+            fplId: localStorage.getItem('kopala_v2_id'),
+            boot: null, live: {}, gw: null
         };
 
-        // Theme Logic
         function setTheme(mode) {
             const isDark = mode === 'dark';
             document.body.classList.toggle('dark-mode', isDark);
@@ -202,110 +227,109 @@
         }
 
         function toggleTheme() {
-            const current = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
-            setTheme(current);
-        }
-
-        function logout() {
-            localStorage.removeItem('kopala_user_id');
-            location.reload();
+            const isDark = document.body.classList.contains('dark-mode');
+            setTheme(isDark ? 'light' : 'dark');
         }
 
         async function handleLogin() {
             const id = document.getElementById('team-id-input').value;
-            if(!id) return alert("Please enter an ID");
-            localStorage.setItem('kopala_user_id', id);
+            if(!id) return;
+            localStorage.setItem('kopala_v2_id', id);
             state.fplId = id;
-            document.getElementById('login-screen').classList.add('hidden');
-            init();
+            location.reload();
+        }
+
+        function logout() {
+            localStorage.removeItem('kopala_v2_id');
+            location.reload();
+        }
+
+        function createPlayerCard(id, mult = 1) {
+            const p = state.boot.elements.find(x => x.id === id);
+            const pts = (state.live[id]?.total_points || 0) * mult;
+            return `
+                <div class="player-mini">
+                    <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${p.team_code}${p.element_type===1?'_1':''}-66.png" style="width:35px;">
+                    <div class="name-tag">${p.web_name}</div>
+                    <div class="pts-tag">${pts}</div>
+                </div>`;
         }
 
         async function init() {
+            if(!state.fplId) return;
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+
             try {
-                // 1. Load Bootstrap
                 const bootRes = await fetch(PROXY + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"));
                 state.boot = await bootRes.json();
                 state.gw = state.boot.events.find(e => e.is_current).id;
 
-                // 2. Load Entry & History
-                const [entryRes, histRes, picksRes, liveRes] = await Promise.all([
-                    fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${state.fplId}/`)),
-                    fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${state.fplId}/history/`)),
-                    fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${state.fplId}/event/${state.gw}/picks/`)),
-                    fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${state.gw}/live/`))
+                const [entry, picks, live, trans, hist] = await Promise.all([
+                    fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${state.fplId}/`)).then(r => r.json()),
+                    fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${state.fplId}/event/${state.gw}/picks/`)).then(r => r.json()),
+                    fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${state.gw}/live/`)).then(r => r.json()),
+                    fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${state.fplId}/transfers/`)).then(r => r.json()),
+                    fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${state.fplId}/history/`)).then(r => r.json())
                 ]);
 
-                const entry = await entryRes.json();
-                const history = await histRes.json();
-                const picks = await picksRes.json();
-                const liveData = await liveRes.json();
+                live.elements.forEach(el => state.live[el.id] = el.stats);
 
-                // Map Live Points
-                liveData.elements.forEach(el => state.live[el.id] = el.stats.total_points);
-
-                renderDashboard(entry, history, picks);
-            } catch (err) {
-                alert("Error loading data. Check your ID.");
-                logout();
-            }
-        }
-
-        function renderDashboard(entry, history, picks) {
-            const currentHist = history.current.find(h => h.event === state.gw);
-            const prevHist = history.current.find(h => h.event === state.gw - 1);
-
-            // Text Elements
-            document.getElementById('disp-name').innerText = `${entry.player_first_name} ${entry.player_last_name}`;
-            document.getElementById('disp-gw').innerText = `GW ${state.gw}`;
-            document.getElementById('tile-total-pts').innerText = entry.summary_overall_points;
-            document.getElementById('tile-overall-rank').innerText = entry.summary_overall_rank.toLocaleString();
-            document.getElementById('tile-gw-rank').innerText = (currentHist?.rank || 0).toLocaleString();
-
-            // Calculate Change %
-            if(prevHist) {
-                const diff = prevHist.overall_rank - entry.summary_overall_rank;
-                const pct = ((diff / prevHist.overall_rank) * 100).toFixed(2);
-                const el = document.getElementById('tile-change');
-                el.innerText = (diff >= 0 ? "+" : "") + pct + "%";
-                el.style.color = diff >= 0 ? "var(--success)" : "var(--danger)";
-            }
-
-            // Pitch & Points
-            ['gk-row', 'def-row', 'mid-row', 'fwd-row'].forEach(id => document.getElementById(id).innerHTML = '');
-            let liveTotal = 0;
-            let benchTotal = 0;
-
-            picks.picks.forEach((pick, index) => {
-                const pData = state.boot.elements.find(e => e.id === pick.element);
-                const pts = (state.live[pick.element] || 0) * pick.multiplier;
+                // Render Dashboard
+                document.getElementById('disp-name').innerText = `${entry.player_first_name} ${entry.player_last_name}`;
+                document.getElementById('disp-gw').innerText = `GAMWEEK ${state.gw}`;
+                document.getElementById('tile-total-pts').innerText = entry.summary_overall_points;
+                document.getElementById('tile-overall-rank').innerText = entry.summary_overall_rank.toLocaleString();
                 
-                const html = `
-                    <div class="player-card">
-                        <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${pData.team_code}${pData.element_type === 1 ? '_1' : ''}-66.png" style="width:38px;">
-                        <div class="p-info">
-                            <div class="p-name">${pData.web_name}</div>
-                            <div class="p-pts">${pts}</div>
-                        </div>
-                    </div>`;
+                const curHist = hist.current.find(h => h.event === state.gw);
+                const prevHist = hist.current.find(h => h.event === state.gw - 1);
+                document.getElementById('tile-gw-rank').innerText = curHist?.rank.toLocaleString() || "-";
 
-                if (index < 11) {
-                    liveTotal += pts;
-                    const rowId = pData.element_type === 1 ? 'gk-row' : pData.element_type === 2 ? 'def-row' : pData.element_type === 3 ? 'mid-row' : 'fwd-row';
-                    document.getElementById(rowId).innerHTML += html;
-                } else {
-                    benchTotal += pts;
+                if(prevHist) {
+                    const diff = prevHist.overall_rank - entry.summary_overall_rank;
+                    const pct = ((diff / prevHist.overall_rank) * 100).toFixed(2);
+                    document.getElementById('tile-change').innerText = (diff >= 0 ? "+" : "") + pct + "%";
+                    document.getElementById('tile-change').style.color = diff >= 0 ? "var(--success)" : "var(--danger)";
                 }
-            });
 
-            document.getElementById('tile-gw-pts').innerText = liveTotal;
-            document.getElementById('tile-bench-pts').innerText = benchTotal;
+                // Render Squad
+                let livePts = 0, benchPts = 0;
+                picks.picks.forEach((p, i) => {
+                    const html = createPlayerCard(p.element, p.multiplier);
+                    const pPts = (state.live[p.element]?.total_points || 0) * p.multiplier;
+                    if(i < 11) {
+                        livePts += pPts;
+                        const pData = state.boot.elements.find(x => x.id === p.element);
+                        const row = pData.element_type === 1 ? 'gk-row' : pData.element_type === 2 ? 'def-row' : pData.element_type === 3 ? 'mid-row' : 'fwd-row';
+                        document.getElementById(row).innerHTML += html;
+                    } else {
+                        benchPts += (state.live[p.element]?.total_points || 0);
+                        document.getElementById('p-bench').innerHTML += html;
+                    }
+                });
+                document.getElementById('tile-gw-pts').innerText = livePts;
+                document.getElementById('live-total').innerText = livePts + " Pts";
+                document.getElementById('tile-bench-pts').innerText = benchPts;
+
+                // Render Transfers
+                const gwTrans = trans.filter(t => t.event === state.gw);
+                gwTrans.forEach(t => {
+                    const gain = (state.live[t.element_in]?.total_points || 0) - (state.live[t.element_out]?.total_points || 0);
+                    document.getElementById('user-tr-body').innerHTML += `<tr><td>${createPlayerCard(t.element_in)}</td><td>${createPlayerCard(t.element_out)}</td><td style="font-weight:900">${gain}</td></tr>`;
+                });
+
+                // Render Threats
+                const owned = picks.picks.map(p => p.element);
+                state.boot.elements
+                    .filter(e => !owned.includes(e.id))
+                    .sort((a,b) => (state.live[b.id]?.total_points || 0) - (state.live[a.id]?.total_points || 0))
+                    .slice(0, 5)
+                    .forEach(t => document.getElementById('p-threats').innerHTML += createPlayerCard(t.id));
+
+            } catch (err) { console.error(err); }
         }
 
-        // Start Logic
-        if(state.fplId) {
-            document.getElementById('login-screen').classList.add('hidden');
-            init();
-        }
+        init();
     </script>
 </body>
 </html>
