@@ -430,29 +430,14 @@ body.dark-mode .fpl-input.error {
 
 
    function resetTeamID() {
-    if (confirm("Change Team ID?")) {
-        // 1. Hide the dashboard
-        const mainContent = document.getElementById('main-content');
-        if (mainContent) mainContent.classList.add('hidden');
+    if (confirm("Would you like to change your Team ID?")) {
+        // 1. Clear the saved ID from the browser memory
+        localStorage.removeItem('kopala_id');
         
-        // 2. Force the login container to show
-        const syncBox = document.querySelector('.sync-container');
-        if (syncBox) {
-            syncBox.style.display = 'flex'; // Explicitly set display
-        }
-        
-        // 3. Reset the input field
-        const inputEl = document.getElementById('team-id');
-        if (inputEl) {
-            inputEl.value = '';
-            inputEl.classList.remove('input-error', 'shake');
-        }
-
-        // 4. Hide error messages
-        const errorEl = document.getElementById('id-error');
-        if (errorEl) errorEl.style.display = 'none';
-
-        window.scrollTo(0, 0);
+        // 2. Refresh the page
+        // Since the 'state.fplId' will now be empty, the script 
+        // will automatically show the login-screen on reload.
+        location.reload();
     }
 }
     </script>
