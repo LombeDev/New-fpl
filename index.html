@@ -223,7 +223,9 @@ body.dark-mode .fpl-input.error {
     </div>
 
     <header class="top-nav">
-        <div class="nav-icon-btn"><i class="fa-solid fa-circle-user"></i></div>
+        <div class="nav-icon-btn" onclick="resetTeamID()" style="cursor: pointer;">
+    <i class="fa-solid fa-circle-user"></i>
+</div>
         <div class="logo-container">Kopala<span>▲</span>FPL</div>
         <div class="nav-icon-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></div>
     </header>
@@ -424,6 +426,26 @@ body.dark-mode .fpl-input.error {
             installLink.style.display = 'none';
             deferredPrompt = null;
         });
+
+
+
+        function resetTeamID() {
+    if (confirm("Would you like to change your Team ID and sync a new account?")) {
+        // 1. Hide the main content
+        document.getElementById('main-content').classList.add('hidden');
+        
+        // 2. Show the sync container again
+        document.querySelector('.sync-container').style.display = 'flex';
+        
+        // 3. Clear and focus the input field
+        const inputEl = document.getElementById('team-id');
+        inputEl.value = '';
+        inputEl.focus();
+        
+        // 4. Scroll to top
+        window.scrollTo(0, 0);
+    }
+}
     </script>
 </body>
 </html>
