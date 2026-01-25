@@ -159,20 +159,32 @@
         .p-pts { color: #000; font-size: 0.8rem; font-weight: 800; padding: 1px 0; }
 
 
-
-
-        .shake {
-    animation: shake 0.4s ease-in-out;
+        /* Validation Styles */
+.input-container {
+    width: 100%;
+    position: relative;
+    margin-bottom: 20px;
 }
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
+.fpl-input.error {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2;
 }
-
-.fpl-input {
-    transition: border-color 0.3s ease;
+body.dark-mode .fpl-input.error {
+    background-color: #450a0a;
+}
+.error-msg {
+    color: #ef4444;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: -15px;
+    margin-bottom: 15px;
+    display: none;
+    text-align: left;
+    padding-left: 5px;
+}
+.continue-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
     </style>
 </head>
@@ -187,28 +199,29 @@
             </a>
         </div>
 
-      <div class="login-card">
-    <div class="theme-row">
-        <span class="theme-label">Theme</span>
-        <div class="toggle-container">
-            <button id="btn-dark" class="toggle-btn active" onclick="setTheme('dark')">Dark</button>
-            <button id="btn-light" class="toggle-btn inactive" onclick="setTheme('light')">Light</button>
+        <div class="login-card">
+            <div class="theme-row">
+                <span class="theme-label">Theme</span>
+                <div class="toggle-container">
+                    <button id="btn-dark" class="toggle-btn active" onclick="setTheme('dark')">Dark</button>
+                    <button id="btn-light" class="toggle-btn inactive" onclick="setTheme('light')">Light</button>
+                </div>
+            </div>
+
+           <h2>Enter your FPL ID</h2>
+
+<div class="input-container">
+    <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste link">
+    <div id="error-message" class="error-msg">Please enter a valid Team ID</div>
+</div>
+
+<button id="login-btn" class="continue-btn" onclick="handleLogin()">Continue</button>
+           <div class="find-id-link" onclick="window.open('https://youtu.be/gZqblBRbAjw?si=IQ-hmIEES27jDaTn', '_blank')">
+                <i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it
+            </div>
         </div>
     </div>
 
-    <h2>Enter your FPL ID</h2>
-    
-    <div class="input-group">
-        <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste a link">
-        <div id="error-msg" class="error-text" style="display: none; color: #ff4d4d; font-size: 0.8rem; margin-top: 5px; text-align: left;"></div>
-    </div>
-
-    <button id="continue-btn" class="continue-btn" onclick="handleLogin()">Continue</button>
-
-    <div class="find-id-link" onclick="window.open('https://youtu.be/gZqblBRbAjw?si=IQ-hmIEES27jDaTn', '_blank')">
-        <i class="fa-solid fa-chevron-down"></i> Don't know your ID? Find it
-    </div>
-</div>
     <header class="top-nav">
         <div class="nav-icon-btn"><i class="fa-solid fa-circle-user"></i></div>
         <div class="logo-container">Kopala<span>▲</span>FPL</div>
@@ -271,12 +284,68 @@
             setTheme(isDark ? 'light' : 'dark');
         }
 
-        async function handleLogin() {
-            const id = document.getElementById('team-id-input').value;
-            if(!id) return;
-            localStorage.setItem('kopala_id', id);
-            location.reload();
+       async function handleLogin() {
+    const inputField = document.getElementById('team-id-input');
+    const errorDiv = document.getElementById('error-message');
+    const loginBtn = document.getElementById('login-btn');
+    let rawValue = inputField.value.trim();
+
+    // 1. Reset State
+    inputField.classList.remove('error');
+    errorDiv.style.display = 'none';
+
+    // 2. URL Extraction Logic
+    // If user pastes: https://fantasy.premierleague.com/entry/123456/history
+    // It extracts "123456"
+    if (rawValue.includes('entry/')) {
+        const match = rawValue.match(/entry\/(\d+)/);
+        if (match) rawValue = match[1];
+    }
+
+    const id = parseInt(rawValue);
+
+    // 3. Basic Validation
+    if (!id || isNaN(id)) {
+        showError("Please enter a valid numeric ID");
+        return;
+    }
+
+    // 4. API Validation (Optional but Recommended)
+    try {
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking ID...';
+
+        const res = await fetch(`${PROXY}entry/${id}/`);
+        
+        if (!res.ok) {
+            throw new Error("ID not found");
         }
+
+        const data = await res.json();
+        
+        // Success! Save and Reload
+        localStorage.setItem('kopala_id', id);
+        location.reload();
+
+    } catch (err) {
+        showError("Team ID not found. Please check and try again.");
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Continue';
+    }
+
+    function showError(msg) {
+        inputField.classList.add('error');
+        errorDiv.textContent = msg;
+        errorDiv.style.display = 'block';
+        // Shake animation effect
+        inputField.animate([
+            { transform: 'translateX(0)' },
+            { transform: 'translateX(-5px)' },
+            { transform: 'translateX(5px)' },
+            { transform: 'translateX(0)' }
+        ], { duration: 200 });
+    }
+}
 
         async function initData() {
             try {
@@ -355,55 +424,6 @@
             installLink.style.display = 'none';
             deferredPrompt = null;
         });
-
-
-        function handleLogin() {
-    const inputField = document.getElementById('team-id-input');
-    const errorDisplay = document.getElementById('error-msg');
-    const btn = document.getElementById('continue-btn');
-    let rawValue = inputField.value.trim();
-
-    // 1. Reset state
-    errorDisplay.style.display = 'none';
-    inputField.style.borderColor = '';
-
-    // 2. Smart Extraction (Regex for URL or ID)
-    // This looks for digits after '/entry/' or just returns the digits if it's a raw number
-    const idMatch = rawValue.match(/(?:entry\/)(\d+)/) || rawValue.match(/^\d+$/);
-    const fplId = idMatch ? (Array.isArray(idMatch) ? idMatch[1] || idMatch[0] : idMatch[0]) : null;
-
-    // 3. Validation Logic
-    if (!rawValue) {
-        showError("Please enter an ID or paste a link");
-        return;
-    }
-
-    if (!fplId) {
-        showError("Invalid format. Enter a number or a valid FPL URL");
-        return;
-    }
-
-    // 4. Success State
-    btn.innerText = "Loading...";
-    btn.disabled = true;
-    
-    console.log("Proceeding with FPL ID:", fplId);
-    // Proceed with your API call or redirect here
-    // window.location.href = `/team/${fplId}`;
-}
-
-function showError(message) {
-    const inputField = document.getElementById('team-id-input');
-    const errorDisplay = document.getElementById('error-msg');
-    
-    errorDisplay.innerText = message;
-    errorDisplay.style.display = 'block';
-    inputField.style.borderColor = '#ff4d4d';
-    
-    // Optional: Add a shake animation class here
-    inputField.classList.add('shake');
-    setTimeout(() => inputField.classList.remove('shake'), 500);
-}
     </script>
 </body>
 </html>
