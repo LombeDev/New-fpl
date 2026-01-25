@@ -251,7 +251,7 @@ body.dark-mode .fpl-input.error {
         <a href="prices.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
         <a href="games.html" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
         <a href="members.html" class="nav-item"><i class="fa-solid fa-user-tie"></i><span>Members</span></a>
-        <a href="10k.html" class="nav-item"><i class="fa fa-balance-scale"></i><span>You vs top 10k</span></a>
+        <a href="10k.html" class="nav-item"><i class="fa fa-bar-chart"></i><span>You vs 10k</span></a>
         <a href="https://wa.me/260964836842" class="nav-item"><i class="fa fa-comments"></i><span>Support</span></a>
         
         <a href="#" class="nav-item"><i class="fa fa-ellipsis-h"></i><span>More</span></a>
@@ -429,20 +429,29 @@ body.dark-mode .fpl-input.error {
 
 
 
-        function resetTeamID() {
-    if (confirm("Would you like to change your Team ID and sync a new account?")) {
-        // 1. Hide the main content
-        document.getElementById('main-content').classList.add('hidden');
+   function resetTeamID() {
+    if (confirm("Change Team ID?")) {
+        // 1. Hide the dashboard
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) mainContent.classList.add('hidden');
         
-        // 2. Show the sync container again
-        document.querySelector('.sync-container').style.display = 'flex';
+        // 2. Force the login container to show
+        const syncBox = document.querySelector('.sync-container');
+        if (syncBox) {
+            syncBox.style.display = 'flex'; // Explicitly set display
+        }
         
-        // 3. Clear and focus the input field
+        // 3. Reset the input field
         const inputEl = document.getElementById('team-id');
-        inputEl.value = '';
-        inputEl.focus();
-        
-        // 4. Scroll to top
+        if (inputEl) {
+            inputEl.value = '';
+            inputEl.classList.remove('input-error', 'shake');
+        }
+
+        // 4. Hide error messages
+        const errorEl = document.getElementById('id-error');
+        if (errorEl) errorEl.style.display = 'none';
+
         window.scrollTo(0, 0);
     }
 }
