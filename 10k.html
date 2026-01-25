@@ -271,203 +271,170 @@
     </nav>
 
     <script>
-        const PROXY = "https://corsproxy.io/?";
-        let state = { live: {}, boot: null, gw: null };
+    const PROXY = "https://corsproxy.io/?";
+    let state = { live: {}, boot: null, gw: null };
 
-        async function fetchFPLData() {
-    const inputEl = document.getElementById('team-id');
-    const errorEl = document.getElementById('id-error');
-    const syncBtn = document.getElementById('sync-btn');
-    let rawValue = inputEl.value.trim();
+    async function fetchFPLData() {
+        const inputEl = document.getElementById('team-id');
+        const errorEl = document.getElementById('id-error');
+        const syncBtn = document.getElementById('sync-btn');
+        let rawValue = inputEl.value.trim();
 
-    // 1. Reset visual states
-    inputEl.classList.remove('input-error', 'shake');
-    errorEl.style.display = 'none';
+        // 1. Reset visual states
+        inputEl.classList.remove('input-error', 'shake');
+        errorEl.style.display = 'none';
 
-    // 2. Smart Extraction (If they paste a URL like .../entry/12345/...)
-    if (rawValue.includes('entry/')) {
-        const match = rawValue.match(/entry\/(\d+)/);
-        if (match) rawValue = match[1];
-    }
-
-    const id = parseInt(rawValue);
-
-    // 3. Basic Validation (Is it a number?)
-    if (!id || isNaN(id)) {
-        triggerError("Invalid ID Format");
-        return;
-    }
-
-    try {
-        // Show loading state
-        syncBtn.disabled = true;
-        syncBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
-
-        // 4. API Validation: Check if the team actually exists
-        const entryCheck = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/`));
-        
-        if (!entryCheck.ok) {
-            throw new Error("ID not found");
+        // 2. Smart Extraction (Handles full URLs)
+        if (rawValue.includes('entry/')) {
+            const match = rawValue.match(/entry\/(\d+)/);
+            if (match) rawValue = match[1];
         }
 
-        const entryData = await entryCheck.json();
+        const id = parseInt(rawValue);
 
-        // 5. Proceed with rest of the data fetching if valid
-        const bootRes = await fetch(PROXY + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"));
-        state.boot = await bootRes.json();
-        state.gw = state.boot.events.find(e => e.is_current).id;
-
-        const liveRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${state.gw}/live/`));
-        const liveData = await liveRes.json();
-        liveData.elements.forEach(el => state.live[el.id] = el.stats);
-
-        const picksRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/event/${state.gw}/picks/`));
-        const picksData = await picksRes.json();
-        
-        const transRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/transfers/`));
-        const transData = await transRes.json();
-
-        const histRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/history/`));
-        const histData = await histRes.json();
-
-        // Render UI only after all data is confirmed
-        renderUI(picksData.picks, transData.filter(t => t.event === state.gw), histData, entryData);
-        document.getElementById('main-content').classList.remove('hidden');
-        
-        // Hide the sync container after success (optional)
-        // document.querySelector('.sync-container').style.display = 'none';
-
-    } catch (err) {
-        triggerError(err.message === "ID not found" ? "Team ID does not exist" : "Connection Error");
-    } finally {
-        syncBtn.disabled = false;
-        syncBtn.innerText = "SYNC DATA";
-    }
-
-    // Helper to handle error UI
-    function triggerError(msg) {
-        inputEl.classList.add('input-error', 'shake');
-        errorEl.innerText = msg;
-        errorEl.style.display = 'block';
-    }
-}
-            try {
-                const bootRes = await fetch(PROXY + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"));
-                state.boot = await bootRes.json();
-                state.gw = state.boot.events.find(e => e.is_current).id;
-
-                const liveRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${state.gw}/live/`));
-                const liveData = await liveRes.json();
-                liveData.elements.forEach(el => state.live[el.id] = el.stats);
-
-                const picksRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/event/${state.gw}/picks/`));
-                const picksData = await picksRes.json();
-                
-                const transRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/transfers/`));
-                const transData = await transRes.json();
-
-                const histRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/history/`));
-                const histData = await histRes.json();
-
-                const entryRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/`));
-                const entryData = await entryRes.json();
-
-                renderUI(picksData.picks, transData.filter(t => t.event === state.gw), histData, entryData);
-                document.getElementById('main-content').classList.remove('hidden');
-            } catch (err) { alert("Data Sync Error - Check Team ID or Proxy"); }
+        // 3. Basic Validation
+        if (!id || isNaN(id)) {
+            triggerError("Please enter a valid Team ID");
+            return;
         }
 
-        function createPlayerCard(id, mult = 1, isOut = false) {
-            const p = state.boot.elements.find(x => x.id === id);
-            const pts = (state.live[id]?.total_points || 0) * mult;
-            const willRise = p.transfers_in_event > 200000;
+        try {
+            // Loading State
+            syncBtn.disabled = true;
+            syncBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading...';
 
-            return `
-                <div class="player-mini">
-                    <img class="jersey" src="https://draft.premierleague.com/img/shirts/standard/shirt_${p.team_code}${p.element_type===1?'_1':''}-66.png">
-                    <div class="name-tag">${p.web_name}${willRise && !isOut ? '<span class="rise-alert">↑</span>' : ''}</div>
-                    <div class="pts-tag ${isOut ? 'pts-out' : 'pts-in'}">${pts}</div>
-                </div>`;
-        }
+            // 4. Fetch Base Data (Bootstrap & Live)
+            const bootRes = await fetch(PROXY + encodeURIComponent("https://fantasy.premierleague.com/api/bootstrap-static/"));
+            state.boot = await bootRes.json();
+            state.gw = state.boot.events.find(e => e.is_current).id;
 
-        function renderUI(picks, userTransfers, histData, entryData) {
-            ['p-gk','p-def','p-mid','p-fwd','p-bench','p-threats','user-tr-body','top-tr-body'].forEach(id => document.getElementById(id).innerHTML = '');
+            const liveRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/event/${state.gw}/live/`));
+            const liveData = await liveRes.json();
+            liveData.elements.forEach(el => state.live[el.id] = el.stats);
 
-            const currentHist = histData.current.find(h => h.event === state.gw);
-            const prevHist = histData.current.find(h => h.event === state.gw - 1);
-            const hits = currentHist?.event_transfers_cost || 0;
+            // 5. Fetch Manager Specific Data
+            const entryRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/`));
+            if (!entryRes.ok) throw new Error("ID not found");
+            const entryData = await entryRes.json();
 
-            // 1. Populate Rank Dashboard
-            document.getElementById('disp-name').innerText = `${entryData.player_first_name} ${entryData.player_last_name}`;
-            document.getElementById('disp-gw').innerText = `GW ${state.gw}`;
-            document.getElementById('disp-overall-rank').innerText = `# ${currentHist.overall_rank.toLocaleString()}`;
-            document.getElementById('tile-total-pts').innerText = currentHist.total_points;
-            document.getElementById('tile-gw-rank').innerText = currentHist.rank.toLocaleString();
-            document.getElementById('tile-old-rank').innerText = prevHist ? prevHist.overall_rank.toLocaleString() : 'N/A';
+            const picksRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/event/${state.gw}/picks/`));
+            const picksData = await picksRes.json();
             
-            if(prevHist) {
-                const diff = prevHist.overall_rank - currentHist.overall_rank;
-                const percent = ((diff / prevHist.overall_rank) * 100).toFixed(2);
-                const el = document.getElementById('tile-change');
-                el.innerText = (diff >= 0 ? "+" : "") + percent + "%";
-                el.style.color = diff >= 0 ? "var(--success)" : "var(--danger)";
-            }
+            const transRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/transfers/`));
+            const transData = await transRes.json();
 
-            // 2. Process Pitch & Points
-            let squadTotal = 0;
-            let benchPts = 0;
-            picks.forEach(pick => {
-                const p = state.boot.elements.find(x => x.id === pick.element);
-                const html = createPlayerCard(pick.element, pick.multiplier);
-                const playerPts = (state.live[pick.element]?.total_points || 0) * pick.multiplier;
+            const histRes = await fetch(PROXY + encodeURIComponent(`https://fantasy.premierleague.com/api/entry/${id}/history/`));
+            const histData = await histRes.json();
 
-                if(pick.position <= 11) {
-                    const row = {1:'p-gk', 2:'p-def', 3:'p-mid', 4:'p-fwd'}[p.element_type];
-                    document.getElementById(row).innerHTML += html;
-                    squadTotal += playerPts;
-                } else {
-                    document.getElementById('p-bench').innerHTML += html;
-                    benchPts += (state.live[pick.element]?.total_points || 0);
-                }
-            });
-            document.getElementById('live-total').innerText = squadTotal + " Pts";
-            document.getElementById('tile-gw-pts').innerText = squadTotal;
-            document.getElementById('tile-bench-pts').innerText = benchPts;
+            // 6. Render the UI
+            renderUI(picksData.picks, transData.filter(t => t.event === state.gw), histData, entryData);
+            document.getElementById('main-content').classList.remove('hidden');
 
-            // 3. User Transfers
-            let rawGain = 0;
-            userTransfers.forEach((t, i) => {
-                const gain = (state.live[t.element_in]?.total_points || 0) - (state.live[t.element_out]?.total_points || 0);
-                rawGain += gain;
-                document.getElementById('user-tr-body').innerHTML += `<tr><td>${i+1}</td><td>${createPlayerCard(t.element_in)}</td><td>${createPlayerCard(t.element_out, 1, true)}</td><td style="font-weight:bold">${gain}</td></tr>`;
-            });
-            document.getElementById('hit-val').innerHTML = hits > 0 ? `<span class="hit-badge">-${hits} HIT</span>` : '';
-            document.getElementById('user-net-total').innerText = (rawGain - hits);
-
-            // 4. Simulated Top 10k Data (API doesn't provide this directly)
-            const trends = [{ p: "9.5%", in: 233, out: 355 }, { p: "4.2%", in: 91, out: 355 }];
-            trends.forEach(t => {
-                const pIn = state.boot.elements.find(e => e.id === t.in);
-                if(!pIn) return;
-                const gain = (state.live[t.in]?.total_points || 0) - (state.live[t.out]?.total_points || 0);
-                const vol = (pIn.transfers_in_event - pIn.transfers_out_event).toLocaleString();
-                document.getElementById('top-tr-body').innerHTML += `
-                    <tr>
-                        <td>${t.p}<br><span class="vol-badge">${vol} vol</span></td>
-                        <td>${createPlayerCard(t.in)}</td>
-                        <td>${createPlayerCard(t.out, 1, true)}</td>
-                        <td style="font-weight:bold">${gain}</td>
-                    </tr>`;
-            });
-
-            // 5. Threats
-            const owned = picks.map(p => p.element);
-            state.boot.elements
-                .filter(e => !owned.includes(e.id))
-                .sort((a,b) => (state.live[b.id]?.total_points || 0) - (state.live[a.id]?.total_points || 0))
-                .slice(0, 5)
-                .forEach(t => document.getElementById('p-threats').innerHTML += createPlayerCard(t.id));
+        } catch (err) {
+            console.error(err);
+            triggerError(err.message === "ID not found" ? "Team ID doesn't exist" : "Connection Error - Try again");
+        } finally {
+            syncBtn.disabled = false;
+            syncBtn.innerText = "SYNC DATA";
         }
-    </script>
+
+        function triggerError(msg) {
+            inputEl.classList.add('input-error', 'shake');
+            errorEl.innerText = msg;
+            errorEl.style.display = 'block';
+        }
+    }
+
+    function createPlayerCard(id, mult = 1, isOut = false) {
+        const p = state.boot.elements.find(x => x.id === id);
+        const pts = (state.live[id]?.total_points || 0) * mult;
+        const willRise = p.transfers_in_event > 200000;
+
+        return `
+            <div class="player-mini">
+                <img class="jersey" src="https://draft.premierleague.com/img/shirts/standard/shirt_${p.team_code}${p.element_type===1?'_1':''}-66.png">
+                <div class="name-tag">${p.web_name}${willRise && !isOut ? '<span class="rise-alert">↑</span>' : ''}</div>
+                <div class="pts-tag ${isOut ? 'pts-out' : 'pts-in'}">${pts}</div>
+            </div>`;
+    }
+
+    function renderUI(picks, userTransfers, histData, entryData) {
+        ['p-gk','p-def','p-mid','p-fwd','p-bench','p-threats','user-tr-body','top-tr-body'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.innerHTML = '';
+        });
+
+        const currentHist = histData.current.find(h => h.event === state.gw);
+        const prevHist = histData.current.find(h => h.event === state.gw - 1);
+        const hits = currentHist?.event_transfers_cost || 0;
+
+        document.getElementById('disp-name').innerText = `${entryData.player_first_name} ${entryData.player_last_name}`;
+        document.getElementById('disp-gw').innerText = `GW ${state.gw}`;
+        document.getElementById('disp-overall-rank').innerText = `# ${currentHist.overall_rank.toLocaleString()}`;
+        document.getElementById('tile-total-pts').innerText = currentHist.total_points;
+        document.getElementById('tile-gw-rank').innerText = currentHist.rank.toLocaleString();
+        document.getElementById('tile-old-rank').innerText = prevHist ? prevHist.overall_rank.toLocaleString() : 'N/A';
+        
+        if(prevHist) {
+            const diff = prevHist.overall_rank - currentHist.overall_rank;
+            const percent = ((diff / prevHist.overall_rank) * 100).toFixed(2);
+            const el = document.getElementById('tile-change');
+            el.innerText = (diff >= 0 ? "+" : "") + percent + "%";
+            el.style.color = diff >= 0 ? "var(--success)" : "var(--danger)";
+        }
+
+        let squadTotal = 0;
+        let benchPts = 0;
+        picks.forEach(pick => {
+            const p = state.boot.elements.find(x => x.id === pick.element);
+            const html = createPlayerCard(pick.element, pick.multiplier);
+            const playerPts = (state.live[pick.element]?.total_points || 0) * pick.multiplier;
+
+            if(pick.position <= 11) {
+                const row = {1:'p-gk', 2:'p-def', 3:'p-mid', 4:'p-fwd'}[p.element_type];
+                document.getElementById(row).innerHTML += html;
+                squadTotal += playerPts;
+            } else {
+                document.getElementById('p-bench').innerHTML += html;
+                benchPts += (state.live[pick.element]?.total_points || 0);
+            }
+        });
+
+        document.getElementById('live-total').innerText = squadTotal + " Pts";
+        document.getElementById('tile-gw-pts').innerText = squadTotal;
+        document.getElementById('tile-bench-pts').innerText = benchPts;
+
+        let rawGain = 0;
+        userTransfers.forEach((t, i) => {
+            const gain = (state.live[t.element_in]?.total_points || 0) - (state.live[t.element_out]?.total_points || 0);
+            rawGain += gain;
+            document.getElementById('user-tr-body').innerHTML += `<tr><td>${i+1}</td><td>${createPlayerCard(t.element_in)}</td><td>${createPlayerCard(t.element_out, 1, true)}</td><td style="font-weight:bold">${gain}</td></tr>`;
+        });
+        document.getElementById('hit-val').innerHTML = hits > 0 ? `<span class="hit-badge">-${hits} HIT</span>` : '';
+        document.getElementById('user-net-total').innerText = (rawGain - hits);
+
+        const trends = [{ p: "9.5%", in: 233, out: 355 }, { p: "4.2%", in: 91, out: 355 }];
+        trends.forEach(t => {
+            const pIn = state.boot.elements.find(e => e.id === t.in);
+            if(!pIn) return;
+            const gain = (state.live[t.in]?.total_points || 0) - (state.live[t.out]?.total_points || 0);
+            const vol = (pIn.transfers_in_event - pIn.transfers_out_event).toLocaleString();
+            document.getElementById('top-tr-body').innerHTML += `
+                <tr>
+                    <td>${t.p}<br><span class="vol-badge">${vol} vol</span></td>
+                    <td>${createPlayerCard(t.in)}</td>
+                    <td>${createPlayerCard(t.out, 1, true)}</td>
+                    <td style="font-weight:bold">${gain}</td>
+                </tr>`;
+        });
+
+        const owned = picks.map(p => p.element);
+        state.boot.elements
+            .filter(e => !owned.includes(e.id))
+            .sort((a,b) => (state.live[b.id]?.total_points || 0) - (state.live[a.id]?.total_points || 0))
+            .slice(0, 5)
+            .forEach(t => document.getElementById('p-threats').innerHTML += createPlayerCard(t.id));
+    }
+</script>
 </body>
 </html>
