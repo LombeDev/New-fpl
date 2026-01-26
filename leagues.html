@@ -338,37 +338,51 @@
 
     if (isActive && squadBox.dataset.loaded !== "true") {
         try {
-            // Fetch both Picks and Entry Info for Team Value
-            const [picksRes, entryRes] = await Promise.all([
+            // Fetch Picks, Entry Info, and Transfer History
+            const [picksRes, entryRes, transRes] = await Promise.all([
                 fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`),
-                fetch(`${state.PROXY}entry/${entryId}/`)
+                fetch(`${state.PROXY}entry/${entryId}/`),
+                fetch(`${state.PROXY}entry/${entryId}/transfers/`)
             ]);
             
             const data = await picksRes.json();
             const entryInfo = await entryRes.json();
+            const allTransfers = await transRes.json();
+
+            // Filter transfers for current GW only
+            const gwTransfers = allTransfers.filter(t => t.event === state.currentGW);
             
-            // Calculate Players Played (assuming pts > 0 or minute data if available)
-            // For simplicity here, we count players with non-zero live points
-            const playedCount = data.picks.filter(p => (state.liveData[p.element] !== undefined)).length;
             const teamValue = (entryInfo.last_deadline_value / 10).toFixed(1);
-            const transfers = data.entry_history.event_transfers;
+            const playedCount = data.picks.filter(p => state.liveData[p.element] !== undefined).length;
             const transferCost = data.entry_history.event_transfers_cost;
 
-            // Stats Bar HTML
+            // 1. Stats Bar
             let html = `
                 <div class="squad-stats-bar">
                     <div class="stat-pill">FT <b>${entryInfo.extra_free_transfers || 1}</b></div>
                     <div class="stat-pill">TV <b>£${teamValue}</b></div>
                     <div class="stat-pill">Played <b>${playedCount}/15</b></div>
                 </div>
-                <div class="transfer-pill">
-                    Transfers: <span class="transfer-out">${transfers}</span> 
-                    <span style="color:#94a3b8; font-weight:400;">(${transferCost} pts)</span>
-                </div>
-                <div class="squad-scroller">
             `;
 
-            // Player Cards HTML
+            // 2. Transfer Names Row
+            if (gwTransfers.length > 0) {
+                gwTransfers.forEach(t => {
+                    const pIn = state.playerMap[t.element_in]?.name || "In";
+                    const pOut = state.playerMap[t.element_out]?.name || "Out";
+                    html += `
+                        <div class="transfer-row">
+                            <span class="transfer-name-out">${pOut}</span>
+                            <span class="transfer-arrow">→</span>
+                            <span class="transfer-name-in">${pIn}</span>
+                            ${transferCost > 0 ? `<span class="transfer-hit">-${transferCost}</span>` : ''}
+                        </div>
+                    `;
+                });
+            }
+
+            // 3. Player Pitch Grid
+            html += `<div class="squad-scroller">`;
             html += data.picks.map(p => {
                 const player = state.playerMap[p.element];
                 const pts = (state.liveData[p.element] || 0) * (p.multiplier || 1);
@@ -386,11 +400,11 @@
             squadBox.innerHTML = html;
             squadBox.dataset.loaded = "true";
         } catch (e) {
+            console.error(e);
             squadBox.innerHTML = '<p style="padding:10px; color:red;">Failed to load data.</p>';
         }
     }
 }
-
         init();
     </script>
 </body>
