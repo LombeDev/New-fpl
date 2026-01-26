@@ -1,5 +1,6 @@
-const CACHE_NAME = 'kopala-fpl-v2'; // Incremented version
+const CACHE_NAME = 'kopala-fpl-v2'; 
 const PLAYER_IMG_CACHE = 'fpl-player-photos-v1';
+const MONTH_IN_MS = 30 * 24 * 60 * 60 * 1000; // 30 Days
 
 const STATIC_ASSETS = [
   '/',
@@ -12,7 +13,6 @@ const STATIC_ASSETS = [
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css'
 ];
 
-// 1. Install - Cache all app pages and UI assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -24,7 +24,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// 2. Activate - Clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -36,27 +35,36 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. Fetch Logic
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // STRATEGY FOR PLAYER PHOTOS & SHIRTS (Cache First)
-  if (url.href.includes('premierleague/photos') || url.href.includes('dist/img/shirts')) {
+  // UPDATED STRATEGY: SHIRTS & PHOTOS
+  // Now specifically checks for the 'draft.premierleague' or 'shirts' path
+  if (url.href.includes('premierleague/photos') || url.href.includes('shirts/standard')) {
     event.respondWith(
-      caches.open(PLAYER_IMG_CACHE).then((cache) => {
-        return cache.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) return cachedResponse;
-          return fetch(event.request).then((networkResponse) => {
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
-          });
+      caches.open(PLAYER_IMG_CACHE).then(async (cache) => {
+        const cachedResponse = await cache.match(event.request);
+        const now = Date.now();
+
+        if (cachedResponse) {
+          // Check if cached item is older than 30 days
+          const dateHeader = cachedResponse.headers.get('date');
+          const fetchedDate = dateHeader ? new Date(dateHeader).getTime() : 0;
+          
+          if (now - fetchedDate < MONTH_IN_MS) {
+            return cachedResponse;
+          }
+        }
+
+        // Fetch new and cache
+        return fetch(event.request).then((networkResponse) => {
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
         });
       })
     );
   } 
   
-  // STRATEGY FOR APP PAGES (Stale-While-Revalidate)
-  // Loads from cache instantly, updates in background
   else if (STATIC_ASSETS.some(asset => url.pathname.endsWith(asset) || url.pathname === '/')) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
@@ -71,7 +79,6 @@ self.addEventListener('fetch', (event) => {
     );
   }
 
-  // DEFAULT LOGIC (Network First for API/Proxy calls)
   else {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request))
