@@ -1,1333 +1,185 @@
-/**
- * KOPALA FPL - MASTER STYLESHEET
- * Theme: Telegram Dark Mode & Material You FPL Edition
- * Version: 2.0 (Updated Login Design)
- */
-
-/* 1. THEME VARIABLES */
+/* --- MODERN CSS VARIABLES --- */
 :root {
-    /* Brand Colors */
-    --fpl-red: #e90052;
-    --fpl-pink: #ff005a;
+    --bg-color: #f8fafc;
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --primary-blue: #2563eb;
+    --primary-hover: #1d4ed8;
     --fpl-green: #00ff85;
-    --fpl-dark-green: #008f4b;
-    --pitch-green: #008d4c;
-    --fpl-purple: #37003c;
-    
-    /* Material 3 Surface Roles (Light) */
-    --bg-light: #f3f3f5;
-    --card-bg: #ffffff;
-    --text-main: #1a1a1a;
-    --text-muted: #707579;
-    --border-color: #dfe1e5;
-    --header-bg: #ffffff;
-    --tab-bg: #e1e1e1;
-    --link-blue: #0088cc;
-    
-    /* M3 Radius Tokens */
-    --radius-large: 28px;   /* For Cards & Drawers */
-    --radius-medium: 16px;  /* For Inputs */
-    --radius-full: 100px;   /* For Pill Buttons */
+    --border-color: rgba(226, 232, 240, 0.8);
+    --pitch-green: #2e7d32;
+    --glass-blur: blur(12px);
+    --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
 }
 
-/* Telegram-Style Dark Mode with M3 Tones */
 body.dark-mode {
-    --bg-light: #1c242d;    /* Deep Blue-Grey Background */
-    --card-bg: #242f3d;     /* Lighter Blue-Grey Cards */
-    --header-bg: #242f3d;
-    --text-main: #ffffff;
-    --text-muted: #869099;
-    --border-color: #171e28;
-    --tab-bg: #171e28;
+    --bg-color: #020617;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: rgba(51, 65, 85, 0.5);
 }
 
-/* 2. CORE STYLES */
-body { 
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-    margin: 0; 
-    background: var(--bg-light); 
-    color: var(--text-main); 
-    transition: background-color 0.2s, color 0.2s;
-    line-height: 1.6;
-}
-
-/* 3. HERO & LOGIN CARD (Updated to match image) */
-.hero-section { 
-    background: var(--fpl-red); 
-    color: white; 
-    text-align: center; 
-    padding: clamp(60px, 12vw, 100px) 20px; 
-}
-
-.login-card { 
-    background: var(--card-bg); 
-    max-width: 90%; 
-    width: 450px; 
-    margin: -50px auto 20px; 
-    padding: 0; /* Changed to 0 to let input/buttons touch borders */
-    border-radius: 8px; /* Matches the sharper look in the image */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-}
-
-.login-title {
-    font-size: 0.85rem;
-    font-weight: 800;
-    text-align: center;
-    padding: 20px 10px;
-    margin: 0;
-    letter-spacing: 0.5px;
-    color: var(--text-main);
-    text-transform: uppercase;
-}
-
-.input-group-container {
-    border-top: 1px solid var(--border-color);
-}
-
-/* Updated Input Style */
-.login-card input[type="number"] {
-    width: 100%;
-    border: none;
-    padding: 25px;
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    background: transparent;
-    border-bottom: 1px solid var(--border-color);
-    outline: none;
+/* --- RESET & BASE --- */
+* {
+    -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
-    border-radius: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.login-card input::placeholder {
-    color: #b0b3b8;
-    text-transform: uppercase;
-    font-size: 0.95rem;
-}
-
-/* Bottom Actions Row */
-.login-actions {
-    display: flex;
-    align-items: stretch;
-    height: 65px;
-}
-
-.help-link {
-    flex: 1.2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: var(--fpl-dark-green);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 10px;
-    text-align: center;
-}
-
-.enter-btn {
-    flex: 1;
-    border: none;
-    background: #eeeeee; /* Matches the grey button in image */
-    color: #8e949a;
-    font-weight: 800;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: 0.2s;
-    border-left: 1px solid var(--border-color);
-    text-transform: uppercase;
-}
-
-body.dark-mode .enter-btn {
-    background: #2b3644;
-    color: var(--text-muted);
-}
-
-.enter-btn:active {
-    background: #e2e2e2;
-}
-
-
-/* 5. LIVE TABLE & LISTS */
-.table-container { 
-    overflow-x: auto; 
-    background: var(--card-bg);
-}
-
-.live-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-}
-
-.live-table th { 
-    text-align: left; 
-    padding: 16px 12px; 
-    background: rgba(0,0,0,0.03); 
-    font-size: 0.7rem; 
-    text-transform: uppercase; 
-    letter-spacing: 1px; 
-    color: var(--text-muted); 
-}
-
-body.dark-mode .live-table th {
-    background: #171e28;
-}
-
-.live-table td { 
-    padding: 14px 12px; 
-    border-bottom: 1px solid var(--border-color); 
-}
-
-.manager-row:hover { 
-    background-color: rgba(233, 0, 82, 0.05); 
-    cursor: pointer; 
-}
-
-/* 6. PITCH VIEW */
-.pitch-container {
-    background: var(--pitch-green) url('https://fantasy.premierleague.com/static/media/pitch-default.344443a4.svg') no-repeat center;
-    background-size: cover;
-    padding: 20px 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-body.dark-mode .pitch-container {
-    filter: brightness(0.8) contrast(1.1);
-}
-
-.pitch-row {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-}
-
-.player-card {
-    width: 65px;
-    text-align: center;
-    animation: playerPop 0.3s ease-out forwards;
-}
-
-.player-photo-wrapper {
-    width: 48px;
-    height: 48px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #fff;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
-
-.player-face {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.player-info-label {
-    background: #fff;
-    color: #333;
-    font-size: 0.65rem;
-    font-weight: 800;
-    margin-top: 5px;
-    border-radius: 4px;
-    padding: 2px 4px;
-}
-
-.player-points-badge {
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 900;
-    text-shadow: 1px 1px 3px #000;
-}
-
-/* 7. MANAGER STATS FOOTER */
-.manager-stats-footer {
-    background: var(--card-bg);
-    padding: 20px;
-    border-top: 1px solid var(--border-color);
-    border-radius: 0 0 var(--radius-large) var(--radius-large);
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
-    margin-bottom: 15px;
-}
-
-/* 8. GLOBAL BUTTONS & INPUTS */
-.action-button {
-    background: var(--fpl-red);
-    color: white;
-    border: none;
-    padding: 14px;
-    border-radius: var(--radius-full);
-    width: 100%;
-    font-weight: 800;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: 0.2s;
-}
-
-.action-button:active { transform: scale(0.96); }
-
-/* 9. SETTINGS DRAWER */
-.drawer {
-    position: fixed;
-    top: 10px;
-    right: -320px;
-    width: 300px;
-    height: calc(100% - 20px);
-    background: var(--card-bg);
-    box-shadow: -10px 0 30px rgba(0,0,0,0.15);
-    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-    padding: 24px;
-    border-radius: var(--radius-large) 0 0 var(--radius-large);
-}
-
-.drawer.open { right: 0; }
-
-/* 10. ANIMATIONS & VALIDATION */
-@keyframes playerPop {
-    from { opacity: 0; transform: translateY(10px) scale(0.9); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-6px); }
-    75% { transform: translateX(6px); }
-}
-
-.input-error {
-    animation: shake 0.2s ease-in-out 2;
-    border: 2px solid var(--fpl-red) !important;
-}
-
-/* INSTALL BANNER */
-#install-banner {
-    display: none; 
-    background: var(--fpl-purple);
-    color: white;
-    padding: 15px 20px;
-    margin: 10px;
-    border-radius: 16px;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    position: relative;
-    z-index: 1001;
-}
-
-.selector-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: var(--bg-light);
-    border-radius: 12px;
-    padding: 2px 8px;
-    border: 1px solid var(--border-color);
-    transition: all 0.2s ease;
-}
-
-#league-select {
-    appearance: none;
-    background: transparent;
-    border: none;
-    padding: 10px 35px 10px 12px;
-    font-size: 0.95rem;
-    font-weight: 700;
+body {
+    margin: 0; padding: 0;
+    background-color: var(--bg-color);
     color: var(--text-main);
-    cursor: pointer;
-    width: 100%;
-    outline: none;
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    line-height: 1.5;
+    overflow-x: hidden;
 }
 
-
-
-
-
-/* 3. LOGIN SCREEN CONTAINER */
+/* --- LOGIN SCREEN --- */
 #login-screen {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
+    position: fixed; inset: 0;
+    background: var(--bg-color);
+    z-index: 5000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px;
 }
 
-.login-wrapper {
+.promo-card, .login-card {
     width: 100%;
     max-width: 420px;
-}
-
-
-
-/* TOP ICON NAVIGATION */
-.top-icon-nav {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background: #0a1421; /* Dark navy from your image */
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    height: 70px;
-    padding: 5px 0;
-    border-bottom: 2px solid #1a2635;
-}
-
-.nav-item {
-    background: none;
-    border: none;
-    color: #8e99a7; /* Muted blue-grey */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    cursor: pointer;
-    flex: 1;
-    transition: all 0.2s ease;
-    padding: 8px 0;
-}
-
-.nav-item svg {
-    width: 20px;
-    height: 20px;
-    stroke-width: 2.5px;
-}
-
-.nav-item span {
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: capitalize;
-    letter-spacing: 0.3px;
-}
-
-/* Active State Styles */
-.nav-item.active {
-    color: #ffffff; /* White text for active state as per image */
-    position: relative;
-}
-
-/* Optional: Add a small indicator line under the active item */
-.nav-item.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    width: 30%;
-    height: 3px;
-    background: var(--fpl-red);
-    border-radius: 10px 10px 0 0;
-}
-
-.nav-item:hover {
-    color: #ffffff;
-}
-
-/* Dark Mode adjustment - slightly lighter background to pop */
-body.dark-mode .top-icon-nav {
-    background: #070d16;
-}
-
-.brand-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.brand-logo {
-    width: 60px;
-    height: 60px;
-    background: var(--fpl-red);
-    color: white;
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    font-weight: 900;
-    margin: 0 auto 10px;
-}
-
-.brand-header h1 {
-    margin: 0;
-    font-size: 1.6rem;
-    letter-spacing: 1px;
-    color: var(--text-main);
-}
-
-/* 4. THE EXACT IMAGE STYLE CARD */
-.simple-login-card {
     background: var(--card-bg);
-    border-radius: var(--radius-card);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-    overflow: hidden;
+    backdrop-filter: var(--glass-blur);
     border: 1px solid var(--border-color);
 }
 
-.login-instruction {
-    font-size: 0.9rem;
-    font-weight: 800;
+.promo-card {
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 16px;
     text-align: center;
-    padding: 25px 20px;
-    margin: 0;
-    letter-spacing: 0.2px;
-    color: #1a1a1a;
-    text-transform: uppercase;
+    box-shadow: var(--shadow-sm);
 }
 
-/* Input Area Container */
-.input-area {
-    padding: 0 15px 15px 15px;
+.promo-card h3 { margin: 0; font-size: 1rem; font-weight: 700; opacity: 0.9; }
+
+.promo-link { 
+    color: var(--primary-blue); 
+    text-decoration: none; 
+    font-size: 0.85rem; 
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 8px;
 }
 
-#team-id-input {
-    width: 100%;
-    border: 1px solid var(--border-color);
-    border-radius: 6px; /* Matches the square-ish input in image */
-    padding: 20px 10px;
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #8292a2; /* Muted blue-grey from image */
-    background: #ffffff;
-    outline: none;
-    box-sizing: border-box;
+.login-card {
+    border-radius: 32px;
+    padding: 32px;
+    box-shadow: var(--shadow-lg);
+}
+
+/* --- THEME TOGGLE --- */
+.theme-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 32px;
+}
+
+.theme-label { font-weight: 700; color: var(--text-muted); }
+
+.toggle-container { 
+    display: flex; 
+    background: rgba(0,0,0,0.05); 
+    padding: 4px; 
+    border-radius: 100px; 
+}
+
+body.dark-mode .toggle-container { background: rgba(255,255,255,0.05); }
+
+.toggle-btn {
+    border: none; padding: 8px 20px; border-radius: 100px; 
+    font-weight: 700; font-size: 0.9rem; cursor: pointer;
+}
+
+.toggle-btn.active { background: var(--primary-blue); color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4); }
+.toggle-btn.inactive { background: transparent; color: var(--text-muted); }
+
+/* --- FORM ELEMENTS --- */
+.login-card h2 { margin-top: 0; font-size: 1.5rem; font-weight: 800; }
+
+.fpl-input { 
+    width: 100%; padding: 18px; border-radius: 16px; 
+    border: 2px solid var(--border-color); 
+    font-size: 1rem; margin-bottom: 20px;
+    background: var(--bg-color); color: var(--text-main);
     transition: border-color 0.2s;
 }
 
-#team-id-input::placeholder {
-    color: #8292a2;
-    text-transform: uppercase;
-    font-size: 1.1rem;
+.fpl-input:focus { border-color: var(--primary-blue); }
+
+.continue-btn { 
+    width: 100%; padding: 18px; background: var(--primary-blue); color: white; 
+    border: none; border-radius: 16px; font-weight: 700; font-size: 1rem; 
+    cursor: pointer; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
 }
 
-#team-id-input:focus {
-    border-color: var(--fpl-red);
+.continue-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+/* --- NAVIGATION --- */
+.top-nav {
+    position: fixed; top: 0; width: 100%; height: 65px;
+    background: var(--card-bg); backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--border-color);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; z-index: 3000;
 }
 
-/* Split Footer Logic */
-.login-footer-actions {
-    display: flex;
+.logo-container { font-weight: 900; font-size: 1.3rem; letter-spacing: -0.5px; }
+.logo-container span { color: var(--fpl-green); }
+
+.bottom-nav {
+    position: fixed; bottom: 0; width: 100%; height: 75px;
+    background: var(--card-bg); backdrop-filter: var(--glass-blur);
     border-top: 1px solid var(--border-color);
-    height: 85px; /* Taller footer as seen in image */
-    align-items: stretch;
+    display: grid; grid-template-columns: repeat(8, 1fr);
+    padding: 8px 0; z-index: 3000;
 }
 
-.help-link {
-    flex: 1.2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: #00a162; /* The specific teal-green from image */
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 0 15px;
-    text-align: center;
-}
-
-.enter-id-btn {
-    flex: 1;
-    border: none;
-    background: #eeeeee; /* Grey background from image */
-    color: #8292a2; /* Grey text from image */
-    font-weight: 800;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: 0.2s;
-    text-transform: uppercase;
-    border-left: 1px solid var(--border-color);
-    margin: 4px; /* Slight inset for the button style */
-    border-radius: 4px;
-}
-
-.enter-id-btn:hover {
-    background: #e2e2e2;
-}
-
-
-
-
-/* IMPACT SECTIONS (Differentials & Threats) */
-.impact-section {
-    background: linear-gradient(to right, #a3c9e2, #78ffd6); /* Matches the cyan/blue gradient in photo */
-    padding: 2px; /* For the border effect */
-    margin-top: 10px;
-}
-
-.impact-header {
-    background: #e1e1e1;
-    padding: 8px 15px;
-    font-weight: 800;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    color: #1a1a1a;
-}
-
-.impact-header.warning {
-    background: #a3c9e2;
-}
-
-.impact-info {
-    background: #a3c9e2;
-    font-size: 0.65rem;
-    padding: 2px 15px;
-    color: #333;
-    font-style: italic;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-}
-
-.player-impact-grid {
-    background: #ffffff;
-    display: flex;
-    justify-content: space-around;
-    padding: 15px 5px;
-    gap: 5px;
-}
-
-.player-impact-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 22%;
-}
-
-.shirt-wrapper img {
-    width: 45px;
-    margin-bottom: 5px;
-}
-
-.player-name-tag {
-    background: #242f3d;
-    color: white;
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 4px;
-    width: 100%;
-    text-align: center;
-    font-weight: 700;
-}
-
-.player-pts-tag {
-    font-size: 0.8rem;
-    color: #666;
-    margin: 2px 0;
-}
-
-.impact-badge {
-    font-size: 0.7rem;
-    font-weight: 800;
-    padding: 3px 6px;
-    border-radius: 6px;
-    width: 90%;
-    text-align: center;
-}
-
-.impact-badge.gain {
-    background: #ccffcc;
-    color: #008d4c;
-}
-
-.impact-badge.loss {
-    background: #ffcccc;
-    color: #e90052;
-}
-
-
-
-
-/* MANAGER DASHBOARD STYLES */
-.manager-dashboard {
-    background: #ffffff;
-    border-radius: 12px;
-    overflow: hidden;
-    margin: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    font-family: 'Segoe UI', Roboto, sans-serif;
-}
-
-.status-header {
-    background: #a3c9e2; /* Light blue header from image */
-    padding: 8px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #1a1a1a;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-}
-
-.main-stats-container {
-    display: flex;
-    border-bottom: 1px solid #eee;
-}
-
-.status-box {
-    flex: 1;
-    padding: 20px 10px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.arrow-box {
-    border-right: 1px solid #eee;
-}
-
-.status-icon {
-    width: 40px;
-    height: 40px;
-    background: #00ff85; /* FPL Green */
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-}
-
-.status-label {
-    margin: 0;
-    font-size: 0.75rem;
-    color: #666;
-}
-
-.status-text-wrap h3 {
-    margin: 2px 0;
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: #008d4c; /* Darker green */
-}
-
-.status-text-wrap h2 {
-    margin: 2px 0;
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #1a1a1a;
-}
-
-.status-detail {
-    margin: 0;
-    font-size: 0.8rem;
-    color: #888;
-}
-
-.manager-info-footer {
-    padding: 15px;
-    background: #f8f9fa;
-    text-align: center;
-}
-
-#disp-name {
-    margin: 0 0 5px 0;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--fpl-purple);
-}
-
-.mini-stat {
-    font-size: 0.85rem;
-    color: #666;
-    font-weight: 600;
-}
-
-.highlight-stat {
-    color: var(--fpl-red);
-    font-weight: 800;
-}
-
-/* Dark Mode adjustment */
-body.dark-mode .manager-dashboard { background: #1c242d; }
-body.dark-mode .status-header { background: #2c3b4a; color: white; }
-body.dark-mode .status-text-wrap h2 { color: white; }
-body.dark-mode .manager-info-footer { background: #242f3d; }
-
-
-
-
-
-/* Transparent container, no background */
-.main-tabs {
-    display: flex;
-    justify-content: flex-start;
-    padding: 10px 20px;
-    background: #ffffff;
-    border-bottom: 1px solid #eeeeee;
-}
-
-.tab-container {
-    display: flex;
-    gap: 25px; /* Spacing between text links */
-}
-
-/* Reset button to simple text */
-.tab-btn {
-    background: none;
-    border: none;
-    padding: 8px 0;
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #888888; /* Muted color for inactive */
-    cursor: pointer;
-    position: relative;
-    transition: color 0.2s ease;
-}
-
-/* Active State: Bold text with a simple underline */
-.tab-btn.active {
-    color: #000000; /* Solid black for active */
-    font-weight: 700;
-}
-
-/* Simple Underline Indicator */
-.tab-btn.active::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: #e90052; /* FPL Red underline */
-}
-
-/* Dark Mode Adjustment */
-body.dark-mode .main-tabs {
-    background: #171e28;
-    border-bottom: 1px solid #242f3d;
-}
-
-body.dark-mode .tab-btn.active {
-    color: #ffffff;
-}
-
-body.dark-mode .tab-btn {
-    color: #869099;
-}
-
-
-
-/* The container for the player image */
-.shirt-wrapper, .player-face-wrapper, .compare-card {
-    position: relative;
-    background-color: #f6f7f8;
-    overflow: hidden;
-}
-
-/* The Shimmer Animation */
-.skeleton-loading::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.6) 50%,
-        rgba(255, 255, 255, 0) 100%
-    );
-    animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
-
-
-
-
-
-/* Container for the whole player unit - Transparent */
-.player-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 80px; 
-    background: transparent !important; /* Removes the white/grey boxes */
-    border-bottom: none !important;      /* Removes the divider lines */
-    padding: 10px 0;
-}
-
-/* Remove Zebra Striping */
-.player-card:nth-child(even) {
-    background: transparent !important;
-}
-
-/* Circular Player Headshot */
-.img-container {
-    width: 65px;
-    height: 65px;
-    background: #ffffff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;    /* Changed from flex-start to center */
-    justify-content: center;
-    overflow: hidden;
-    margin-bottom: 8px; 
-    border: 2px solid #fff;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    position: relative;
-}
-
-.img-container img {
-    width: 105%;            /* Dropped from 130% to zoom out */
-    height: auto;
-    margin-top: 10%;         /* Slight push down to keep the head centered */
-    display: block;
-}
-
-/* Clean Text Styling (Matches your previous request) */
-.player-info {
-    text-align: center;
-    color: #ffffff; /* White text for visibility on green pitch */
-    font-family: 'Arial', sans-serif;
-}
-
-.p-name {
-    font-size: 0.85rem;
-    font-weight: 800;
-    margin-bottom: 2px;
-}
-
-.p-number, .p-points {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: #ffffff;
-}
-
-/* Ensure the comparison container is also transparent */
-.compare-container {
-    display: flex;
-    height: 70vh;
-    overflow-y: auto;
-    background-color: transparent !important; /* Remove the #f0f2f5 grey */
-}
-
-.team-column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid rgba(255,255,255,0.1); /* Subtle divider */
-}
-
-/* Player Name */
-.p-name {
-    font-size: 0.9rem;
-    font-weight: 800;
-    margin-bottom: 2px;
-}
-
-/* Player Number/Stat */
-.p-number {
-    font-size: 1.1rem;
-    font-weight: 800;
-}
-
-/* Skeleton loader remains the same if needed */
-.skeleton-loading {
-    background: #f6f7f8;
-    background-image: linear-gradient(90deg, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
-    background-repeat: no-repeat;
-    background-size: 800px 100%;
-    animation: shimmer 1.5s infinite linear;
-}
-
-@keyframes shimmer {
-    0% { background-position: -400px 0; }
-    100% { background-position: 400px 0; }
-}
-
-/* The Enhanced Button */
-.btn {
-    appearance: none;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: var(--text-color);
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.2s ease; /* Smooth transition for all properties */
-}
-
-/* Hover & Active States */
-.btn:hover {
-    background-color: var(--btn-hover);
-    transform: translateY(-1px); /* Slight lift */
-}
-
-.btn:active {
-    transform: translateY(1px) scale(0.98); /* Pressed look */
-}
-
-/* Icon Spacing */
-.icon {
-    margin-right: 14px;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Specific Style for Logout to make it pop */
-.btn-logout {
-    color: var(--tg-red);
-}
-
-.btn-logout:hover {
-    background-color: rgba(229, 57, 53, 0.1); /* Subtle red tint on hover */
-}
-
-/* Night Mode specific accent */
-.btn-theme .icon {
-    color: var(--tg-blue);
-}
-
-
-
-
-
-
-.compare-container {
-        display: flex;
-        height: 70vh; /* Adjust height as needed */
-        overflow-y: auto;
-        background-color: #f0f2f5; /* Light grey background like the image */
-    }
-
-    .team-column {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        border-right: 1px solid #ddd;
-    }
-
-    /* Sticky Header for Totals */
-    .team-header {
-        position: sticky;
-        top: 0;
-        background: #111827; /* Dark Telegram/Fantasy style */
-        color: white;
-        padding: 10px;
-        font-size: 13px;
-        font-weight: bold;
-        z-index: 10;
-    }
-
-    /* Player Card Styling */
-    .player-card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 15px 0;
-        border-bottom: 1px solid #e0e0e0;
-        background: #fff; /* Alternate row colors can be added via JS */
-    }
-
-    .player-card:nth-child(even) {
-        background: #e9ecef; /* Zebra striping like your screenshot */
-    }
-
-    .jersey-img {
-        width: 40px;
-        margin-bottom: 5px;
-    }
-
-    .player-name {
-        background: #212121;
-        color: white;
-        width: 80%;
-        text-align: center;
-        padding: 4px 0;
-        font-size: 14px;
-        font-weight: 500;
-    }
-
-    .percentage-bar {
-        background: #00ff87; /* Fantasy green */
-        width: 80%;
-        text-align: center;
-        padding: 4px 0;
-        font-size: 13px;
-        font-weight: bold;
-        color: #111;
-    }
-
-    .player-points {
-        background: #f8f9fa;
-        width: 80%;
-        text-align: center;
-        padding: 4px 0;
-        font-size: 14px;
-        color: #333;
-
-
-
-
-
-
-
-/* --- MINIMALIST FIXTURES (MATCHING PHOTO) --- */
-#fixtures-container {
-    background: #fff;
-    padding: 20px;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.fixture-day-group {
-    margin-bottom: 30px;
-    text-align: center;
-}
-
-.fixture-date-header {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #64748b; /* Subtle grey */
-    text-transform: uppercase;
-    margin-bottom: 15px;
-    letter-spacing: 0.5px;
-}
-
-.fixture-row {
-    display: grid;
-    grid-template-columns: 1fr 100px 1fr; /* Centers the score perfectly */
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f8fafc;
-}
-
-.fixture-row:last-child {
-    border-bottom: none;
-}
-
-.fixture-team {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #1e293b;
-}
-
-.team-home {
-    text-align: right;
-    padding-right: 15px;
-}
-
-.team-away {
-    text-align: left;
-    padding-left: 15px;
-}
-
-.fixture-score {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: #ff005a; /* The specific FPL pink/red from your photo */
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-}
-
-.score-dash {
-    color: #ff005a;
-}
-
-
-
-
-
-
-
-
-
-/* --- LIVE STATUS INDICATOR --- */
-.status-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.65rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    padding: 2px 8px;
-    border-radius: 20px;
-    background: rgba(0, 255, 135, 0.1);
-    color: #008a4a;
-}
-
-.pulse-dot {
-    width: 8px;
-    height: 8px;
-    background-color: #00ff87;
-    border-radius: 50%;
-    position: relative;
-}
-
-.pulse-dot::after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: #00ff87;
-    border-radius: 50%;
-    animation: live-pulse 1.5s infinite ease-out;
-}
-
-@keyframes live-pulse {
-    0% {
-        transform: scale(1);
-        opacity: 0.8;
-    }
-    100% {
-        transform: scale(3);
-        opacity: 0;
-    }
-}
-
-
-
-/* Default: Light Mode */
 .nav-item {
-    text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    color: #1e293b; /* Dark color for light background */
-    transition: color 0.3s ease;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--text-muted); text-decoration: none; font-size: 0.6rem; font-weight: 600;
 }
 
-.nav-item svg {
-    width: 24px;
-    height: 24px;
-    fill: none; /* Keeps the inside of the icon transparent */
+.nav-item.active { color: var(--primary-blue); }
+.nav-item i { font-size: 1.2rem; margin-bottom: 4px; }
+
+/* --- DASHBOARD ELEMENTS --- */
+.page-content { padding: 85px 16px 100px; max-width: 600px; margin: 0 auto; }
+
+.header-stats-grid { 
+    display: grid; grid-template-columns: repeat(3, 1fr); 
+    background: var(--card-bg); border-radius: 24px; 
+    padding: 20px; text-align: center; border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm); margin-bottom: 20px;
 }
 
-/* Dark Mode Detection */
-@media (prefers-color-scheme: dark) {
-    .nav-item {
-        color: #f8fafc; /* White/Light color for dark background */
-    }
+.stat-label { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 1.2rem; font-weight: 900; color: var(--text-main); }
+
+/* --- PITCH AREA --- */
+.pitch-container { 
+    background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 100%);
+    border-radius: 24px; padding: 20px 10px; min-height: 450px;
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
 }
 
-/* Hover effect for both modes */
-.nav-item:hover {
-    color: #00ff85; /* FPL Green on hover */
-}
+.player-card img { filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
+.p-info-box { border-radius: 6px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); }
+.p-name { background: #111; color: #fff; font-size: 0.6rem; padding: 3px; font-weight: 600; }
+.p-pts { background: #fff; color: #000; font-size: 0.8rem; font-weight: 900; padding: 2px; }
 
-
-/* FOOTER SPECIFIC STYLES */
-footer.fpl-footer {
-    background-color: #0b1120 !important; /* Forces the navy background */
-    color: #ffffff !important;
-    padding: 60px 20px 40px 20px !important;
-    margin-top: 50px !important;
-    font-family: 'Inter', sans-serif !important;
-    display: block !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-.footer-cta {
-    text-align: center;
-    margin-bottom: 50px;
-}
-
-.footer-cta p {
-    font-size: 18px;
-    margin-bottom: 25px;
-    font-weight: 500;
-}
-
-.signup-btn {
-    background-color: #1eb875 !important; /* Scout Green */
-    color: white !important;
-    padding: 14px 45px !important;
-    border-radius: 4px !important;
-    text-decoration: none !important;
-    font-weight: 700 !important;
-    font-size: 18px !important;
-    display: inline-block !important;
-}
-
-.footer-links {
-    display: flex !important;
-    justify-content: center !important;
-    flex-wrap: wrap !important;
-    gap: 60px !important;
-    max-width: 1100px;
-    margin: 0 auto 40px auto !important;
-    text-align: left;
-}
-
-.link-group h3 {
-    font-size: 15px !important;
-    font-weight: 800 !important;
-    margin-bottom: 20px !important;
-    color: #ffffff !important;
-}
-
-.link-group a {
-    display: block !important;
-    color: #ffffff !important;
-    text-decoration: none !important;
-    font-size: 14px !important;
-    margin-bottom: 12px !important;
-    opacity: 0.8;
-}
-
-.link-group a:hover {
-    opacity: 1;
-    color: #00ff85 !important;
-}
-
-.deadline-strip {
-    text-align: center;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    padding-top: 30px;
-    font-size: 13px;
-    color: #94a3b8;
-}
-
-#next-deadline-date {
-    color: #00ff85;
-    font-weight: bold;
-}
-
-/* Back to Top Button */
-.back-to-top {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background-color: #1eb875;
-    color: white;
-    border: none;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: none;
-    z-index: 9999;
-}
-
+/* --- ERROR STATES --- */
+.fpl-input.error { border-color: #ef4444; background: #fef2f2; }
+body.dark-mode .fpl-input.error { background: #450a0a; }
+.error-msg { color: #ef4444; font-size: 0.8rem; font-weight: 600; margin: -12px 0 12px 4px; display: none; }
