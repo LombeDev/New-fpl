@@ -159,6 +159,51 @@
     background: linear-gradient(transparent, rgba(0,0,0,0.2));
     pointer-events: none;
 }
+
+
+        /* --- SQUAD STATS BAR --- */
+.squad-stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 5px 5px;
+    flex-wrap: wrap;
+}
+
+.stat-pill {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stat-pill b {
+    color: #1e293b;
+    font-size: 0.7rem;
+}
+
+.transfer-pill {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 15px;
+    padding: 4px 15px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    margin: 10px auto 5px;
+    width: fit-content;
+    display: block;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.transfer-out { color: #ef4444; } /* Red for out */
+.transfer-in { color: #1a1a1b; }
+        
         /* --- BOTTOM NAV --- */
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; height: 80px;
@@ -286,35 +331,65 @@
                 </div>`).join('');
         }
 
-        async function expandManager(entryId) {
-            const row = document.getElementById(`entry-${entryId}`);
-            const squadBox = document.getElementById(`squad-${entryId}`);
-            const isActive = row.classList.toggle('active');
+      async function expandManager(entryId) {
+    const row = document.getElementById(`entry-${entryId}`);
+    const squadBox = document.getElementById(`squad-${entryId}`);
+    const isActive = row.classList.toggle('active');
 
-            if (isActive && squadBox.dataset.loaded !== "true") {
-                try {
-                    const res = await fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`);
-                    const data = await res.json();
-                    
-                    squadBox.innerHTML = data.picks.map(p => {
-                        const player = state.playerMap[p.element];
-                        const pts = (state.liveData[p.element] || 0) * (p.multiplier || 1);
-                        if(p.is_captain) document.getElementById(`cap-${entryId}`).textContent = player.name;
+    if (isActive && squadBox.dataset.loaded !== "true") {
+        try {
+            // Fetch both Picks and Entry Info for Team Value
+            const [picksRes, entryRes] = await Promise.all([
+                fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`),
+                fetch(`${state.PROXY}entry/${entryId}/`)
+            ]);
+            
+            const data = await picksRes.json();
+            const entryInfo = await entryRes.json();
+            
+            // Calculate Players Played (assuming pts > 0 or minute data if available)
+            // For simplicity here, we count players with non-zero live points
+            const playedCount = data.picks.filter(p => (state.liveData[p.element] !== undefined)).length;
+            const teamValue = (entryInfo.last_deadline_value / 10).toFixed(1);
+            const transfers = data.entry_history.event_transfers;
+            const transferCost = data.entry_history.event_transfers_cost;
 
-                        return `
-                            <div class="player-card">
-                                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${player.team}${player.pos === 1 ? '_1' : ''}-66.png" class="player-shirt">
-                                <div class="player-label">${player.name}${p.is_captain ? ' (C)' : ''}</div>
-                                <div class="player-pts">${pts}</div>
-                            </div>
-                        `;
-                    }).join('');
-                    squadBox.dataset.loaded = "true";
-                } catch (e) {
-                    squadBox.innerHTML = '<p style="padding:10px; color:red;">Failed to load squad.</p>';
-                }
-            }
+            // Stats Bar HTML
+            let html = `
+                <div class="squad-stats-bar">
+                    <div class="stat-pill">FT <b>${entryInfo.extra_free_transfers || 1}</b></div>
+                    <div class="stat-pill">TV <b>£${teamValue}</b></div>
+                    <div class="stat-pill">Played <b>${playedCount}/15</b></div>
+                </div>
+                <div class="transfer-pill">
+                    Transfers: <span class="transfer-out">${transfers}</span> 
+                    <span style="color:#94a3b8; font-weight:400;">(${transferCost} pts)</span>
+                </div>
+                <div class="squad-scroller">
+            `;
+
+            // Player Cards HTML
+            html += data.picks.map(p => {
+                const player = state.playerMap[p.element];
+                const pts = (state.liveData[p.element] || 0) * (p.multiplier || 1);
+                if(p.is_captain) document.getElementById(`cap-${entryId}`).textContent = player.name;
+
+                return `
+                    <div class="player-card">
+                        <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${player.team}${player.pos === 1 ? '_1' : ''}-66.png" class="player-shirt">
+                        <div class="player-label">${player.name}${p.is_captain ? ' (C)' : ''}</div>
+                        <div class="player-pts">${pts}</div>
+                    </div>
+                `;
+            }).join('') + `</div>`;
+
+            squadBox.innerHTML = html;
+            squadBox.dataset.loaded = "true";
+        } catch (e) {
+            squadBox.innerHTML = '<p style="padding:10px; color:red;">Failed to load data.</p>';
         }
+    }
+}
 
         init();
     </script>
