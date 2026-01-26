@@ -427,34 +427,6 @@
     }
 }
         init();
-        // Function to force-fetch all 20 team jerseys into the cache
-function preloadJerseys() {
-    for (let i = 1; i <= 20; i++) {
-        // Home Kits and GK Kits
-        const kits = [
-            `https://draft.premierleague.com/img/shirts/standard/shirt_${i}-66.png`,
-            `https://draft.premierleague.com/img/shirts/standard/shirt_${i}_1-66.png`
-        ];
-        
-        kits.forEach(url => {
-            const img = new Image();
-            img.src = url; // This triggers the Service Worker fetch event
-        });
-    }
-}
-
-// Update your init function to look like this:
-async function init() {
-    // A. Register the Service Worker
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(() => {
-            // B. Once registered, pre-load the jerseys
-            preloadJerseys();
-        });
-    }
-
-    // ... rest of your existing init() code ...
-}
     </script>
 </body>
 </html>
