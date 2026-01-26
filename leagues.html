@@ -85,60 +85,66 @@
         .gw-pts-cell { font-weight: 700; text-align: center; }
         .total-pts-cell { font-weight: 900; text-align: right; color: var(--live-fpl-blue); }
 
-      /* --- SQUAD EXPANSION (Ultra-Small Version) --- */
+      /* --- SQUAD EXPANSION (Grid/Pitch View) --- */
 .row-expansion { 
     max-height: 0; 
     overflow: hidden; 
-    transition: max-height 0.4s ease; 
-    background: var(--bg-color); 
+    transition: max-height 0.5s ease-in-out; 
+    background: #e2e8f0; /* Light grey/blue background like the photo */
 }
 
 .manager-row.active .row-expansion { 
-    max-height: 120px; /* Further reduced height */
+    max-height: 350px; /* Increased to fit two+ lines */
     border-top: 1px solid var(--border-color); 
 }
 
 .squad-scroller { 
     display: flex; 
-    overflow-x: auto; 
-    gap: 4px; /* Very tight gap */
-    padding: 8px 5px; 
+    flex-wrap: wrap; /* Allows players to move to the next line */
+    justify-content: center; /* Centers the "team" */
+    gap: 6px; 
+    padding: 12px 5px; 
 }
 
 .player-card { 
-    min-width: 42px; /* Ultra small */
+    width: 42px; /* Fixed width to ensure even rows */
     text-align: center; 
-    background: var(--card-bg); 
+    background: rgba(255, 255, 255, 0.8); /* Semi-transparent card */
     border-radius: 4px; 
-    padding: 2px; 
-    border: 1px solid var(--border-color); 
-    flex-shrink: 0; /* Prevents cards from squishing */
+    padding: 4px 2px; 
+    border: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .player-shirt { 
-    width: 20px; /* Micro size */
+    width: 22px; 
     height: auto;
-    margin: 0 auto;
+    margin-bottom: 2px;
 }
 
 .player-label { 
-    background: #000; 
-    color: #fff; 
-    font-size: 0.45rem; /* Micro text */
-    padding: 1px 2px; 
-    font-weight: 600; 
-    border-radius: 2px; 
-    margin-top: 2px; 
+    background: transparent; /* Changed to match the clean look in photo */
+    color: #333; 
+    font-size: 0.5rem; 
+    font-weight: 800; 
+    width: 100%;
     overflow: hidden; 
     white-space: nowrap; 
     text-overflow: ellipsis;
 }
 
 .player-pts { 
+    background: #fff; /* White box for points like the photo */
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
     font-size: 0.6rem; 
-    font-weight: 800; 
-    color: var(--live-fpl-blue); /* Blue makes the score pop at small sizes */
-    margin-top: 1px; 
+    font-weight: 900; 
+    color: #1a1a1b; 
+    width: 80%;
+    margin-top: 2px;
+    padding: 1px 0;
 }
         /* --- BOTTOM NAV --- */
         .bottom-nav {
