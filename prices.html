@@ -4,38 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Prices - Kopala FPL</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body class="dark-mode">
 
     <header class="top-nav">
         <div class="nav-icon-btn"><i class="fa-solid fa-circle-user"></i></div>
         <div class="logo-container">Kopala<span>▲</span>FPL</div>
-        <div class="nav-icon-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></div>
+        <div class="nav-icon-btn" onclick="toggleTheme()">
+            <i class="fa-solid fa-sun" id="theme-icon"></i>
+        </div>
     </header>
 
-    <main>
+    <main style="margin-top: 65px;">
         <div class="timer-banner">
-            <div style="font-size: 0.7rem; margin-bottom: 5px; opacity: 0.8;">NEXT PRICE CHANGE COUNTDOWN:</div>
+            <div style="font-size: 0.7rem; margin-bottom: 8px; opacity: 0.8; font-weight: 700;">NEXT PRICE CHANGE COUNTDOWN:</div>
             <span class="countdown-display" id="price-timer">00 hr 00 min 00 sec</span>
         </div>
 
-        <div class="summary-section">
+        <div class="price-section">
             <div class="section-title">Price Predictions</div>
             <div class="filter-bar">
-                <select id="teamFilter" onchange="render()">
-                    <option value="all">All Teams</option>
-                </select>
-                <div style="display:flex; align-items:center; gap:5px;">
+                <select id="teamFilter" onchange="render()"><option value="all">All Teams</option></select>
+                <div style="display:flex; align-items:center; gap:8px;">
                     <input type="checkbox" id="minOwnCheck" checked onchange="render()">
-                    <span>Min Own: <input type="number" id="minOwnVal" value="1" style="width:30px" oninput="render()"> %</span>
+                    <span>Min Own: <input type="number" id="minOwnVal" value="1" style="width:35px" oninput="render()"> %</span>
                 </div>
             </div>
             <table class="summary-table">
                 <thead>
-                    <tr><th style="border-right: 1px solid #444;">Predicted Rises</th><th>Predicted Falls</th></tr>
+                    <tr><th>Predicted Rises</th><th>Predicted Falls</th></tr>
                 </thead>
                 <tbody id="summary-grid">
                     <tr><td colspan="2" class="label-row">Ready for Price Change</td></tr>
@@ -48,62 +47,52 @@
             </table>
         </div>
 
-        <div class="watchlist-section">
+        <div class="price-section">
             <div class="section-title"><i class="fa-solid fa-star" style="color:#fbbf24"></i> My Watchlist</div>
-            <div class="watchlist-controls">
-                <div class="search-container">
-                    <input type="text" id="playerSearch" class="search-input" placeholder="Search player to add..." oninput="handleSearch(this.value)">
+            <div class="watchlist-controls" style="padding: 12px; border-bottom: 1px solid var(--border-color);">
+                <div class="search-container" style="position:relative; margin-bottom: 10px;">
+                    <input type="text" id="playerSearch" class="search-input" placeholder="Search player to add..." oninput="handleSearch(this.value)" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border-color); background: var(--bg-color); color: var(--text-main);">
                     <div id="searchResults" class="search-results"></div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem;">
                     <input type="checkbox" id="sortWatchlist" onchange="render()"> 
                     <span>Auto-sort by target proximity</span>
                 </div>
             </div>
-            <div id="watchlist-grid" class="watchlist-container">
-                <div class="empty-msg">No players added to watchlist yet.</div>
+            <div id="watchlist-grid" class="watchlist-container" style="display:flex; flex-wrap:wrap; justify-content:center; padding:10px;">
+                <div class="empty-msg">No players on watchlist</div>
             </div>
         </div>
 
-        <div class="history-section">
+        <div class="price-section">
             <div class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Price Changes</div>
-            <table class="data-table">
-                <thead>
-                    <tr><th>Player</th><th>Team</th><th>Change</th><th>Price</th></tr>
+            <table class="data-table" style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+                <thead style="background: var(--header-bg); color: white;">
+                    <tr><th style="padding:10px; text-align:left;">Player</th><th style="padding:10px;">Team</th><th style="padding:10px;">Change</th><th style="padding:10px;">Price</th></tr>
                 </thead>
                 <tbody id="history-body"></tbody>
-            </table>
-        </div>
-
-        <div class="transfers-section">
-            <div class="section-title"><i class="fa-solid fa-right-left"></i> Popular Transfers</div>
-            <table class="data-table">
-                <thead>
-                    <tr><th>Player</th><th>Net (Today)</th></tr>
-                </thead>
-                <tbody id="transfer-body"></tbody>
             </table>
         </div>
     </main>
 
     <div id="playerModal" class="modal">
         <div class="modal-content">
-            <i id="modal-fav" class="fa-solid fa-star fav-btn" onclick="toggleWatchlist()"></i>
-            <span class="close-modal" onclick="closeModal()">&times;</span>
-            <img id="modal-shirt" src="" style="width: 80px;">
-            <h2 id="modal-name" style="margin: 10px 0 5px;">Player Name</h2>
-            <div id="modal-pos" style="color: var(--text-muted); font-size: 0.9rem;">MID | Team</div>
+            <i id="modal-fav" class="fa-solid fa-star fav-btn" style="position:absolute; left:20px; top:20px; font-size:1.4rem; color:var(--text-muted);" onclick="toggleWatchlist()"></i>
+            <span class="close-modal" style="position:absolute; right:20px; top:15px; font-size:1.8rem;" onclick="closeModal()">&times;</span>
+            <img id="modal-shirt" src="" style="width: 70px;">
+            <h2 id="modal-name" style="margin: 15px 0 5px; font-weight:900;">Player Name</h2>
+            <div id="modal-pos" style="color: var(--text-muted); font-size: 0.9rem; font-weight:700;">MID | Team</div>
             
             <div class="progress-container">
                 <div id="modal-progress" class="progress-fill"></div>
             </div>
-            <div id="modal-target-text" style="font-size: 0.8rem; font-weight: 800; margin-bottom: 10px;">0% to target</div>
+            <div id="modal-target-text" style="font-size: 0.85rem; font-weight: 800; margin-bottom: 15px;">0% to target</div>
 
             <div class="stat-grid">
                 <div class="stat-box">Price <span class="stat-val" id="modal-price">£0.0</span></div>
                 <div class="stat-box">Owned <span class="stat-val" id="modal-own">0%</span></div>
-                <div class="stat-box">In <span class="stat-val" id="modal-in" style="color:var(--fpl-green)">0</span></div>
-                <div class="stat-box">Out <span class="stat-val" id="modal-out" style="color:var(--fpl-pink)">0</span></div>
+                <div class="stat-box">In Today <span class="stat-val" id="modal-in" style="color:var(--fpl-green)">0</span></div>
+                <div class="stat-box">Out Today <span class="stat-val" id="modal-out" style="color:var(--fpl-pink)">0</span></div>
             </div>
         </div>
     </div>
@@ -114,8 +103,8 @@
         <a href="prices.html" class="nav-item active"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
         <a href="games.html" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
         <a href="members.html" class="nav-item"><i class="fa-solid fa-user-tie"></i><span>Members</span></a>
+        <a href="10k.html" class="nav-item"><i class="fa fa-bar-chart"></i><span>You vs 10k/span></a>
         <a href="https://wa.me/260964836842" class="nav-item"><i class="fa-brands fa-whatsapp"></i><span>Support</span></a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-circle-info"></i><span>About</span></a>
         <a href="#" class="nav-item"><i class="fa-solid fa-ellipsis-h"></i><span>More</span></a>
     </nav>
 
