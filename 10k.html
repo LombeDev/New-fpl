@@ -220,6 +220,59 @@
 
 
 
+        /* This pushes the entire section down so it doesn't hide under the fixed header */
+.sync-section-wrapper {
+    margin-top: 70px; /* Header is 60px, so 70px gives a nice 10px gap */
+    padding: 0 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.sync-container {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 16px;
+    padding: 12px 15px;
+    border: 1px solid #e2e8f0;
+    gap: 10px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#team-id {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 16px; /* Prevents mobile zoom-in on focus */
+}
+
+#sync-btn {
+    height: 42px;
+    background: var(--primary);
+    color: white;
+    padding: 0 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Ensure the error text doesn't push the button out of alignment */
+.error-text {
+    font-size: 0.7rem;
+    color: var(--danger);
+    margin-top: 4px;
+    display: none; /* Controlled by your JS */
+}
+
+
+
 
         /* Native App Feel Enhancements */
 :root {
@@ -303,13 +356,15 @@ header {
         <div class="nav-icon-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></div>
     </header>
     
-<div class="sync-container" style="background: white; border-radius: 16px; margin: 20px 10px; border: 1px solid #e2e8f0;">
-    <div style="flex: 1; display: flex; flex-direction: column;">
-        <input type="text" id="team-id" placeholder="Paste FPL ID here...">
-        <span id="id-error" class="error-text">ID not found. Please try again.</span>
+<section class="sync-section-wrapper">
+    <div class="sync-container">
+        <div class="input-group">
+            <input type="text" id="team-id" placeholder="Paste FPL ID here...">
+            <span id="id-error" class="error-text">ID not found. Please try again.</span>
+        </div>
+        <button id="sync-btn" onclick="fetchFPLData()">Sync</button>
     </div>
-    <button id="sync-btn" onclick="fetchFPLData()">Sync</button>
-</div>
+</section>
   
        
 
