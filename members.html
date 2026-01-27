@@ -9,79 +9,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <style>
-        :root {
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --primary-blue: #2563eb;
-            --fpl-green: #00ff85;
-            --fpl-pink: #e90052;
-            --border-color: #e2e8f0;
-            --success-bg: #dcfce7;
-            --success-text: #15803d;
-            --warning-bg: #fef9c3;
-            --warning-text: #a16207;
-        }
-
-        body.dark-mode {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-        }
-
-        * { -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); font-family: -apple-system, system-ui, sans-serif; padding-bottom: 90px; }
-
-        /* --- TOP NAV --- */
-        .top-nav { position: fixed; top: 0; width: 100%; height: 60px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-sizing: border-box; z-index: 3000; }
-        .logo-container { font-weight: 900; font-size: 1.4rem; letter-spacing: -1px; }
-        .logo-container span { color: var(--fpl-green); }
-
-        /* --- CONTROLS --- */
-        .controls-wrapper { margin-top: 60px; background: var(--card-bg); padding: 15px; border-bottom: 1px solid var(--border-color); }
-        .member-header h2 { margin: 0; font-size: 1.1rem; color: var(--primary-blue); text-align: center; }
-        .stats-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
-        .stat-badge { font-size: 0.65rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; background: var(--bg-color); border: 1px solid var(--border-color); }
-        .select-row { display: grid; grid-template-columns: 1fr 80px; gap: 8px; margin-bottom: 12px; }
-        select { padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-weight: 600; }
-
-        /* --- TABLE --- */
-        .table-header { background: #0b141b; color: #94a3b8; padding: 10px 8px; display: grid; grid-template-columns: 25px 1fr 50px 50px 40px 50px; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
-        .manager-row { background: var(--card-bg); border-bottom: 1px solid var(--border-color); }
-        .row-summary { display: grid; grid-template-columns: 25px 1fr 50px 50px 40px 50px; padding: 12px 8px; align-items: center; cursor: pointer; }
-        .pos-cell { font-weight: 900; color: var(--text-muted); font-size: 0.75rem; }
-        .name-cell b { font-weight: 800; font-size: 0.75rem; display: block; color: var(--text-main); }
-        .status-badge { font-size: 0.55rem; padding: 2px 4px; border-radius: 4px; font-weight: 900; text-align: center; }
-        .status-paid { background: var(--success-bg); color: var(--success-text); }
-        .status-pending { background: var(--warning-bg); color: var(--warning-text); }
-
-        /* --- SQUAD PITCH EXPANSION --- */
-        .row-expansion { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; background-image: url('https://fantasy.premierleague.com/static/media/pitch-default.7937318e.svg'); background-size: cover; background-position: center; position: relative; }
-        .manager-row.active .row-expansion { max-height: 450px; border-top: 1px solid var(--border-color); }
-        
-        .squad-scroller { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 4px; padding: 15px 5px; backdrop-filter: blur(1px); }
-        .player-card { width: 45px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-        .player-shirt { width: 26px; height: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
-        .player-label { color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); font-size: 0.5rem; font-weight: 700; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;}
-        .player-pts { background: #ffffff; color: #1a1a1b; font-size: 0.65rem; font-weight: 900; border-radius: 4px; width: 28px; text-align: center; margin-top: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-
-        /* --- STATS PILLS & TRANSFERS --- */
-        .squad-stats-bar { display: flex; justify-content: center; gap: 6px; padding: 10px 5px 0; flex-wrap: wrap; }
-        .stat-pill { background: rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 3px 10px; font-size: 0.6rem; font-weight: 700; color: #334155; border: 1px solid #cbd5e1; }
-        .transfer-row { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 4px 12px; font-size: 0.6rem; font-weight: 700; margin: 8px auto; width: fit-content; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .t-out { text-decoration: line-through; color: #64748b; }
-        .t-in { color: #1e293b; font-weight: 800; }
-
-        /* --- BOTTOM NAV --- */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--card-bg); border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(8, 1fr); padding: 5px 0; z-index: 3000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px; }
-        .nav-item.active { color: var(--primary-blue); }
-        #scrollTopBtn { display: none; position: fixed; bottom: 90px; right: 20px; z-index: 99; border: none; background: var(--primary-blue); color: white; width: 45px; height: 45px; border-radius: 50%; }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    
 </head>
 <body class="dark-mode">
 
@@ -128,8 +57,8 @@
         <a href="prices.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
         <a href="games.html" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
         <a href="members.html" class="nav-item active"><i class="fa-solid fa-user-tie"></i><span>Members</span></a>
+        <a href="10k.html" class="nav-item"><i class="fa fa-bar-chart"></i><span>You vs 10k</span></a>
         <a href="https://wa.me/260964836842" class="nav-item"><i class="fa fa-comments"></i><span>Support</span></a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-circle-info"></i><span>About</span></a>
         <a href="#" class="nav-item"><i class="fa fa-ellipsis-h"></i><span>More</span></a>
     </nav>
 
