@@ -3,31 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopala FPL </title>
+    <title>Kopala FPL - Pro Analytics</title>
 
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Kopala FPL">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5323/5323982.png">
-    <link rel="stylesheet" href="style.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
-    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --pitch: #27ae60;
+            --dark: #1e293b;
+            --bg: #f1f5f9;
+            --danger: #ef4444;
+            --success: #10b981;
+            --bench: #64748b;
+            --out-gray: #e2e8f0;
+            --accent: #0ea5e9;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 40px; color: #334155; }
+
+         * {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+
+         /* Theme Toggle Row */
+        .theme-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .theme-label { font-weight: 700; color: var(--text-muted); font-size: 1.1rem; }
+        .toggle-container { display: flex; background: var(--bg-color); padding: 5px; border-radius: 40px; gap: 4px; }
+        .toggle-btn {
+            border: none; padding: 10px 22px; border-radius: 30px; 
+            font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: 0.2s;
+        }
+        .toggle-btn.active { background: var(--primary-blue); color: white; }
+        .toggle-btn.inactive { background: transparent; color: var(--text-muted); }
+
+
+        
+/* --- NAV & STATS (Hidden until Login) --- */
+        .top-nav {
+            position: fixed; top: 0; width: 100%; height: 60px;
+            background: var(--card-bg); border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; box-sizing: border-box; z-index: 3000;
+        }
+
+ .logo-container { font-weight: 900; font-size: 1.4rem; letter-spacing: -1px; color: var(--text-main); }
+        .logo-container span { color: var(--fpl-green); }
+        .page-content { padding-top: 75px; padding-bottom: 100px; min-height: 100vh; box-sizing: border-box; }
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; height: 80px;
+            background: var(--card-bg); border-top: 1px solid var(--border-color);
+            display: grid; grid-template-columns: repeat(8, 1fr);
+            padding: 5px 0; box-sizing: border-box; z-index: 3000;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px;
+        }
+        .nav-item.active { color: var(--primary-blue); }
+        .nav-item i { font-size: 1.2rem; display: block; }
+
+
+        
+        header { background: #fff; padding: 10px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 8px; position: sticky; top: 0; z-index: 1000; }
+        input { flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; outline: none; }
+        button { background: var(--primary); color: #fff; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+
+        .container { width: 96%; max-width: 500px; margin: 15px auto; display: flex; flex-direction: column; gap: 20px; }
+        .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; }
+        
+        /* Rank Dashboard Styles */
+        .rank-header { background: linear-gradient(135deg, #bae6fd 0%, #f0f9ff 100%); padding: 15px; border-bottom: 1px solid #e2e8f0; }
+        .rank-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+        .stat-tile { background: #fff; padding: 12px 5px; text-align: center; }
+        .stat-tile span { display: block; font-size: 0.65rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
+        .stat-tile strong { font-size: 1rem; display: block; color: #1e293b; }
+
+
+
+        .sync-container {
+    display: flex;
+    justify-content: center; /* Centers the items horizontally */
+    align-items: center;
+    padding: 15px;
+    background-color: #f4f4f4; /* Optional background to distinguish it */
+    gap: 10px; /* Adds space between the input and the button */
+}
+
+#team-id {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.sync-container button {
+    padding: 8px 16px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+        /* Headers */
+        .card-header { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+        .card-header h3 { margin: 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header-blue { background: linear-gradient(90deg, #93c5fd, #fff); }
+        .header-dark { background: linear-gradient(90deg, #334155, #fff); color: #fff !important; }
+        .header-pop { background: linear-gradient(90deg, #60a5fa, #fff); }
+
+        /* Pitch UI */
+        .pitch { background: var(--pitch); background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 20px 20px; padding: 15px 5px; display: flex; flex-direction: column; gap: 10px; }
+        .pitch-row { display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; }
+        
+        .player-mini { width: 60px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .jersey { width: 25px; margin-bottom: 2px; }
+        .name-tag { background: var(--dark); color: #fff; font-size: 0.5rem; width: 100%; padding: 2px 0; border-radius: 3px 3px 0 0; white-space: nowrap; overflow: hidden; }
+        .pts-tag { width: 100%; font-size: 0.75rem; font-weight: 800; padding: 3px 0; border-radius: 0 0 3px 3px; border: 1px solid #ddd; }
+        .pts-in { background: var(--success); color: #fff; }
+        .pts-out { background: var(--out-gray); color: #000; }
+
+        /* Table UI */
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        th { background: #1e293b; color: #fff; padding: 8px; text-align: center; }
+        td { padding: 10px 5px; border-bottom: 1px solid #f1f5f9; text-align: center; vertical-align: middle; }
+        
+        .hit-badge { background: #fee2e2; color: #ef4444; font-size: 0.6rem; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+        .vol-badge { font-size: 0.6rem; color: #64748b; display: block; margin-top: 2px; }
+        .rise-alert { color: var(--success); font-weight: bold; margin-left: 2px; }
+
+        .hidden { display: none; }
+
+
+        /* Validation Styling */
+.input-error {
+    border: 2px solid var(--danger) !important;
+    background-color: #fff1f2 !important;
+}
+
+.error-text {
+    color: var(--danger);
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-top: 4px;
+    display: none;
+}
+
+/* Shake Animation for incorrect input */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.2s ease-in-out 0s 2;
+}
+
+
+
+
+        /* Native App Feel Enhancements */
+:root {
+    --card-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+    --glass-bg: rgba(255, 255, 255, 0.85);
+}
+
+/* Prevent text selection & pull-to-refresh feel */
+body {
+    user-select: none;
+    -webkit-user-select: none;
+    overscroll-behavior-y: contain; /* Prevents "bounce" in some browsers */
+}
+
+/* Glassmorphism Sticky Nav */
+header {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: env(safe-area-inset-top) 15px 10px; /* Supports Notch phones */
+    height: auto;
+}
+
+/* Native Card Look */
+.card {
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    box-shadow: var(--card-shadow);
+    margin-bottom: 12px;
+}
+
+/* Floating Bottom Navigation */
+.bottom-nav {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    padding-bottom: env(safe-area-inset-bottom); /* Fix for Home Indicator */
+    height: calc(70px + env(safe-area-inset-bottom));
+}
+
+/* Active Nav Indicator */
+.nav-item.active i {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+    color: var(--primary);
+}
+
+/* Smooth Input */
+#team-id {
+    border: 1.5px solid #e2e8f0;
+    transition: all 0.3s ease;
+    font-size: 16px; /* Prevents iOS auto-zoom on focus */
+}
+
+#team-id:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Styled Button */
+#sync-btn {
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    transition: transform 0.1s active;
+}
+
+#sync-btn:active {
+    transform: scale(0.96);
+}
+    </style>
 </head>
 <body>
 
-<header>
-    <header class="top-nav">
+<header class="top-nav">
         <div class="nav-icon-btn" onclick="resetTeamID()" style="cursor: pointer;">
     <i class="fa-solid fa-circle-user"></i>
 </div>
         <div class="logo-container">Kopala<span>▲</span>FPL</div>
         <div class="nav-icon-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></div>
     </header>
-</header>
-
+    
 <div class="sync-container" style="background: white; border-radius: 16px; margin: 20px 10px; border: 1px solid #e2e8f0;">
     <div style="flex: 1; display: flex; flex-direction: column;">
         <input type="text" id="team-id" placeholder="Paste FPL ID here...">
@@ -115,7 +345,7 @@
         <a href="prices.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
         <a href="games.html" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
         <a href="10k.html" class="nav-item"><i class="fa fa-bar-chart"></i><span>You vs 10k</span></a>
-        <a href="#" class="nav-item"><i class="fa fa-question-circle"></i><span>About</span></a>
+        <a href="members.html" class="nav-item"><i class="fa-solid fa-user-tie"></i><span>Ab</span></a>
         <a href="https://wa.me/260964836842" class="nav-item"><i class="fa fa-comments"></i><span>Support</span></a>
         <a href="#" class="nav-item"><i class="fa fa-ellipsis-h"></i><span>More</span></a>
     </nav>
