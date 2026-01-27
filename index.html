@@ -269,6 +269,55 @@
         location.reload();
     }
 }
+
+
+
+
+        // Function to toggle and save theme
+function toggleTheme() {
+    const body = document.body;
+    const isDarkMode = body.classList.toggle('dark-mode');
+    
+    // Save the preference
+    localStorage.setItem('fplTheme', isDarkMode ? 'dark' : 'light');
+    
+    // Update the UI buttons if they exist
+    updateToggleButtons(isDarkMode);
+}
+
+// Function to apply saved theme on load
+function applySavedTheme() {
+    const savedTheme = localStorage.getItem('fplTheme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    // If user saved a preference, use it; otherwise, check system settings
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+        document.body.classList.add('dark-mode');
+        updateToggleButtons(true);
+    } else {
+        document.body.classList.remove('dark-mode');
+        updateToggleButtons(false);
+    }
+}
+
+// Keep the UI buttons in sync
+function updateToggleButtons(isDark) {
+    const lightBtn = document.querySelector('.toggle-btn[onclick*="light"]');
+    const darkBtn = document.querySelector('.toggle-btn[onclick*="dark"]');
+    
+    if (lightBtn && darkBtn) {
+        if (isDark) {
+            darkBtn.classList.replace('inactive', 'active');
+            lightBtn.classList.replace('active', 'inactive');
+        } else {
+            lightBtn.classList.replace('inactive', 'active');
+            darkBtn.classList.replace('active', 'inactive');
+        }
+    }
+}
+
+// Run as soon as the DOM is ready
+document.addEventListener('DOMContentLoaded', applySavedTheme);
     </script>
 </body>
 </html>
