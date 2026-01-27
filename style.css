@@ -1,42 +1,38 @@
-/* --- MODERN FPL BRANDED CSS VARIABLES --- */
+/* --- MODERN FPL BRANDED VARIABLES --- */
 :root {
-    /* FPL Official Palette */
-    --fpl-purple: #37003c;      /* Main Brand Purple */
-    --fpl-purple-light: #5a0062;
-    --fpl-pink: #e90052;        /* Action Pink */
-    --fpl-pink-hover: #c50046;
-    --fpl-green: #00ff85;       /* Neon Highlight Green */
-    --fpl-dark: #020617;
-    
-    /* Functional Colors */
     --bg-color: #f8fafc;
-    --card-bg: rgba(255, 255, 255, 0.9);
-    --text-main: #37003c;
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --text-main: #37003c;       /* FPL Purple */
     --text-muted: #64748b;
+    --primary-blue: #e90052;    /* FPL Pink */
+    --primary-hover: #c50046;   /* Darker Pink */
+    --fpl-green: #00ff85;       /* FPL Neon Green */
+    --fpl-pink: #e90052;
+    --fpl-purple: #37003c;
     --border-color: rgba(226, 232, 240, 0.8);
     --pitch-green: #008040;
     --glass-blur: blur(12px);
     --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    
-    /* Status Colors */
+
+    /* Badge Colors */
+    --live-badge: #e90052;
+    --done-badge: #37003c;
     --success-bg: #dcfce7;
     --success-text: #15803d;
     --warning-bg: #fef9c3;
     --warning-text: #a16207;
-
-    /* Live Badge Colors */
-    --live-badge: #e90052;
-    --done-badge: #37003c;
 }
 
 body.dark-mode {
     --bg-color: #020617;
-    --card-bg: rgba(30, 41, 59, 0.8);
+    --card-bg: rgba(30, 41, 59, 0.7);
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
     --border-color: rgba(51, 65, 85, 0.5);
     --fpl-purple: #020617;
+    --fpl-pink: #ff2e7e; /* Brighter for contrast */
+    --primary-blue: #ff2e7e;
 }
 
 /* --- RESET & BASE --- */
@@ -55,78 +51,99 @@ body {
     overflow-x: hidden;
 }
 
-/* --- LOGIN SCREEN (Official Gradient) --- */
+/* --- LOGIN SCREEN --- */
 #login-screen {
-    position: fixed; 
-    inset: 0;
+    position: fixed; inset: 0;
     background: linear-gradient(135deg, #37003c 0%, #7d0046 50%, #e90052 100%);
     z-index: 5000;
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 24px;
 }
 
+.promo-card, .login-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--card-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-color);
+}
+
+.promo-card {
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.promo-card h3 { margin: 0; font-size: 1rem; font-weight: 700; opacity: 0.9; }
+
+.promo-link { 
+    color: var(--primary-blue); 
+    text-decoration: none; 
+    font-size: 0.85rem; 
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 8px;
+}
+
 .login-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 32px;
     padding: 32px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    text-align: center;
+    box-shadow: var(--shadow-lg);
 }
 
-.login-logo {
-    font-size: 3rem;
-    font-weight: 900;
-    margin-bottom: 20px;
-    color: white;
-    letter-spacing: -2px;
+/* --- THEME TOGGLE --- */
+.theme-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 32px;
 }
 
-.login-logo span {
-    color: var(--fpl-green);
-    display: inline-block;
-    animation: bounce 2s infinite;
+.theme-label { font-weight: 700; color: var(--text-muted); }
+
+.toggle-container { 
+    display: flex; 
+    background: rgba(0,0,0,0.05); 
+    padding: 4px; 
+    border-radius: 100px; 
 }
 
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+body.dark-mode .toggle-container { background: rgba(255,255,255,0.05); }
+
+.toggle-btn {
+    border: none; padding: 8px 20px; border-radius: 100px; 
+    font-weight: 700; font-size: 0.9rem; cursor: pointer;
 }
 
-.login-card h2 { color: white; font-size: 1.8rem; margin-bottom: 8px; font-weight: 800; }
-.login-card p { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-bottom: 24px; }
+.toggle-btn.active { background: var(--primary-blue); color: white; box-shadow: 0 4px 10px rgba(233, 0, 82, 0.4); }
+.toggle-btn.inactive { background: transparent; color: var(--text-muted); }
 
 /* --- FORM ELEMENTS --- */
+.login-card h2 { margin-top: 0; font-size: 1.5rem; font-weight: 800; }
+
 .fpl-input { 
     width: 100%; padding: 18px; border-radius: 16px; 
-    border: 2px solid transparent; 
+    border: 2px solid var(--border-color); 
     font-size: 1rem; margin-bottom: 20px;
-    background: rgba(255, 255, 255, 0.9); 
-    color: var(--fpl-purple);
-    font-weight: 600;
+    background: var(--bg-color); color: var(--text-main);
+    transition: border-color 0.2s;
 }
 
-.fpl-input:focus { border-color: var(--fpl-green); outline: none; }
+.fpl-input:focus { border-color: var(--primary-blue); }
 
 .continue-btn { 
-    width: 100%; padding: 18px; background: var(--fpl-pink); color: white; 
+    width: 100%; padding: 18px; background: var(--primary-blue); color: white; 
     border: none; border-radius: 16px; font-weight: 700; font-size: 1rem; 
     cursor: pointer; box-shadow: 0 4px 15px rgba(233, 0, 82, 0.3);
 }
 
-.continue-btn:hover { background: var(--fpl-pink-hover); transform: translateY(-1px); }
+.continue-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
 
-/* --- NAVIGATION (Shared) --- */
+/* --- NAVIGATION --- */
 .top-nav {
     position: fixed; top: 0; width: 100%; height: 65px;
     background: var(--fpl-purple);
+    backdrop-filter: var(--glass-blur);
     border-bottom: 2px solid var(--fpl-green);
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 20px; z-index: 3000;
@@ -146,13 +163,13 @@ body {
 
 .nav-item {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px;
+    color: var(--text-muted); text-decoration: none; font-size: 0.6rem; font-weight: 600;
 }
 
-.nav-item.active { color: var(--fpl-pink); }
-.nav-item i { font-size: 1.2rem; }
+.nav-item.active { color: var(--primary-blue); }
+.nav-item i { font-size: 1.2rem; margin-bottom: 4px; }
 
-/* --- CONTENT AREA & DASHBOARD --- */
+/* --- DASHBOARD ELEMENTS --- */
 .page-content { padding: 85px 16px 100px; max-width: 600px; margin: 0 auto; }
 
 .header-stats-grid { 
@@ -162,76 +179,209 @@ body {
     box-shadow: var(--shadow-sm); margin-bottom: 20px;
 }
 
-.stat-label { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
-.stat-value { font-size: 1.2rem; font-weight: 900; color: var(--fpl-pink); }
+.stat-label { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 1.2rem; font-weight: 900; color: var(--text-main); }
 
-/* --- PITCH & PLAYER CARDS --- */
+/* --- PITCH AREA --- */
 .pitch-container { 
     background: linear-gradient(180deg, #008040 0%, #005a2d 100%);
     border-radius: 24px; padding: 20px 10px; min-height: 450px;
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
 }
 
-.player-card { width: 45px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-.player-shirt { width: 28px; height: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+.player-card img { filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
+.p-info-box { border-radius: 6px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); }
+.p-name { background: #111; color: #fff; font-size: 0.6rem; padding: 3px; font-weight: 600; }
+.p-pts { background: var(--fpl-green); color: #000; font-size: 0.8rem; font-weight: 900; padding: 2px; }
 
-.player-label { 
-    color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); 
-    font-size: 0.5rem; font-weight: 700; width: 100%; 
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;
+/* --- ERROR STATES --- */
+.fpl-input.error { border-color: #ef4444; background: #fef2f2; }
+body.dark-mode .fpl-input.error { background: #450a0a; }
+.error-msg { color: #ef4444; font-size: 0.8rem; font-weight: 600; margin: -12px 0 12px 4px; display: none; }
+
+/* --- LEAGUES SPECIFIC STYLES --- */
+.controls-wrapper {
+    margin-top: 65px; 
+    background: var(--card-bg);
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: var(--glass-blur);
 }
 
-.player-pts { 
-    background: var(--fpl-green); color: var(--fpl-purple); 
-    font-size: 0.65rem; font-weight: 900; border-radius: 4px; 
-    width: 28px; text-align: center; margin-top: 2px;
+.toggle-group { 
+    display: flex; 
+    background: var(--bg-color); 
+    border-radius: 12px; 
+    padding: 4px; 
+    width: fit-content; 
+    margin: 0 auto 16px; 
 }
 
-/* --- LEAGUE & MEMBERS TABLES --- */
+.toggle-btn-small { 
+    padding: 6px 16px; 
+    font-size: 0.75rem; 
+    font-weight: 700; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    color: var(--text-muted); 
+    border: none;
+    background: transparent;
+}
+
+.toggle-btn-small.active { 
+    background: var(--card-bg); 
+    color: var(--text-main); 
+    box-shadow: var(--shadow-sm); 
+}
+
+.select-row { 
+    display: grid; 
+    grid-template-columns: 1fr 110px; 
+    gap: 10px; 
+}
+
+select { 
+    background: var(--bg-color); 
+    color: var(--text-main); 
+    padding: 10px; 
+    border-radius: 12px; 
+    border: 1px solid var(--border-color); 
+    font-weight: 600; 
+    font-size: 0.9rem;
+}
+
 .table-header {
-    background: var(--fpl-purple); color: white;
-    padding: 12px 16px; display: grid;
-    grid-template-columns: 25px 1fr 50px 50px 40px 50px;
-    font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
+    background: var(--fpl-purple);
+    color: white;
+    padding: 12px 16px;
+    display: grid;
+    grid-template-columns: 40px 1fr 50px 50px 70px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.manager-row { background: var(--card-bg); border-bottom: 1px solid var(--border-color); }
+body.dark-mode .table-header { background: #000; }
+
+.manager-row { 
+    background: var(--card-bg); 
+    border-bottom: 1px solid var(--border-color); 
+}
 
 .row-summary {
-    display: grid; grid-template-columns: 25px 1fr 50px 50px 40px 50px;
-    padding: 14px 8px; align-items: center; cursor: pointer;
+    display: grid;
+    grid-template-columns: 40px 1fr 50px 50px 70px;
+    padding: 14px 16px;
+    align-items: center;
+    cursor: pointer;
 }
 
-.total-pts-cell { font-weight: 900; text-align: right; color: var(--fpl-pink); }
-.status-badge { font-size: 0.55rem; padding: 2px 4px; border-radius: 4px; font-weight: 900; text-align: center; }
-.status-paid { background: var(--success-bg); color: var(--success-text); }
-.status-pending { background: var(--warning-bg); color: var(--warning-text); }
+.pos-cell { font-weight: 900; color: var(--text-muted); font-size: 0.9rem; }
+.name-cell b { font-weight: 800; font-size: 0.95rem; color: var(--text-main); display: block; }
+.name-cell small { font-size: 0.75rem; color: var(--text-muted); }
+.gw-pts-cell { font-weight: 700; text-align: center; }
+.total-pts-cell { font-weight: 900; text-align: right; color: var(--primary-blue); }
 
-/* --- SQUAD EXPANSION --- */
 .row-expansion { 
-    max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; 
-    background-image: url('https://fantasy.premierleague.com/static/media/pitch-default.7937318e.svg');
-    background-size: cover; background-position: center;
+    max-height: 0; 
+    overflow: hidden; 
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
+                      url('https://fantasy.premierleague.com/static/media/pitch-default.7937318e.svg');
+    background-size: cover;
+    background-position: center;
 }
 
-.manager-row.active .row-expansion { max-height: 500px; border-top: 1px solid var(--border-color); }
-.squad-scroller { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 4px; padding: 15px 5px; }
+.manager-row.active .row-expansion { max-height: 500px; }
 
-/* --- CONTROLS & SELECTS --- */
-.controls-wrapper { margin-top: 65px; background: var(--card-bg); padding: 16px; border-bottom: 1px solid var(--border-color); }
-select { 
-    background: var(--bg-color); color: var(--text-main); 
-    padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); font-weight: 600;
+.squad-scroller { 
+    display: flex; flex-wrap: wrap; justify-content: center; 
+    gap: 12px 6px; padding: 20px 10px; 
 }
 
-/* --- MATCH CARDS (GAMES) --- */
-.m-card { background: var(--card-bg); border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border-color); }
-.score-val { font-size: 1.8rem; font-weight: 900; color: var(--text-main); }
-.pts-pill { background: var(--fpl-pink); color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: 800; }
-.live-pts-badge { background: var(--fpl-green); color: var(--fpl-purple); padding: 2px 8px; border-radius: 4px; font-weight: 900; }
+.squad-stats-bar { display: flex; justify-content: center; gap: 8px; padding: 15px 10px 0; }
+.stat-pill {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+}
+.stat-pill b { color: var(--fpl-green); }
+
+.transfer-row {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 0.7rem;
+    margin: 10px auto;
+    width: fit-content;
+    color: #fff;
+}
 
 /* --- PRICES PAGE --- */
-.timer-banner { background: var(--fpl-purple); color: white; padding: 15px; border-radius: 16px; text-align: center; margin: 10px; }
-.countdown-display { background: var(--fpl-green); color: var(--fpl-purple); font-weight: 900; padding: 4px 12px; border-radius: 6px; }
+.timer-banner { 
+    background: var(--fpl-purple); 
+    color: white; 
+    margin: 10px; 
+    padding: 15px; 
+    border-radius: 16px; 
+    text-align: center;
+}
 
-/* --- UTILS --- */
-.error-msg { color: #ef4444; font-size: 0.8rem; font-weight: 600; margin: 10px 0; display: none; }
+.countdown-display { 
+    background: var(--fpl-green); 
+    color: #000; 
+    font-weight: 900; 
+    padding: 4px 12px; 
+    border-radius: 6px; 
+    font-family: 'JetBrains Mono', monospace; 
+    font-size: 1.1rem;
+}
+
+.price-section { 
+    margin: 12px; 
+    background: var(--card-bg); 
+    border-radius: 16px; 
+    border: 1px solid var(--border-color); 
+    overflow: hidden; 
+}
+
+.section-title { 
+    padding: 14px; 
+    font-weight: 800; 
+    border-bottom: 1px solid var(--border-color); 
+    display: flex; justify-content: center; gap: 8px;
+    text-transform: uppercase;
+}
+
+.summary-table { width: 100%; border-collapse: collapse; }
+.summary-table th { background: var(--fpl-purple); color: white; padding: 10px; font-size: 0.7rem; }
+.summary-table td { border: 1px solid var(--border-color); padding: 12px 5px; text-align: center; width: 50%; }
+
+.shirt-card { display: inline-flex; flex-direction: column; align-items: center; margin: 4px; width: 55px; }
+.shirt-name { background: var(--fpl-purple); color: #fff; font-size: 0.5rem; width: 100%; padding: 1px 2px; border-radius: 2px; text-transform: uppercase; }
+
+/* Modal & Progress */
+.progress-fill { height: 100%; background: var(--fpl-pink); }
+.stat-val { font-weight: 900; color: var(--primary-blue); font-size: 1.1rem; }
+
+/* --- DATA TABLEIndicator --- */
+.count-in { color: var(--fpl-green); font-weight: 800; }
+.count-out { color: var(--fpl-pink); font-weight: 800; }
+
+/* --- MATCH CARDS --- */
+.pts-pill { background: var(--fpl-pink); color: #fff; padding: 1px 5px; border-radius: 3px; font-weight: 800; }
+.badge-live { background: var(--live-badge); animation: pulse 2s infinite; }
+.live-pts-badge { background: var(--fpl-green); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; }
+
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+
+/* --- MEMBERS PAGE --- */
+.status-paid { background: var(--success-bg); color: var(--success-text); }
+.status-pending { background: var(--warning-bg); color: var(--warning-text); }
+.player-pts { background: var(--fpl-green); color: #000; border-radius: 3px; width: 24px; text-align: center; }
