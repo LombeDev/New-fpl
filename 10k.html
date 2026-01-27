@@ -52,13 +52,24 @@
 
 
         
-/* --- NAV & STATS (Hidden until Login) --- */
-        .top-nav {
-            position: fixed; top: 0; width: 100%; height: 60px;
-            background: var(--card-bg); border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 15px; box-sizing: border-box; z-index: 3000;
-        }
+        /* --- FIXED NAV ADJUSTMENT --- */
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    box-sizing: border-box;
+    z-index: 3000;
+    border-bottom: 1px solid var(--out-gray);
+}
 
  .logo-container { font-weight: 900; font-size: 1.4rem; letter-spacing: -1px; color: var(--text-main); }
         .logo-container span { color: var(--fpl-green); }
@@ -116,6 +127,40 @@
     color: white;
     border: none;
     border-radius: 4px;
+}
+
+
+
+
+        /* --- SYNC SECTION (The Fix) --- */
+.sync-container {
+    margin-top: 65px; /* Pushes content below the 60px fixed nav */
+    display: flex;
+    flex-direction: row; /* Keep input and button on one line */
+    align-items: center;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 16px;
+    margin-left: 10px;
+    margin-right: 10px;
+    border: 1px solid #e2e8f0;
+    gap: 10px;
+    box-shadow: var(--card-shadow);
+}
+
+/* Ensure the input wrapper grows */
+.sync-container > div {
+    flex: 1;
+}
+
+#team-id {
+    width: 100%; /* Fill the wrapper */
+    box-sizing: border-box;
+}
+
+/* Hide the main content until synced */
+.hidden {
+    display: none !important;
 }
 
         /* Headers */
@@ -345,7 +390,7 @@ header {
         <a href="prices.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
         <a href="games.html" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
         <a href="10k.html" class="nav-item"><i class="fa fa-bar-chart"></i><span>You vs 10k</span></a>
-        <a href="members.html" class="nav-item"><i class="fa-solid fa-user-tie"></i><span>Ab</span></a>
+        <a href="#" class="nav-item"><i class="fa fa-question-circle"></i><span>About</span></a>
         <a href="https://wa.me/260964836842" class="nav-item"><i class="fa fa-comments"></i><span>Support</span></a>
         <a href="#" class="nav-item"><i class="fa fa-ellipsis-h"></i><span>More</span></a>
     </nav>
