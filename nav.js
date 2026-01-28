@@ -1,7 +1,16 @@
 /**
- * nav.js - Centralized Navigation with FPL ID Reset Logic
+ * nav.js - Centralized Navigation, Theme Logic, and FPL ID Management
  */
 
+// 1. IMMEDIATE EXECUTION: Set theme before page renders to prevent flickering
+(function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+})();
+
+/**
+ * Main function to inject the Navbar HTML
+ */
 function loadNavbar() {
     const navHTML = `
     <nav class="mobile-nav">
@@ -25,13 +34,13 @@ function loadNavbar() {
       </div>
       
       <ul class="menu-links">
-        <li><a href="index.html"><i class=""></i> Home <span>&rsaquo;</span></a></li>
-        <li><a href="leagues.html"><i class=""></i> Leagues <span>&rsaquo;</span></a></li>
-        <li><a href="prices.html"><i class=""></i> Prices <span>&rsaquo;</span></a></li>
-        <li><a href="games.html"><i class=""></i> Games <span>&rsaquo;</span></a></li>
-        <li><a href="10k.html"><i class=""></i> You vs 10k <span>&rsaquo;</span></a></li>
-        <li><a href="about.html"><i class=""></i> About <span>&rsaquo;</span></a></li>
-        <li><a href="https://wa.me/260964836842" target="_blank"><i class=""></i> Support <small>&#x2311;</small></a></li>
+        <li><a href="index.html">Home <span>&rsaquo;</span></a></li>
+        <li><a href="leagues.html">Leagues <span>&rsaquo;</span></a></li>
+        <li><a href="prices.html">Prices <span>&rsaquo;</span></a></li>
+        <li><a href="games.html">Games <span>&rsaquo;</span></a></li>
+        <li><a href="10k.html">You vs 10k <span>&rsaquo;</span></a></li>
+        <li><a href="about.html">About <span>&rsaquo;</span></a></li>
+        <li><a href="https://wa.me/260964836842" target="_blank">Support <small>&#x2311;</small></a></li>
       </ul>
 
       <hr class="menu-divider">
@@ -42,6 +51,14 @@ function loadNavbar() {
       </div>
 
       <div class="menu-footer">
+        <div class="theme-row">
+            <span class="theme-label">Theme</span>
+            <div class="toggle-container">
+                <div class="slider-bg"></div>
+                <button id="btn-dark" class="toggle-btn" onclick="setTheme('dark')">Dark</button>
+                <button id="btn-light" class="toggle-btn" onclick="setTheme('light')">Light</button>
+            </div>
+        </div>
         <a href="#" class="login-btn" onclick="resetTeamID()">Change ID</a>
       </div>
     </div>
@@ -52,26 +69,56 @@ function loadNavbar() {
         placeholder.innerHTML = navHTML;
         setupMenuLogic();
         highlightCurrentPage();
+        
+        // Sync the toggle UI with the current saved theme
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        updateThemeUI(currentTheme);
     }
 }
 
-// THE RESET LOGIC (Matched to your provided script)
+/**
+ * Theme Switching Logic
+ */
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    updateThemeUI(theme);
+}
+
+function updateThemeUI(theme) {
+    const darkBtn = document.getElementById('btn-dark');
+    const lightBtn = document.getElementById('btn-light');
+
+    if (darkBtn && lightBtn) {
+        if (theme === 'dark') {
+            darkBtn.classList.add('active');
+            lightBtn.classList.remove('active');
+        } else {
+            lightBtn.classList.add('active');
+            darkBtn.classList.remove('active');
+        }
+    }
+}
+
+/**
+ * FPL ID Reset Logic
+ */
 function resetTeamID() {
     if (confirm("Would you like to change your Team ID?")) {
-        // 1. Clear the saved ID from the browser memory using your specific key
         localStorage.removeItem('kopala_id');
-        
-        // 2. Refresh the page
-        // Since the 'state.fplId' will be null on reload, your main 
-        // script will show the login screen automatically.
         location.reload();
     }
 }
 
+/**
+ * Mobile Menu Open/Close Logic
+ */
 function setupMenuLogic() {
     const openBtn = document.getElementById('openMenu');
     const closeBtn = document.getElementById('closeMenu');
     const menu = document.getElementById('mobileMenu');
+
+    if (!openBtn || !closeBtn || !menu) return;
 
     openBtn.addEventListener('click', () => {
         menu.classList.add('active');
@@ -83,7 +130,6 @@ function setupMenuLogic() {
         document.body.style.overflow = 'auto'; 
     });
 
-    // Close menu if a link is clicked
     const navLinks = document.querySelectorAll('.menu-links a');
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
@@ -93,6 +139,9 @@ function setupMenuLogic() {
     });
 }
 
+/**
+ * Auto-highlight the current page in the menu
+ */
 function highlightCurrentPage() {
     const currentPath = window.location.pathname.split("/").pop() || "index.html";
     const links = document.querySelectorAll('.menu-links a');
@@ -103,4 +152,5 @@ function highlightCurrentPage() {
     });
 }
 
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', loadNavbar);
