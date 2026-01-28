@@ -366,6 +366,38 @@ function updateToggleButtons(isDark) {
 
 // Run as soon as the DOM is ready
 document.addEventListener('DOMContentLoaded', applySavedTheme);
+
+
+
+        function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('show');
+}
+
+// Memory Persistence: Load ID on Startup
+window.addEventListener('DOMContentLoaded', () => {
+    const savedID = localStorage.getItem('fpl_team_id');
+    if (savedID) {
+        document.getElementById('team-id').value = savedID;
+        fetchFPLData(); // Auto-fetch data
+    }
+});
+
+// Update fetchFPLData to save the ID
+async function fetchFPLData() {
+    const inputEl = document.getElementById('team-id');
+    const id = inputEl.value.trim();
+    if (!id) return;
+
+    localStorage.setItem('fpl_team_id', id); // Save to browser memory
+
+    // ... your existing fetch logic ...
+}
+
+function resetTeamID() {
+    localStorage.removeItem('fpl_team_id');
+    location.reload();
+}
     </script>
 </body>
 </html>
