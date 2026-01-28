@@ -1,3 +1,8 @@
+/**
+ * nav.js - Centralized Navigation for the Website
+ * This script handles the Top Nav and the Full-screen Overlay Menu.
+ */
+
 function loadNavbar() {
     const navHTML = `
     <nav class="mobile-nav">
@@ -5,8 +10,8 @@ function loadNavbar() {
         <img src="logo.png" alt="Logo" height="40">
       </div>
       <div class="nav-right">
-        <a href="#" class="cta-button">Join The Hub</a>
-        <button class="menu-toggle" id="openMenu">
+        <a href="join.html" class="cta-button">Join The Hub</a>
+        <button class="menu-toggle" id="openMenu" aria-label="Open Menu">
           <span class="bar"></span>
           <span class="bar"></span>
           <span class="bar"></span>
@@ -17,60 +22,90 @@ function loadNavbar() {
     <div id="mobileMenu" class="overlay-menu">
       <div class="menu-header">
         <img src="logo.png" alt="Logo" height="40">
-        <button class="close-btn" id="closeMenu">&times;</button>
+        <button class="close-btn" id="closeMenu" aria-label="Close Menu">&times;</button>
       </div>
+      
       <ul class="menu-links">
         <li><a href="index.html"><i class="fa-solid fa-chart-line"></i> Rank <span>&rsaquo;</span></a></li>
         <li><a href="leagues.html"><i class="fa-solid fa-trophy"></i> Leagues <span>&rsaquo;</span></a></li>
         <li><a href="prices.html"><i class="fa-solid fa-tags"></i> Prices <span>&rsaquo;</span></a></li>
         <li><a href="games.html"><i class="fa-solid fa-futbol"></i> Games <span>&rsaquo;</span></a></li>
         <li><a href="10k.html"><i class="fa fa-bar-chart"></i> You vs 10k <span>&rsaquo;</span></a></li>
-        <li><a href="#"><i class="fa fa-question-circle"></i> About <span>&rsaquo;</span></a></li>
+        <li><a href="about.html"><i class="fa fa-question-circle"></i> About <span>&rsaquo;</span></a></li>
         <li><a href="https://wa.me/260964836842" target="_blank"><i class="fa fa-comments"></i> Support <small>&#x2311;</small></a></li>
-        <li><a href="#"><i class="fa fa-ellipsis-h"></i> More <span>&rsaquo;</span></a></li>
       </ul>
+
       <hr class="menu-divider">
+
       <div class="menu-search">
         <i class="fa fa-search"></i>
-        <input type="text" placeholder="Search">
+        <input type="text" id="menuSearch" placeholder="Search pages...">
       </div>
+
       <div class="menu-footer">
-        <button class="cta-button">Join The Hub</button>
-        <button class="login-btn">Log in</button>
+        <a href="join.html" class="cta-button">Join The Hub</a>
+        <a href="login.html" class="login-btn">Log in</a>
       </div>
     </div>
-
-    <nav class="bottom-nav">
-        <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
-        <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
-        <a href="prices.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
-        <a href="games.html" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
-    </nav>
     `;
 
-    // Insert the HTML into the placeholder
+    // Locate the placeholder in your HTML files
     const placeholder = document.getElementById('nav-placeholder');
+    
     if (placeholder) {
         placeholder.innerHTML = navHTML;
-        setupMenuLogic(); // Initialize click events after loading HTML
+        setupMenuLogic();
+        highlightCurrentPage();
+    } else {
+        console.warn("Coding Partner: 'nav-placeholder' not found in this HTML file.");
     }
 }
 
+/**
+ * Handles Opening, Closing, and Interaction Logic
+ */
 function setupMenuLogic() {
     const openBtn = document.getElementById('openMenu');
     const closeBtn = document.getElementById('closeMenu');
     const menu = document.getElementById('mobileMenu');
 
+    // 1. Open Menu Logic
     openBtn.addEventListener('click', () => {
         menu.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden'; // Stop background scroll
     });
 
+    // 2. Close Menu Logic
     closeBtn.addEventListener('click', () => {
         menu.classList.remove('active');
-        document.body.style.overflow = 'auto';
+        document.body.style.overflow = 'auto'; // Resume background scroll
+    });
+
+    // 3. Close menu if a user clicks a link (helpful for mobile UX)
+    const navLinks = document.querySelectorAll('.menu-links a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            menu.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
     });
 }
 
-// Run the function when the script loads
-loadNavbar();
+/**
+ * Automatically highlights the current page in the menu
+ */
+function highlightCurrentPage() {
+    const currentPath = window.location.pathname.split("/").pop() || "index.html";
+    const links = document.querySelectorAll('.menu-links a');
+    
+    links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPath) {
+            link.style.color = '#ff0055'; // Pink highlight for active page
+            link.style.fontWeight = 'bold';
+        }
+    });
+}
+
+// Initialize the navbar on load
+document.addEventListener('DOMContentLoaded', loadNavbar);
