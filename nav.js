@@ -9,7 +9,7 @@ function loadNavbar() {
         <img src="logo.png" alt="Logo" height="40">
       </div>
       <div class="nav-right">
-        <a href="#" class="cta-button" onclick="resetTeamID()">Log Out</a>
+        <a href="#" class="cta-button" onclick="resetTeamID()">Change ID</a>
         <button class="menu-toggle" id="openMenu" aria-label="Open Menu">
           <span class="bar"></span>
           <span class="bar"></span>
@@ -25,13 +25,13 @@ function loadNavbar() {
       </div>
       
       <ul class="menu-links">
-        <li><a href="index.html"><i class="fa-solid fa-chart-line"></i> Rank <span>&rsaquo;</span></a></li>
-        <li><a href="leagues.html"><i class="fa-solid fa-trophy"></i> Leagues <span>&rsaquo;</span></a></li>
-        <li><a href="prices.html"><i class="fa-solid fa-tags"></i> Prices <span>&rsaquo;</span></a></li>
-        <li><a href="games.html"><i class="fa-solid fa-futbol"></i> Games <span>&rsaquo;</span></a></li>
-        <li><a href="10k.html"><i class="fa-solid fa-chart-bar"></i> You vs 10k <span>&rsaquo;</span></a></li>
-        <li><a href="about.html"><i class="fa-solid fa-circle-question"></i> About <span>&rsaquo;</span></a></li>
-        <li><a href="https://wa.me/260964836842" target="_blank"><i class="fa-solid fa-comment-dots"></i> Support <small>&#x2311;</small></a></li>
+        <li><a href="index.html"><i class=""></i> Home <span>&rsaquo;</span></a></li>
+        <li><a href="leagues.html"><i class=""></i> Leagues <span>&rsaquo;</span></a></li>
+        <li><a href="prices.html"><i class=""></i> Prices <span>&rsaquo;</span></a></li>
+        <li><a href="games.html"><i class=""></i> Games <span>&rsaquo;</span></a></li>
+        <li><a href="10k.html"><i class=""></i> You vs 10k <span>&rsaquo;</span></a></li>
+        <li><a href="about.html"><i class=""></i> About <span>&rsaquo;</span></a></li>
+        <li><a href="https://wa.me/260964836842" target="_blank"><i class=""></i> Support <small>&#x2311;</small></a></li>
       </ul>
 
       <hr class="menu-divider">
@@ -42,7 +42,7 @@ function loadNavbar() {
       </div>
 
       <div class="menu-footer">
-        <a href="#" class="login-btn" onclick="resetTeamID()">Log Out</a>
+        <a href="#" class="login-btn" onclick="resetTeamID()">Change ID</a>
       </div>
     </div>
     `;
