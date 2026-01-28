@@ -1,5 +1,5 @@
 /**
- * nav.js - Centralized Navigation with ID Reset Logic
+ * nav.js - Centralized Navigation with FPL ID Reset Logic
  */
 
 function loadNavbar() {
@@ -9,7 +9,7 @@ function loadNavbar() {
         <img src="logo.png" alt="Logo" height="40">
       </div>
       <div class="nav-right">
-        <a href="index.html" class="cta-button logout-trigger">Log Out</a>
+        <a href="#" class="cta-button" onclick="resetTeamID()">Log Out</a>
         <button class="menu-toggle" id="openMenu" aria-label="Open Menu">
           <span class="bar"></span>
           <span class="bar"></span>
@@ -42,7 +42,7 @@ function loadNavbar() {
       </div>
 
       <div class="menu-footer">
-        <a href="index.html" class="login-btn logout-trigger">Log Out</a>
+        <a href="#" class="login-btn" onclick="resetTeamID()">Log Out</a>
       </div>
     </div>
     `;
@@ -55,12 +55,24 @@ function loadNavbar() {
     }
 }
 
+// THE RESET LOGIC (Matched to your provided script)
+function resetTeamID() {
+    if (confirm("Would you like to change your Team ID?")) {
+        // 1. Clear the saved ID from the browser memory using your specific key
+        localStorage.removeItem('kopala_id');
+        
+        // 2. Refresh the page
+        // Since the 'state.fplId' will be null on reload, your main 
+        // script will show the login screen automatically.
+        location.reload();
+    }
+}
+
 function setupMenuLogic() {
     const openBtn = document.getElementById('openMenu');
     const closeBtn = document.getElementById('closeMenu');
     const menu = document.getElementById('mobileMenu');
 
-    // Toggle logic
     openBtn.addEventListener('click', () => {
         menu.classList.add('active');
         document.body.style.overflow = 'hidden'; 
@@ -71,17 +83,12 @@ function setupMenuLogic() {
         document.body.style.overflow = 'auto'; 
     });
 
-    // RESET ID LOGIC
-    // We select all elements with the 'logout-trigger' class
-    const logoutButtons = document.querySelectorAll('.logout-trigger');
-    logoutButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            // 1. Clear the specific ID from local storage
-            localStorage.removeItem('fpl_id'); 
-            // Or use localStorage.clear(); if you want to wipe everything
-            
-            // 2. Optional: Add a small alert or console log
-            console.log("User ID has been reset.");
+    // Close menu if a link is clicked
+    const navLinks = document.querySelectorAll('.menu-links a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            menu.classList.remove('active');
+            document.body.style.overflow = 'auto';
         });
     });
 }
