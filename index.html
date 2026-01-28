@@ -55,39 +55,21 @@
     <div id="nav-placeholder"></div>
 
 
-   <main class="page-content">
-    <div class="dashboard-header">
-        <div class="manager-info">
-            <span id="disp-name">Manager Name <i class="fa-solid fa-chevron-down"></i></span>
-            <div class="action-icons">
-                <i class="fa-solid fa-pen" onclick="resetTeamID()"></i>
-                <i class="fa-solid fa-gear"></i>
-                <i class="fa-solid fa-plus"></i>
-            </div>
+    <main class="page-content">
+        <div style="padding: 0 15px 15px; display:flex; justify-content:space-between; align-items:center;">
+            <span id="disp-name" style="font-weight:900; font-size: 1.1rem;">Manager Name <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: var(--primary-blue);"></i></span>
+            <div class="nav-icon-btn" onclick="fetchAndRender()"><i class="fa-solid fa-rotate"></i></div>
+        </div>
+        
+        <div class="header-stats-grid">
+            <div style="border-right: 1px solid var(--border-color);"><div class="stat-label">GW Rank</div><div class="stat-value" id="disp-gw-rank">-</div></div>
+            <div style="border-right: 1px solid var(--border-color);"><div class="stat-label">Overall Rank</div><div class="stat-value" id="disp-rank">0</div></div>
+            <div><div class="stat-label">Live Pts</div><div class="stat-value" id="disp-total">0</div></div>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-label">GW21 Rank</div>
-                <div class="stat-value" id="disp-gw-rank">958,518</div>
-            </div>
-            <div class="stat-box live-rank-box">
-                <div class="stat-label">Live Rank <span class="badge post">Post</span></div>
-                <div class="stat-value">
-                    <span id="disp-rank">2,632,892</span>
-                    <i class="fa-solid fa-circle-up trend-up"></i>
-                </div>
-                <div class="stat-sub">Old: 3,113,149 (+15.43%)</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">Points <i class="fa-regular fa-circle-question"></i></div>
-                <div class="stat-value" id="disp-total">68</div>
-                <div class="stat-sub">Safety: 55 Δ:+13</div>
-            </div>
-        </div>
-    </div>
 
-   <div class="player-grid-container">
+
+        <div class="player-grid-container">
     <div class="grid-top-info">
         <span class="info-pill">FT 1</span>
         <span class="info-pill">TV £101.0</span>
@@ -96,7 +78,6 @@
     
     <div id="player-list-grid" class="player-list-grid"></div>
 </div>
-</main>
         
         
     </main>
@@ -229,44 +210,38 @@
             } catch(e) { console.error("Fetch failed", e); }
         }
 
-       function renderPitch(picks, ptsMap) {
-    // Clear all rows
-    ['gk-row', 'def-row', 'mid-row', 'fwd-row', 'bench-row'].forEach(id => {
-        document.getElementById(id).innerHTML = '';
-    });
+       function renderPlayerGrid(picks, ptsMap) {
+    const grid = document.getElementById('player-list-grid');
+    grid.innerHTML = ''; // Clear existing
 
-    picks.forEach((p, index) => {
+    picks.forEach((p) => {
         const meta = state.playerMap[p.element];
         if (!meta) return;
 
         const pts = (ptsMap[p.element] || 0) * (p.multiplier || 1);
         
-        // Example dynamic "Details" (In a real app, these come from the live API)
-        const eo = "25%"; // Effective Ownership
-        const top10k = "15%"; // Top 10k Ownership
+        // Example ownership data (replace with real data if available)
+        const ownership = "29.6%"; 
 
         const cardHtml = `
-            <div class="player-card">
+            <div class="compact-player-card">
                 <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png">
-                <div class="p-info-box">
-                    <div class="p-name">${meta.name}</div>
-                    <div class="p-pts">${pts}</div>
-                    <div class="p-stats-row">
-                        <div class="p-stat-item">${top10k}</div>
-                        <div class="p-stat-item active">${eo}</div>
-                    </div>
+                
+                ${p.is_captain ? '<div class="chip-icon">C</div>' : ''}
+                ${p.multiplier === 3 ? '<div class="chip-icon">TC</div>' : ''}
+                <i class="fa-solid fa-star star-icon"></i>
+
+                <div class="card-data-box">
+                    <div class="card-name">${meta.name}</div>
+                    <div class="card-ownership-bar">${ownership}</div>
+                    <div class="card-points">${pts}</div>
                 </div>
-                ${p.is_captain ? '<div class="c-badge">C</div>' : ''}
             </div>`;
 
-        if (index < 11) {
-            const rowId = meta.pos === 1 ? 'gk-row' : meta.pos === 2 ? 'def-row' : meta.pos === 3 ? 'mid-row' : 'fwd-row';
-            document.getElementById(rowId).innerHTML += cardHtml;
-        } else {
-            document.getElementById('bench-row').innerHTML += cardHtml;
-        }
+        grid.innerHTML += cardHtml;
     });
 }
+
         if(state.fplId) {
             initData().then(fetchAndRender);
         } else {
