@@ -18,114 +18,115 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-        /* NEW STYLES FOR THE GRID LAYOUT */
-        .player-grid-container {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px;
-        }
-        .dark-mode .player-grid-container { background: #121212; }
+    .player-grid-container {
+        background: #e9f0f5; /* Light blue-grey background from photo */
+        padding: 12px 8px;
+        border-radius: 12px;
+        margin: 10px;
+    }
 
-        .grid-top-info {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
+    .player-list-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); /* 5 columns x 3 rows = 15 players */
+        gap: 12px 4px;
+        justify-items: center;
+    }
 
-        .info-pill {
-            background: white;
-            padding: 4px 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            color: #333;
-        }
+    .compact-player-card {
+        width: 65px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+    }
 
-        .player-list-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: flex-start;
-        }
+    /* Jersey size */
+    .compact-player-card img {
+        width: 32px;
+        margin-bottom: 4px;
+        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+    }
 
-        .compact-player-card {
-            width: 100px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
+    /* Data Container */
+    .card-data-box {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-        .compact-player-card img {
-            width: 35px;
-            margin-bottom: 5px;
-            z-index: 2;
-        }
+    .card-name {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #333;
+        margin-bottom: 2px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+    }
 
-        .card-data-box {
-            width: 100%;
-            border: 1px solid #ddd;
-            text-align: center;
-            background: white;
-            border-radius: 2px;
-            overflow: hidden;
-        }
+    /* Rounded Points Box */
+    .card-points {
+        background: white;
+        color: black;
+        font-size: 0.8rem;
+        font-weight: 900;
+        padding: 2px 10px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-bottom: 2px;
+        min-width: 30px;
+        text-align: center;
+    }
 
-        .card-name {
-            background: #1a1a1a;
-            color: white;
-            font-size: 0.75rem;
-            padding: 3px 2px;
-            font-weight: bold;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    /* Ownership Bar */
+    .card-ownership-bar {
+        background: #b8e994; /* Exact soft green from photo */
+        color: #2d3436;
+        font-size: 0.6rem;
+        padding: 1px 4px;
+        border-radius: 4px;
+        font-weight: 600;
+        width: 80%;
+        text-align: center;
+    }
 
-        .card-ownership-bar {
-            background: #00ff85;
-            color: #1a1a1a;
-            font-size: 0.7rem;
-            padding: 2px 0;
-            border-top: 1px solid #ddd;
-            border-bottom: 1px solid #ddd;
-            font-weight: 600;
-        }
+    /* Bench/Inactive Styling */
+    .is-bench {
+        opacity: 0.6;
+    }
+    .is-bench .card-points {
+        background: #dfe6e9;
+    }
 
-        .card-points {
-            font-size: 0.9rem;
-            font-weight: 800;
-            padding: 4px 0;
-            background: #f0f0f0;
-            color: #1a1a1a;
-        }
+    /* Badges (C, V, TC) */
+    .badge {
+        position: absolute;
+        top: 15px;
+        right: 12px;
+        width: 16px;
+        height: 16px;
+        background: #34495e; /* Dark slate for C/V */
+        color: white;
+        border-radius: 50%;
+        font-size: 0.55rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        border: 1.5px solid white;
+    }
+    
+    .badge.tc { background: #54a0ff; } /* Blue for Triple Captain */
 
-        .chip-icon {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            border-radius: 4px;
-            font-size: 0.6rem;
-            padding: 1px 3px;
-            border: 1px solid #ddd;
-            font-weight: 900;
-            z-index: 3;
-            color: #333;
-        }
-
-        .star-icon {
-            position: absolute;
-            top: 30px;
-            right: 5px;
-            color: #ffd700;
-            font-size: 0.8rem;
-            z-index: 3;
-        }
-    </style>
+    .star-icon {
+        position: absolute;
+        top: 2px;
+        right: 10px;
+        color: #f1c40f;
+        font-size: 0.7rem;
+    }
+</style>
 </head>
 <body class="dark-mode">
 
@@ -259,34 +260,38 @@
             } catch(e) { console.error("Fetch failed", e); }
         }
 
-        function renderPlayerGrid(picks, ptsMap) {
-            const grid = document.getElementById('player-list-grid');
-            grid.innerHTML = ''; 
+       function renderPlayerGrid(picks, ptsMap) {
+    const grid = document.getElementById('player-list-grid');
+    grid.innerHTML = ''; 
 
-            picks.forEach((p) => {
-                const meta = state.playerMap[p.element];
-                if (!meta) return;
+    picks.forEach((p, index) => {
+        const meta = state.playerMap[p.element];
+        if (!meta) return;
 
-                const pts = (ptsMap[p.element] || 0) * (p.multiplier || 1);
-                const ownership = (Math.random() * 40).toFixed(1) + "%"; // Placeholder ownership
+        const pts = (ptsMap[p.element] || 0) * (p.multiplier || 1);
+        const isBench = index >= 11; // Last 4 players are bench
+        
+        // Ownership percentage (In real use, map this from your data)
+        const ownership = "25%"; 
 
-                const cardHtml = `
-                    <div class="compact-player-card">
-                        <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png">
-                        
-                        ${p.is_captain ? `<div class="chip-icon">${p.multiplier === 3 ? 'TC' : 'C'}</div>` : ''}
-                        <i class="fa-solid fa-star star-icon"></i>
+        const cardHtml = `
+            <div class="compact-player-card ${isBench ? 'is-bench' : ''}">
+                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png">
+                
+                ${p.is_captain ? `<div class="badge ${p.multiplier === 3 ? 'tc' : ''}">C</div>` : ''}
+                ${p.is_vice_captain ? `<div class="badge">V</div>` : ''}
+                <i class="fa-solid fa-star star-icon"></i>
 
-                        <div class="card-data-box">
-                            <div class="card-name">${meta.name}</div>
-                            <div class="card-ownership-bar">${ownership}</div>
-                            <div class="card-points">${pts}</div>
-                        </div>
-                    </div>`;
+                <div class="card-data-box">
+                    <div class="card-name">${meta.name}</div>
+                    <div class="card-points">${pts}</div>
+                    <div class="card-ownership-bar">${ownership}</div>
+                </div>
+            </div>`;
 
-                grid.innerHTML += cardHtml;
-            });
-        }
+        grid.innerHTML += cardHtml;
+    });
+}
 
         if(state.fplId) {
             initData().then(fetchAndRender);
