@@ -40,7 +40,13 @@ function loadNavbar() {
       </div>
     </div>
 
-   
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
+        <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
+        <a href="prices.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
+        <a href="games.html" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
+    </nav>
+    `;
 
     // Insert the HTML into the placeholder
     const placeholder = document.getElementById('nav-placeholder');
