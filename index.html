@@ -55,17 +55,49 @@
     <div id="nav-placeholder"></div>
 
 
-    <main class="page-content">
-        <div style="padding: 0 15px 15px; display:flex; justify-content:space-between; align-items:center;">
-            <span id="disp-name" style="font-weight:900; font-size: 1.1rem;">Manager Name <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: var(--primary-blue);"></i></span>
-            <div class="nav-icon-btn" onclick="fetchAndRender()"><i class="fa-solid fa-rotate"></i></div>
+   <main class="page-content">
+    <div class="dashboard-header">
+        <div class="manager-info">
+            <span id="disp-name">Manager Name <i class="fa-solid fa-chevron-down"></i></span>
+            <div class="action-icons">
+                <i class="fa-solid fa-pen" onclick="resetTeamID()"></i>
+                <i class="fa-solid fa-gear"></i>
+                <i class="fa-solid fa-plus"></i>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-label">GW21 Rank</div>
+                <div class="stat-value" id="disp-gw-rank">958,518</div>
+            </div>
+            <div class="stat-box live-rank-box">
+                <div class="stat-label">Live Rank <span class="badge post">Post</span></div>
+                <div class="stat-value">
+                    <span id="disp-rank">2,632,892</span>
+                    <i class="fa-solid fa-circle-up trend-up"></i>
+                </div>
+                <div class="stat-sub">Old: 3,113,149 (+15.43%)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Points <i class="fa-regular fa-circle-question"></i></div>
+                <div class="stat-value" id="disp-total">68</div>
+                <div class="stat-sub">Safety: 55 Δ:+13</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pitch-container">
+        <div class="pitch-overlay">
+            <div class="pitch-row" id="gk-row"></div>
+            <div class="pitch-row" id="def-row"></div>
+            <div class="pitch-row" id="mid-row"></div>
+            <div class="pitch-row" id="fwd-row"></div>
         </div>
         
-        <div class="header-stats-grid">
-            <div style="border-right: 1px solid var(--border-color);"><div class="stat-label">GW Rank</div><div class="stat-value" id="disp-gw-rank">-</div></div>
-            <div style="border-right: 1px solid var(--border-color);"><div class="stat-label">Overall Rank</div><div class="stat-value" id="disp-rank">0</div></div>
-            <div><div class="stat-label">Live Pts</div><div class="stat-value" id="disp-total">0</div></div>
-        </div>
+        <div class="bench-container" id="bench-row"></div>
+    </div>
+</main>
         
         
     </main>
@@ -198,21 +230,44 @@
             } catch(e) { console.error("Fetch failed", e); }
         }
 
-        function renderPitch(picks, ptsMap) {
-            ['gk-row', 'def-row', 'mid-row', 'fwd-row'].forEach(id => document.getElementById(id).innerHTML = '');
-            picks.slice(0, 11).forEach(p => {
-                const meta = state.playerMap[p.element];
-                if(!meta) return;
-                const pts = (ptsMap[p.element] || 0) * (p.multiplier || 1);
-                const row = meta.pos === 1 ? 'gk-row' : meta.pos === 2 ? 'def-row' : meta.pos === 3 ? 'mid-row' : 'fwd-row';
-                document.getElementById(row).innerHTML += `
-                    <div class="player-card">
-                        <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png" style="width:40px;">
-                        <div class="p-info-box"><div class="p-name">${meta.name}</div><div class="p-pts">${pts}</div></div>
-                    </div>`;
-            });
-        }
+       function renderPitch(picks, ptsMap) {
+    // Clear all rows
+    ['gk-row', 'def-row', 'mid-row', 'fwd-row', 'bench-row'].forEach(id => {
+        document.getElementById(id).innerHTML = '';
+    });
 
+    picks.forEach((p, index) => {
+        const meta = state.playerMap[p.element];
+        if (!meta) return;
+
+        const pts = (ptsMap[p.element] || 0) * (p.multiplier || 1);
+        
+        // Example dynamic "Details" (In a real app, these come from the live API)
+        const eo = "25%"; // Effective Ownership
+        const top10k = "15%"; // Top 10k Ownership
+
+        const cardHtml = `
+            <div class="player-card">
+                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png">
+                <div class="p-info-box">
+                    <div class="p-name">${meta.name}</div>
+                    <div class="p-pts">${pts}</div>
+                    <div class="p-stats-row">
+                        <div class="p-stat-item">${top10k}</div>
+                        <div class="p-stat-item active">${eo}</div>
+                    </div>
+                </div>
+                ${p.is_captain ? '<div class="c-badge">C</div>' : ''}
+            </div>`;
+
+        if (index < 11) {
+            const rowId = meta.pos === 1 ? 'gk-row' : meta.pos === 2 ? 'def-row' : meta.pos === 3 ? 'mid-row' : 'fwd-row';
+            document.getElementById(rowId).innerHTML += cardHtml;
+        } else {
+            document.getElementById('bench-row').innerHTML += cardHtml;
+        }
+    });
+}
         if(state.fplId) {
             initData().then(fetchAndRender);
         } else {
