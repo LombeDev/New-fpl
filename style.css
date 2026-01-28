@@ -803,22 +803,25 @@ body.dark-mode .card-header { background: #0f172a; }
 
 
 
-
-             /* Sidebar Styles */
+/* --- SIDEBAR DRAWER --- */
 .sidebar {
     position: fixed;
     top: 0;
-    left: -280px; /* Hidden by default */
+    left: -285px; /* Hidden width + shadow buffer */
     width: 280px;
     height: 100%;
     background: var(--fpl-purple);
-    z-index: 5000;
-    transition: 0.3s ease;
-    box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+    z-index: 6000; /* Above Top Nav */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
-.sidebar.open { left: 0; }
+.sidebar.open {
+    transform: translateX(285px);
+}
 
 .sidebar-header {
     display: flex;
@@ -826,107 +829,70 @@ body.dark-mode .card-header { background: #0f172a; }
     align-items: center;
     color: white;
     margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.sidebar-links { display: flex; flex-direction: column; gap: 5px; }
+.sidebar-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
 
 .side-item {
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 12px 15px;
-    color: rgba(255,255,255,0.8);
+    color: rgba(255, 255, 255, 0.85);
     text-decoration: none;
-    font-weight: 600;
+    padding: 12px 15px;
     border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
     transition: 0.2s;
 }
 
-
-
-
-             /* --- COLORS --- */
-:root {
-    --fpl-purple: #37003c;
-    --fpl-dark-purple: #24002b;
-    --fpl-green: #00ff85;
-}
-
-/* --- HEADER & NAV --- */
-.top-nav {
-    position: fixed; top: 0; width: 100%; height: 60px;
-    background: var(--fpl-purple); color: white;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 15px; z-index: 5000; box-sizing: border-box;
-}
-
-.secondary-nav {
-    position: fixed; top: 60px; width: 100%;
-    background: var(--fpl-dark-purple); z-index: 4900;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.nav-scroll-wrapper {
-    display: flex; overflow-x: auto; white-space: nowrap; padding: 12px 5px;
-    scrollbar-width: none;
-}
-.nav-scroll-wrapper::-webkit-scrollbar { display: none; }
-
-.nav-tab {
-    color: rgba(255,255,255,0.7); text-decoration: none; padding: 0 15px;
-    font-size: 0.9rem; font-weight: 600; position: relative;
-}
-.nav-tab.active { color: white; }
-.nav-tab.active::after {
-    content: ""; position: absolute; bottom: -12px; left: 0; width: 100%;
-    height: 3px; background: var(--fpl-green);
-}
-
-/* --- SIDEBAR --- */
-.sidebar {
-    position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
-    background: var(--fpl-purple); z-index: 6000; transition: 0.3s ease;
-    padding: 20px; box-sizing: border-box;
-}
-.sidebar.open { left: 0; }
-.overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); display: none; z-index: 5500;
-}
-.overlay.show { display: block; }
-
-/* --- STICKY SYNC --- */
-.sync-section-wrapper {
-    margin-top: 105px; /* Offset for both headers */
-    padding: 15px 10px;
-    position: sticky; top: 105px; z-index: 4000;
-    background: var(--bg);
-}
-.sync-container {
-    background: white; border-radius: 16px; padding: 12px;
-    display: flex; gap: 10px; border: 1px solid #e2e8f0;
+.side-item i {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
 }
 
 .side-item:hover, .side-item.active {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     color: var(--fpl-green);
 }
 
-.side-item i { width: 20px; text-align: center; }
+.sidebar hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 15px 0;
+}
 
-hr { border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0; }
-
-/* Overlay Background */
+/* --- OVERLAY --- */
 .overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    z-index: 5500;
     display: none;
-    z-index: 4500;
-    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.overlay.show { display: block; }
+.overlay.show {
+    display: block;
+    opacity: 1;
+}
+
+
+             /* Apply this to the first element following the navs */
+.sync-section-wrapper, .page-content {
+    padding-top: calc(var(--nav-height) + var(--subnav-height) + 15px);
+}
+
+
