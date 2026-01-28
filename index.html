@@ -18,36 +18,38 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
+    /* Ultra-compact container with the LiveFPL blue-grey tint */
     .player-grid-container {
-        background: #e9f0f5; /* Light blue-grey background from photo */
-        padding: 12px 8px;
-        border-radius: 12px;
-        margin: 10px;
+        background: #eef3f7; 
+        padding: 6px 2px;
+        border-radius: 10px;
+        margin: 5px;
     }
 
+    /* 8-Column Grid for maximum horizontal density */
     .player-list-grid {
         display: grid;
-        grid-template-columns: repeat(5, 1fr); /* 5 columns x 3 rows = 15 players */
-        gap: 12px 4px;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 6px 1px;
         justify-items: center;
     }
 
     .compact-player-card {
-        width: 65px;
+        width: 44px; /* Narrowest possible width to fit 8 across */
         display: flex;
         flex-direction: column;
         align-items: center;
         position: relative;
     }
 
-    /* Jersey size */
+    /* Nano Jersey */
     .compact-player-card img {
-        width: 32px;
-        margin-bottom: 4px;
-        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+        width: 22px; 
+        margin-bottom: 1px;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+        z-index: 2;
     }
 
-    /* Data Container */
     .card-data-box {
         width: 100%;
         display: flex;
@@ -55,77 +57,74 @@
         align-items: center;
     }
 
+    /* Nano Typography */
     .card-name {
-        font-size: 0.65rem;
+        font-size: 0.45rem; /* Tiny text for 8-column fit */
         font-weight: 800;
-        color: #333;
-        margin-bottom: 2px;
+        color: #2d3436;
+        margin-bottom: 1px;
         text-align: center;
         white-space: nowrap;
         overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
     }
 
-    /* Rounded Points Box */
+    /* Minimal Pill Box */
     .card-points {
-        background: white;
-        color: black;
-        font-size: 0.8rem;
-        font-weight: 900;
-        padding: 2px 10px;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        margin-bottom: 2px;
-        min-width: 30px;
-        text-align: center;
-    }
-
-    /* Ownership Bar */
-    .card-ownership-bar {
-        background: #b8e994; /* Exact soft green from photo */
-        color: #2d3436;
+        background: #ffffff;
+        color: #000;
         font-size: 0.6rem;
-        padding: 1px 4px;
-        border-radius: 4px;
-        font-weight: 600;
-        width: 80%;
+        font-weight: 900;
+        padding: 0px 4px;
+        border-radius: 5px;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        margin-bottom: 1px;
+        min-width: 20px;
         text-align: center;
     }
 
-    /* Bench/Inactive Styling */
-    .is-bench {
-        opacity: 0.6;
-    }
-    .is-bench .card-points {
-        background: #dfe6e9;
+    /* Nano Ownership Bar */
+    .card-ownership-bar {
+        background: #00ff85; 
+        color: #1a1a1a;
+        font-size: 0.4rem;
+        padding: 0px;
+        border-radius: 2px;
+        font-weight: 700;
+        width: 95%;
+        text-align: center;
     }
 
-    /* Badges (C, V, TC) */
+    /* Micro Badges for C/V */
     .badge {
         position: absolute;
-        top: 15px;
-        right: 12px;
-        width: 16px;
-        height: 16px;
-        background: #34495e; /* Dark slate for C/V */
+        top: 10px;
+        right: 2px;
+        width: 11px;
+        height: 11px;
+        background: #2d3436;
         color: white;
         border-radius: 50%;
-        font-size: 0.55rem;
+        font-size: 0.35rem;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 900;
-        border: 1.5px solid white;
+        border: 1px solid white;
+        z-index: 3;
     }
-    
-    .badge.tc { background: #54a0ff; } /* Blue for Triple Captain */
 
     .star-icon {
         position: absolute;
-        top: 2px;
-        right: 10px;
+        top: -2px;
+        left: 2px;
+        font-size: 0.5rem;
         color: #f1c40f;
-        font-size: 0.7rem;
+        z-index: 3;
     }
+
+    .is-bench { opacity: 0.5; }
 </style>
 </head>
 <body class="dark-mode">
@@ -268,24 +267,27 @@
         const meta = state.playerMap[p.element];
         if (!meta) return;
 
-        const pts = (ptsMap[p.element] || 0) * (p.multiplier || 1);
-        const isBench = index >= 11; // Last 4 players are bench
+        // Calculate points with captaincy multiplier
+        const rawPts = ptsMap[p.element] || 0;
+        const totalPts = rawPts * (p.multiplier || 1);
         
-        // Ownership percentage (In real use, map this from your data)
-        const ownership = "25%"; 
+        const isBench = index >= 11;
+        const ownership = meta.ownership || "0.0"; 
 
         const cardHtml = `
             <div class="compact-player-card ${isBench ? 'is-bench' : ''}">
+                <i class="fa-solid fa-star star-icon"></i>
                 <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png">
                 
-                ${p.is_captain ? `<div class="badge ${p.multiplier === 3 ? 'tc' : ''}">C</div>` : ''}
+                ${p.is_captain ? `<div class="badge">C</div>` : ''}
                 ${p.is_vice_captain ? `<div class="badge">V</div>` : ''}
-                <i class="fa-solid fa-star star-icon"></i>
-
+                
                 <div class="card-data-box">
                     <div class="card-name">${meta.name}</div>
-                    <div class="card-points">${pts}</div>
-                    <div class="card-ownership-bar">${ownership}</div>
+                    <div class="card-points">${totalPts}</div>
+                    <div class="card-ownership-bar" style="background: linear-gradient(90deg, #00ff85 ${ownership}%, #ddd ${ownership}%)">
+                        ${ownership}%
+                    </div>
                 </div>
             </div>`;
 
