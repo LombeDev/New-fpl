@@ -842,6 +842,71 @@ body.dark-mode .card-header { background: #0f172a; }
     transition: 0.2s;
 }
 
+
+
+
+             /* --- COLORS --- */
+:root {
+    --fpl-purple: #37003c;
+    --fpl-dark-purple: #24002b;
+    --fpl-green: #00ff85;
+}
+
+/* --- HEADER & NAV --- */
+.top-nav {
+    position: fixed; top: 0; width: 100%; height: 60px;
+    background: var(--fpl-purple); color: white;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 15px; z-index: 5000; box-sizing: border-box;
+}
+
+.secondary-nav {
+    position: fixed; top: 60px; width: 100%;
+    background: var(--fpl-dark-purple); z-index: 4900;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.nav-scroll-wrapper {
+    display: flex; overflow-x: auto; white-space: nowrap; padding: 12px 5px;
+    scrollbar-width: none;
+}
+.nav-scroll-wrapper::-webkit-scrollbar { display: none; }
+
+.nav-tab {
+    color: rgba(255,255,255,0.7); text-decoration: none; padding: 0 15px;
+    font-size: 0.9rem; font-weight: 600; position: relative;
+}
+.nav-tab.active { color: white; }
+.nav-tab.active::after {
+    content: ""; position: absolute; bottom: -12px; left: 0; width: 100%;
+    height: 3px; background: var(--fpl-green);
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+    background: var(--fpl-purple); z-index: 6000; transition: 0.3s ease;
+    padding: 20px; box-sizing: border-box;
+}
+.sidebar.open { left: 0; }
+.overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); display: none; z-index: 5500;
+}
+.overlay.show { display: block; }
+
+/* --- STICKY SYNC --- */
+.sync-section-wrapper {
+    margin-top: 105px; /* Offset for both headers */
+    padding: 15px 10px;
+    position: sticky; top: 105px; z-index: 4000;
+    background: var(--bg);
+}
+.sync-container {
+    background: white; border-radius: 16px; padding: 12px;
+    display: flex; gap: 10px; border: 1px solid #e2e8f0;
+}
+
 .side-item:hover, .side-item.active {
     background: rgba(255,255,255,0.1);
     color: var(--fpl-green);
