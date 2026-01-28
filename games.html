@@ -40,8 +40,8 @@
         <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
         <a href="prices.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
         <a href="games.html" class="nav-item active"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
+        <a href="members.html" class="nav-item"><i class="fa-solid fa-user-tie"></i><span>Members</span></a>
         <a href="10k.html" class="nav-item"><i class="fa fa-bar-chart"></i><span>You vs 10k</span></a>
-        <a href="#" class="nav-item"><i class="fa fa-question-circle"></i><span>About</span></a>
         <a href="https://wa.me/260964836842" class="nav-item"><i class="fa fa-comments"></i><span>Support</span></a>
         <a href="#" class="nav-item"><i class="fa fa-ellipsis-h"></i><span>More</span></a>
     </nav>
@@ -116,73 +116,61 @@
         }
 
         function renderGames(fixtures) {
-    const list = document.getElementById('games-list');
-    let lastDate = "";
-    
-    list.innerHTML = fixtures.map(f => {
-        const isLive = f.started && !f.finished;
-        const hTeam = teams.find(t => t.id === f.team_h);
-        const aTeam = teams.find(t => t.id === f.team_a);
-        
-        // --- Date Separator Logic ---
-        const kickoff = new Date(f.kickoff_time);
-        const dateStr = kickoff.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' });
-        let dateHeader = "";
-        
-        if (dateStr !== lastDate) {
-            dateHeader = `<div class="date-separator">${dateStr}</div>`;
-            lastDate = dateStr;
-        }
+            const list = document.getElementById('games-list');
+            list.innerHTML = fixtures.map(f => {
+                const isLive = f.started && !f.finished;
+                const hTeam = teams.find(t => t.id === f.team_h);
+                const aTeam = teams.find(t => t.id === f.team_a);
 
-        let bonusMarkup = "";
-        const bonusStat = f.stats.find(s => s.identifier === (f.finished ? "bonus" : "bps"));
-        if (bonusStat) {
-            const top3 = [...bonusStat.h, ...bonusStat.a].sort((a,b) => b.value - a.value).slice(0,3);
-            bonusMarkup = top3.map((p, i) => {
-                const name = players.find(x => x.id === p.element)?.web_name;
-                return `<span class="bonus-player">${name}<span class="pts-pill">${f.finished ? p.value : (3-i)}</span></span>`;
+                let bonusMarkup = "";
+                const bonusStat = f.stats.find(s => s.identifier === (f.finished ? "bonus" : "bps"));
+                if (bonusStat) {
+                    const top3 = [...bonusStat.h, ...bonusStat.a].sort((a,b) => b.value - a.value).slice(0,3);
+                    bonusMarkup = top3.map((p, i) => {
+                        const name = players.find(x => x.id === p.element)?.web_name;
+                        return `<span class="bonus-player">${name}<span class="pts-pill">${f.finished ? p.value : (3-i)}</span></span>`;
+                    }).join('');
+                }
+
+                const matchPlayers = players
+                    .filter(p => p.team === f.team_h || p.team === f.team_a)
+                    .sort((a,b) => b.selected_by_percent - a.selected_by_percent)
+                    .slice(0, 5);
+
+                return `
+                    <div class="m-card">
+                        <div class="m-main">
+                            <div class="team-box">
+                                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${hTeam.code}-66.png" class="kit-img">
+                                <span class="team-name">${hTeam.short_name}</span>
+                            </div>
+                            <div class="score-center">
+                                <div class="status-badge ${f.finished ? 'badge-done' : (isLive ? 'badge-live' : 'badge-sched')}">
+                                    ${f.finished ? 'Finished' : (isLive ? 'Live' : (f.kickoff_time ? new Date(f.kickoff_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Scheduled'))}
+                                </div>
+                                <div class="score-val">${f.team_h_score ?? 0} : ${f.team_a_score ?? 0}</div>
+                            </div>
+                            <div class="team-box">
+                                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${aTeam.code}-66.png" class="kit-img">
+                                <span class="team-name">${aTeam.short_name}</span>
+                            </div>
+                        </div>
+                        <div class="m-footer">
+                            <span style="opacity:0.7">${f.finished ? 'BONUS' : 'BPS TOP 3'}</span><br>${bonusMarkup || '---'}
+                        </div>
+                        <button class="expand-btn" onclick="toggleDrawer(${f.id})">Expand Stats <i class="fa-solid fa-chevron-down"></i></button>
+                        <div class="drawer" id="drawer-${f.id}">
+                            ${matchPlayers.map(p => `
+                                <div class="own-row">
+                                    <span>${p.web_name} <small style="color:var(--text-muted)">(${p.selected_by_percent}%)</small></span>
+                                    <span class="live-pts-badge">${f.started ? calculateLivePoints(p.id, f) : 0}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
             }).join('');
         }
 
-        const matchPlayers = players
-            .filter(p => p.team === f.team_h || p.team === f.team_a)
-            .sort((a,b) => b.selected_by_percent - a.selected_by_percent)
-            .slice(0, 5);
-
-        return `
-            ${dateHeader}
-            <div class="m-card">
-                <div class="m-main">
-                    <div class="team-box">
-                        <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${hTeam.code}-66.png" class="kit-img">
-                        <span class="team-name">${hTeam.short_name}</span>
-                    </div>
-                    <div class="score-center">
-                        <div class="status-badge ${f.finished ? 'badge-done' : (isLive ? 'badge-live' : 'badge-sched')}">
-                            ${f.finished ? 'Finished' : (isLive ? 'Live' : kickoff.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}))}
-                        </div>
-                        <div class="score-val">${f.team_h_score ?? 0} : ${f.team_a_score ?? 0}</div>
-                    </div>
-                    <div class="team-box">
-                        <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${aTeam.code}-66.png" class="kit-img">
-                        <span class="team-name">${aTeam.short_name}</span>
-                    </div>
-                </div>
-                <div class="m-footer">
-                    <span style="opacity:0.7">${f.finished ? 'BONUS' : 'BPS TOP 3'}</span><br>${bonusMarkup || '---'}
-                </div>
-                <button class="expand-btn" onclick="toggleDrawer(${f.id})">Expand Stats <i class="fa-solid fa-chevron-down"></i></button>
-                <div class="drawer" id="drawer-${f.id}">
-                    ${matchPlayers.map(p => `
-                        <div class="own-row">
-                            <span>${p.web_name} <small style="color:var(--text-muted)">(${p.selected_by_percent}%)</small></span>
-                            <span class="live-pts-badge">${f.started ? calculateLivePoints(p.id, f) : 0}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>`;
-    }).join('');
-}
         function toggleTheme() {
             const isDark = document.body.classList.toggle('dark-mode');
             document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
