@@ -51,13 +51,61 @@
         </div>
     </div>
 
-    <header class="top-nav">
-        <div class="nav-icon-btn" onclick="resetTeamID()" style="cursor: pointer;">
-    <i class="fa-solid fa-circle-user"></i>
-</div>
+<header class="top-nav">
+    <div class="nav-left">
+        <button class="hamburger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
         <div class="logo-container">Kopala<span>▲</span>FPL</div>
-        <div class="nav-icon-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></div>
-    </header>
+    </div>
+    <div class="nav-right">
+        <i class="fa-solid fa-sun" onclick="toggleTheme()"></i>
+        <i class="fa-solid fa-gear"></i>
+        <i class="fa-solid fa-circle-user" onclick="resetTeamID()"></i>
+    </div>
+</header>
+
+<nav class="secondary-nav">
+    <div class="nav-scroll-wrapper">
+        <a href="index.html" class="nav-tab active">Status <span class="active-badge">active</span></a>
+        <a href="#" class="nav-tab">Points</a>
+        <a href="#" class="nav-tab">Pick Team</a>
+        <a href="#" class="nav-tab">Transfers</a>
+        <a href="leagues.html" class="nav-tab">Leagues</a>
+        <a href="10k.html" class="nav-tab">10k Stats</a>
+        <a href="#" class="nav-tab">More</a>
+    </div>
+</nav>
+
+<div id="sidebar-overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+<aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-container">Kopala<span>▲</span>FPL</div>
+        <i class="fa-solid fa-xmark" onclick="toggleSidebar()"></i>
+    </div>
+    <nav class="sidebar-links">
+        <a href="index.html" class="side-item active"><i class="fa-solid fa-chart-line"></i> Rank Analytics</a>
+        <a href="leagues.html" class="side-item"><i class="fa-solid fa-trophy"></i> Leagues & Cups</a>
+        <a href="prices.html" class="side-item"><i class="fa-solid fa-tags"></i> Price Changes</a>
+        <a href="games.html" class="side-item"><i class="fa-solid fa-futbol"></i> Fixture Ticker</a>
+        <a href="10k.html" class="side-item"><i class="fa fa-bar-chart"></i> You vs Top 10k</a>
+        <hr>
+        <a href="#" class="side-item"><i class="fa fa-question-circle"></i> About Kopala</a>
+        <a href="https://wa.me/260964836842" class="side-item"><i class="fa fa-comments"></i> Support (WhatsApp)</a>
+    </nav>
+</aside>
+
+<div class="sync-container-wrapper">
+    <div class="sync-container">
+        <div class="input-wrapper">
+            <input type="text" id="team-id" placeholder="Paste FPL ID here...">
+            <span id="id-error" class="error-text">ID not found. Please try again.</span>
+        </div>
+        <button id="sync-btn" onclick="fetchFPLData()">Sync</button>
+    </div>
+</div>
+
+<main id="main-content" class="container hidden">
+    </main>
 
     <main class="page-content">
         <div style="padding: 0 15px 15px; display:flex; justify-content:space-between; align-items:center;">
@@ -74,17 +122,7 @@
         
     </main>
 
-    <nav class="bottom-nav">
-        <a href="index.html" class="nav-item active"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
-        <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
-        <a href="prices.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
-        <a href="games.html" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
-        <a href="10k.html" class="nav-item"><i class="fa fa-bar-chart"></i><span>You vs 10k</span></a>
-        <a href="#" class="nav-item"><i class="fa fa-question-circle"></i><span>About</span></a>
-        <a href="https://wa.me/260964836842" class="nav-item"><i class="fa fa-comments"></i><span>Support</span></a>
-        
-        <a href="#" class="nav-item"><i class="fa fa-ellipsis-h"></i><span>More</span></a>
-    </nav>
+   
 
     <script>
         const state = {
