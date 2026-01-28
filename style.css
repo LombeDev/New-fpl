@@ -1,25 +1,17 @@
-/* --- MODERN FPL BRANDED VARIABLES --- */
+/* --- MASTER FPL STYLE: COMPACT EDITION --- */
 :root {
     --bg-color: #f8fafc;
-    --card-bg: rgba(255, 255, 255, 0.8);
-    --text-main: #37003c;       /* FPL Purple */
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --text-main: #37003c;
     --text-muted: #64748b;
-    --primary-blue: #e90052;    /* FPL Pink */
-    --primary-hover: #c50046;   /* Darker Pink */
-    --fpl-green: #00ff85;       /* FPL Neon Green */
+    --primary-blue: #e90052;
+    --fpl-green: #00ff85;
     --fpl-pink: #e90052;
     --fpl-purple: #37003c;
     --border-color: rgba(226, 232, 240, 0.8);
     --pitch-green: #008040;
     --glass-blur: blur(12px);
     --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    --live-badge: #e90052;
-    --done-badge: #37003c;
-    --success-bg: #dcfce7;
-    --success-text: #15803d;
-    --warning-bg: #fef9c3;
-    --warning-text: #a16207;
 }
 
 body.dark-mode {
@@ -29,129 +21,70 @@ body.dark-mode {
     --text-muted: #94a3b8;
     --border-color: rgba(51, 65, 85, 0.5);
     --fpl-purple: #000000;
-    --fpl-pink: #ff2e7e;
-    --primary-blue: #ff2e7e;
 }
 
-/* --- RESET & BASE --- */
-* {
-    -webkit-tap-highlight-color: transparent;
-    box-sizing: border-box;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; padding: 0; background: var(--bg-color); color: var(--text-main); font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
-body {
-    margin: 0; padding: 0;
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    font-family: 'Inter', -apple-system, sans-serif;
-    line-height: 1.5;
-    overflow-x: hidden;
-    padding-bottom: 90px;
-}
-
-/* --- NAVIGATION --- */
-.top-nav, header {
-    position: fixed; top: 0; width: 100%; height: 65px;
-    background: var(--fpl-purple) !important;
-    backdrop-filter: var(--glass-blur);
-    border-bottom: 3px solid var(--fpl-green);
+/* --- NAV & HEADER --- */
+header, .top-nav {
+    position: fixed; top: 0; width: 100%; height: 60px;
+    background: var(--fpl-purple) !important; border-bottom: 3px solid var(--fpl-green);
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 20px; z-index: 3000; color: white;
+    padding: 0 15px; z-index: 3000; color: white;
 }
-
-.logo-container { font-weight: 900; font-size: 1.2rem; letter-spacing: -0.5px; }
-.logo-container span { color: var(--fpl-green); }
-
 .bottom-nav {
     position: fixed; bottom: 0; width: 100%; height: 75px;
     background: var(--card-bg); backdrop-filter: var(--glass-blur);
-    border-top: 1px solid var(--border-color);
-    display: grid; grid-template-columns: repeat(8, 1fr);
-    padding: 8px 0; z-index: 3000;
+    border-top: 1px solid var(--border-color); display: grid;
+    grid-template-columns: repeat(8, 1fr); z-index: 3000;
 }
-
-.nav-item {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700;
-}
+.nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: var(--text-muted); font-size: 0.55rem; font-weight: 700; }
 .nav-item.active { color: var(--fpl-pink); }
 .nav-item i { font-size: 1.1rem; margin-bottom: 2px; }
 
-/* --- DASHBOARD ELEMENTS --- */
-.page-content { padding: 80px 10px 100px; max-width: 600px; margin: 0 auto; }
+/* --- LOGIN & SYNC --- */
+#login-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #37003c 0%, #e90052 100%); z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+.login-card { background: var(--card-bg); padding: 30px; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: var(--shadow-sm); }
+.fpl-input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 15px; font-size: 1rem; }
+.continue-btn { width: 100%; padding: 15px; background: var(--fpl-pink); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; }
 
-.header-stats-grid { 
-    display: grid; grid-template-columns: repeat(3, 1fr); 
-    background: var(--card-bg); border-radius: 16px; 
-    padding: 12px; text-align: center; border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm); margin-bottom: 15px;
-}
-.stat-label { font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
-.stat-value { font-size: 1rem; font-weight: 900; color: var(--text-main); }
+/* --- MINI PLAYER & PITCH (The Requested Change) --- */
+.page-content { padding: 75px 12px 100px; max-width: 600px; margin: 0 auto; }
+.pitch-container { background: linear-gradient(180deg, #008040 0%, #005a2d 100%); border-radius: 16px; padding: 15px 5px; min-height: 420px; box-shadow: inset 0 0 40px rgba(0,0,0,0.3); }
 
-/* --- COMPACT PITCH AREA --- */
-.pitch-container, .pitch { 
-    background: var(--pitch-green);
-    background-image: 
-        linear-gradient(rgba(255,255,255,0.1) 2px, transparent 2px),
-        linear-gradient(90deg, rgba(255,255,255,0.1) 2px, transparent 2px);
-    background-size: 50% 100%, 100% 50%;
-    border-radius: 20px; padding: 15px 5px; min-height: 400px;
-    display: flex; flex-direction: column; gap: 10px;
-    box-shadow: inset 0 0 40px rgba(0,0,0,0.2);
-}
+.player-mini, .player-card { width: 52px; display: flex; flex-direction: column; align-items: center; margin: 0 auto; }
+.kit-img, .player-card img { width: 28px !important; height: auto; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); margin-bottom: 2px; }
 
-/* --- MINI PLAYER CARDS --- */
-.player-mini, .player-card {
-    width: 55px; /* Shrunk from 65px */
-    display: flex; flex-direction: column; align-items: center;
-}
+.name-tag, .p-name, .shirt-name { background: #111; color: white; font-size: 0.5rem; width: 100%; padding: 2px 1px; font-weight: 700; text-align: center; border-radius: 2px 2px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pts-tag, .p-pts, .player-pts { background: var(--fpl-green); color: black; font-size: 0.7rem; width: 100%; text-align: center; padding: 1px 0; font-weight: 900; border-radius: 0 0 2px 2px; }
 
-.kit-img, .player-card img { 
-    width: 30px !important; /* Forces jersey to be very small */
-    height: auto; 
-    filter: drop-shadow(0 3px 3px rgba(0,0,0,0.2));
-    margin-bottom: 3px;
-}
-
-.name-tag, .p-name { 
-    background: #111; color: #fff; 
-    font-size: 0.5rem; /* Tiny font */
-    width: 100%; padding: 2px 1px; font-weight: 700; text-align: center;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-.pts-tag, .p-pts, .player-pts { 
-    background: var(--fpl-green); color: #000; 
-    font-size: 0.75rem; /* Small font */
-    font-weight: 900; width: 100%; text-align: center; padding: 1px 0;
-    border-radius: 0 0 4px 4px;
-}
-
-/* --- SIDEBAR & OVERLAY --- */
-.sidebar {
-    position: fixed; top: 0; left: -285px; width: 280px; height: 100%;
-    background: var(--fpl-purple); z-index: 6000;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 20px; box-sizing: border-box; display: flex; flex-direction: column;
-}
-.sidebar.open { transform: translateX(285px); }
-
-.overlay {
-    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(3px); z-index: 5500; display: none; opacity: 0;
-}
-.overlay.show { display: block; opacity: 1; }
+/* --- LEAGUE TABLES --- */
+.table-header { background: var(--fpl-purple); color: white; padding: 10px; display: grid; grid-template-columns: 35px 1fr 45px 45px 60px; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
+.manager-row { background: var(--card-bg); border-bottom: 1px solid var(--border-color); }
+.row-summary { display: grid; grid-template-columns: 35px 1fr 45px 45px 60px; padding: 12px 10px; align-items: center; }
+.name-cell b { font-size: 0.85rem; display: block; }
+.name-cell small { font-size: 0.7rem; color: var(--text-muted); }
+.total-pts-cell { font-weight: 900; color: var(--primary-blue); text-align: right; }
 
 /* --- MATCH CARDS --- */
-.m-card { 
-    background: var(--card-bg); border-radius: 12px; 
-    margin-bottom: 12px; border: 1px solid var(--border-color);
-}
-.score-val { font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; }
-.team-name { font-size: 0.7rem; font-weight: 800; }
+.m-card { background: var(--card-bg); border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border-color); overflow: hidden; }
+.m-main { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; }
+.team-box { flex: 1; text-align: center; font-size: 0.7rem; font-weight: 800; }
+.score-center { flex: 1.2; text-align: center; }
+.score-val { font-size: 1.4rem; font-weight: 900; letter-spacing: 2px; }
+.status-badge { font-size: 0.55rem; padding: 2px 8px; border-radius: 4px; color: white; text-transform: uppercase; }
+.badge-live { background: var(--fpl-pink); animation: pulse 2s infinite; }
+.badge-done { background: var(--fpl-purple); }
 
-/* --- UTILITIES --- */
+/* --- SIDEBAR --- */
+.sidebar { position: fixed; top: 0; left: -285px; width: 280px; height: 100%; background: var(--fpl-purple); z-index: 6000; transition: transform 0.3s ease; padding: 20px; color: white; }
+.sidebar.open { transform: translateX(285px); }
+.side-item { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; }
+.side-item.active, .side-item:hover { background: rgba(255,255,255,0.1); color: var(--fpl-green); }
+
+/* --- UTILS --- */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 5500; display: none; }
+.overlay.show { display: block; }
 .hidden { display: none; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
