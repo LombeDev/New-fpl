@@ -18,75 +18,113 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
+    /* Ultra-compact container with the LiveFPL blue-grey tint */
+    .player-grid-container {
+        background: #eef3f7; 
+        padding: 0px 0px;
+        border-radius: 10px;
+        margin: 5px;
+    }
+
+    /* 8-Column Grid for maximum horizontal density */
     .player-list-grid {
         display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 10px 2px;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 6px 1px;
         justify-items: center;
     }
 
     .compact-player-card {
-        width: 46px;
+        width: 44px; /* Narrowest possible width to fit 8 across */
         display: flex;
         flex-direction: column;
         align-items: center;
         position: relative;
     }
 
+    /* Nano Jersey */
+    .compact-player-card img {
+        width: 22px; 
+        margin-bottom: 1px;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+        z-index: 2;
+    }
+
+    .card-data-box {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Nano Typography */
     .card-name {
-        font-size: 0.5rem;
+        font-size: 0.45rem; /* Tiny text for 8-column fit */
         font-weight: 800;
+        color: #2d3436;
+        margin-bottom: 1px;
         text-align: center;
-        color: var(--text-color, #000);
-        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
     }
 
+    /* Minimal Pill Box */
     .card-points {
-        background: #fff;
+        background: #ffffff;
         color: #000;
-        font-size: 0.7rem;
+        font-size: 0.6rem;
         font-weight: 900;
-        padding: 1px 5px;
+        padding: 0px 4px;
         border-radius: 5px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        margin-bottom: 1px;
+        min-width: 20px;
+        text-align: center;
     }
 
-    /* Opponent Label Styling */
-    .card-opponent {
-        font-size: 0.45rem;
+    /* Nano Ownership Bar */
+    .card-ownership-bar {
+        background: #00ff85; 
+        color: #1a1a1a;
+        font-size: 0.4rem;
+        padding: 0px;
+        border-radius: 2px;
         font-weight: 700;
-        color: #555;
-        margin-top: 2px;
-        text-transform: uppercase;
-        background: rgba(0,0,0,0.05);
-        padding: 1px 3px;
-        border-radius: 3px;
-    }
-    .dark-mode .card-opponent { 
-        color: #ccc; 
-        background: rgba(255,255,255,0.1); 
+        width: 95%;
+        text-align: center;
     }
 
-
-        .card-opponent {
-        font-size: 0.45rem;
-        font-weight: 800;
-        margin-top: 2px;
-        padding: 1px 4px;
-        border-radius: 3px;
-        color: white; /* Contrast against FDR colors */
-        text-transform: uppercase;
+    /* Micro Badges for C/V */
+    .badge {
+        position: absolute;
+        top: 10px;
+        right: 2px;
+        width: 11px;
+        height: 11px;
+        background: #2d3436;
+        color: white;
+        border-radius: 50%;
+        font-size: 0.35rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        border: 1px solid white;
+        z-index: 3;
     }
 
-    /* FDR Color Coding */
-    .fdr-2 { background: #00ff85; color: #1a1a1a; } /* Easy - Green */
-    .fdr-3 { background: #e2e2e2; color: #1a1a1a; } /* Moderate - Grey */
-    .fdr-4 { background: #ff185e; }                 /* Hard - Pink/Red */
-    .fdr-5 { background: #80072d; }                 /* Very Hard - Maroon */
+    .star-icon {
+        position: absolute;
+        top: -2px;
+        left: 2px;
+        font-size: 0.5rem;
+        color: #f1c40f;
+        z-index: 3;
+    }
 
-    /* Ensure names/points stay visible in dark mode without the white box */
-    .dark-mode .card-name { color: #fff; }
-    .dark-mode .card-points { background: #2d3436; color: #fff; }
+    .is-bench { opacity: 0.5; }
 </style>
 </head>
 <body class="dark-mode">
@@ -221,8 +259,7 @@
             } catch(e) { console.error("Fetch failed", e); }
         }
 
-     
-function renderPlayerGrid(picks, ptsMap) {
+       function renderPlayerGrid(picks, ptsMap) {
     const grid = document.getElementById('player-list-grid');
     grid.innerHTML = ''; 
 
@@ -230,23 +267,27 @@ function renderPlayerGrid(picks, ptsMap) {
         const meta = state.playerMap[p.element];
         if (!meta) return;
 
-        const pts = (ptsMap[p.element] || 0) * (p.multiplier || 1);
+        // Calculate points with captaincy multiplier
+        const rawPts = ptsMap[p.element] || 0;
+        const totalPts = rawPts * (p.multiplier || 1);
         
-        // Get fixture data
-        const fixture = state.fixturesMap[meta.team_id] || { opp: "TBC", diff: 3 };
         const isBench = index >= 11;
+        const ownership = meta.ownership || "0.0"; 
 
         const cardHtml = `
             <div class="compact-player-card ${isBench ? 'is-bench' : ''}">
-                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png" style="width:24px;">
+                <i class="fa-solid fa-star star-icon"></i>
+                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png">
                 
                 ${p.is_captain ? `<div class="badge">C</div>` : ''}
                 ${p.is_vice_captain ? `<div class="badge">V</div>` : ''}
                 
                 <div class="card-data-box">
                     <div class="card-name">${meta.name}</div>
-                    <div class="card-points">${pts}</div>
-                    <div class="card-opponent fdr-${fixture.diff}">${fixture.opp}</div>
+                    <div class="card-points">${totalPts}</div>
+                    <div class="card-ownership-bar" style="background: linear-gradient(90deg, #00ff85 ${ownership}%, #ddd ${ownership}%)">
+                        ${ownership}%
+                    </div>
                 </div>
             </div>`;
 
