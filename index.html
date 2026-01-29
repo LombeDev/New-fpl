@@ -142,52 +142,63 @@
     .is-bench { opacity: 0.5; }
 
 
-
-        .deadline-section {
+.deadline-section {
     padding: 15px;
-    background: var(--card-bg);
-    border-radius: 12px;
-    margin: 10px;
-    color: var(--text-color);
+    background: var(--card-bg, #fff);
+    color: var(--text-color, #333);
 }
 
-.deadline-title { font-size: 1.1rem; font-weight: 800; margin: 0; }
-.gw-subtitle { font-size: 0.9rem; font-weight: 700; margin-bottom: 15px; color: var(--accent-color); }
+.deadline-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 5px; }
+.gw-subtitle { font-size: 1rem; font-weight: 700; margin-bottom: 20px; }
 
 .countdown-container {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 8px;
-    margin-bottom: 25px;
+    gap: 10px;
+    margin-bottom: 30px;
 }
 
-.time-unit { text-align: center; }
-.time-unit span { font-size: 1.8rem; font-weight: 900; display: block; line-height: 1; }
-.time-unit label { font-size: 0.65rem; text-transform: uppercase; opacity: 0.7; font-weight: 600; }
-.time-separator { font-size: 1.5rem; font-weight: 900; padding-bottom: 15px; }
+.time-unit span { 
+    font-size: 2.2rem; 
+    font-weight: 900; 
+    display: block; 
+    line-height: 1;
+    color: var(--accent-color, #38003c); 
+}
 
-.upcoming-title { font-size: 0.9rem; font-weight: 800; margin-bottom: 10px; }
+.time-unit label { 
+    font-size: 0.7rem; 
+    font-weight: 600; 
+    opacity: 0.8; 
+}
+
+.time-separator { 
+    font-size: 2rem; 
+    font-weight: 900; 
+    padding-bottom: 15px; 
+    color: var(--accent-color, #38003c);
+}
+
+.upcoming-title { font-size: 1rem; font-weight: 800; margin-top: 20px; margin-bottom: 15px; }
 
 .deadline-table-header {
     display: flex;
     justify-content: space-between;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    opacity: 0.6;
-    padding-bottom: 5px;
-    border-bottom: 1px solid var(--border-color);
+    opacity: 0.5;
+    padding-bottom: 10px;
 }
 
 .deadline-row {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.75rem;
+    padding: 12px 0;
+    border-top: 1px solid var(--border-color, #eee);
+    font-size: 0.85rem;
 }
 
-.deadline-row b { font-weight: 800; }
+.deadline-row b { font-weight: 700; }
 </style>
 </head>
 <body class="dark-mode">
@@ -233,44 +244,9 @@
             <div id="player-list-grid" class="player-list-grid"></div>
     
         </div>
-        <div class="deadline-section">
-    <div class="deadline-card">
-        <h2 class="deadline-title">Next Deadline</h2>
-        <div id="next-gw-label" class="gw-subtitle">Loading...</div>
         
-        <div class="countdown-container">
-            <div class="time-unit">
-                <span id="days">00</span>
-                <label>Days</label>
-            </div>
-            <div class="time-separator">:</div>
-            <div class="time-unit">
-                <span id="hours">00</span>
-                <label>Hours</label>
-            </div>
-            <div class="time-separator">:</div>
-            <div class="time-unit">
-                <span id="minutes">00</span>
-                <label>Minutes</label>
-            </div>
-            <div class="time-separator">:</div>
-            <div class="time-unit">
-                <span id="seconds">00</span>
-                <label>Seconds</label>
-            </div>
-        </div>
-    </div>
 
-    <div class="upcoming-deadlines">
-        <h3 class="upcoming-title">Upcoming Deadlines</h3>
-        <div class="deadline-table-header">
-            <span>Gameweek</span>
-            <span>Deadline</span>
-        </div>
-        <div id="upcoming-list">
-            </div>
-    </div>
-</div>
+    <div id="deadline-container"></div>
     </main>
 
     <script>
