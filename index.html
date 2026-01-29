@@ -3,426 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>View Current GW points</title>
+    <title>Kopala FPL - Live GW</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#38003c">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Kopala FPL">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5323/5323982.png">
+    
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="footer.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
+        /* Container Spacing & Layout */
+        .player-grid-container {
+            background: var(--card-bg, #eef3f7); 
+            padding: 10px 0;
+            border-radius: 12px;
+            margin: 0 10px 20px 10px;
+        }
 
+        .player-list-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px 2px;
+            justify-items: center;
+            margin-bottom: 25px;
+        }
 
+        /* Compact Player Cards */
+        .compact-player-card {
+            width: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
 
+        .compact-player-card img {
+            width: 24px; 
+            margin-bottom: 2px;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+            z-index: 2;
+        }
 
+        .card-name {
+            font-size: 0.45rem;
+            font-weight: 800;
+            color: var(--text-color);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
 
-.mobile-nav, .overlay-menu {
-    background-color: var(--nav-bg);
-    border-bottom: 1px solid var(--border-color);
-}
+        .card-points {
+            background: #ffffff;
+            color: #000;
+            font-size: 0.65rem;
+            font-weight: 900;
+            padding: 1px 4px;
+            border-radius: 4px;
+            margin: 2px 0;
+            min-width: 22px;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
 
-.menu-links a {
-    color: var(--text-color);
-}
+        .card-ownership-bar {
+            height: 4px;
+            border-radius: 2px;
+            width: 90%;
+            background: #ddd;
+            overflow: hidden;
+        }
 
+        /* Install Button Styling */
+        #download-container {
+            display: none;
+            justify-content: center;
+            margin: 10px 0;
+        }
         
-    /* Ultra-compact container with the LiveFPL blue-grey tint */
-    .player-grid-container {
-        background: #eef3f7; 
-        padding: 0px 0px;
-        border-radius: 10px;
-        margin: 0px;
-    }
+        .install-btn {
+            background-color: #38003c !important;
+            color: white !important;
+            animation: pulse 2s infinite;
+            cursor: pointer;
+        }
 
-    /* 8-Column Grid for maximum horizontal density */
-    .player-list-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 6px 1px;
-        justify-items: center;
-    }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
 
-    .compact-player-card {
-        width: 44px; /* Narrowest possible width to fit 8 across */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        position: relative;
-    }
-
-    /* Nano Jersey */
-    .compact-player-card img {
-        width: 22px; 
-        margin-bottom: 1px;
-        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
-        z-index: 2;
-    }
-
-    .card-data-box {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    /* Nano Typography */
-    .card-name {
-        font-size: 0.45rem; /* Tiny text for 8-column fit */
-        font-weight: 800;
-        color: #2d3436;
-        margin-bottom: 1px;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 100%;
-    }
-
-    /* Minimal Pill Box */
-    .card-points {
-        background: #ffffff;
-        color: #000;
-        font-size: 0.6rem;
-        font-weight: 900;
-        padding: 0px 4px;
-        border-radius: 5px;
-        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-        margin-bottom: 1px;
-        min-width: 20px;
-        text-align: center;
-    }
-
-    /* Nano Ownership Bar */
-    .card-ownership-bar {
-        background: #00ff85; 
-        color: #1a1a1a;
-        font-size: 0.4rem;
-        padding: 0px;
-        border-radius: 2px;
-        font-weight: 700;
-        width: 95%;
-        text-align: center;
-    }
-
-    /* Micro Badges for C/V */
-    .badge {
-        position: absolute;
-        top: 10px;
-        right: 2px;
-        width: 11px;
-        height: 11px;
-        background: #2d3436;
-        color: white;
-        border-radius: 50%;
-        font-size: 0.35rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 900;
-        border: 1px solid white;
-        z-index: 3;
-    }
-
-    .star-icon {
-        position: absolute;
-        top: -2px;
-        left: 2px;
-        font-size: 0.5rem;
-        color: #f1c40f;
-        z-index: 3;
-    }
-
-    .is-bench { opacity: 0.5; }
-
-
-.deadline-section {
-    padding: 15px;
-    background: var(--card-bg, #fff);
-    color: var(--text-color, #333);
-}
-
-.deadline-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 5px; }
-.gw-subtitle { font-size: 1rem; font-weight: 700; margin-bottom: 20px; }
-
-.countdown-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 30px;
-}
-
-.time-unit span { 
-    font-size: 2.2rem; 
-    font-weight: 900; 
-    display: block; 
-    line-height: 1;
-    color: var(--accent-color, #38003c); 
-}
-
-.time-unit label { 
-    font-size: 0.7rem; 
-    font-weight: 600; 
-    opacity: 0.8; 
-}
-
-.time-separator { 
-    font-size: 2rem; 
-    font-weight: 900; 
-    padding-bottom: 15px; 
-    color: var(--accent-color, #38003c);
-}
-
-.upcoming-title { font-size: 1rem; font-weight: 800; margin-top: 20px; margin-bottom: 15px; }
-
-.deadline-table-header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.7rem;
-    font-weight: 700;
-    opacity: 0.5;
-    padding-bottom: 10px;
-}
-
-.deadline-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-top: 1px solid var(--border-color, #eee);
-    font-size: 0.85rem;
-}
-
-.deadline-row b { font-weight: 700; }
-
-        /* Add vertical spacing between the grid and the deadline section */
-.player-list-grid {
-    margin-bottom: 25px; /* Adjust this value (e.g., 10px, 20px, 30px) to get the desired gap */
-}
-
-/* Alternatively, you can target the deadline container specifically */
-#deadline-container {
-    margin-top: 25px;
-}
-
-
-       /* Container */
-.grid-top-info {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 0;
-    width: 100%;
-}
-
-/* Individual Pill - Material You Style */
-.info-pill {
-    /* Micro Size */
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-    
-    /* Shape & Spacing */
-    padding: 6px 14px;
-    border-radius: 100px; /* Perfect pill shape */
-    
-    /* Material You Colors (Adaptive) */
-    background-color: var(--pill-bg, #eaddff); /* Light lavender/blue tint */
-    color: var(--pill-text, #21005d);
-    
-    /* Soft elevation instead of harsh borders */
-    border: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    
-    transition: all 0.2s ease;
-    cursor: default;
-}
-
-/* Theme-specific overrides for Material You look */
-[data-theme="dark"] .info-pill {
-    --pill-bg: #4f378b;
-    --pill-text: #eaddff;
-}
-
-[data-theme="light"] .info-pill {
-    --pill-bg: #f3edf7;
-    --pill-text: #21005d;
-}
-
-/* Accent for the 'PLAYED' pill to follow Material secondary colors */
-.info-pill:last-child {
-    background-color: var(--accent-color, #3498db);
-    color: #ffffff;
-}
-
-
-
-
-
-        .transfers-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    padding: 10px;
-    background: transparent;
-}
-
-.transfer-card-wrapper {
-    flex: 1;
-    min-width: 300px;
-    background: var(--card-bg, #fff);
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.transfer-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.transfer-card-header h3 {
-    font-size: 0.95rem;
-    font-weight: 800;
-    margin: 0;
-    color: var(--text-color, #38003c);
-}
-
-.transfer-table-head {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.65rem;
-    font-weight: 700;
-    opacity: 0.5;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border-color, #eee);
-}
-
-/* Update this class to remove the lines */
-.transfer-item-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0; /* Reduced padding for a tighter, professional look */
-    border-bottom: none !important; /* This removes the line demarcations */
-}
-
-/* Optional: Add a very slight hover effect so you can still tell which row is which */
-.transfer-item-row:hover {
-    background: rgba(0,0,0,0.02);
-    border-radius: 4px;
-}
-
-/* Ensure the head divider stays, as seen in the photo */
-.transfer-table-head {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.65rem;
-    font-weight: 700;
-    opacity: 0.5;
-    padding-bottom: 8px;
-    margin-bottom: 4px; /* Added a small gap after the header line */
-    border-bottom: 1px solid var(--border-color, #eee);
-}
-.player-info-side {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.info-icon { font-size: 0.7rem; opacity: 0.4; }
-.small-arrow { font-size: 0.55rem; }
-
-.mini-shirt {
-    width: 22px;
-    height: auto;
-}
-
-.player-text {
-    display: flex;
-    flex-direction: column;
-}
-
-.p-name {
-    font-size: 0.75rem;
-    font-weight: 800;
-    line-height: 1.1;
-}
-
-.p-team {
-    font-size: 0.55rem;
-    opacity: 0.6;
-    font-weight: 600;
-}
-
-.transfer-count {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-color);
-}
-</style>
+        .is-bench { opacity: 0.6; }
+    </style>
 </head>
 <body class="dark-mode">
 
     <div id="login-screen" style="display:none;">
         <div class="login-card">
-            <div class="theme-row">
-                <span class="theme-label">Theme</span>
-                <div class="toggle-container">
-                    <button id="btn-dark" class="toggle-btn active" onclick="setTheme('dark')">Dark</button>
-                    <button id="btn-light" class="toggle-btn inactive" onclick="setTheme('light')">Light</button>
-                </div>
-            </div>
             <h2>Enter your FPL ID</h2>
-            <div class="input-container">
-                <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste link">
-                <div id="error-message" class="error-msg">Please enter a valid Team ID</div>
-            </div>
+            <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567">
             <button id="login-btn" class="continue-btn" onclick="handleLogin()">Continue</button>
+            <div id="error-message" class="error-msg" style="display:none;"></div>
         </div>
     </div>
 
     <div id="nav-placeholder"></div>
-    <div id="deadline-container"></div>
+
+    <div id="download-container">
+        <button id="btn-install" class="info-pill install-btn">
+            <i class="fa-solid fa-download"></i> DOWNLOAD KOPALA APP
+        </button>
+    </div>
 
     <main class="page-content">
-        <div style="padding: 0 15px 15px; display:flex; justify-content:space-between; align-items:center;">
-            <span id="disp-name" style="font-weight:900; font-size: 1.1rem;">Manager Name <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: var(--primary-blue);"></i></span>
-            
+        <div style="padding: 15px; display:flex; justify-content:space-between; align-items:center;">
+            <span id="disp-name" style="font-weight:900; font-size: 1.2rem;">Manager Name</span>
         </div>
         
         <div class="header-stats-grid">
-            <div style="border-right: 1px solid var(--border-color);"><div class="stat-label">GW Rank</div><div class="stat-value" id="disp-gw-rank">-</div></div>
-            <div style="border-right: 1px solid var(--border-color);"><div class="stat-label">Overall Rank</div><div class="stat-value" id="disp-rank">0</div></div>
+            <div><div class="stat-label">GW Rank</div><div class="stat-value" id="disp-gw-rank">-</div></div>
+            <div><div class="stat-label">Overall Rank</div><div class="stat-value" id="disp-rank">0</div></div>
             <div><div class="stat-label">Live Pts</div><div class="stat-value" id="disp-total">0</div></div>
         </div>
 
         <div class="player-grid-container">
             <div class="grid-top-info">
-                <span class="info-pill">FT 1</span>
-                <span class="info-pill">TV £101.0</span>
-                <span class="info-pill">PLAYED 13/13</span>
+                <span class="info-pill" id="stat-ft">FT 1</span>
+                <span class="info-pill" id="stat-tv">TV £--</span>
+                <span class="info-pill" id="stat-played">PLAYED -/-</span>
             </div>
             <div id="player-list-grid" class="player-list-grid"></div>
+        </div>
 
+        <div id="deadline-container"></div>
 
-            <div id="transfers-container" class="transfers-grid"></div>
+        <div id="transfers-container" class="transfers-grid"></div>
         
-
-            
-    
     </main>
-    
+
+    <div id="footer-placeholder"></div>
 
     <script>
         const state = {
@@ -432,138 +161,72 @@
 
         const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
 
-        // ... (setTheme, toggleTheme, handleLogin functions remain same) ...
-        function setTheme(mode) {
-            const body = document.body;
-            const darkBtn = document.getElementById('btn-dark');
-            const lightBtn = document.getElementById('btn-light');
-            if(mode === 'dark') {
-                body.classList.add('dark-mode');
-                darkBtn.className = 'toggle-btn active';
-                lightBtn.className = 'toggle-btn inactive';
-            } else {
-                body.classList.remove('dark-mode');
-                darkBtn.className = 'toggle-btn inactive';
-                lightBtn.className = 'toggle-btn active';
-            }
-        }
-
         async function handleLogin() {
-            const inputField = document.getElementById('team-id-input');
-            const errorDiv = document.getElementById('error-message');
-            const loginBtn = document.getElementById('login-btn');
-            let rawValue = inputField.value.trim();
-            if (rawValue.includes('entry/')) {
-                const match = rawValue.match(/entry\/(\d+)/);
-                if (match) rawValue = match[1];
-            }
-            const id = parseInt(rawValue);
-            if (!id || isNaN(id)) { showError("Please enter a valid numeric ID"); return; }
-            try {
-                loginBtn.disabled = true;
-                loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking ID...';
-                const res = await fetch(`${PROXY}entry/${id}/`);
-                if (!res.ok) throw new Error("ID not found");
-                localStorage.setItem('kopala_id', id);
-                location.reload();
-            } catch (err) {
-                showError("Team ID not found.");
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Continue';
-            }
-            function showError(msg) {
-                inputField.classList.add('error');
-                errorDiv.textContent = msg;
-                errorDiv.style.display = 'block';
-            }
+            const input = document.getElementById('team-id-input').value.trim();
+            const id = input.match(/\d+/) ? input.match(/\d+/)[0] : null;
+            if (!id) return;
+            
+            localStorage.setItem('kopala_id', id);
+            location.reload();
         }
 
         async function initData() {
-            try {
-                const res = await fetch(`${PROXY}bootstrap-static/`);
-                const data = await res.json();
-                data.teams.forEach(t => state.teamMap[t.id] = { code: t.code });
-                data.elements.forEach(p => state.playerMap[p.id] = { name: p.web_name, team_code: state.teamMap[p.team].code, pos: p.element_type });
-                state.currentGW = data.events.find(e => e.is_current).id;
-            } catch(e) { console.error("Init failed", e); }
+            const res = await fetch(`${PROXY}bootstrap-static/`);
+            const data = await res.json();
+            data.teams.forEach(t => state.teamMap[t.id] = { code: t.code });
+            data.elements.forEach(p => state.playerMap[p.id] = { 
+                name: p.web_name, 
+                team_code: state.teamMap[p.team].code, 
+                pos: p.element_type,
+                own: p.selected_by_percent
+            });
+            state.currentGW = data.events.find(e => e.is_current).id;
         }
 
         async function fetchAndRender() {
-            try {
-                const [entryRes, picksRes, liveRes] = await Promise.all([
-                    fetch(`${PROXY}entry/${state.fplId}/`),
-                    fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`),
-                    fetch(`${PROXY}event/${state.currentGW}/live/`)
-                ]);
-                const entry = await entryRes.json();
-                const picks = await picksRes.json();
-                const live = await liveRes.json();
+            const [entryRes, picksRes, liveRes] = await Promise.all([
+                fetch(`${PROXY}entry/${state.fplId}/`),
+                fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`),
+                fetch(`${PROXY}event/${state.currentGW}/live/`)
+            ]);
+            const entry = await entryRes.json();
+            const picks = await picksRes.json();
+            const live = await liveRes.json();
 
-                document.getElementById('disp-name').innerHTML = `${entry.player_first_name} ${entry.player_last_name} <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: var(--primary-blue);"></i>`;
-                document.getElementById('disp-total').textContent = (picks.entry_history.points + picks.entry_history.event_transfers_cost);
-                document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
-                document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || 0).toLocaleString();
-
-                const ptsMap = {};
-                live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
-                
-                // FIXED: Changed function call to match the name below
-                renderPlayerGrid(picks.picks, ptsMap); 
-            } catch(e) { console.error("Fetch failed", e); }
+            document.getElementById('disp-name').textContent = `${entry.player_first_name} ${entry.player_last_name}`;
+            document.getElementById('disp-total').textContent = picks.entry_history.points;
+            document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
+            
+            const ptsMap = {};
+            live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+            renderPlayerGrid(picks.picks, ptsMap);
         }
 
-       function renderPlayerGrid(picks, ptsMap) {
-    const grid = document.getElementById('player-list-grid');
-    grid.innerHTML = ''; 
-
-    picks.forEach((p, index) => {
-        const meta = state.playerMap[p.element];
-        if (!meta) return;
-
-        // Calculate points with captaincy multiplier
-        const rawPts = ptsMap[p.element] || 0;
-        const totalPts = rawPts * (p.multiplier || 1);
-        
-        const isBench = index >= 11;
-        const ownership = meta.ownership || "0.0"; 
-
-        const cardHtml = `
-            <div class="compact-player-card ${isBench ? 'is-bench' : ''}">
-                <i class="fa-solid fa-star star-icon"></i>
-                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png">
-                
-                ${p.is_captain ? `<div class="badge">C</div>` : ''}
-                ${p.is_vice_captain ? `<div class="badge">V</div>` : ''}
-                
-                <div class="card-data-box">
-                    <div class="card-name">${meta.name}</div>
-                    <div class="card-points">${totalPts}</div>
-                    <div class="card-ownership-bar" style="background: linear-gradient(90deg, #00ff85 ${ownership}%, #ddd ${ownership}%)">
-                        ${ownership}%
-                    </div>
-                </div>
-            </div>`;
-
-        grid.innerHTML += cardHtml;
-    });
-}
+        function renderPlayerGrid(picks, ptsMap) {
+            const grid = document.getElementById('player-list-grid');
+            grid.innerHTML = picks.map((p, i) => {
+                const meta = state.playerMap[p.element];
+                const isBench = i >= 11;
+                return `
+                    <div class="compact-player-card ${isBench ? 'is-bench' : ''}">
+                        <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png">
+                        <div class="card-name">${meta.name}</div>
+                        <div class="card-points">${(ptsMap[p.element] || 0) * p.multiplier}</div>
+                        <div class="card-ownership-bar"><div style="width:${meta.own}%; background:#00ff85; height:100%"></div></div>
+                    </div>`;
+            }).join('');
+        }
 
         if(state.fplId) {
             initData().then(fetchAndRender);
         } else {
             document.getElementById('login-screen').style.display = 'flex';
         }
-
-        // ... (Theme and Install logic remains same) ...
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('fplTheme') || 'dark';
-            setTheme(savedTheme);
-        });
     </script>
+    
     <script src="nav.js"></script>
     <script src="deadline.js"></script>
     <script src="transfers.js"></script>
-    <div id="footer-placeholder"></div>
-<script src="footer.js"></script>
-</body>
+    <script src="footer.js"></script>
+    <script src="install.js"></script> </body>
 </html>
