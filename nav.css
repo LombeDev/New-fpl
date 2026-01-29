@@ -1,9 +1,9 @@
 /* --- Navigation Variables & Theme Support --- */
 :root {
   --nav-bg: #1a1a1a;        /* Top bar background */
-  --menu-bg: #222222;       /* Overlay menu background */
+  --menu-bg: #111111;       /* Overlay menu background */
   --accent-pink: #ff0055;   /* CTA Button color */
-  --accent-blue: #00aaff;   /* Active Slider/Icon color */
+  --accent-blue: #00aaff;   /* Active link/Slider color */
   --text-white: #ffffff;
   --border-color: #333333;
 }
@@ -79,7 +79,7 @@ body {
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 25px;
   box-sizing: border-box;
   overflow-y: auto;
   transition: transform 0.4s cubic-bezier(0.77, 0.2, 0.05, 1.0);
@@ -94,40 +94,49 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .close-btn {
   background: none;
   border: none;
   color: var(--text-white);
-  font-size: 38px;
+  font-size: 32px;
   line-height: 1;
   cursor: pointer;
 }
 
-/* --- Menu Links --- */
+/* --- Menu Links (Left-Aligned, No Dividers) --- */
 .menu-links {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.menu-links li {
+  width: 100%;
 }
 
 .menu-links li a {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start; /* Aligns text to left */
   color: var(--text-white);
   text-decoration: none;
-  padding: 14px 0;
-  font-size: 16px;
+  padding: 15px 0;
+  font-size: 18px;
   font-weight: 600;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: none !important; /* Removes divider lines */
+  transition: color 0.2s ease;
 }
 
 .menu-links li a span {
-  color: #888;
-  font-size: 18px;
+  margin-left: auto; /* Pushes the arrow to the far right */
+  color: #555;
+  font-size: 16px;
 }
 
 .active-link {
@@ -139,8 +148,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 0;
-  margin-top: 20px;
+  padding: 20px 0;
+  margin-top: 10px;
 }
 
 .theme-label {
@@ -152,11 +161,11 @@ body {
 .toggle-container {
   position: relative;
   display: flex;
-  background: #333;
+  background: #2a2a2a;
   border-radius: 20px;
   padding: 2px;
   width: 120px;
-  height: 32px;
+  height: 34px;
 }
 
 .slider-bg {
@@ -171,7 +180,6 @@ body {
   z-index: 1;
 }
 
-/* Move slider to Light position */
 [data-theme="light"] .slider-bg {
   transform: translateX(100%);
 }
@@ -189,19 +197,13 @@ body {
 }
 
 /* --- Search & Footer --- */
-.menu-divider {
-  border: 0;
-  border-top: 1px solid var(--border-color);
-  margin: 20px 0;
-}
-
 .menu-search {
   display: flex;
   align-items: center;
-  background: rgba(128, 128, 128, 0.1);
-  padding: 10px 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin: 20px 0;
 }
 
 .menu-search input {
@@ -210,12 +212,12 @@ body {
   color: var(--text-white);
   width: 100%;
   outline: none;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .menu-footer {
   margin-top: auto;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
 }
 
 .login-btn {
@@ -223,10 +225,9 @@ body {
   border: 2px solid var(--text-white);
   color: var(--text-white);
   text-decoration: none;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 10px;
   font-weight: bold;
   display: block;
   text-align: center;
-  margin-top: 15px;
 }
