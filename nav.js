@@ -34,7 +34,7 @@ function loadNavbar() {
         <li><a href="https://wa.me/260964836842" target="_blank">Support</a></li>
       </ul>
 
-      <hr class="menu-divider">
+     
 
       <div class="menu-search">
         <i class="fa fa-search"></i>
