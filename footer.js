@@ -6,7 +6,34 @@ const footerTemplate = `
 <footer class="main-footer">
     <div class="footer-network-brand">
         <div class="network-label">KOPALA FPL</div>
-        
+    </div>
+
+    <div class="awards-section">
+        <div class="section-title" style="text-align:center; color:white; margin-bottom:15px; font-size: 0.8rem; font-weight: 800;">
+            <i class="fa-solid fa-trophy" style="color:#fbbf24"></i> PRIZES
+        </div>
+        <div class="awards-grid">
+            <div class="award-card gold">
+                <div class="award-rank">1st</div>
+                <div class="award-info">
+                    <span class="award-label">League Winner</span>
+                </div>
+            </div>
+
+            <div class="award-card silver">
+                <div class="award-rank">2nd</div>
+                <div class="award-info">
+                    <span class="award-label">Runner Up</span>
+                </div>
+            </div>
+
+            <div class="award-card cup">
+                <div class="award-rank"><i class="fa-solid fa-trophy-award"></i></div>
+                <div class="award-info">
+                    <span class="award-label">Cup Winner</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="footer-links-grid">
@@ -24,55 +51,18 @@ const footerTemplate = `
             <h4>Statistics</h4>
             <a href="10k.html">You vs Top 10k</a>
         </div>
-
         <div class="footer-column">
             <h4>Support</h4>
             <a href="https://wa.me/260964836842" target="_blank">Support</a>
         </div>
-       
         <div class="footer-column">
             <h4>Socials</h4>
             <a href="https://twitter.com" target="_blank">Twitter</a>
         </div>
     </div>
 
-    /**
- * Add this to your footer.js 
- */
-const awardsTemplate = `
-<div class="awards-section">
-    <div class="section-title" style="text-align:center; color:white; margin-bottom:15px;">
-        <i class="fa-solid fa-trophy" style="color:#fbbf24"></i> PRIZES
-    </div>
-    <div class="awards-grid">
-        <div class="award-card gold">
-            <div class="award-rank">1st</div>
-            <div class="award-info">
-                <span class="award-label">League Winner</span>
-            </div>
-        </div>
-
-        <div class="award-card silver">
-            <div class="award-rank">2nd</div>
-            <div class="award-info">
-                <span class="award-label">Runner Up</span>
-            </div>
-        </div>
-
-        <div class="award-card cup">
-            <div class="award-rank"><i class="fa-solid fa-cup-straw-potion"></i></div>
-            <div class="award-info">
-                <span class="award-label">Cup Winner</span>
-            </div>
-        </div>
-    </div>
-</div>
-`;
-
-// Inject this into your initFooter() function before the links grid
-    
     <div class="footer-bottom">
-        &copy; ${new Date().getFullYear()} Kopala FPL. Developed with ⚽
+        &copy; ${new Date().getFullYear()} Kopala FPL, This app is not officially affiliated with Premier League or Fantasy Premier League. ⚽
     </div>
 </footer>
 `;
