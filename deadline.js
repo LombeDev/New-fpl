@@ -28,13 +28,13 @@ async function initDeadlineComponent() {
                     <div class="gw-subtitle">${nextEvent.name}</div>
                     
                     <div class="countdown-container">
-                        <div class="time-unit"><span id="dl-days">00</span><label>Days</label></div>
+                        <div class="time-unit"><span id="dl-days">00</span><label>d</label></div>
                         <div class="time-separator">:</div>
-                        <div class="time-unit"><span id="dl-hours">00</span><label>Hours</label></div>
+                        <div class="time-unit"><span id="dl-hours">00</span><label>h</label></div>
                         <div class="time-separator">:</div>
-                        <div class="time-unit"><span id="dl-minutes">00</span><label>Minutes</label></div>
+                        <div class="time-unit"><span id="dl-minutes">00</span><label>m</label></div>
                         <div class="time-separator">:</div>
-                        <div class="time-unit"><span id="dl-seconds">00</span><label>Seconds</label></div>
+                        <div class="time-unit"><span id="dl-seconds">00</span><label>s</label></div>
                     </div>
                 </div>
 
