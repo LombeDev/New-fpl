@@ -1,15 +1,24 @@
-/* --- Navigation Reset & Variables --- */
+/* --- Navigation Variables & Theme Support --- */
 :root {
   --nav-bg: #1a1a1a;        /* Top bar background */
   --menu-bg: #222222;       /* Overlay menu background */
   --accent-pink: #ff0055;   /* CTA Button color */
-  --accent-blue: #00aaff;   /* Icon color */
+  --accent-blue: #00aaff;   /* Active Slider/Icon color */
   --text-white: #ffffff;
+  --border-color: #333333;
+}
+
+/* Light Theme Variables */
+[data-theme="light"] {
+  --nav-bg: #ffffff;
+  --menu-bg: #f8f9fa;
+  --text-white: #1a1a1a;
+  --border-color: #dee2e6;
 }
 
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 /* --- Top Mobile Navigation --- */
@@ -21,7 +30,9 @@ body {
   padding: 12px 20px;
   position: sticky;
   top: 0;
-  z-index: 999; /* Just below the overlay */
+  z-index: 999;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.3s ease;
 }
 
 .nav-right {
@@ -32,7 +43,7 @@ body {
 
 .cta-button {
   background-color: var(--accent-pink);
-  color: white;
+  color: white !important;
   text-decoration: none;
   padding: 8px 16px;
   border-radius: 8px;
@@ -53,15 +64,15 @@ body {
 .bar {
   width: 22px;
   height: 2px;
-  background-color: white;
+  background-color: var(--text-white);
   border-radius: 2px;
 }
 
-/* --- Full-Screen Overlay Menu --- */
+/* --- Full-Screen Overlay Menu (Left-to-Right) --- */
 .overlay-menu {
   position: fixed;
   top: 0;
-  right: -100%; /* Hidden off-screen to the right */
+  left: -100%; /* Hidden off-screen to the LEFT */
   width: 100%;
   height: 100%;
   background-color: var(--menu-bg);
@@ -71,14 +82,12 @@ body {
   padding: 20px;
   box-sizing: border-box;
   overflow-y: auto;
-  
-  /* Smooth Slide Animation */
-  transition: transform 0.4s cubic-bezier(0.77,0.2,0.05,1.0);
+  transition: transform 0.4s cubic-bezier(0.77, 0.2, 0.05, 1.0);
 }
 
 /* Slide into view when active */
 .overlay-menu.active {
-  transform: translateX(-100%);
+  transform: translateX(100%); 
 }
 
 .menu-header {
@@ -91,13 +100,13 @@ body {
 .close-btn {
   background: none;
   border: none;
-  color: white;
+  color: var(--text-white);
   font-size: 38px;
   line-height: 1;
   cursor: pointer;
 }
 
-/* --- Menu Links & Icons --- */
+/* --- Menu Links --- */
 .menu-links {
   list-style: none;
   padding: 0;
@@ -110,69 +119,114 @@ body {
   justify-content: space-between;
   color: var(--text-white);
   text-decoration: none;
-  padding: 16px 0;
-  font-size: 18px;
-  font-weight: 500;
-  border-bottom: 1px solid #333;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.menu-links li a i {
-  width: 30px;
-  color: var(--accent-blue);
-  font-size: 18px;
-}
-
-.menu-links li a span, 
-.menu-links li a small {
+.menu-links li a span {
   color: #888;
-  font-size: 20px;
+  font-size: 18px;
+}
+
+.active-link {
+  color: var(--accent-blue) !important;
+}
+
+/* --- Theme Toggle Row --- */
+.theme-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  margin-top: 20px;
+}
+
+.theme-label {
+  color: var(--text-white);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.toggle-container {
+  position: relative;
+  display: flex;
+  background: #333;
+  border-radius: 20px;
+  padding: 2px;
+  width: 120px;
+  height: 32px;
+}
+
+.slider-bg {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(50% - 2px);
+  height: calc(100% - 4px);
+  background: var(--accent-blue);
+  border-radius: 18px;
+  transition: transform 0.3s ease;
+  z-index: 1;
+}
+
+/* Move slider to Light position */
+[data-theme="light"] .slider-bg {
+  transform: translateX(100%);
+}
+
+.toggle-btn {
+  flex: 1;
+  z-index: 2;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  text-transform: uppercase;
 }
 
 /* --- Search & Footer --- */
 .menu-divider {
   border: 0;
-  border-top: 1px solid #444;
-  margin: 25px 0;
+  border-top: 1px solid var(--border-color);
+  margin: 20px 0;
 }
 
 .menu-search {
   display: flex;
   align-items: center;
-  background: #333;
-  padding: 12px 15px;
+  background: rgba(128, 128, 128, 0.1);
+  padding: 10px 15px;
   border-radius: 8px;
-  margin-bottom: 30px;
-}
-
-.menu-search i {
-  color: #777;
-  margin-right: 10px;
+  margin-bottom: 20px;
 }
 
 .menu-search input {
   background: transparent;
   border: none;
-  color: white;
+  color: var(--text-white);
   width: 100%;
   outline: none;
+  font-size: 14px;
 }
 
 .menu-footer {
-  display: flex;
-  gap: 12px;
-  margin-top: auto; /* Pushes buttons to bottom if list is short */
+  margin-top: auto;
   padding-bottom: 20px;
 }
 
 .login-btn {
   background: transparent;
-  border: 2px solid white;
-  color: white;
+  border: 2px solid var(--text-white);
+  color: var(--text-white);
   text-decoration: none;
-  padding: 8px 20px;
+  padding: 10px;
   border-radius: 8px;
   font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  text-align: center;
+  margin-top: 15px;
 }
