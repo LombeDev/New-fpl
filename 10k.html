@@ -8,120 +8,120 @@
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root { --fpl-green: #00ff87; --fpl-pink: #e90052; --m3-surface: #f8f9fa; }
         body { font-family: 'Inter', sans-serif; background: var(--m3-surface); margin: 0; padding-bottom: 100px; }
         
+        /* Matching your index.html theme */
         .vs-header-card { background: #0b1120; color: white; padding: 30px 20px; border-radius: 0 0 30px 30px; text-align: center; }
         .vs-title { font-size: 1.5rem; font-weight: 900; margin: 0; }
-        .vs-icon { color: var(--fpl-green); }
+        .vs-icon { color: var(--fpl-green); margin: 0 5px; }
 
-        .risk-meter-container { background: white; margin: -20px 15px 15px; padding: 20px; border-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative; z-index: 2; }
-        .risk-track { width: 100%; height: 10px; background: #eee; border-radius: 5px; overflow: hidden; margin: 10px 0; }
-        .risk-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--fpl-green), #2563eb, var(--fpl-pink)); transition: width 1s; }
+        /* Risk Meter styling */
+        .risk-meter-container { 
+            background: white; 
+            margin: -20px 15px 15px; 
+            padding: 20px; 
+            border-radius: 24px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+            position: relative; 
+            z-index: 2; 
+        }
+        .risk-track { width: 100%; height: 12px; background: #eee; border-radius: 6px; overflow: hidden; margin: 10px 0; }
+        .risk-fill { 
+            height: 100%; width: 0%; 
+            background: linear-gradient(90deg, var(--fpl-green), #2563eb, var(--fpl-pink)); 
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
         
         #comparison-container { padding: 0 15px; }
-        .vs-card { background: white; margin-bottom: 10px; padding: 15px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; }
-        .chip { font-size: 0.6rem; padding: 2px 8px; border-radius: 6px; font-weight: 800; margin-left: 5px; text-transform: uppercase; }
-        .sword { background: var(--fpl-green); color: #0b1120; }
-        .shield { background: #e0e0ff; color: #2563eb; }
+        .vs-card { 
+            background: white; 
+            margin-bottom: 10px; 
+            padding: 12px 16px; 
+            border-radius: 18px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border: 1px solid rgba(0,0,0,0.04); 
+        }
         
-        /* Error Box */
-        #debug-log { background: #fff0f0; color: #d00; font-size: 0.7rem; padding: 10px; margin: 15px; border-radius: 10px; display: none; border: 1px solid #fcc; }
+        .chip { font-size: 0.6rem; padding: 2px 8px; border-radius: 6px; font-weight: 800; margin-left: 6px; text-transform: uppercase; }
+        .sword { background: var(--fpl-green); color: #0b1120; }
+        .shield { background: #eaddff; color: #21005d; }
     </style>
 </head>
-<body>
-    <div id="nav-placeholder"></div>
+<body class="dark-mode"> <div id="nav-placeholder"></div>
 
     <main style="margin-top: 60px;">
         <div class="vs-header-card">
-            <p style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 5px; font-weight: 800; letter-spacing: 1px;">SQUAD VS ELITE</p>
+            <div style="font-size: 0.6rem; font-weight: 800; letter-spacing: 1.5px; opacity: 0.6; margin-bottom: 5px;">ELITE COMPARISON</div>
             <h1 class="vs-title">My Team <span class="vs-icon">VS</span> Top 10k</h1>
         </div>
 
-        <div id="debug-log"></div>
-
         <div class="risk-meter-container">
-            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:0.8rem;">
-                <span id="risk-status">LOADING...</span>
-                <span id="risk-percent">--%</span>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                <span id="risk-status" style="font-weight:900; font-size:0.8rem;">ANALYZING...</span>
+                <span id="risk-percent" style="font-weight:900; font-size:1.2rem;">--%</span>
             </div>
             <div class="risk-track"><div id="risk-fill" class="risk-fill"></div></div>
-            <p id="risk-desc" style="font-size:0.7rem; color:#666; margin:0;">Connecting to FPL servers...</p>
+            <p id="risk-desc" style="font-size:0.7rem; color:#666; margin:0; font-weight:600;">Connecting to FPL Data...</p>
         </div>
 
         <div id="comparison-container">
-            <p style="text-align:center; padding:20px; opacity:0.5;">Fetching your squad details...</p>
+            <p style="text-align:center; padding:40px; opacity:0.5;">Loading your squad...</p>
         </div>
     </main>
 
     <div id="footer-placeholder"></div>
 
     <script>
-        const CONFIG = {
+        const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
+        const state = {
             fplId: localStorage.getItem('kopala_id'),
-            // USE YOUR EXACT PROXY PATH HERE
-            PROXY: "/.netlify/functions/fpl-proxy?endpoint=", 
-            CACHE_MINS: 15
+            playerMap: {},
+            currentGW: 1
         };
 
-        const top10kEO = { "Haaland": 94, "Salah": 75, "Palmer": 80, "Saka": 60, "Gabriel": 50, "Raya": 40 };
-
-        function logError(msg) {
-            const log = document.getElementById('debug-log');
-            log.style.display = 'block';
-            log.innerHTML += `<div>⚠️ ${msg}</div>`;
-            console.error(msg);
-        }
-
-        async function getData(key, endpoint) {
-            const cacheKey = `cache_${key}`;
-            const cached = localStorage.getItem(cacheKey);
-            if (cached) {
-                const p = JSON.parse(cached);
-                if (Date.now() - p.time < CONFIG.CACHE_MINS * 60000) return p.data;
-            }
-
-            try {
-                const res = await fetch(CONFIG.PROXY + encodeURIComponent(endpoint));
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
-                localStorage.setItem(cacheKey, JSON.stringify({ time: Date.now(), data }));
-                return data;
-            } catch (e) {
-                logError(`Failed to fetch ${endpoint}: ${e.message}`);
-                throw e;
-            }
-        }
+        // Static benchmarks for comparison logic
+        const top10kEO = { "Haaland": 92, "Salah": 70, "Palmer": 85, "Saka": 65, "Sorensen": 0.1 };
 
         async function init() {
-            if (!CONFIG.fplId) {
-                document.getElementById('comparison-container').innerHTML = `<div style="text-align:center; padding:40px;"><h3>No FPL ID Found</h3><p>Please go to the home page and enter your ID.</p><a href="index.html" style="color:blue;">Go Home</a></div>`;
+            if (!state.fplId) {
+                window.location.href = 'index.html';
                 return;
             }
 
             try {
-                // Fetch Data
-                const boot = await getData('boot', 'bootstrap-static/');
-                const picks = await getData(`picks_${CONFIG.fplId}`, `entry/${CONFIG.fplId}/event/current/picks/`);
+                // 1. Fetch Bootstrap (Just like your index.html)
+                const bootRes = await fetch(`${PROXY}bootstrap-static/`);
+                const bootData = await bootRes.json();
+                
+                state.currentGW = bootData.events.find(e => e.is_current).id;
+                bootData.elements.forEach(p => {
+                    state.playerMap[p.id] = { name: p.web_name };
+                });
 
-                // Map Players
-                const playerMap = {};
-                boot.elements.forEach(el => { playerMap[el.id] = el.web_name; });
+                // 2. Fetch User Picks
+                const picksRes = await fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`);
+                const picksData = await picksRes.json();
 
-                render(picks.picks, playerMap);
+                render(picksData.picks);
             } catch (e) {
-                logError("Main Init Failed. Check your Netlify Proxy.");
+                console.error("Fetch Error:", e);
+                document.getElementById('comparison-container').innerHTML = "Error loading data.";
             }
         }
 
-        function render(myPicks, names) {
+        function render(picks) {
             const container = document.getElementById('comparison-container');
             let swordCount = 0;
 
-            const html = myPicks.map(p => {
-                const name = names[p.element] || "Unknown";
-                const eo = top10kEO[name] || 10;
+            const html = picks.map(p => {
+                const pInfo = state.playerMap[p.element];
+                const name = pInfo ? pInfo.name : "Unknown";
+                const eo = top10kEO[name] || 15.0; // Assume 15% if not in top list
                 const isSword = eo < 40;
                 if (isSword) swordCount++;
 
@@ -129,10 +129,10 @@
                     <div class="vs-card">
                         <div>
                             <div style="display:flex; align-items:center;">
-                                <b style="font-size:0.9rem;">${name}</b>
+                                <b style="font-size:0.9rem; color:#1d1b20;">${name}</b>
                                 <span class="chip ${isSword ? 'sword' : 'shield'}">${isSword ? 'Sword' : 'Shield'}</span>
                             </div>
-                            <small style="color:#888;">Elite Ownership: ${eo}%</small>
+                            <small style="color:#777; font-weight:600;">Top 10k EO: ${eo}%</small>
                         </div>
                         <div style="text-align:right;">
                             <div style="font-weight:900; color:#2563eb;">${(100 - eo).toFixed(0)}%</div>
@@ -141,19 +141,29 @@
                     </div>`;
             }).join('');
 
-            const risk = Math.round((swordCount / myPicks.length) * 100);
+            // Update Risk Meter
+            const risk = Math.round((swordCount / picks.length) * 100);
             document.getElementById('risk-fill').style.width = risk + '%';
             document.getElementById('risk-percent').innerText = risk + '%';
-            document.getElementById('risk-status').innerText = risk > 50 ? "AGGRESSIVE" : "CONSERVATIVE";
-            document.getElementById('risk-desc').innerText = `You are running ${swordCount} "Sword" players against the Top 10k template.`;
             
+            const status = document.getElementById('risk-status');
+            const desc = document.getElementById('risk-desc');
+            
+            if (risk > 50) {
+                status.innerText = "AGGRESSIVE";
+                status.style.color = "var(--fpl-pink)";
+                desc.innerText = `You are running ${swordCount} differentials. High risk, high reward!`;
+            } else {
+                status.innerText = "CONSERVATIVE";
+                status.style.color = "var(--fpl-green)";
+                desc.innerText = "Your squad closely follows the elite template.";
+            }
+
             container.innerHTML = html;
         }
 
-        // Run
         init();
     </script>
-    
     <script src="nav.js"></script>
     <script src="footer.js"></script>
 </body>
