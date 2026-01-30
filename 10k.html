@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
@@ -263,30 +264,58 @@
         }
 
         function renderChart(history) {
-            const ctx = document.getElementById('rankChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: history.map(h => 'GW' + h.event),
-                    datasets: [{
-                        label: 'Overall Rank',
-                        data: history.map(h => h.overall_rank),
-                        borderColor: '#6750a4',
-                        backgroundColor: 'rgba(103, 80, 164, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: { y: { reverse: true, display: false }, x: { grid: { display: false } } },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
+    // Check if Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+        console.error("Chart.js not loaded yet. Retrying in 500ms...");
+        setTimeout(() => renderChart(history), 500);
+        return;
+    }
 
+    const canvas = document.getElementById('rankChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Destroy existing chart instance if it exists to prevent memory leaks
+    if (window.myRankChart) {
+        window.myRankChart.destroy();
+    }
+
+    window.myRankChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: history.map(h => 'GW' + h.event),
+            datasets: [{
+                label: 'Overall Rank',
+                data: history.map(h => h.overall_rank),
+                borderColor: '#6750a4',
+                backgroundColor: 'rgba(103, 80, 164, 0.1)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 3,
+                pointRadius: 4,
+                pointBackgroundColor: '#6750a4'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // Allows the chart to fit your container height
+            scales: { 
+                y: { 
+                    reverse: true, // High rank (1) should be at the top
+                    display: false 
+                }, 
+                x: { 
+                    grid: { display: false },
+                    ticks: { font: { size: 10, weight: 'bold' } }
+                } 
+            },
+            plugins: { 
+                legend: { display: false } 
+            }
+        }
+    });
+}
         init();
     </script>
 
