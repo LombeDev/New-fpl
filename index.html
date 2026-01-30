@@ -570,40 +570,61 @@
             }
         }
 
-        async function initData() {
-            try {
-                const res = await fetch(`${PROXY}bootstrap-static/`);
-                const data = await res.json();
-                data.teams.forEach(t => state.teamMap[t.id] = { code: t.code });
-                data.elements.forEach(p => state.playerMap[p.id] = { name: p.web_name, team_code: state.teamMap[p.team].code, pos: p.element_type });
-                state.currentGW = data.events.find(e => e.is_current).id;
-            } catch(e) { console.error("Init failed", e); }
-        }
+       async function initData() {
+    try {
+        const res = await fetch(`${PROXY}bootstrap-static/`);
+        const data = await res.json();
+        
+        data.teams.forEach(t => state.teamMap[t.id] = { code: t.code });
+        data.elements.forEach(p => state.playerMap[p.id] = { 
+            name: p.web_name, 
+            team_code: state.teamMap[p.team].code, 
+            pos: p.element_type 
+        });
 
-        async function fetchAndRender() {
-            try {
-                const [entryRes, picksRes, liveRes] = await Promise.all([
-                    fetch(`${PROXY}entry/${state.fplId}/`),
-                    fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`),
-                    fetch(`${PROXY}event/${state.currentGW}/live/`)
-                ]);
-                const entry = await entryRes.json();
-                const picks = await picksRes.json();
-                const live = await liveRes.json();
+        const currentEvent = data.events.find(e => e.is_current);
+        state.currentGW = currentEvent.id;
+        
+        // NEW: Store Global GW Stats (Average and High Score)
+        state.gwAverage = currentEvent.average_entry_score;
+        state.gwHigh = currentEvent.highest_score;
 
-                document.getElementById('disp-name').innerHTML = `${entry.player_first_name} ${entry.player_last_name} <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: var(--primary-blue);"></i>`;
-                document.getElementById('disp-total').textContent = (picks.entry_history.points + picks.entry_history.event_transfers_cost);
-                document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
-                document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || 0).toLocaleString();
+    } catch(e) { console.error("Init failed", e); }
+}
 
-                const ptsMap = {};
-                live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
-                
-                // FIXED: Changed function call to match the name below
-                renderPlayerGrid(picks.picks, ptsMap); 
-            } catch(e) { console.error("Fetch failed", e); }
-        }
+async function fetchAndRender() {
+    try {
+        const [entryRes, picksRes, liveRes] = await Promise.all([
+            fetch(`${PROXY}entry/${state.fplId}/`),
+            fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`),
+            fetch(`${PROXY}event/${state.currentGW}/live/`)
+        ]);
+        
+        const entry = await entryRes.json();
+        const picks = await picksRes.json();
+        const live = await liveRes.json();
 
+        // --- Update UI Stats ---
+        document.getElementById('disp-name').innerHTML = `${entry.player_first_name} ${entry.player_last_name} <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: var(--primary-blue);"></i>`;
+        
+        // Stats Row 1
+        document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || 0).toLocaleString();
+        document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
+        document.getElementById('disp-total').textContent = (picks.entry_history.points + picks.entry_history.event_transfers_cost);
+
+        // NEW: Stats Row 2
+        document.getElementById('disp-total-pts').textContent = entry.summary_overall_points.toLocaleString();
+        document.getElementById('disp-gw-avg').textContent = state.gwAverage || 0;
+        document.getElementById('disp-gw-high').textContent = state.gwHigh || 0;
+
+        // Player points map
+        const ptsMap = {};
+        live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+        
+        renderPlayerGrid(picks.picks, ptsMap); 
+    } catch(e) { console.error("Fetch failed", e); }
+}
+               
        function renderPlayerGrid(picks, ptsMap) {
     const grid = document.getElementById('player-list-grid');
     grid.innerHTML = ''; 
