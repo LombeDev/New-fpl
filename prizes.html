@@ -18,56 +18,83 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
+        /* --- Navigation Variables & Theme Support --- */
         :root {
             --fpl-purple: #37003c;
             --fpl-text: #242424;
             --fpl-bg: #ffffff;
             --nav-bg: #1a1a1a;
             --accent-blue: #00aaff;
+            --border-color: #e3e3e3;
         }
 
         body {
             margin: 0;
+            padding: 0;
             font-family: 'Inter', sans-serif;
             background-color: var(--fpl-bg);
             color: var(--fpl-text);
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* --- STICKY NAV --- */
+        /* --- STICKY NAV FIX --- */
         #nav-placeholder {
             position: sticky;
             top: 0;
             z-index: 9999;
             width: 100%;
-            background: var(--nav-bg);
+            background-color: var(--nav-bg);
         }
 
-        /* --- Content Layout --- */
+        /* Nav Layout Adjustments (Ensures icon is in the corner) */
+        .mobile-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            width: 100%;
+            box-sizing: border-box;
+            border-bottom: 1px solid #333;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        /* --- Prizes Content (Photo Accurate) --- */
         .prizes-content {
             padding: 24px 20px;
             max-width: 800px;
             margin: 0 auto;
         }
 
-        h1 { font-size: 36px; font-weight: 800; color: var(--fpl-purple); margin-bottom: 10px; }
-        h2 { font-size: 24px; font-weight: 800; color: var(--fpl-purple); margin-top: 30px; }
-        h3 { font-size: 19px; font-weight: 700; color: var(--fpl-purple); margin: 25px 0 10px 0; }
-
-        .prize-list {
-            list-style-type: disc;
-            padding-left: 20px;
-            margin: 0;
+        h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--fpl-purple);
+            margin: 0 0 15px 0;
         }
 
-        .prize-list li {
-            font-size: 15px;
-            margin-bottom: 8px;
-            line-height: 1.5;
+        h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--fpl-purple);
+            margin: 20px 0;
         }
 
-        /* LIVE DATA BANNER */
+        h3 {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--fpl-purple);
+            margin: 30px 0 10px 0;
+        }
+
+        /* LIVE WINNER BANNER */
         .live-banner {
-            background: #f3f3f3;
+            background: #f8f9fa;
             border-left: 4px solid var(--accent-blue);
             padding: 15px;
             margin: 20px 0;
@@ -77,8 +104,31 @@
             border-radius: 4px;
         }
 
-        .live-banner i { color: #ffd700; }
+        .live-banner i { color: #ffd700; font-size: 20px; }
         #winner-name { font-weight: 700; color: var(--fpl-purple); }
+
+        .prize-list {
+            list-style-type: disc;
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .prize-list li {
+            font-size: 15px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            color: #242424;
+            padding-left: 5px;
+        }
+
+        .footer-note {
+            margin-top: 50px;
+            padding: 20px 0;
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            opacity: 0.6;
+            text-align: center;
+        }
 
     </style>
 </head>
@@ -90,10 +140,10 @@
         <h1>Prizes</h1>
         
         <div class="live-banner">
-            <i class="fa-solid fa-trophy"></i>
+            <i class="fa-solid fa-crown"></i>
             <div>
-                <small style="text-transform: uppercase; font-size: 10px; font-weight: 800; opacity: 0.6;">Live League Leader (101712)</small>
-                <div id="winner-name">Connecting to FPL...</div>
+                <small style="text-transform: uppercase; font-size: 10px; font-weight: 800; opacity: 0.6;">Current GW Leader (League: 101712)</small>
+                <div id="winner-name">Loading live standings...</div>
             </div>
         </div>
 
@@ -101,15 +151,17 @@
 
         <h3>1st Prize - 2025/26 Fantasy Premier League Champion</h3>
         <ul class="prize-list">
-            <li>7-night break in the UK inclusive of two VIP hospitality matches</li>
-            <li>A selection of experiences at UK tourist attractions</li>
+            <li>7-night break in the UK inclusive of two VIP hospitality at two 2026/27 Premier League matches</li>
+            <li>A selection of experiences at popular UK tourist attractions</li>
             <li>Includes travel and 7 nights’ accommodation</li>
             <li>Microsoft Surface Laptop</li>
-            <li>4 Hobby Boxes of Topps Premier League</li>
+            <li>4 Hobby Boxes of Topps Premier League (Chrome, Merlin, Pristine and Finest)</li>
             <li>Puma Training Top or Hoodie</li>
+            <li>Puma Football</li>
             <li>Official Premier League Club Replica Shirt</li>
             <li>EA SPORTS FC™ game</li>
             <li>Official FPL Certificate</li>
+            <li>FPL bundle consisting of a T-shirt, mug, thermal bottle, stress ball, pen, pad and key ring</li>
         </ul>
 
         <h3>Runner-up</h3>
@@ -117,8 +169,12 @@
             <li>Two hospitality tickets at one 2026/27 Premier League match</li>
             <li>Includes travel and 3 nights’ accommodation</li>
             <li>Microsoft Surface Laptop</li>
+            <li>Puma Training Top or Hoodie</li>
+            <li>Puma Football</li>
             <li>Official Premier League Club Replica Shirt</li>
             <li>EA SPORTS FC™ game</li>
+            <li>Official FPL Certificate</li>
+            <li>FPL bundle consisting of a T-shirt, mug, thermal bottle, stress ball, pen, pad and key ring</li>
         </ul>
 
         <h3>3rd place</h3>
@@ -127,35 +183,43 @@
             <li>Puma Football</li>
             <li>Official Premier League Club Replica Shirt</li>
             <li>EA SPORTS FC™ game</li>
+            <li>Official FPL Certificate</li>
+            <li>FPL bundle consisting of a T-shirt, mug, thermal bottle, stress ball, pen, pad and key ring</li>
         </ul>
 
+        <p class="footer-note">League Code: 101712 | Prizes are subject to official FPL terms and conditions.</p>
     </main>
 
     <script src="nav.js"></script>
+
     <script>
-        async function getFPLData() {
+        async function fetchLiveWinner() {
             const leagueId = "101712";
             const nameField = document.getElementById('winner-name');
             
-            // Netlify-friendly CORS proxy
-            const proxy = "https://corsproxy.io/?";
-            const url = `https://fantasy.premierleague.com/api/leagues-classic/${leagueId}/standings/`;
+            // This works because of your netlify.toml redirect
+            const url = `/fpl-api/leagues-classic/${leagueId}/standings/`;
 
             try {
-                const response = await fetch(proxy + encodeURIComponent(url));
-                const data = await response.json();
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Proxy error');
                 
-                // Get the top scorer of the current Gameweek
-                const winners = data.standings.results;
-                const top = winners.reduce((max, p) => p.event_total > max.event_total ? p : max, winners[0]);
+                const data = await response.json();
+                const standings = data.standings.results;
 
-                nameField.innerHTML = `${top.player_name} <span style="color:#00aaff">(${top.event_total} pts)</span>`;
-            } catch (err) {
-                console.error(err);
-                nameField.innerText = "Leader data currently unavailable";
+                // Find manager with highest points in the CURRENT Gameweek
+                const topScorer = standings.reduce((max, p) => 
+                    (p.event_total > max.event_total) ? p : max, standings[0]
+                );
+
+                nameField.innerHTML = `${topScorer.player_name} <span style="color:var(--accent-blue)">(${topScorer.event_total} pts)</span>`;
+            } catch (error) {
+                console.error("FPL Data Error:", error);
+                nameField.innerText = "Standings temporarily unavailable";
             }
         }
-        document.addEventListener('DOMContentLoaded', getFPLData);
+
+        document.addEventListener('DOMContentLoaded', fetchLiveWinner);
     </script>
 </body>
 </html>
