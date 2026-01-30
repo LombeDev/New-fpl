@@ -143,6 +143,34 @@
         opacity: 0.4;
         letter-spacing: 0.5px;
     }
+
+        /* Shimmer Animation Keyframes */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: 12px;
+}
+
+/* Specific Mini-Material Loading Templates */
+.skeleton-row {
+    height: 44px;
+    margin: 8px 10px;
+    border-radius: 16px;
+}
+
+.skeleton-card {
+    display: inline-block;
+    width: 48px;
+    height: 60px;
+    margin: 4px;
+    border-radius: 12px;
+}
 </style>
 <div id="nav-placeholder"></div>
 
@@ -212,11 +240,20 @@
             } catch (err) { console.error(err); }
         }
 
-        async function loadStandings(id) {
-            const container = document.getElementById('manager-list-container');
-            container.innerHTML = '<p style="text-align:center; padding:30px;">Fetching Standings...</p>';
-            const res = await fetch(`${state.PROXY}leagues-classic/${id}/standings/`);
-            const data = await res.json();
+      async function loadStandings(id) {
+    const container = document.getElementById('manager-list-container');
+    
+    // Material Loading Screen: 5 shimmering rows
+    container.innerHTML = `
+        <div class="table-header"><span>Pos</span><span>Manager</span><span>Cap</span><span>GW</span><span style="text-align:right">Total</span></div>
+        ${Array(5).fill('<div class="skeleton-row loading-skeleton"></div>').join('')}
+    `;
+
+    const res = await fetch(`${state.PROXY}leagues-classic/${id}/standings/`);
+    const data = await res.json();
+    
+    // ... rest of your existing code to render data ...
+}
             
             container.innerHTML = `
                 <div class="table-header">
