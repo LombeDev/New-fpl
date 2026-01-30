@@ -3,74 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Your team againest Top 10k | Kopala FPL </title>
+    <title>Kopala FPL - Pro Analytics</title>
 
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Kopala FPL">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5323/5323982.png">
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="nav.css">
-
+    
     <style>
-        /* --- COLORS & BODY --- */
-:root {
-    --fpl-purple: #37003c;
-    --fpl-dark-purple: #24002b;
-    --fpl-green: #00ff85;
-    --fpl-white: #ffffff;
-}
+        :root {
+            --primary: #2563eb;
+            --pitch: #27ae60;
+            --dark: #1e293b;
+            --bg: #f1f5f9;
+            --danger: #ef4444;
+            --success: #10b981;
+            --bench: #64748b;
+            --out-gray: #e2e8f0;
+            --accent: #0ea5e9;
+        }
 
-body.dark-mode {
-    background-color: var(--fpl-purple); /* FPL Purple background */
-    color: var(--fpl-white);
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* --- TIER 1: TOP NAV --- */
-.top-nav {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    height: 60px;
-    background: var(--fpl-purple);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 15px;
-    z-index: 5000;
-    box-sizing: border-box;
-    /* Subtle border to separate from body if needed */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
-}
-
-.logo-container {
-    font-size: 1.4rem;
-    font-weight: 900;
-    color: white;
-    text-align: center;
-    flex-grow: 1; /* Centers the logo */
-}
-
-.logo-container span {
-    color: var(--fpl-green);
-    margin-left: 2px;
-}
-
-.nav-icon-btn {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    cursor: pointer;
-    color: white;
-}
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 40px; color: #334155; }
 
          * {
@@ -401,10 +356,14 @@ header {
     </style>
 </head>
 <body>
-<div id="nav-placeholder"></div>
-<body class="dark-mode">
 
-    
+<header class="top-nav">
+        <div class="nav-icon-btn" onclick="resetTeamID()" style="cursor: pointer;">
+    <i class="fa-solid fa-circle-user"></i>
+</div>
+        <div class="logo-container">Kopala<span>▲</span>FPL</div>
+        <div class="nav-icon-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun" id="theme-icon"></i></div>
+    </header>
     
 <section class="sync-section-wrapper">
     <div class="sync-container">
@@ -412,7 +371,7 @@ header {
             <input type="text" id="team-id" placeholder="Paste FPL ID here...">
             <span id="id-error" class="error-text">ID not found. Please try again.</span>
         </div>
-        <button id="sync-btn" onclick="fetchFPLData()">Go</button>
+        <button id="sync-btn" onclick="fetchFPLData()">Sync</button>
     </div>
 </section>
   
@@ -489,7 +448,17 @@ header {
 
     </div>
 
-    
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item active"><i class="fa-solid fa-chart-line"></i><span>Rank</span></a>
+        <a href="leagues.html" class="nav-item"><i class="fa-solid fa-trophy"></i><span>Leagues</span></a>
+        <a href="prices.html" class="nav-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
+        <a href="games.html" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Games</span></a>
+        <a href="10k.html" class="nav-item"><i class="fa fa-bar-chart"></i><span>You vs 10k</span></a>
+        <a href="#" class="nav-item"><i class="fa fa-question-circle"></i><span>About</span></a>
+        <a href="https://wa.me/260964836842" class="nav-item"><i class="fa fa-comments"></i><span>Support</span></a>
+        <a href="#" class="nav-item"><i class="fa fa-ellipsis-h"></i><span>More</span></a>
+    </nav>
+
     <script>
     const PROXY = "https://corsproxy.io/?";
     let state = { live: {}, boot: null, gw: null };
@@ -656,7 +625,5 @@ header {
             .forEach(t => document.getElementById('p-threats').innerHTML += createPlayerCard(t.id));
     }
 </script>
-
-        <script src="nav.js"></script>
 </body>
 </html>
