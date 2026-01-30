@@ -500,11 +500,7 @@
 </div>
 
         <div class="player-grid-container">
-            <div class="grid-top-info">
-                <span class="info-pill">FT 1</span>
-                <span class="info-pill">TV £101.0</span>
-                <span class="info-pill">PLAYED 13/13</span>
-            </div>
+            <div id="squad-info-container"></div>
             <div id="player-list-grid" class="player-list-grid"></div>
 
 
@@ -621,6 +617,76 @@ async function fetchAndRender() {
         const ptsMap = {};
         live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
         
+        renderPlayerGrid(picks.picks, ptsMap); 
+    } catch(e) { console.error("Fetch failed", e); }
+}
+
+
+        async function fetchAndRender() {
+    try {
+        const [entryRes, picksRes, liveRes, transRes] = await Promise.all([
+            fetch(`${PROXY}entry/${state.fplId}/`),
+            fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`),
+            fetch(`${PROXY}event/${state.currentGW}/live/`),
+            fetch(`${PROXY}entry/${state.fplId}/transfers/`) // New: Fetch transfers
+        ]);
+        
+        const entry = await entryRes.json();
+        const picks = await picksRes.json();
+        const live = await liveRes.json();
+        const allTransfers = await transRes.json();
+
+        // 1. Calculate Stats
+        const teamValue = (entry.last_deadline_value / 10).toFixed(1);
+        const transferCost = picks.entry_history.event_transfers_cost;
+        const gwTransfers = allTransfers.filter(t => t.event === state.currentGW);
+        
+        // 2. Points Map & Played Count
+        const ptsMap = {};
+        live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+        
+        // Count how many players have actually played (minutes > 0)
+        let playedCount = 0;
+        picks.picks.forEach(p => {
+            const stats = live.elements.find(el => el.id === p.element);
+            if (stats && stats.stats.minutes > 0) playedCount++;
+        });
+
+        // 3. Build the Squad Stats HTML
+        let infoHtml = `
+            <div class="squad-stats-bar">
+                <div class="stat-pill">FT <b>${entry.extra_free_transfers || 1}</b></div>
+                <div class="stat-pill">TV <b>£${teamValue}</b></div>
+                <div class="stat-pill">Played <b>${playedCount}/15</b></div>
+            </div>
+        `;
+
+        // 4. Add Transfer Rows if any
+        if (gwTransfers.length > 0) {
+            gwTransfers.forEach(t => {
+                const pIn = state.playerMap[t.element_in]?.name || "In";
+                const pOut = state.playerMap[t.element_out]?.name || "Out";
+                infoHtml += `
+                    <div class="transfer-row">
+                        <span class="transfer-name-out">${pOut}</span>
+                        <span class="transfer-arrow">→</span>
+                        <span class="transfer-name-in">${pIn}</span>
+                        ${transferCost > 0 ? `<span class="transfer-hit">-${transferCost}</span>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById('squad-info-container').innerHTML = infoHtml;
+
+        // Populate your 6-grid stats (from previous step)
+        document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || 0).toLocaleString();
+        document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
+        document.getElementById('disp-total').textContent = (picks.entry_history.points - transferCost);
+        document.getElementById('disp-total-pts').textContent = entry.summary_overall_points.toLocaleString();
+        document.getElementById('disp-gw-avg').textContent = state.gwAverage || 0;
+        document.getElementById('disp-gw-high').textContent = state.gwHigh || 0;
+
         renderPlayerGrid(picks.picks, ptsMap); 
     } catch(e) { console.error("Fetch failed", e); }
 }
