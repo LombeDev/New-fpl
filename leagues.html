@@ -16,102 +16,134 @@
 
 </head>
     <style>
-    /* 1. Global Scale Reduction */
+    /* 1. Global Scale & Material Palette */
     :root {
         --mini-font: 0.65rem;
         --micro-font: 0.55rem;
+        --m3-surface: #fef7ff;
+        --m3-secondary: #eaddff;
+        --m3-text: #1d1b20;
     }
 
-    /* 2. Compact Manager Rows */
-    .manager-row {
-        padding: 2px 8px !important; /* Extremely tight vertical padding */
-        border-bottom: 1px solid var(--border-color, #eee);
-    }
+    body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
 
-    .row-summary {
-        display: grid;
-        grid-template-columns: 30px 1fr 60px 40px 50px; /* Precise widths */
-        align-items: center;
-        min-height: 40px;
-    }
-
-    .name-cell b {
-        font-size: 0.75rem !important;
-        display: block;
-        line-height: 1;
-    }
-
-    .name-cell small {
-        font-size: var(--micro-font) !important;
-        opacity: 0.8;
-    }
-
-    /* 3. Tiny Player Cards & Jerseys */
-    .player-card {
-        min-width: 45px !important; /* Narrower footprint */
-        flex-shrink: 0;
-        text-align: center;
-        padding: 2px !important;
-    }
-
-    .player-shirt {
-        width: 25px !important; /* Miniature Jersey */
-        height: auto !important;
-        margin: 0 auto 2px auto;
-        display: block;
-    }
-
-    .player-label {
-        font-size: var(--micro-font) !important;
-        line-height: 1.1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-
-    .player-pts {
-        font-size: var(--mini-font) !important;
-        font-weight: 800;
-        margin-top: 1px;
-    }
-
-    /* 4. Mini Stats & Transfers */
-    .squad-stats-bar {
+    /* 2. Controls - Rounded Pill Selects */
+    .select-row {
         display: flex;
-        gap: 5px;
-        padding: 4px 10px;
-        background: rgba(0,0,0,0.03);
-    }
-
-    .stat-pill {
-        font-size: var(--micro-font) !important;
-        padding: 1px 5px !important;
-        border-radius: 4px;
-    }
-
-    .transfer-row {
-        font-size: var(--micro-font) !important;
-        padding: 2px 10px !important;
-    }
-
-    /* 5. Header & Controls Shrink */
-    .table-header {
-        font-size: var(--micro-font);
-        text-transform: uppercase;
-        font-weight: 900;
-        padding: 8px;
-        opacity: 0.7;
+        gap: 8px;
+        padding: 10px 15px;
     }
 
     .select-row select {
         font-size: 0.7rem !important;
-        padding: 4px !important;
-        height: 30px !important;
+        padding: 0 12px !important;
+        height: 32px !important;
+        border-radius: 16px !important; /* Material Pill */
+        border: 1px solid rgba(0,0,0,0.1);
+        background: white;
+        font-weight: 600;
+    }
+
+    /* 3. Manager Rows - Soft & Floating */
+    .manager-row {
+        margin: 4px 10px;
+        background: white;
+        border-radius: 16px; /* Material You Card */
+        border: none !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .row-summary {
+        display: grid;
+        grid-template-columns: 25px 1fr 55px 35px 45px;
+        align-items: center;
+        padding: 8px 12px;
+        min-height: 44px;
+        cursor: pointer;
+    }
+
+    .pos-cell { font-weight: 800; font-size: 0.7rem; opacity: 0.5; }
+
+    .name-cell b {
+        font-size: 0.8rem !important;
+        color: var(--m3-text);
+        letter-spacing: -0.2px;
+    }
+
+    .name-cell small {
+        font-size: 0.6rem !important;
+        opacity: 0.6;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    /* 4. Tiny Player Cards (The "Micro" Jersey) */
+    .squad-scroller {
+        display: flex;
+        overflow-x: auto;
+        padding: 10px;
+        gap: 4px;
+        background: var(--m3-surface); /* Tonal background for expansion */
+        border-top: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .player-card {
+        min-width: 48px !important;
+        background: white;
+        border-radius: 12px; /* Playful small corners */
+        padding: 6px 2px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+
+    .player-shirt {
+        width: 20px !important; /* Miniature Jersey */
+        height: auto !important;
+        margin-bottom: 4px;
+        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+    }
+
+    .player-label {
+        font-size: 0.5rem !important;
+        font-weight: 800;
+        color: #444;
+    }
+
+    .player-pts {
+        font-size: 0.65rem !important;
+        font-weight: 900;
+        color: var(--accent-color, #38003c);
+    }
+
+    /* 5. Stats Bar - Pill Style */
+    .squad-stats-bar {
+        display: flex;
+        gap: 6px;
+        padding: 8px 12px;
+        background: var(--m3-surface);
+    }
+
+    .stat-pill {
+        font-size: 0.55rem !important;
+        padding: 3px 8px !important;
+        border-radius: 20px;
+        background: var(--m3-secondary);
+        color: #21005d;
+        font-weight: 600;
+    }
+
+    /* 6. Header Table */
+    .table-header {
+        display: grid;
+        grid-template-columns: 25px 1fr 55px 35px 45px;
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        font-weight: 900;
+        padding: 10px 22px;
+        opacity: 0.4;
+        letter-spacing: 0.5px;
     }
 </style>
-
 <div id="nav-placeholder"></div>
 
         
