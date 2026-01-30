@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prizes - Kopala FPL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- Core Variables --- */
+        :root {
+            --nav-bg: #1a1a1a;
+            --menu-bg: #111111;
+            --accent-pink: #ff0055;
+            --accent-blue: #00aaff;
+            --text-white: #ffffff;
+            --border-color: #333333;
+            --page-bg: #0f0f0f;
+        }
+
+        [data-theme="light"] {
+            --nav-bg: #ffffff;
+            --menu-bg: #f8f9fa;
+            --text-white: #1a1a1a;
+            --border-color: #dee2e6;
+            --page-bg: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--page-bg);
+            color: var(--text-white);
+            line-height: 1.6;
+        }
+
+        /* --- STICKY NAV FIX --- */
+        #nav-placeholder {
+            position: sticky;
+            top: 0;
+            z-index: 9999; /* Ensure it stays above everything */
+            width: 100%;
+        }
+
+        /* Re-styling the injected nav to fix the "corner" issue */
+        .mobile-nav {
+            background-color: var(--nav-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            width: 100%;
+            box-sizing: border-box;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-right {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        /* --- Prizes Page Layout --- */
+        .container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header-section {
+            margin: 20px 0 30px 0;
+        }
+
+        .title-main { font-size: 32px; font-weight: 800; margin: 0; }
+        .title-sub { color: var(--accent-pink); font-size: 20px; font-weight: 700; margin: 5px 0 0 0; }
+
+        /* Manager of the Week LIVE Banner */
+        .winner-banner {
+            background: linear-gradient(90deg, #1e3a8a, var(--accent-blue));
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .winner-banner i { color: #ffd700; font-size: 20px; }
+
+        /* Prize Cards */
+        .prize-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="light"] .prize-card {
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .gold { background: #ffd700; color: #000; }
+        .silver { background: #c0c0c0; color: #000; }
+        .bronze { background: #cd7f32; color: #fff; }
+        .weekly { background: var(--accent-blue); color: #fff; }
+
+        .prize-title { font-size: 19px; font-weight: 700; margin: 0 0 15px 0; }
+
+        .prize-list { list-style: none; padding: 0; margin: 0; }
+        .prize-list li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .prize-list li::before {
+            content: "\f058"; 
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+        }
+
+        .league-note {
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.5;
+            margin-top: 40px;
+            padding-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="nav-placeholder"></div>
+
+    <main class="container">
+        <header class="header-section">
+            <h1 class="title-main">Prizes</h1>
+            <p class="title-sub">Overall Season Rewards</p>
+        </header>
+
+        <div class="winner-banner" id="live-winner">
+            <i class="fa-solid fa-crown"></i>
+            <div>
+                <div style="font-size: 12px; opacity: 0.8; text-transform: uppercase; font-weight: 700;">Live GW Leader (101712)</div>
+                <div id="winner-name" style="font-weight: 700;">Fetching current leader...</div>
+            </div>
+        </div>
+
+        <div class="prize-card" style="border-top: 4px solid #ffd700;">
+            <span class="badge gold">1st Prize</span>
+            <h3 class="prize-title">2025/26 FPL Champion</h3>
+            <ul class="prize-list">
+                <li>7-night VIP break in the UK</li>
+                <li>Two hospitality matches (2026/27 Season)</li>
+                <li>Microsoft Surface Laptop</li>
+                <li>4 Hobby Boxes of Topps Premier League</li>
+                <li>Official Club Replica Shirt</li>
+                <li>EA SPORTS FC™ Game</li>
+            </ul>
+        </div>
+
+        <div class="prize-card" style="border-top: 4px solid #c0c0c0;">
+            <span class="badge silver">Runner-up</span>
+            <ul class="prize-list">
+                <li>2 Hospitality tickets to a PL Match</li>
+                <li>3 nights’ accommodation + Travel</li>
+                <li>Microsoft Surface Laptop</li>
+                <li>Puma Training Top/Hoodie</li>
+                <li>Official Club Replica Shirt</li>
+            </ul>
+        </div>
+
+        <div class="prize-card" style="border-top: 4px solid #cd7f32;">
+            <span class="badge bronze">3rd Place</span>
+            <ul class="prize-list">
+                <li>Microsoft Surface Laptop</li>
+                <li>Puma Football</li>
+                <li>Official Club Replica Shirt</li>
+                <li>EA SPORTS FC™ Game</li>
+            </ul>
+        </div>
+
+        <header class="header-section">
+            <p class="title-sub">Weekly High Scorer</p>
+        </header>
+
+        <div class="prize-card" style="border-top: 4px solid var(--accent-blue);">
+            <span class="badge weekly">Manager of the Week</span>
+            <h3 class="prize-title">Highest Gameweek Points</h3>
+            <ul class="prize-list">
+                <li>Official Nike Premier League Match Ball</li>
+                <li>EA SPORTS FC™ Game</li>
+                <li>FPL Rucksack & Goody Bag</li>
+                <li>Official FPL Mug & Notebook</li>
+            </ul>
+        </div>
+
+        <p class="league-note">League Code: 101712 | Data synced with official FPL API</p>
+    </main>
+
+    <script src="nav.js"></script>
+    <script>
+        /**
+         * Simple Simulation of fetching the winner for League 101712
+         * In a production environment, use fetch() with your API proxy
+         */
+        function displayWinner() {
+            // Simulated data - replace with actual fetch logic from previous turn if using a proxy
+            const winnerElement = document.getElementById('winner-name');
+            setTimeout(() => {
+                winnerElement.innerHTML = "John Doe (The Kop Kings) <span style='color:var(--accent-blue)'>• 84 pts</span>";
+            }, 1500);
+        }
+        
+        document.addEventListener('DOMContentLoaded', displayWinner);
+    </script>
+</body>
+</html>
