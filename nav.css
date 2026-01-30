@@ -21,21 +21,28 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
-/* --- Top Mobile Navigation --- */
+/* Target the container where the JS injects the nav */
+#nav-placeholder {
+  position: -webkit-sticky; /* Safari support */
+  position: sticky;
+  top: 0;
+  z-index: 1001; /* High z-index to stay above page content */
+  width: 100%;
+}
+
+/* Ensure the inner nav takes up the full width */
 .mobile-nav {
+  position: relative; /* Change from sticky to relative since parent is sticky */
+  width: 100%;
   background-color: var(--nav-bg);
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
-  
-  /* Stickiness Fixes */
-  position: sticky;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1001; /* Higher than the overlay to stay visible if needed */
-  
+  border-bottom: 1px solid var(--border-color);
+  box-sizing: border-box;
+}
+
   box-sizing: border-box; /* Prevents padding from breaking width */
   border-bottom: 1px solid var(--border-color);
   transition: background 0.3s ease;
