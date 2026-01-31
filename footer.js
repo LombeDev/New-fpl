@@ -18,8 +18,8 @@ const footerTemplate = `
 
     <div class="footer-main-content">
         <div class="footer-network-brand">
-            <div class="network-label">KOPALA FPL NETWORK</div>
-            <div class="network-title">KOPALA</div>
+            <div class="network-label">KOPALA FPL</div>
+            <div class="network-title">Tabesha tata😎</div>
         </div>
 
         <div class="footer-bottom">
