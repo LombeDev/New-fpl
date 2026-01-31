@@ -98,6 +98,91 @@
         font-size: 0.75rem !important;
         padding: 6px 12px !important;
     }
+
+
+
+        .info-container {
+        padding: 0 10px;
+        margin-bottom: 20px;
+    }
+
+    .price-logic-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .logic-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--primary-blue);
+        font-weight: 900;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+    }
+
+    .logic-text {
+        font-size: 0.85rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        color: var(--text-main);
+    }
+
+    .highlight-target {
+        color: var(--live-badge);
+        font-weight: 800;
+    }
+
+    .logic-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .logic-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .logic-status {
+        min-width: 60px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .status-high {
+        background: rgba(233, 0, 82, 0.1);
+        color: var(--live-badge);
+        border: 1px solid var(--live-badge);
+    }
+
+    .status-low {
+        background: var(--expand-mint);
+        color: var(--text-muted);
+        border: 1px solid var(--border-color);
+    }
+
+    .logic-desc {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .logic-footer {
+        margin-top: 20px;
+        font-size: 0.65rem;
+        font-style: italic;
+        opacity: 0.6;
+        border-top: 1px dashed var(--border-color);
+        padding-top: 10px;
+    }
 </style>
 
 <div id="nav-placeholder"></div>
@@ -122,11 +207,11 @@
                     <tr><th>Predicted Rises</th><th>Predicted Falls</th></tr>
                 </thead>
                 <tbody id="summary-grid">
-                    <tr><td colspan="2" class="label-row">Ready for Price Change</td></tr>
+                    <tr><td colspan="2" class="label-row">Tonight</td></tr>
                     <tr><td id="r-reached"></td><td id="f-reached"></td></tr>
-                    <tr><td colspan="2" class="label-row">Rising / Falling Fast</td></tr>
+                    <tr><td colspan="2" class="label-row">Maybe</td></tr>
                     <tr><td id="r-projected"></td><td id="f-projected"></td></tr>
-                    <tr><td colspan="2" class="label-row">Approaching Target</td></tr>
+                    <tr><td colspan="2" class="label-row">Tomorrow</td></tr>
                     <tr><td id="r-close"></td><td id="f-close"></td></tr>
                 </tbody>
             </table>
@@ -158,6 +243,33 @@
                 <tbody id="history-body"></tbody>
             </table>
         </div>
+
+
+
+        <div class="info-container">
+    <div class="price-logic-card">
+        <div class="logic-header">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>HOW IT WORKS</span>
+        </div>
+        <p class="logic-text">
+            Price changes usually occur when a player's progress bar hits <span class="highlight-target">100%</span>.
+        </p>
+        <div class="logic-grid">
+            <div class="logic-item">
+                <div class="logic-status status-high">100%</div>
+                <div class="logic-desc"><strong>Likely</strong> to change tonight.</div>
+            </div>
+            <div class="logic-item">
+                <div class="logic-status status-low">< 100%</div>
+                <div class="logic-desc"><strong>Maybe</strong> tomorrow or later this week.</div>
+            </div>
+        </div>
+        <div class="logic-footer">
+            *FPL price changes typically happen daily around 02:30 AM CAT.
+        </div>
+    </div>
+</div>
     </main>
 
 
