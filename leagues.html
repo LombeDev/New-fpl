@@ -183,6 +183,11 @@
             </select>
         </div>
     </div>
+    <div style="padding: 0 15px 10px 15px;">
+        <input type="text" id="manager-search" placeholder="Search manager or team name..." 
+               style="width: 100%; padding: 10px 15px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.1); font-size: 0.8rem; outline: none; box-sizing: border-box;">
+    </div>
+</div>
 
     <div id="manager-list-container"></div>
 
@@ -322,6 +327,24 @@
         }
 
         init();
+
+
+        document.getElementById('manager-search').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const managerRows = document.querySelectorAll('.manager-row');
+
+    managerRows.forEach(row => {
+        // We look inside the name-cell which contains both Team Name and Manager Name
+        const teamName = row.querySelector('.name-cell b').innerText.toLowerCase();
+        const managerName = row.querySelector('.name-cell small').innerText.toLowerCase();
+
+        if (teamName.includes(searchTerm) || managerName.includes(searchTerm)) {
+            row.style.display = 'block'; // Show
+        } else {
+            row.style.display = 'none';  // Hide
+        }
+    });
+});
     </script>
     <script src="nav.js"></script>
     <div id="footer-placeholder"></div>
