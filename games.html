@@ -14,6 +14,15 @@
     <link rel="stylesheet" href="nav.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Games - Kopala FPL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #f3f4f6;
@@ -37,13 +46,13 @@
             --expand-mint: #2d3748;
         }
 
-        * { -webkit-tap-highlight-color: transparent; outline: none; }
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 
         body {
             margin: 0; padding: 0;
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: -apple-system, system-ui, sans-serif;
+            font-family: 'Inter', sans-serif;
             transition: background 0.3s ease;
         }
 
@@ -52,29 +61,28 @@
             position: fixed; top: 0; width: 100%; height: 60px;
             background: var(--card-bg); border-bottom: 1px solid var(--border-color);
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 15px; box-sizing: border-box; z-index: 3000;
+            padding: 0 15px; z-index: 3000;
         }
-        .logo-container { font-weight: 900; font-size: 1.4rem; display: flex; align-items: center; letter-spacing: -1px; }
+        .logo-container { font-weight: 900; font-size: 1.4rem; letter-spacing: -1px; }
         .logo-container span { color: var(--fpl-green); }
-        .nav-icon-btn { font-size: 1.2rem; color: var(--text-main); cursor: pointer; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; }
+        .nav-right { display: flex; gap: 15px; }
+        .nav-icon-btn { font-size: 1.2rem; color: var(--text-main); cursor: pointer; }
 
-        /* --- TOGGLE TABS --- */
-        .gw-tabs {
-            display: flex; gap: 10px; margin: 15px 0; padding: 0 5px;
-        }
+        /* --- CONTENT --- */
+        .page-content { padding-top: 70px; padding-bottom: 100px; max-width: 600px; margin: 0 auto; padding-left: 10px; padding-right: 10px; }
+        
+        .gw-tabs { display: flex; gap: 10px; margin: 15px 0; }
         .gw-tab {
-            flex: 1; padding: 10px; text-align: center; border-radius: 8px;
+            flex: 1; padding: 12px; text-align: center; border-radius: 8px;
             background: var(--card-bg); border: 1px solid var(--border-color);
             font-size: 0.8rem; font-weight: 800; cursor: pointer; color: var(--text-muted);
         }
         .gw-tab.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
 
-        /* --- CONTENT AREA --- */
-        .page-content { padding-top: 70px; padding-bottom: 90px; min-height: 100vh; box-sizing: border-box; padding-left: 10px; padding-right: 10px; }
         .gw-header { border-left: 4px solid var(--fpl-green); padding-left: 10px; margin-bottom: 15px; font-size: 1.1rem; font-weight: 800; }
 
         /* MATCH CARD */
-        .m-card { background: var(--card-bg); border-radius: 15px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .m-card { background: var(--card-bg); border-radius: 15px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border-color); }
         .m-main { display: flex; align-items: center; justify-content: space-between; padding: 15px 10px; }
         .team-box { flex: 1; text-align: center; }
         .kit-img { width: 40px; height: auto; margin-bottom: 5px; }
@@ -84,41 +92,34 @@
         .badge-done { background: var(--done-badge); }
         .badge-live { background: var(--live-badge); animation: pulse 2s infinite; }
         .badge-sched { background: var(--text-muted); }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-        .score-val { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: var(--text-main); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .score-val { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; }
+        
         .m-footer { background: var(--bg-color); padding: 10px; font-size: 0.65rem; text-align: center; border-top: 1px solid var(--border-color); color: var(--text-muted); }
         .bonus-player { margin: 0 4px; font-weight: 700; color: var(--text-main); }
-        .pts-pill { background: var(--primary-blue); color: #fff; padding: 1px 5px; border-radius: 3px; font-weight: 800; margin-left: 2px; }
+        .pts-pill { background: var(--primary-blue); color: #fff; padding: 1px 4px; border-radius: 3px; margin-left: 3px; }
 
-        /* DRAWER */
         .expand-btn { background: var(--expand-mint); border: none; width: 100%; padding: 12px; font-size: 0.7rem; font-weight: 700; color: var(--text-main); cursor: pointer; border-top: 1px solid var(--border-color); }
         .drawer { display: none; padding: 5px 15px; background: var(--card-bg); }
         .drawer.active { display: block; }
-        .own-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); font-size: 0.8rem; align-items: center; }
+        .own-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); font-size: 0.8rem; }
         .live-pts-badge { background: var(--fpl-green); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; }
-
-        /* --- BOTTOM NAV --- */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--card-bg); border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(8, 1fr); padding: 5px 0; box-sizing: border-box; z-index: 3000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 0.55rem; font-weight: 700; gap: 4px; }
-        .nav-item.active { color: var(--primary-blue); }
-        .nav-item i { font-size: 1.2rem; display: block; }
     </style>
 </head>
+<body>
+
     <div id="nav-placeholder"></div>
-
-
-    
 
     <main class="page-content">
         <div class="gw-tabs">
             <div id="tab-curr" class="gw-tab active" onclick="switchGW('curr')">Current GW</div>
             <div id="tab-next" class="gw-tab" onclick="switchGW('next')">Next GW</div>
         </div>
-        <div id="gw-display-header" class="gw-header">Loading...</div>
+        <div id="gw-display-header" class="gw-header">Loading Gameweek...</div>
         <div id="games-list"></div>
     </main>
 
-    
+    <div id="footer-placeholder"></div>
 
     <script>
         let players = [];
@@ -130,7 +131,8 @@
 
         async function init() {
             const icon = document.getElementById('refresh-icon');
-            icon.classList.add('fa-spin');
+            if(icon) icon.classList.add('fa-spin');
+            
             try {
                 const bootRes = await fetch(`${PROXY}bootstrap-static/`);
                 const bootData = await bootRes.json();
@@ -146,11 +148,12 @@
                 currentFixtures = await currRes.json();
                 nextFixtures = await nextRes.json();
 
-                switchGW('curr'); // Default to current
+                switchGW('curr'); 
             } catch (err) {
-                document.getElementById('gw-display-header').innerText = "Update Failed";
+                console.error(err);
+                document.getElementById('gw-display-header').innerText = "Failed to load fixtures";
             } finally {
-                icon.classList.remove('fa-spin');
+                if(icon) icon.classList.remove('fa-spin');
             }
         }
 
@@ -164,52 +167,28 @@
             renderGames(isCurr ? currentFixtures : nextFixtures);
         }
 
-        function toggleDrawer(id) {
-            const drawer = document.getElementById(`drawer-${id}`);
-            const btn = drawer.previousElementSibling;
-            const isActive = drawer.classList.toggle('active');
-            btn.innerHTML = isActive ? `Hide Stats <i class="fa-solid fa-chevron-up"></i>` : `Expand Stats <i class="fa-solid fa-chevron-down"></i>`;
-        }
-
-        function calculateLivePoints(pid, fixture) {
-            let pts = 0;
-            const p = players.find(x => x.id === pid);
-            if (!p) return 0;
-            fixture.stats.forEach(s => {
-                const entry = s.h.find(item => item.element === pid) || s.a.find(item => item.element === pid);
-                if (entry) {
-                    if (s.identifier === 'goals_scored') pts += (p.element_type <= 2 ? 6 : p.element_type === 3 ? 5 : 4) * entry.value;
-                    if (s.identifier === 'assists') pts += 3 * entry.value;
-                    if (s.identifier === 'yellow_cards') pts -= 1 * entry.value;
-                    if (s.identifier === 'red_cards') pts -= 3 * entry.value;
-                    if (s.identifier === 'own_goals') pts -= 2 * entry.value;
-                }
-            });
-            if (fixture.started) pts += 2; 
-            return pts;
-        }
-
         function renderGames(fixtures) {
             const list = document.getElementById('games-list');
-            list.innerHTML = fixtures.map(f => {
-                const isLive = f.started && !f.finished;
-                const hTeam = teams.find(t => t.id === f.team_h);
-                const aTeam = teams.find(t => t.id === f.team_a);
+            if (!fixtures || fixtures.length === 0) {
+                list.innerHTML = "<p style='text-align:center'>No fixtures found.</p>";
+                return;
+            }
 
+            list.innerHTML = fixtures.map(f => {
+                const hTeam = teams.find(t => t.id === f.team_h) || {short_name: '???', code: 0};
+                const aTeam = teams.find(t => t.id === f.team_a) || {short_name: '???', code: 0};
+                const isLive = f.started && !f.finished;
+
+                // Bonus/BPS logic
                 let bonusMarkup = "";
                 const bonusStat = f.stats.find(s => s.identifier === (f.finished ? "bonus" : "bps"));
                 if (bonusStat) {
                     const top3 = [...bonusStat.h, ...bonusStat.a].sort((a,b) => b.value - a.value).slice(0,3);
                     bonusMarkup = top3.map((p, i) => {
-                        const name = players.find(x => x.id === p.element)?.web_name;
+                        const name = players.find(x => x.id === p.element)?.web_name || "Unknown";
                         return `<span class="bonus-player">${name}<span class="pts-pill">${f.finished ? p.value : (3-i)}</span></span>`;
                     }).join('');
                 }
-
-                const matchPlayers = players
-                    .filter(p => p.team === f.team_h || p.team === f.team_a)
-                    .sort((a,b) => b.selected_by_percent - a.selected_by_percent)
-                    .slice(0, 5);
 
                 return `
                     <div class="m-card">
@@ -220,7 +199,7 @@
                             </div>
                             <div class="score-center">
                                 <div class="status-badge ${f.finished ? 'badge-done' : (isLive ? 'badge-live' : 'badge-sched')}">
-                                    ${f.finished ? 'Finished' : (isLive ? 'Live' : (f.kickoff_time ? new Date(f.kickoff_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Scheduled'))}
+                                    ${f.finished ? 'Finished' : (isLive ? 'Live' : 'Scheduled')}
                                 </div>
                                 <div class="score-val">${f.team_h_score ?? 0} : ${f.team_a_score ?? 0}</div>
                             </div>
@@ -234,9 +213,12 @@
                         </div>
                         <button class="expand-btn" onclick="toggleDrawer(${f.id})">Expand Stats <i class="fa-solid fa-chevron-down"></i></button>
                         <div class="drawer" id="drawer-${f.id}">
-                            ${matchPlayers.map(p => `
+                            <div style="padding:10px; text-align:center; font-size:0.7rem; color:var(--text-muted)">Top Owned Players Live Pts</div>
+                            ${players.filter(p => p.team === f.team_h || p.team === f.team_a)
+                                .sort((a,b) => b.selected_by_percent - a.selected_by_percent)
+                                .slice(0,5).map(p => `
                                 <div class="own-row">
-                                    <span>${p.web_name} <small style="color:var(--text-muted)">(${p.selected_by_percent}%)</small></span>
+                                    <span>${p.web_name} <small>(${p.selected_by_percent}%)</small></span>
                                     <span class="live-pts-badge">${f.started ? calculateLivePoints(p.id, f) : 0}</span>
                                 </div>
                             `).join('')}
@@ -245,13 +227,36 @@
             }).join('');
         }
 
+        function calculateLivePoints(pid, fixture) {
+            let pts = 0;
+            const p = players.find(x => x.id === pid);
+            if (!p || !fixture.started) return 0;
+            pts += 2; // Appearance
+            fixture.stats.forEach(s => {
+                const entry = s.h.find(item => item.element === pid) || s.a.find(item => item.element === pid);
+                if (entry) {
+                    if (s.identifier === 'goals_scored') pts += (p.element_type <= 2 ? 6 : p.element_type === 3 ? 5 : 4) * entry.value;
+                    if (s.identifier === 'assists') pts += 3 * entry.value;
+                    if (s.identifier === 'yellow_cards') pts -= 1 * entry.value;
+                    if (s.identifier === 'red_cards') pts -= 3 * entry.value;
+                }
+            });
+            return pts;
+        }
+
+        function toggleDrawer(id) {
+            const drawer = document.getElementById(`drawer-${id}`);
+            drawer.classList.toggle('active');
+        }
+
         function toggleTheme() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            document.body.classList.toggle('dark-mode');
         }
 
         init();
     </script>
-<script src="nav.js"></script>
+    <script src="footer.js"></script>
+    <script src="nav.js"></script>
 </body>
 </html>
+
