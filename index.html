@@ -760,6 +760,41 @@
         const savedTheme = localStorage.getItem('fplTheme') || 'dark';
         setTheme(savedTheme);
     });
+
+
+
+
+function renderTacticalPitch(mySquad) {
+    const pitch = document.querySelector('.player-list-grid');
+    
+    // Starters only (first 11)
+    const starters = mySquad.slice(0, 11);
+    
+    // Group by Position (1: GKP, 2: DEF, 3: MID, 4: FWD)
+    const rows = { 
+        4: starters.filter(p => p.pos === 4),
+        3: starters.filter(p => p.pos === 3),
+        2: starters.filter(p => p.pos === 2),
+        1: starters.filter(p => p.pos === 1)
+    };
+
+    let html = '';
+    // Generate rows from Forwards down to Goalkeeper
+    [4, 3, 2, 1].forEach(posKey => {
+        html += `<div class="pitch-row">`;
+        rows[posKey].forEach(p => {
+            html += `
+                <div class="player-card-tactical">
+                    <img src="jersey_${p.team}.png" class="player-jersey">
+                    <div class="player-name-tag">${p.name}</div>
+                    <div class="player-points-box">0</div>
+                </div>`;
+        });
+        html += `</div>`;
+    });
+    
+    pitch.innerHTML = html;
+}
 </script>
     <script src="nav.js"></script>
     <script src="deadline.js"></script>
