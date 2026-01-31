@@ -676,4 +676,78 @@
             if (infoContainer) infoContainer.innerHTML = infoHtml;
 
             // E. POPULATE THE 6-GRID STATS
-            d
+            document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || 0).toLocaleString();
+            document.getElementById('disp-gw-high').textContent = state.gwHigh || 0;
+            document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
+             
+            
+            document.getElementById('disp-total-pts').textContent = entry.summary_overall_points.toLocaleString();
+            document.getElementById('disp-gw-avg').textContent = state.gwAverage || 0;
+            document.getElementById('disp-total').textContent = (picks.entry_history.points - transferCost); // Net Points
+            
+
+            // F. RENDER PLAYER GRID
+            renderPlayerGrid(picks.picks, ptsMap); 
+
+        } catch (e) { 
+            console.error("Fetch failed", e); 
+        }
+    }
+
+    // 6. RENDER PLAYER CARDS
+    function renderPlayerGrid(picks, ptsMap) {
+        const grid = document.getElementById('player-list-grid');
+        if (!grid) return;
+        grid.innerHTML = ''; 
+
+        picks.forEach((p, index) => {
+            const meta = state.playerMap[p.element];
+            if (!meta) return;
+
+            const rawPts = ptsMap[p.element] || 0;
+            const totalPts = rawPts * (p.multiplier || 1);
+            const isBench = index >= 11;
+            const ownership = meta.ownership || "0.0"; 
+
+            const cardHtml = `
+                <div class="compact-player-card ${isBench ? 'is-bench' : ''}">
+                    <i class="fa-solid fa-star star-icon"></i>
+                    <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png">
+                    
+                    ${p.is_captain ? `<div class="badge">C</div>` : ''}
+                    ${p.is_vice_captain ? `<div class="badge">V</div>` : ''}
+                    
+                    <div class="card-data-box">
+                        <div class="card-name">${meta.name}</div>
+                        <div class="card-points">${totalPts}</div>
+                        <div class="card-ownership-bar" style="background: linear-gradient(90deg, var(--accent-blue) ${ownership}%, #444 ${ownership}%)">
+                            ${ownership}%
+                        </div>
+                    </div>
+                </div>`;
+
+            grid.innerHTML += cardHtml;
+        });
+    }
+
+    // 7. APP INVOCATION
+    if (state.fplId) {
+        initData().then(fetchAndRender);
+    } else {
+        const loginScreen = document.getElementById('login-screen');
+        if (loginScreen) loginScreen.style.display = 'flex';
+    }
+
+    // 8. EVENT LISTENERS
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('fplTheme') || 'dark';
+        setTheme(savedTheme);
+    });
+</script>
+    <script src="nav.js"></script>
+    <script src="deadline.js"></script>
+    <script src="transfers.js"></script>
+    <div id="footer-placeholder"></div>
+<script src="footer.js"></script>
+</body>
+</html>
