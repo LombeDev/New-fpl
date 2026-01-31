@@ -38,7 +38,7 @@ function renderTransferCard(title, list, teams, isIn) {
         <div class="transfer-card-wrapper">
             <div class="transfer-card-header">
                 <h3>${title}</h3>
-                <i class="fa-solid fa-chevron-right"></i>
+                
             </div>
             <div class="transfer-table-head">
                 <span>Player</span>
