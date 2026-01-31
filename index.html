@@ -94,33 +94,80 @@
     color: var(--text-color);
 }
         
+    .player-list-grid {
+    position: relative;
+    width: calc(100% - 32px); /* Matches your side margins */
+    margin: 20px auto;
     
-   .player-list-grid {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    
-    /* Background Fixes */
+    /* Show the full pitch without zoom */
     background-image: url('pitch.png');
-    background-size: contain;    /* Shows the WHOLE image without zooming */
+    background-size: 100% 100%; 
     background-repeat: no-repeat;
     background-position: center;
     
-    /* Shape Fixes */
-    width: 100%;
-    aspect-ratio: 9 / 11;       /* Adjust this based on your pitch.png shape */
-    padding: 40px 10px;
+    /* Aspect ratio to maintain pitch shape */
+    aspect-ratio: 3 / 4; 
+    
+    /* Layout for rows */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 10% 0; /* Creates space at the top and bottom of the pitch */
     box-sizing: border-box;
 }
 
-/* Row for tactical positioning (GKP, DEF, MID, FWD) */
+/* Row container for each position */
 .pitch-row {
     display: flex;
     justify-content: center;
-    gap: 4px;
+    align-items: center;
     width: 100%;
+    gap: 2px;
 }
 
+/* Individual tactical player card */
+.player-card-tactical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20%; /* Allows 5 players per row comfortably */
+}
+
+.player-jersey {
+    width: 45px; /* Size based on your screenshot */
+    height: auto;
+    margin-bottom: 2px;
+}
+
+.player-name-tag {
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 2px;
+    text-align: center;
+    width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.player-points-box {
+    background: #fff;
+    color: #000;
+    font-size: 12px;
+    font-weight: 900;
+    width: 24px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    margin-top: 1px;
+}
+   
+    
+    
     
     .compact-player-card {
         width: 44px; /* Narrowest possible width to fit 8 across */
@@ -764,37 +811,7 @@
 
 
 
-function renderTacticalPitch(mySquad) {
-    const pitch = document.querySelector('.player-list-grid');
-    
-    // Starters only (first 11)
-    const starters = mySquad.slice(0, 11);
-    
-    // Group by Position (1: GKP, 2: DEF, 3: MID, 4: FWD)
-    const rows = { 
-        4: starters.filter(p => p.pos === 4),
-        3: starters.filter(p => p.pos === 3),
-        2: starters.filter(p => p.pos === 2),
-        1: starters.filter(p => p.pos === 1)
-    };
-
-    let html = '';
-    // Generate rows from Forwards down to Goalkeeper
-    [4, 3, 2, 1].forEach(posKey => {
-        html += `<div class="pitch-row">`;
-        rows[posKey].forEach(p => {
-            html += `
-                <div class="player-card-tactical">
-                    <img src="jersey_${p.team}.png" class="player-jersey">
-                    <div class="player-name-tag">${p.name}</div>
-                    <div class="player-points-box">0</div>
-                </div>`;
-        });
-        html += `</div>`;
-    });
-    
-    pitch.innerHTML = html;
-}
+ 
 </script>
     <script src="nav.js"></script>
     <script src="deadline.js"></script>
