@@ -12,92 +12,144 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        :root {
-            --fpl-green: #00ff87;
-            --fpl-pink: #e90052;
-            --m3-purple: #6750a4;
-            --dark-bg: #0b1120;
-        }
-
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: #f4f4f9; 
-            margin: 0; 
-            padding-bottom: 100px; 
-            color: #1d1b20;
-        }
-
-        /* Pro Header */
-        .pro-header { 
-            background: var(--dark-bg); 
-            color: white; 
-            padding: 50px 20px 70px; 
-            text-align: center; 
-            border-radius: 0 0 40px 40px; 
-        }
-
-        /* Stats Dashboard */
-        .stats-dashboard { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 12px; 
-            margin: -50px 15px 20px; 
-        }
-
-        .stat-card { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 24px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-            text-align: center; 
-        }
-
-        .stat-val { font-size: 1.6rem; font-weight: 900; color: var(--dark-bg); display: block; }
-        .stat-lbl { font-size: 0.65rem; font-weight: 800; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* Forecast Card */
-        .outlook-card {
-            background: linear-gradient(135deg, var(--m3-purple), #916dd5);
-            margin: 0 15px 25px;
-            padding: 20px;
-            border-radius: 28px;
-            color: white;
-            box-shadow: 0 12px 30px rgba(103, 80, 164, 0.3);
-        }
-
-        .outlook-grid { display: flex; justify-content: space-around; margin-top: 15px; }
-        .outlook-item { text-align: center; }
-        .outlook-num { font-size: 1.4rem; font-weight: 900; display: block; }
-        .outlook-gw { font-size: 0.65rem; font-weight: 700; opacity: 0.8; }
-
-        /* Transfer AI Section */
-        .rec-card {
-            background: white; margin: 0 15px 25px; padding: 20px; border-radius: 24px;
-            border: 2px solid #e8f5e9;
-        }
-        .rec-grid { display: flex; align-items: center; justify-content: space-around; }
-        .rec-out b { color: var(--fpl-pink); font-size: 1.1rem; }
-        .rec-in b { color: var(--fpl-green); font-size: 1.1rem; }
-        .rec-reason { margin-top: 15px; font-size: 0.75rem; color: #666; font-style: italic; text-align: center; }
-
-        /* Captaincy Metric */
-        .captain-card { background: white; margin: 0 15px 25px; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .cap-highlight { background: var(--dark-bg); color: white; padding: 20px; display: flex; align-items: center; justify-content: space-between; }
-        .cap-score { font-size: 1.5rem; font-weight: 900; color: var(--fpl-green); }
-
-        /* Lists & Rows */
-        .section-title { font-size: 0.85rem; font-weight: 900; margin: 25px 20px 12px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
-        .player-row { background: white; margin: 0 15px 8px; padding: 15px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .eo-bar { width: 60px; height: 6px; background: #eee; border-radius: 3px; margin-top: 5px; overflow: hidden; }
-        .eo-fill { height: 100%; background: var(--fpl-green); }
+    :root {
+        /* Material You - M3 Tonal Palette */
+        --md-sys-color-primary: #6750a4;
+        --md-sys-color-on-primary: #ffffff;
+        --md-sys-color-primary-container: #eaddff;
+        --md-sys-color-secondary-container: #e8def8;
+        --md-sys-color-surface: #fdf7ff;
+        --md-sys-color-surface-variant: #e7e0eb;
+        --md-sys-color-outline: #79747e;
         
-        .badge { font-size: 0.6rem; padding: 3px 8px; border-radius: 6px; font-weight: 800; margin-left: 8px; }
-        .bg-shield { background: #e8f5e9; color: #2e7d32; }
-        .bg-sword { background: #fff3e0; color: #ef6c00; }
+        /* LiveFPL Accents */
+        --live-green: #00ff87; /* FPL Cyan/Green */
+        --live-red: #ff285e;
+        --live-up: #10b981;
+        --live-down: #ef4444;
+    }
 
-        /* Chart Container */
-        .chart-container { background: white; margin: 0 15px; padding: 20px; border-radius: 24px; }
-    </style>
+    body { 
+        font-family: 'Inter', sans-serif; 
+        background: var(--md-sys-color-surface); 
+        margin: 0; 
+        padding-bottom: 100px; 
+        color: #1c1b1f;
+    }
+
+    /* Large M3 Header (replacing the dark pro-header) */
+    .pro-header { 
+        background: var(--md-sys-color-surface);
+        color: #1c1b1f; 
+        padding: 60px 24px 80px; 
+        text-align: left; /* M3 style is often left-aligned */
+    }
+
+    .pro-header h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .pro-header p {
+        background: var(--md-sys-color-primary-container);
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 20px;
+        color: var(--md-sys-color-primary);
+        font-weight: 700;
+        margin-top: 10px;
+    }
+
+    /* Material Surface Stats */
+    .stats-dashboard { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 16px; 
+        margin: -60px 16px 24px; 
+    }
+
+    .stat-card { 
+        background: white; 
+        padding: 24px 16px; 
+        border-radius: 28px; /* High rounding for M3 */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
+        border: 1px solid var(--md-sys-color-surface-variant);
+        text-align: center; 
+    }
+
+    .stat-val { font-size: 1.8rem; font-weight: 900; color: var(--md-sys-color-primary); }
+    .stat-lbl { font-size: 0.7rem; font-weight: 700; color: var(--md-sys-color-outline); text-transform: uppercase; }
+
+    /* LiveFPL Style Forecast Card */
+    .outlook-card {
+        background: var(--md-sys-color-secondary-container);
+        margin: 0 16px 24px;
+        padding: 24px;
+        border-radius: 28px;
+        color: #1d192b;
+    }
+
+    .outlook-grid { display: flex; justify-content: space-around; margin-top: 15px; }
+    .outlook-num { font-size: 1.5rem; font-weight: 900; color: var(--md-sys-color-primary); }
+    .outlook-gw { font-size: 0.75rem; font-weight: 800; opacity: 0.7; }
+
+    /* Transfer Suggestions (Card with subtle border) */
+    .rec-card {
+        background: white; margin: 0 16px 24px; padding: 20px; border-radius: 24px;
+        border: 1px solid var(--md-sys-color-surface-variant);
+    }
+    
+    .rec-out b { color: var(--live-red); font-size: 1.2rem; }
+    .rec-in b { color: var(--live-up); font-size: 1.2rem; }
+
+    /* Captaincy Surface */
+    .captain-card { 
+        background: #1c1b1f; /* Dark accent for captaincy like LiveFPL */
+        margin: 0 16px 24px; 
+        border-radius: 28px; 
+        overflow: hidden; 
+    }
+    .cap-highlight { padding: 24px; display: flex; align-items: center; justify-content: space-between; }
+    .cap-score { font-size: 2rem; font-weight: 900; color: var(--live-green); }
+
+    /* Section Titles (M3 Labels) */
+    .section-title { 
+        font-size: 0.9rem; 
+        font-weight: 700; 
+        margin: 32px 24px 12px; 
+        color: var(--md-sys-color-primary);
+        letter-spacing: 0.5px;
+    }
+
+    /* Player Rows (LiveFPL Table Style) */
+    .player-row { 
+        background: white; 
+        margin: 0 16px 4px; 
+        padding: 16px 20px; 
+        border-radius: 12px; /* Slightly less rounded for list items */
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        border: 1px solid #f0f0f0;
+    }
+
+    .eo-bar { width: 80px; height: 8px; background: #eee; border-radius: 4px; margin-top: 6px; overflow: hidden; }
+    .eo-fill { height: 100%; background: var(--md-sys-color-primary); }
+    
+    .badge { font-size: 0.65rem; padding: 4px 10px; border-radius: 20px; font-weight: 800; }
+    .bg-shield { background: #d1e9ff; color: #004881; }
+    .bg-sword { background: #ffe08d; color: #725c00; }
+
+    /* Chart Surface */
+    .chart-container { 
+        background: white; 
+        margin: 0 16px; 
+        padding: 24px; 
+        border-radius: 28px; 
+        border: 1px solid var(--md-sys-color-surface-variant);
+    }
+</style>
 </head>
 <body>
     <div id="nav-placeholder"></div>
@@ -173,7 +225,7 @@
     <div class="section-title"><i class="fa-solid fa-shield-halved"></i> Rank Protection (vs Top 10k)</div>
     <div id="squad-list"></div>
 
-    <div id="footer-placeholder"></div>
+    
 
 
     <script>
@@ -299,43 +351,109 @@ function processData(picks, history, allPlayers, fixtures) {
     document.getElementById('rec-buy').innerText = target.web_name;
     document.getElementById('rec-reason').innerText = `${weakLink.name} is underperforming. ${target.web_name} has high ICT and better fixtures.`;
 
-    // F. CAPTAINCY METRIC
-    const hasHaaland = mySquad.some(p => p.name === "Haaland");
-    document.getElementById('cap-name').innerText = hasHaaland ? "Haaland" : mySquad[0].name;
-    document.getElementById('cap-metric').innerText = "94";
+    // F. CAPTAINCY METRIC (Dynamic Calculation)
+    // 1. Sort squad by a combination of xPts and ICT Index
+    const captainCandidates = [...mySquad].sort((a, b) => {
+        const scoreA = (state.eliteData[a.name]?.xPts[0] || 0) + (a.ict / 10);
+        const scoreB = (state.eliteData[b.name]?.xPts[0] || 0) + (b.ict / 10);
+        return scoreB - scoreA;
+    });
 
-    // G. RENDER CHART
-    renderChart(history.current.slice(-6));
-}
+    const topPick = captainCandidates[0];
+    
+    // 2. Generate a Dynamic Metric Score (0-100)
+    // Formula: (Expected Points * 10) + (ICT Index / 2) - capped at 99
+    const baseMetric = (state.eliteData[topPick.name]?.xPts[0] || 4) * 10;
+    const ictBonus = topPick.ict / 2;
+    const finalMetric = Math.min(Math.round(baseMetric + ictBonus), 99);
 
-function renderChart(history) {
+    // 3. Dynamic Reason based on their stats
+    let reason = "Top predicted points based on form and fixtures.";
+    if (topPick.ict > 12) reason = `Elite underlying stats with an ICT of ${topPick.ict}.`;
+    if (state.eliteData[topPick.name]?.xPts[0] > 7) reason = "Highly explosive fixture potential this week.";
+
+    // Update UI
+    document.getElementById('cap-name').innerText = topPick.name;
+    document.getElementById('cap-metric').innerText = finalMetric;
+    document.getElementById('cap-reason').innerText = reason;
+
+    
+   function renderChart(history) {
     if (typeof Chart === 'undefined') return setTimeout(() => renderChart(history), 500);
     const ctx = document.getElementById('rankChart').getContext('2d');
+    
+    // Destroy previous instance to prevent overlapping
     if (window.myRankChart) window.myRankChart.destroy();
+
+    // Material You Tonal Colors
+    const primaryPurple = '#6750a4'; 
+    const surfaceVariant = '#eaddff'; 
 
     window.myRankChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: history.map(h => 'GW' + h.event),
             datasets: [{
+                label: 'Overall Rank',
                 data: history.map(h => h.overall_rank),
-                borderColor: '#6750a4',
-                backgroundColor: 'rgba(103, 80, 164, 0.1)',
+                borderColor: primaryPurple,
+                backgroundColor: (context) => {
+                    const chart = context.chart;
+                    const {ctx, chartArea} = chart;
+                    if (!chartArea) return null;
+                    
+                    // Create a beautiful Material gradient
+                    const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    gradient.addColorStop(0, 'rgba(103, 80, 164, 0.2)');
+                    gradient.addColorStop(1, 'rgba(234, 221, 255, 0.0)');
+                    return gradient;
+                },
                 fill: true,
-                tension: 0.4,
-                borderWidth: 3,
-                pointRadius: 4,
-                pointBackgroundColor: '#6750a4'
+                tension: 0.45, // Super smooth LiveFPL-style curve
+                borderWidth: 4,
+                pointRadius: 5,
+                pointBackgroundColor: primaryPurple,
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                pointHoverRadius: 7
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: { 
-                y: { reverse: true, display: false }, 
-                x: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' } } } 
+            layout: {
+                padding: { top: 10, bottom: 10 }
             },
-            plugins: { legend: { display: false } }
+            scales: { 
+                y: { 
+                    reverse: true, // Lower number (1st place) is at the top
+                    display: false,
+                    grid: { display: false }
+                }, 
+                x: { 
+                    grid: { display: false }, 
+                    ticks: { 
+                        color: '#79747e', // M3 Outline color
+                        font: { size: 11, weight: '700', family: 'Inter' } 
+                    } 
+                } 
+            },
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1c1b1f',
+                    titleFont: { size: 12, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    padding: 12,
+                    cornerRadius: 12,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return 'Rank: ' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            }
         }
     });
 }
@@ -343,6 +461,7 @@ function renderChart(history) {
 // Start everything
 init();
     </script>
+    <div id="footer-placeholder"></div>
 
     <script src="nav.js"></script>
     <script src="footer.js"></script>
