@@ -1,19 +1,18 @@
 /**
- * footer.js - Universal Footer Component (Themed to Screenshot)
+ * footer.js - Universal Footer with Full-Width Green Bar
  */
 
 const footerTemplate = `
 <footer class="main-footer">
     <div class="footer-top-bar">
-        <div class="footer-nav-links">
-            <a href="#">ABOUT US</a>
-            <a href="#">THE TEAM</a>
-            <a href="careers.html">CAREERS</a>
-            <a href="faq.html">FAQ</a>
-            <a href="terms.html">T&CS</a>
-            <a href="disclaimer.html">DISCLAIMER</a>
-            <a href="privacy.html">PRIVACY POLICY</a>
-            <a href="https://wa.me/260964836842">CONTACT US</a>
+        <div class="footer-nav-container">
+            <a href="index.html">LIVE RANK</a>
+            <a href="leagues.html">LIVE LEAGUES</a>
+            <a href="games.html">GAMES</a>
+            <a href="prices.html">PRICE CHANGES</a>
+            <a href="10k.html">YOU VS TOP 10K</a>
+            <a href="https://wa.me/260964836842" target="_blank">SUPPORT</a>
+            <a href="https://twitter.com" target="_blank">TWITTER</a>
         </div>
     </div>
 
@@ -24,7 +23,11 @@ const footerTemplate = `
         </div>
 
         <div class="footer-bottom">
-            © Copyright Kopala FPL ${new Date().getFullYear()}. All rights reserved.
+            &copy; Copyright Kopala FPL ${new Date().getFullYear()}. All rights reserved.
+            <br>
+            <small style="opacity: 0.6; font-size: 0.6rem; margin-top: 10px; display: block;">
+                This app is not officially affiliated with Premier League or Fantasy Premier League.
+            </small>
         </div>
     </div>
 </footer>
@@ -37,7 +40,7 @@ function injectFooter() {
     }
 }
 
-// Lazy Load via Idle Callback
+// Lazy Load: Injects when the browser has finished main tasks
 window.addEventListener('load', () => {
     if ('requestIdleCallback' in window) {
         requestIdleCallback(injectFooter);
