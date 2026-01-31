@@ -31,7 +31,6 @@ function loadNavbar() {
         <li><a href="games.html"><i class=""></i> Games <span>&rsaquo;</span></a></li>
         <li><a href="10k.html"><i class=""></i> You vs 10k <span>&rsaquo;</span></a></li>
         <li><a href="prizes.html"><i class=""></i> Prizes <span>&rsaquo;</span></a></li>
-        <li><a href="about.html"><i class=""></i> About <span>&rsaquo;</span></a></li>
         <li><a href="https://wa.me/260964836842" target="_blank">Help</a></li>
       </ul>
 
