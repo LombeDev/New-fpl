@@ -1,14 +1,12 @@
 /**
- * footer.js - Universal Footer Component
+ * footer.js - Lazy-Loaded Universal Footer Component
  */
 
 const footerTemplate = `
-<footer class="main-footer">
+<footer class="main-footer" style="opacity: 0; transform: translateY(20px); transition: all 0.6s ease-out;">
     <div class="footer-network-brand">
         <div class="network-label">KOPALA FPL</div>
     </div>
-
-    
 
     <div class="footer-links-grid">
         <div class="footer-column">
@@ -36,37 +34,38 @@ const footerTemplate = `
     </div>
 
     <div class="footer-bottom">
-        &copy; ${new Date().getFullYear()} Kopala FPL, This app is not officially affiliated with Premier League or Fantasy Premier League. ⚽
+        &copy; ${new Date().getFullYear()} Kopala FPL. This app is not officially affiliated with Premier League or Fantasy Premier League. ⚽
     </div>
 </footer>
 `;
 
-function initFooter() {
+function initLazyFooter() {
     const placeholder = document.getElementById('footer-placeholder');
-    if (placeholder) {
-        placeholder.innerHTML = footerTemplate;
-    }
-}
-
-document.addEventListener('DOMContentLoaded', initFooter);
-
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    const footer = document.querySelector('.main-footer');
+    if (!placeholder) return;
 
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                // When footer is 10% visible, trigger the fade-in
-                entry.target.classList.add('is-visible');
-                // Unobserve once loaded to save memory
-                observer.unobserve(entry.target);
+                // 1. Inject the HTML only when the user is near
+                placeholder.innerHTML = footerTemplate;
+                
+                // 2. Trigger the animation on the newly injected element
+                const footer = placeholder.querySelector('.main-footer');
+                setTimeout(() => {
+                    footer.style.opacity = "1";
+                    footer.style.transform = "translateY(0)";
+                }, 50);
+
+                // 3. Stop watching once loaded
+                observer.unobserve(placeholder);
+                console.log("Footer Lazy Loaded");
             }
         });
-    }, { threshold: 0.1 }); 
+    }, { 
+        rootMargin: '150px' // Start loading when footer is 150px away from view
+    });
 
-    if (footer) {
-        observer.observe(footer);
-    }
-});
+    observer.observe(placeholder);
+}
+
+document.addEventListener('DOMContentLoaded', initLazyFooter);
