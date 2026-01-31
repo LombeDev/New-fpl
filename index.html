@@ -629,7 +629,6 @@
             if (entry) {
                 document.getElementById('disp-name').innerHTML = `
                     ${entry.player_first_name} ${entry.player_last_name} 
-                    <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: var(--accent-blue);"></i>
                 `;
                 const teamElem = document.getElementById('disp-team');
                 if (teamElem) teamElem.textContent = entry.name;
@@ -678,12 +677,14 @@
 
             // E. POPULATE THE 6-GRID STATS
             document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || 0).toLocaleString();
+            document.getElementById('disp-gw-high').textContent = state.gwHigh || 0;
             document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
-            document.getElementById('disp-total').textContent = (picks.entry_history.points - transferCost); // Net Points
+             
             
             document.getElementById('disp-total-pts').textContent = entry.summary_overall_points.toLocaleString();
             document.getElementById('disp-gw-avg').textContent = state.gwAverage || 0;
-            document.getElementById('disp-gw-high').textContent = state.gwHigh || 0;
+            document.getElementById('disp-total').textContent = (picks.entry_history.points - transferCost); // Net Points
+            
 
             // F. RENDER PLAYER GRID
             renderPlayerGrid(picks.picks, ptsMap); 
