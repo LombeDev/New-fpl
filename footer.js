@@ -75,3 +75,24 @@ function initFooter() {
 }
 
 document.addEventListener('DOMContentLoaded', initFooter);
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const footer = document.querySelector('.main-footer');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // When footer is 10% visible, trigger the fade-in
+                entry.target.classList.add('is-visible');
+                // Unobserve once loaded to save memory
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 }); 
+
+    if (footer) {
+        observer.observe(footer);
+    }
+});
