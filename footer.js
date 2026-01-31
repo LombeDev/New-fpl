@@ -11,8 +11,10 @@ const footerTemplate = `
             <a href="games.html">GAMES</a>
             <a href="prices.html">PRICE CHANGES</a>
             <a href="10k.html">YOU VS TOP 10K</a>
-            <a href="https://wa.me/260964836842" target="_blank">SUPPORT</a>
-            <a href="https://twitter.com" target="_blank">TWITTER</a>
+            <a href="prizes.html">PRIZES</a>
+            <a href="https://wa.me/260964836842" target="_blank">HELP</a>
+          
+            
         </div>
     </div>
 
