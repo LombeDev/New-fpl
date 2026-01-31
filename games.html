@@ -14,17 +14,7 @@
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="footer.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Games - Kopala FPL</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
+      <style>
         :root {
             --bg-color: #f3f4f6;
             --card-bg: #ffffff;
@@ -36,6 +26,8 @@
             --done-badge: #1e3a8a;
             --live-badge: #e90052; 
             --expand-mint: #f1f5f9;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         body.dark-mode {
@@ -72,22 +64,50 @@
         /* --- CONTENT --- */
         .page-content { padding-top: 70px; padding-bottom: 100px; max-width: 600px; margin: 0 auto; padding-left: 10px; padding-right: 10px; }
         
-        .gw-tabs { display: flex; gap: 10px; margin: 15px 0; }
-        .gw-tab {
-            flex: 1; padding: 12px; text-align: center; border-radius: 8px;
-            background: var(--card-bg); border: 1px solid var(--border-color);
-            font-size: 0.8rem; font-weight: 800; cursor: pointer; color: var(--text-muted);
+        /* --- MATERIAL DESIGN TABS --- */
+        .gw-tabs { 
+            display: flex; 
+            gap: 12px; 
+            margin: 20px 0; 
+            background: transparent;
         }
-        .gw-tab.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
+        .gw-tab {
+            flex: 1; 
+            padding: 14px; 
+            text-align: center; 
+            border-radius: 12px;
+            background: var(--card-bg); 
+            border: none;
+            font-size: 0.85rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            color: var(--text-muted);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .gw-tab.active { 
+            background: var(--primary-blue); 
+            color: white; 
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+        .gw-tab:active {
+            transform: scale(0.98);
+        }
 
         .gw-header { border-left: 4px solid var(--fpl-green); padding-left: 10px; margin-bottom: 15px; font-size: 1.1rem; font-weight: 800; }
 
         /* MATCH CARD */
-        .m-card { background: var(--card-bg); border-radius: 15px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border-color); }
+        .m-card { background: var(--card-bg); border-radius: 15px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
         .m-main { display: flex; align-items: center; justify-content: space-between; padding: 15px 10px; }
         .team-box { flex: 1; text-align: center; }
-        .kit-img { width: 40px; height: auto; margin-bottom: 5px; }
-        .team-name { font-weight: 800; font-size: 0.75rem; display: block; text-transform: uppercase; }
+        
+        /* SMALLER JERSEY SIZE */
+        .kit-img { width: 32px; height: auto; margin-bottom: 8px; opacity: 0.9; }
+        
+        .team-name { font-weight: 800; font-size: 0.7rem; display: block; text-transform: uppercase; color: var(--text-muted); }
         .score-center { flex: 1.2; text-align: center; }
         .status-badge { color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 0.6rem; font-weight: 900; display: inline-block; margin-bottom: 8px; text-transform: uppercase; }
         .badge-done { background: var(--done-badge); }
@@ -96,7 +116,7 @@
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
         .score-val { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; }
         
-        .m-footer { background: var(--bg-color); padding: 10px; font-size: 0.65rem; text-align: center; border-top: 1px solid var(--border-color); color: var(--text-muted); }
+        .m-footer { background: var(--bg-color); padding: 12px; font-size: 0.65rem; text-align: center; border-top: 1px solid var(--border-color); color: var(--text-muted); line-height: 1.6; }
         .bonus-player { margin: 0 4px; font-weight: 700; color: var(--text-main); }
         .pts-pill { background: var(--primary-blue); color: #fff; padding: 1px 4px; border-radius: 3px; margin-left: 3px; }
 
@@ -180,7 +200,6 @@
                 const aTeam = teams.find(t => t.id === f.team_a) || {short_name: '???', code: 0};
                 const isLive = f.started && !f.finished;
 
-                // Bonus/BPS logic
                 let bonusMarkup = "";
                 const bonusStat = f.stats.find(s => s.identifier === (f.finished ? "bonus" : "bps"));
                 if (bonusStat) {
@@ -210,16 +229,16 @@
                             </div>
                         </div>
                         <div class="m-footer">
-                            <span style="opacity:0.7">${f.finished ? 'BONUS' : 'BPS TOP 3'}</span><br>${bonusMarkup || '---'}
+                            <span style="opacity:0.7; font-weight:800; letter-spacing:1px">${f.finished ? 'BONUS' : 'BPS TOP 3'}</span><br>${bonusMarkup || '---'}
                         </div>
                         <button class="expand-btn" onclick="toggleDrawer(${f.id})">Expand Stats <i class="fa-solid fa-chevron-down"></i></button>
                         <div class="drawer" id="drawer-${f.id}">
-                            <div style="padding:10px; text-align:center; font-size:0.7rem; color:var(--text-muted)">Top Owned Players Live Pts</div>
+                            <div style="padding:10px; text-align:center; font-size:0.7rem; color:var(--text-muted); font-weight:700">Top Owned Players Live Pts</div>
                             ${players.filter(p => p.team === f.team_h || p.team === f.team_a)
                                 .sort((a,b) => b.selected_by_percent - a.selected_by_percent)
                                 .slice(0,5).map(p => `
                                 <div class="own-row">
-                                    <span>${p.web_name} <small>(${p.selected_by_percent}%)</small></span>
+                                    <span>${p.web_name} <small style="opacity:0.6">(${p.selected_by_percent}%)</small></span>
                                     <span class="live-pts-badge">${f.started ? calculateLivePoints(p.id, f) : 0}</span>
                                 </div>
                             `).join('')}
@@ -232,7 +251,7 @@
             let pts = 0;
             const p = players.find(x => x.id === pid);
             if (!p || !fixture.started) return 0;
-            pts += 2; // Appearance
+            pts += 2; 
             fixture.stats.forEach(s => {
                 const entry = s.h.find(item => item.element === pid) || s.a.find(item => item.element === pid);
                 if (entry) {
@@ -260,4 +279,3 @@
     <script src="nav.js"></script>
 </body>
 </html>
-
