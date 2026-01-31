@@ -94,81 +94,17 @@
     color: var(--text-color);
 }
         
-    .player-list-grid {
-    position: relative;
-    width: calc(100% - 32px); /* Matches your side margins */
-    margin: 20px auto;
     
-    /* Show the full pitch without zoom */
-    background-image: url('pitch.png');
-    background-size: 100% 100%; 
-    background-repeat: no-repeat;
-    background-position: center;
-    
-    /* Aspect ratio to maintain pitch shape */
-    aspect-ratio: 3 / 4; 
-    
-    /* Layout for rows */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    padding: 10% 0; /* Creates space at the top and bottom of the pitch */
-    box-sizing: border-box;
-}
-
-/* Row container for each position */
-.pitch-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    gap: 2px;
-}
-
-/* Individual tactical player card */
-.player-card-tactical {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 20%; /* Allows 5 players per row comfortably */
-}
-
-.player-jersey {
-    width: 45px; /* Size based on your screenshot */
-    height: auto;
-    margin-bottom: 2px;
-}
-
-.player-name-tag {
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 1px 4px;
-    border-radius: 2px;
-    text-align: center;
-    width: 90%;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.player-points-box {
-    background: #fff;
-    color: #000;
-    font-size: 12px;
-    font-weight: 900;
-    width: 24px;
-    height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    margin-top: 1px;
-}
    
-    
-    
-    
+
+    /* 8-Column Grid for maximum horizontal density */
+    .player-list-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px 1px;
+        justify-items: center;
+    }
+
     .compact-player-card {
         width: 44px; /* Narrowest possible width to fit 8 across */
         display: flex;
@@ -740,83 +676,4 @@
             if (infoContainer) infoContainer.innerHTML = infoHtml;
 
             // E. POPULATE THE 6-GRID STATS
-            document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || 0).toLocaleString();
-            document.getElementById('disp-gw-high').textContent = state.gwHigh || 0;
-            document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
-             
-            
-            document.getElementById('disp-total-pts').textContent = entry.summary_overall_points.toLocaleString();
-            document.getElementById('disp-gw-avg').textContent = state.gwAverage || 0;
-            document.getElementById('disp-total').textContent = (picks.entry_history.points - transferCost); // Net Points
-            
-
-            // F. RENDER PLAYER GRID
-            renderPlayerGrid(picks.picks, ptsMap); 
-
-        } catch (e) { 
-            console.error("Fetch failed", e); 
-        }
-    }
-
-    // 6. RENDER PLAYER CARDS
-    function renderPlayerGrid(picks, ptsMap) {
-        const grid = document.getElementById('player-list-grid');
-        if (!grid) return;
-        grid.innerHTML = ''; 
-
-        picks.forEach((p, index) => {
-            const meta = state.playerMap[p.element];
-            if (!meta) return;
-
-            const rawPts = ptsMap[p.element] || 0;
-            const totalPts = rawPts * (p.multiplier || 1);
-            const isBench = index >= 11;
-            const ownership = meta.ownership || "0.0"; 
-
-            const cardHtml = `
-                <div class="compact-player-card ${isBench ? 'is-bench' : ''}">
-                    <i class="fa-solid fa-star star-icon"></i>
-                    <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png">
-                    
-                    ${p.is_captain ? `<div class="badge">C</div>` : ''}
-                    ${p.is_vice_captain ? `<div class="badge">V</div>` : ''}
-                    
-                    <div class="card-data-box">
-                        <div class="card-name">${meta.name}</div>
-                        <div class="card-points">${totalPts}</div>
-                        <div class="card-ownership-bar" style="background: linear-gradient(90deg, var(--accent-blue) ${ownership}%, #444 ${ownership}%)">
-                            ${ownership}%
-                        </div>
-                    </div>
-                </div>`;
-
-            grid.innerHTML += cardHtml;
-        });
-    }
-
-    // 7. APP INVOCATION
-    if (state.fplId) {
-        initData().then(fetchAndRender);
-    } else {
-        const loginScreen = document.getElementById('login-screen');
-        if (loginScreen) loginScreen.style.display = 'flex';
-    }
-
-    // 8. EVENT LISTENERS
-    document.addEventListener('DOMContentLoaded', () => {
-        const savedTheme = localStorage.getItem('fplTheme') || 'dark';
-        setTheme(savedTheme);
-    });
-
-
-
-
- 
-</script>
-    <script src="nav.js"></script>
-    <script src="deadline.js"></script>
-    <script src="transfers.js"></script>
-    <div id="footer-placeholder"></div>
-<script src="footer.js"></script>
-</body>
-</html>
+            d
