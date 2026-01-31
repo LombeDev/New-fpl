@@ -1,9 +1,9 @@
 /**
- * footer.js - Lazy-Loaded Universal Footer Component
+ * footer.js - Universal Footer Component (Idle Lazy Load)
  */
 
 const footerTemplate = `
-<footer class="main-footer" style="opacity: 0; transform: translateY(20px); transition: all 0.6s ease-out;">
+<footer class="main-footer">
     <div class="footer-network-brand">
         <div class="network-label">KOPALA FPL</div>
     </div>
@@ -39,33 +39,21 @@ const footerTemplate = `
 </footer>
 `;
 
-function initLazyFooter() {
+function injectFooter() {
     const placeholder = document.getElementById('footer-placeholder');
-    if (!placeholder) return;
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                // 1. Inject the HTML only when the user is near
-                placeholder.innerHTML = footerTemplate;
-                
-                // 2. Trigger the animation on the newly injected element
-                const footer = placeholder.querySelector('.main-footer');
-                setTimeout(() => {
-                    footer.style.opacity = "1";
-                    footer.style.transform = "translateY(0)";
-                }, 50);
-
-                // 3. Stop watching once loaded
-                observer.unobserve(placeholder);
-                console.log("Footer Lazy Loaded");
-            }
-        });
-    }, { 
-        rootMargin: '150px' // Start loading when footer is 150px away from view
-    });
-
-    observer.observe(placeholder);
+    if (placeholder) {
+        placeholder.innerHTML = footerTemplate;
+        console.log("Footer Lazy Loaded via Idle Callback");
+    }
 }
 
-document.addEventListener('DOMContentLoaded', initLazyFooter);
+// True Lazy Loading: Wait until the browser is not busy
+window.addEventListener('load', () => {
+    if ('requestIdleCallback' in window) {
+        // Modern browsers: wait for idle time
+        requestIdleCallback(injectFooter);
+    } else {
+        // Fallback for older browsers: wait 2 seconds after load
+        setTimeout(injectFooter, 2000);
+    }
+});
