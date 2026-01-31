@@ -13,7 +13,6 @@
     
     <style>
     :root {
-        /* Material You - M3 Tonal Palette */
         --md-sys-color-primary: #6750a4;
         --md-sys-color-on-primary: #ffffff;
         --md-sys-color-primary-container: #eaddff;
@@ -21,148 +20,57 @@
         --md-sys-color-surface: #fdf7ff;
         --md-sys-color-surface-variant: #e7e0eb;
         --md-sys-color-outline: #79747e;
-        
-        /* LiveFPL Accents */
-        --live-green: #00ff87; /* FPL Cyan/Green */
+        --live-green: #00ff87;
         --live-red: #ff285e;
         --live-up: #10b981;
-        --live-down: #ef4444;
     }
 
-    body { 
-        font-family: 'Inter', sans-serif; 
-        background: var(--md-sys-color-surface); 
-        margin: 0; 
-        padding-bottom: 100px; 
-        color: #1c1b1f;
-    }
+    body { font-family: 'Inter', sans-serif; background: var(--md-sys-color-surface); margin: 0; padding-bottom: 100px; color: #1c1b1f; }
+    .pro-header { background: var(--md-sys-color-surface); padding: 60px 24px 80px; text-align: left; }
+    .pro-header h2 { font-size: 2rem; font-weight: 800; margin:0; }
+    .pro-header p { background: var(--md-sys-color-primary-container); display: inline-block; padding: 6px 16px; border-radius: 20px; color: var(--md-sys-color-primary); font-weight: 700; margin-top: 10px; }
 
-    /* Large M3 Header (replacing the dark pro-header) */
-    .pro-header { 
-        background: var(--md-sys-color-surface);
-        color: #1c1b1f; 
-        padding: 60px 24px 80px; 
-        text-align: left; /* M3 style is often left-aligned */
-    }
-
-    .pro-header h2 {
-        font-size: 2rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-    }
-
-    .pro-header p {
-        background: var(--md-sys-color-primary-container);
-        display: inline-block;
-        padding: 6px 16px;
-        border-radius: 20px;
-        color: var(--md-sys-color-primary);
-        font-weight: 700;
-        margin-top: 10px;
-    }
-
-    /* Material Surface Stats */
-    .stats-dashboard { 
-        display: grid; 
-        grid-template-columns: 1fr 1fr; 
-        gap: 16px; 
-        margin: -60px 16px 24px; 
-    }
-
-    .stat-card { 
-        background: white; 
-        padding: 24px 16px; 
-        border-radius: 28px; /* High rounding for M3 */
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
-        border: 1px solid var(--md-sys-color-surface-variant);
-        text-align: center; 
-    }
-
+    .stats-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: -60px 16px 24px; }
+    .stat-card { background: white; padding: 24px 16px; border-radius: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid var(--md-sys-color-surface-variant); text-align: center; }
     .stat-val { font-size: 1.8rem; font-weight: 900; color: var(--md-sys-color-primary); }
     .stat-lbl { font-size: 0.7rem; font-weight: 700; color: var(--md-sys-color-outline); text-transform: uppercase; }
 
-    /* LiveFPL Style Forecast Card */
-    .outlook-card {
-        background: var(--md-sys-color-secondary-container);
-        margin: 0 16px 24px;
-        padding: 24px;
-        border-radius: 28px;
-        color: #1d192b;
-    }
-
+    .outlook-card { background: var(--md-sys-color-secondary-container); margin: 0 16px 24px; padding: 24px; border-radius: 28px; color: #1d192b; }
     .outlook-grid { display: flex; justify-content: space-around; margin-top: 15px; }
     .outlook-num { font-size: 1.5rem; font-weight: 900; color: var(--md-sys-color-primary); }
-    .outlook-gw { font-size: 0.75rem; font-weight: 800; opacity: 0.7; }
 
-    /* Transfer Suggestions (Card with subtle border) */
-    .rec-card {
-        background: white; margin: 0 16px 24px; padding: 20px; border-radius: 24px;
-        border: 1px solid var(--md-sys-color-surface-variant);
-    }
-    
+    .rec-card { background: white; margin: 0 16px 24px; padding: 20px; border-radius: 24px; border: 1px solid var(--md-sys-color-surface-variant); }
     .rec-out b { color: var(--live-red); font-size: 1.2rem; }
     .rec-in b { color: var(--live-up); font-size: 1.2rem; }
+    .rec-reason { margin-top: 10px; font-size: 0.75rem; opacity: 0.7; font-style: italic; text-align: center; }
 
-    /* Captaincy Surface */
-    .captain-card { 
-        background: #1c1b1f; /* Dark accent for captaincy like LiveFPL */
-        margin: 0 16px 24px; 
-        border-radius: 28px; 
-        overflow: hidden; 
-    }
+    .captain-card { background: #1c1b1f; margin: 0 16px 24px; border-radius: 28px; overflow: hidden; color: white; }
     .cap-highlight { padding: 24px; display: flex; align-items: center; justify-content: space-between; }
     .cap-score { font-size: 2rem; font-weight: 900; color: var(--live-green); }
 
-    /* Section Titles (M3 Labels) */
-    .section-title { 
-        font-size: 0.9rem; 
-        font-weight: 700; 
-        margin: 32px 24px 12px; 
-        color: var(--md-sys-color-primary);
-        letter-spacing: 0.5px;
-    }
-
-    /* Player Rows (LiveFPL Table Style) */
-    .player-row { 
-        background: white; 
-        margin: 0 16px 4px; 
-        padding: 16px 20px; 
-        border-radius: 12px; /* Slightly less rounded for list items */
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        border: 1px solid #f0f0f0;
-    }
-
+    .section-title { font-size: 0.9rem; font-weight: 700; margin: 32px 24px 12px; color: var(--md-sys-color-primary); }
+    .player-row { background: white; margin: 0 16px 4px; padding: 16px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f0f0f0; }
     .eo-bar { width: 80px; height: 8px; background: #eee; border-radius: 4px; margin-top: 6px; overflow: hidden; }
     .eo-fill { height: 100%; background: var(--md-sys-color-primary); }
-    
-    .badge { font-size: 0.65rem; padding: 4px 10px; border-radius: 20px; font-weight: 800; }
+    .badge { font-size: 0.65rem; padding: 4px 10px; border-radius: 20px; font-weight: 800; margin-left: 5px; }
     .bg-shield { background: #d1e9ff; color: #004881; }
     .bg-sword { background: #ffe08d; color: #725c00; }
 
-    /* Chart Surface */
-    .chart-container { 
-        background: white; 
-        margin: 0 16px; 
-        padding: 24px; 
-        border-radius: 28px; 
-        border: 1px solid var(--md-sys-color-surface-variant);
-    }
-</style>
+    .chart-container { background: white; margin: 0 16px; padding: 24px; border-radius: 28px; border: 1px solid var(--md-sys-color-surface-variant); height: 200px; }
+    </style>
 </head>
 <body>
     <div id="nav-placeholder"></div>
 
     <div class="pro-header">
-        <h2 style="margin:0; font-weight:900;">Your Team vs Top 10k</h2>
-        <p style="font-size:0.75rem; opacity:0.7; margin-top:5px;">Manager ID: <span id="display-id">Loading...</span></p>
+        <h2>Your Team vs Top 10k</h2>
+        <p>Manager ID: <span id="display-id">...</span></p>
     </div>
 
     <div class="stats-dashboard">
         <div class="stat-card">
-            <span class="stat-lbl">Gw Points</span>
-            <span class="stat-val" id="safety-val">--%</span>
+            <span class="stat-lbl">GW Points</span>
+            <span class="stat-val" id="safety-val">--</span>
         </div>
         <div class="stat-card">
             <span class="stat-lbl">Top 10k Avg</span>
@@ -171,298 +79,153 @@
     </div>
 
     <div class="outlook-card">
-        <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.9; text-transform: uppercase;">Predicted Points in Next 3 GW</div>
+        <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.9; text-transform: uppercase;">Predicted Points (Next 3)</div>
         <div class="outlook-grid">
-            <div class="outlook-item">
-                <span class="outlook-gw" id="gw-label-1">GW --</span>
-                <span class="outlook-num" id="f-gw24">--</span>
-            </div>
-            <div class="outlook-item"><span class="outlook-num" style="opacity:0.3;">+</span></div>
-            <div class="outlook-item">
-                <span class="outlook-gw" id="gw-label-2">GW --</span>
-                <span class="outlook-num" id="f-gw25">--</span>
-            </div>
-            <div class="outlook-item"><span class="outlook-num" style="opacity:0.3;">+</span></div>
-            <div class="outlook-item">
-                <span class="outlook-gw" id="gw-label-3">GW --</span>
-                <span class="outlook-num" id="f-gw26">--</span>
-            </div>
+            <div class="outlook-item"><span class="outlook-gw" id="gw-label-1">GW--</span><span class="outlook-num" id="f-gw24">--</span></div>
+            <div class="outlook-item"><span class="outlook-num" style="opacity:0.2;">+</span></div>
+            <div class="outlook-item"><span class="outlook-gw" id="gw-label-2">GW--</span><span class="outlook-num" id="f-gw25">--</span></div>
+            <div class="outlook-item"><span class="outlook-num" style="opacity:0.2;">+</span></div>
+            <div class="outlook-item"><span class="outlook-gw" id="gw-label-3">GW--</span><span class="outlook-num" id="f-gw26">--</span></div>
         </div>
     </div>
 
-    <div class="section-title"><i class="fa-solid fa-wand-magic-sparkles"></i>Transfer Suggestion</div>
+    <div class="section-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Transfer Suggestion</div>
     <div class="rec-card">
-        <div class="rec-grid">
-            <div class="rec-out">
-                <span style="font-size:0.6rem; font-weight:800; color:#999;">SELL</span>
-                <b id="rec-sell">--</b>
-            </div>
-            <div style="color:#ddd;"><i class="fa-solid fa-arrow-right-long"></i></div>
-            <div class="rec-in">
-                <span style="font-size:0.6rem; font-weight:800; color:#999;">BUY</span>
-                <b id="rec-buy">--</b>
-            </div>
+        <div style="display:flex; justify-content: space-around; align-items: center;">
+            <div class="rec-out"><small style="display:block; font-size:0.6rem; color:#999;">SELL</small><b id="rec-sell">--</b></div>
+            <i class="fa-solid fa-arrow-right" style="color:#ddd;"></i>
+            <div class="rec-in"><small style="display:block; font-size:0.6rem; color:#999;">BUY</small><b id="rec-buy">--</b></div>
         </div>
-        <div id="rec-reason" class="rec-reason">Evaluating fixtures and underlying xG...</div>
+        <div id="rec-reason" class="rec-reason">Calculating best move...</div>
     </div>
 
-    <div class="section-title"><i class="fa-solid fa-crown"></i> Captaincy </div>
+    <div class="section-title"><i class="fa-solid fa-crown"></i> Captaincy Metric</div>
     <div class="captain-card">
         <div class="cap-highlight">
             <div>
-                <b id="cap-name" style="font-size:1.1rem;">--</b>
-                <div style="font-size:0.65rem; opacity:0.8;" id="cap-reason">Most consistent captaincy pick</div>
+                <b id="cap-name" style="font-size:1.2rem;">--</b>
+                <div style="font-size:0.65rem; opacity:0.7; margin-top:4px;" id="cap-reason">--</div>
             </div>
             <div class="cap-score" id="cap-metric">--</div>
         </div>
     </div>
 
-    <div class="section-title"><i class="fa-solid fa-chart-line"></i> Rank Performance Trend</div>
+    <div class="section-title"><i class="fa-solid fa-chart-line"></i> Rank Trend</div>
     <div class="chart-container">
-        <canvas id="rankChart" height="150"></canvas>
+        <canvas id="rankChart"></canvas>
     </div>
 
-    <div class="section-title"><i class="fa-solid fa-shield-halved"></i> Rank Protection (vs Top 10k)</div>
+    <div class="section-title"><i class="fa-solid fa-shield-halved"></i> Rank Protection</div>
     <div id="squad-list"></div>
-
-    
-
 
     <script>
         const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
-const state = {
-    id: localStorage.getItem('kopala_id'),
-    playerMap: {},
-    currentGW: 24,
-    bank: 0,
-    // Elite Data for EO and xPts (Mocked for your UI)
-    eliteData: {
-        "Haaland": { eo: 173.9, xPts: [7.2, 6.8, 6.5] },
-        "Thiago": { eo: 83.0, xPts: [6.5, 5.8, 5.5] },
-        "Gabriel": { eo: 80.2, xPts: [5.2, 5.0, 5.2] },
-        "Rice": { eo: 55.8, xPts: [4.8, 4.5, 4.5] },
-        "Saka": { eo: 39.7, xPts: [6.2, 6.4, 6.0] },
-        "Semenyo": { eo: 38.0, xPts: [5.5, 4.8, 5.0] },
-        "B.Fernandes": { eo: 29.9, xPts: [6.8, 6.2, 5.9] },
-        "Enzo": { eo: 28.5, xPts: [5.8, 5.5, 5.5] },
-        "João Pedro": { eo: 29.5, xPts: [6.0, 5.8, 6.2] }
-    }
-};
-
-async function init() {
-    if (!state.id) {
-        alert("Please enter your FPL ID on the home page first!");
-        return;
-    }
-    document.getElementById('display-id').innerText = state.id;
-
-    try {
-        // 1. Fetch Bootstrap (Players, Teams, GW Info)
-        const boot = await fetch(`${PROXY}bootstrap-static/`).then(r => r.json());
-        
-        boot.elements.forEach(p => {
-            state.playerMap[p.id] = { 
-                name: p.web_name, 
-                pos: p.element_type, 
-                ict: parseFloat(p.ict_index),
-                price: p.now_cost,
-                team: p.team
-            };
-        });
-
-        const currentEvent = boot.events.find(e => e.is_current);
-        state.currentGW = currentEvent ? currentEvent.id : 24;
-        
-        // Populate Top 10k Average Card
-        document.getElementById('live-avg').innerText = currentEvent ? currentEvent.average_entry_score : "--";
-        
-        // Update Forecast Labels
-        document.getElementById('gw-label-1').innerText = `GW ${state.currentGW}`;
-        document.getElementById('gw-label-2').innerText = `GW ${state.currentGW + 1}`;
-        document.getElementById('gw-label-3').innerText = `GW ${state.currentGW + 2}`;
-
-        // 2. Fetch User Specific Data
-        const [picksData, historyData, fixtures] = await Promise.all([
-            fetch(`${PROXY}entry/${state.id}/event/${state.currentGW}/picks/`).then(r => r.json()),
-            fetch(`${PROXY}entry/${state.id}/history/`).then(r => r.json()),
-            fetch(`${PROXY}fixtures/?event=${state.currentGW + 1}`).then(r => r.json())
-        ]);
-
-        state.bank = picksData.entry_history.bank;
-        processData(picksData.picks, historyData, boot.elements, fixtures);
-        
-    } catch (e) {
-        console.error("API Error:", e);
-    }
-}
-
-function processData(picks, history, allPlayers, fixtures) {
-    // A. MAP USER SQUAD
-    const mySquad = picks.map(p => ({
-        id: p.element,
-        name: state.playerMap[p.element]?.name || "Unknown",
-        pos: state.playerMap[p.element]?.pos,
-        ict: state.playerMap[p.element]?.ict,
-        price: state.playerMap[p.element]?.price,
-        team: state.playerMap[p.element]?.team
-    }));
-
-    // B. POPULATE GW POINTS (Replaces Safety Score logic)
-    // We get the most recent GW entry from history.current
-    const latestGW = history.current[history.current.length - 1];
-    const gwPoints = latestGW ? latestGW.points : 0;
-    document.getElementById('safety-val').innerText = gwPoints;
-
-    // C. RENDER SQUAD LIST & RANK PROTECTION
-    const squadHTML = mySquad.map(p => {
-        const data = state.eliteData[p.name] || { eo: 5.4, xPts: [4, 4, 4] };
-        const isShield = data.eo > 50;
-        
-        return `
-            <div class="player-row">
-                <div>
-                    <b style="font-size:0.9rem;">${p.name}</b>
-                    <span class="badge ${isShield ? 'bg-shield' : 'bg-sword'}">${isShield ? 'SHIELD' : 'SWORD'}</span>
-                    <div class="eo-bar"><div class="eo-fill" style="width:${Math.min(data.eo, 100)}%"></div></div>
-                </div>
-                <div style="text-align:right;">
-                    <span style="font-size:0.9rem; font-weight:900;">${data.eo}%</span>
-                    <div style="font-size:0.55rem; opacity:0.5; font-weight:800;">TOP 10K EO</div>
-                </div>
-            </div>`;
-    }).join('');
-    document.getElementById('squad-list').innerHTML = squadHTML;
-
-    // D. UPDATE FORECAST POINTS
-    const f24 = mySquad.reduce((acc, p) => acc + (state.eliteData[p.name]?.xPts[0] || 3.5), 0);
-    document.getElementById('f-gw24').innerText = f24.toFixed(1);
-    document.getElementById('f-gw25').innerText = (f24 - 4).toFixed(1);
-    document.getElementById('f-gw26').innerText = (f24 + 12).toFixed(1); 
-
-    // E. AI TRANSFER SUGGESTION
-    const weakLink = mySquad.slice(0, 11).sort((a, b) => a.ict - b.ict)[0];
-    const target = allPlayers.find(p => {
-        const fix = fixtures.find(f => f.team_h === p.team || f.team_a === p.team);
-        const fdr = fix ? (fix.team_h === p.team ? fix.team_h_difficulty : fix.team_a_difficulty) : 3;
-        return p.element_type === weakLink.pos && p.now_cost <= (weakLink.price + state.bank) && fdr <= 2 && parseFloat(p.ict_index) > weakLink.ict;
-    }) || { web_name: "Enzo", ict_index: "6.5" };
-
-    document.getElementById('rec-sell').innerText = weakLink.name;
-    document.getElementById('rec-buy').innerText = target.web_name;
-    document.getElementById('rec-reason').innerText = `${weakLink.name} is underperforming. ${target.web_name} has high ICT and better fixtures.`;
-
-    // F. CAPTAINCY METRIC (Dynamic Calculation)
-    // 1. Sort squad by a combination of xPts and ICT Index
-    const captainCandidates = [...mySquad].sort((a, b) => {
-        const scoreA = (state.eliteData[a.name]?.xPts[0] || 0) + (a.ict / 10);
-        const scoreB = (state.eliteData[b.name]?.xPts[0] || 0) + (b.ict / 10);
-        return scoreB - scoreA;
-    });
-
-    const topPick = captainCandidates[0];
-    
-    // 2. Generate a Dynamic Metric Score (0-100)
-    // Formula: (Expected Points * 10) + (ICT Index / 2) - capped at 99
-    const baseMetric = (state.eliteData[topPick.name]?.xPts[0] || 4) * 10;
-    const ictBonus = topPick.ict / 2;
-    const finalMetric = Math.min(Math.round(baseMetric + ictBonus), 99);
-
-    // 3. Dynamic Reason based on their stats
-    let reason = "Top predicted points based on form and fixtures.";
-    if (topPick.ict > 12) reason = `Elite underlying stats with an ICT of ${topPick.ict}.`;
-    if (state.eliteData[topPick.name]?.xPts[0] > 7) reason = "Highly explosive fixture potential this week.";
-
-    // Update UI
-    document.getElementById('cap-name').innerText = topPick.name;
-    document.getElementById('cap-metric').innerText = finalMetric;
-    document.getElementById('cap-reason').innerText = reason;
-
-    
-   function renderChart(history) {
-    if (typeof Chart === 'undefined') return setTimeout(() => renderChart(history), 500);
-    const ctx = document.getElementById('rankChart').getContext('2d');
-    
-    // Destroy previous instance to prevent overlapping
-    if (window.myRankChart) window.myRankChart.destroy();
-
-    // Material You Tonal Colors
-    const primaryPurple = '#6750a4'; 
-    const surfaceVariant = '#eaddff'; 
-
-    window.myRankChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: history.map(h => 'GW' + h.event),
-            datasets: [{
-                label: 'Overall Rank',
-                data: history.map(h => h.overall_rank),
-                borderColor: primaryPurple,
-                backgroundColor: (context) => {
-                    const chart = context.chart;
-                    const {ctx, chartArea} = chart;
-                    if (!chartArea) return null;
-                    
-                    // Create a beautiful Material gradient
-                    const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-                    gradient.addColorStop(0, 'rgba(103, 80, 164, 0.2)');
-                    gradient.addColorStop(1, 'rgba(234, 221, 255, 0.0)');
-                    return gradient;
-                },
-                fill: true,
-                tension: 0.45, // Super smooth LiveFPL-style curve
-                borderWidth: 4,
-                pointRadius: 5,
-                pointBackgroundColor: primaryPurple,
-                pointBorderColor: '#ffffff',
-                pointBorderWidth: 2,
-                pointHoverRadius: 7
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: {
-                padding: { top: 10, bottom: 10 }
-            },
-            scales: { 
-                y: { 
-                    reverse: true, // Lower number (1st place) is at the top
-                    display: false,
-                    grid: { display: false }
-                }, 
-                x: { 
-                    grid: { display: false }, 
-                    ticks: { 
-                        color: '#79747e', // M3 Outline color
-                        font: { size: 11, weight: '700', family: 'Inter' } 
-                    } 
-                } 
-            },
-            plugins: { 
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: '#1c1b1f',
-                    titleFont: { size: 12, weight: 'bold' },
-                    bodyFont: { size: 12 },
-                    padding: 12,
-                    cornerRadius: 12,
-                    displayColors: false,
-                    callbacks: {
-                        label: function(context) {
-                            return 'Rank: ' + context.parsed.y.toLocaleString();
-                        }
-                    }
-                }
+        const state = {
+            id: localStorage.getItem('kopala_id'),
+            playerMap: {},
+            currentGW: 24,
+            bank: 0,
+            eliteData: {
+                "Haaland": { eo: 173.9, xPts: [7.2, 6.8, 6.5] },
+                "Palmer": { eo: 92.1, xPts: [7.5, 7.0, 6.8] },
+                "Saka": { eo: 88.4, xPts: [6.5, 6.2, 6.0] },
+                "Gabriel": { eo: 80.2, xPts: [5.2, 5.0, 5.2] },
+                "Salah": { eo: 45.5, xPts: [8.0, 7.5, 7.8] }
             }
-        }
-    });
-}
+        };
 
-// Start everything
-init();
+        async function init() {
+            if (!state.id) { alert("Enter FPL ID on home page!"); return; }
+            document.getElementById('display-id').innerText = state.id;
+
+            try {
+                const boot = await fetch(`${PROXY}bootstrap-static/`).then(r => r.json());
+                boot.elements.forEach(p => {
+                    state.playerMap[p.id] = { name: p.web_name, pos: p.element_type, ict: parseFloat(p.ict_index), price: p.now_cost, team: p.team };
+                });
+
+                const currentEvent = boot.events.find(e => e.is_current) || boot.events[0];
+                state.currentGW = currentEvent.id;
+                document.getElementById('live-avg').innerText = currentEvent.average_entry_score;
+
+                const [picksData, historyData, fixtures] = await Promise.all([
+                    fetch(`${PROXY}entry/${state.id}/event/${state.currentGW}/picks/`).then(r => r.json()),
+                    fetch(`${PROXY}entry/${state.id}/history/`).then(r => r.json()),
+                    fetch(`${PROXY}fixtures/?event=${state.currentGW + 1}`).then(r => r.json())
+                ]);
+
+                state.bank = picksData.entry_history.bank;
+                processData(picksData.picks, historyData, boot.elements, fixtures);
+            } catch (e) { console.error("Error:", e); }
+        }
+
+        function processData(picks, history, allPlayers, fixtures) {
+            const mySquad = picks.map(p => ({
+                ...state.playerMap[p.element],
+                id: p.element
+            }));
+
+            // GW Points
+            const latest = history.current[history.current.length - 1];
+            document.getElementById('safety-val').innerText = latest ? latest.points : 0;
+
+            // Forecast Labels
+            document.getElementById('gw-label-1').innerText = `GW${state.currentGW}`;
+            document.getElementById('gw-label-2').innerText = `GW${state.currentGW+1}`;
+            document.getElementById('gw-label-3').innerText = `GW${state.currentGW+2}`;
+
+            // Squad List
+            document.getElementById('squad-list').innerHTML = mySquad.map(p => {
+                const data = state.eliteData[p.name] || { eo: 15.2 };
+                const isShield = data.eo > 50;
+                return `<div class="player-row">
+                    <div><b>${p.name}</b> <span class="badge ${isShield?'bg-shield':'bg-sword'}">${isShield?'SHIELD':'SWORD'}</span>
+                    <div class="eo-bar"><div class="eo-fill" style="width:${data.eo}%"></div></div></div>
+                    <div style="text-align:right;"><b>${data.eo}%</b><div style="font-size:0.5rem; opacity:0.5;">TOP 10K EO</div></div>
+                </div>`;
+            }).join('');
+
+            // Dynamic Captain
+            const cap = [...mySquad].sort((a,b) => (state.eliteData[b.name]?.xPts[0] || 0) - (state.eliteData[a.name]?.xPts[0] || 0))[0];
+            const metric = Math.min(Math.round(((state.eliteData[cap.name]?.xPts[0] || 4) * 10) + (cap.ict / 2)), 99);
+            document.getElementById('cap-name').innerText = cap.name;
+            document.getElementById('cap-metric').innerText = metric;
+            document.getElementById('cap-reason').innerText = `High xPts and ICT index of ${cap.ict}`;
+
+            // Transfer Suggestion
+            const weak = mySquad.sort((a,b) => a.ict - b.ict)[0];
+            document.getElementById('rec-sell').innerText = weak.name;
+            document.getElementById('rec-buy').innerText = "Palmer"; 
+            document.getElementById('rec-reason').innerText = `${weak.name} has low attacking threat lately.`;
+
+            renderChart(history.current.slice(-6));
+        }
+
+        function renderChart(history) {
+            const ctx = document.getElementById('rankChart').getContext('2d');
+            if (window.myRankChart) window.myRankChart.destroy();
+            window.myRankChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: history.map(h => 'GW' + h.event),
+                    datasets: [{
+                        data: history.map(h => h.overall_rank),
+                        borderColor: '#6750a4',
+                        backgroundColor: 'rgba(103, 80, 164, 0.1)',
+                        fill: true, tension: 0.4, borderWidth: 4, pointRadius: 4
+                    }]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { y: { reverse: true, display: false }, x: { grid: { display: false } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        init();
     </script>
     <div id="footer-placeholder"></div>
-
     <script src="nav.js"></script>
     <script src="footer.js"></script>
 </body>
