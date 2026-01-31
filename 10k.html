@@ -178,151 +178,170 @@
 
     <script>
         const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
-        const state = {
-            id: localStorage.getItem('kopala_id'),
-            playerMap: {},
-            currentGW: 24,
-            bank: 0,
-            eliteData: {
-                "Haaland": { eo: 173.9, xPts: [7.2, 6.8, 6.5] },
-                "Thiago": { eo: 83.0, xPts: [6.5, 5.8, 5.5] },
-                "Gabriel": { eo: 80.2, xPts: [5.2, 5.0, 5.2] },
-                "Rice": { eo: 55.8, xPts: [4.8, 4.5, 4.5] },
-                "Saka": { eo: 39.7, xPts: [6.2, 6.4, 6.0] },
-                "Semenyo": { eo: 38.0, xPts: [5.5, 4.8, 5.0] },
-                "B.Fernandes": { eo: 29.9, xPts: [6.8, 6.2, 5.9] },
-                "Enzo": { eo: 28.5, xPts: [5.8, 5.5, 5.5] },
-                "João Pedro": { eo: 29.5, xPts: [6.0, 5.8, 6.2] }
-            }
-        };
+const state = {
+    id: localStorage.getItem('kopala_id'),
+    playerMap: {},
+    currentGW: 24,
+    bank: 0,
+    // Elite Data for EO and xPts (Mocked for your UI)
+    eliteData: {
+        "Haaland": { eo: 173.9, xPts: [7.2, 6.8, 6.5] },
+        "Thiago": { eo: 83.0, xPts: [6.5, 5.8, 5.5] },
+        "Gabriel": { eo: 80.2, xPts: [5.2, 5.0, 5.2] },
+        "Rice": { eo: 55.8, xPts: [4.8, 4.5, 4.5] },
+        "Saka": { eo: 39.7, xPts: [6.2, 6.4, 6.0] },
+        "Semenyo": { eo: 38.0, xPts: [5.5, 4.8, 5.0] },
+        "B.Fernandes": { eo: 29.9, xPts: [6.8, 6.2, 5.9] },
+        "Enzo": { eo: 28.5, xPts: [5.8, 5.5, 5.5] },
+        "João Pedro": { eo: 29.5, xPts: [6.0, 5.8, 6.2] }
+    }
+};
 
-        async function init() {
-            if (!state.id) {
-                alert("Please enter your FPL ID on the home page first!");
-                return;
-            }
-            document.getElementById('display-id').innerText = state.id;
+async function init() {
+    if (!state.id) {
+        alert("Please enter your FPL ID on the home page first!");
+        return;
+    }
+    document.getElementById('display-id').innerText = state.id;
 
-            try {
-                // 1. Fetch Bootstrap
-                const boot = await fetch(`${PROXY}bootstrap-static/`).then(r => r.json());
-                boot.elements.forEach(p => {
-                    state.playerMap[p.id] = { 
-                        name: p.web_name, 
-                        pos: p.element_type, 
-                        ict: parseFloat(p.ict_index),
-                        price: p.now_cost,
-                        team: p.team
-                    };
-                });
-                state.currentGW = boot.events.find(e => e.is_current).id;
-                document.getElementById('live-avg').innerText = boot.events.find(e => e.is_current).average_entry_score;
-                
-                // Update Labels
-                document.getElementById('gw-label-1').innerText = `GW ${state.currentGW}`;
-                document.getElementById('gw-label-2').innerText = `GW ${state.currentGW+1}`;
-                document.getElementById('gw-label-3').innerText = `GW ${state.currentGW+2}`;
+    try {
+        // 1. Fetch Bootstrap (Players, Teams, GW Info)
+        const boot = await fetch(`${PROXY}bootstrap-static/`).then(r => r.json());
+        
+        boot.elements.forEach(p => {
+            state.playerMap[p.id] = { 
+                name: p.web_name, 
+                pos: p.element_type, 
+                ict: parseFloat(p.ict_index),
+                price: p.now_cost,
+                team: p.team
+            };
+        });
 
-                // 2. Fetch User Picks & History
-                const [picksData, historyData, fixtures] = await Promise.all([
-                    fetch(`${PROXY}entry/${state.id}/event/${state.currentGW}/picks/`).then(r => r.json()),
-                    fetch(`${PROXY}entry/${state.id}/history/`).then(r => r.json()),
-                    fetch(`${PROXY}fixtures/?event=${state.currentGW + 1}`).then(r => r.json())
-                ]);
+        const currentEvent = boot.events.find(e => e.is_current);
+        state.currentGW = currentEvent ? currentEvent.id : 24;
+        
+        // Populate Top 10k Average Card
+        document.getElementById('live-avg').innerText = currentEvent ? currentEvent.average_entry_score : "--";
+        
+        // Update Forecast Labels
+        document.getElementById('gw-label-1').innerText = `GW ${state.currentGW}`;
+        document.getElementById('gw-label-2').innerText = `GW ${state.currentGW + 1}`;
+        document.getElementById('gw-label-3').innerText = `GW ${state.currentGW + 2}`;
 
-                state.bank = picksData.entry_history.bank;
-                processData(picksData.picks, historyData, boot.elements, fixtures);
-            } catch (e) {
-                console.error("API Error:", e);
-            }
+        // 2. Fetch User Specific Data
+        const [picksData, historyData, fixtures] = await Promise.all([
+            fetch(`${PROXY}entry/${state.id}/event/${state.currentGW}/picks/`).then(r => r.json()),
+            fetch(`${PROXY}entry/${state.id}/history/`).then(r => r.json()),
+            fetch(`${PROXY}fixtures/?event=${state.currentGW + 1}`).then(r => r.json())
+        ]);
+
+        state.bank = picksData.entry_history.bank;
+        processData(picksData.picks, historyData, boot.elements, fixtures);
+        
+    } catch (e) {
+        console.error("API Error:", e);
+    }
+}
+
+function processData(picks, history, allPlayers, fixtures) {
+    // A. MAP USER SQUAD
+    const mySquad = picks.map(p => ({
+        id: p.element,
+        name: state.playerMap[p.element]?.name || "Unknown",
+        pos: state.playerMap[p.element]?.pos,
+        ict: state.playerMap[p.element]?.ict,
+        price: state.playerMap[p.element]?.price,
+        team: state.playerMap[p.element]?.team
+    }));
+
+    // B. POPULATE GW POINTS (Replaces Safety Score logic)
+    // We get the most recent GW entry from history.current
+    const latestGW = history.current[history.current.length - 1];
+    const gwPoints = latestGW ? latestGW.points : 0;
+    document.getElementById('safety-val').innerText = gwPoints;
+
+    // C. RENDER SQUAD LIST & RANK PROTECTION
+    const squadHTML = mySquad.map(p => {
+        const data = state.eliteData[p.name] || { eo: 5.4, xPts: [4, 4, 4] };
+        const isShield = data.eo > 50;
+        
+        return `
+            <div class="player-row">
+                <div>
+                    <b style="font-size:0.9rem;">${p.name}</b>
+                    <span class="badge ${isShield ? 'bg-shield' : 'bg-sword'}">${isShield ? 'SHIELD' : 'SWORD'}</span>
+                    <div class="eo-bar"><div class="eo-fill" style="width:${Math.min(data.eo, 100)}%"></div></div>
+                </div>
+                <div style="text-align:right;">
+                    <span style="font-size:0.9rem; font-weight:900;">${data.eo}%</span>
+                    <div style="font-size:0.55rem; opacity:0.5; font-weight:800;">TOP 10K EO</div>
+                </div>
+            </div>`;
+    }).join('');
+    document.getElementById('squad-list').innerHTML = squadHTML;
+
+    // D. UPDATE FORECAST POINTS
+    const f24 = mySquad.reduce((acc, p) => acc + (state.eliteData[p.name]?.xPts[0] || 3.5), 0);
+    document.getElementById('f-gw24').innerText = f24.toFixed(1);
+    document.getElementById('f-gw25').innerText = (f24 - 4).toFixed(1);
+    document.getElementById('f-gw26').innerText = (f24 + 12).toFixed(1); 
+
+    // E. AI TRANSFER SUGGESTION
+    const weakLink = mySquad.slice(0, 11).sort((a, b) => a.ict - b.ict)[0];
+    const target = allPlayers.find(p => {
+        const fix = fixtures.find(f => f.team_h === p.team || f.team_a === p.team);
+        const fdr = fix ? (fix.team_h === p.team ? fix.team_h_difficulty : fix.team_a_difficulty) : 3;
+        return p.element_type === weakLink.pos && p.now_cost <= (weakLink.price + state.bank) && fdr <= 2 && parseFloat(p.ict_index) > weakLink.ict;
+    }) || { web_name: "Enzo", ict_index: "6.5" };
+
+    document.getElementById('rec-sell').innerText = weakLink.name;
+    document.getElementById('rec-buy').innerText = target.web_name;
+    document.getElementById('rec-reason').innerText = `${weakLink.name} is underperforming. ${target.web_name} has high ICT and better fixtures.`;
+
+    // F. CAPTAINCY METRIC
+    const hasHaaland = mySquad.some(p => p.name === "Haaland");
+    document.getElementById('cap-name').innerText = hasHaaland ? "Haaland" : mySquad[0].name;
+    document.getElementById('cap-metric').innerText = "94";
+
+    // G. RENDER CHART
+    renderChart(history.current.slice(-6));
+}
+
+function renderChart(history) {
+    if (typeof Chart === 'undefined') return setTimeout(() => renderChart(history), 500);
+    const ctx = document.getElementById('rankChart').getContext('2d');
+    if (window.myRankChart) window.myRankChart.destroy();
+
+    window.myRankChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: history.map(h => 'GW' + h.event),
+            datasets: [{
+                data: history.map(h => h.overall_rank),
+                borderColor: '#6750a4',
+                backgroundColor: 'rgba(103, 80, 164, 0.1)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 3,
+                pointRadius: 4,
+                pointBackgroundColor: '#6750a4'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { 
+                y: { reverse: true, display: false }, 
+                x: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' } } } 
+            },
+            plugins: { legend: { display: false } }
         }
+    });
+}
 
-        function processData(picks, history, allPlayers, fixtures) {
-            const mySquad = picks.map(p => ({
-                id: p.element,
-                name: state.playerMap[p.element].name,
-                pos: state.playerMap[p.element].pos,
-                ict: state.playerMap[p.element].ict,
-                price: state.playerMap[p.element].price,
-                team: state.playerMap[p.element].team
-            }));
-            
-            // Render Squad Protection
-            let safetyCount = 0;
-            const squadHTML = mySquad.map(p => {
-                const data = state.eliteData[p.name] || { eo: 5.4, xPts: [4,4,4] };
-                if (data.eo > 50) safetyCount++;
-                return `
-                    <div class="player-row">
-                        <div>
-                            <b style="font-size:0.9rem;">${p.name}</b>
-                            <span class="badge ${data.eo > 50 ? 'bg-shield' : 'bg-sword'}">${data.eo > 50 ? 'SHIELD' : 'SWORD'}</span>
-                            <div class="eo-bar"><div class="eo-fill" style="width:${Math.min(data.eo, 100)}%"></div></div>
-                        </div>
-                        <div style="text-align:right;">
-                            <span style="font-size:0.9rem; font-weight:900;">${data.eo}%</span>
-                            <div style="font-size:0.55rem; opacity:0.5; font-weight:800;">TOP 10K EO</div>
-                        </div>
-                    </div>`;
-            }).join('');
-            document.getElementById('squad-list').innerHTML = squadHTML;
-            document.getElementById('safety-val').innerText = Math.round((safetyCount / 11) * 100) + "%";
-
-            // Update Forecast
-            const f24 = mySquad.reduce((acc, p) => acc + (state.eliteData[p.name]?.xPts[0] || 3.5), 0);
-            document.getElementById('f-gw24').innerText = f24.toFixed(1);
-            document.getElementById('f-gw25').innerText = (f24 - 4).toFixed(1);
-            document.getElementById('f-gw26').innerText = (f24 + 12).toFixed(1); // DGW Bonus
-
-            // AI Suggestion (Position-Locked & FDR Aware)
-            const weakLink = mySquad.slice(0, 11).sort((a,b) => a.ict - b.ict)[0];
-            const target = allPlayers.find(p => {
-                const fix = fixtures.find(f => f.team_h === p.team || f.team_a === p.team);
-                const fdr = fix ? (fix.team_h === p.team ? fix.team_h_difficulty : fix.team_a_difficulty) : 3;
-                return p.element_type === weakLink.pos && p.now_cost <= (weakLink.price + state.bank) && fdr <= 2 && parseFloat(p.ict_index) > weakLink.ict;
-            }) || { web_name: "Enzo", ict_index: "6.5" };
-
-            document.getElementById('rec-sell').innerText = weakLink.name;
-            document.getElementById('rec-buy').innerText = target.web_name;
-            document.getElementById('rec-reason').innerText = `${weakLink.name} is underperforming. ${target.web_name} has a superior ICT of ${target.ict_index} and better fixtures.`;
-
-            // Captaincy Metric
-            const cap = mySquad.some(p => p.name === "Haaland") ? "Haaland" : mySquad[0].name;
-            document.getElementById('cap-name').innerText = cap;
-            document.getElementById('cap-metric').innerText = "94";
-
-            renderChart(history.current.slice(-6));
-        }
-
-        function renderChart(history) {
-            if (typeof Chart === 'undefined') return setTimeout(() => renderChart(history), 500);
-            const ctx = document.getElementById('rankChart').getContext('2d');
-            if (window.myRankChart) window.myRankChart.destroy();
-
-            window.myRankChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: history.map(h => 'GW' + h.event),
-                    datasets: [{
-                        data: history.map(h => h.overall_rank),
-                        borderColor: '#6750a4',
-                        backgroundColor: 'rgba(103, 80, 164, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#6750a4'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { reverse: true, display: false }, x: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' } } } },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-        init();
+// Start everything
+init();
     </script>
 
     <script src="nav.js"></script>
