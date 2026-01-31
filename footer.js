@@ -8,33 +8,7 @@ const footerTemplate = `
         <div class="network-label">KOPALA FPL</div>
     </div>
 
-    <div class="awards-section">
-        <div class="section-title" style="text-align:center; color:white; margin-bottom:15px; font-size: 0.8rem; font-weight: 800;">
-            <i class="fa-solid fa-trophy" style="color:#fbbf24"></i> PRIZES
-        </div>
-        <div class="awards-grid">
-            <div class="award-card gold">
-                <div class="award-rank">1st</div>
-                <div class="award-info">
-                    <span class="award-label">League Winner</span>
-                </div>
-            </div>
-
-            <div class="award-card silver">
-                <div class="award-rank">2nd</div>
-                <div class="award-info">
-                    <span class="award-label">Runner Up</span>
-                </div>
-            </div>
-
-            <div class="award-card cup">
-                <div class="award-rank"><i class="fa-solid fa-trophy-award"></i></div>
-                <div class="award-info">
-                    <span class="award-label">Cup Winner</span>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
     <div class="footer-links-grid">
         <div class="footer-column">
