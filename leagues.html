@@ -93,17 +93,20 @@
         .hit-badge { color: #ff1744; font-size: 0.65rem; font-weight: 800; margin-left: 2px; }
 
         .squad-scroller { display: flex; overflow-x: auto; padding: 8px; gap: 6px; }
-        .player-card { min-width: 48px; text-align: center; flex-shrink: 0; }
+        .player-card { min-width: 48px; text-align: center; flex-shrink: 0; position: relative; }
         .player-shirt { width: 20px; margin-bottom: 2px; }
-        .player-label { font-size: 0.5rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-label { font-size: 0.45rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
         
         /* Event Icons */
-        .player-events { display: flex; justify-content: center; gap: 2px; margin-top: 2px; min-height: 10px; }
-        .icon-goal { color: #2e7d32; font-size: 0.5rem; }
-        .icon-assist { color: #1976d2; font-size: 0.5rem; }
-        .icon-yellow { color: #ffd600; font-size: 0.5rem; }
-        .icon-red { color: #d50000; font-size: 0.5rem; }
-        .icon-bonus { color: #ff9800; font-size: 0.5rem; }
+        .player-events { display: flex; justify-content: center; align-items: center; gap: 2px; margin-top: 1px; min-height: 10px; }
+        .icon-goal { color: #000; font-size: 0.45rem; }
+        .icon-assist { 
+            color: #1976d2; font-size: 0.55rem; font-weight: 900; 
+            font-style: normal; line-height: 1; 
+        }
+        .icon-yellow { color: #ffd600; font-size: 0.45rem; }
+        .icon-red { color: #d50000; font-size: 0.45rem; }
+        .icon-bonus { color: #ff9800; font-size: 0.45rem; }
     </style>
 </head>
 <body>
@@ -255,7 +258,6 @@
                     const picksData = await picksRes.json();
                     const entryData = await entryRes.json();
 
-                    // Stats logic
                     const starters = picksData.picks.slice(0, 11);
                     const playedCount = starters.filter(p => (state.liveData[p.element]?.pts || 0) !== 0).length;
                     const teamValue = (entryData.last_deadline_value / 10).toFixed(1);
@@ -281,8 +283,12 @@
                         let icons = '';
                         const allStats = live.explain.flatMap(e => e.stats);
                         allStats.forEach(s => {
-                            if (s.identifier === 'goals_scored' && s.value > 0) icons += '<i class="fa-solid fa-circle-dot icon-goal"></i>'.repeat(s.value);
-                            if (s.identifier === 'assists' && s.value > 0) icons += '<i class="fa-solid fa-handshake icon-assist"></i>'.repeat(s.value);
+                            if (s.identifier === 'goals_scored' && s.value > 0) {
+                                icons += '<i class="fa-solid fa-futbol icon-goal"></i>'.repeat(s.value);
+                            }
+                            if (s.identifier === 'assists' && s.value > 0) {
+                                icons += `<i class="icon-assist">${'A'.repeat(s.value)}</i>`;
+                            }
                             if (s.identifier === 'yellow_cards' && s.value > 0) icons += '<i class="fa-solid fa-square icon-yellow"></i>';
                             if (s.identifier === 'red_cards' && s.value > 0) icons += '<i class="fa-solid fa-square icon-red"></i>';
                             if (s.identifier === 'bonus' && s.value > 0) icons += '<i class="fa-solid fa-star icon-bonus"></i>';
@@ -303,20 +309,13 @@
             }
         }
 
-        // Search Implementation
         document.getElementById('manager-search').addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase();
             const rows = document.querySelectorAll('.manager-row');
-
             rows.forEach(row => {
                 const teamName = row.querySelector('.name-cell b').textContent.toLowerCase();
                 const managerName = row.querySelector('.name-cell small').textContent.toLowerCase();
-
-                if (teamName.includes(searchTerm) || managerName.includes(searchTerm)) {
-                    row.style.display = 'block';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = (teamName.includes(searchTerm) || managerName.includes(searchTerm)) ? 'block' : 'none';
             });
         });
 
