@@ -19,28 +19,35 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-        /* SPINNER STYLES */
+        /* --- NEW: MATERIAL YOU SPINNER STYLES --- */
         :root { --md-sys-color-primary: #006a60; }
-        .spinner-container { display: flex; justify-content: center; align-items: center; padding: 60px 20px; width: 100%; }
+        .spinner-container { 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            min-height: 50vh; 
+            width: 100%; 
+        }
         .md-spinner {
-            width: 28px; height: 28px;
-            border: 3px solid rgba(0,0,0,0.1);
-            border-top: 3px solid var(--md-sys-color-primary);
+            width: 32px; height: 32px;
+            border: 3.5px solid rgba(0,0,0,0.1);
+            border-top: 3.5px solid var(--md-sys-color-primary);
             border-radius: 50%;
             animation: md-spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
-        @keyframes md-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        
-        /* Container spacing */
-        .page-content { padding-top: 10px; }
-
-        /* Manager Name Section */
-        #manager-header {
-            padding: 0 16px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .loading-text {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
+        @keyframes md-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* --- RESTORED ORIGINAL STYLES --- */
+        .page-content { padding-top: 10px; }
 
         #disp-name {
             font-weight: 900;
@@ -54,7 +61,6 @@
             border-radius: 20px;
         }
 
-        /* Stats Grid - Material You Style */
         .header-stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -141,7 +147,6 @@
 
         .card-ownership-bar {
             background: #00ff85; 
-            color: #1a1a1a;
             font-size: 0.4rem;
             padding: 0px;
             border-radius: 2px;
@@ -178,35 +183,75 @@
         }
 
         .is-bench { opacity: 0.5; }
+
+        /* SQUAD INFO BAR */
+        .squad-stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .stat-pill {
+            font-size: 0.65rem;
+            background: var(--surface-variant, #f6f3f8);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        /* TRANSFER ROWS */
+        .transfer-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.7rem;
+            margin-bottom: 5px;
+            background: rgba(0,0,0,0.03);
+            padding: 4px;
+            border-radius: 8px;
+        }
+        .transfer-arrow { opacity: 0.5; }
+        .transfer-hit { color: #ff4757; font-weight: 900; }
     </style>
 </head>
 <body class="dark-mode">
 
     <div id="login-screen" style="display:none;">
         <div class="login-card">
+            <div class="theme-row" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <span class="theme-label">Theme</span>
+                <div class="toggle-container">
+                    <button id="btn-dark" class="toggle-btn" onclick="setTheme('dark')">Dark</button>
+                    <button id="btn-light" class="toggle-btn" onclick="setTheme('light')">Light</button>
+                </div>
+            </div>
             <h2>Enter your FPL ID</h2>
             <div class="input-container">
-                <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567">
-                <div id="error-message" class="error-msg"></div>
+                <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste link">
+                <div id="error-message" class="error-msg" style="display:none; color:red; font-size:0.7rem;"></div>
             </div>
             <button id="login-btn" class="continue-btn" onclick="handleLogin()">Continue</button>
         </div>
     </div>
 
     <div id="nav-placeholder"></div>
-    
+
     <main class="page-content">
-        <div id="deadline-container"></div>
-        
         <div id="loading-state">
-            <div class="spinner-container"><div class="md-spinner"></div></div>
+            <div class="spinner-container">
+                <div class="md-spinner"></div>
+                <div class="loading-text">Fetching Points...</div>
+            </div>
         </div>
 
-        <div id="main-data-content" style="display: none;">
+        <div id="main-content" style="display:none;">
+            <div id="deadline-container"></div>
+            
             <div style="padding: 0 15px 15px; display:flex; justify-content:space-between; align-items:center;">
                 <div class="header-content">
-                    <span id="disp-name" style="font-weight:900; font-size: 1.1rem;">-</span>
-                    <div id="disp-team" style="font-size: 0.8rem; opacity: 0.7;">-</div>
+                    <span id="disp-name">Manager Name</span>
+                    <div id="disp-team" style="font-size: 0.8rem; opacity: 0.7;">Team Name</div>
                 </div>
             </div>
             
@@ -239,24 +284,49 @@
 
     const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
 
-    async function initData() {
+    function setTheme(mode) {
+        document.body.className = mode === 'dark' ? 'dark-mode' : '';
+        localStorage.setItem('fplTheme', mode);
+        document.getElementById('btn-dark').className = `toggle-btn ${mode === 'dark' ? 'active' : 'inactive'}`;
+        document.getElementById('btn-light').className = `toggle-btn ${mode === 'light' ? 'active' : 'inactive'}`;
+    }
+
+    async function handleLogin() {
+        const inputField = document.getElementById('team-id-input');
+        const errorDiv = document.getElementById('error-message');
+        let rawValue = inputField.value.trim();
+        if (rawValue.includes('entry/')) rawValue = rawValue.match(/entry\/(\d+)/)?.[1] || rawValue;
+        
+        const id = parseInt(rawValue);
+        if (!id) { errorDiv.textContent = "Invalid ID"; errorDiv.style.display = 'block'; return; }
+
         try {
-            const res = await fetch(`${PROXY}bootstrap-static/`);
-            const data = await res.json();
-            data.teams.forEach(t => state.teamMap[t.id] = { code: t.code });
-            data.elements.forEach(p => {
-                state.playerMap[p.id] = { 
-                    name: p.web_name, 
-                    team_code: state.teamMap[p.team].code, 
-                    pos: p.element_type,
-                    ownership: p.selected_by_percent
-                };
-            });
-            const currentEvent = data.events.find(e => e.is_current) || data.events[0];
-            state.currentGW = currentEvent.id;
-            state.gwAverage = currentEvent.average_entry_score;
-            state.gwHigh = currentEvent.highest_score;
-        } catch (e) { console.error("Init failed", e); }
+            const res = await fetch(`${PROXY}entry/${id}/`);
+            if (!res.ok) throw new Error();
+            localStorage.setItem('kopala_id', id);
+            location.reload();
+        } catch (err) {
+            errorDiv.textContent = "ID not found";
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    async function initData() {
+        const res = await fetch(`${PROXY}bootstrap-static/`);
+        const data = await res.json();
+        data.teams.forEach(t => state.teamMap[t.id] = { code: t.code });
+        data.elements.forEach(p => {
+            state.playerMap[p.id] = { 
+                name: p.web_name, 
+                team_code: state.teamMap[p.team].code, 
+                pos: p.element_type,
+                ownership: p.selected_by_percent
+            };
+        });
+        const currentEvent = data.events.find(e => e.is_current) || data.events[0];
+        state.currentGW = currentEvent.id;
+        state.gwAverage = currentEvent.average_entry_score;
+        state.gwHigh = currentEvent.highest_score;
     }
 
     async function fetchAndRender() {
@@ -273,16 +343,44 @@
             const live = await liveRes.json();
             const allTransfers = await transRes.json();
 
-            // Update UI with data
+            // 1. Header Info
             document.getElementById('disp-name').textContent = `${entry.player_first_name} ${entry.player_last_name}`;
             document.getElementById('disp-team').textContent = entry.name;
 
+            // 2. Squad Stats Bar
             const teamValue = (entry.last_deadline_value / 10).toFixed(1);
             const transferCost = picks.entry_history.event_transfers_cost;
-            const ptsMap = {};
-            live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+            const gwTransfers = allTransfers.filter(t => t.event === state.currentGW);
             
-            // Render Stats
+            let playedCount = 0;
+            const ptsMap = {};
+            live.elements.forEach(el => {
+                ptsMap[el.id] = el.stats.total_points;
+                const pick = picks.picks.find(p => p.element === el.id);
+                if (pick && el.stats.minutes > 0) playedCount++;
+            });
+
+            let infoHtml = `
+                <div class="squad-stats-bar">
+                    <div class="stat-pill">FT <b>${entry.extra_free_transfers || 1}</b></div>
+                    <div class="stat-pill">TV <b>£${teamValue}</b></div>
+                    <div class="stat-pill">Played <b>${playedCount}/15</b></div>
+                </div>
+            `;
+
+            gwTransfers.forEach(t => {
+                infoHtml += `
+                    <div class="transfer-row">
+                        <span>${state.playerMap[t.element_out]?.name}</span>
+                        <span class="transfer-arrow">→</span>
+                        <span>${state.playerMap[t.element_in]?.name}</span>
+                        ${transferCost > 0 ? `<span class="transfer-hit">-${transferCost}</span>` : ''}
+                    </div>
+                `;
+            });
+            document.getElementById('squad-info-container').innerHTML = infoHtml;
+
+            // 3. 6-Grid Stats
             document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || 0).toLocaleString();
             document.getElementById('disp-gw-high').textContent = state.gwHigh || 0;
             document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
@@ -290,46 +388,48 @@
             document.getElementById('disp-gw-avg').textContent = state.gwAverage || 0;
             document.getElementById('disp-total').textContent = (picks.entry_history.points - transferCost);
 
+            // 4. Player Grid
             renderPlayerGrid(picks.picks, ptsMap);
 
-            // Hide spinner and show content
+            // Final: Switch UI
             document.getElementById('loading-state').style.display = 'none';
-            document.getElementById('main-data-content').style.display = 'block';
+            document.getElementById('main-content').style.display = 'block';
 
-        } catch (e) { console.error("Fetch failed", e); }
+        } catch (e) { console.error(e); }
     }
 
     function renderPlayerGrid(picks, ptsMap) {
         const grid = document.getElementById('player-list-grid');
-        if (!grid) return;
         grid.innerHTML = ''; 
         picks.forEach((p, index) => {
             const meta = state.playerMap[p.element];
             if (!meta) return;
             const totalPts = (ptsMap[p.element] || 0) * (p.multiplier || 1);
-            const isBench = index >= 11;
             grid.innerHTML += `
-                <div class="compact-player-card ${isBench ? 'is-bench' : ''}">
+                <div class="compact-player-card ${index >= 11 ? 'is-bench' : ''}">
+                    <i class="fa-solid fa-star star-icon"></i>
                     <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png">
                     ${p.is_captain ? `<div class="badge">C</div>` : ''}
                     <div class="card-data-box">
                         <div class="card-name">${meta.name}</div>
                         <div class="card-points">${totalPts}</div>
+                        <div class="card-ownership-bar" style="background: linear-gradient(90deg, #00ff85 ${meta.ownership}%, #444 ${meta.ownership}%)">
+                            ${meta.ownership}%
+                        </div>
                     </div>
                 </div>`;
         });
     }
 
-    // Start App
-    if (state.fplId) {
-        initData().then(fetchAndRender);
-    } else {
-        document.getElementById('loading-state').style.display = 'none';
-        document.getElementById('login-screen').style.display = 'flex';
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+        setTheme(localStorage.getItem('fplTheme') || 'dark');
+        if (state.fplId) {
+            initData().then(fetchAndRender);
+        } else {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+        }
+    });
     </script>
-    <script src="nav.js"></script>
-    <div id="footer-placeholder"></div>
-    <script src="footer.js"></script>
 </body>
 </html>
