@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Price Changes | Kopala FPL</title>
+    <title>Price Change Predictions | Kopala FPL</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kopala FPL">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5323/5323982.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="footer.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --livefpl-dark: #1a202c;
@@ -19,118 +27,55 @@
             --text-gray: #64748b;
         }
 
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--livefpl-bg); 
-            margin: 0; 
-            padding: 0; 
-            color: var(--text-dark);
-        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--livefpl-bg); margin: 0; padding: 0; color: var(--text-dark); }
 
         /* Countdown Banner */
         .timer-banner {
-            background: var(--livefpl-dark); 
-            color: white; 
-            padding: 8px;
-            text-align: center; 
-            border-radius: 0 0 10px 10px; 
-            margin-bottom: 5px;
+            background: var(--livefpl-dark); color: white; padding: 8px;
+            text-align: center; border-radius: 0 0 10px 10px; margin-bottom: 5px;
         }
         .countdown-box {
-            background: #00ff87; 
-            color: black; 
-            padding: 2px 8px;
-            border-radius: 4px; 
-            font-weight: 800; 
-            font-size: 0.7rem; 
-            margin-left: 5px;
+            background: #00ff87; color: black; padding: 2px 8px;
+            border-radius: 4px; font-weight: 800; font-size: 0.7rem; margin-left: 5px;
         }
 
-        /* Compact Filter Bar */
+        /* Filter Bar */
         .filter-container {
-            display: flex; 
-            gap: 5px; 
-            padding: 6px; 
-            background: white;
-            border-bottom: 1px solid var(--border-color); 
-            position: sticky; 
-            top: 0; 
-            z-index: 10;
+            display: flex; gap: 5px; padding: 6px; background: white;
+            border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 10;
         }
         #playerSearch, #teamFilter {
-            flex: 1; 
-            border: 1px solid var(--border-color); 
-            border-radius: 6px;
-            padding: 5px; 
-            font-size: 0.65rem; 
-            outline: none; 
-            height: 30px;
+            flex: 1; border: 1px solid var(--border-color); border-radius: 6px;
+            padding: 5px; font-size: 0.65rem; outline: none; height: 30px;
         }
 
-        /* The Prediction Table */
-        .price-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            background: white; 
-            table-layout: fixed; 
-        }
-        .price-table thead { 
-            background: var(--livefpl-dark); 
-            color: white; 
-            font-size: 0.55rem; 
-            text-transform: uppercase; 
-        }
+        /* Table Architecture */
+        .price-table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; }
+        .price-table thead { background: var(--livefpl-dark); color: white; font-size: 0.55rem; text-transform: uppercase; }
         .price-table th { padding: 10px 2px; font-weight: 800; }
         
-        .player-row { border-bottom: 1px solid var(--border-color); height: 50px; }
-        .player-cell { 
-            padding: 4px 2px; 
-            vertical-align: middle; 
-            text-align: center; 
-            font-size: 0.6rem; 
-            overflow: hidden;
-        }
+        .player-row { border-bottom: 1px solid var(--border-color); height: 52px; }
+        .player-cell { padding: 4px 2px; vertical-align: middle; text-align: center; font-size: 0.6rem; overflow: hidden; }
         
-        /* High Visibility Player Info */
-        .info-col { 
-            text-align: left !important; 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-            padding-left: 8px !important;
-        }
+        /* Clear Text Player Info */
+        .info-col { text-align: left !important; display: flex; align-items: center; gap: 6px; padding-left: 8px !important; }
         .shirt-img { width: 22px; height: auto; flex-shrink: 0; }
         
         .p-name { 
-            display: block; 
-            font-weight: 700; 
-            color: var(--text-dark) !important; 
-            background: transparent !important; 
-            font-size: 0.65rem;
-            line-height: 1.2;
-            white-space: nowrap;
+            display: block; font-weight: 700; color: var(--text-dark) !important; 
+            background: transparent !important; font-size: 0.65rem; line-height: 1.2;
         }
-        
-        .p-meta { 
-            display: block;
-            font-size: 0.55rem; 
-            color: var(--text-gray); 
-            font-weight: 500; 
-        }
+        .p-meta { display: block; font-size: 0.55rem; color: var(--text-gray); font-weight: 500; }
 
         /* Progress Bars */
-        .progress-wrapper { 
-            width: 85%; 
-            background: #e2e8f0; 
-            border-radius: 10px; 
-            height: 8px; 
-            overflow: hidden; 
-            margin: 3px auto 0; 
-        }
-        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease-in-out; }
+        .progress-wrapper { width: 85%; background: #e2e8f0; border-radius: 10px; height: 8px; overflow: hidden; margin: 3px auto 0; }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; }
         .percent-text { font-weight: 800; color: #1e293b; font-size: 0.65rem; }
 
-        /* Column Percentages */
+        /* Status Flags */
+        .flag-red { color: #ef4444; font-size: 0.55rem; margin-left: 3px; }
+        .flag-yellow { color: #eab308; font-size: 0.55rem; margin-left: 3px; }
+
         .col-player { width: 38%; }
         .col-team { width: 18%; }
         .col-prog { width: 24%; }
@@ -141,12 +86,8 @@
         .trend-down { color: #dc2626; font-weight: 800; }
         
         .section-header {
-            background: #f1f5f9; 
-            padding: 5px 10px; 
-            font-size: 0.6rem;
-            font-weight: 800; 
-            color: var(--text-gray); 
-            border-bottom: 1px solid var(--border-color);
+            background: #f1f5f9; padding: 5px 10px; font-size: 0.6rem;
+            font-weight: 800; color: var(--text-gray); border-bottom: 1px solid var(--border-color);
         }
     </style>
 </head>
@@ -156,7 +97,7 @@
 
 <main style="margin-top: 60px;">
     <div class="timer-banner">
-        <span style="font-size: 0.6rem; font-weight: 800;">NEXT PRICE CHANGE COUNTDOWN:</span>
+        <span style="font-size: 0.6rem; font-weight: 800;">NEXT PRICE CHANGE:</span>
         <span class="countdown-box" id="price-timer">00:00:00</span>
     </div>
 
@@ -167,7 +108,7 @@
         </select>
     </div>
 
-    <div class="section-header">PRICE PREDICTIONS</div>
+    <div class="section-header">DATA-DRIVEN PRICE PREDICTIONS</div>
     <table class="price-table">
         <thead>
             <tr>
@@ -178,8 +119,7 @@
                 <th class="col-trend">Trend</th>
             </tr>
         </thead>
-        <tbody id="prediction-list">
-            </tbody>
+        <tbody id="prediction-list"></tbody>
     </table>
 </main>
 
@@ -192,27 +132,33 @@
 
     async function init() {
         const list = document.getElementById('prediction-list');
-        list.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; font-size:0.6rem;">Fetching Data...</td></tr>';
+        list.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; font-size:0.6rem;">Calculating Transfers...</td></tr>';
         
         try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-            const res = await fetch(PROXY, { signal: controller.signal });
-            clearTimeout(timeoutId);
-            
+            const res = await fetch(PROXY);
             const data = await res.json();
             
-            data.teams.forEach(t => { 
-                teamMap[t.id] = t.short_name; // ARS, MUN, etc.
-                const opt = document.createElement('option');
-                opt.value = t.id; opt.innerText = t.name;
-                document.getElementById('teamFilter').appendChild(opt);
-            });
+            data.teams.forEach(t => { teamMap[t.id] = t.short_name; });
 
             playerData = data.elements.map(p => {
-                const net = (p.transfers_in_event - p.transfers_out_event);
-                let target = (net / 650); // Normalized target calculation
+                // ALGORITHM UPGRADE:
+                let netTransfers = (p.transfers_in_event - p.transfers_out_event);
+                
+                // 1. Discount Wildcards (Key Area 1)
+                let validTransfers = netTransfers * 0.85; 
+
+                // 2. Threshold Adjustments (Key Area 3 & 4)
+                let baseThreshold = 750;
+                
+                // Increase threshold for flagged players
+                if (p.status !== 'a') baseThreshold *= 1.8; 
+                
+                // Sensitivity for low ownership
+                if (parseFloat(p.selected_by_percent) < 4.0) baseThreshold *= 0.8;
+
+                // 3. Final Target Calculation
+                let target = (validTransfers / baseThreshold) * 100;
+
                 return {
                     id: p.id,
                     name: p.web_name,
@@ -221,14 +167,14 @@
                     pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
                     price: (p.now_cost / 10).toFixed(1),
                     target: parseFloat(target.toFixed(1)),
-                    trend: (Math.random() * 0.08).toFixed(2)
+                    trend: (p.transfers_in_event / 8000).toFixed(2),
+                    status: p.status
                 };
             }).sort((a,b) => Math.abs(b.target) - Math.abs(a.target));
 
             render();
         } catch (e) {
-            console.error("Data Load Error:", e);
-            list.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red; padding:20px; font-size:0.6rem;">Error loading data. <a href="javascript:location.reload()">Retry</a></td></tr>';
+            list.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; font-size:0.6rem;">Data Fetch Failed.</td></tr>';
         }
     }
 
@@ -241,21 +187,24 @@
             const matchesSearch = p.name.toLowerCase().includes(searchTerm);
             const matchesTeam = teamFilter === "all" || p.teamId == teamFilter;
             return matchesSearch && matchesTeam;
-        }).slice(0, 40);
+        }).slice(0, 50);
 
         list.innerHTML = filtered.map(p => {
             const isRise = p.target >= 0;
             const barColor = isRise ? 'var(--livefpl-green)' : '#ef4444';
             
+            // Flag Display Logic
+            const flag = (p.status === 'i' || p.status === 's' || p.status === 'n') ? 
+                '<i class="fa-solid fa-circle-exclamation flag-red"></i>' : 
+                (p.status === 'd') ? '<i class="fa-solid fa-circle-exclamation flag-yellow"></i>' : '';
+            
             return `
                 <tr class="player-row">
                     <td class="player-cell">
                         <div class="info-col">
-                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" 
-                                 onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_0-66.png'" 
-                                 class="shirt-img">
+                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" class="shirt-img">
                             <div style="min-width: 0;">
-                                <span class="p-name">${p.name}</span>
+                                <span class="p-name">${p.name}${flag}</span>
                                 <span class="p-meta">${p.pos} £${p.price}</span>
                             </div>
                         </div>
@@ -268,7 +217,7 @@
                         </div>
                     </td>
                     <td class="player-cell" style="color:var(--text-gray); font-size:0.55rem;">
-                        ${p.target >= 98 ? '<b style="color:black">TONIGHT</b>' : p.target > 80 ? 'Soon' : '-'}
+                        ${p.target >= 95 ? '<b style="color:black">TONIGHT</b>' : p.target > 75 ? '2 days' : '-'}
                     </td>
                     <td class="player-cell ${isRise ? 'trend-up' : 'trend-down'}">
                         <div style="font-size: 0.5rem;">${isRise ? '▲' : '▼'}</div>
@@ -279,7 +228,6 @@
         }).join('');
     }
 
-    // Countdown Timer
     setInterval(() => {
         const now = new Date();
         const target = new Date();
@@ -294,7 +242,8 @@
 
     init();
 </script>
-<script src="nav.js"></script>
+    <script src="nav.js"></script>
+    <div id="footer-placeholder"></div>
 <script src="footer.js"></script>
 </body>
 </html>
