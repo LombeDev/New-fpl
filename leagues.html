@@ -4,82 +4,95 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Elite Standings | Kopala FPL</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="footer.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --m3-surface: #fef7ff;
-            --m3-secondary: #eaddff;
-            --m3-text: #1d1b20;
+            --m3-surface: #ffffff;
             --accent-blue: #2563eb;
-            --pos-up: #008000;
-            --pos-down: #ff0000;
+            --pos-up: #00e676;
+            --pos-down: #ff1744;
+            --chip-bg: #f1f3f4;
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: var(--m3-text); }
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
 
+        /* Navigation & Controls */
         .controls-wrapper {
-            background: white; padding: 10px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            background: white; padding: 12px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         .select-row { display: flex; flex-direction: column; gap: 10px; padding: 0 15px; }
-        .dropdown-group { display: flex; gap: 8px; }
-        .select-row select {
-            flex: 1; font-size: 0.75rem; padding: 0 12px; height: 38px;
-            border-radius: 19px; border: 1px solid rgba(0,0,0,0.1);
-            background: #f1f3f4; font-weight: 600; outline: none;
+        #league-select {
+            width: 100%; border-radius: 20px; padding: 10px 15px; border: 1px solid #ddd; font-weight: 700; font-size: 0.85rem; background: #f8f9fa; outline: none;
         }
         #manager-search {
-            width: 100%; padding: 12px 18px; border-radius: 22px;
-            border: 1px solid rgba(0,0,0,0.1); font-size: 0.85rem;
-            outline: none; box-sizing: border-box; background: #f1f3f4;
+            width: 100%; padding: 12px 20px; border-radius: 25px; border: 1px solid #ddd; font-size: 0.9rem; background: #f8f9fa; box-sizing: border-box; outline: none;
         }
 
-        .manager-row { margin: 8px 12px; background: white; border-radius: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow: hidden; }
-        .manager-row.is-me { border: 2px solid var(--accent-blue); background: #f0f4ff; }
+        /* Standings Cards */
+        .manager-row {
+            margin: 12px; background: white; border-radius: 28px; border: 1px solid #e0e0e0; overflow: hidden; transition: border 0.2s;
+        }
+        .manager-row.is-me { border: 2px solid var(--accent-blue); background: #f0f7ff; }
         
-        .row-summary { display: grid; grid-template-columns: 45px 1fr 65px 35px 55px; align-items: center; padding: 12px; cursor: pointer; }
-        .pos-container { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .pos-cell { font-weight: 800; font-size: 0.75rem; }
-        .move-indicator { font-size: 0.6rem; font-weight: 900; }
-        .move-up { color: var(--pos-up); }
-        .move-down { color: var(--pos-down); }
-        .move-static { color: #999; }
+        .row-summary { display: grid; grid-template-columns: 55px 1fr 85px 45px 65px; align-items: center; padding: 16px; cursor: pointer; }
+        
+        /* Rank Movement Styling */
+        .pos-container { display: flex; flex-direction: column; align-items: center; }
+        .pos-cell { font-weight: 800; font-size: 1.1rem; color: #111; }
+        .move-indicator { 
+            font-size: 0.6rem; width: 18px; height: 18px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; color: white; margin-bottom: 2px;
+        }
+        .move-up { background: var(--pos-up); }
+        .move-down { background: var(--pos-down); }
 
-        .name-cell b { font-size: 0.85rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .name-cell small { font-size: 0.65rem; opacity: 0.6; font-weight: 700; text-transform: uppercase; }
+        /* Manager Info */
+        .name-cell b { font-size: 1rem; color: #000; vertical-align: middle; }
+        .name-cell small { font-size: 0.8rem; color: #666; font-weight: 500; display: block; margin-top: 2px; }
+        
+        .chip-pill {
+            display: inline-block; background: var(--chip-bg); border: 1px solid #ccc;
+            border-radius: 6px; padding: 1px 5px; font-size: 0.6rem; font-weight: 900; 
+            margin-left: 5px; color: #444; vertical-align: middle;
+        }
 
-        .row-expansion { display: none; background: var(--m3-surface); border-top: 1px solid #eee; }
+        .or-pill {
+            display: inline-block; background: white; border: 1px solid #ddd;
+            border-radius: 12px; padding: 2px 8px; font-size: 0.7rem; font-weight: 700; margin-top: 8px;
+        }
+
+        /* Stats Columns */
+        .cap-info { text-align: center; font-size: 0.8rem; font-weight: 700; line-height: 1.2; }
+        .cap-sub { font-size: 0.65rem; color: #888; font-weight: 400; }
+        .gw-pts { font-size: 1.1rem; font-weight: 800; text-align: center; color: #111; }
+        .total-pts { font-size: 1.1rem; font-weight: 800; text-align: right; color: #111; }
+
+        /* Transfer History Line */
+        .transfer-line { padding: 0 16px 16px 71px; font-size: 0.75rem; color: #2563eb; font-weight: 700; min-height: 1em; }
+
+        /* Expanded View */
+        .row-expansion { display: none; background: #fafafa; border-top: 1px solid #eee; }
         .manager-row.active .row-expansion { display: block; }
+        .squad-scroller { display: flex; overflow-x: auto; padding: 15px; gap: 12px; -webkit-overflow-scrolling: touch; }
+        .player-card { min-width: 65px; text-align: center; flex-shrink: 0; }
+        .player-shirt { width: 32px; margin-bottom: 4px; }
+        .player-label { font-size: 0.6rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .squad-scroller { display: flex; overflow-x: auto; padding: 15px 12px; gap: 10px; }
-        .player-card { min-width: 60px; background: white; border-radius: 12px; padding: 10px 5px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .player-shirt { width: 28px; height: auto; margin-bottom: 5px; }
-        .player-label { font-size: 0.55rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-        .player-pts { font-size: 0.8rem; font-weight: 900; color: #38003c; }
-
-        .table-header { display: grid; grid-template-columns: 45px 1fr 65px 35px 55px; font-size: 0.65rem; text-transform: uppercase; font-weight: 900; padding: 15px 12px 5px 12px; opacity: 0.4; }
+        .table-header { display: grid; grid-template-columns: 55px 1fr 85px 45px 65px; font-size: 0.7rem; font-weight: 800; padding: 10px 20px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
     <div id="nav-placeholder"></div>
+
     <div class="controls-wrapper">
         <div class="select-row">
-            <div class="dropdown-group">
-                <select id="league-select" onchange="loadStandings(this.value)"></select>
-                <select id="sort-criteria">
-                    <option value="total">Overall</option>
-                    <option value="event">Gameweek</option>
-                </select>
-            </div>
-            <input type="text" id="manager-search" placeholder="Find team or expert...">
+            <select id="league-select" onchange="loadStandings(this.value)"></select>
+            <input type="text" id="manager-search" placeholder="Search team or manager...">
         </div>
     </div>
 
@@ -98,44 +111,48 @@
         async function init() {
             if(!state.fplId) return;
             try {
+                // Fetch basic FPL settings and player data
                 const staticRes = await fetch(`${state.PROXY}bootstrap-static/`);
                 const staticData = await staticRes.json();
                 state.currentGW = staticData.events.find(e => e.is_current).id;
+                
                 staticData.elements.forEach(p => {
-                    state.playerMap[p.id] = { name: p.web_name, team: staticData.teams.find(t => t.id === p.team).code, pos: p.element_type };
+                    state.playerMap[p.id] = { 
+                        name: p.web_name, 
+                        team: staticData.teams.find(t => t.id === p.team).code, 
+                        pos: p.element_type 
+                    };
                 });
 
+                // Fetch live points for the current GW
                 const liveRes = await fetch(`${state.PROXY}event/${state.currentGW}/live/`);
                 const liveData = await liveRes.json();
                 liveData.elements.forEach(el => { state.liveData[el.id] = el.stats.total_points; });
 
+                // Fetch user's entry to populate leagues
                 const entryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
                 const entryData = await entryRes.json();
+                
                 const select = document.getElementById('league-select');
-                
-                let options = `<option value="${state.ELITE_LEAGUE}">You vs LiveFPL Elite</option>`;
+                let options = `<option value="${state.ELITE_LEAGUE}">You vs LiveFPL Elite 64</option>`;
                 options += entryData.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
-                
                 select.innerHTML = options;
+
                 loadStandings(state.ELITE_LEAGUE);
-            } catch (err) { console.error("Init Error:", err); }
+            } catch (err) { console.error("Initialization Error:", err); }
         }
 
-        function getMovement(current, last) {
-            if (!last || current === last) return '<span class="move-indicator move-static"><i class="fa-solid fa-minus"></i></span>';
-            if (current < last) return '<span class="move-indicator move-up"><i class="fa-solid fa-caret-up"></i></span>';
-            return '<span class="move-indicator move-down"><i class="fa-solid fa-caret-down"></i></span>';
-        }
-
-        async function loadStandings(id) {
+        async function loadStandings(leagueId) {
             const container = document.getElementById('manager-list-container');
-            container.innerHTML = '<p style="text-align:center; padding:50px; opacity:0.5;">Loading Standings...</p>';
+            container.innerHTML = '<p style="text-align:center; padding:50px; opacity:0.5;">Fetching Live Data...</p>';
+            
             try {
-                const res = await fetch(`${state.PROXY}leagues-classic/${id}/standings/`);
+                const res = await fetch(`${state.PROXY}leagues-classic/${leagueId}/standings/`);
                 const data = await res.json();
                 let results = data.standings.results;
 
-                if (id == state.ELITE_LEAGUE) {
+                // Always inject current user into the expert league
+                if (leagueId == state.ELITE_LEAGUE) {
                     const myEntryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
                     const me = await myEntryRes.json();
                     if (!results.find(r => r.entry == state.fplId)) {
@@ -146,36 +163,77 @@
                             event_total: me.summary_event_points, 
                             total: me.summary_overall_points, 
                             rank: me.summary_overall_rank, 
-                            last_rank: me.summary_overall_rank 
+                            last_rank: me.summary_overall_rank,
+                            total_rank: me.summary_overall_rank
                         }, ...results];
                     }
                 }
 
-                container.innerHTML = `<div class="table-header"><span>Rank</span><span>Manager</span><span>Captain</span><span>GW</span><span style="text-align:right">Total</span></div>` + 
+                container.innerHTML = `<div class="table-header"><span>Pos</span><span>Manager</span><span>(C)</span><span>GW</span><span style="text-align:right">Total</span></div>` + 
                     results.map((r, i) => {
                         const isMe = r.entry == state.fplId;
                         const rank = r.rank || i+1;
+                        const lastRank = r.last_rank || rank;
+                        
+                        // Async fetch transfers and chips
+                        fetchManagerDetails(r.entry); 
+
                         return `
                         <div class="manager-row ${isMe ? 'is-me' : ''}" id="entry-${r.entry}">
                             <div class="row-summary" onclick="expandManager(${r.entry})">
                                 <div class="pos-container">
+                                    <div class="move-indicator ${rank <= lastRank ? 'move-up' : 'move-down'}">
+                                        <i class="fa-solid ${rank <= lastRank ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
+                                    </div>
                                     <span class="pos-cell">${rank}</span>
-                                    ${getMovement(rank, r.last_rank)}
                                 </div>
                                 <div class="name-cell">
-                                    <b>${r.entry_name}</b>
-                                    <small>${isMe ? 'YOU' : r.player_name}</small>
+                                    <b>${r.entry_name} <span id="chip-${r.entry}"></span></b>
+                                    <small>${r.player_name}</small>
+                                    <div class="or-pill">OR ${(r.total_rank || 0).toLocaleString()}</div>
                                 </div>
-                                <div id="cap-${r.entry}" style="font-size:0.6rem; font-weight:800; color:var(--accent-blue);">-</div>
-                                <span class="gw-pts-cell" style="font-weight:700;">${r.event_total}</span>
-                                <span class="total-pts-cell" style="font-weight:900; text-align:right;">${r.total.toLocaleString()}</span>
+                                <div class="cap-info">
+                                    <div id="cap-${r.entry}" style="color:var(--accent-blue)">-</div>
+                                    <div class="cap-sub" id="vc-${r.entry}">-</div>
+                                </div>
+                                <div class="gw-pts">${r.event_total}</div>
+                                <div class="total-pts">${r.total.toLocaleString()}</div>
                             </div>
+                            <div class="transfer-line" id="transfers-${r.entry}"></div>
                             <div class="row-expansion">
-                                <div class="squad-scroller" id="squad-${r.entry}"><p style="padding:15px; font-size:0.7rem; opacity:0.5;">Loading squad...</p></div>
+                                <div class="squad-scroller" id="squad-${r.entry}">
+                                    <p style="padding:15px; font-size:0.7rem; opacity:0.5;">Loading team data...</p>
+                                </div>
                             </div>
                         </div>`;
                     }).join('');
-            } catch (e) { container.innerHTML = '<p style="text-align:center; padding:30px;">Error loading league.</p>'; }
+            } catch (e) { container.innerHTML = '<p style="text-align:center;">Failed to load league standings.</p>'; }
+        }
+
+        async function fetchManagerDetails(entryId) {
+            try {
+                const [transRes, picksRes] = await Promise.all([
+                    fetch(`${state.PROXY}entry/${entryId}/transfers/`),
+                    fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`)
+                ]);
+                
+                const transData = await transRes.json();
+                const picksData = await picksRes.json();
+
+                // Set Chip Badge
+                if (picksData.active_chip) {
+                    const chipMap = { 'wildcard': 'WC', 'freehit': 'FH', 'bboost': 'BB', '3xc': 'TC' };
+                    const badge = chipMap[picksData.active_chip] || picksData.active_chip.toUpperCase();
+                    document.getElementById(`chip-${entryId}`).innerHTML = `<span class="chip-pill">${badge}</span>`;
+                }
+
+                // Set Transfers
+                const latest = transData.filter(t => t.event === state.currentGW);
+                if (latest.length > 0) {
+                    const tText = latest.map(t => `${state.playerMap[t.element_out].name} → ${state.playerMap[t.element_in].name}`).join(' • ');
+                    document.getElementById(`transfers-${entryId}`).textContent = tText;
+                }
+            } catch (e) {}
         }
 
         async function expandManager(entryId) {
@@ -185,21 +243,32 @@
                 try {
                     const picksRes = await fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`);
                     const data = await picksRes.json();
+                    
                     squadBox.innerHTML = data.picks.map(p => {
                         const player = state.playerMap[p.element];
                         const pts = (state.liveData[p.element] || 0) * (p.multiplier || 1);
+                        
                         if(p.is_captain) document.getElementById(`cap-${entryId}`).textContent = player.name;
-                        return `<div class="player-card"><img src="https://draft.premierleague.com/img/shirts/standard/shirt_${player.team}${player.pos === 1 ? '_1' : ''}-66.png" class="player-shirt"><div class="player-label">${player.name}${p.is_captain ? ' (C)' : ''}</div><div class="player-pts">${pts}</div></div>`;
+                        if(p.is_vice_captain) document.getElementById(`vc-${entryId}`).textContent = player.name;
+                        
+                        return `
+                            <div class="player-card">
+                                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${player.team}${player.pos === 1 ? '_1' : ''}-66.png" class="player-shirt">
+                                <div class="player-label">${player.name}${p.multiplier > 1 ? ' (C)' : ''}</div>
+                                <div style="font-weight:900; font-size:0.8rem;">${pts}</div>
+                            </div>`;
                     }).join('');
                     row.dataset.loaded = "true";
-                } catch (e) { squadBox.innerHTML = '<p style="padding:15px;">Private Data</p>'; }
+                } catch (e) { squadBox.innerHTML = '<p style="padding:15px;">Private Team</p>'; }
             }
         }
 
+        // Live Search logic
         document.getElementById('manager-search').addEventListener('input', function(e) {
             const term = e.target.value.toLowerCase();
             document.querySelectorAll('.manager-row').forEach(row => {
-                row.style.display = row.innerText.toLowerCase().includes(term) ? 'block' : 'none';
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(term) ? 'block' : 'none';
             });
         });
 
