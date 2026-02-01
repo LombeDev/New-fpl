@@ -18,10 +18,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-
+  
         :root {
             --livefpl-dark: #1a202c;
-            --livefpl-green: #48bb78;
+            --livefpl-green: #00ff87;
+            --livefpl-red: #ff2e63;
             --livefpl-bg: #f8fafc;
             --border-color: #e2e8f0;
             --text-dark: #1a202c;
@@ -30,107 +31,130 @@
 
         body { font-family: 'Inter', sans-serif; background-color: var(--livefpl-bg); margin: 0; padding: 0; color: var(--text-dark); }
 
-        .timer-banner { background: var(--livefpl-dark); color: white; padding: 8px; text-align: center; border-radius: 0 0 10px 10px; margin-bottom: 5px; }
-        .countdown-box { background: #00ff87; color: black; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 0.7rem; margin-left: 5px; }
+        .timer-banner { background: var(--livefpl-dark); color: white; padding: 10px; text-align: center; border-radius: 0 0 10px 10px; }
+        .countdown-box { background: var(--livefpl-green); color: black; padding: 3px 10px; border-radius: 4px; font-weight: 900; font-size: 0.8rem; margin-left: 5px; }
         
-        .filter-container { display: flex; gap: 5px; padding: 6px; background: white; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 10; }
-        #playerSearch, #teamFilter { flex: 1; border: 1px solid var(--border-color); border-radius: 6px; padding: 5px; font-size: 0.65rem; outline: none; height: 30px; }
+        /* Control Hub with Reset */
+        .control-hub { background: white; border-bottom: 1px solid var(--border-color); padding: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .filter-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+        
+        .search-wrapper { position: relative; flex: 2; display: flex; align-items: center; }
+        #playerSearch { width: 100%; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px 30px 8px 8px; font-size: 0.75rem; outline: none; }
+        .reset-icon { position: absolute; right: 10px; color: var(--text-gray); cursor: pointer; font-size: 0.8rem; display: none; }
 
+        #teamFilter { flex: 1.2; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 0.75rem; background: white; outline: none; }
+        
+        .sort-row { display: flex; gap: 8px; }
+        .sort-btn { flex: 1; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; cursor: pointer; background: #f8fafc; color: var(--text-gray); }
+        .sort-btn.active-rise { background: var(--livefpl-green); color: black; border-color: var(--livefpl-green); }
+        .sort-btn.active-fall { background: var(--livefpl-red); color: white; border-color: var(--livefpl-red); }
+
+        /* Table */
         .price-table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; }
         .price-table thead { background: var(--livefpl-dark); color: white; font-size: 0.55rem; text-transform: uppercase; }
-        .price-table th { padding: 10px 2px; font-weight: 800; }
+        .price-table th { padding: 12px 2px; font-weight: 800; }
+        .player-row { border-bottom: 1px solid var(--border-color); height: 60px; }
+        .player-cell { padding: 4px 2px; vertical-align: middle; text-align: center; font-size: 0.65rem; }
         
-        .player-row { border-bottom: 1px solid var(--border-color); height: 52px; }
-        .player-cell { padding: 4px 2px; vertical-align: middle; text-align: center; font-size: 0.6rem; overflow: hidden; }
-        
-        /* High Clarity Player Name Fix */
-        .info-col { text-align: left !important; display: flex; align-items: center; gap: 6px; padding-left: 8px !important; }
-        .shirt-img { width: 22px; height: auto; flex-shrink: 0; }
-        .p-name { display: block; font-weight: 700; color: #1a202c !important; background: transparent !important; font-size: 0.65rem; line-height: 1.2; }
-        .p-meta { display: block; font-size: 0.55rem; color: var(--text-gray); font-weight: 500; }
+        .info-col { text-align: left !important; display: flex; align-items: center; gap: 8px; padding-left: 10px !important; }
+        .shirt-img { width: 26px; height: auto; flex-shrink: 0; }
+        .p-name { display: block; font-weight: 800; color: #1a202c !important; font-size: 0.75rem; line-height: 1.1; }
+        .p-meta { display: block; font-size: 0.55rem; color: var(--text-gray); font-weight: 600; margin-top: 2px; }
 
-        .progress-wrapper { width: 85%; background: #e2e8f0; border-radius: 10px; height: 8px; overflow: hidden; margin: 3px auto 0; }
-        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; }
-        .percent-text { font-weight: 800; color: #1e293b; font-size: 0.65rem; }
+        .progress-wrapper { width: 90%; background: #e2e8f0; border-radius: 10px; height: 10px; overflow: hidden; margin: 4px auto 0; }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.8s ease-out; }
+        .percent-text { font-weight: 900; color: #1e293b; font-size: 0.7rem; }
 
-        .flag-red { color: #ef4444; font-size: 0.55rem; margin-left: 3px; }
-        .col-player { width: 38%; }
-        .col-team { width: 18%; }
+        .col-player { width: 42%; }
+        .col-team { width: 14%; }
         .col-prog { width: 24%; }
         .col-pred { width: 10%; }
         .col-trend { width: 10%; }
 
-        .trend-up { color: #16a34a; font-weight: 800; }
-        .trend-down { color: #dc2626; font-weight: 800; }
-        .section-header { background: #f1f5f9; padding: 5px 10px; font-size: 0.6rem; font-weight: 800; color: var(--text-gray); border-bottom: 1px solid var(--border-color); }
+        .trend-up { color: #16a34a; font-weight: 900; }
+        .trend-down { color: #dc2626; font-weight: 900; }
+        
+        .footer-info { padding: 15px; text-align: center; font-size: 0.6rem; color: var(--text-gray); font-weight: 700; background: #f1f5f9; border-top: 1px solid var(--border-color); }
     </style>
 </head>
 <body>
 
-<main style="margin-top: 10px;">
+<main>
     <div class="timer-banner">
-        <span style="font-size: 0.6rem; font-weight: 800;">NEXT PRICE CHANGE:</span>
-        <span class="countdown-box" id="price-timer">--:--:--</span>
+        <span style="font-size: 0.65rem; font-weight: 800; color: #cbd5e1;">NEXT PRICE CHANGE IN:</span>
+        <span class="countdown-box" id="price-timer">00:00:00</span>
     </div>
 
-    <div class="filter-container">
-        <input type="text" id="playerSearch" placeholder="Search Player..." oninput="render()">
-        <select id="teamFilter" onchange="render()"><option value="all">All Teams</option></select>
+    <div class="control-hub">
+        <div class="filter-row">
+            <div class="search-wrapper">
+                <input type="text" id="playerSearch" placeholder="Search player..." onkeyup="handleSearch()">
+                <i class="fa-solid fa-circle-xmark reset-icon" id="resetSearch" onclick="resetFilters()"></i>
+            </div>
+            <select id="teamFilter" onchange="render()">
+                <option value="all">All Teams</option>
+            </select>
+        </div>
+        <div class="sort-row">
+            <button class="sort-btn active-rise" id="btn-rise" onclick="setSort('rise')">TOP RISERS</button>
+            <button class="sort-btn" id="btn-fall" onclick="setSort('fall')">TOP FALLERS</button>
+        </div>
     </div>
 
-    <div class="section-header">ALGORITHM ACCURACY: <span id="accuracy-gauge">96.8%</span></div>
     <table class="price-table">
         <thead>
             <tr>
-                <th class="col-player" style="text-align:left; padding-left:8px;">Player</th>
+                <th class="col-player" style="text-align:left; padding-left:10px;">Player</th>
                 <th class="col-team">Team</th>
                 <th class="col-prog">Progress</th>
                 <th class="col-pred">Pred</th>
-                <th class="col-trend">Trend</th>
+                <th class="col-trend">+/-</th>
             </tr>
         </thead>
         <tbody id="prediction-list"></tbody>
     </table>
+    
+    <div class="footer-info">
+        DATA REFRESHED: <span id="last-update">--:--</span><br>
+        THRESHOLD ACCURACY: 96.8%
+    </div>
 </main>
 
 <script>
     const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
     let playerData = [];
     let teamMap = {};
+    let currentSort = 'rise';
+
+    function updateTimer() {
+        const now = new Date();
+        let target = new Date();
+        target.setUTCHours(2, 30, 0, 0);
+        if (now > target) target.setUTCDate(target.getUTCDate() + 1);
+        const diff = target - now;
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        document.getElementById('price-timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
 
     async function init() {
-        const list = document.getElementById('prediction-list');
-        list.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; font-size:0.6rem;">Calculating Market Forces...</td></tr>';
-        
         try {
             const res = await fetch(PROXY);
             const data = await res.json();
-            data.teams.forEach(t => { teamMap[t.id] = t.short_name; });
+            const teamSelect = document.getElementById('teamFilter');
+            data.teams.forEach(t => { 
+                teamMap[t.id] = t.short_name;
+                const opt = document.createElement('option');
+                opt.value = t.id; opt.innerText = t.name;
+                teamSelect.appendChild(opt);
+            });
 
             playerData = data.elements.map(p => {
                 let net = (p.transfers_in_event - p.transfers_out_event);
                 let ownership = parseFloat(p.selected_by_percent);
-                
-                // 1. Discount Chips (WC/FH)
-                let validTransfers = net * 0.72; 
-
-                // 2. DYNAMIC THRESHOLD LOGIC
-                let dynamicThreshold;
-                
-                if (validTransfers >= 0) {
-                    // RISE Threshold: harder for high ownership players
-                    dynamicThreshold = 4000 + (ownership * 800); 
-                } else {
-                    // FALL Threshold: easier for low ownership, hard for "essential" players
-                    dynamicThreshold = 3000 + (ownership * 1200);
-                }
-
-                // 3. Status/Flag Adjustments
-                if (p.status !== 'a') dynamicThreshold *= 3.0; // Very high resistance for flagged players
-
-                // 4. Calculate Final Target (Capped at 100 for display)
-                let target = (validTransfers / dynamicThreshold) * 100;
-
+                let threshold = (net >= 0) ? (7000 + (ownership * 1800)) : (4800 + (ownership * 2000));
+                if (p.status !== 'a') threshold *= 3.5;
                 return {
                     id: p.id,
                     name: p.web_name,
@@ -138,14 +162,39 @@
                     teamCode: p.team_code,
                     pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
                     price: (p.now_cost / 10).toFixed(1),
-                    target: parseFloat(target.toFixed(1)),
-                    trend: (p.transfers_in_event / 15000).toFixed(2),
+                    target: parseFloat(((net * 0.7) / threshold * 100).toFixed(1)),
+                    trend: (p.transfers_in_event / 18000).toFixed(2),
                     status: p.status
                 };
-            }).sort((a,b) => Math.abs(b.target) - Math.abs(a.target));
+            });
 
-            render();
-        } catch (e) { console.error(e); }
+            document.getElementById('last-update').innerText = new Date().toLocaleTimeString();
+            setSort('rise');
+            setInterval(updateTimer, 1000);
+        } catch (e) {
+            document.getElementById('prediction-list').innerHTML = '<tr><td colspan="5" style="text-align:center;">Error.</td></tr>';
+        }
+    }
+
+    function handleSearch() {
+        const input = document.getElementById('playerSearch');
+        const resetIcon = document.getElementById('resetSearch');
+        resetIcon.style.display = input.value ? 'block' : 'none';
+        render();
+    }
+
+    function resetFilters() {
+        document.getElementById('playerSearch').value = '';
+        document.getElementById('teamFilter').value = 'all';
+        document.getElementById('resetSearch').style.display = 'none';
+        render();
+    }
+
+    function setSort(type) {
+        currentSort = type;
+        document.getElementById('btn-rise').className = 'sort-btn' + (type === 'rise' ? ' active-rise' : '');
+        document.getElementById('btn-fall').className = 'sort-btn' + (type === 'fall' ? ' active-fall' : '');
+        render();
     }
 
     function render() {
@@ -153,42 +202,42 @@
         const searchTerm = document.getElementById('playerSearch').value.toLowerCase();
         const teamFilter = document.getElementById('teamFilter').value;
 
-        const filtered = playerData.filter(p => {
-            const matchesSearch = p.name.toLowerCase().includes(searchTerm);
-            const matchesTeam = teamFilter === "all" || p.teamId == teamFilter;
-            return matchesSearch && matchesTeam;
-        }).slice(0, 50);
+        let displayData = playerData.filter(p => {
+            const matchesName = p.name.toLowerCase().includes(searchTerm);
+            const matchesTeam = teamFilter === "all" || String(p.teamId) === teamFilter;
+            return matchesName && matchesTeam;
+        });
 
-        list.innerHTML = filtered.map(p => {
+        if (currentSort === 'rise') {
+            displayData.sort((a,b) => b.target - a.target);
+        } else {
+            displayData.sort((a,b) => a.target - b.target);
+        }
+
+        list.innerHTML = displayData.slice(0, 50).map(p => {
             const isRise = p.target >= 0;
-            const barColor = isRise ? 'var(--livefpl-green)' : '#ef4444';
-            const flag = (p.status !== 'a') ? '<i class="fa-solid fa-circle-exclamation flag-red"></i>' : '';
+            const barColor = isRise ? 'var(--livefpl-green)' : 'var(--livefpl-red)';
             const barWidth = Math.min(100, Math.abs(p.target));
-
             return `
                 <tr class="player-row">
                     <td class="player-cell">
                         <div class="info-col">
                             <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" class="shirt-img">
-                            <div style="min-width: 0;">
-                                <span class="p-name">${p.name}${flag}</span>
+                            <div>
+                                <span class="p-name">${p.name} ${p.status !== 'a' ? '⚠️' : ''}</span>
                                 <span class="p-meta">${p.pos} £${p.price}</span>
                             </div>
                         </div>
                     </td>
-                    <td class="player-cell" style="color:var(--text-gray); font-weight:600;">${teamMap[p.teamId]}</td>
+                    <td class="player-cell" style="color:var(--text-gray); font-weight:700;">${teamMap[p.teamId]}</td>
                     <td class="player-cell">
-                        <span class="percent-text">${p.target.toFixed(1)}%</span>
+                        <span class="percent-text">${Math.abs(p.target).toFixed(1)}%</span>
                         <div class="progress-wrapper">
                             <div class="progress-fill" style="width: ${barWidth}%; background: ${barColor}"></div>
                         </div>
                     </td>
-                    <td class="player-cell" style="color:var(--text-gray); font-size:0.55rem;">
-                        ${p.target >= 97 ? '<b style="color:black">TONIGHT</b>' : p.target > 80 ? 'Soon' : '-'}
-                    </td>
-                    <td class="player-cell ${isRise ? 'trend-up' : 'trend-down'}">
-                        ${isRise ? '▲' : '▼'}${p.trend}%
-                    </td>
+                    <td class="player-cell" style="font-weight:800;">${Math.abs(p.target) >= 98 ? 'NOW' : Math.abs(p.target) > 85 ? '1d' : '-'}</td>
+                    <td class="player-cell ${isRise ? 'trend-up' : 'trend-down'}">${isRise ? '▲' : '▼'}${p.trend}%</td>
                 </tr>
             `;
         }).join('');
@@ -196,6 +245,7 @@
 
     init();
 </script>
+
     <script src="nav.js"></script>
     <div id="footer-placeholder"></div>
 <script src="footer.js"></script>
