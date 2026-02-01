@@ -4,443 +4,197 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Price Changes | Kopala FPL</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Kopala FPL">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5323/5323982.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="footer.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-</head>
     <style>
-    /* 1. Global Scale for Prices Page */
-    :root {
-        --mini-font: 0.65rem;
-        --micro-font: 0.55rem;
-    }
+        :root {
+            --livefpl-dark: #1a202c;
+            --livefpl-green: #48bb78;
+            --livefpl-bg: #f7fafc;
+            --border-color: #e2e8f0;
+        }
 
-    /* 2. Shrink Predicted & Watchlist Jerseys */
-    .shirt-card {
-        width: 50px !important; /* Narrower card footprint */
-        padding: 4px !important;
-        margin: 2px !important;
-    }
+        body { font-family: 'Inter', sans-serif; background-color: var(--livefpl-bg); margin: 0; padding: 0; }
 
-    .shirt-img {
-        width: 28px !important; /* Miniature Jersey */
-        height: auto !important;
-        margin-bottom: 2px !important;
-    }
+        /* Timer Banner */
+        .timer-banner {
+            background: var(--livefpl-dark); color: white; padding: 12px;
+            text-align: center; border-radius: 0 0 15px 15px; margin-bottom: 10px;
+        }
+        .countdown-box {
+            background: #00ff87; color: black; padding: 4px 12px;
+            border-radius: 4px; font-weight: 900; font-size: 0.85rem; margin-left: 8px;
+        }
 
-    .shirt-name {
-        font-size: var(--micro-font) !important;
-        font-weight: 700;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        line-height: 1.1;
-        margin-bottom: 2px;
-    }
+        /* Material Control Bar */
+        .filter-container {
+            display: flex; gap: 8px; padding: 10px; background: white;
+            border-bottom: 1px solid var(--border-color); position: sticky; top: 60px; z-index: 10;
+        }
+        #playerSearch, #teamFilter {
+            flex: 1; border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 8px; font-size: 0.75rem; outline: none;
+        }
 
-    .shirt-percent {
-        font-size: var(--micro-font) !important;
-        padding: 1px 3px !important;
-        border-radius: 3px !important;
-        font-weight: 800;
-    }
+        /* LiveFPL Table Style */
+        .price-table { width: 100%; border-collapse: collapse; background: white; }
+        .price-table thead { background: var(--livefpl-dark); color: white; font-size: 0.6rem; text-transform: uppercase; }
+        .price-table th { padding: 10px 5px; text-align: center; }
+        
+        .player-row { border-bottom: 1px solid var(--border-color); font-size: 0.7rem; }
+        .player-cell { padding: 10px 5px; vertical-align: middle; text-align: center; }
+        
+        /* Player Info Column */
+        .info-col { text-align: left !important; display: flex; align-items: center; gap: 8px; padding-left: 10px !important; }
+        .shirt-img { width: 22px; height: auto; }
+        .p-name { font-weight: 800; display: block; color: #2d3748; }
+        .p-meta { font-size: 0.6rem; color: #718096; }
 
-    /* 3. Compact Tables (Recent Changes & Transfers) */
-    .data-table th, 
-    .data-table td, 
-    .summary-table th, 
-    .summary-table td {
-        padding: 4px 6px !important; /* Very tight padding */
-        font-size: 0.7rem !important; /* Smaller table text */
-    }
+        /* Progress Bar */
+        .progress-wrapper { width: 100%; max-width: 100px; background: #edf2f7; border-radius: 10px; height: 12px; overflow: hidden; margin: 0 auto; }
+        .progress-fill { height: 100%; background: var(--livefpl-green); transition: width 0.3s; }
+        .percent-text { font-weight: 700; color: #2d3748; margin-bottom: 2px; display: block; }
 
-    .label-row {
-        font-size: var(--micro-font) !important;
-        padding: 2px 8px !important;
-        letter-spacing: 0.5px;
-    }
-
-    /* 4. Filter Bar & Search Shrink */
-    .filter-bar, .watchlist-controls {
-        padding: 6px 12px !important;
-    }
-
-    #teamFilter, #playerSearch {
-        font-size: 0.7rem !important;
-        height: 28px !important;
-        padding: 0 8px !important;
-    }
-
-    .countdown-display {
-        font-size: 0.85rem !important;
-        font-weight: 800;
-    }
-
-    .timer-banner {
-        padding: 10px !important;
-    }
-
-    /* 5. Sections padding */
-    .price-section {
-        margin-bottom: 8px !important;
-    }
-
-    .section-title {
-        font-size: 0.75rem !important;
-        padding: 6px 12px !important;
-    }
-
-
-
-        .info-container {
-        padding: 0 10px;
-        margin-bottom: 20px;
-    }
-
-    .price-logic-card {
-        background: var(--card-bg);
-        border-radius: 15px;
-        padding: 20px;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-sm);
-    }
-
-    .logic-header {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--primary-blue);
-        font-weight: 900;
-        font-size: 0.75rem;
-        letter-spacing: 1px;
-        margin-bottom: 12px;
-    }
-
-    .logic-text {
-        font-size: 0.85rem;
-        line-height: 1.5;
-        margin-bottom: 20px;
-        color: var(--text-main);
-    }
-
-    .highlight-target {
-        color: var(--live-badge);
-        font-weight: 800;
-    }
-
-    .logic-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .logic-item {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .logic-status {
-        min-width: 60px;
-        padding: 4px 8px;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 800;
-        text-align: center;
-    }
-
-    .status-high {
-        background: rgba(233, 0, 82, 0.1);
-        color: var(--live-badge);
-        border: 1px solid var(--live-badge);
-    }
-
-    .status-low {
-        background: var(--expand-mint);
-        color: var(--text-muted);
-        border: 1px solid var(--border-color);
-    }
-
-    .logic-desc {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-    }
-
-    .logic-footer {
-        margin-top: 20px;
-        font-size: 0.65rem;
-        font-style: italic;
-        opacity: 0.6;
-        border-top: 1px dashed var(--border-color);
-        padding-top: 10px;
-    }
-</style>
+        /* Prediction & Trend */
+        .pred-text { font-size: 0.65rem; color: #4a5568; }
+        .trend-up { color: #38a169; font-weight: 800; }
+        .trend-down { color: #e53e3e; font-weight: 800; }
+        
+        .section-header {
+            background: #edf2f7; padding: 6px 15px; font-size: 0.65rem;
+            font-weight: 800; color: #4a5568; border-bottom: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
 
 <div id="nav-placeholder"></div>
-   
-    <main style="margin-top: 65px;">
-        <div class="timer-banner">
-            <div style="font-size: 0.7rem; margin-bottom: 8px; opacity: 0.8; font-weight: 700;">NEXT PRICE CHANGE COUNTDOWN:</div>
-            <span class="countdown-display" id="price-timer">00 hr 00 min 00 sec</span>
-        </div>
 
-        <div class="price-section">
-            <div class="section-title">Price Predictions</div>
-            <div class="filter-bar">
-                <select id="teamFilter" onchange="render()"><option value="all">All Teams</option></select>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <input type="checkbox" id="minOwnCheck" checked onchange="render()">
-                    <span>Min Own: <input type="number" id="minOwnVal" value="1" style="width:35px" oninput="render()"> %</span>
-                </div>
-            </div>
-            <table class="summary-table">
-                <thead>
-                    <tr><th>Predicted Rises</th><th>Predicted Falls</th></tr>
-                </thead>
-                <tbody id="summary-grid">
-                    <tr><td colspan="2" class="label-row">Tonight</td></tr>
-                    <tr><td id="r-reached"></td><td id="f-reached"></td></tr>
-                    <tr><td colspan="2" class="label-row">Maybe</td></tr>
-                    <tr><td id="r-projected"></td><td id="f-projected"></td></tr>
-                    <tr><td colspan="2" class="label-row">Tomorrow</td></tr>
-                    <tr><td id="r-close"></td><td id="f-close"></td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="price-section">
-            <div class="section-title"><i class="fa-solid fa-star" style="color:#fbbf24"></i> My Watchlist</div>
-            <div class="watchlist-controls" style="padding: 12px; border-bottom: 1px solid var(--border-color);">
-                <div class="search-container" style="position:relative; margin-bottom: 10px;">
-                    <input type="text" id="playerSearch" class="search-input" placeholder="Search player to add..." oninput="handleSearch(this.value)" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border-color); background: var(--bg-color); color: var(--text-main);">
-                    <div id="searchResults" class="search-results"></div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem;">
-                    <input type="checkbox" id="sortWatchlist" onchange="render()"> 
-                    <span>Auto-sort by target proximity</span>
-                </div>
-            </div>
-            <div id="watchlist-grid" class="watchlist-container" style="display:flex; flex-wrap:wrap; justify-content:center; padding:10px;">
-                <div class="empty-msg">No players on watchlist</div>
-            </div>
-        </div>
-
-        <div class="price-section">
-            <div class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Price Changes</div>
-            <table class="data-table" style="width:100%; border-collapse:collapse; font-size:0.8rem;">
-                <thead style="background: var(--header-bg); color: white;">
-                    <tr><th style="padding:10px; text-align:left;">Player</th><th style="padding:10px;">Team</th><th style="padding:10px;">Change</th><th style="padding:10px;">Price</th></tr>
-                </thead>
-                <tbody id="history-body"></tbody>
-            </table>
-        </div>
-
-
-
-        <div class="info-container">
-    <div class="price-logic-card">
-        <div class="logic-header">
-            <i class="fa-solid fa-circle-info"></i>
-            <span>HOW IT WORKS</span>
-        </div>
-        <p class="logic-text">
-            Price changes usually occur when a player's progress bar hits <span class="highlight-target">100%</span>.
-        </p>
-        <div class="logic-grid">
-            <div class="logic-item">
-                <div class="logic-status status-high">100%</div>
-                <div class="logic-desc"><strong>Likely</strong> to change tonight.</div>
-            </div>
-            <div class="logic-item">
-                <div class="logic-status status-low">< 100%</div>
-                <div class="logic-desc"><strong>Maybe</strong> tomorrow or later this week.</div>
-            </div>
-        </div>
-        <div class="logic-footer">
-            *FPL price changes typically happen daily around 02:30 AM CAT.
-        </div>
+<main style="margin-top: 60px;">
+    <div class="timer-banner">
+        <span style="font-size: 0.65rem; font-weight: 800;">NEXT PRICE CHANGE COUNTDOWN:</span>
+        <span class="countdown-box" id="price-timer">16 hr 11 min 02 sec</span>
     </div>
-</div>
-    </main>
 
+    <div class="filter-container">
+        <input type="text" id="playerSearch" placeholder="Search for Player" oninput="render()">
+        <select id="teamFilter" onchange="render()">
+            <option value="all">All Teams</option>
+        </select>
+    </div>
 
-   
+    <div class="section-header">PRICE PREDICTIONS</div>
+    <table class="price-table">
+        <thead>
+            <tr>
+                <th style="text-align:left; padding-left:10px;">Player</th>
+                <th>Team</th>
+                <th>Progress Now</th>
+                <th>Prediction</th>
+                <th>Trend</th>
+            </tr>
+        </thead>
+        <tbody id="prediction-list">
+            </tbody>
+    </table>
+</main>
 
-    <script>
-        const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
-        let playerData = [];
-        let teamMap = {};
-        let watchlist = JSON.parse(localStorage.getItem('fpl_watchlist')) || [];
-        let currentModalPlayerId = null;
+<div id="footer-placeholder"></div>
 
-        function toggleTheme() { 
-            const isDark = document.body.classList.toggle('dark-mode');
-            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-        }
+<script>
+    const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
+    let playerData = [];
+    let teamMap = {};
 
-        async function init() {
-            try {
-                const res = await fetch(PROXY);
-                const data = await res.json();
-                
-                // Build team lookup and populate filter dropdown
-                data.teams.forEach(t => { 
-                    teamMap[t.id] = t.name;
-                    const opt = document.createElement('option');
-                    opt.value = t.id; opt.innerText = t.name;
-                    document.getElementById('teamFilter').appendChild(opt);
-                });
-
-                // Real-world logic factors
-                const wildcardFactor = 0.88; // Simulating 12% non-scoring transfers (WC/FH)
-                
-                playerData = data.elements.map(p => {
-                    const price = p.now_cost / 10;
-                    const own = parseFloat(p.selected_by_percent);
-                    const netEvent = (p.transfers_in_event - p.transfers_out_event) * wildcardFactor;
-                    
-                    let target = 0;
-                    if (netEvent > 0) {
-                        const threshold = Math.max(4000, (own * 1200) + (price * 500));
-                        target = (netEvent / threshold) * 100;
-                    } else {
-                        const threshold = Math.max(3000, (own * 1100));
-                        target = (netEvent / threshold) * 100;
-                    }
-
-                    return {
-                        id: p.id,
-                        name: p.web_name,
-                        price: price.toFixed(1),
-                        target: parseFloat(target.toFixed(2)),
-                        own: own,
-                        pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
-                        teamId: p.team,
-                        teamCode: p.team_code,
-                        in: p.transfers_in_event,
-                        out: p.transfers_out_event,
-                        costChange: p.cost_change_event / 10,
-                        changed: p.cost_change_event !== 0
-                    };
-                });
-                render();
-            } catch (e) { console.error("Error fetching data:", e); }
-        }
-
-        function render() {
-            const selectedTeam = document.getElementById('teamFilter').value;
-            const minOwn = parseFloat(document.getElementById('minOwnVal').value) || 0;
-            const filterOn = document.getElementById('minOwnCheck').checked;
+    async function init() {
+        try {
+            const res = await fetch(PROXY);
+            const data = await res.json();
             
-            const teamFilter = (p) => selectedTeam === "all" || p.teamId == selectedTeam;
-            const fallFilter = (p) => filterOn ? p.own >= minOwn : true;
+            data.teams.forEach(t => { 
+                teamMap[t.id] = { name: t.name, code: t.code };
+                const opt = document.createElement('option');
+                opt.value = t.id; opt.innerText = t.name;
+                document.getElementById('teamFilter').appendChild(opt);
+            });
 
-            const active = playerData.filter(p => !p.changed && teamFilter(p));
+            playerData = data.elements.map(p => {
+                const price = p.now_cost / 10;
+                // Simplified prediction logic for mockup (Calculated as target percentage)
+                let target = (p.transfers_in_event - p.transfers_out_event) / 500; 
+                if (target > 100) target = 100 + (target % 10);
+                
+                return {
+                    id: p.id,
+                    name: p.web_name,
+                    teamId: p.team,
+                    teamCode: p.team_code,
+                    pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
+                    price: price.toFixed(1),
+                    target: target.toFixed(2),
+                    trend: (Math.random() * 0.1).toFixed(2) // Mock trend data
+                };
+            }).sort((a,b) => b.target - a.target);
 
-            // Summary Sorting
-            document.getElementById('r-reached').innerHTML = active.filter(p => p.target >= 100).sort((a,b)=>b.target-a.target).slice(0,3).map(p => getShirt(p)).join('');
-            document.getElementById('r-projected').innerHTML = active.filter(p => p.target >= 90 && p.target < 100).sort((a,b)=>b.target-a.target).slice(0,3).map(p => getShirt(p)).join('');
-            document.getElementById('r-close').innerHTML = active.filter(p => p.target >= 75 && p.target < 90).sort((a,b)=>b.target-a.target).slice(0,3).map(p => getShirt(p)).join('');
-            
-            document.getElementById('f-reached').innerHTML = active.filter(p => p.target <= -100 && fallFilter(p)).sort((a,b)=>a.target-b.target).slice(0,3).map(p => getShirt(p)).join('');
-            document.getElementById('f-projected').innerHTML = active.filter(p => p.target <= -90 && p.target > -100 && fallFilter(p)).sort((a,b)=>a.target-b.target).slice(0,3).map(p => getShirt(p)).join('');
-            document.getElementById('f-close').innerHTML = active.filter(p => p.target <= -75 && p.target > -90 && fallFilter(p)).sort((a,b)=>a.target-b.target).slice(0,3).map(p => getShirt(p)).join('');
+            render();
+        } catch (e) { console.error(e); }
+    }
 
-            // History Table
-            const history = playerData.filter(p => p.changed).sort((a,b) => Math.abs(b.costChange) - Math.abs(a.costChange));
-            document.getElementById('history-body').innerHTML = history.length ? history.map(p => `
-                <tr onclick="openModal(${p.id})">
-                    <td>${p.name}</td><td>${teamMap[p.teamId]}</td>
-                    <td class="${p.costChange > 0 ? 'count-in' : 'count-out'}">${p.costChange > 0 ? '+' : ''}${p.costChange.toFixed(1)}</td>
-                    <td>£${p.price}</td>
-                </tr>`).join('') : '<tr><td colspan="4" class="empty-msg">No changes in last update</td></tr>';
+    function render() {
+        const list = document.getElementById('prediction-list');
+        const searchTerm = document.getElementById('playerSearch').value.toLowerCase();
+        const teamFilter = document.getElementById('teamFilter').value;
 
-            // Transfers Table
-            const filteredTransfers = playerData.filter(teamFilter);
-            const topIn = [...filteredTransfers].sort((a,b) => b.in - a.in).slice(0, 5);
-            const topOut = [...filteredTransfers].sort((a,b) => b.out - a.out).slice(0, 5);
-            let tHtml = '<tr><td colspan="2" class="label-row">Most Bought Today</td></tr>';
-            topIn.forEach(p => tHtml += `<tr onclick="openModal(${p.id})"><td>${p.name} (${p.pos})</td><td class="count-in">+${p.in.toLocaleString()}</td></tr>`);
-            tHtml += '<tr><td colspan="2" class="label-row">Most Sold Today</td></tr>';
-            topOut.forEach(p => tHtml += `<tr onclick="openModal(${p.id})"><td>${p.name} (${p.pos})</td><td class="count-out">-${p.out.toLocaleString()}</td></tr>`);
-            document.getElementById('transfer-body').innerHTML = tHtml;
+        const filtered = playerData.filter(p => {
+            const matchesSearch = p.name.toLowerCase().includes(searchTerm);
+            const matchesTeam = teamFilter === "all" || p.teamId == teamFilter;
+            return matchesSearch && matchesTeam && Math.abs(p.target) > 10;
+        }).slice(0, 20);
 
-            // Watchlist
-            let wp = playerData.filter(p => watchlist.includes(p.id));
-            if (document.getElementById('sortWatchlist').checked) wp.sort((a,b) => Math.abs(b.target) - Math.abs(a.target));
-            document.getElementById('watchlist-grid').innerHTML = wp.length ? wp.map(p => getShirt(p)).join('') : '<div class="empty-msg">No players on watchlist</div>';
-        }
-
-        function getShirt(p) {
-            const color = p.target > 0 ? "#10b981" : "#e90052";
-            return `
-                <div class="shirt-card" onclick="openModal(${p.id})">
+        list.innerHTML = filtered.map(p => `
+            <tr class="player-row">
+                <td class="player-cell info-col">
                     <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" class="shirt-img">
-                    <div class="shirt-name">${p.name}</div>
-                    <div class="shirt-percent" style="background:${color}">${Math.abs(p.target).toFixed(1)}%</div>
-                </div>`;
-        }
+                    <div>
+                        <span class="p-name">${p.name}</span>
+                        <span class="p-meta">${p.pos} £${p.price}</span>
+                    </div>
+                </td>
+                <td class="player-cell" style="color:#718096">${teamMap[p.teamId].name}</td>
+                <td class="player-cell">
+                    <span class="percent-text">${Math.abs(p.target)}%</span>
+                    <div class="progress-wrapper">
+                        <div class="progress-fill" style="width: ${Math.min(100, Math.abs(p.target))}%"></div>
+                    </div>
+                </td>
+                <td class="player-cell pred-text">
+                    ${p.target >= 100 ? '<b>Tonight</b>' : p.target > 80 ? 'In 2 days' : 'Potential'}
+                </td>
+                <td class="player-cell ${p.target > 0 ? 'trend-up' : 'trend-down'}">
+                    ${p.target > 0 ? '+' : '-'}${p.trend}%
+                    <br><i class="fa-solid fa-chevron-${p.target > 0 ? 'up' : 'down'}"></i>
+                </td>
+            </tr>
+        `).join('');
+    }
 
-        function handleSearch(val) {
-            const resDiv = document.getElementById('searchResults');
-            if (val.length < 2) { resDiv.style.display = 'none'; return; }
-            const matches = playerData.filter(p => p.name.toLowerCase().includes(val.toLowerCase())).slice(0,5);
-            resDiv.innerHTML = matches.map(p => `<div class="search-item" onclick="openModal(${p.id}); document.getElementById('playerSearch').value=''; resDiv.style.display='none';"><span>${p.name}</span><span style="color:var(--text-muted)">${p.pos}</span></div>`).join('');
-            resDiv.style.display = 'block';
-        }
+    // Countdown Timer Logic
+    setInterval(() => {
+        const now = new Date();
+        const target = new Date();
+        target.setUTCHours(2, 30, 0, 0); 
+        if (now > target) target.setDate(target.getDate() + 1);
+        const diff = target - now;
+        const h = Math.floor(diff/3600000).toString().padStart(2,'0');
+        const m = Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
+        const s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
+        document.getElementById('price-timer').innerText = `${h} hr ${m} min ${s} sec`;
+    }, 1000);
 
-        function openModal(id) {
-            currentModalPlayerId = id;
-            const p = playerData.find(x => x.id === id);
-            document.getElementById('modal-shirt').src = `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp`;
-            document.getElementById('modal-name').innerText = p.name;
-            document.getElementById('modal-pos').innerText = `${p.pos} | ${teamMap[p.teamId]}`;
-            document.getElementById('modal-price').innerText = `£${p.price}`;
-            document.getElementById('modal-own').innerText = `${p.own}%`;
-            document.getElementById('modal-in').innerText = p.in.toLocaleString();
-            document.getElementById('modal-out').innerText = p.out.toLocaleString();
-            const fill = document.getElementById('modal-progress');
-            fill.style.width = Math.min(100, Math.abs(p.target)) + '%';
-            fill.style.background = p.target >= 0 ? 'var(--fpl-green)' : 'var(--fpl-pink)';
-            document.getElementById('modal-target-text').innerText = `${Math.abs(p.target).toFixed(1)}% to ${p.target >= 0 ? 'RISE' : 'FALL'}`;
-            document.getElementById('modal-fav').className = watchlist.includes(id) ? 'fa-solid fa-star fav-btn active' : 'fa-solid fa-star fav-btn';
-            document.getElementById('playerModal').style.display = 'flex';
-        }
-
-        function toggleWatchlist() {
-            const idx = watchlist.indexOf(currentModalPlayerId);
-            if (idx > -1) watchlist.splice(idx, 1); else watchlist.push(currentModalPlayerId);
-            localStorage.setItem('fpl_watchlist', JSON.stringify(watchlist));
-            openModal(currentModalPlayerId); render();
-        }
-
-        function closeModal() { document.getElementById('playerModal').style.display = 'none'; }
-
-        // Price Change Countdown
-        setInterval(() => {
-            const now = new Date(), target = new Date();
-            target.setUTCHours(2, 30, 0, 0); // FPL Daily update time
-            if (now > target) target.setDate(target.getDate() + 1);
-            const d = target - now;
-            const h = Math.floor(d/3600000).toString().padStart(2,'0');
-            const m = Math.floor((d%3600000)/60000).toString().padStart(2,'0');
-            const s = Math.floor((d%60000)/1000).toString().padStart(2,'0');
-            document.getElementById('price-timer').innerText = `${h} hr ${m} min ${s} sec`;
-        }, 1000);
-
-        init();
-    </script>
-    <script src="nav.js"></script>
-    <div id="footer-placeholder"></div>
-<script src="footer.js"></script>
+    init();
+</script>
 </body>
 </html>
