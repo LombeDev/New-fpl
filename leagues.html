@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Elite & Pro Standings | Kopala FPL</title>
+    <title>Pro & Elite Standings | Kopala FPL</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,88 +16,70 @@
 
     <style>
         :root {
-            --mini-font: 0.65rem;
             --m3-surface: #fef7ff;
             --m3-secondary: #eaddff;
             --m3-text: #1d1b20;
             --accent-blue: #2563eb;
+            --pos-up: #008000;
+            --pos-down: #ff0000;
         }
 
         body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: var(--m3-text); }
 
-        /* Controls */
         .controls-wrapper {
-            background: white;
-            padding: 10px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            background: white; padding: 10px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         .select-row { display: flex; flex-direction: column; gap: 10px; padding: 0 15px; }
         .dropdown-group { display: flex; gap: 8px; }
         .select-row select {
-            flex: 1; font-size: 0.75rem; padding: 0 12px; height: 36px;
-            border-radius: 18px; border: 1px solid rgba(0,0,0,0.1);
+            flex: 1; font-size: 0.75rem; padding: 0 12px; height: 38px;
+            border-radius: 19px; border: 1px solid rgba(0,0,0,0.1);
             background: #f1f3f4; font-weight: 600; outline: none;
         }
         #manager-search {
-            width: 100%; padding: 10px 15px; border-radius: 20px;
-            border: 1px solid rgba(0,0,0,0.1); font-size: 0.8rem;
+            width: 100%; padding: 12px 18px; border-radius: 22px;
+            border: 1px solid rgba(0,0,0,0.1); font-size: 0.85rem;
             outline: none; box-sizing: border-box; background: #f1f3f4;
         }
 
-        /* Rows */
-        .manager-row {
-            margin: 6px 10px; background: white; border-radius: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;
-            border: 1px solid transparent;
-        }
-        .manager-row.is-me { border: 2px solid var(--accent-blue); background: #eef2ff; }
-        .row-summary {
-            display: grid; grid-template-columns: 35px 1fr 60px 35px 50px;
-            align-items: center; padding: 10px 12px; cursor: pointer;
-        }
-        .pos-cell { font-weight: 800; font-size: 0.7rem; opacity: 0.6; }
-        .name-cell b { font-size: 0.85rem; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .name-cell small { font-size: 0.65rem; opacity: 0.6; font-weight: 600; text-transform: uppercase; }
+        .manager-row { margin: 8px 12px; background: white; border-radius: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow: hidden; }
+        .manager-row.is-me { border: 2px solid var(--accent-blue); background: #f0f4ff; }
+        
+        .row-summary { display: grid; grid-template-columns: 45px 1fr 65px 35px 55px; align-items: center; padding: 12px; cursor: pointer; }
+        .pos-container { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .pos-cell { font-weight: 800; font-size: 0.75rem; }
+        .move-indicator { font-size: 0.6rem; font-weight: 900; }
+        .move-up { color: var(--pos-up); }
+        .move-down { color: var(--pos-down); }
+        .move-static { color: #999; }
 
-        /* Squad Scroller */
-        .row-expansion { display: none; }
+        .name-cell b { font-size: 0.85rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .name-cell small { font-size: 0.65rem; opacity: 0.6; font-weight: 700; text-transform: uppercase; }
+
+        .row-expansion { display: none; background: var(--m3-surface); border-top: 1px solid #eee; }
         .manager-row.active .row-expansion { display: block; }
-        .squad-scroller {
-            display: flex; overflow-x: auto; padding: 12px; gap: 8px;
-            background: var(--m3-surface); border-top: 1px solid rgba(0,0,0,0.05);
-        }
-        .player-card {
-            min-width: 55px; background: white; border-radius: 12px;
-            padding: 8px 4px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-        }
-        .player-shirt { width: 24px; margin-bottom: 4px; }
-        .player-label { font-size: 0.55rem; font-weight: 800; white-space: nowrap; overflow: hidden; }
-        .player-pts { font-size: 0.75rem; font-weight: 900; color: #38003c; }
+        
+        .squad-scroller { display: flex; overflow-x: auto; padding: 15px 12px; gap: 10px; }
+        .player-card { min-width: 60px; background: white; border-radius: 12px; padding: 10px 5px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .player-shirt { width: 28px; height: auto; margin-bottom: 5px; }
+        .player-label { font-size: 0.55rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .player-pts { font-size: 0.8rem; font-weight: 900; color: #38003c; }
 
-        .table-header {
-            display: grid; grid-template-columns: 35px 1fr 60px 35px 50px;
-            font-size: 0.65rem; text-transform: uppercase; font-weight: 900;
-            padding: 15px 22px 5px 22px; opacity: 0.5;
-        }
+        .table-header { display: grid; grid-template-columns: 45px 1fr 65px 35px 55px; font-size: 0.65rem; text-transform: uppercase; font-weight: 900; padding: 15px 12px 5px 12px; opacity: 0.4; }
     </style>
 </head>
 <body>
-
     <div id="nav-placeholder"></div>
-
     <div class="controls-wrapper">
         <div class="select-row">
             <div class="dropdown-group">
                 <select id="league-select" onchange="loadStandings(this.value)"></select>
                 <select id="sort-criteria">
-                    <option value="total">Total Pts</option>
-                    <option value="event">GW Pts</option>
+                    <option value="total">Overall</option>
+                    <option value="event">Gameweek</option>
                 </select>
             </div>
-            <input type="text" id="manager-search" placeholder="Search team or manager...">
+            <input type="text" id="manager-search" placeholder="Find team or pro player...">
         </div>
     </div>
 
@@ -110,138 +92,105 @@
             playerMap: {},
             liveData: {},
             PROXY: "/.netlify/functions/fpl-proxy?endpoint=",
-            ELITE_LEAGUE_ID: 32885,
-            PLAYER_LEAGUE_ID: 5152 // Official Real EPL Players League
+            ELITE_LEAGUE: 32885,
+            PRO_LEAGUE: 398
         };
 
         async function init() {
             if(!state.fplId) return;
-
             try {
                 const staticRes = await fetch(`${state.PROXY}bootstrap-static/`);
                 const staticData = await staticRes.json();
                 state.currentGW = staticData.events.find(e => e.is_current).id;
-                
                 staticData.elements.forEach(p => {
-                    state.playerMap[p.id] = { 
-                        name: p.web_name, 
-                        team: staticData.teams.find(t => t.id === p.team).code,
-                        pos: p.element_type 
-                    };
+                    state.playerMap[p.id] = { name: p.web_name, team: staticData.teams.find(t => t.id === p.team).code, pos: p.element_type };
                 });
 
                 const liveRes = await fetch(`${state.PROXY}event/${state.currentGW}/live/`);
                 const liveData = await liveRes.json();
-                liveData.elements.forEach(el => {
-                    state.liveData[el.id] = el.stats.total_points;
-                });
+                liveData.elements.forEach(el => { state.liveData[el.id] = el.stats.total_points; });
 
                 const entryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
                 const entryData = await entryRes.json();
-                
                 const select = document.getElementById('league-select');
-                
-                // Add Elite and Real Players to the top
-                let options = `
-                    <option value="${state.ELITE_LEAGUE_ID}">You vs LiveFPL Elite</option>
-                    <option value="${state.PLAYER_LEAGUE_ID}">You vs Real EPL Players</option>
-                `;
-                
+                let options = `<option value="${state.ELITE_LEAGUE}">You vs LiveFPL Elite</option><option value="${state.PRO_LEAGUE}">You vs Real EPL Players</option>`;
                 options += entryData.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
-                
                 select.innerHTML = options;
-                loadStandings(state.ELITE_LEAGUE_ID);
-
+                loadStandings(state.ELITE_LEAGUE);
             } catch (err) { console.error("Init Error:", err); }
+        }
+
+        function getMovement(current, last) {
+            if (!last || current === last) return '<span class="move-indicator move-static"><i class="fa-solid fa-minus"></i></span>';
+            if (current < last) return '<span class="move-indicator move-up"><i class="fa-solid fa-caret-up"></i></span>';
+            return '<span class="move-indicator move-down"><i class="fa-solid fa-caret-down"></i></span>';
         }
 
         async function loadStandings(id) {
             const container = document.getElementById('manager-list-container');
-            container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.5;">Updating Standings...</p>';
-            
+            container.innerHTML = '<p style="text-align:center; padding:50px; opacity:0.5;">Loading Standings...</p>';
             try {
                 const res = await fetch(`${state.PROXY}leagues-classic/${id}/standings/`);
                 const data = await res.json();
                 let results = data.standings.results;
 
-                // Inject YOU logic for custom leagues
-                if (id == state.ELITE_LEAGUE_ID || id == state.PLAYER_LEAGUE_ID) {
+                if (id == state.ELITE_LEAGUE || id == state.PRO_LEAGUE) {
                     const myEntryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
                     const me = await myEntryRes.json();
-                    
                     if (!results.find(r => r.entry == state.fplId)) {
-                        results = [{
-                            entry: state.fplId,
-                            entry_name: me.name,
-                            player_name: `${me.player_first_name} ${me.player_last_name}`,
-                            event_total: me.summary_event_points,
-                            total: me.summary_overall_points,
-                            rank: me.summary_overall_rank
-                        }, ...results];
+                        results = [{ entry: state.fplId, entry_name: me.name, player_name: `${me.player_first_name} ${me.player_last_name}`, event_total: me.summary_event_points, total: me.summary_overall_points, rank: me.summary_overall_rank, last_rank: me.summary_overall_rank }, ...results];
                     }
                 }
 
-                container.innerHTML = `
-                    <div class="table-header">
-                        <span>Pos</span><span>Manager</span><span>Cap</span><span>GW</span><span style="text-align:right">Total</span>
-                    </div>` + 
+                container.innerHTML = `<div class="table-header"><span>Rank</span><span>Manager</span><span>Captain</span><span>GW</span><span style="text-align:right">Total</span></div>` + 
                     results.map((r, i) => {
                         const isMe = r.entry == state.fplId;
+                        const rank = r.rank || i+1;
                         return `
                         <div class="manager-row ${isMe ? 'is-me' : ''}" id="entry-${r.entry}">
                             <div class="row-summary" onclick="expandManager(${r.entry})">
-                                <span class="pos-cell">${r.rank || i+1}</span>
+                                <div class="pos-container">
+                                    <span class="pos-cell">${rank}</span>
+                                    ${getMovement(rank, r.last_rank)}
+                                </div>
                                 <div class="name-cell">
                                     <b>${r.entry_name}</b>
                                     <small>${isMe ? 'YOU' : r.player_name}</small>
                                 </div>
-                                <div id="cap-${r.entry}" style="font-size:0.65rem; font-weight:800; color:var(--accent-blue);">-</div>
+                                <div id="cap-${r.entry}" style="font-size:0.6rem; font-weight:800; color:var(--accent-blue);">-</div>
                                 <span class="gw-pts-cell" style="font-weight:700;">${r.event_total}</span>
-                                <span class="total-pts-cell" style="font-weight:800; text-align:right;">${r.total.toLocaleString()}</span>
+                                <span class="total-pts-cell" style="font-weight:900; text-align:right;">${r.total.toLocaleString()}</span>
                             </div>
                             <div class="row-expansion">
-                                <div id="stats-${r.entry}"></div>
-                                <div class="squad-scroller" id="squad-${r.entry}">
-                                    <p style="padding:10px; font-size:0.7rem; opacity:0.5;">Fetching team...</p>
-                                </div>
+                                <div class="squad-scroller" id="squad-${r.entry}"><p style="padding:15px; font-size:0.7rem; opacity:0.5;">Loading squad...</p></div>
                             </div>
                         </div>`;
                     }).join('');
-            } catch (e) { container.innerHTML = '<p style="text-align:center;">Failed to load.</p>'; }
+            } catch (e) { container.innerHTML = '<p style="text-align:center; padding:30px;">Error loading league.</p>'; }
         }
 
         async function expandManager(entryId) {
             const row = document.getElementById(`entry-${entryId}`);
             const squadBox = document.getElementById(`squad-${entryId}`);
-            const isActive = row.classList.toggle('active');
-
-            if (isActive && !row.dataset.loaded) {
+            if (row.classList.toggle('active') && !row.dataset.loaded) {
                 try {
                     const picksRes = await fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`);
                     const data = await picksRes.json();
-                    
                     squadBox.innerHTML = data.picks.map(p => {
                         const player = state.playerMap[p.element];
                         const pts = (state.liveData[p.element] || 0) * (p.multiplier || 1);
                         if(p.is_captain) document.getElementById(`cap-${entryId}`).textContent = player.name;
-                        
-                        return `
-                            <div class="player-card">
-                                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${player.team}${player.pos === 1 ? '_1' : ''}-66.png" class="player-shirt">
-                                <div class="player-label">${player.name}${p.is_captain ? ' (C)' : ''}</div>
-                                <div class="player-pts">${pts}</div>
-                            </div>`;
+                        return `<div class="player-card"><img src="https://draft.premierleague.com/img/shirts/standard/shirt_${player.team}${player.pos === 1 ? '_1' : ''}-66.png" class="player-shirt"><div class="player-label">${player.name}${p.is_captain ? ' (C)' : ''}</div><div class="player-pts">${pts}</div></div>`;
                     }).join('');
                     row.dataset.loaded = "true";
-                } catch (e) { squadBox.innerHTML = '<p style="padding:10px;">Private</p>'; }
+                } catch (e) { squadBox.innerHTML = '<p style="padding:15px;">Private Data</p>'; }
             }
         }
 
         document.getElementById('manager-search').addEventListener('input', function(e) {
             const term = e.target.value.toLowerCase();
             document.querySelectorAll('.manager-row').forEach(row => {
-                const text = row.querySelector('.name-cell').innerText.toLowerCase();
-                row.style.display = text.includes(term) ? 'block' : 'none';
+                row.style.display = row.innerText.toLowerCase().includes(term) ? 'block' : 'none';
             });
         });
 
