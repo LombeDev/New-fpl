@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Elite Standings | Kopala FPL</title>
+    <title>Elite & Pro Standings | Kopala FPL</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -110,7 +110,8 @@
             playerMap: {},
             liveData: {},
             PROXY: "/.netlify/functions/fpl-proxy?endpoint=",
-            ELITE_LEAGUE_ID: 32885 // LiveFPL's Elite 64 League ID
+            ELITE_LEAGUE_ID: 32885,
+            PLAYER_LEAGUE_ID: 5152 // Official Real EPL Players League
         };
 
         async function init() {
@@ -139,10 +140,16 @@
                 const entryData = await entryRes.json();
                 
                 const select = document.getElementById('league-select');
-                const celebOption = `<option value="${state.ELITE_LEAGUE_ID}">You vs LiveFPL Elite</option>`;
-                const myLeagues = entryData.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
                 
-                select.innerHTML = celebOption + myLeagues;
+                // Add Elite and Real Players to the top
+                let options = `
+                    <option value="${state.ELITE_LEAGUE_ID}">You vs LiveFPL Elite</option>
+                    <option value="${state.PLAYER_LEAGUE_ID}">You vs Real EPL Players</option>
+                `;
+                
+                options += entryData.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+                
+                select.innerHTML = options;
                 loadStandings(state.ELITE_LEAGUE_ID);
 
             } catch (err) { console.error("Init Error:", err); }
@@ -157,8 +164,8 @@
                 const data = await res.json();
                 let results = data.standings.results;
 
-                // Inject YOU into Elite League
-                if (id == state.ELITE_LEAGUE_ID) {
+                // Inject YOU logic for custom leagues
+                if (id == state.ELITE_LEAGUE_ID || id == state.PLAYER_LEAGUE_ID) {
                     const myEntryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
                     const me = await myEntryRes.json();
                     
@@ -206,7 +213,6 @@
         async function expandManager(entryId) {
             const row = document.getElementById(`entry-${entryId}`);
             const squadBox = document.getElementById(`squad-${entryId}`);
-            const statsBox = document.getElementById(`stats-${entryId}`);
             const isActive = row.classList.toggle('active');
 
             if (isActive && !row.dataset.loaded) {
