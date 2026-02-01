@@ -32,64 +32,37 @@
 
         body { font-family: 'Inter', sans-serif; background-color: var(--livefpl-bg); margin: 0; padding: 0; color: var(--text-dark); overflow-x: hidden; }
 
-        /* Countdown Banner */
         .timer-banner { background: var(--livefpl-dark); color: white; padding: 10px; text-align: center; border-radius: 0 0 10px 10px; }
-        .countdown-box { background: var(--livefpl-green); color: black; padding: 3px 10px; border-radius: 4px; font-weight: 900; font-size: 0.8rem; margin-left: 5px; font-variant-numeric: tabular-nums; }
+        .countdown-box { background: var(--livefpl-green); color: black; padding: 3px 10px; border-radius: 4px; font-weight: 900; font-size: 0.8rem; margin-left: 5px; }
         
-        /* Control Hub */
         .control-hub { background: white; border-bottom: 1px solid var(--border-color); padding: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .filter-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
         
         .search-wrapper { position: relative; flex: 2; display: flex; align-items: center; }
-        #playerSearch { width: 100%; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px 30px 8px 8px; font-size: 0.75rem; outline: none; color: var(--text-dark); }
+        #playerSearch { width: 100%; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px 30px 8px 8px; font-size: 0.75rem; outline: none; }
         .reset-icon { position: absolute; right: 10px; color: var(--text-gray); cursor: pointer; font-size: 0.8rem; display: none; }
-
-        #teamFilter { flex: 1.2; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 0.75rem; background: white; outline: none; color: var(--text-dark); }
+        #teamFilter { flex: 1.2; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 0.75rem; background: white; outline: none; }
         
-        /* Ripple Buttons */
         .sort-row { display: flex; gap: 8px; }
-        .sort-btn { 
-            position: relative; 
-            overflow: hidden; 
-            flex: 1; 
-            border: 1px solid var(--border-color); 
-            padding: 10px; 
-            border-radius: 8px; 
-            font-size: 0.65rem; 
-            font-weight: 800; 
-            cursor: pointer; 
-            background: #f8fafc; 
-            color: var(--text-gray); 
-            transition: background 0.3s;
-        }
+        .sort-btn { position: relative; overflow: hidden; flex: 1; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; font-size: 0.65rem; font-weight: 800; cursor: pointer; background: #f8fafc; color: var(--text-gray); }
         .sort-btn.active-rise { background: var(--livefpl-green); color: black; border-color: var(--livefpl-green); }
         .sort-btn.active-fall { background: var(--livefpl-red); color: white; border-color: var(--livefpl-red); }
 
-        .ripple {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
-            transform: scale(0);
-            animation: ripple-animation 0.6s linear;
-            pointer-events: none;
-        }
-        @keyframes ripple-animation {
-            to { transform: scale(4); opacity: 0; }
-        }
+        .ripple { position: absolute; background: rgba(255, 255, 255, 0.4); border-radius: 50%; transform: scale(0); animation: ripple-animation 0.6s linear; pointer-events: none; }
+        @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
 
-        /* Material Spinner */
-        .spinner-container { display: flex; justify-content: center; align-items: center; padding: 60px; width: 100%; }
+        /* UPDATED SMALL SPINNER */
+        .spinner-container { display: flex; justify-content: center; align-items: center; padding: 25px; width: 100%; }
         .md-spinner {
-            width: 48px;
-            height: 48px;
-            border: 5px solid #e0e0e0;
-            border-top: 5px solid var(--md-sys-color-primary);
+            width: 24px; /* Reduced from 48px */
+            height: 24px; /* Reduced from 48px */
+            border: 3px solid #e0e0e0;
+            border-top: 3px solid var(--md-sys-color-primary);
             border-radius: 50%;
-            animation: md-spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            animation: md-spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
         @keyframes md-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* Table */
         .price-table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; }
         .price-table thead { background: var(--livefpl-dark); color: white; font-size: 0.55rem; text-transform: uppercase; }
         .price-table th { padding: 12px 2px; font-weight: 800; }
@@ -198,24 +171,19 @@
         try {
             const res = await fetch(PROXY);
             const data = await res.json();
-            const teamSelect = document.getElementById('teamFilter');
-            
             data.teams.forEach(t => { 
                 teamMap[t.id] = t.short_name;
                 const opt = document.createElement('option');
                 opt.value = t.id; opt.innerText = t.name;
-                teamSelect.appendChild(opt);
+                document.getElementById('teamFilter').appendChild(opt);
             });
 
             playerData = data.elements.map(p => {
                 let net = (p.transfers_in_event - p.transfers_out_event);
                 let ownership = parseFloat(p.selected_by_percent);
-                // Source-based threshold logic
+                let validTransfers = net * 0.70;
                 let threshold = (net >= 0) ? (7500 + (ownership * 1800)) : (5000 + (ownership * 2000));
-                
-                // Flag Resistance Logic
-                if (p.status !== 'a') threshold *= 3.5; 
-                // Special Resistance (Anomalies)
+                if (p.status !== 'a') threshold *= 3.5;
                 if (p.web_name === "Haaland" || p.web_name === "Solanke") threshold *= 1.25;
 
                 return {
@@ -225,7 +193,7 @@
                     teamCode: p.team_code,
                     pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
                     price: (p.now_cost / 10).toFixed(1),
-                    target: parseFloat(((net * 0.7) / threshold * 100).toFixed(1)),
+                    target: parseFloat((validTransfers / threshold * 100).toFixed(1)),
                     trend: (p.transfers_in_event / 18000).toFixed(2),
                     status: p.status
                 };
@@ -243,7 +211,7 @@
         document.getElementById('prediction-list').innerHTML = `
             <tr><td colspan="5"><div class="spinner-container"><div class="md-spinner"></div></div></td></tr>
         `;
-        setTimeout(render, 400);
+        setTimeout(render, 300);
     }
 
     function handleSearch() {
@@ -313,6 +281,7 @@
         }).join('') || '<tr><td colspan="5" style="text-align:center; padding:20px;">No matches.</td></tr>';
     }
 
+   
     init();
 </script>
 
