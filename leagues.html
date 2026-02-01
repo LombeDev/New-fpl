@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pro & Elite Standings | Kopala FPL</title>
+    <title>Elite Standings | Kopala FPL</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -79,7 +79,7 @@
                     <option value="event">Gameweek</option>
                 </select>
             </div>
-            <input type="text" id="manager-search" placeholder="Find team or pro player...">
+            <input type="text" id="manager-search" placeholder="Find team or expert...">
         </div>
     </div>
 
@@ -92,8 +92,7 @@
             playerMap: {},
             liveData: {},
             PROXY: "/.netlify/functions/fpl-proxy?endpoint=",
-            ELITE_LEAGUE: 32885,
-            PRO_LEAGUE: 398
+            ELITE_LEAGUE: 32885
         };
 
         async function init() {
@@ -113,8 +112,10 @@
                 const entryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
                 const entryData = await entryRes.json();
                 const select = document.getElementById('league-select');
-                let options = `<option value="${state.ELITE_LEAGUE}">You vs LiveFPL Elite</option><option value="${state.PRO_LEAGUE}">You vs Real EPL Players</option>`;
+                
+                let options = `<option value="${state.ELITE_LEAGUE}">You vs LiveFPL Elite</option>`;
                 options += entryData.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+                
                 select.innerHTML = options;
                 loadStandings(state.ELITE_LEAGUE);
             } catch (err) { console.error("Init Error:", err); }
@@ -134,11 +135,19 @@
                 const data = await res.json();
                 let results = data.standings.results;
 
-                if (id == state.ELITE_LEAGUE || id == state.PRO_LEAGUE) {
+                if (id == state.ELITE_LEAGUE) {
                     const myEntryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
                     const me = await myEntryRes.json();
                     if (!results.find(r => r.entry == state.fplId)) {
-                        results = [{ entry: state.fplId, entry_name: me.name, player_name: `${me.player_first_name} ${me.player_last_name}`, event_total: me.summary_event_points, total: me.summary_overall_points, rank: me.summary_overall_rank, last_rank: me.summary_overall_rank }, ...results];
+                        results = [{ 
+                            entry: state.fplId, 
+                            entry_name: me.name, 
+                            player_name: `${me.player_first_name} ${me.player_last_name}`, 
+                            event_total: me.summary_event_points, 
+                            total: me.summary_overall_points, 
+                            rank: me.summary_overall_rank, 
+                            last_rank: me.summary_overall_rank 
+                        }, ...results];
                     }
                 }
 
