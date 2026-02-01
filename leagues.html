@@ -22,101 +22,118 @@
             --m3-surface: #fef7ff;
             --m3-secondary: #eaddff;
             --m3-text: #1d1b20;
+            --accent-blue: #2563eb;
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: var(--m3-text); }
 
-        /* 2. Controls */
+        /* 2. Controls - Pill Layout */
+        .controls-wrapper {
+            background: white;
+            padding: 10px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
         .select-row {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 10px;
+            padding: 0 15px;
+        }
+
+        .dropdown-group {
+            display: flex;
             gap: 8px;
-            padding: 10px 15px;
-            align-items: center;
         }
 
         .select-row select {
-            font-size: 0.7rem !important;
-            padding: 0 12px !important;
-            height: 32px !important;
-            border-radius: 16px !important;
+            flex: 1;
+            font-size: 0.75rem;
+            padding: 0 12px;
+            height: 36px;
+            border-radius: 18px;
             border: 1px solid rgba(0,0,0,0.1);
-            background: white;
+            background: #f1f3f4;
             font-weight: 600;
+            outline: none;
         }
 
         #manager-search {
-            flex: 1;
-            min-width: 200px;
-            padding: 8px 15px;
+            width: 100%;
+            padding: 10px 15px;
             border-radius: 20px;
             border: 1px solid rgba(0,0,0,0.1);
             font-size: 0.8rem;
             outline: none;
+            box-sizing: border-box;
+            background: #f1f3f4;
         }
 
         /* 3. Manager Rows */
         .manager-row {
-            margin: 4px 10px;
+            margin: 6px 10px;
             background: white;
             border-radius: 16px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             overflow: hidden;
+            border: 1px solid transparent;
         }
 
         .manager-row.is-me {
-            border: 2px solid #2563eb !important;
+            border: 2px solid var(--accent-blue);
             background: var(--m3-secondary);
         }
 
         .row-summary {
             display: grid;
-            grid-template-columns: 25px 1fr 55px 35px 45px;
+            grid-template-columns: 35px 1fr 60px 35px 50px;
             align-items: center;
-            padding: 8px 12px;
-            min-height: 44px;
+            padding: 10px 12px;
+            min-height: 48px;
             cursor: pointer;
         }
 
-        .pos-cell { font-weight: 800; font-size: 0.7rem; opacity: 0.5; }
-        .name-cell b { font-size: 0.8rem; color: var(--m3-text); letter-spacing: -0.2px; }
-        .name-cell small { font-size: 0.6rem; opacity: 0.6; font-weight: 500; text-transform: uppercase; display: block; }
+        .pos-cell { font-weight: 800; font-size: 0.7rem; opacity: 0.6; }
+        .name-cell b { font-size: 0.85rem; color: var(--m3-text); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .name-cell small { font-size: 0.65rem; opacity: 0.6; font-weight: 600; text-transform: uppercase; }
 
-        /* 4. Horizontal Squad Scroller (Reverting to original grid) */
+        /* 4. Squad Scroller Grid */
+        .row-expansion { display: none; }
+        .manager-row.active .row-expansion { display: block; }
+
         .squad-scroller {
             display: flex;
             overflow-x: auto;
-            padding: 10px;
-            gap: 6px;
+            padding: 12px;
+            gap: 8px;
             background: var(--m3-surface);
-            border-top: 1px solid rgba(0,0,0,0.03);
-            scrollbar-width: none; /* Hide scrollbar Firefox */
+            border-top: 1px solid rgba(0,0,0,0.05);
+            -webkit-overflow-scrolling: touch;
         }
-        .squad-scroller::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome/Safari */
 
         .player-card {
-            min-width: 52px;
+            min-width: 55px;
             background: white;
             border-radius: 12px;
             padding: 8px 4px;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            flex-shrink: 0;
         }
 
         .player-shirt {
-            width: 22px !important;
-            height: auto !important;
+            width: 24px;
+            height: auto;
             margin-bottom: 4px;
-            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
         }
 
         .player-label {
             font-size: 0.55rem;
             font-weight: 800;
-            color: #444;
+            color: #333;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -124,39 +141,37 @@
         }
 
         .player-pts {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 900;
             color: #38003c;
         }
 
-        /* 5. Expansion & Stats */
-        .row-expansion { display: none; }
-        .manager-row.active .row-expansion { display: block; }
-
+        /* 5. Stats Bar */
         .squad-stats-bar {
             display: flex;
-            gap: 6px;
-            padding: 8px 12px;
+            gap: 8px;
+            padding: 8px 15px;
             background: var(--m3-surface);
         }
 
         .stat-pill {
-            font-size: 0.55rem;
-            padding: 3px 8px;
+            font-size: 0.6rem;
+            padding: 4px 10px;
             border-radius: 20px;
             background: var(--m3-secondary);
             color: #21005d;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .table-header {
             display: grid;
-            grid-template-columns: 25px 1fr 55px 35px 45px;
-            font-size: 0.6rem;
+            grid-template-columns: 35px 1fr 60px 35px 50px;
+            font-size: 0.65rem;
             text-transform: uppercase;
             font-weight: 900;
-            padding: 10px 22px;
-            opacity: 0.4;
+            padding: 15px 22px 5px 22px;
+            opacity: 0.5;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
@@ -166,12 +181,14 @@
 
     <div class="controls-wrapper">
         <div class="select-row">
-            <select id="league-select" onchange="loadStandings(this.value)"></select>
-            <select id="sort-criteria">
-                <option value="total">Total Pts</option>
-                <option value="event">GW Pts</option>
-            </select>
-            <input type="text" id="manager-search" placeholder="Search manager or team...">
+            <div class="dropdown-group">
+                <select id="league-select" onchange="loadStandings(this.value)"></select>
+                <select id="sort-criteria">
+                    <option value="total">Total Pts</option>
+                    <option value="event">GW Pts</option>
+                </select>
+            </div>
+            <input type="text" id="manager-search" placeholder="Search team or manager...">
         </div>
     </div>
 
@@ -179,7 +196,7 @@
 
     <script>
         const state = {
-            fplId: localStorage.getItem('kopala_id') || '13812',
+            fplId: localStorage.getItem('kopala_id'),
             currentGW: 1,
             playerMap: {},
             liveData: {},
@@ -187,7 +204,10 @@
         };
 
         async function init() {
+            if(!state.fplId) return alert("Please set your FPL ID first");
+
             try {
+                // Fetch Static Data
                 const staticRes = await fetch(`${state.PROXY}bootstrap-static/`);
                 const staticData = await staticRes.json();
                 state.currentGW = staticData.events.find(e => e.is_current).id;
@@ -200,52 +220,82 @@
                     };
                 });
 
+                // Fetch Live Points
                 const liveRes = await fetch(`${state.PROXY}event/${state.currentGW}/live/`);
                 const liveData = await liveRes.json();
                 liveData.elements.forEach(el => {
                     state.liveData[el.id] = el.stats.total_points;
                 });
 
+                // Fetch Manager Leagues
                 const entryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
                 const entryData = await entryRes.json();
+                
                 const select = document.getElementById('league-select');
                 const celebOption = `<option value="314">You vs FPL Celebs</option>`;
-                select.innerHTML = celebOption + entryData.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+                const myLeagues = entryData.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
                 
+                select.innerHTML = celebOption + myLeagues;
+                
+                // Default Load
                 loadStandings(314);
-            } catch (err) { console.error(err); }
+
+            } catch (err) { console.error("Initialization failed", err); }
         }
 
         async function loadStandings(id) {
             const container = document.getElementById('manager-list-container');
-            container.innerHTML = '<p style="text-align:center; padding:30px;">Fetching Standings...</p>';
+            container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.5;">Updating Standings...</p>';
+            
             try {
                 const res = await fetch(`${state.PROXY}leagues-classic/${id}/standings/`);
                 const data = await res.json();
+                let results = data.standings.results;
+
+                // Logic to inject the user into the Celebs league
+                if (id == 314) {
+                    const myEntryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
+                    const me = await myEntryRes.json();
+                    
+                    if (!results.find(r => r.entry == state.fplId)) {
+                        results = [{
+                            entry: state.fplId,
+                            entry_name: me.name,
+                            player_name: `${me.player_first_name} ${me.player_last_name}`,
+                            event_total: me.summary_event_points,
+                            total: me.summary_overall_points,
+                            rank: me.summary_overall_rank
+                        }, ...results];
+                    }
+                }
+
                 container.innerHTML = `
                     <div class="table-header">
                         <span>Pos</span><span>Manager</span><span>Cap</span><span>GW</span><span style="text-align:right">Total</span>
                     </div>` + 
-                    data.standings.results.map((r, i) => {
+                    results.map((r, i) => {
                         const isMe = r.entry == state.fplId;
                         return `
                         <div class="manager-row ${isMe ? 'is-me' : ''}" id="entry-${r.entry}">
                             <div class="row-summary" onclick="expandManager(${r.entry})">
-                                <span class="pos-cell">${i+1}</span>
-                                <div class="name-cell"><b>${r.entry_name}</b><small>${isMe ? 'YOU' : r.player_name}</small></div>
-                                <div id="cap-${r.entry}" style="font-size:0.7rem; font-weight:bold;">-</div>
-                                <span class="gw-pts-cell">${r.event_total}</span>
-                                <span class="total-pts-cell">${r.total.toLocaleString()}</span>
+                                <span class="pos-cell">${r.rank || i+1}</span>
+                                <div class="name-cell">
+                                    <b>${r.entry_name}</b>
+                                    <small>${isMe ? 'YOU' : r.player_name}</small>
+                                </div>
+                                <div id="cap-${r.entry}" style="font-size:0.65rem; font-weight:800; color:var(--accent-blue);">-</div>
+                                <span class="gw-pts-cell" style="font-weight:700;">${r.event_total}</span>
+                                <span class="total-pts-cell" style="font-weight:800; text-align:right;">${r.total.toLocaleString()}</span>
                             </div>
                             <div class="row-expansion">
                                 <div id="stats-${r.entry}"></div>
                                 <div class="squad-scroller" id="squad-${r.entry}">
-                                    <p style="padding:10px; font-size:0.7rem;">Loading team...</p>
+                                    <p style="padding:10px; font-size:0.7rem; opacity:0.5;">Fetching team...</p>
                                 </div>
                             </div>
                         </div>`;
                     }).join('');
-            } catch (e) { container.innerHTML = '<p>Error.</p>'; }
+            } catch (e) { container.innerHTML = '<p style="text-align:center;">Failed to load standings.</p>'; }
         }
 
         async function expandManager(entryId) {
@@ -263,12 +313,14 @@
                         <div class="squad-stats-bar">
                             <div class="stat-pill">Bank <b>£${(data.entry_history.bank/10).toFixed(1)}</b></div>
                             <div class="stat-pill">Hits <b>-${data.entry_history.event_transfers_cost}</b></div>
+                            <div class="stat-pill">Rank <b>#${data.entry_history.overall_rank.toLocaleString()}</b></div>
                         </div>`;
 
                     squadBox.innerHTML = data.picks.map(p => {
                         const player = state.playerMap[p.element];
                         const pts = (state.liveData[p.element] || 0) * (p.multiplier || 1);
                         if(p.is_captain) document.getElementById(`cap-${entryId}`).textContent = player.name;
+                        
                         return `
                             <div class="player-card">
                                 <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${player.team}${player.pos === 1 ? '_1' : ''}-66.png" class="player-shirt">
@@ -276,14 +328,18 @@
                                 <div class="player-pts">${pts}</div>
                             </div>`;
                     }).join('');
+                    
                     row.dataset.loaded = "true";
-                } catch (e) { squadBox.innerHTML = 'Error.'; }
+                } catch (e) { squadBox.innerHTML = '<p style="padding:10px;">Private Squad</p>'; }
             }
         }
 
+        // Live Search Handler
         document.getElementById('manager-search').addEventListener('input', function(e) {
             const term = e.target.value.toLowerCase();
-            document.querySelectorAll('.manager-row').forEach(row => {
+            const rows = document.querySelectorAll('.manager-row');
+            
+            rows.forEach(row => {
                 const text = row.querySelector('.name-cell').innerText.toLowerCase();
                 row.style.display = text.includes(term) ? 'block' : 'none';
             });
