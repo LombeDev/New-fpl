@@ -4,11 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Elite Standings | Kopala FPL</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kopala FPL">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5323/5323982.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="footer.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -18,9 +25,22 @@
             --pos-up: #00e676;
             --pos-down: #ff1744;
             --chip-bg: #f1f3f4;
+            --md-sys-color-primary: #006a60; /* Material You Teal */
         }
 
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
+
+        /* MATERIAL YOU SPINNER STYLES */
+        .spinner-container { display: flex; justify-content: center; align-items: center; padding: 40px; width: 100%; }
+        .md-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #e0e0e0;
+            border-top: 3px solid var(--md-sys-color-primary);
+            border-radius: 50%;
+            animation: md-spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        @keyframes md-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         /* Material You Style Controls */
         .controls-wrapper {
@@ -131,7 +151,9 @@
         </div>
     </div>
 
-    <div id="manager-list-container"></div>
+    <div id="manager-list-container">
+        <div class="spinner-container"><div class="md-spinner"></div></div>
+    </div>
 
     <script>
         const state = {
@@ -142,6 +164,9 @@
             PROXY: "/.netlify/functions/fpl-proxy?endpoint=",
             ELITE_LEAGUE: 32885
         };
+
+        // Shared spinner HTML template
+        const loadingHtml = '<div class="spinner-container"><div class="md-spinner"></div></div>';
 
         async function init() {
             if(!state.fplId) return;
@@ -179,7 +204,8 @@
 
         async function loadStandings(leagueId) {
             const container = document.getElementById('manager-list-container');
-            container.innerHTML = '<p style="text-align:center; padding:20px; font-size:0.7rem;">Loading...</p>';
+            container.innerHTML = loadingHtml; // Show spinner during fetch
+            
             try {
                 const res = await fetch(`${state.PROXY}leagues-classic/${leagueId}/standings/`);
                 const data = await res.json();
@@ -224,7 +250,9 @@
                             <div class="row-expansion"></div>
                         </div>`;
                     }).join('');
-            } catch (e) {}
+            } catch (e) {
+                container.innerHTML = '<p style="text-align:center; padding:20px;">Error loading standings.</p>';
+            }
         }
 
         async function fetchManagerDetails(entryId) {
@@ -261,6 +289,9 @@
             const expansionArea = row.querySelector('.row-expansion');
             
             if (row.classList.toggle('active') && !row.dataset.loaded) {
+                // Individual row mini-spinner while loading squad details
+                expansionArea.innerHTML = loadingHtml; 
+                
                 try {
                     const [picksRes, entryRes] = await Promise.all([
                         fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`),
@@ -313,7 +344,7 @@
 
                     expansionArea.innerHTML = statsHeader + `<div class="squad-scroller">${squadHtml}</div>`;
                     row.dataset.loaded = "true";
-                } catch (e) { console.error(e); }
+                } catch (e) { expansionArea.innerHTML = 'Error loading squad.'; }
             }
         }
 
