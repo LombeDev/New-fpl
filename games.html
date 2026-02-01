@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="footer.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
       <style>
+
+
         :root {
             --bg-color: #f3f4f6;
             --card-bg: #ffffff;
@@ -25,9 +27,9 @@
             --border-color: #e2e8f0;
             --done-badge: #1e3a8a;
             --live-badge: #e90052; 
-            --expand-mint: #f1f5f9;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --expand-mint: #f8fafc;
+            --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+            --md-sys-color-primary: #006a60;
         }
 
         body.dark-mode {
@@ -39,92 +41,50 @@
             --expand-mint: #2d3748;
         }
 
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        body { margin: 0; background-color: var(--bg-color); color: var(--text-main); font-family: 'Inter', sans-serif; transition: background 0.3s ease; }
+        .page-content { padding-top: 20px; padding-bottom: 100px; max-width: 600px; margin: 0 auto; padding-left: 10px; padding-right: 10px; }
 
-        body {
-            margin: 0; padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            transition: background 0.3s ease;
-        }
+        /* --- SPINNER --- */
+        .spinner-container { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 60vh; width: 100%; }
+        .md-spinner { width: 32px; height: 32px; border: 3.5px solid rgba(0,0,0,0.1); border-top: 3.5px solid var(--md-sys-color-primary); border-radius: 50%; animation: md-spin 0.8s infinite linear; }
+        @keyframes md-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* --- TOP NAV --- */
-        .top-nav {
-            position: fixed; top: 0; width: 100%; height: 60px;
-            background: var(--card-bg); border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 15px; z-index: 3000;
-        }
-        .logo-container { font-weight: 900; font-size: 1.4rem; letter-spacing: -1px; }
-        .logo-container span { color: var(--fpl-green); }
-        .nav-right { display: flex; gap: 15px; }
-        .nav-icon-btn { font-size: 1.2rem; color: var(--text-main); cursor: pointer; }
-
-        /* --- CONTENT --- */
-        .page-content { padding-top: 70px; padding-bottom: 100px; max-width: 600px; margin: 0 auto; padding-left: 10px; padding-right: 10px; }
-        
-        /* --- MATERIAL DESIGN TABS --- */
-        .gw-tabs { 
-            display: flex; 
-            gap: 12px; 
-            margin: 20px 0; 
-            background: transparent;
-        }
-        .gw-tab {
-            flex: 1; 
-            padding: 14px; 
-            text-align: center; 
-            border-radius: 12px;
-            background: var(--card-bg); 
-            border: none;
-            font-size: 0.85rem; 
-            font-weight: 700; 
-            cursor: pointer; 
-            color: var(--text-muted);
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .gw-tab.active { 
-            background: var(--primary-blue); 
-            color: white; 
-            box-shadow: var(--shadow-md);
-            transform: translateY(-1px);
-        }
-        .gw-tab:active {
-            transform: scale(0.98);
-        }
-
-        .gw-header { border-left: 4px solid var(--fpl-green); padding-left: 10px; margin-bottom: 15px; font-size: 1.1rem; font-weight: 800; }
+        /* --- TABS --- */
+        .gw-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .gw-tab { flex: 1; padding: 12px; text-align: center; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--border-color); font-size: 0.75rem; font-weight: 800; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
+        .gw-tab.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
 
         /* MATCH CARD */
-        .m-card { background: var(--card-bg); border-radius: 15px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
-        .m-main { display: flex; align-items: center; justify-content: space-between; padding: 15px 10px; }
+        .m-card { background: var(--card-bg); border-radius: 20px; margin-bottom: 16px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow-md); }
+        .m-time-bar { font-size: 0.65rem; font-weight: 700; text-align: center; padding: 8px; opacity: 0.6; letter-spacing: 0.5px; border-bottom: 1px solid var(--border-color); }
+        .m-main { display: flex; align-items: center; justify-content: space-between; padding: 20px 10px; }
         .team-box { flex: 1; text-align: center; }
+        .kit-img { width: 36px; height: auto; margin-bottom: 6px; }
+        .team-name { font-weight: 900; font-size: 0.75rem; display: block; color: var(--text-main); }
         
-        /* SMALLER JERSEY SIZE */
-        .kit-img { width: 32px; height: auto; margin-bottom: 8px; opacity: 0.9; }
-        
-        .team-name { font-weight: 800; font-size: 0.7rem; display: block; text-transform: uppercase; color: var(--text-muted); }
         .score-center { flex: 1.2; text-align: center; }
-        .status-badge { color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 0.6rem; font-weight: 900; display: inline-block; margin-bottom: 8px; text-transform: uppercase; }
-        .badge-done { background: var(--done-badge); }
-        .badge-live { background: var(--live-badge); animation: pulse 2s infinite; }
-        .badge-sched { background: var(--text-muted); }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; display: inline-block; margin-bottom: 8px; }
+        .badge-done { background: rgba(30, 58, 138, 0.1); color: var(--done-badge); }
+        .badge-live { background: rgba(233, 0, 82, 0.1); color: var(--live-badge); animation: pulse 2s infinite; }
         .score-val { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; }
         
-        .m-footer { background: var(--bg-color); padding: 12px; font-size: 0.65rem; text-align: center; border-top: 1px solid var(--border-color); color: var(--text-muted); line-height: 1.6; }
+        /* EVENTS (GOALS/ASSISTS) */
+        .m-events { background: var(--expand-mint); padding: 12px; font-size: 0.65rem; border-top: 1px solid var(--border-color); }
+        .event-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .event-side { display: flex; flex-direction: column; gap: 4px; }
+        .event-item { display: flex; align-items: center; gap: 4px; font-weight: 600; opacity: 0.9; }
+        .event-side.home { align-items: flex-start; text-align: left; }
+        .event-side.away { align-items: flex-end; text-align: right; }
+        
+        /* BONUS SECTION */
+        .m-footer { background: var(--card-bg); padding: 10px; font-size: 0.6rem; text-align: center; border-top: 1px dashed var(--border-color); color: var(--text-muted); }
         .bonus-player { margin: 0 4px; font-weight: 700; color: var(--text-main); }
-        .pts-pill { background: var(--primary-blue); color: #fff; padding: 1px 4px; border-radius: 3px; margin-left: 3px; }
+        .pts-pill { background: var(--primary-blue); color: #fff; padding: 1px 4px; border-radius: 4px; margin-left: 2px; }
 
-        .expand-btn { background: var(--expand-mint); border: none; width: 100%; padding: 12px; font-size: 0.7rem; font-weight: 700; color: var(--text-main); cursor: pointer; border-top: 1px solid var(--border-color); }
-        .drawer { display: none; padding: 5px 15px; background: var(--card-bg); }
+        .expand-btn { background: var(--card-bg); border: none; width: 100%; padding: 10px; font-size: 0.65rem; font-weight: 800; color: var(--primary-blue); cursor: pointer; border-top: 1px solid var(--border-color); }
+        .drawer { display: none; padding: 10px; background: var(--expand-mint); }
         .drawer.active { display: block; }
-        .own-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); font-size: 0.8rem; }
-        .live-pts-badge { background: var(--fpl-green); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; }
+        .own-row { display: flex; justify-content: space-between; padding: 8px 5px; border-bottom: 1px solid var(--border-color); font-size: 0.75rem; }
     </style>
 </head>
 <body>
@@ -132,12 +92,21 @@
     <div id="nav-placeholder"></div>
 
     <main class="page-content">
-        <div class="gw-tabs">
-            <div id="tab-curr" class="gw-tab active" onclick="switchGW('curr')">Current GW</div>
-            <div id="tab-next" class="gw-tab" onclick="switchGW('next')">Next GW</div>
+        <div id="loading-state">
+            <div class="spinner-container">
+                <div class="md-spinner"></div>
+                <div class="loading-text">Live Match Center</div>
+            </div>
         </div>
-        <div id="gw-display-header" class="gw-header">Loading Gameweek...</div>
-        <div id="games-list"></div>
+
+        <div id="main-content" style="display: none;">
+            <div class="gw-tabs">
+                <div id="tab-curr" class="gw-tab active" onclick="switchGW('curr')">Current GW</div>
+                <div id="tab-next" class="gw-tab" onclick="switchGW('next')">Next GW</div>
+            </div>
+            <div id="gw-display-header" style="font-weight: 900; margin-bottom: 15px; font-size: 1.2rem;"></div>
+            <div id="games-list"></div>
+        </div>
     </main>
 
     <div id="footer-placeholder"></div>
@@ -151,9 +120,6 @@
         const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
 
         async function init() {
-            const icon = document.getElementById('refresh-icon');
-            if(icon) icon.classList.add('fa-spin');
-            
             try {
                 const bootRes = await fetch(`${PROXY}bootstrap-static/`);
                 const bootData = await bootRes.json();
@@ -170,19 +136,46 @@
                 nextFixtures = await nextRes.json();
 
                 switchGW('curr'); 
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+
             } catch (err) {
                 console.error(err);
-                document.getElementById('gw-display-header').innerText = "Failed to load fixtures";
-            } finally {
-                if(icon) icon.classList.remove('fa-spin');
             }
+        }
+
+        function formatMatchTime(kickoff) {
+            const date = new Date(kickoff);
+            return date.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' }) + ' ' + 
+                   date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function getMatchMinute(f) {
+            if (f.finished) return 'FT';
+            if (!f.started) return 'Scheduled';
+            // Simple calculation for live minute
+            const start = new Date(f.kickoff_time);
+            const now = new Date();
+            let diff = Math.floor((now - start) / 60000);
+            if (diff > 45 && diff < 60) return "HT";
+            if (diff >= 60) diff -= 15; // Rough estimate for halftime
+            return diff > 90 ? "90+" : diff + "'";
+        }
+
+        function getEvents(f, type) {
+            const stat = f.stats.find(s => s.identifier === type);
+            if (!stat) return { h: [], a: [] };
+            const getPlayerName = (id) => players.find(p => p.id === id)?.web_name || "??";
+            return {
+                h: stat.h.map(e => ({ name: getPlayerName(e.element), val: e.value })),
+                a: stat.a.map(e => ({ name: getPlayerName(e.element), val: e.value }))
+            };
         }
 
         function switchGW(type) {
             const isCurr = type === 'curr';
             document.getElementById('tab-curr').classList.toggle('active', isCurr);
             document.getElementById('tab-next').classList.toggle('active', !isCurr);
-            
             const targetGW = isCurr ? currentGWId : currentGWId + 1;
             document.getElementById('gw-display-header').innerText = `Gameweek ${targetGW}`;
             renderGames(isCurr ? currentFixtures : nextFixtures);
@@ -190,91 +183,83 @@
 
         function renderGames(fixtures) {
             const list = document.getElementById('games-list');
-            if (!fixtures || fixtures.length === 0) {
-                list.innerHTML = "<p style='text-align:center'>No fixtures found.</p>";
-                return;
-            }
-
             list.innerHTML = fixtures.map(f => {
-                const hTeam = teams.find(t => t.id === f.team_h) || {short_name: '???', code: 0};
-                const aTeam = teams.find(t => t.id === f.team_a) || {short_name: '???', code: 0};
-                const isLive = f.started && !f.finished;
-
+                const hTeam = teams.find(t => t.id === f.team_h);
+                const aTeam = teams.find(t => t.id === f.team_a);
+                const goals = getEvents(f, 'goals_scored');
+                const assists = getEvents(f, 'assists');
+                
+                // Bonus logic
                 let bonusMarkup = "";
-                const bonusStat = f.stats.find(s => s.identifier === (f.finished ? "bonus" : "bps"));
-                if (bonusStat) {
-                    const top3 = [...bonusStat.h, ...bonusStat.a].sort((a,b) => b.value - a.value).slice(0,3);
+                const bpsStat = f.stats.find(s => s.identifier === (f.finished ? "bonus" : "bps"));
+                if (bpsStat) {
+                    const top3 = [...bpsStat.h, ...bpsStat.a].sort((a,b) => b.value - a.value).slice(0,3);
                     bonusMarkup = top3.map((p, i) => {
-                        const name = players.find(x => x.id === p.element)?.web_name || "Unknown";
+                        const name = players.find(x => x.id === p.element)?.web_name;
                         return `<span class="bonus-player">${name}<span class="pts-pill">${f.finished ? p.value : (3-i)}</span></span>`;
                     }).join('');
                 }
 
                 return `
                     <div class="m-card">
+                        <div class="m-time-bar">${formatMatchTime(f.kickoff_time)}</div>
                         <div class="m-main">
                             <div class="team-box">
                                 <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${hTeam.code}-66.png" class="kit-img">
-                                <span class="team-name">${hTeam.short_name}</span>
+                                <span class="team-name">${hTeam.name}</span>
                             </div>
                             <div class="score-center">
-                                <div class="status-badge ${f.finished ? 'badge-done' : (isLive ? 'badge-live' : 'badge-sched')}">
-                                    ${f.finished ? 'Finished' : (isLive ? 'Live' : 'Scheduled')}
+                                <div class="status-badge ${f.finished ? 'badge-done' : (f.started ? 'badge-live' : 'badge-sched')}">
+                                    ${getMatchMinute(f)}
                                 </div>
                                 <div class="score-val">${f.team_h_score ?? 0} : ${f.team_a_score ?? 0}</div>
                             </div>
                             <div class="team-box">
                                 <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${aTeam.code}-66.png" class="kit-img">
-                                <span class="team-name">${aTeam.short_name}</span>
+                                <span class="team-name">${aTeam.name}</span>
                             </div>
                         </div>
-                        <div class="m-footer">
-                            <span style="opacity:0.7; font-weight:800; letter-spacing:1px">${f.finished ? 'BONUS' : 'BPS TOP 3'}</span><br>${bonusMarkup || '---'}
-                        </div>
-                        <button class="expand-btn" onclick="toggleDrawer(${f.id})">Expand Stats <i class="fa-solid fa-chevron-down"></i></button>
-                        <div class="drawer" id="drawer-${f.id}">
-                            <div style="padding:10px; text-align:center; font-size:0.7rem; color:var(--text-muted); font-weight:700">Top Owned Players Live Pts</div>
-                            ${players.filter(p => p.team === f.team_h || p.team === f.team_a)
-                                .sort((a,b) => b.selected_by_percent - a.selected_by_percent)
-                                .slice(0,5).map(p => `
-                                <div class="own-row">
-                                    <span>${p.web_name} <small style="opacity:0.6">(${p.selected_by_percent}%)</small></span>
-                                    <span class="live-pts-badge">${f.started ? calculateLivePoints(p.id, f) : 0}</span>
+
+                        ${f.started ? `
+                        <div class="m-events">
+                            <div class="event-grid">
+                                <div class="event-side home">
+                                    ${goals.h.map(g => `<div class="event-item">⚽ ${g.name} ${g.val > 1 ? 'x'+g.val : ''}</div>`).join('')}
+                                    ${assists.h.map(a => `<div class="event-item">🅰️ ${a.name} ${a.val > 1 ? 'x'+a.val : ''}</div>`).join('')}
                                 </div>
-                            `).join('')}
+                                <div class="event-side away">
+                                    ${goals.a.map(g => `<div class="event-item">${g.name} ${g.val > 1 ? 'x'+g.val : ''} ⚽</div>`).join('')}
+                                    ${assists.a.map(a => `<div class="event-item">${a.name} ${a.val > 1 ? 'x'+a.val : ''} 🅰️</div>`).join('')}
+                                </div>
+                            </div>
+                        </div>` : ''}
+
+                        <div class="m-footer">
+                            <div style="font-weight:800; opacity:0.6; margin-bottom:4px; font-size:0.55rem; letter-spacing:1px">BONUS POINTS</div>
+                            ${bonusMarkup || '---'}
+                        </div>
+                        
+                        <button class="expand-btn" onclick="toggleDrawer(${f.id})">MATCH STATS <i class="fa-solid fa-chevron-down"></i></button>
+                        <div class="drawer" id="drawer-${f.id}">
+                            <div style="padding:5px; text-align:center; font-size:0.6rem; color:var(--text-muted); font-weight:800; letter-spacing:1px">TOP OWNED PLAYERS</div>
+                            ${players.filter(p => p.team === f.team_h || p.team === f.team_a)
+                                .sort((a,b) => b.selected_by_percent - a.selected_by_percent).slice(0,5).map(p => `
+                                <div class="own-row">
+                                    <span>${p.web_name} <small style="opacity:0.6">${p.selected_by_percent}%</small></span>
+                                    <span style="font-weight:900; color:var(--primary-blue)">${f.started ? 'LIVE' : 'PRE'}</span>
+                                </div>`).join('')}
                         </div>
                     </div>`;
             }).join('');
         }
 
-        function calculateLivePoints(pid, fixture) {
-            let pts = 0;
-            const p = players.find(x => x.id === pid);
-            if (!p || !fixture.started) return 0;
-            pts += 2; 
-            fixture.stats.forEach(s => {
-                const entry = s.h.find(item => item.element === pid) || s.a.find(item => item.element === pid);
-                if (entry) {
-                    if (s.identifier === 'goals_scored') pts += (p.element_type <= 2 ? 6 : p.element_type === 3 ? 5 : 4) * entry.value;
-                    if (s.identifier === 'assists') pts += 3 * entry.value;
-                    if (s.identifier === 'yellow_cards') pts -= 1 * entry.value;
-                    if (s.identifier === 'red_cards') pts -= 3 * entry.value;
-                }
-            });
-            return pts;
-        }
-
         function toggleDrawer(id) {
-            const drawer = document.getElementById(`drawer-${id}`);
-            drawer.classList.toggle('active');
-        }
-
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
+            document.getElementById(`drawer-${id}`).classList.toggle('active');
         }
 
         init();
     </script>
+
     <script src="footer.js"></script>
     <script src="nav.js"></script>
 </body>
