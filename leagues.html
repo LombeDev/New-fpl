@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Classic League Standings | Kopala FPL</title>
+    <title>Elite Standings | Kopala FPL</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,10 +15,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-        /* 1. Global Scale & Material Palette */
         :root {
             --mini-font: 0.65rem;
-            --micro-font: 0.55rem;
             --m3-surface: #fef7ff;
             --m3-secondary: #eaddff;
             --m3-text: #1d1b20;
@@ -27,7 +25,7 @@
 
         body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: var(--m3-text); }
 
-        /* 2. Controls - Pill Layout */
+        /* Controls */
         .controls-wrapper {
             background: white;
             padding: 10px 0;
@@ -36,142 +34,53 @@
             z-index: 100;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-
-        .select-row {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding: 0 15px;
-        }
-
-        .dropdown-group {
-            display: flex;
-            gap: 8px;
-        }
-
+        .select-row { display: flex; flex-direction: column; gap: 10px; padding: 0 15px; }
+        .dropdown-group { display: flex; gap: 8px; }
         .select-row select {
-            flex: 1;
-            font-size: 0.75rem;
-            padding: 0 12px;
-            height: 36px;
-            border-radius: 18px;
-            border: 1px solid rgba(0,0,0,0.1);
-            background: #f1f3f4;
-            font-weight: 600;
-            outline: none;
+            flex: 1; font-size: 0.75rem; padding: 0 12px; height: 36px;
+            border-radius: 18px; border: 1px solid rgba(0,0,0,0.1);
+            background: #f1f3f4; font-weight: 600; outline: none;
         }
-
         #manager-search {
-            width: 100%;
-            padding: 10px 15px;
-            border-radius: 20px;
-            border: 1px solid rgba(0,0,0,0.1);
-            font-size: 0.8rem;
-            outline: none;
-            box-sizing: border-box;
-            background: #f1f3f4;
+            width: 100%; padding: 10px 15px; border-radius: 20px;
+            border: 1px solid rgba(0,0,0,0.1); font-size: 0.8rem;
+            outline: none; box-sizing: border-box; background: #f1f3f4;
         }
 
-        /* 3. Manager Rows */
+        /* Rows */
         .manager-row {
-            margin: 6px 10px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            overflow: hidden;
+            margin: 6px 10px; background: white; border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;
             border: 1px solid transparent;
         }
-
-        .manager-row.is-me {
-            border: 2px solid var(--accent-blue);
-            background: var(--m3-secondary);
-        }
-
+        .manager-row.is-me { border: 2px solid var(--accent-blue); background: #eef2ff; }
         .row-summary {
-            display: grid;
-            grid-template-columns: 35px 1fr 60px 35px 50px;
-            align-items: center;
-            padding: 10px 12px;
-            min-height: 48px;
-            cursor: pointer;
+            display: grid; grid-template-columns: 35px 1fr 60px 35px 50px;
+            align-items: center; padding: 10px 12px; cursor: pointer;
         }
-
         .pos-cell { font-weight: 800; font-size: 0.7rem; opacity: 0.6; }
-        .name-cell b { font-size: 0.85rem; color: var(--m3-text); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .name-cell b { font-size: 0.85rem; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .name-cell small { font-size: 0.65rem; opacity: 0.6; font-weight: 600; text-transform: uppercase; }
 
-        /* 4. Squad Scroller Grid */
+        /* Squad Scroller */
         .row-expansion { display: none; }
         .manager-row.active .row-expansion { display: block; }
-
         .squad-scroller {
-            display: flex;
-            overflow-x: auto;
-            padding: 12px;
-            gap: 8px;
-            background: var(--m3-surface);
-            border-top: 1px solid rgba(0,0,0,0.05);
-            -webkit-overflow-scrolling: touch;
+            display: flex; overflow-x: auto; padding: 12px; gap: 8px;
+            background: var(--m3-surface); border-top: 1px solid rgba(0,0,0,0.05);
         }
-
         .player-card {
-            min-width: 55px;
-            background: white;
-            border-radius: 12px;
-            padding: 8px 4px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-            flex-shrink: 0;
+            min-width: 55px; background: white; border-radius: 12px;
+            padding: 8px 4px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         }
-
-        .player-shirt {
-            width: 24px;
-            height: auto;
-            margin-bottom: 4px;
-        }
-
-        .player-label {
-            font-size: 0.55rem;
-            font-weight: 800;
-            color: #333;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 100%;
-        }
-
-        .player-pts {
-            font-size: 0.75rem;
-            font-weight: 900;
-            color: #38003c;
-        }
-
-        /* 5. Stats Bar */
-        .squad-stats-bar {
-            display: flex;
-            gap: 8px;
-            padding: 8px 15px;
-            background: var(--m3-surface);
-        }
-
-        .stat-pill {
-            font-size: 0.6rem;
-            padding: 4px 10px;
-            border-radius: 20px;
-            background: var(--m3-secondary);
-            color: #21005d;
-            font-weight: 700;
-        }
+        .player-shirt { width: 24px; margin-bottom: 4px; }
+        .player-label { font-size: 0.55rem; font-weight: 800; white-space: nowrap; overflow: hidden; }
+        .player-pts { font-size: 0.75rem; font-weight: 900; color: #38003c; }
 
         .table-header {
-            display: grid;
-            grid-template-columns: 35px 1fr 60px 35px 50px;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            font-weight: 900;
-            padding: 15px 22px 5px 22px;
-            opacity: 0.5;
-            letter-spacing: 0.5px;
+            display: grid; grid-template-columns: 35px 1fr 60px 35px 50px;
+            font-size: 0.65rem; text-transform: uppercase; font-weight: 900;
+            padding: 15px 22px 5px 22px; opacity: 0.5;
         }
     </style>
 </head>
@@ -200,14 +109,14 @@
             currentGW: 1,
             playerMap: {},
             liveData: {},
-            PROXY: "/.netlify/functions/fpl-proxy?endpoint="
+            PROXY: "/.netlify/functions/fpl-proxy?endpoint=",
+            ELITE_LEAGUE_ID: 32885 // LiveFPL's Elite 64 League ID
         };
 
         async function init() {
-            if(!state.fplId) return alert("Please set your FPL ID first");
+            if(!state.fplId) return;
 
             try {
-                // Fetch Static Data
                 const staticRes = await fetch(`${state.PROXY}bootstrap-static/`);
                 const staticData = await staticRes.json();
                 state.currentGW = staticData.events.find(e => e.is_current).id;
@@ -220,27 +129,23 @@
                     };
                 });
 
-                // Fetch Live Points
                 const liveRes = await fetch(`${state.PROXY}event/${state.currentGW}/live/`);
                 const liveData = await liveRes.json();
                 liveData.elements.forEach(el => {
                     state.liveData[el.id] = el.stats.total_points;
                 });
 
-                // Fetch Manager Leagues
                 const entryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
                 const entryData = await entryRes.json();
                 
                 const select = document.getElementById('league-select');
-                const celebOption = `<option value="314">You vs FPL Celebs</option>`;
+                const celebOption = `<option value="${state.ELITE_LEAGUE_ID}">You vs LiveFPL Elite</option>`;
                 const myLeagues = entryData.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
                 
                 select.innerHTML = celebOption + myLeagues;
-                
-                // Default Load
-                loadStandings(314);
+                loadStandings(state.ELITE_LEAGUE_ID);
 
-            } catch (err) { console.error("Initialization failed", err); }
+            } catch (err) { console.error("Init Error:", err); }
         }
 
         async function loadStandings(id) {
@@ -252,8 +157,8 @@
                 const data = await res.json();
                 let results = data.standings.results;
 
-                // Logic to inject the user into the Celebs league
-                if (id == 314) {
+                // Inject YOU into Elite League
+                if (id == state.ELITE_LEAGUE_ID) {
                     const myEntryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
                     const me = await myEntryRes.json();
                     
@@ -295,7 +200,7 @@
                             </div>
                         </div>`;
                     }).join('');
-            } catch (e) { container.innerHTML = '<p style="text-align:center;">Failed to load standings.</p>'; }
+            } catch (e) { container.innerHTML = '<p style="text-align:center;">Failed to load.</p>'; }
         }
 
         async function expandManager(entryId) {
@@ -309,13 +214,6 @@
                     const picksRes = await fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`);
                     const data = await picksRes.json();
                     
-                    statsBox.innerHTML = `
-                        <div class="squad-stats-bar">
-                            <div class="stat-pill">Bank <b>£${(data.entry_history.bank/10).toFixed(1)}</b></div>
-                            <div class="stat-pill">Hits <b>-${data.entry_history.event_transfers_cost}</b></div>
-                            <div class="stat-pill">Rank <b>#${data.entry_history.overall_rank.toLocaleString()}</b></div>
-                        </div>`;
-
                     squadBox.innerHTML = data.picks.map(p => {
                         const player = state.playerMap[p.element];
                         const pts = (state.liveData[p.element] || 0) * (p.multiplier || 1);
@@ -328,18 +226,14 @@
                                 <div class="player-pts">${pts}</div>
                             </div>`;
                     }).join('');
-                    
                     row.dataset.loaded = "true";
-                } catch (e) { squadBox.innerHTML = '<p style="padding:10px;">Private Squad</p>'; }
+                } catch (e) { squadBox.innerHTML = '<p style="padding:10px;">Private</p>'; }
             }
         }
 
-        // Live Search Handler
         document.getElementById('manager-search').addEventListener('input', function(e) {
             const term = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('.manager-row');
-            
-            rows.forEach(row => {
+            document.querySelectorAll('.manager-row').forEach(row => {
                 const text = row.querySelector('.name-cell').innerText.toLowerCase();
                 row.style.display = text.includes(term) ? 'block' : 'none';
             });
