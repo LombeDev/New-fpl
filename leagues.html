@@ -1,5 +1,4 @@
-
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -23,16 +22,17 @@
             --m3-surface: #fef7ff;
             --m3-secondary: #eaddff;
             --m3-text: #1d1b20;
-            --fpl-green: #00ff87;
         }
 
         body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
 
-        /* 2. Controls - Rounded Pill Selects */
+        /* 2. Controls */
         .select-row {
             display: flex;
+            flex-wrap: wrap;
             gap: 8px;
             padding: 10px 15px;
+            align-items: center;
         }
 
         .select-row select {
@@ -45,6 +45,16 @@
             font-weight: 600;
         }
 
+        #manager-search {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(0,0,0,0.1);
+            font-size: 0.8rem;
+            outline: none;
+        }
+
         /* 3. Manager Rows */
         .manager-row {
             margin: 4px 10px;
@@ -52,7 +62,6 @@
             border-radius: 16px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             overflow: hidden;
-            transition: all 0.2s ease;
         }
 
         .manager-row.is-me {
@@ -73,74 +82,55 @@
         .name-cell b { font-size: 0.8rem; color: var(--m3-text); letter-spacing: -0.2px; }
         .name-cell small { font-size: 0.6rem; opacity: 0.6; font-weight: 500; text-transform: uppercase; display: block; }
 
-        /* 4. Tactical Pitch Background & Player Cards */
-        .player-list-grid {
-            position: relative;
-            width: 100%;
-            background-image: url('pitch.png');
-            background-size: 100% 100%; /* Fixes the zoom issue */
-            background-repeat: no-repeat;
-            background-position: center;
-            aspect-ratio: 3 / 4;
+        /* 4. Horizontal Squad Scroller (Reverting to original grid) */
+        .squad-scroller {
             display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            padding: 20px 0;
-            box-sizing: border-box;
+            overflow-x: auto;
+            padding: 10px;
+            gap: 6px;
+            background: var(--m3-surface);
+            border-top: 1px solid rgba(0,0,0,0.03);
+            scrollbar-width: none; /* Hide scrollbar Firefox */
         }
+        .squad-scroller::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome/Safari */
 
-        .pitch-row {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            gap: 4px;
-        }
-
-        .player-card-tactical {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 18%;
-        }
-
-        .player-jersey {
-            width: 38px;
-            height: auto;
-            filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.3));
-        }
-
-        .player-name-tag {
-            background: rgba(0, 0, 0, 0.75);
-            color: white;
-            font-size: 9px;
-            font-weight: 800;
-            padding: 1px 4px;
-            border-radius: 2px;
+        .player-card {
+            min-width: 52px;
+            background: white;
+            border-radius: 12px;
+            padding: 8px 4px;
             text-align: center;
-            width: 95%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .player-shirt {
+            width: 22px !important;
+            height: auto !important;
+            margin-bottom: 4px;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+        }
+
+        .player-label {
+            font-size: 0.55rem;
+            font-weight: 800;
+            color: #444;
             white-space: nowrap;
             overflow: hidden;
-            margin-top: -2px;
+            text-overflow: ellipsis;
+            width: 100%;
         }
 
-        .player-points-box {
-            background: #fff;
-            color: #000;
-            font-size: 11px;
+        .player-pts {
+            font-size: 0.7rem;
             font-weight: 900;
-            min-width: 22px;
-            height: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 3px;
-            margin-top: 1px;
-            border: 1px solid #ddd;
+            color: #38003c;
         }
 
-        /* 5. Stats & Expansion */
-        .row-expansion { display: none; padding-bottom: 10px; }
+        /* 5. Expansion & Stats */
+        .row-expansion { display: none; }
         .manager-row.active .row-expansion { display: block; }
 
         .squad-stats-bar {
@@ -181,21 +171,15 @@
                 <option value="total">Total Pts</option>
                 <option value="event">GW Pts</option>
             </select>
-
-            <div style="padding: 0 15px 10px 15px;">
-        <input type="text" id="manager-search" placeholder="Search manager or team name..." 
-               style="width: 100%; padding: 10px 15px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.1); font-size: 0.8rem; outline: none; box-sizing: border-box;">
-    </div>
+            <input type="text" id="manager-search" placeholder="Search manager or team...">
         </div>
     </div>
-    
-</div>
 
     <div id="manager-list-container"></div>
 
     <script>
         const state = {
-            fplId: localStorage.getItem('kopala_id') || '13812', // Fallback ID for testing
+            fplId: localStorage.getItem('kopala_id') || '13812',
             currentGW: 1,
             playerMap: {},
             liveData: {},
@@ -204,7 +188,6 @@
 
         async function init() {
             try {
-                // 1. Get Static Data (Players/Teams)
                 const staticRes = await fetch(`${state.PROXY}bootstrap-static/`);
                 const staticData = await staticRes.json();
                 state.currentGW = staticData.events.find(e => e.is_current).id;
@@ -217,37 +200,28 @@
                     };
                 });
 
-                // 2. Get Live Points
                 const liveRes = await fetch(`${state.PROXY}event/${state.currentGW}/live/`);
                 const liveData = await liveRes.json();
                 liveData.elements.forEach(el => {
                     state.liveData[el.id] = el.stats.total_points;
                 });
 
-                // 3. Populate League Selector (Including Celebs)
                 const entryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
                 const entryData = await entryRes.json();
-                
                 const select = document.getElementById('league-select');
                 const celebOption = `<option value="314">You vs FPL Celebs</option>`;
-                const myLeagues = entryData.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+                select.innerHTML = celebOption + entryData.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
                 
-                select.innerHTML = celebOption + myLeagues;
-                
-                // Load Celebs by default
                 loadStandings(314);
-
-            } catch (err) { console.error("Init Error:", err); }
+            } catch (err) { console.error(err); }
         }
 
         async function loadStandings(id) {
             const container = document.getElementById('manager-list-container');
             container.innerHTML = '<p style="text-align:center; padding:30px;">Fetching Standings...</p>';
-            
             try {
                 const res = await fetch(`${state.PROXY}leagues-classic/${id}/standings/`);
                 const data = await res.json();
-                
                 container.innerHTML = `
                     <div class="table-header">
                         <span>Pos</span><span>Manager</span><span>Cap</span><span>GW</span><span style="text-align:right">Total</span>
@@ -258,29 +232,26 @@
                         <div class="manager-row ${isMe ? 'is-me' : ''}" id="entry-${r.entry}">
                             <div class="row-summary" onclick="expandManager(${r.entry})">
                                 <span class="pos-cell">${i+1}</span>
-                                <div class="name-cell">
-                                    <b>${r.entry_name}</b>
-                                    <small>${isMe ? 'YOU' : r.player_name}</small>
-                                </div>
+                                <div class="name-cell"><b>${r.entry_name}</b><small>${isMe ? 'YOU' : r.player_name}</small></div>
                                 <div id="cap-${r.entry}" style="font-size:0.7rem; font-weight:bold;">-</div>
                                 <span class="gw-pts-cell">${r.event_total}</span>
                                 <span class="total-pts-cell">${r.total.toLocaleString()}</span>
                             </div>
-                            <div class="row-expansion" id="expansion-${r.entry}">
+                            <div class="row-expansion">
                                 <div id="stats-${r.entry}"></div>
-                                <div class="player-list-grid" id="pitch-${r.entry}">
-                                    <p style="text-align:center; width:100%; font-size:0.7rem;">Loading Formation...</p>
+                                <div class="squad-scroller" id="squad-${r.entry}">
+                                    <p style="padding:10px; font-size:0.7rem;">Loading team...</p>
                                 </div>
                             </div>
                         </div>`;
                     }).join('');
-            } catch (e) { container.innerHTML = '<p>Error loading league.</p>'; }
+            } catch (e) { container.innerHTML = '<p>Error.</p>'; }
         }
 
         async function expandManager(entryId) {
             const row = document.getElementById(`entry-${entryId}`);
-            const pitchContainer = document.getElementById(`pitch-${entryId}`);
-            const statsContainer = document.getElementById(`stats-${entryId}`);
+            const squadBox = document.getElementById(`squad-${entryId}`);
+            const statsBox = document.getElementById(`stats-${entryId}`);
             const isActive = row.classList.toggle('active');
 
             if (isActive && !row.dataset.loaded) {
@@ -288,65 +259,37 @@
                     const picksRes = await fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`);
                     const data = await picksRes.json();
                     
-                    // Stats Bar
-                    statsContainer.innerHTML = `
+                    statsBox.innerHTML = `
                         <div class="squad-stats-bar">
                             <div class="stat-pill">Bank <b>£${(data.entry_history.bank/10).toFixed(1)}</b></div>
                             <div class="stat-pill">Hits <b>-${data.entry_history.event_transfers_cost}</b></div>
                         </div>`;
 
-                    // Sort Starters by Position (1-11)
-                    const starters = data.picks.slice(0, 11);
-                    const rows = { 
-                        4: starters.filter(p => state.playerMap[p.element].pos === 4), // FWD
-                        3: starters.filter(p => state.playerMap[p.element].pos === 3), // MID
-                        2: starters.filter(p => state.playerMap[p.element].pos === 2), // DEF
-                        1: starters.filter(p => state.playerMap[p.element].pos === 1)  // GKP
-                    };
-
-                    let pitchHTML = '';
-                    [4, 3, 2, 1].forEach(posKey => {
-                        pitchHTML += `<div class="pitch-row">`;
-                        rows[posKey].forEach(p => {
-                            const player = state.playerMap[p.element];
-                            const pts = (state.liveData[p.element] || 0) * (p.multiplier || 1);
-                            if(p.is_captain) document.getElementById(`cap-${entryId}`).textContent = player.name;
-                            
-                            pitchHTML += `
-                                <div class="player-card-tactical">
-                                    <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${player.team}${player.pos === 1 ? '_1' : ''}-66.png" class="player-jersey">
-                                    <div class="player-name-tag">${player.name}${p.is_captain ? ' (C)' : ''}</div>
-                                    <div class="player-points-box">${pts}</div>
-                                </div>`;
-                        });
-                        pitchHTML += `</div>`;
-                    });
-
-                    pitchContainer.innerHTML = pitchHTML;
+                    squadBox.innerHTML = data.picks.map(p => {
+                        const player = state.playerMap[p.element];
+                        const pts = (state.liveData[p.element] || 0) * (p.multiplier || 1);
+                        if(p.is_captain) document.getElementById(`cap-${entryId}`).textContent = player.name;
+                        return `
+                            <div class="player-card">
+                                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${player.team}${player.pos === 1 ? '_1' : ''}-66.png" class="player-shirt">
+                                <div class="player-label">${player.name}${p.is_captain ? ' (C)' : ''}</div>
+                                <div class="player-pts">${pts}</div>
+                            </div>`;
+                    }).join('');
                     row.dataset.loaded = "true";
-                } catch (e) { pitchContainer.innerHTML = '<p>Error loading squad.</p>'; }
+                } catch (e) { squadBox.innerHTML = 'Error.'; }
             }
         }
 
-        init();
-
-
         document.getElementById('manager-search').addEventListener('input', function(e) {
-    const searchTerm = e.target.value.toLowerCase();
-    const managerRows = document.querySelectorAll('.manager-row');
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('.manager-row').forEach(row => {
+                const text = row.querySelector('.name-cell').innerText.toLowerCase();
+                row.style.display = text.includes(term) ? 'block' : 'none';
+            });
+        });
 
-    managerRows.forEach(row => {
-        // We look inside the name-cell which contains both Team Name and Manager Name
-        const teamName = row.querySelector('.name-cell b').innerText.toLowerCase();
-        const managerName = row.querySelector('.name-cell small').innerText.toLowerCase();
-
-        if (teamName.includes(searchTerm) || managerName.includes(searchTerm)) {
-            row.style.display = 'block'; // Show
-        } else {
-            row.style.display = 'none';  // Hide
-        }
-    });
-});
+        init();
     </script>
     <script src="nav.js"></script>
     <div id="footer-placeholder"></div>
