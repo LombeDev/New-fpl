@@ -13,6 +13,7 @@
     <style>
         :root {
             --m3-surface: #ffffff;
+            --m3-input-bg: #eeeeee;
             --accent-blue: #2563eb;
             --pos-up: #00e676;
             --pos-down: #ff1744;
@@ -21,17 +22,30 @@
 
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
 
+        /* Material You Style Controls */
         .controls-wrapper {
-            background: white; padding: 6px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            background: white; padding: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
-        .select-row { display: flex; flex-direction: column; gap: 6px; padding: 0 10px; }
-        #league-select {
-            width: 100%; border-radius: 12px; padding: 6px 10px; border: 1px solid #ddd; font-weight: 700; font-size: 0.7rem; background: #f8f9fa; outline: none;
+        .m3-row {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center;
         }
-        #manager-search {
-            width: 100%; padding: 6px 12px; border-radius: 12px; border: 1px solid #ddd; font-size: 0.75rem; background: #f8f9fa; box-sizing: border-box; outline: none;
+        
+        .m3-input-wrapper {
+            position: relative; display: flex; align-items: center;
+        }
+        .m3-input-wrapper i {
+            position: absolute; left: 10px; font-size: 0.65rem; color: #666; pointer-events: none;
         }
 
+        #league-select, #manager-search {
+            width: 100%; border: none; background: var(--m3-input-bg);
+            border-radius: 20px; padding: 8px 12px; font-size: 0.65rem; font-weight: 600;
+            color: #1d1b20; outline: none; box-sizing: border-box; transition: background 0.2s;
+        }
+        #manager-search { padding-left: 28px; }
+        #league-select:focus, #manager-search:focus { background: #e1e2e5; }
+
+        /* Table Styles */
         .table-header { 
             display: grid; grid-template-columns: 40px 1fr 65px 30px 55px; 
             font-size: 0.55rem; font-weight: 800; padding: 6px 10px; color: #aaa; text-transform: uppercase; gap: 4px;
@@ -80,7 +94,6 @@
 
         .transfer-line { padding: 0 10px 8px 50px; font-size: 0.65rem; color: #2563eb; font-weight: 700; min-height: 1em; }
 
-        /* Expansion Styling */
         .row-expansion { display: none; background: #fafafa; border-top: 1px solid #eee; }
         .manager-row.active .row-expansion { display: block; }
         
@@ -97,13 +110,9 @@
         .player-shirt { width: 20px; margin-bottom: 2px; }
         .player-label { font-size: 0.45rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
         
-        /* Event Icons */
         .player-events { display: flex; justify-content: center; align-items: center; gap: 2px; margin-top: 1px; min-height: 10px; }
         .icon-goal { color: #000; font-size: 0.45rem; }
-        .icon-assist { 
-            color: #1976d2; font-size: 0.55rem; font-weight: 900; 
-            font-style: normal; line-height: 1; 
-        }
+        .icon-assist { color: #1976d2; font-size: 0.55rem; font-weight: 900; font-style: normal; line-height: 1; }
         .icon-yellow { color: #ffd600; font-size: 0.45rem; }
         .icon-red { color: #d50000; font-size: 0.45rem; }
         .icon-bonus { color: #ff9800; font-size: 0.45rem; }
@@ -113,9 +122,12 @@
     <div id="nav-placeholder"></div>
 
     <div class="controls-wrapper">
-        <div class="select-row">
+        <div class="m3-row">
             <select id="league-select" onchange="loadStandings(this.value)"></select>
-            <input type="text" id="manager-search" placeholder="Search Manager or Team...">
+            <div class="m3-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="manager-search" placeholder="Search...">
+            </div>
         </div>
     </div>
 
@@ -283,12 +295,8 @@
                         let icons = '';
                         const allStats = live.explain.flatMap(e => e.stats);
                         allStats.forEach(s => {
-                            if (s.identifier === 'goals_scored' && s.value > 0) {
-                                icons += '<i class="fa-solid fa-futbol icon-goal"></i>'.repeat(s.value);
-                            }
-                            if (s.identifier === 'assists' && s.value > 0) {
-                                icons += `<i class="icon-assist">${'A'.repeat(s.value)}</i>`;
-                            }
+                            if (s.identifier === 'goals_scored' && s.value > 0) icons += '<i class="fa-solid fa-futbol icon-goal"></i>'.repeat(s.value);
+                            if (s.identifier === 'assists' && s.value > 0) icons += `<i class="icon-assist">${'A'.repeat(s.value)}</i>`;
                             if (s.identifier === 'yellow_cards' && s.value > 0) icons += '<i class="fa-solid fa-square icon-yellow"></i>';
                             if (s.identifier === 'red_cards' && s.value > 0) icons += '<i class="fa-solid fa-square icon-red"></i>';
                             if (s.identifier === 'bonus' && s.value > 0) icons += '<i class="fa-solid fa-star icon-bonus"></i>';
