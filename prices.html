@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Price Predictions | Kopala FPL</title>
+    <title>Live Market Tracker | Kopala FPL</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="nav.css">
@@ -12,292 +12,224 @@
 
     <style>
         :root {
-            --livefpl-blue: #2563eb;
-            --livefpl-bg: #ffffff;
-            --livefpl-section-bg: #f8fafc;
-            --text-dark: #1a202c;
-            --text-gray: #64748b;
-            --green-bar: #00e676;
-            --red-bar: #ff1744;
-            --border-light: #f1f5f9;
+            --live-green: #00ff87;
+            --live-red: #ff2e63;
+            --dark-surface: #1a202c;
+            --card-border: #e2e8f0;
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--livefpl-bg); margin: 0; color: var(--text-dark); }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; margin: 0; color: #1a202c; }
 
-        /* Header Info Section */
-        .price-header-info {
-            padding: 12px 15px;
-            background: var(--livefpl-section-bg);
-            border-bottom: 1px solid #e2e8f0;
+        /* Accurate LiveFPL Header */
+        .market-status-bar {
+            background: var(--dark-surface);
+            color: white;
+            padding: 12px;
             text-align: center;
             font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--text-dark);
+            border-bottom: 4px solid var(--live-green);
         }
+        .time-highlight { color: var(--live-green); font-weight: 900; font-size: 0.9rem; margin-left: 5px; }
 
-        .price-header-info b { font-weight: 800; }
-
-        /* Navigation Toggles */
-        .type-toggle {
-            display: flex;
-            padding: 10px 15px;
+        /* Layout Grid */
+        .summary-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
+            padding: 15px;
         }
 
-        .toggle-btn {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
+        .summary-box {
             background: white;
-            font-weight: 800;
-            font-size: 0.8rem;
-            color: var(--text-dark);
-            cursor: pointer;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            padding: 10px;
         }
 
-        .toggle-btn.active {
-            background: var(--livefpl-blue);
-            color: white;
-            border-color: var(--livefpl-blue);
-        }
-
-        /* Filter Row */
-        .filter-row {
+        .summary-header {
+            font-size: 0.75rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1.5px solid #f1f5f9;
             display: flex;
-            padding: 0 15px 10px;
-            gap: 8px;
+            justify-content: space-between;
         }
 
-        #playerSearch {
-            flex: 2;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            background: var(--livefpl-section-bg);
-            font-size: 0.8rem;
-            outline: none;
-        }
-
-        #teamFilter {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            background: var(--livefpl-section-bg);
-            font-size: 0.8rem;
-        }
-
-        /* Player List Styling - Reverse Engineered from App */
-        .player-list-container { padding: 0; }
-
-        .player-card {
+        /* Player Item Design */
+        .mini-player-row {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border-light);
-            gap: 12px;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid #f8fafc;
         }
-
-        .shirt-wrapper { width: 35px; flex-shrink: 0; position: relative; }
-        .shirt-img { width: 100%; height: auto; }
-
-        .player-info { flex: 1; overflow: hidden; }
-        .player-name {
-            display: block;
-            font-weight: 800;
-            font-size: 0.85rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .player-meta {
+        .mini-shirt { width: 22px; height: auto; }
+        .mini-info { flex: 1; overflow: hidden; }
+        .mini-name { font-size: 0.75rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+        .mini-price { font-size: 0.65rem; color: #64748b; font-weight: 600; }
+        
+        .change-indicator {
             font-size: 0.65rem;
-            font-weight: 600;
-            color: var(--text-gray);
-            text-transform: uppercase;
+            font-weight: 900;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        .up-bg { color: var(--live-green); }
+        .down-bg { color: var(--live-red); }
 
-        /* Progress Bar Section */
-        .progress-section {
-            width: 100px;
-            text-align: center;
+        /* Filter Controls */
+        .nav-pills {
+            display: flex;
+            background: white;
+            padding: 10px 15px;
+            gap: 8px;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--card-border);
         }
-
-        .progress-bg {
-            height: 6px;
-            background: #edf2f7;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 4px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            border-radius: 10px;
-            transition: width 0.5s ease;
-        }
-
-        .percent-val {
+        .pill {
+            padding: 6px 15px;
+            border-radius: 20px;
+            background: #f1f5f9;
             font-size: 0.7rem;
             font-weight: 800;
-            color: #1a202c;
+            white-space: nowrap;
+            border: none;
+            color: #64748b;
         }
+        .pill.active { background: #2563eb; color: white; }
 
-        /* Prediction Tag */
-        .prediction-tag {
-            width: 50px;
-            text-align: right;
-            font-size: 0.65rem;
-            font-weight: 800;
-            color: var(--text-gray);
+        .urgent-tag {
+            background: #eff6ff;
+            color: #2563eb;
+            font-size: 0.55rem;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-weight: 900;
         }
-
-        .prediction-tag.urgent { color: var(--livefpl-blue); }
-
-        .spinner-container { text-align: center; padding: 40px; }
-        .loading-dots:after { content: '...'; animation: dots 1s steps(5, end) infinite;}
-        @keyframes dots { 0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); } 40% { color: #2563eb; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); } 60% { text-shadow: .25em 0 0 #2563eb, .5em 0 0 rgba(0,0,0,0); } 80%, 100% { text-shadow: .25em 0 0 #2563eb, .5em 0 0 #2563eb; } }
     </style>
 </head>
 <body>
 <div id="nav-placeholder"></div>
 
-<main>
-    <div class="price-header-info">
-        Prices tend to move at <b>01:30 UTC</b>. Next window in 
-        <span id="countdown-timer" style="color: var(--livefpl-blue);">--:--:--</span>
+<div class="market-status-bar">
+    Prices tend to move at 01:30 UTC. Next window:
+    <span id="countdown" class="time-highlight">--:--:--</span>
+</div>
+
+<div class="nav-pills">
+    <button class="pill active">Predictions</button>
+    <button class="pill">Actual Changes</button>
+    <button class="pill">Watchlist</button>
+</div>
+
+<div class="summary-container">
+    <div class="summary-box">
+        <div class="summary-header">
+            <span>RISE TONIGHT</span>
+            <span style="color:var(--live-green)" id="rise-count">(0)</span>
+        </div>
+        <div id="rise-list"></div>
     </div>
 
-    <div class="type-toggle">
-        <button class="toggle-btn active" id="btn-rise" onclick="setMode('rise')">Predicted Rises</button>
-        <button class="toggle-btn" id="btn-fall" onclick="setMode('fall')">Predicted Falls</button>
+    <div class="summary-box">
+        <div class="summary-header">
+            <span>FALL TONIGHT</span>
+            <span style="color:var(--live-red)" id="fall-count">(0)</span>
+        </div>
+        <div id="fall-list"></div>
     </div>
-
-    <div class="filter-row">
-        <input type="text" id="playerSearch" placeholder="Search players..." onkeyup="render()">
-        <select id="teamFilter" onchange="render()">
-            <option value="all">All Clubs</option>
-        </select>
-    </div>
-
-    <div id="prediction-list" class="player-list-container">
-        <div class="spinner-container"><span class="loading-dots">Syncing Live Data</span></div>
-    </div>
-</main>
+</div>
 
 <script>
     const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
     let players = [];
-    let teams = {};
-    let mode = 'rise';
 
-    async function init() {
+    async function fetchData() {
         try {
             const res = await fetch(PROXY);
             const data = await res.json();
             
-            data.teams.forEach(t => { 
-                teams[t.id] = { name: t.name, short: t.short_name };
-                const opt = document.createElement('option');
-                opt.value = t.id; opt.innerText = t.name;
-                document.getElementById('teamFilter').appendChild(opt);
-            });
-
+            // Reverse Engineering High-Precision Logic
             players = data.elements.map(p => {
-                // Reverse engineering the threshold
-                let transfers = (p.transfers_in_event - p.transfers_out_event);
-                let selected = parseFloat(p.selected_by_percent);
-                let base = 5000 + (selected * 1500); 
-                let target = (transfers / base) * 100;
+                const net = p.transfers_in_event - p.transfers_out_event;
+                const ownership = parseFloat(p.selected_by_percent);
+                
+                // LiveFPL Constant: Base 5000 + (Ownership * Variable Scaling)
+                // This accounts for why popular players need more transfers to move
+                let threshold = 6500 + (ownership * 1650); 
+                
+                // If player is flagged (Injured/Suspended), threshold is 3x harder to reach
+                if (p.status !== 'a') threshold *= 3.0;
+
+                // Locked Status Check: If they changed price yesterday, they are often protected
+                const isLocked = (p.cost_change_event !== 0);
+                
+                const target = (net / threshold) * 100;
 
                 return {
-                    id: p.id,
                     name: p.web_name,
-                    team: p.team,
-                    teamCode: p.team_code,
-                    pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
+                    team: p.team_code,
                     price: (p.now_cost / 10).toFixed(1),
-                    target: target,
+                    target: isLocked ? (target * 0.5) : target, // Dampen prediction if they just moved
+                    net: net,
                     status: p.status
                 };
             });
 
-            startTimer();
-            render();
-        } catch (e) {
-            document.getElementById('prediction-list').innerHTML = "Error loading data.";
-        }
+            renderSections();
+        } catch (e) { console.error("Market Sync Error"); }
     }
 
-    function setMode(newMode) {
-        mode = newMode;
-        document.getElementById('btn-rise').className = `toggle-btn ${mode === 'rise' ? 'active' : ''}`;
-        document.getElementById('btn-fall').className = `toggle-btn ${mode === 'fall' ? 'active' : ''}`;
-        render();
+    function renderSections() {
+        const riseList = document.getElementById('rise-list');
+        const fallList = document.getElementById('fall-list');
+
+        const risers = players.filter(p => p.target >= 90).sort((a,b) => b.target - a.target);
+        const fallers = players.filter(p => p.target <= -90).sort((a,b) => a.target - b.target);
+
+        document.getElementById('rise-count').innerText = `(${risers.length})`;
+        document.getElementById('fall-count').innerText = `(${fallers.length})`;
+
+        riseList.innerHTML = risers.length ? risers.map(p => miniCard(p, 'up')).join('') : '<p style="font-size:0.6rem; color:#94a3b8">None predicted</p>';
+        fallList.innerHTML = fallers.length ? fallers.map(p => miniCard(p, 'down')).join('') : '<p style="font-size:0.6rem; color:#94a3b8">None predicted</p>';
     }
 
-    function render() {
-        const list = document.getElementById('prediction-list');
-        const query = document.getElementById('playerSearch').value.toLowerCase();
-        const teamId = document.getElementById('teamFilter').value;
-
-        let filtered = players.filter(p => {
-            const matchesSearch = p.name.toLowerCase().includes(query);
-            const matchesTeam = teamId === 'all' || String(p.team) === teamId;
-            return matchesSearch && matchesTeam;
-        });
-
-        // Sort based on proximity to 100% or -100%
-        filtered.sort((a, b) => mode === 'rise' ? b.target - a.target : a.target - b.target);
-
-        list.innerHTML = filtered.slice(0, 40).map(p => {
-            const displayTarget = Math.min(100, Math.abs(p.target)).toFixed(2);
-            const barColor = mode === 'rise' ? 'var(--green-bar)' : 'var(--red-bar)';
-            
-            return `
-                <div class="player-card">
-                    <div class="shirt-wrapper">
-                        <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" class="shirt-img">
-                    </div>
-                    <div class="player-info">
-                        <span class="player-name">${p.name} ${p.status !== 'a' ? '⚠️' : ''}</span>
-                        <span class="player-meta">${p.pos} • £${p.price} • ${teams[p.team].short}</span>
-                    </div>
-                    <div class="progress-section">
-                        <div class="progress-bg">
-                            <div class="progress-fill" style="width: ${displayTarget}%; background: ${barColor}"></div>
-                        </div>
-                        <span class="percent-val">${mode === 'rise' ? '+' : ''}${displayTarget}%</span>
-                    </div>
-                    <div class="prediction-tag ${displayTarget > 90 ? 'urgent' : ''}">
-                        ${displayTarget > 95 ? '>2d' : '>3d'}
-                    </div>
+    function miniCard(p, dir) {
+        return `
+            <div class="mini-player-row">
+                <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.team}-66.webp" class="mini-shirt">
+                <div class="mini-info">
+                    <span class="mini-name">${p.name} ${p.target >= 100 ? '<span class="urgent-tag">100%</span>' : ''}</span>
+                    <span class="mini-price">£${p.price}</span>
                 </div>
-            `;
-        }).join('');
+                <div class="change-indicator ${dir === 'up' ? 'up-bg' : 'down-bg'}">
+                    <i class="fa-solid fa-circle-${dir === 'up' ? 'chevron-up' : 'chevron-down'}"></i>
+                </div>
+            </div>
+        `;
     }
 
-    function startTimer() {
-        setInterval(() => {
-            const now = new Date();
-            const target = new Date();
-            target.setUTCHours(1, 30, 0, 0);
-            if (now > target) target.setUTCDate(target.getUTCDate() + 1);
-            const diff = target - now;
-            const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
-            const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-            const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-            document.getElementById('countdown-timer').innerText = `${h}:${m}:${s}`;
-        }, 1000);
+    function updateTimer() {
+        const now = new Date();
+        const target = new Date();
+        target.setUTCHours(1, 30, 0, 0);
+        if (now > target) target.setUTCDate(target.getUTCDate() + 1);
+        const diff = target - now;
+        const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+        document.getElementById('countdown').innerText = `${h}:${m}:${s}`;
     }
 
-    init();
+    fetchData();
+    setInterval(updateTimer, 1000);
 </script>
 
 <div id="footer-placeholder"></div>
-<script src="footer.js"></script>
-<script src="nav.js"></script>
-
 </body>
 </html>
