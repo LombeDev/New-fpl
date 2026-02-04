@@ -26,7 +26,7 @@
             --livefpl-red: #ff2e63;
             --livefpl-bg: #f8fafc;
             --border-color: #e2e8f0;
-            --text-dark: #1a202c;
+            --text-dark: #000000; /* Fixed for visibility */
             --text-gray: #64748b;
             --md-sys-color-primary: #37003c;
         }
@@ -87,7 +87,6 @@
         .sort-btn.active-rise { background: var(--livefpl-green); color: black; border-color: var(--livefpl-green); }
         .sort-btn.active-fall { background: var(--livefpl-red); color: white; border-color: var(--livefpl-red); }
 
-        /* SMART TOGGLE STYLING */
         .smart-row {
             display: flex;
             justify-content: space-between;
@@ -143,22 +142,34 @@
         .price-table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; }
         .price-table thead { background: var(--livefpl-dark); color: white; font-size: 0.55rem; text-transform: uppercase; }
         .price-table th { padding: 12px 2px; font-weight: 800; }
-        .player-row { border-bottom: 1px solid var(--border-color); height: 65px; }
+        
+        .player-row { 
+            background-color: #ffffff; /* Explicit background to fix visibility */
+            border-bottom: 1px solid var(--border-color); 
+            height: 70px; 
+        }
+        
         .player-cell { padding: 4px 2px; vertical-align: middle; text-align: center; font-size: 0.65rem; }
         
         .info-col { text-align: left !important; display: flex; align-items: center; gap: 8px; padding-left: 10px !important; }
-        .shirt-img { width: 28px; height: auto; flex-shrink: 0; }
-
+        .shirt-img { width: 32px; height: auto; flex-shrink: 0; }
+        
+        /* Fixed Player Name styling */
         .p-name { 
-    display: block; 
-    font-weight: 800; 
-    color: var(--text-dark); /* Use the variable instead of hardcoding */
-    font-size: 0.85rem; /* Slightly larger for better readability */
-    line-height: 1.2;
-    margin-bottom: 2px;
-}
-       
-        .p-meta { display: block; font-size: 0.55rem; color: var(--text-gray); font-weight: 600; margin-top: 2px; }
+            display: block; 
+            font-weight: 800; 
+            color: #000000 !important; 
+            font-size: 0.85rem; 
+            line-height: 1.2; 
+        }
+        
+        .p-meta { 
+            display: block; 
+            font-size: 0.6rem; 
+            color: var(--text-gray); 
+            font-weight: 600; 
+            margin-top: 2px; 
+        }
 
         .progress-wrapper { width: 90%; background: #e2e8f0; border-radius: 10px; height: 8px; overflow: hidden; margin: 4px auto 0; }
         .progress-fill { height: 100%; border-radius: 10px; transition: width 0.8s ease-in-out; }
@@ -295,7 +306,7 @@
                     target: parseFloat((validTransfers / threshold * 100).toFixed(1)),
                     trend: (p.transfers_in_event / 18000).toFixed(2),
                     status: p.status,
-                    hasChanged: p.cost_change_event !== 0 // THIS IS THE SMART TRACKER
+                    hasChanged: p.cost_change_event !== 0
                 };
             });
 
@@ -311,15 +322,12 @@
         const list = document.getElementById('prediction-list');
         const searchTerm = document.getElementById('playerSearch').value.toLowerCase();
         const teamFilter = document.getElementById('teamFilter').value;
-        const isSmartMode = document.getElementById('smartFilter').checked; // GET TOGGLE STATE
+        const isSmartMode = document.getElementById('smartFilter').checked;
 
         let displayData = playerData.filter(p => {
             const matchesName = p.name.toLowerCase().includes(searchTerm);
             const matchesTeam = teamFilter === "all" || String(p.teamId) === teamFilter;
-            
-            // THE SMART FILTER LOGIC
             const passesSmartFilter = isSmartMode ? !p.hasChanged : true;
-
             return matchesName && matchesTeam && passesSmartFilter;
         });
 
@@ -335,8 +343,8 @@
             const barWidth = Math.min(100, Math.abs(p.target));
             
             let prediction = '-';
-            if (Math.abs(p.target) >= 98) prediction = 'Maybe Tonight';
-            else if (Math.abs(p.target) > 85) prediction = 'Maybe Tomorrow';
+            if (Math.abs(p.target) >= 98) prediction = 'Tonight';
+            else if (Math.abs(p.target) > 85) prediction = 'Soon';
 
             return `
                 <tr class="player-row">
