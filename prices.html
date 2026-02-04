@@ -21,123 +21,182 @@
 
     <style>
         :root {
-            --livefpl-dark: #1a202c;
-            --livefpl-green: #00ff87;
-            --livefpl-red: #ff2e63;
-            --livefpl-bg: #f8fafc;
-            --border-color: #e2e8f0;
-            --text-dark: #000000;
-            --text-gray: #64748b;
-            --md-sys-color-primary: #37003c;
+            /* Material You Tonal Palette */
+            --m3-surface: #fdfbff;
+            --m3-surface-variant: #e1e2ec;
+            --m3-primary: #37003c;
+            --m3-on-primary: #ffffff;
+            --m3-primary-container: #ffd7f3;
+            --m3-on-primary-container: #2b0030;
+            --m3-secondary-container: #e8def8;
+            
+            --livefpl-green: #00d573;
+            --livefpl-red: #ff5449;
+            --text-dark: #1c1b1f;
+            --text-gray: #44474e;
+            
+            --br-xl: 28px;
+            --br-lg: 20px;
+            --br-md: 12px;
         }
 
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: var(--livefpl-bg); 
+            background-color: var(--m3-surface); 
             margin: 0; padding: 0; 
             color: var(--text-dark); 
-            overflow-x: hidden; 
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* TIMER & TABS */
+        /* TIMER BANNER */
         .timer-banner { 
-            background: var(--livefpl-dark); color: white; 
-            padding: 10px; text-align: center; border-radius: 0 0 10px 10px; 
+            background: var(--m3-primary); color: white; 
+            padding: 14px; text-align: center; 
+            font-size: 0.7rem; font-weight: 700;
+            letter-spacing: 0.5px;
         }
         .countdown-box { 
             background: var(--livefpl-green); color: black; 
-            padding: 3px 10px; border-radius: 4px; font-weight: 900; font-size: 0.8rem; margin-left: 5px; 
+            padding: 4px 12px; border-radius: 20px; 
+            font-weight: 900; margin-left: 8px;
+            transition: all 0.5s ease;
         }
-        
-        .view-tabs { display: flex; background: white; margin: 10px; border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden; }
-        .view-tab { flex: 1; padding: 12px; text-align: center; font-size: 0.7rem; font-weight: 800; cursor: pointer; color: var(--text-gray); transition: 0.3s; }
-        .view-tab.active { background: var(--md-sys-color-primary); color: white; }
 
-        /* CONTROL HUB */
-        .control-hub { background: white; border-bottom: 1px solid var(--border-color); padding: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .filter-row { display: flex; gap: 8px; margin-bottom: 10px; }
-        #playerSearch { flex: 2; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 0.75rem; outline: none; }
-        #teamFilter { flex: 1.2; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 0.75rem; background: white; }
+        /* MATERIAL TABS */
+        .view-tabs { 
+            display: flex; gap: 8px; padding: 16px; 
+            background: var(--m3-surface);
+        }
+        .view-tab { 
+            flex: 1; padding: 12px; text-align: center; 
+            font-size: 0.75rem; font-weight: 700; border-radius: var(--br-xl);
+            background: var(--m3-surface-variant); color: var(--text-gray);
+            cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .view-tab.active { 
+            background: var(--m3-primary-container); 
+            color: var(--m3-on-primary-container); 
+        }
+
+        /* CONTROL HUB (M3 SEARCH) */
+        .control-hub { padding: 0 16px 16px; }
+        .filter-row { margin-bottom: 12px; }
+        #playerSearch { 
+            width: 100%; border: none; background: var(--m3-surface-variant);
+            border-radius: var(--br-xl); padding: 14px 20px;
+            font-size: 0.9rem; outline: none; box-sizing: border-box;
+            font-weight: 500;
+        }
         
         .sort-row { display: flex; gap: 8px; }
-        .sort-btn { flex: 1; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; font-size: 0.65rem; font-weight: 800; cursor: pointer; background: #f8fafc; color: var(--text-gray); }
-        .sort-btn.active-rise { background: var(--livefpl-green); color: black; border-color: var(--livefpl-green); }
-        .sort-btn.active-fall { background: var(--livefpl-red); color: white; border-color: var(--livefpl-red); }
-
-        /* HISTORY LOG */
-        .history-log { margin: 15px 10px; background: #fff; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
-        .history-header { background: var(--livefpl-dark); color: white; padding: 8px 12px; font-size: 0.65rem; font-weight: 800; display: flex; justify-content: space-between; }
-        .history-item { display: flex; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.75rem; align-items: center; }
-        .price-pill { padding: 2px 8px; border-radius: 4px; font-weight: 900; font-size: 0.7rem; }
-        .pill-rise { background: var(--livefpl-green); color: #065f46; }
-        .pill-fall { background: #fee2e2; color: #b91c1c; }
-
-        /* TABLE */
-        .price-table { width: 100%; border-collapse: collapse; background: white; }
-        .price-table thead { background: var(--livefpl-dark); color: white; font-size: 0.55rem; text-transform: uppercase; }
-        .price-table th { padding: 12px 5px; text-align: center; }
-        .player-row { border-bottom: 1px solid var(--border-color); }
-        .player-cell { padding: 8px 2px; vertical-align: middle; text-align: center; font-size: 0.65rem; }
-        .info-col { text-align: left !important; display: flex; align-items: center; gap: 6px; padding-left: 10px !important; }
-        .shirt-img { width: 28px; height: auto; }
-        
-        .p-name { 
-            display: block; 
-            font-weight: 800; 
-            color: #000000 !important; 
-            background: transparent !important; 
-            font-size: 0.8rem; 
+        .sort-btn { 
+            flex: 1; border: none; padding: 12px; border-radius: var(--br-lg);
+            font-size: 0.7rem; font-weight: 800; cursor: pointer;
+            background: var(--m3-surface-variant); color: var(--text-gray);
+        }
+        .sort-btn.active-rise { background: var(--livefpl-green); color: black; }
+        .sort-btn.active-fall { background: var(--livefpl-red); color: white; }
+        #teamFilter {
+            flex: 1; border: none; background: var(--m3-surface-variant);
+            border-radius: var(--br-lg); padding: 10px; font-size: 0.7rem; font-weight: 700;
         }
 
-        .star-btn { cursor: pointer; font-size: 0.8rem; color: #d1d5db; transition: 0.2s; }
-        .star-btn.active { color: #fbbf24; }
-        
-        .progress-wrapper { width: 80%; background: #e2e8f0; border-radius: 10px; height: 6px; overflow: hidden; margin: 4px auto 0; }
-        .progress-fill { height: 100%; transition: width 0.8s; }
+        /* HISTORY CARD */
+        .history-log { 
+            margin: 0 16px 20px; background: var(--m3-secondary-container); 
+            border-radius: var(--br-xl); overflow: hidden; 
+        }
+        .history-header { 
+            padding: 12px 16px; font-size: 0.65rem; font-weight: 900; 
+            display: flex; justify-content: space-between; align-items: center;
+            color: var(--m3-on-primary-container); opacity: 0.8;
+        }
+        .history-item { 
+            display: flex; justify-content: space-between; padding: 12px 16px; 
+            background: rgba(255,255,255,0.3); margin: 0 8px 8px; border-radius: var(--br-md);
+            font-size: 0.8rem; align-items: center; 
+        }
+        .price-pill { padding: 4px 10px; border-radius: 8px; font-weight: 900; font-size: 0.7rem; }
+        .pill-rise { background: var(--livefpl-green); color: #065f46; }
+        .pill-fall { background: #ffdad6; color: #ba1a1a; }
 
         /* SMART TOGGLE */
-        .smart-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f1f5f9; border-radius: 8px; margin: 10px; border: 1px dashed #cbd5e1; }
-        .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
+        .smart-row { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 14px 20px; background: var(--m3-surface-variant); 
+            border-radius: var(--br-xl); margin: 0 16px 20px;
+        }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--livefpl-green); }
-        input:checked + .slider:before { transform: translateX(14px); }
+        .slider { 
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; 
+            background-color: #938f99; transition: .4s; border-radius: 24px; 
+        }
+        .slider:before { 
+            position: absolute; content: ""; height: 18px; width: 18px; 
+            left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; 
+        }
+        input:checked + .slider { background-color: var(--m3-primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* TABLE */
+        .price-table { width: 100%; border-collapse: collapse; }
+        .price-table thead { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-gray); }
+        .price-table th { padding: 12px 10px; border-bottom: 1px solid var(--m3-surface-variant); }
+        .player-row { border-bottom: 1px solid var(--m3-surface-variant); transition: background 0.2s; }
+        .player-row:active { background: var(--m3-surface-variant); }
+        .player-cell { padding: 12px 4px; vertical-align: middle; text-align: center; }
+        
+        .info-col { text-align: left !important; display: flex; align-items: center; gap: 10px; padding-left: 16px !important; }
+        .shirt-img { width: 36px; height: auto; }
+        .p-name { display: block; font-weight: 800; font-size: 0.85rem; color: var(--text-dark); }
+        .p-meta { font-size: 0.65rem; color: var(--text-gray); font-weight: 600; }
+
+        .star-btn { cursor: pointer; font-size: 1rem; color: #d1d5db; padding: 5px; }
+        .star-btn.active { color: #ffb400; }
+        
+        .progress-wrapper { width: 90%; background: var(--m3-surface-variant); border-radius: 10px; height: 8px; overflow: hidden; margin: 6px auto 0; }
+        .progress-fill { height: 100%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body>
 
-<main>
+<main style="padding-bottom: 100px;">
     <div class="timer-banner">
-        <span style="font-size: 0.65rem; font-weight: 800; color: #cbd5e1;">NEXT UPDATE IN:</span>
-        <span class="countdown-box" id="price-timer">00:00:00</span>
+        PRICE CHANGE IN: <span class="countdown-box" id="price-timer">00:00:00</span>
     </div>
 
     <div class="view-tabs">
-        <div class="view-tab active" id="tab-market" onclick="switchView('market')">MARKET</div>
-        <div class="view-tab" id="tab-watchlist" onclick="switchView('watchlist')">WATCHLIST (<span id="watch-count">0</span>)</div>
+        <div class="view-tab active" id="tab-market" onclick="switchView('market')">
+            <i class="fa-solid fa-chart-line"></i> Market
+        </div>
+        <div class="view-tab" id="tab-watchlist" onclick="switchView('watchlist')">
+            <i class="fa-solid fa-star"></i> Watchlist (<span id="watch-count">0</span>)
+        </div>
     </div>
 
     <div class="control-hub">
         <div class="filter-row">
-            <input type="text" id="playerSearch" placeholder="Search player..." onkeyup="render()">
+            <input type="text" id="playerSearch" placeholder="Search player name..." onkeyup="render()">
+        </div>
+        <div class="sort-row">
+            <button class="sort-btn active-rise" id="btn-rise" onclick="setSort('rise')">Top Risers</button>
+            <button class="sort-btn" id="btn-fall" onclick="setSort('fall')">Top Fallers</button>
             <select id="teamFilter" onchange="render()">
                 <option value="all">All Teams</option>
             </select>
         </div>
-        <div class="sort-row">
-            <button class="sort-btn active-rise" id="btn-rise" onclick="setSort('rise')">TOP RISERS</button>
-            <button class="sort-btn" id="btn-fall" onclick="setSort('fall')">TOP FALLERS</button>
-        </div>
     </div>
 
     <section class="history-log">
-        <div class="history-header"><span>LAST NIGHT'S CHANGES</span><i class="fa-solid fa-bolt"></i></div>
+        <div class="history-header"><span>OVERNIGHT CHANGES</span><i class="fa-solid fa-bolt-lightning"></i></div>
         <div id="history-container"></div>
     </section>
 
     <div class="smart-row">
-        <span style="font-size:0.65rem; font-weight:800;"><i class="fa-solid fa-brain"></i> HIDE RECENT MOVERS</span>
+        <span style="font-size:0.75rem; font-weight:800; color:var(--m3-primary);"><i class="fa-solid fa-wand-magic-sparkles"></i> Hide Recent Movers</span>
         <label class="switch">
             <input type="checkbox" id="smartFilter" checked onchange="render()">
             <span class="slider"></span>
@@ -147,10 +206,10 @@
     <table class="price-table">
         <thead>
             <tr>
-                <th style="width:40%; text-align:left; padding-left:10px;">Player</th>
-                <th style="width:25%;">Progress</th>
+                <th style="width:42%; text-align:left; padding-left:16px;">Player</th>
+                <th style="width:23%;">Target</th>
                 <th style="width:15%;">Prob</th>
-                <th style="width:20%;">Pred</th>
+                <th style="width:20%;">Prediction</th>
             </tr>
         </thead>
         <tbody id="prediction-list"></tbody>
@@ -167,7 +226,6 @@
             const res = await fetch(PROXY);
             const data = await res.json();
             
-            // 1. Process Teams
             data.teams.forEach(t => { 
                 teamMap[t.id] = t.short_name;
                 const opt = document.createElement('option');
@@ -175,10 +233,10 @@
                 document.getElementById('teamFilter').appendChild(opt);
             });
 
-            // 2. Algorithm Parameters (LiveFPL Inspired)
+            // LiveFPL-based Accuracy Params
             const currentEvent = data.events.find(e => e.is_current) || data.events[0];
             const currentGW = currentEvent.id;
-            const decayFactor = Math.max(0.7, 1 - (currentGW * 0.02)); 
+            const decayFactor = Math.max(0.7, 1 - (currentGW * 0.025)); 
 
             const savedPrices = JSON.parse(localStorage.getItem('kopala_price_tracker') || '{}');
             let history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
@@ -187,7 +245,7 @@
             playerData = data.elements.map(p => {
                 currentTracker[p.id] = p.now_cost;
                 
-                // Detection for history
+                // Track historical shifts
                 if (savedPrices[p.id] && savedPrices[p.id] !== p.now_cost) {
                     const changeType = p.now_cost > savedPrices[p.id] ? 'rise' : 'fall';
                     if (!history.some(h => h.id === p.id && h.date === new Date().toLocaleDateString())) {
@@ -195,24 +253,20 @@
                     }
                 }
 
-                // 3. ADVANCED ACCURACY ENGINE
+                // Core Algorithm (LiveFPL Theory)
                 let net = (p.transfers_in_event - p.transfers_out_event);
-                let activeTransfers = net * 0.75; // Deduct ~25% for Wildcards/FH
-
+                let activeTransfers = net * 0.75; // Subtract 25% for chips
                 let ownership = parseFloat(p.selected_by_percent);
-                let baseThreshold = (7200 + (ownership * 1600)) * decayFactor;
-
-                // Handle Flags (resistance to price change)
-                if (p.status !== 'a') {
-                    baseThreshold *= (p.status === 'i' || p.status === 's') ? 3.8 : 2.2;
-                }
+                
+                let baseThreshold = (7000 + (ownership * 1600)) * decayFactor;
+                if (p.status !== 'a') baseThreshold *= 3.8; // Flag resistance
 
                 let target = (activeTransfers / baseThreshold) * 100;
                 
-                // Probability logic
+                // Probability calculation
                 let prob = 0;
-                if (target > 0) prob = Math.min(99, (target / 1.1)); 
-                else prob = Math.min(99, (Math.abs(target) / 1.1));
+                if (target > 0) prob = Math.min(99, (target / 1.15)); 
+                else prob = Math.min(99, (Math.abs(target) / 1.15));
 
                 let prediction = "-";
                 if (p.cost_change_event === 0) {
@@ -274,24 +328,23 @@
                             <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" class="shirt-img">
                             <div>
                                 <span class="p-name">${p.name} ${p.status !== 'a' ? '⚠️' : ''}</span>
-                                <span class="p-meta">${p.pos} | £${p.price}</span>
+                                <span class="p-meta">${teamMap[p.teamId]} | £${p.price}</span>
                             </div>
                         </div>
                     </td>
                     <td class="player-cell">
-                        <span style="font-weight:900;">${Math.abs(p.target).toFixed(1)}%</span>
+                        <span style="font-weight:900; font-size:0.75rem;">${Math.abs(p.target).toFixed(1)}%</span>
                         <div class="progress-wrapper">
                             <div class="progress-fill" style="width:${barWidth}%; background:${isRise ? 'var(--livefpl-green)' : 'var(--livefpl-red)'}"></div>
                         </div>
                     </td>
                     <td class="player-cell">
-                        <div style="font-weight:900; color:${probColor}">${p.probability}%</div>
-                        <div style="font-size:0.55rem; color:var(--text-gray)">PROB</div>
+                        <div style="font-weight:900; color:${probColor}; font-size:0.8rem;">${p.probability}%</div>
                     </td>
-                    <td class="player-cell" style="font-weight:800; color:${p.prediction === 'Tonight' ? 'var(--livefpl-red)' : 'var(--text-gray)'}">${p.prediction}</td>
+                    <td class="player-cell" style="font-weight:800; font-size:0.65rem; color:${p.prediction === 'Tonight' ? 'var(--livefpl-red)' : 'var(--text-gray)'}">${p.prediction}</td>
                 </tr>
             `;
-        }).join('') || '<tr><td colspan="4" style="text-align:center; padding:30px; font-size:0.7rem;">Empty View</td></tr>';
+        }).join('') || '<tr><td colspan="4" style="text-align:center; padding:40px; font-size:0.8rem; color:var(--text-gray);">No players found</td></tr>';
     }
 
     function renderHistory() {
@@ -301,11 +354,12 @@
                 <span style="font-weight:800;">${item.name}</span>
                 <div class="price-pill ${item.type === 'rise' ? 'pill-rise' : 'pill-fall'}">£${item.old} → £${item.new}</div>
             </div>
-        `).join('') || '<div class="history-item">No recent changes.</div>';
+        `).join('') || '<div style="padding:15px; text-align:center; font-size:0.7rem; opacity:0.6;">Waiting for next price cycle...</div>';
     }
 
     function toggleWatch(id, e) {
         e.stopPropagation();
+        if (window.navigator.vibrate) window.navigator.vibrate(10);
         const idx = watchlist.indexOf(id);
         if (idx > -1) watchlist.splice(idx, 1); else watchlist.push(id);
         localStorage.setItem('kopala_watchlist', JSON.stringify(watchlist));
@@ -329,38 +383,28 @@
     }
 
     function updateTimer() {
-    const now = new Date();
-    let target = new Date();
-    
-    // Set target to 01:30:00 UTC
-    target.setUTCHours(1, 30, 0, 0);
+        const now = new Date();
+        let target = new Date();
+        target.setUTCHours(1, 30, 0, 0); // 01:30 UTC
 
-    // If we have already passed 01:30 UTC today, set target to tomorrow
-    if (now > target) {
-        target.setUTCDate(target.getUTCDate() + 1);
-    }
+        if (now > target) target.setUTCDate(target.getUTCDate() + 1);
 
-    const diff = target - now;
+        const diff = target - now;
+        const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
 
-    // Calculate hours, minutes, seconds
-    const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
-    const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-    const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-
-    const timerElement = document.getElementById('price-timer');
-    if (timerElement) {
-        timerElement.innerText = `${h}:${m}:${s}`;
+        const el = document.getElementById('price-timer');
+        el.innerText = `${h}:${m}:${s}`;
         
-        // Visual cue: If less than 1 hour remains, turn timer red
-        if (diff < 3600000) {
-            timerElement.style.background = "var(--livefpl-red)";
-            timerElement.style.color = "white";
+        if (diff < 3600000) { // Under 1 hour
+            el.style.background = "var(--livefpl-red)";
+            el.style.color = "white";
         } else {
-            timerElement.style.background = "var(--livefpl-green)";
-            timerElement.style.color = "black";
+            el.style.background = "var(--livefpl-green)";
+            el.style.color = "black";
         }
     }
-}
 
     init();
 </script>
