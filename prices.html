@@ -81,7 +81,6 @@
         .info-col { text-align: left !important; display: flex; align-items: center; gap: 6px; padding-left: 10px !important; }
         .shirt-img { width: 28px; height: auto; }
         
-        /* FIXED PLAYER NAME */
         .p-name { 
             display: block; 
             font-weight: 800; 
@@ -95,8 +94,6 @@
         
         .progress-wrapper { width: 80%; background: #e2e8f0; border-radius: 10px; height: 6px; overflow: hidden; margin: 4px auto 0; }
         .progress-fill { height: 100%; transition: width 0.8s; }
-        .trend-up { color: #16a34a; font-weight: 900; }
-        .trend-down { color: #dc2626; font-weight: 900; }
 
         /* SMART TOGGLE */
         .smart-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f1f5f9; border-radius: 8px; margin: 10px; border: 1px dashed #cbd5e1; }
@@ -150,10 +147,10 @@
     <table class="price-table">
         <thead>
             <tr>
-                <th style="width:45%; text-align:left; padding-left:10px;">Player</th>
+                <th style="width:40%; text-align:left; padding-left:10px;">Player</th>
                 <th style="width:25%;">Progress</th>
-                <th style="width:15%;">Pred</th>
-                <th style="width:15%;">+/-</th>
+                <th style="width:15%;">Prob</th>
+                <th style="width:20%;">Pred</th>
             </tr>
         </thead>
         <tbody id="prediction-list"></tbody>
@@ -170,12 +167,18 @@
             const res = await fetch(PROXY);
             const data = await res.json();
             
+            // 1. Process Teams
             data.teams.forEach(t => { 
                 teamMap[t.id] = t.short_name;
                 const opt = document.createElement('option');
                 opt.value = t.id; opt.innerText = t.name;
                 document.getElementById('teamFilter').appendChild(opt);
             });
+
+            // 2. Algorithm Parameters (LiveFPL Inspired)
+            const currentEvent = data.events.find(e => e.is_current) || data.events[0];
+            const currentGW = currentEvent.id;
+            const decayFactor = Math.max(0.7, 1 - (currentGW * 0.02)); 
 
             const savedPrices = JSON.parse(localStorage.getItem('kopala_price_tracker') || '{}');
             let history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
@@ -184,6 +187,7 @@
             playerData = data.elements.map(p => {
                 currentTracker[p.id] = p.now_cost;
                 
+                // Detection for history
                 if (savedPrices[p.id] && savedPrices[p.id] !== p.now_cost) {
                     const changeType = p.now_cost > savedPrices[p.id] ? 'rise' : 'fall';
                     if (!history.some(h => h.id === p.id && h.date === new Date().toLocaleDateString())) {
@@ -191,17 +195,38 @@
                     }
                 }
 
-                let net = (p.transfers_in_event - p.transfers_out_event) * 0.75;
-                let threshold = (7500 + (parseFloat(p.selected_by_percent) * 1600));
-                if (p.status !== 'a') threshold *= 3.5;
+                // 3. ADVANCED ACCURACY ENGINE
+                let net = (p.transfers_in_event - p.transfers_out_event);
+                let activeTransfers = net * 0.75; // Deduct ~25% for Wildcards/FH
+
+                let ownership = parseFloat(p.selected_by_percent);
+                let baseThreshold = (7200 + (ownership * 1600)) * decayFactor;
+
+                // Handle Flags (resistance to price change)
+                if (p.status !== 'a') {
+                    baseThreshold *= (p.status === 'i' || p.status === 's') ? 3.8 : 2.2;
+                }
+
+                let target = (activeTransfers / baseThreshold) * 100;
                 
-                let target = (net / threshold) * 100;
-                let prediction = target >= 98 ? 'Tonight' : (target >= 85 ? 'Soon' : '-');
+                // Probability logic
+                let prob = 0;
+                if (target > 0) prob = Math.min(99, (target / 1.1)); 
+                else prob = Math.min(99, (Math.abs(target) / 1.1));
+
+                let prediction = "-";
+                if (p.cost_change_event === 0) {
+                    if (target >= 100) prediction = "Tonight";
+                    else if (target >= 85) prediction = "Soon";
+                    else if (target <= -100) prediction = "Falling";
+                } else {
+                    prediction = "Locked";
+                }
 
                 return {
                     id: p.id, name: p.web_name, teamId: p.team, teamCode: p.team_code, pos: ["","GKP","DEF","MID","FWD"][p.element_type],
                     price: (p.now_cost/10).toFixed(1), target: parseFloat(target.toFixed(1)), 
-                    trend: (p.transfers_in_event / 15000).toFixed(2), status: p.status, prediction: prediction,
+                    probability: Math.round(prob), status: p.status, prediction: prediction,
                     hasChanged: p.cost_change_event !== 0
                 };
             });
@@ -237,6 +262,10 @@
             const barWidth = Math.min(100, Math.abs(p.target));
             const isStarred = watchlist.includes(p.id);
 
+            let probColor = "var(--text-gray)";
+            if (p.probability > 80) probColor = "var(--livefpl-red)";
+            else if (p.probability > 50) probColor = "#f59e0b";
+
             return `
                 <tr class="player-row">
                     <td class="player-cell">
@@ -255,8 +284,11 @@
                             <div class="progress-fill" style="width:${barWidth}%; background:${isRise ? 'var(--livefpl-green)' : 'var(--livefpl-red)'}"></div>
                         </div>
                     </td>
+                    <td class="player-cell">
+                        <div style="font-weight:900; color:${probColor}">${p.probability}%</div>
+                        <div style="font-size:0.55rem; color:var(--text-gray)">PROB</div>
+                    </td>
                     <td class="player-cell" style="font-weight:800; color:${p.prediction === 'Tonight' ? 'var(--livefpl-red)' : 'var(--text-gray)'}">${p.prediction}</td>
-                    <td class="player-cell ${isRise ? 'trend-up' : 'trend-down'}">${isRise ? '▲' : '▼'}${p.trend}</td>
                 </tr>
             `;
         }).join('') || '<tr><td colspan="4" style="text-align:center; padding:30px; font-size:0.7rem;">Empty View</td></tr>';
