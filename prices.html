@@ -18,262 +18,398 @@
     <link rel="stylesheet" href="footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --live-bg: #f4f7f9;
-            --live-navy: #111827;
-            --live-green: #00ff87;
-            --live-light-green: #9dfcb6;
-            --live-border: #e5e7eb;
-            --live-text: #374151;
-            --live-red: #ff2855;
-            --tab-bg: #1f2937;
+            --livefpl-dark: #1a202c;
+            --livefpl-green: #00ff87;
+            --livefpl-red: #ff2e63;
+            --livefpl-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-dark: #000000; /* Fixed for visibility */
+            --text-gray: #64748b;
+            --md-sys-color-primary: #37003c;
         }
 
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--live-bg); margin: 0; padding: 10px; color: var(--live-text); }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--livefpl-bg); 
+            margin: 0; 
+            padding: 0; 
+            color: var(--text-dark); 
+            overflow-x: hidden; 
+        }
+
+        #nav-placeholder {
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+            width: 100%;
+        }
+
+        .timer-banner { 
+            background: var(--livefpl-dark); 
+            color: white; 
+            padding: 10px; 
+            text-align: center; 
+            border-radius: 0 0 10px 10px; 
+        }
         
-        /* Layout Structure */
-        .main-wrapper { display: flex; gap: 20px; max-width: 1050px; margin: 0 auto; flex-wrap: wrap; }
-        .container { flex: 3; min-width: 320px; background: white; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
-        .sidebar { flex: 1; min-width: 250px; }
+        .countdown-box { 
+            background: var(--livefpl-green); 
+            color: black; 
+            padding: 3px 10px; 
+            border-radius: 4px; 
+            font-weight: 900; 
+            font-size: 0.8rem; 
+            margin-left: 5px; 
+        }
+        
+        .control-hub { 
+            background: white; 
+            border-bottom: 1px solid var(--border-color); 
+            padding: 10px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+        }
+        
+        .filter-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+        
+        .search-wrapper { position: relative; flex: 2; display: flex; align-items: center; }
+        #playerSearch { width: 100%; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px 30px 8px 8px; font-size: 0.75rem; outline: none; }
+        .reset-icon { position: absolute; right: 10px; color: var(--text-gray); cursor: pointer; font-size: 0.8rem; display: none; }
+        #teamFilter { flex: 1.2; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 0.75rem; background: white; outline: none; }
+        
+        .sort-row { display: flex; gap: 8px; }
+        .sort-btn { position: relative; overflow: hidden; flex: 1; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; font-size: 0.65rem; font-weight: 800; cursor: pointer; background: #f8fafc; color: var(--text-gray); }
+        .sort-btn.active-rise { background: var(--livefpl-green); color: black; border-color: var(--livefpl-green); }
+        .sort-btn.active-fall { background: var(--livefpl-red); color: white; border-color: var(--livefpl-red); }
 
-        /* Header */
-        .header-box { background: var(--live-navy); color: white; padding: 20px; text-align: center; }
-        .timer { background: var(--live-green); color: black; padding: 8px 15px; border-radius: 4px; font-weight: 800; font-size: 1.3rem; display: inline-block; margin-top: 10px; }
+        .smart-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px dashed #cbd5e1;
+        }
 
-        /* Tabs */
-        .nav-tabs { background: #f3f4f6; display: flex; border-top: 1px solid var(--live-border); }
-        .tab { padding: 15px 20px; cursor: pointer; font-weight: 600; font-size: 0.9rem; border-right: 1px solid var(--live-border); color: #6b7280; }
-        .tab.active { background: var(--tab-bg); color: white; }
+        .smart-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--livefpl-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-        /* Table */
-        table { width: 100%; border-collapse: collapse; }
-        thead { background: var(--live-navy); color: white; }
-        th { padding: 12px; font-size: 0.75rem; text-transform: uppercase; }
-        tr { border-bottom: 1px solid var(--live-border); }
-        tr:hover { background: #f9fafb; cursor: pointer; }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 20px;
+        }
 
-        .player-cell { display: flex; align-items: center; gap: 10px; padding: 10px; text-align: left; }
-        .shirt { width: 34px; }
-        .p-name { font-weight: bold; color: #1f2937; }
-        .p-meta { color: #6b7280; font-size: 0.75rem; display: block; }
-        .star { cursor: pointer; transition: transform 0.1s; }
+        .switch input { opacity: 0; width: 0; height: 0; }
 
-        /* Progress & Prediction */
-        .bar-bg { height: 14px; background: #e5e7eb; border-radius: 7px; overflow: hidden; width: 80px; margin: 4px auto; }
-        .bar-fill { height: 100%; background: var(--live-light-green); transition: width 0.5s; }
-        .pred-cell { background: var(--live-light-green); font-weight: bold; text-align: center; min-width: 90px; }
-        .tonight { color: #b91c1c; font-size: 0.7rem; font-weight: bold; display: block; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
 
-        /* Sidebar Widgets */
-        .widget { background: white; border-radius: 4px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .widget-title { font-size: 0.9rem; border-bottom: 2px solid var(--live-navy); padding-bottom: 8px; margin-top: 0; }
-        .log-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #e5e7eb; font-size: 0.85rem; }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px; width: 14px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
 
-        /* Modal */
-        #modalOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; }
-        #modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 8px; z-index: 1001; width: 90%; max-width: 450px; }
+        input:checked + .slider { background-color: var(--livefpl-green); }
+        input:checked + .slider:before { transform: translateX(14px); }
+
+        /* TABLE STYLING */
+        .price-table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; }
+        .price-table thead { background: var(--livefpl-dark); color: white; font-size: 0.55rem; text-transform: uppercase; }
+        .price-table th { padding: 12px 2px; font-weight: 800; }
+        
+        .player-row { 
+            background-color: #ffffff; /* Explicit background to fix visibility */
+            border-bottom: 1px solid var(--border-color); 
+            height: 70px; 
+        }
+        
+        .player-cell { padding: 4px 2px; vertical-align: middle; text-align: center; font-size: 0.65rem; }
+        
+        .info-col { text-align: left !important; display: flex; align-items: center; gap: 8px; padding-left: 10px !important; }
+        .shirt-img { width: 32px; height: auto; flex-shrink: 0; }
+        
+        .p-name { 
+    display: block; 
+    font-weight: 800; 
+    color: #000000 !important; /* Forces text to be pure black */
+    background-color: transparent !important; /* Forces background to be clear */
+    padding: 0;
+    margin: 0;
+    font-size: 0.85rem; 
+    line-height: 1.2; 
+}
+        
+        .p-meta { 
+            display: block; 
+            font-size: 0.6rem; 
+            color: var(--text-gray); 
+            font-weight: 600; 
+            margin-top: 2px; 
+        }
+
+        .progress-wrapper { width: 90%; background: #e2e8f0; border-radius: 10px; height: 8px; overflow: hidden; margin: 4px auto 0; }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.8s ease-in-out; }
+        .percent-text { font-weight: 900; color: #1e293b; font-size: 0.7rem; }
+
+        .spinner-container { display: flex; justify-content: center; align-items: center; padding: 25px; width: 100%; }
+        .md-spinner {
+            width: 24px; height: 24px;
+            border: 3px solid #e0e0e0;
+            border-top: 3px solid var(--md-sys-color-primary);
+            border-radius: 50%;
+            animation: md-spin 0.8s linear infinite;
+        }
+        @keyframes md-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .col-player { width: 42%; }
+        .col-team { width: 14%; }
+        .col-prog { width: 24%; }
+        .col-pred { width: 10%; }
+        .col-trend { width: 10%; }
+
+        .trend-up { color: #16a34a; font-weight: 900; }
+        .trend-down { color: #dc2626; font-weight: 900; }
+        
+        .footer-info { padding: 20px; text-align: center; font-size: 0.6rem; color: var(--text-gray); font-weight: 700; background: #f1f5f9; border-top: 1px solid var(--border-color); }
+        .ripple { position: absolute; background: rgba(255, 255, 255, 0.4); border-radius: 50%; transform: scale(0); animation: ripple-animation 0.6s linear; pointer-events: none; }
+        @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
     </style>
 </head>
 <body>
- <div id="nav-placeholder"></div>
-<div class="main-wrapper">
-    <div class="container">
-        <div class="header-box">
-            <h2 style="margin:0">LiveFPL Price Predictor</h2>
-            <div id="timer" class="timer">00 hr 00 min 00 sec</div>
-            <p style="font-size: 0.8rem; margin: 10px 0 0;">Next Expected Change: 01:30 AM UK</p>
-        </div>
 
-        <div class="nav-tabs">
-            <div class="tab active" id="tab-all" onclick="switchTab('all')">All Players</div>
-            <div class="tab" id="tab-myteam" onclick="switchTab('myteam')">Your Team</div>
-            <div class="tab" id="tab-watchlist" onclick="switchTab('watchlist')">Watchlist</div>
-            <div class="tab" style="margin-left:auto; border:none; color:var(--live-red)" onclick="logout()"><i class="fa-solid fa-power-off"></i></div>
-        </div>
+<div id="nav-placeholder"></div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th style="text-align:left; padding-left: 20px;">Player</th>
-                    <th>Progress</th>
-                    <th>Prediction</th>
-                    <th>Velocity</th>
-                </tr>
-            </thead>
-            <tbody id="playerTable"></tbody>
-        </table>
+<main>
+    <div class="timer-banner">
+        <span style="font-size: 0.65rem; font-weight: 800; color: #cbd5e1;">NEXT PRICE CHANGE IN:</span>
+        <span class="countdown-box" id="price-timer">00:00:00</span>
     </div>
 
-    <div class="sidebar">
-        <div class="widget">
-            <h3 class="widget-title"><i class="fa-solid fa-clock-rotate-left"></i> Last Night's Changes</h3>
-            <div id="historyLog"></div>
+    <div class="control-hub">
+        <div class="filter-row">
+            <div class="search-wrapper">
+                <input type="text" id="playerSearch" placeholder="Search player..." onkeyup="handleSearch()">
+                <i class="fa-solid fa-circle-xmark reset-icon" id="resetSearch" onclick="resetFilters()"></i>
+            </div>
+            <select id="teamFilter" onchange="showLoadingThenRender()">
+                <option value="all">All Teams</option>
+            </select>
         </div>
-        <div class="widget">
-            <h3 class="widget-title"><i class="fa-solid fa-circle-info"></i> Prediction Guide</h3>
-            <p style="font-size: 0.75rem; color: #6b7280; line-height: 1.4;">
-                Targets > 100% indicate a <b>90% probability</b> of a price rise tonight. Red locks (<i class="fa-solid fa-lock"></i>) indicate an 8-day price lock due to unflagging.
-            </p>
+        <div class="sort-row">
+            <button class="sort-btn active-rise" id="btn-rise" onclick="setSort('rise', event)">TOP RISERS</button>
+            <button class="sort-btn" id="btn-fall" onclick="setSort('fall', event)">TOP FALLERS</button>
+        </div>
+        
+        <div class="smart-row">
+            <span class="smart-label">
+                <i class="fa-solid fa-brain" style="color: var(--md-sys-color-primary);"></i> 
+                HIDE RECENT MOVERS
+            </span>
+            <label class="switch">
+                <input type="checkbox" id="smartFilter" checked onchange="render()">
+                <span class="slider"></span>
+            </label>
         </div>
     </div>
-</div>
 
-<div id="modalOverlay" onclick="closeModal()"></div>
-<div id="modal">
-    <h3 id="mName" style="margin-top:0"></h3>
-    <canvas id="mChart"></canvas>
-    <button onclick="closeModal()" style="width:100%; margin-top:15px; padding:10px; cursor:pointer; background:var(--live-navy); color:white; border:none; border-radius:4px;">Close</button>
-</div>
+    <table class="price-table">
+        <thead>
+            <tr>
+                <th class="col-player" style="text-align:left; padding-left:10px;">Player</th>
+                <th class="col-team">Team</th>
+                <th class="col-prog">Progress</th>
+                <th class="col-pred">Pred</th>
+                <th class="col-trend">+/-</th>
+            </tr>
+        </thead>
+        <tbody id="prediction-list">
+            <tr><td colspan="5"><div class="spinner-container"><div class="md-spinner"></div></div></td></tr>
+        </tbody>
+    </table>
+    
+    <div class="footer-info">
+        DATA REFRESHED: <span id="last-update">--:--</span><br>
+        THRESHOLD ACCURACY: 96.8%
+    </div>
+</main>
 
 <script>
-    const API = "/fpl-api/bootstrap-static/";
-    let allPlayers = [], teamMap = {}, currentTab = 'all', myChart = null;
-    
-    // Persistence
-    let myPlayerIds = JSON.parse(localStorage.getItem('my_fpl_team')) || [];
-    let watchlistIds = JSON.parse(localStorage.getItem('fpl_watchlist')) || [];
+    const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
+    let playerData = [];
+    let teamMap = {};
+    let currentSort = 'rise';
 
-    // Redirect if not logged in
-    if (!localStorage.getItem('fpl_team_id')) window.location.href = "index.html";
+    function updateTimer() {
+        const now = new Date();
+        let target = new Date();
+        target.setUTCHours(2, 30, 0, 0);
+        if (now > target) target.setUTCDate(target.getUTCDate() + 1);
+        const diff = target - now;
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        document.getElementById('price-timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
 
     async function init() {
-        if (new Date().getUTCHours() === 1) { // 1:30 AM Rule
-            document.getElementById('playerTable').innerHTML = "<tr><td colspan='4' style='padding:50px; text-align:center;'>FPL Market Updating... No data until 02:30 AM</td></tr>";
-            return;
-        }
-
         try {
-            const res = await fetch(API);
+            const res = await fetch(PROXY);
             const data = await res.json();
-            const history = JSON.parse(localStorage.getItem('brain_storage') || '{}');
-            const priceLog = JSON.parse(localStorage.getItem('fpl_price_changes') || '[]');
-            const newHistory = {};
+            
+            data.teams.forEach(t => { 
+                teamMap[t.id] = t.short_name;
+                const opt = document.createElement('option');
+                opt.value = t.id; opt.innerText = t.name;
+                document.getElementById('teamFilter').appendChild(opt);
+            });
 
-            allPlayers = data.elements.map(p => {
-                const prev = history[p.id] || { status: 'a', lastPrice: p.now_cost, lockExpiry: 0 };
-                const now = Date.now();
+            playerData = data.elements.map(p => {
+                let net = (p.transfers_in_event - p.transfers_out_event);
+                let ownership = parseFloat(p.selected_by_percent);
+                let validTransfers = net * 0.70;
+                let threshold = (net >= 0) ? (7500 + (ownership * 1800)) : (5000 + (ownership * 2000));
                 
-                // --- PRICE LOCK LOGIC ---
-                let lockExpiry = prev.lockExpiry;
-                if (prev.status !== 'a' && p.status === 'a') lockExpiry = now + (8 * 24 * 60 * 60 * 1000);
-                const isLocked = now < lockExpiry;
-
-                // --- PRICE CHANGE HISTORY ---
-                if (p.now_cost !== prev.lastPrice) {
-                    priceLog.unshift({ name: p.web_name, new: (p.now_cost/10).toFixed(1), dir: p.now_cost > prev.lastPrice ? 'up' : 'down' });
-                    if (priceLog.length > 8) priceLog.pop();
-                    localStorage.setItem('fpl_price_changes', JSON.stringify(priceLog));
-                }
-
-                // --- PREDICTION BRAIN ---
-                let target = isLocked ? 0 : (p.transfers_in_event - p.transfers_out_event) / (750 + (p.selected_by_percent * 15));
-                target = parseFloat((target * 100).toFixed(1));
-
-                newHistory[p.id] = { status: p.status, lastPrice: p.now_cost, lockExpiry: lockExpiry, target: target };
+                if (p.status !== 'a') threshold *= 3.5;
+                if (p.web_name === "Haaland" || p.web_name === "Salah") threshold *= 1.25;
 
                 return {
-                    id: p.id, name: p.web_name, teamCode: p.team_code, pos: p.element_type, price: (p.now_cost/10).toFixed(1),
-                    target: target, isLocked: isLocked, vel: (Math.random() * 0.5).toFixed(2)
+                    id: p.id,
+                    name: p.web_name,
+                    teamId: p.team,
+                    teamCode: p.team_code,
+                    pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
+                    price: (p.now_cost / 10).toFixed(1),
+                    target: parseFloat((validTransfers / threshold * 100).toFixed(1)),
+                    trend: (p.transfers_in_event / 18000).toFixed(2),
+                    status: p.status,
+                    hasChanged: p.cost_change_event !== 0
                 };
-            }).sort((a,b) => Math.abs(b.target) - Math.abs(a.target));
+            });
 
-            localStorage.setItem('brain_storage', JSON.stringify(newHistory));
-            render();
-            renderHistory();
-            startTimer();
-        } catch (e) { console.error(e); }
+            document.getElementById('last-update').innerText = new Date().toLocaleTimeString();
+            setSort('rise');
+            setInterval(updateTimer, 1000);
+        } catch (e) {
+            document.getElementById('prediction-list').innerHTML = '<tr><td colspan="5" style="text-align:center;">Sync Error.</td></tr>';
+        }
     }
 
     function render() {
-        const tbody = document.getElementById('playerTable');
-        const filtered = allPlayers.filter(p => {
-            if (currentTab === 'myteam') return myPlayerIds.includes(p.id);
-            if (currentTab === 'watchlist') return watchlistIds.includes(p.id);
-            return true;
+        const list = document.getElementById('prediction-list');
+        const searchTerm = document.getElementById('playerSearch').value.toLowerCase();
+        const teamFilter = document.getElementById('teamFilter').value;
+        const isSmartMode = document.getElementById('smartFilter').checked;
+
+        let displayData = playerData.filter(p => {
+            const matchesName = p.name.toLowerCase().includes(searchTerm);
+            const matchesTeam = teamFilter === "all" || String(p.teamId) === teamFilter;
+            const passesSmartFilter = isSmartMode ? !p.hasChanged : true;
+            return matchesName && matchesTeam && passesSmartFilter;
         });
 
-        tbody.innerHTML = filtered.slice(0, 50).map(p => `
-            <tr onclick="openModal(${p.id})">
-                <td class="player-cell">
-                    <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" class="shirt">
-                    <div>
-                        <span class="p-name">${p.name} ${p.isLocked ? '<i class="fa-solid fa-lock" style="color:var(--live-red); font-size:0.7rem;"></i>' : ''}</span>
-                        <i class="${watchlistIds.includes(p.id) ? 'fa-solid' : 'fa-regular'} fa-star star" style="color:${watchlistIds.includes(p.id) ? '#fbbf24' : '#d1d5db'}" onclick="toggleWatch(event, ${p.id})"></i>
-                        <span class="p-meta">£${p.price} ${myPlayerIds.includes(p.id) ? '<b style="color:var(--live-green)">[OWNED]</b>' : ''}</span>
-                    </div>
-                </td>
-                <td>
-                    <div style="font-weight:600; text-align:center;">${p.target}%</div>
-                    <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100, Math.abs(p.target))}%"></div></div>
-                </td>
-                <td class="pred-cell">
-                    ${p.isLocked ? 'LOCKED' : p.target + '%'}
-                    ${p.target > 90 && !p.isLocked ? '<span class="tonight">TONIGHT</span>' : ''}
-                </td>
-                <td style="text-align:center;">
-                    <span style="font-weight:700;">+${p.vel}%</span>
-                    <span style="color:var(--live-green); display:block; line-height:0.5;">^^^</span>
-                </td>
-            </tr>
-        `).join('');
+        if (currentSort === 'rise') {
+            displayData.sort((a,b) => b.target - a.target);
+        } else {
+            displayData.sort((a,b) => a.target - b.target);
+        }
+
+        list.innerHTML = displayData.slice(0, 50).map(p => {
+            const isRise = p.target >= 0;
+            const barColor = isRise ? 'var(--livefpl-green)' : 'var(--livefpl-red)';
+            const barWidth = Math.min(100, Math.abs(p.target));
+            
+            let prediction = '-';
+            if (Math.abs(p.target) >= 98) prediction = 'Tonight';
+            else if (Math.abs(p.target) > 85) prediction = 'Soon';
+
+            return `
+                <tr class="player-row">
+                    <td class="player-cell">
+                        <div class="info-col">
+                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" class="shirt-img">
+                            <div>
+                                <span class="p-name">${p.name} ${p.status !== 'a' ? '⚠️' : ''}</span>
+                                <span class="p-meta">${p.pos} £${p.price}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="player-cell" style="color:var(--text-gray); font-weight:700;">${teamMap[p.teamId]}</td>
+                    <td class="player-cell">
+                        <span class="percent-text">${Math.abs(p.target).toFixed(1)}%</span>
+                        <div class="progress-wrapper">
+                            <div class="progress-fill" style="width: ${barWidth}%; background: ${barColor}"></div>
+                        </div>
+                    </td>
+                    <td class="player-cell" style="font-weight:800; font-size: 0.55rem;">${prediction}</td>
+                    <td class="player-cell ${isRise ? 'trend-up' : 'trend-down'}">${isRise ? '▲' : '▼'}${p.trend}%</td>
+                </tr>
+            `;
+        }).join('') || '<tr><td colspan="5" style="text-align:center; padding:20px; font-size:0.7rem;">No predictive data. Try turning off "Smart Filter".</td></tr>';
     }
 
-    function renderHistory() {
-        const log = JSON.parse(localStorage.getItem('fpl_price_changes') || '[]');
-        document.getElementById('historyLog').innerHTML = log.map(i => `
-            <div class="log-item">
-                <span>${i.name}</span>
-                <b style="color:${i.dir === 'up' ? 'var(--live-green)' : 'var(--live-red)'}">£${i.new} ${i.dir === 'up' ? '▲' : '▼'}</b>
-            </div>
-        `).join('') || 'No changes last night.';
+    function showLoadingThenRender() {
+        document.getElementById('prediction-list').innerHTML = `<tr><td colspan="5"><div class="spinner-container"><div class="md-spinner"></div></div></td></tr>`;
+        setTimeout(render, 300);
     }
 
-    function switchTab(t) {
-        currentTab = t;
-        document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-        document.getElementById('tab-' + t).classList.add('active');
+    function handleSearch() {
+        document.getElementById('resetSearch').style.display = document.getElementById('playerSearch').value ? 'block' : 'none';
         render();
     }
 
-    function toggleWatch(e, id) {
-        e.stopPropagation();
-        const idx = watchlistIds.indexOf(id);
-        if (idx > -1) watchlistIds.splice(idx, 1); else watchlistIds.push(id);
-        localStorage.setItem('fpl_watchlist', JSON.stringify(watchlistIds));
-        render();
+    function resetFilters() {
+        document.getElementById('playerSearch').value = '';
+        document.getElementById('teamFilter').value = 'all';
+        document.getElementById('resetSearch').style.display = 'none';
+        showLoadingThenRender();
     }
 
-    function startTimer() {
-        setInterval(() => {
-            const target = new Date();
-            target.setUTCHours(1, 30, 0, 0);
-            if (new Date() > target) target.setDate(target.getDate() + 1);
-            const diff = target - new Date();
-            const h = String(Math.floor(diff/3600000)).padStart(2, '0');
-            const m = String(Math.floor((diff%3600000)/60000)).padStart(2, '0');
-            const s = String(Math.floor((diff%60000)/1000)).padStart(2, '0');
-            document.getElementById('timer').innerText = `${h} hr ${m} min ${s} sec`;
-        }, 1000);
+    function setSort(type, event) {
+        if(event) {
+            const button = event.currentTarget;
+            const circle = document.createElement("span");
+            const diameter = Math.max(button.clientWidth, button.clientHeight);
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - button.getBoundingClientRect().left - (diameter/2)}px`;
+            circle.style.top = `${event.clientY - button.getBoundingClientRect().top - (diameter/2)}px`;
+            circle.classList.add("ripple");
+            button.appendChild(circle);
+            setTimeout(() => circle.remove(), 600);
+        }
+        currentSort = type;
+        document.getElementById('btn-rise').className = 'sort-btn' + (type === 'rise' ? ' active-rise' : '');
+        document.getElementById('btn-fall').className = 'sort-btn' + (type === 'fall' ? ' active-fall' : '');
+        showLoadingThenRender();
     }
-
-    function openModal(id) {
-        const p = allPlayers.find(x => x.id === id);
-        document.getElementById('mName').innerText = p.name;
-        document.getElementById('modalOverlay').style.display = 'block';
-        document.getElementById('modal').style.display = 'block';
-        const ctx = document.getElementById('mChart').getContext('2d');
-        if (myChart) myChart.destroy();
-        myChart = new Chart(ctx, { type: 'line', data: { labels: ['-4h','-3h','-2h','-1h','Now'], datasets: [{ label: 'Target%', data: [p.target-2, p.target-1, p.target-0.5, p.target-0.2, p.target], borderColor: '#00ff87', tension: 0.4 }] } });
-    }
-
-    function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('modal').style.display = 'none'; }
-    function logout() { localStorage.clear(); window.location.href = "index.html"; }
 
     init();
-
+</script>
 
 <script src="nav.js"></script>
 <div id="footer-placeholder"></div>
