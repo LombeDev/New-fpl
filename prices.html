@@ -18,398 +18,282 @@
     <link rel="stylesheet" href="footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --livefpl-dark: #1a202c;
-            --livefpl-green: #00ff87;
-            --livefpl-red: #ff2e63;
-            --livefpl-bg: #f8fafc;
-            --border-color: #e2e8f0;
-            --text-dark: #000000; /* Fixed for visibility */
-            --text-gray: #64748b;
-            --md-sys-color-primary: #37003c;
+            --fpl-dark: #020617;
+            --fpl-card: #1e293b;
+            --fpl-green: #00ff87;
+            --fpl-red: #ff2855;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
 
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--livefpl-bg); 
-            margin: 0; 
-            padding: 0; 
-            color: var(--text-dark); 
-            overflow-x: hidden; 
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--fpl-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
         }
 
-        #nav-placeholder {
-            position: sticky;
-            top: 0;
-            z-index: 1001;
-            width: 100%;
-        }
+        .dashboard { max-width: 1000px; margin: 0 auto; }
 
-        .timer-banner { 
-            background: var(--livefpl-dark); 
-            color: white; 
-            padding: 10px; 
-            text-align: center; 
-            border-radius: 0 0 10px 10px; 
-        }
-        
-        .countdown-box { 
-            background: var(--livefpl-green); 
-            color: black; 
-            padding: 3px 10px; 
-            border-radius: 4px; 
-            font-weight: 900; 
-            font-size: 0.8rem; 
-            margin-left: 5px; 
-        }
-        
-        .control-hub { 
-            background: white; 
-            border-bottom: 1px solid var(--border-color); 
-            padding: 10px; 
-            position: sticky; 
-            top: 0; 
-            z-index: 100; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-        }
-        
-        .filter-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
-        
-        .search-wrapper { position: relative; flex: 2; display: flex; align-items: center; }
-        #playerSearch { width: 100%; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px 30px 8px 8px; font-size: 0.75rem; outline: none; }
-        .reset-icon { position: absolute; right: 10px; color: var(--text-gray); cursor: pointer; font-size: 0.8rem; display: none; }
-        #teamFilter { flex: 1.2; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 0.75rem; background: white; outline: none; }
-        
-        .sort-row { display: flex; gap: 8px; }
-        .sort-btn { position: relative; overflow: hidden; flex: 1; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; font-size: 0.65rem; font-weight: 800; cursor: pointer; background: #f8fafc; color: var(--text-gray); }
-        .sort-btn.active-rise { background: var(--livefpl-green); color: black; border-color: var(--livefpl-green); }
-        .sort-btn.active-fall { background: var(--livefpl-red); color: white; border-color: var(--livefpl-red); }
-
-        .smart-row {
+        header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            background: #f1f5f9;
-            border-radius: 8px;
-            margin-top: 10px;
-            border: 1px dashed #cbd5e1;
+            padding: 20px 0;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 20px;
         }
 
-        .smart-label {
-            font-size: 0.65rem;
-            font-weight: 800;
-            color: var(--livefpl-dark);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 34px;
-            height: 20px;
-        }
-
-        .switch input { opacity: 0; width: 0; height: 0; }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
+        .status-pill {
+            background: #334155;
+            padding: 6px 14px;
             border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
 
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 14px; width: 14px;
-            left: 3px; bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
+        .market-closed { background: var(--fpl-red); color: white; }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
         }
 
-        input:checked + .slider { background-color: var(--livefpl-green); }
-        input:checked + .slider:before { transform: translateX(14px); }
-
-        /* TABLE STYLING */
-        .price-table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; }
-        .price-table thead { background: var(--livefpl-dark); color: white; font-size: 0.55rem; text-transform: uppercase; }
-        .price-table th { padding: 12px 2px; font-weight: 800; }
-        
-        .player-row { 
-            background-color: #ffffff; /* Explicit background to fix visibility */
-            border-bottom: 1px solid var(--border-color); 
-            height: 70px; 
-        }
-        
-        .player-cell { padding: 4px 2px; vertical-align: middle; text-align: center; font-size: 0.65rem; }
-        
-        .info-col { text-align: left !important; display: flex; align-items: center; gap: 8px; padding-left: 10px !important; }
-        .shirt-img { width: 32px; height: auto; flex-shrink: 0; }
-        
-        .p-name { 
-    display: block; 
-    font-weight: 800; 
-    color: #000000 !important; /* Forces text to be pure black */
-    background-color: transparent !important; /* Forces background to be clear */
-    padding: 0;
-    margin: 0;
-    font-size: 0.85rem; 
-    line-height: 1.2; 
-}
-        
-        .p-meta { 
-            display: block; 
-            font-size: 0.6rem; 
-            color: var(--text-gray); 
-            font-weight: 600; 
-            margin-top: 2px; 
+        th {
+            text-align: center;
+            padding: 10px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .progress-wrapper { width: 90%; background: #e2e8f0; border-radius: 10px; height: 8px; overflow: hidden; margin: 4px auto 0; }
-        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.8s ease-in-out; }
-        .percent-text { font-weight: 900; color: #1e293b; font-size: 0.7rem; }
-
-        .spinner-container { display: flex; justify-content: center; align-items: center; padding: 25px; width: 100%; }
-        .md-spinner {
-            width: 24px; height: 24px;
-            border: 3px solid #e0e0e0;
-            border-top: 3px solid var(--md-sys-color-primary);
-            border-radius: 50%;
-            animation: md-spin 0.8s linear infinite;
+        tr.player-row {
+            background: var(--fpl-card);
+            transition: transform 0.2s;
+            cursor: pointer;
         }
-        @keyframes md-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        .col-player { width: 42%; }
-        .col-team { width: 14%; }
-        .col-prog { width: 24%; }
-        .col-pred { width: 10%; }
-        .col-trend { width: 10%; }
+        tr.player-row:hover { transform: scale(1.01); }
 
-        .trend-up { color: #16a34a; font-weight: 900; }
-        .trend-down { color: #dc2626; font-weight: 900; }
-        
-        .footer-info { padding: 20px; text-align: center; font-size: 0.6rem; color: var(--text-gray); font-weight: 700; background: #f1f5f9; border-top: 1px solid var(--border-color); }
-        .ripple { position: absolute; background: rgba(255, 255, 255, 0.4); border-radius: 50%; transform: scale(0); animation: ripple-animation 0.6s linear; pointer-events: none; }
-        @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
+        td {
+            padding: 15px;
+            text-align: center;
+        }
+
+        td:first-child { border-radius: 8px 0 0 8px; text-align: left; }
+        td:last-child { border-radius: 0 8px 8px 0; }
+
+        .p-name { font-weight: 800; color: var(--fpl-green); }
+        .p-price { font-family: monospace; font-size: 1.1rem; }
+
+        /* Progress Bars */
+        .progress-box { width: 100%; display: flex; align-items: center; gap: 10px; }
+        .bar-bg { height: 8px; flex-grow: 1; background: #0f172a; border-radius: 4px; overflow: hidden; }
+        .bar-fill { height: 100%; transition: width 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+
+        /* Momentum Colors */
+        .up { color: var(--fpl-green); }
+        .down { color: var(--fpl-red); }
+
+        /* Modal */
+        #chartOverlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 100; backdrop-filter: blur(4px);
+        }
+        #chartModal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; border-radius: 16px; width: 90%; max-width: 500px;
+            padding: 25px; z-index: 101; color: #000;
+        }
     </style>
 </head>
 <body>
 
-<div id="nav-placeholder"></div>
-
-<main>
-    <div class="timer-banner">
-        <span style="font-size: 0.65rem; font-weight: 800; color: #cbd5e1;">NEXT PRICE CHANGE IN:</span>
-        <span class="countdown-box" id="price-timer">00:00:00</span>
-    </div>
-
-    <div class="control-hub">
-        <div class="filter-row">
-            <div class="search-wrapper">
-                <input type="text" id="playerSearch" placeholder="Search player..." onkeyup="handleSearch()">
-                <i class="fa-solid fa-circle-xmark reset-icon" id="resetSearch" onclick="resetFilters()"></i>
-            </div>
-            <select id="teamFilter" onchange="showLoadingThenRender()">
-                <option value="all">All Teams</option>
-            </select>
+<div class="dashboard">
+    <header>
+        <div>
+            <h1 style="margin:0">FPL <span style="color:var(--fpl-green)">Brain</span></h1>
+            <p style="margin:0; color:var(--text-muted); font-size: 0.8rem;">Live 2026 Prediction Engine</p>
         </div>
-        <div class="sort-row">
-            <button class="sort-btn active-rise" id="btn-rise" onclick="setSort('rise', event)">TOP RISERS</button>
-            <button class="sort-btn" id="btn-fall" onclick="setSort('fall', event)">TOP FALLERS</button>
-        </div>
-        
-        <div class="smart-row">
-            <span class="smart-label">
-                <i class="fa-solid fa-brain" style="color: var(--md-sys-color-primary);"></i> 
-                HIDE RECENT MOVERS
-            </span>
-            <label class="switch">
-                <input type="checkbox" id="smartFilter" checked onchange="render()">
-                <span class="slider"></span>
-            </label>
-        </div>
-    </div>
+        <div id="status" class="status-pill">Calculating...</div>
+    </header>
 
-    <table class="price-table">
+    <table>
         <thead>
             <tr>
-                <th class="col-player" style="text-align:left; padding-left:10px;">Player</th>
-                <th class="col-team">Team</th>
-                <th class="col-prog">Progress</th>
-                <th class="col-pred">Pred</th>
-                <th class="col-trend">+/-</th>
+                <th style="text-align:left">Player</th>
+                <th>Price</th>
+                <th>Target %</th>
+                <th>Velocity (24h)</th>
+                <th>Momentum</th>
             </tr>
         </thead>
-        <tbody id="prediction-list">
-            <tr><td colspan="5"><div class="spinner-container"><div class="md-spinner"></div></div></td></tr>
-        </tbody>
+        <tbody id="list">
+            </tbody>
     </table>
-    
-    <div class="footer-info">
-        DATA REFRESHED: <span id="last-update">--:--</span><br>
-        THRESHOLD ACCURACY: 96.8%
-    </div>
-</main>
+</div>
+
+<div id="chartOverlay" onclick="closeChart()"></div>
+<div id="chartModal">
+    <h2 id="modalName" style="margin-top:0"></h2>
+    <canvas id="popChart"></canvas>
+    <button onclick="closeChart()" style="margin: 20px 0 0; width:100%; padding:12px; border:none; background:#0f172a; color:white; border-radius:8px; cursor:pointer">Close</button>
+</div>
 
 <script>
-    const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
-    let playerData = [];
-    let teamMap = {};
-    let currentSort = 'rise';
+    // NETLIFY PROXY PATH
+    const API = "/fpl-api/bootstrap-static/"; 
+    let globalPlayers = [];
+    let activeChart = null;
 
-    function updateTimer() {
-        const now = new Date();
-        let target = new Date();
-        target.setUTCHours(2, 30, 0, 0);
-        if (now > target) target.setUTCDate(target.getUTCDate() + 1);
-        const diff = target - now;
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        document.getElementById('price-timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    class FPLBrain {
+        // THE 1:30 AM RULE
+        isMarketUpdating() {
+            const ukTime = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Europe/London', hour: 'numeric', hour12: false
+            }).format(new Date());
+            return parseInt(ukTime) === 1; // 1 AM to 2 AM UK
+        }
+
+        // DYNAMIC WILDCARD TAX
+        getTax(events) {
+            const current = events.find(e => e.is_current) || events[0];
+            const activity = current.transfers_made / 4000000;
+            return activity > 0.5 ? 0.75 : 0.88; 
+        }
+
+        // PREDICTION FORMULA
+        calc(p, tax) {
+            if (p.cost_change_event !== 0) return 0.0; // Daily Reset Logic
+
+            const net = (p.transfers_in_event - p.transfers_out_event) * tax;
+            const ownership = parseFloat(p.selected_by_percent);
+            
+            let threshold = (net >= 0) 
+                ? (7400 + (ownership * 1800)) 
+                : (5800 + (ownership * 2100));
+
+            if (p.status !== 'a') threshold *= 2.8; // Flagged multiplier
+            
+            return parseFloat(((net / threshold) * 100).toFixed(1));
+        }
     }
 
-    async function init() {
-        try {
-            const res = await fetch(PROXY);
-            const data = await res.json();
-            
-            data.teams.forEach(t => { 
-                teamMap[t.id] = t.short_name;
-                const opt = document.createElement('option');
-                opt.value = t.id; opt.innerText = t.name;
-                document.getElementById('teamFilter').appendChild(opt);
-            });
+    const brain = new FPLBrain();
 
-            playerData = data.elements.map(p => {
-                let net = (p.transfers_in_event - p.transfers_out_event);
-                let ownership = parseFloat(p.selected_by_percent);
-                let validTransfers = net * 0.70;
-                let threshold = (net >= 0) ? (7500 + (ownership * 1800)) : (5000 + (ownership * 2000));
+    async function sync() {
+        if (brain.isMarketUpdating()) {
+            document.getElementById('status').innerText = "Market Frozen (Price Change Window)";
+            document.getElementById('status').classList.add('market-closed');
+            return;
+        }
+
+        try {
+            const res = await fetch(API);
+            const data = await res.json();
+            const tax = brain.getTax(data.events);
+            const memory = JSON.parse(localStorage.getItem('fpl_momentum_v1') || '{}');
+            const newMemory = {};
+
+            globalPlayers = data.elements.map(p => {
+                const target = brain.calc(p, tax);
+                const hist = memory[p.id]?.series || [];
                 
-                if (p.status !== 'a') threshold *= 3.5;
-                if (p.web_name === "Haaland" || p.web_name === "Salah") threshold *= 1.25;
+                // Add new snapshot every hour
+                if (hist.length === 0 || Date.now() - hist[hist.length-1].t > 3600000) {
+                    hist.push({ t: Date.now(), v: target });
+                }
+                if (hist.length > 24) hist.shift(); // Keep 24 data points
+
+                newMemory[p.id] = { target: target, series: hist };
 
                 return {
                     id: p.id,
                     name: p.web_name,
-                    teamId: p.team,
-                    teamCode: p.team_code,
-                    pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
                     price: (p.now_cost / 10).toFixed(1),
-                    target: parseFloat((validTransfers / threshold * 100).toFixed(1)),
-                    trend: (p.transfers_in_event / 18000).toFixed(2),
-                    status: p.status,
-                    hasChanged: p.cost_change_event !== 0
+                    target: target,
+                    net: p.transfers_in_event - p.transfers_out_event,
+                    trend: (target - (memory[p.id]?.target || 0)).toFixed(1),
+                    series: hist
                 };
-            });
+            }).sort((a, b) => Math.abs(b.target) - Math.abs(a.target));
 
-            document.getElementById('last-update').innerText = new Date().toLocaleTimeString();
-            setSort('rise');
-            setInterval(updateTimer, 1000);
-        } catch (e) {
-            document.getElementById('prediction-list').innerHTML = '<tr><td colspan="5" style="text-align:center;">Sync Error.</td></tr>';
+            localStorage.setItem('fpl_momentum_v1', JSON.stringify(newMemory));
+            document.getElementById('status').innerText = "Live Sync: " + new Date().toLocaleTimeString();
+            render();
+        } catch (err) {
+            console.error("Brain Failed:", err);
         }
     }
 
     function render() {
-        const list = document.getElementById('prediction-list');
-        const searchTerm = document.getElementById('playerSearch').value.toLowerCase();
-        const teamFilter = document.getElementById('teamFilter').value;
-        const isSmartMode = document.getElementById('smartFilter').checked;
-
-        let displayData = playerData.filter(p => {
-            const matchesName = p.name.toLowerCase().includes(searchTerm);
-            const matchesTeam = teamFilter === "all" || String(p.teamId) === teamFilter;
-            const passesSmartFilter = isSmartMode ? !p.hasChanged : true;
-            return matchesName && matchesTeam && passesSmartFilter;
-        });
-
-        if (currentSort === 'rise') {
-            displayData.sort((a,b) => b.target - a.target);
-        } else {
-            displayData.sort((a,b) => a.target - b.target);
-        }
-
-        list.innerHTML = displayData.slice(0, 50).map(p => {
-            const isRise = p.target >= 0;
-            const barColor = isRise ? 'var(--livefpl-green)' : 'var(--livefpl-red)';
-            const barWidth = Math.min(100, Math.abs(p.target));
+        const list = document.getElementById('list');
+        list.innerHTML = globalPlayers.slice(0, 40).map(p => {
+            const vK = (p.net / 1000).toFixed(1) + 'k';
+            const color = p.target >= 0 ? 'var(--fpl-green)' : 'var(--fpl-red)';
             
-            let prediction = '-';
-            if (Math.abs(p.target) >= 98) prediction = 'Tonight';
-            else if (Math.abs(p.target) > 85) prediction = 'Soon';
-
             return `
-                <tr class="player-row">
-                    <td class="player-cell">
-                        <div class="info-col">
-                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" class="shirt-img">
-                            <div>
-                                <span class="p-name">${p.name} ${p.status !== 'a' ? '⚠️' : ''}</span>
-                                <span class="p-meta">${p.pos} £${p.price}</span>
+                <tr class="player-row" onclick="openChart(${p.id})">
+                    <td class="p-name">${p.name}</td>
+                    <td class="p-price">£${p.price}</td>
+                    <td>
+                        <div class="progress-box">
+                            <span style="width:45px">${Math.abs(p.target)}%</span>
+                            <div class="bar-bg">
+                                <div class="bar-fill" style="width:${Math.min(100, Math.abs(p.target))}%; background:${color}"></div>
                             </div>
                         </div>
                     </td>
-                    <td class="player-cell" style="color:var(--text-gray); font-weight:700;">${teamMap[p.teamId]}</td>
-                    <td class="player-cell">
-                        <span class="percent-text">${Math.abs(p.target).toFixed(1)}%</span>
-                        <div class="progress-wrapper">
-                            <div class="progress-fill" style="width: ${barWidth}%; background: ${barColor}"></div>
-                        </div>
+                    <td style="color:var(--text-muted)">${p.net > 0 ? '+' : ''}${vK}</td>
+                    <td class="${p.trend >= 0 ? 'up' : 'down'}">
+                        ${p.trend > 0 ? '▲' : '▼'} ${Math.abs(p.trend)}%
                     </td>
-                    <td class="player-cell" style="font-weight:800; font-size: 0.55rem;">${prediction}</td>
-                    <td class="player-cell ${isRise ? 'trend-up' : 'trend-down'}">${isRise ? '▲' : '▼'}${p.trend}%</td>
                 </tr>
             `;
-        }).join('') || '<tr><td colspan="5" style="text-align:center; padding:20px; font-size:0.7rem;">No predictive data. Try turning off "Smart Filter".</td></tr>';
+        }).join('');
     }
 
-    function showLoadingThenRender() {
-        document.getElementById('prediction-list').innerHTML = `<tr><td colspan="5"><div class="spinner-container"><div class="md-spinner"></div></div></td></tr>`;
-        setTimeout(render, 300);
+    function openChart(id) {
+        const p = globalPlayers.find(x => x.id === id);
+        document.getElementById('modalName').innerText = p.name;
+        document.getElementById('chartOverlay').style.display = 'block';
+        document.getElementById('chartModal').style.display = 'block';
+
+        const ctx = document.getElementById('popChart').getContext('2d');
+        if (activeChart) activeChart.destroy();
+
+        activeChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: p.series.map((_, i) => i),
+                datasets: [{
+                    label: 'Target %',
+                    data: p.series.map(s => s.v),
+                    borderColor: '#00ff87',
+                    backgroundColor: 'rgba(0,255,135,0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            }
+        });
     }
 
-    function handleSearch() {
-        document.getElementById('resetSearch').style.display = document.getElementById('playerSearch').value ? 'block' : 'none';
-        render();
+    function closeChart() {
+        document.getElementById('chartOverlay').style.display = 'none';
+        document.getElementById('chartModal').style.display = 'none';
     }
 
-    function resetFilters() {
-        document.getElementById('playerSearch').value = '';
-        document.getElementById('teamFilter').value = 'all';
-        document.getElementById('resetSearch').style.display = 'none';
-        showLoadingThenRender();
-    }
-
-    function setSort(type, event) {
-        if(event) {
-            const button = event.currentTarget;
-            const circle = document.createElement("span");
-            const diameter = Math.max(button.clientWidth, button.clientHeight);
-            circle.style.width = circle.style.height = `${diameter}px`;
-            circle.style.left = `${event.clientX - button.getBoundingClientRect().left - (diameter/2)}px`;
-            circle.style.top = `${event.clientY - button.getBoundingClientRect().top - (diameter/2)}px`;
-            circle.classList.add("ripple");
-            button.appendChild(circle);
-            setTimeout(() => circle.remove(), 600);
-        }
-        currentSort = type;
-        document.getElementById('btn-rise').className = 'sort-btn' + (type === 'rise' ? ' active-rise' : '');
-        document.getElementById('btn-fall').className = 'sort-btn' + (type === 'fall' ? ' active-fall' : '');
-        showLoadingThenRender();
-    }
-
-    init();
+    sync();
+    setInterval(sync, 300000); // Sync every 5 mins
 </script>
+
 
 <script src="nav.js"></script>
 <div id="footer-placeholder"></div>
