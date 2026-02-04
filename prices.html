@@ -329,14 +329,38 @@
     }
 
     function updateTimer() {
-        const now = new Date(); let t = new Date(); t.setUTCHours(2, 30, 0, 0);
-        if (now > t) t.setUTCDate(t.getUTCDate() + 1);
-        const d = t - now;
-        const h = String(Math.floor(d / 3600000)).padStart(2,'0');
-        const m = String(Math.floor((d % 3600000) / 60000)).padStart(2,'0');
-        const s = String(Math.floor((d % 60000) / 1000)).padStart(2,'0');
-        document.getElementById('price-timer').innerText = `${h}:${m}:${s}`;
+    const now = new Date();
+    let target = new Date();
+    
+    // Set target to 01:30:00 UTC
+    target.setUTCHours(1, 30, 0, 0);
+
+    // If we have already passed 01:30 UTC today, set target to tomorrow
+    if (now > target) {
+        target.setUTCDate(target.getUTCDate() + 1);
     }
+
+    const diff = target - now;
+
+    // Calculate hours, minutes, seconds
+    const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+    const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+    const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+
+    const timerElement = document.getElementById('price-timer');
+    if (timerElement) {
+        timerElement.innerText = `${h}:${m}:${s}`;
+        
+        // Visual cue: If less than 1 hour remains, turn timer red
+        if (diff < 3600000) {
+            timerElement.style.background = "var(--livefpl-red)";
+            timerElement.style.color = "white";
+        } else {
+            timerElement.style.background = "var(--livefpl-green)";
+            timerElement.style.color = "black";
+        }
+    }
+}
 
     init();
 </script>
