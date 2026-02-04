@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
+    
     <style>
         :root {
             --livefpl-dark: #1a202c;
@@ -26,7 +27,7 @@
             --livefpl-red: #ff2e63;
             --livefpl-bg: #f8fafc;
             --border-color: #e2e8f0;
-            --text-dark: #000000; /* Fixed for visibility */
+            --text-dark: #000000;
             --text-gray: #64748b;
             --md-sys-color-primary: #37003c;
         }
@@ -34,254 +35,134 @@
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: var(--livefpl-bg); 
-            margin: 0; 
-            padding: 0; 
+            margin: 0; padding: 0; 
             color: var(--text-dark); 
             overflow-x: hidden; 
         }
 
-        #nav-placeholder {
-            position: sticky;
-            top: 0;
-            z-index: 1001;
-            width: 100%;
-        }
-
+        /* TIMER & TABS */
         .timer-banner { 
-            background: var(--livefpl-dark); 
-            color: white; 
-            padding: 10px; 
-            text-align: center; 
-            border-radius: 0 0 10px 10px; 
+            background: var(--livefpl-dark); color: white; 
+            padding: 10px; text-align: center; border-radius: 0 0 10px 10px; 
         }
-        
         .countdown-box { 
-            background: var(--livefpl-green); 
-            color: black; 
-            padding: 3px 10px; 
-            border-radius: 4px; 
-            font-weight: 900; 
-            font-size: 0.8rem; 
-            margin-left: 5px; 
+            background: var(--livefpl-green); color: black; 
+            padding: 3px 10px; border-radius: 4px; font-weight: 900; font-size: 0.8rem; margin-left: 5px; 
         }
         
-        .control-hub { 
-            background: white; 
-            border-bottom: 1px solid var(--border-color); 
-            padding: 10px; 
-            position: sticky; 
-            top: 0; 
-            z-index: 100; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-        }
-        
-        .filter-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
-        
-        .search-wrapper { position: relative; flex: 2; display: flex; align-items: center; }
-        #playerSearch { width: 100%; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px 30px 8px 8px; font-size: 0.75rem; outline: none; }
-        .reset-icon { position: absolute; right: 10px; color: var(--text-gray); cursor: pointer; font-size: 0.8rem; display: none; }
-        #teamFilter { flex: 1.2; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 0.75rem; background: white; outline: none; }
+        .view-tabs { display: flex; background: white; margin: 10px; border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden; }
+        .view-tab { flex: 1; padding: 12px; text-align: center; font-size: 0.7rem; font-weight: 800; cursor: pointer; color: var(--text-gray); transition: 0.3s; }
+        .view-tab.active { background: var(--md-sys-color-primary); color: white; }
+
+        /* CONTROL HUB */
+        .control-hub { background: white; border-bottom: 1px solid var(--border-color); padding: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .filter-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        #playerSearch { flex: 2; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 0.75rem; outline: none; }
+        #teamFilter { flex: 1.2; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 0.75rem; background: white; }
         
         .sort-row { display: flex; gap: 8px; }
-        .sort-btn { position: relative; overflow: hidden; flex: 1; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; font-size: 0.65rem; font-weight: 800; cursor: pointer; background: #f8fafc; color: var(--text-gray); }
+        .sort-btn { flex: 1; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; font-size: 0.65rem; font-weight: 800; cursor: pointer; background: #f8fafc; color: var(--text-gray); }
         .sort-btn.active-rise { background: var(--livefpl-green); color: black; border-color: var(--livefpl-green); }
         .sort-btn.active-fall { background: var(--livefpl-red); color: white; border-color: var(--livefpl-red); }
 
-        .smart-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background: #f1f5f9;
-            border-radius: 8px;
-            margin-top: 10px;
-            border: 1px dashed #cbd5e1;
-        }
+        /* HISTORY LOG */
+        .history-log { margin: 15px 10px; background: #fff; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
+        .history-header { background: var(--livefpl-dark); color: white; padding: 8px 12px; font-size: 0.65rem; font-weight: 800; display: flex; justify-content: space-between; }
+        .history-item { display: flex; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.75rem; align-items: center; }
+        .price-pill { padding: 2px 8px; border-radius: 4px; font-weight: 900; font-size: 0.7rem; }
+        .pill-rise { background: var(--livefpl-green); color: #065f46; }
+        .pill-fall { background: #fee2e2; color: #b91c1c; }
 
-        .smart-label {
-            font-size: 0.65rem;
-            font-weight: 800;
-            color: var(--livefpl-dark);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 34px;
-            height: 20px;
-        }
-
-        .switch input { opacity: 0; width: 0; height: 0; }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 20px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 14px; width: 14px;
-            left: 3px; bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider { background-color: var(--livefpl-green); }
-        input:checked + .slider:before { transform: translateX(14px); }
-
-        /* TABLE STYLING */
-        .price-table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; }
+        /* TABLE */
+        .price-table { width: 100%; border-collapse: collapse; background: white; }
         .price-table thead { background: var(--livefpl-dark); color: white; font-size: 0.55rem; text-transform: uppercase; }
-        .price-table th { padding: 12px 2px; font-weight: 800; }
+        .price-table th { padding: 12px 5px; text-align: center; }
+        .player-row { border-bottom: 1px solid var(--border-color); }
+        .player-cell { padding: 8px 2px; vertical-align: middle; text-align: center; font-size: 0.65rem; }
+        .info-col { text-align: left !important; display: flex; align-items: center; gap: 6px; padding-left: 10px !important; }
+        .shirt-img { width: 28px; height: auto; }
+        .p-name { display: block; font-weight: 800; color: #000; font-size: 0.8rem; }
+        .star-btn { cursor: pointer; font-size: 0.8rem; color: #d1d5db; transition: 0.2s; }
+        .star-btn.active { color: #fbbf24; }
         
-        .player-row { 
-            background-color: #ffffff; /* Explicit background to fix visibility */
-            border-bottom: 1px solid var(--border-color); 
-            height: 70px; 
-        }
-        
-        .player-cell { padding: 4px 2px; vertical-align: middle; text-align: center; font-size: 0.65rem; }
-        
-        .info-col { text-align: left !important; display: flex; align-items: center; gap: 8px; padding-left: 10px !important; }
-        .shirt-img { width: 32px; height: auto; flex-shrink: 0; }
-        
-        .p-name { 
-    display: block; 
-    font-weight: 800; 
-    color: #000000 !important; /* Forces text to be pure black */
-    background-color: transparent !important; /* Forces background to be clear */
-    padding: 0;
-    margin: 0;
-    font-size: 0.85rem; 
-    line-height: 1.2; 
-}
-        
-        .p-meta { 
-            display: block; 
-            font-size: 0.6rem; 
-            color: var(--text-gray); 
-            font-weight: 600; 
-            margin-top: 2px; 
-        }
-
-        .progress-wrapper { width: 90%; background: #e2e8f0; border-radius: 10px; height: 8px; overflow: hidden; margin: 4px auto 0; }
-        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.8s ease-in-out; }
-        .percent-text { font-weight: 900; color: #1e293b; font-size: 0.7rem; }
-
-        .spinner-container { display: flex; justify-content: center; align-items: center; padding: 25px; width: 100%; }
-        .md-spinner {
-            width: 24px; height: 24px;
-            border: 3px solid #e0e0e0;
-            border-top: 3px solid var(--md-sys-color-primary);
-            border-radius: 50%;
-            animation: md-spin 0.8s linear infinite;
-        }
-        @keyframes md-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        .col-player { width: 42%; }
-        .col-team { width: 14%; }
-        .col-prog { width: 24%; }
-        .col-pred { width: 10%; }
-        .col-trend { width: 10%; }
-
+        .progress-wrapper { width: 80%; background: #e2e8f0; border-radius: 10px; height: 6px; overflow: hidden; margin: 4px auto 0; }
+        .progress-fill { height: 100%; transition: width 0.8s; }
         .trend-up { color: #16a34a; font-weight: 900; }
         .trend-down { color: #dc2626; font-weight: 900; }
-        
-        .footer-info { padding: 20px; text-align: center; font-size: 0.6rem; color: var(--text-gray); font-weight: 700; background: #f1f5f9; border-top: 1px solid var(--border-color); }
-        .ripple { position: absolute; background: rgba(255, 255, 255, 0.4); border-radius: 50%; transform: scale(0); animation: ripple-animation 0.6s linear; pointer-events: none; }
-        @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
+
+        /* SMART TOGGLE */
+        .smart-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f1f5f9; border-radius: 8px; margin: 10px; border: 1px dashed #cbd5e1; }
+        .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--livefpl-green); }
+        input:checked + .slider:before { transform: translateX(14px); }
     </style>
 </head>
 <body>
 
-<div id="nav-placeholder"></div>
-
 <main>
     <div class="timer-banner">
-        <span style="font-size: 0.65rem; font-weight: 800; color: #cbd5e1;">NEXT PRICE CHANGE IN:</span>
+        <span style="font-size: 0.65rem; font-weight: 800; color: #cbd5e1;">NEXT UPDATE IN:</span>
         <span class="countdown-box" id="price-timer">00:00:00</span>
+    </div>
+
+    <div class="view-tabs">
+        <div class="view-tab active" id="tab-market" onclick="switchView('market')">MARKET</div>
+        <div class="view-tab" id="tab-watchlist" onclick="switchView('watchlist')">WATCHLIST (<span id="watch-count">0</span>)</div>
     </div>
 
     <div class="control-hub">
         <div class="filter-row">
-            <div class="search-wrapper">
-                <input type="text" id="playerSearch" placeholder="Search player..." onkeyup="handleSearch()">
-                <i class="fa-solid fa-circle-xmark reset-icon" id="resetSearch" onclick="resetFilters()"></i>
-            </div>
-            <select id="teamFilter" onchange="showLoadingThenRender()">
+            <input type="text" id="playerSearch" placeholder="Search player..." onkeyup="render()">
+            <select id="teamFilter" onchange="render()">
                 <option value="all">All Teams</option>
             </select>
         </div>
         <div class="sort-row">
-            <button class="sort-btn active-rise" id="btn-rise" onclick="setSort('rise', event)">TOP RISERS</button>
-            <button class="sort-btn" id="btn-fall" onclick="setSort('fall', event)">TOP FALLERS</button>
+            <button class="sort-btn active-rise" id="btn-rise" onclick="setSort('rise')">TOP RISERS</button>
+            <button class="sort-btn" id="btn-fall" onclick="setSort('fall')">TOP FALLERS</button>
         </div>
-        
-        <div class="smart-row">
-            <span class="smart-label">
-                <i class="fa-solid fa-brain" style="color: var(--md-sys-color-primary);"></i> 
-                HIDE RECENT MOVERS
-            </span>
-            <label class="switch">
-                <input type="checkbox" id="smartFilter" checked onchange="render()">
-                <span class="slider"></span>
-            </label>
-        </div>
+    </div>
+
+    <section class="history-log">
+        <div class="history-header"><span>LAST NIGHT'S CHANGES</span><i class="fa-solid fa-bolt"></i></div>
+        <div id="history-container"></div>
+    </section>
+
+    <div class="smart-row">
+        <span style="font-size:0.65rem; font-weight:800;"><i class="fa-solid fa-brain"></i> HIDE RECENT MOVERS</span>
+        <label class="switch">
+            <input type="checkbox" id="smartFilter" checked onchange="render()">
+            <span class="slider"></span>
+        </label>
     </div>
 
     <table class="price-table">
         <thead>
             <tr>
-                <th class="col-player" style="text-align:left; padding-left:10px;">Player</th>
-                <th class="col-team">Team</th>
-                <th class="col-prog">Progress</th>
-                <th class="col-pred">Pred</th>
-                <th class="col-trend">+/-</th>
+                <th style="width:45%; text-align:left; padding-left:10px;">Player</th>
+                <th style="width:25%;">Progress</th>
+                <th style="width:15%;">Pred</th>
+                <th style="width:15%;">+/-</th>
             </tr>
         </thead>
-        <tbody id="prediction-list">
-            <tr><td colspan="5"><div class="spinner-container"><div class="md-spinner"></div></div></td></tr>
-        </tbody>
+        <tbody id="prediction-list"></tbody>
     </table>
-    
-    <div class="footer-info">
-        DATA REFRESHED: <span id="last-update">--:--</span><br>
-        THRESHOLD ACCURACY: 96.8%
-    </div>
 </main>
 
 <script>
     const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
-    let playerData = [];
-    let teamMap = {};
-    let currentSort = 'rise';
-
-    function updateTimer() {
-        const now = new Date();
-        let target = new Date();
-        target.setUTCHours(2, 30, 0, 0);
-        if (now > target) target.setUTCDate(target.getUTCDate() + 1);
-        const diff = target - now;
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        document.getElementById('price-timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-    }
+    let playerData = [], teamMap = {}, currentSort = 'rise', currentView = 'market';
+    let watchlist = JSON.parse(localStorage.getItem('kopala_watchlist') || '[]');
 
     async function init() {
         try {
             const res = await fetch(PROXY);
             const data = await res.json();
             
+            // 1. Process Teams
             data.teams.forEach(t => { 
                 teamMap[t.id] = t.short_name;
                 const opt = document.createElement('option');
@@ -289,127 +170,141 @@
                 document.getElementById('teamFilter').appendChild(opt);
             });
 
+            // 2. Process History & Comparison
+            const savedPrices = JSON.parse(localStorage.getItem('kopala_price_tracker') || '{}');
+            let history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
+            const currentTracker = {};
+
             playerData = data.elements.map(p => {
-                let net = (p.transfers_in_event - p.transfers_out_event);
-                let ownership = parseFloat(p.selected_by_percent);
-                let validTransfers = net * 0.70;
-                let threshold = (net >= 0) ? (7500 + (ownership * 1800)) : (5000 + (ownership * 2000));
+                currentTracker[p.id] = p.now_cost;
                 
+                // Detection
+                if (savedPrices[p.id] && savedPrices[p.id] !== p.now_cost) {
+                    const changeType = p.now_cost > savedPrices[p.id] ? 'rise' : 'fall';
+                    if (!history.some(h => h.id === p.id && h.date === new Date().toLocaleDateString())) {
+                        history.unshift({ id: p.id, name: p.web_name, old: (savedPrices[p.id]/10).toFixed(1), new: (p.now_cost/10).toFixed(1), type: changeType, date: new Date().toLocaleDateString() });
+                    }
+                }
+
+                // Accuracy Engine
+                let net = (p.transfers_in_event - p.transfers_out_event) * 0.75;
+                let threshold = (7500 + (parseFloat(p.selected_by_percent) * 1600));
                 if (p.status !== 'a') threshold *= 3.5;
-                if (p.web_name === "Haaland" || p.web_name === "Salah") threshold *= 1.25;
+                
+                let target = (net / threshold) * 100;
+                let prediction = target >= 98 ? 'Tonight' : (target >= 85 ? 'Soon' : '-');
 
                 return {
-                    id: p.id,
-                    name: p.web_name,
-                    teamId: p.team,
-                    teamCode: p.team_code,
-                    pos: ["", "GKP", "DEF", "MID", "FWD"][p.element_type],
-                    price: (p.now_cost / 10).toFixed(1),
-                    target: parseFloat((validTransfers / threshold * 100).toFixed(1)),
-                    trend: (p.transfers_in_event / 18000).toFixed(2),
-                    status: p.status,
+                    id: p.id, name: p.web_name, teamId: p.team, teamCode: p.team_code, pos: ["","GKP","DEF","MID","FWD"][p.element_type],
+                    price: (p.now_cost/10).toFixed(1), target: parseFloat(target.toFixed(1)), 
+                    trend: (p.transfers_in_event / 15000).toFixed(2), status: p.status, prediction: prediction,
                     hasChanged: p.cost_change_event !== 0
                 };
             });
 
-            document.getElementById('last-update').innerText = new Date().toLocaleTimeString();
-            setSort('rise');
+            localStorage.setItem('kopala_price_tracker', JSON.stringify(currentTracker));
+            localStorage.setItem('kopala_change_history', JSON.stringify(history.slice(0, 5)));
+
+            renderHistory();
+            render();
+            updateWatchCount();
             setInterval(updateTimer, 1000);
-        } catch (e) {
-            document.getElementById('prediction-list').innerHTML = '<tr><td colspan="5" style="text-align:center;">Sync Error.</td></tr>';
-        }
+        } catch (e) { console.error(e); }
     }
 
     function render() {
         const list = document.getElementById('prediction-list');
-        const searchTerm = document.getElementById('playerSearch').value.toLowerCase();
-        const teamFilter = document.getElementById('teamFilter').value;
-        const isSmartMode = document.getElementById('smartFilter').checked;
+        const search = document.getElementById('playerSearch').value.toLowerCase();
+        const teamF = document.getElementById('teamFilter').value;
+        const smart = document.getElementById('smartFilter').checked;
 
-        let displayData = playerData.filter(p => {
-            const matchesName = p.name.toLowerCase().includes(searchTerm);
-            const matchesTeam = teamFilter === "all" || String(p.teamId) === teamFilter;
-            const passesSmartFilter = isSmartMode ? !p.hasChanged : true;
-            return matchesName && matchesTeam && passesSmartFilter;
+        let filtered = playerData.filter(p => {
+            const matchesName = p.name.toLowerCase().includes(search);
+            const matchesTeam = teamF === "all" || String(p.teamId) === teamF;
+            const matchesSmart = smart ? !p.hasChanged : true;
+            const matchesWatch = currentView === 'watchlist' ? watchlist.includes(p.id) : true;
+            return matchesName && matchesTeam && matchesSmart && matchesWatch;
         });
 
-        if (currentSort === 'rise') {
-            displayData.sort((a,b) => b.target - a.target);
-        } else {
-            displayData.sort((a,b) => a.target - b.target);
-        }
+        filtered.sort((a,b) => currentSort === 'rise' ? b.target - a.target : a.target - b.target);
 
-        list.innerHTML = displayData.slice(0, 50).map(p => {
+        list.innerHTML = filtered.slice(0, 50).map(p => {
             const isRise = p.target >= 0;
-            const barColor = isRise ? 'var(--livefpl-green)' : 'var(--livefpl-red)';
             const barWidth = Math.min(100, Math.abs(p.target));
-            
-            let prediction = '-';
-            if (Math.abs(p.target) >= 98) prediction = 'Tonight';
-            else if (Math.abs(p.target) > 85) prediction = 'Soon';
+            const isStarred = watchlist.includes(p.id);
 
             return `
                 <tr class="player-row">
                     <td class="player-cell">
                         <div class="info-col">
+                            <i class="fa-solid fa-star star-btn ${isStarred ? 'active' : ''}" onclick="toggleWatch(${p.id}, event)"></i>
                             <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" class="shirt-img">
                             <div>
                                 <span class="p-name">${p.name} ${p.status !== 'a' ? '⚠️' : ''}</span>
-                                <span class="p-meta">${p.pos} £${p.price}</span>
+                                <span class="p-meta">${p.pos} | £${p.price}</span>
                             </div>
                         </div>
                     </td>
-                    <td class="player-cell" style="color:var(--text-gray); font-weight:700;">${teamMap[p.teamId]}</td>
                     <td class="player-cell">
-                        <span class="percent-text">${Math.abs(p.target).toFixed(1)}%</span>
+                        <span style="font-weight:900;">${Math.abs(p.target).toFixed(1)}%</span>
                         <div class="progress-wrapper">
-                            <div class="progress-fill" style="width: ${barWidth}%; background: ${barColor}"></div>
+                            <div class="progress-fill" style="width:${barWidth}%; background:${isRise ? 'var(--livefpl-green)' : 'var(--livefpl-red)'}"></div>
                         </div>
                     </td>
-                    <td class="player-cell" style="font-weight:800; font-size: 0.55rem;">${prediction}</td>
-                    <td class="player-cell ${isRise ? 'trend-up' : 'trend-down'}">${isRise ? '▲' : '▼'}${p.trend}%</td>
+                    <td class="player-cell" style="font-weight:800; color:${p.prediction === 'Tonight' ? 'var(--livefpl-red)' : 'var(--text-gray)'}">${p.prediction}</td>
+                    <td class="player-cell ${isRise ? 'trend-up' : 'trend-down'}">${isRise ? '▲' : '▼'}${p.trend}</td>
                 </tr>
             `;
-        }).join('') || '<tr><td colspan="5" style="text-align:center; padding:20px; font-size:0.7rem;">No predictive data. Try turning off "Smart Filter".</td></tr>';
+        }).join('') || '<tr><td colspan="4" style="text-align:center; padding:30px; font-size:0.7rem;">Empty View</td></tr>';
     }
 
-    function showLoadingThenRender() {
-        document.getElementById('prediction-list').innerHTML = `<tr><td colspan="5"><div class="spinner-container"><div class="md-spinner"></div></div></td></tr>`;
-        setTimeout(render, 300);
+    function renderHistory() {
+        const history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
+        document.getElementById('history-container').innerHTML = history.map(item => `
+            <div class="history-item">
+                <span style="font-weight:800;">${item.name}</span>
+                <div class="price-pill ${item.type === 'rise' ? 'pill-rise' : 'pill-fall'}">£${item.old} → £${item.new}</div>
+            </div>
+        `).join('') || '<div class="history-item">No recent changes.</div>';
     }
 
-    function handleSearch() {
-        document.getElementById('resetSearch').style.display = document.getElementById('playerSearch').value ? 'block' : 'none';
+    function toggleWatch(id, e) {
+        e.stopPropagation();
+        const idx = watchlist.indexOf(id);
+        if (idx > -1) watchlist.splice(idx, 1); else watchlist.push(id);
+        localStorage.setItem('kopala_watchlist', JSON.stringify(watchlist));
+        updateWatchCount(); render();
+    }
+
+    function updateWatchCount() { document.getElementById('watch-count').innerText = watchlist.length; }
+    
+    function switchView(v) {
+        currentView = v;
+        document.getElementById('tab-market').classList.toggle('active', v === 'market');
+        document.getElementById('tab-watchlist').classList.toggle('active', v === 'watchlist');
         render();
     }
 
-    function resetFilters() {
-        document.getElementById('playerSearch').value = '';
-        document.getElementById('teamFilter').value = 'all';
-        document.getElementById('resetSearch').style.display = 'none';
-        showLoadingThenRender();
+    function setSort(s) {
+        currentSort = s;
+        document.getElementById('btn-rise').className = 'sort-btn' + (s === 'rise' ? ' active-rise' : '');
+        document.getElementById('btn-fall').className = 'sort-btn' + (s === 'fall' ? ' active-fall' : '');
+        render();
     }
 
-    function setSort(type, event) {
-        if(event) {
-            const button = event.currentTarget;
-            const circle = document.createElement("span");
-            const diameter = Math.max(button.clientWidth, button.clientHeight);
-            circle.style.width = circle.style.height = `${diameter}px`;
-            circle.style.left = `${event.clientX - button.getBoundingClientRect().left - (diameter/2)}px`;
-            circle.style.top = `${event.clientY - button.getBoundingClientRect().top - (diameter/2)}px`;
-            circle.classList.add("ripple");
-            button.appendChild(circle);
-            setTimeout(() => circle.remove(), 600);
-        }
-        currentSort = type;
-        document.getElementById('btn-rise').className = 'sort-btn' + (type === 'rise' ? ' active-rise' : '');
-        document.getElementById('btn-fall').className = 'sort-btn' + (type === 'fall' ? ' active-fall' : '');
-        showLoadingThenRender();
+    function updateTimer() {
+        const now = new Date(); let t = new Date(); t.setUTCHours(2, 30, 0, 0);
+        if (now > t) t.setUTCDate(t.getUTCDate() + 1);
+        const d = t - now;
+        const h = String(Math.floor(d / 3600000)).padStart(2,'0');
+        const m = String(Math.floor((d % 3600000) / 60000)).padStart(2,'0');
+        const s = String(Math.floor((d % 60000) / 1000)).padStart(2,'0');
+        document.getElementById('price-timer').innerText = `${h}:${m}:${s}`;
     }
 
     init();
 </script>
+
 
 <script src="nav.js"></script>
 <div id="footer-placeholder"></div>
