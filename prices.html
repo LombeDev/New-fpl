@@ -19,7 +19,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
-    
     <style>
         :root {
             --livefpl-dark: #1a202c;
@@ -81,7 +80,16 @@
         .player-cell { padding: 8px 2px; vertical-align: middle; text-align: center; font-size: 0.65rem; }
         .info-col { text-align: left !important; display: flex; align-items: center; gap: 6px; padding-left: 10px !important; }
         .shirt-img { width: 28px; height: auto; }
-        .p-name { display: block; font-weight: 800; color: #000; font-size: 0.8rem; }
+        
+        /* FIXED PLAYER NAME */
+        .p-name { 
+            display: block; 
+            font-weight: 800; 
+            color: #000000 !important; 
+            background: transparent !important; 
+            font-size: 0.8rem; 
+        }
+
         .star-btn { cursor: pointer; font-size: 0.8rem; color: #d1d5db; transition: 0.2s; }
         .star-btn.active { color: #fbbf24; }
         
@@ -162,7 +170,6 @@
             const res = await fetch(PROXY);
             const data = await res.json();
             
-            // 1. Process Teams
             data.teams.forEach(t => { 
                 teamMap[t.id] = t.short_name;
                 const opt = document.createElement('option');
@@ -170,7 +177,6 @@
                 document.getElementById('teamFilter').appendChild(opt);
             });
 
-            // 2. Process History & Comparison
             const savedPrices = JSON.parse(localStorage.getItem('kopala_price_tracker') || '{}');
             let history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
             const currentTracker = {};
@@ -178,7 +184,6 @@
             playerData = data.elements.map(p => {
                 currentTracker[p.id] = p.now_cost;
                 
-                // Detection
                 if (savedPrices[p.id] && savedPrices[p.id] !== p.now_cost) {
                     const changeType = p.now_cost > savedPrices[p.id] ? 'rise' : 'fall';
                     if (!history.some(h => h.id === p.id && h.date === new Date().toLocaleDateString())) {
@@ -186,7 +191,6 @@
                     }
                 }
 
-                // Accuracy Engine
                 let net = (p.transfers_in_event - p.transfers_out_event) * 0.75;
                 let threshold = (7500 + (parseFloat(p.selected_by_percent) * 1600));
                 if (p.status !== 'a') threshold *= 3.5;
@@ -304,7 +308,6 @@
 
     init();
 </script>
-
 
 <script src="nav.js"></script>
 <div id="footer-placeholder"></div>
