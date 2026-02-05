@@ -42,94 +42,156 @@ body {
     overflow-x: hidden;
 }
 
-/* --- LOGIN SCREEN --- */
+:root {
+    --pl-purple: #3d195b; /* The signature PL deep purple */
+    --pl-magenta: #ff005a; /* PL Magenta accent */
+    --pl-white: #ffffff;
+    --pl-input-bg: rgba(255, 255, 255, 0.05);
+    --pl-input-border: rgba(255, 255, 255, 0.3);
+}
+
 #login-screen {
-    position: fixed; inset: 0;
-    background: linear-gradient(135deg, #37003c 0%, #7d0046 50%, #e90052 100%);
-    z-index: 5000;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 24px;
+    background-color: var(--pl-purple);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--pl-white);
+    padding: 20px;
 }
 
-.promo-card, .login-card {
-    width: 100%;
-    max-width: 420px;
-    background: var(--card-bg);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--border-color);
-}
-
+/* Promo Card Styling (Top Link) */
 .promo-card {
-    border-radius: 20px;
-    padding: 16px;
-    margin-bottom: 16px;
+    margin-bottom: 2rem;
     text-align: center;
-    box-shadow: var(--shadow-sm);
 }
 
-.promo-card h3 { margin: 0; font-size: 1rem; font-weight: 700; opacity: 0.9; }
-
-.promo-link { 
-    color: var(--primary-blue); 
-    text-decoration: none; 
-    font-size: 0.85rem; 
+.promo-link {
+    color: var(--pl-white);
+    text-decoration: none;
     font-weight: 600;
-    display: inline-block;
-    margin-top: 8px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    transition: opacity 0.3s;
 }
 
+.promo-link:hover {
+    opacity: 1;
+}
+
+/* Login Card Styling */
 .login-card {
-    border-radius: 32px;
-    padding: 32px;
-    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
 }
 
-/* --- THEME TOGGLE --- */
+.login-card h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+    letter-spacing: -0.02em;
+}
+
+/* Theme Toggle (matching the UI look) */
 .theme-row {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
 }
 
-.theme-label { font-weight: 700; color: var(--text-muted); }
-
-.toggle-container { 
-    display: flex; 
-    background: rgba(0,0,0,0.05); 
-    padding: 4px; 
-    border-radius: 100px; 
+.toggle-container {
+    background: var(--pl-input-bg);
+    border-radius: 20px;
+    padding: 4px;
+    display: flex;
 }
-
-body.dark-mode .toggle-container { background: rgba(255,255,255,0.05); }
 
 .toggle-btn {
-    border: none; padding: 8px 20px; border-radius: 100px; 
-    font-weight: 700; font-size: 0.9rem; cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--pl-white);
+    padding: 6px 15px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s;
 }
 
-.toggle-btn.active { background: var(--primary-blue); color: white; box-shadow: 0 4px 10px rgba(233, 0, 82, 0.4); }
-.toggle-btn.inactive { background: transparent; color: var(--text-muted); }
-
-/* --- FORM ELEMENTS --- */
-.login-card h2 { margin-top: 0; font-size: 1.5rem; font-weight: 800; }
-
-.fpl-input { 
-    width: 100%; padding: 18px; border-radius: 16px; 
-    border: 2px solid var(--border-color); 
-    font-size: 1rem; margin-bottom: 20px;
-    background: var(--bg-color); color: var(--text-main);
-    transition: border-color 0.2s;
+.toggle-btn.active {
+    background: var(--pl-white);
+    color: var(--pl-purple);
+    font-weight: 600;
 }
 
-.fpl-input:focus { border-color: var(--primary-blue); }
-
-.continue-btn { 
-    width: 100%; padding: 18px; background: var(--primary-blue); color: white; 
-    border: none; border-radius: 16px; font-weight: 700; font-size: 1rem; 
-    cursor: pointer; box-shadow: 0 4px 15px rgba(233, 0, 82, 0.3);
+/* Input Fields */
+.input-container {
+    margin-bottom: 1.5rem;
 }
 
-.continue-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.fpl-input {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--pl-input-border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: white;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
 
+.fpl-input:focus {
+    outline: none;
+    border-color: var(--pl-white);
+}
+
+.fpl-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Main Action Button (White background like image) */
+.continue-btn {
+    width: 100%;
+    background: var(--pl-white);
+    color: var(--pl-purple);
+    border: none;
+    padding: 14px;
+    border-radius: 30px; /* Rounded pill shape like image */
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    transition: transform 0.1s;
+}
+
+.continue-btn:active {
+    transform: scale(0.98);
+}
+
+/* Footer Link */
+.find-id-link {
+    text-align: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.find-id-link:hover {
+    text-decoration: underline;
+    opacity: 1;
+}
+
+.error-msg {
+    color: #ff4d4d;
+    font-size: 0.8rem;
+    margin-top: 5px;
+    display: none; /* Controlled by logic */
+}
 /* --- NAVIGATION --- */
 .top-nav {
     position: fixed; top: 0; width: 100%; height: 65px;
