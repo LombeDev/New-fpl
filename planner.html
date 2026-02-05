@@ -3,290 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopala FPL - Pro Planner</title>
+    <title>KOPALA FPL | Transfer Planner</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
-            --fpl-green: #00ff85;
-            --fpl-purple: #37003c;
-            --fpl-pink: #e90052;
-            --pitch-bg: #008d4f;
-            --pitch-line: rgba(255,255,255,0.2);
-            --text-main: #1e293b;
+            /* Material 3 Tonal Palette */
+            --m3-surface: #f3f6f9;
+            --m3-surface-container: #ffffff;
+            --m3-primary: #3f5aa9;
+            --m3-on-primary: #ffffff;
+            --m3-secondary-container: #dbe2f9;
+            --m3-on-secondary-container: #141b2c;
+            --m3-error: #ba1a1a;
+            
+            /* Pitch Colors */
+            --pitch-green: #2e7d32;
+            --fdr-easy: #00ff85;
+            --fdr-hard: #ff005a;
+            
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            margin: 0; font-family: -apple-system, sans-serif;
-            background: #e2e8f0; color: var(--text-main);
+            background-color: var(--m3-surface);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            color: var(--m3-on-secondary-container);
             padding-bottom: 100px;
         }
 
-        /* Top Header */
-        .control-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 5px; padding: 10px; background: #fff; border-bottom: 1px solid #cbd5e1;
-            position: sticky; top: 0; z-index: 1000;
+        /* 1. TOP NAVIGATION (Material Pills) */
+        .planner-nav {
+            display: flex;
+            gap: 8px;
+            padding: 15px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
         }
-        .control-item {
-            text-align: center; border: 1px solid #e2e8f0;
-            padding: 5px; border-radius: 8px; font-size: 0.7rem;
+        .nav-item {
+            background: var(--m3-surface-container);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: var(--transition);
         }
-        .control-item b { display: block; font-size: 1rem; color: var(--fpl-purple); }
+        .nav-item.active {
+            background: var(--m3-primary);
+            color: var(--m3-on-primary);
+        }
 
-        /* Save Toast */
-        #save-status {
-            position: fixed; top: 70px; right: 10px; font-size: 0.7rem;
-            background: #10b981; color: white; padding: 4px 10px;
-            border-radius: 20px; display: none; z-index: 2000;
+        /* 2. STAT BAR */
+        .stat-container {
+            padding: 0 15px 15px;
+        }
+        .gw-ctrl {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            background: var(--m3-surface-container);
+            border-radius: 16px;
+            padding: 8px;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        .s-box {
+            background: var(--m3-secondary-container);
+            border-radius: 16px;
+            padding: 12px 4px;
+            text-align: center;
+        }
+        .s-box span { display: block; font-weight: 800; font-size: 1rem; }
+        .s-box label { font-size: 0.6rem; text-transform: uppercase; font-weight: 700; opacity: 0.7; }
+
+        /* 3. THE PITCH (Material Design) */
+        .pitch-canvas {
+            background: var(--pitch-green);
+            background-image: linear-gradient(rgba(255,255,255,0.05) 2px, transparent 2px),
+                              linear-gradient(90deg, rgba(255,255,255,0.05) 2px, transparent 2px);
+            background-size: 100% 40px, 40px 100%;
+            margin: 0 10px;
+            border-radius: 28px;
+            padding: 20px 5px;
+            min-height: 550px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .pitch-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
         }
 
-        /* Pitch UI */
-        .pitch {
-            background: var(--pitch-bg);
-            background-image: linear-gradient(var(--pitch-line) 2px, transparent 2px);
-            background-size: 100% 40px;
-            margin: 10px; border-radius: 12px; padding: 20px 0;
-            display: flex; flex-direction: column; gap: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        /* 4. PLAYER CARDS (Photocopy UI) */
+        .p-card {
+            width: 72px;
+            text-align: center;
+            position: relative;
         }
-        .lineup-row { display: flex; justify-content: center; gap: 8px; }
-
-        /* Player Card */
-        .player-card {
-            width: 78px; position: relative;
-            display: flex; flex-direction: column; align-items: center;
+        .p-img { width: 50px; height: 62px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
+        .p-name { 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(8px);
+            color: #000; font-size: 0.65rem; font-weight: 800; 
+            padding: 3px 0; border-radius: 8px 8px 0 0; 
+            margin-top: 4px;
         }
-        .shirt { width: 55px; height: 60px; object-fit: contain; cursor: pointer; transition: transform 0.1s; }
-        .shirt:active { transform: scale(0.9); }
+        .p-fix { font-size: 0.6rem; font-weight: 700; padding: 2px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .p-cost { background: var(--m3-primary); color: white; font-size: 0.65rem; font-weight: 700; border-radius: 0 0 8px 8px; }
         
-        .badge-c, .badge-v {
-            position: absolute; left: 5px; top: 0;
-            background: #000; color: #fff; width: 18px; height: 18px;
-            border-radius: 50%; font-size: 10px; font-weight: 900;
+        /* FDR Colors */
+        .fdr-1, .fdr-2 { background: var(--fdr-easy); color: #000; }
+        .fdr-3 { background: #fff; color: #000; }
+        .fdr-4, .fdr-5 { background: var(--fdr-hard); color: #fff; }
+
+        .p-remove { position: absolute; top: -5px; right: 4px; background: #000; color: #fff; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; }
+
+        /* Empty Slot */
+        .empty-slot {
+            width: 60px; height: 80px;
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            border: 1px solid #fff; z-index: 5;
+            color: #fff; font-size: 1.5rem; cursor: pointer;
         }
 
-        .btn-x {
-            position: absolute; right: 5px; top: 0;
-            background: rgba(0,0,0,0.7); color: #fff; border-radius: 50%;
-            width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
-            font-size: 12px; cursor: pointer; z-index: 5;
+        /* 5. BENCH AREA */
+        .bench-area {
+            background: rgba(0,0,0,0.1);
+            margin-top: 20px;
+            padding: 15px 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
-        .name-plate {
-            width: 100%; background: #000; color: #fff;
-            font-size: 0.65rem; font-weight: 700; text-align: center;
-            padding: 2px 0; border-radius: 2px; margin-top: 3px;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        /* 6. SEARCH MODAL */
+        .modal-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.5); z-index: 3000;
+            display: none; align-items: center; justify-content: center;
         }
-        .fixture-plate {
-            width: 100%; background: var(--fpl-green); color: #000;
-            font-size: 0.6rem; font-weight: 800; text-align: center;
-            padding: 2px 0; border-radius: 2px;
+        .modal-content {
+            background: white; width: 90%; max-width: 400px;
+            border-radius: 28px; padding: 24px;
         }
+        .search-input {
+            width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd;
+            background: #f9f9f9; box-sizing: border-box; outline: none;
+        }
+        .results-list { margin-top: 15px; max-height: 300px; overflow-y: auto; }
+        .res-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
 
-        /* Bench Row */
-        .bench {
-            background: #fff; margin: 10px; border-radius: 12px;
-            padding: 15px 5px; display: flex; justify-content: space-around;
-            border: 2px solid #cbd5e1;
+        /* FAB */
+        .m3-fab {
+            position: fixed; bottom: 30px; right: 20px;
+            background: var(--m3-secondary-container);
+            color: var(--m3-on-secondary-container);
+            border: none; padding: 16px 24px; border-radius: 16px;
+            font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex; gap: 10px; align-items: center;
         }
-
-        /* Modal */
-        .modal {
-            display: none; position: fixed; z-index: 3000;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); align-items: center; justify-content: center;
-        }
-        .modal-box {
-            background: #fff; width: 90%; max-width: 400px;
-            border-radius: 15px; padding: 20px;
-        }
-        .search-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 10px; font-size: 1rem; }
-        .list-item { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; }
-
-        /* Menu */
-        .menu {
-            position: fixed; bottom: 0; width: 100%; height: 75px;
-            background: #fff; display: grid; grid-template-columns: repeat(5, 1fr);
-            border-top: 1px solid #ddd; z-index: 1000;
-        }
-        .menu-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; color: #64748b; text-decoration: none; gap: 4px; }
-        .menu-item.active { color: var(--fpl-purple); font-weight: 800; }
     </style>
 </head>
 <body>
 
-    <div id="save-status">Team Saved!</div>
-
-    <div class="control-grid">
-        <div class="control-item">Transfers<b id="transfer-count">0</b></div>
-        <div class="control-item">Bank<b id="bank-val">£1.8m</b></div>
-        <div class="control-item">Cost<b id="cost-val">£0.0</b></div>
-        <div class="control-item" style="background:var(--fpl-purple); color:white;">GW<b>23</b></div>
+    <div class="planner-nav">
+        <button class="nav-item">Summary</button>
+        <button class="nav-item">Ticker</button>
+        <button class="nav-item active">Reset GW+</button>
+        <button class="nav-item">Stats</button>
+        <button class="nav-item">Settings</button>
     </div>
 
-    <div class="pitch">
-        <div class="lineup-row" id="row-GKP"></div>
-        <div class="lineup-row" id="row-DEF"></div>
-        <div class="lineup-row" id="row-MID"></div>
-        <div class="lineup-row" id="row-FWD"></div>
-    </div>
-
-    <div class="bench" id="row-BENCH"></div>
-
-    <div id="searchModal" class="modal">
-        <div class="modal-box">
-            <h3 style="margin: 0 0 15px 0">Add Player</h3>
-            <input type="text" id="pSearch" class="search-box" placeholder="Search by name..." oninput="drawList(this.value)">
-            <div id="pList" style="max-height: 350px; overflow-y: auto;"></div>
-            <button onclick="closeMod()" style="width:100%; margin-top:15px; padding:12px; background:#f1f5f9; border:none; border-radius:8px; font-weight: 600;">Cancel</button>
+    <div class="stat-container">
+        <div class="gw-ctrl">
+            <button class="nav-item">Prev</button>
+            <strong style="font-size: 1rem;">Gameweek 25</strong>
+            <button class="nav-item">Next</button>
+        </div>
+        <div class="stat-grid">
+            <div class="s-box"><label>Chip</label><span>None</span></div>
+            <div class="s-box"><label>Transfers</label><span id="stat-transfers">0/2</span></div>
+            <div class="s-box"><label>Bank</label><span id="stat-bank">£0.6m</span></div>
+            <div class="s-box"><label>Cost</label><span id="stat-cost">0</span></div>
         </div>
     </div>
 
-    <nav class="menu">
-        <a href="#" class="menu-item active"><i class="fa-solid fa-square-poll-horizontal"></i><span>Planner</span></a>
-        <a href="prices.html" class="menu-item"><i class="fa-solid fa-tags"></i><span>Prices</span></a>
-        <a href="#" class="menu-item"><i class="fa-solid fa-futbol"></i><span>Fixtures</span></a>
-        <a href="#" class="menu-item"><i class="fa-solid fa-users-viewfinder"></i><span>Scout</span></a>
-        <a href="#" class="menu-item"><i class="fa-solid fa-ellipsis"></i><span>More</span></a>
-    </nav>
+    <div class="pitch-canvas">
+        <div id="pitch-GKP" class="pitch-row"></div>
+        <div id="pitch-DEF" class="pitch-row"></div>
+        <div id="pitch-MID" class="pitch-row"></div>
+        <div id="pitch-FWD" class="pitch-row"></div>
+
+        <div class="bench-area">
+            <div id="pitch-BENCH" class="pitch-row"></div>
+        </div>
+    </div>
+
+    <button class="m3-fab" onclick="document.getElementById('search-modal').style.display='flex'">
+        <i class="fa-solid fa-plus"></i> Add Player
+    </button>
+
+    <div id="search-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-top: 0;">Transfer Market</h3>
+            <input type="text" class="search-input" id="player-query" placeholder="Search name..." onkeyup="searchPlayers()">
+            <div class="results-list" id="search-results"></div>
+            <button class="nav-item" style="width: 100%; margin-top: 15px;" onclick="document.getElementById('search-modal').style.display='none'">Close</button>
+        </div>
+    </div>
 
     <script>
-        const BOOTSTRAP = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
-        const FIXTURES = "/.netlify/functions/fpl-proxy?endpoint=fixtures/";
-        
-        let allPlayers = [];
-        let teams = {};
-        let nextFixtures = [];
-        let captainId = localStorage.getItem('fpl_planner_cap') || null;
-        let viceId = localStorage.getItem('fpl_planner_vice') || null;
-        let transfers = parseInt(localStorage.getItem('fpl_planner_trans')) || 0;
-
-        let team = JSON.parse(localStorage.getItem('fpl_planner_team')) || {
-            GKP: [null], DEF: [null, null, null],
-            MID: [null, null, null, null, null], FWD: [null, null],
-            BENCH: [null, null, null, null]
+        // State Management
+        let state = {
+            bank: 0.6,
+            transfers: 0,
+            cost: 0,
+            squad: [
+                { id: 1, code: 11334, web_name: "Raya", team: 1, element_type: 1, now_cost: 57, fixture: "SUN (H)", fdr: 2 },
+                { id: 2, code: 172780, web_name: "Gabriel", team: 1, element_type: 2, now_cost: 62, fixture: "SUN (H)", fdr: 2 },
+                { id: 3, code: 110633, web_name: "Haaland", team: 13, element_type: 4, now_cost: 145, fixture: "LIV (A)", fdr: 5 }
+            ],
+            allPlayers: []
         };
-        
-        let activeSlot = { pos: '', idx: 0 };
 
+        // Initialize App
         async function init() {
-            try {
-                const [bootRes, fixRes] = await Promise.all([fetch(BOOTSTRAP), fetch(FIXTURES)]);
-                const bootData = await bootRes.json();
-                const fixData = await fixRes.json();
-                
-                allPlayers = bootData.elements;
-                bootData.teams.forEach(t => { teams[t.id] = t.short_name; });
-                
-                const currentGW = bootData.events.find(e => e.is_next)?.id || 1;
-                nextFixtures = fixData.filter(f => f.event === currentGW);
-
-                render();
-            } catch (e) { console.error("Initialization failed", e); }
-        }
-
-        function getFixtureInfo(teamId) {
-            const fix = nextFixtures.find(f => f.team_h === teamId || f.team_a === teamId);
-            if (!fix) return "N/A";
-            const isHome = fix.team_h === teamId;
-            const oppId = isHome ? fix.team_a : fix.team_h;
-            return `${teams[oppId]} (${isHome ? 'H' : 'A'})`;
+            // Netlify Proxy Call
+            const res = await fetch('/.netlify/functions/fpl-api?endpoint=bootstrap-static/');
+            const data = await res.json();
+            state.allPlayers = data.elements;
+            render();
         }
 
         function render() {
-            let totalCost = 0;
-            ['GKP', 'DEF', 'MID', 'FWD', 'BENCH'].forEach(pos => {
-                const el = document.getElementById(`row-${pos}`);
-                el.innerHTML = team[pos].map((p, i) => {
-                    if(!p) return `
-                        <div class="player-card" onclick="openMod('${pos}', ${i})">
-                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_0-66.webp" class="shirt" style="opacity:0.3; filter:grayscale(1)">
-                            <div class="name-plate">EMPTY</div>
-                            <div class="fixture-plate" style="background:#64748b; color:#fff">£0.0</div>
-                        </div>`;
-                    
-                    totalCost += p.now_cost / 10;
-                    const isC = String(p.id) === String(captainId);
-                    const isV = String(p.id) === String(viceId);
+            const rows = { 1: 'GKP', 2: 'DEF', 3: 'MID', 4: 'FWD' };
+            // Clear rows
+            Object.values(rows).forEach(id => document.getElementById(`pitch-${id}`).innerHTML = '');
+            document.getElementById('pitch-BENCH').innerHTML = '';
 
-                    return `
-                        <div class="player-card">
-                            <div class="btn-x" onclick="removeP('${pos}', ${i})">&times;</div>
-                            ${isC ? '<div class="badge-c">C</div>' : ''}
-                            ${isV ? '<div class="badge-v">V</div>' : ''}
-                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.team_code}-66.webp" class="shirt" onclick="setCap(${p.id})">
-                            <div class="name-plate">${p.web_name}</div>
-                            <div class="fixture-plate">${getFixtureInfo(p.team)}</div>
-                        </div>`;
-                }).join('');
+            state.squad.forEach((p, index) => {
+                const target = index < 11 ? `pitch-${rows[p.element_type]}` : 'pitch-BENCH';
+                document.getElementById(target).innerHTML += `
+                    <div class="p-card">
+                        <div class="p-remove" onclick="removePlayer(${p.id})">✖</div>
+                        <img src="https://platform-static-files.s3.amazonaws.com/premierleague/photos/players/110x140/p${p.code}.png" class="p-img">
+                        <div class="p-name">${p.web_name}</div>
+                        <div class="p-fix fdr-${p.fdr}">${p.fixture}</div>
+                        <div class="p-cost">£${(p.now_cost/10).toFixed(1)}m</div>
+                    </div>
+                `;
             });
 
-            document.getElementById('cost-val').innerText = `£${totalCost.toFixed(1)}m`;
-            document.getElementById('bank-val').innerText = `£${(100 + 1.8 - totalCost).toFixed(1)}m`;
-            document.getElementById('transfer-count').innerText = transfers;
-            saveTeam();
+            // Update Stats
+            document.getElementById('stat-bank').innerText = `£${state.bank.toFixed(1)}m`;
+            document.getElementById('stat-transfers').innerText = `${state.transfers}/2`;
+            document.getElementById('stat-cost').innerText = `-${state.cost}`;
         }
 
-        function saveTeam() {
-            localStorage.setItem('fpl_planner_team', JSON.stringify(team));
-            localStorage.setItem('fpl_planner_cap', captainId);
-            localStorage.setItem('fpl_planner_vice', viceId);
-            localStorage.setItem('fpl_planner_trans', transfers);
-            
-            const toast = document.getElementById('save-status');
-            toast.style.display = 'block';
-            setTimeout(() => toast.style.display = 'none', 1500);
+        function removePlayer(id) {
+            const p = state.squad.find(x => x.id === id);
+            state.bank += (p.now_cost / 10);
+            state.transfers++;
+            if(state.transfers > 2) state.cost += 4;
+            state.squad = state.squad.filter(x => x.id !== id);
+            render();
         }
 
-        function openMod(pos, idx) {
-            activeSlot = { pos, idx };
-            document.getElementById('searchModal').style.display = 'flex';
-            drawList('');
-        }
-
-        function drawList(query) {
-            const list = document.getElementById('pList');
-            const posId = { 'GKP': 1, 'DEF': 2, 'MID': 3, 'FWD': 4 }[activeSlot.pos];
-            
-            const filtered = allPlayers
-                .filter(p => !posId || p.element_type === posId)
-                .filter(p => p.web_name.toLowerCase().includes(query.toLowerCase()))
-                .slice(0, 15);
-
-            list.innerHTML = filtered.map(p => `
-                <div class="list-item" onclick="addP(${p.id})">
-                    <span>${p.web_name} (${teams[p.team]})</span><b>£${(p.now_cost/10).toFixed(1)}</b>
+        function searchPlayers() {
+            const query = document.getElementById('player-query').value.toLowerCase();
+            const results = state.allPlayers.filter(p => p.web_name.toLowerCase().includes(query)).slice(0, 10);
+            const list = document.getElementById('search-results');
+            list.innerHTML = results.map(p => `
+                <div class="res-item" onclick="addPlayer(${p.id})">
+                    <span>${p.web_name}</span>
+                    <strong>£${(p.now_cost/10).toFixed(1)}m</strong>
                 </div>
             `).join('');
         }
 
-        function addP(id) {
-            const player = allPlayers.find(x => x.id === id);
-            team[activeSlot.pos][activeSlot.idx] = player;
-            transfers++;
-            closeMod(); render();
-        }
-
-        function removeP(pos, idx) {
-            if (String(team[pos][idx]?.id) === String(captainId)) captainId = null;
-            if (String(team[pos][idx]?.id) === String(viceId)) viceId = null;
-            team[pos][idx] = null;
+        function addPlayer(id) {
+            const p = state.allPlayers.find(x => x.id === id);
+            if((p.now_cost/10) > state.bank) return alert("Insufficient Bank!");
+            
+            state.bank -= (p.now_cost / 10);
+            state.squad.push({...p, fixture: "TBC", fdr: 3});
+            document.getElementById('search-modal').style.display = 'none';
             render();
         }
 
-        function setCap(id) {
-            const sid = String(id);
-            if (captainId === sid) { captainId = null; viceId = sid; }
-            else if (viceId === sid) { viceId = null; }
-            else { captainId = sid; }
-            render();
-        }
-
-        function closeMod() { document.getElementById('searchModal').style.display = 'none'; }
-
+        // Start
         init();
     </script>
 </body>
