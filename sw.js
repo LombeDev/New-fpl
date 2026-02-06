@@ -1,6 +1,5 @@
-const CACHE_NAME = 'kopala-fpl-v2'; 
-const PLAYER_IMG_CACHE = 'fpl-player-photos-v1';
-const MONTH_IN_MS = 30 * 24 * 60 * 60 * 1000; // 30 Days
+const CACHE_NAME = 'kopala-fpl-v4'; 
+const JERSEY_CACHE = 'fpl-jerseys-v1';
 
 const STATIC_ASSETS = [
   '/',
@@ -8,14 +7,22 @@ const STATIC_ASSETS = [
   'leagues.html',
   'prices.html',
   'games.html',
-  'members.html',
+  'prizes.html', // Added prizes
+  'style.css',
+  'nav.css',
+  'footer.css',
+  'nav.js',
+  'footer.js',
   'manifest.json',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css'
+  // External Dependencies
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css',
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
+      // mapping assets to ensure one failure doesn't stop the whole cache
       return Promise.allSettled(
         STATIC_ASSETS.map(asset => cache.add(asset))
       );
@@ -28,7 +35,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter(key => key !== CACHE_NAME && key !== PLAYER_IMG_CACHE)
+        keys.filter(key => key !== CACHE_NAME && key !== JERSEY_CACHE)
             .map(key => caches.delete(key))
       );
     })
@@ -38,40 +45,35 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // UPDATED STRATEGY: SHIRTS & PHOTOS
-  // Now specifically checks for the 'draft.premierleague' or 'shirts' path
-  if (url.href.includes('premierleague/photos') || url.href.includes('shirts/standard')) {
+  // 1. JERSEY CACHING (Cache-First)
+  // Targets the specific FPL jersey image paths
+  if (url.hostname.includes('premierleague.com') && url.pathname.includes('shirts')) {
     event.respondWith(
-      caches.open(PLAYER_IMG_CACHE).then(async (cache) => {
+      caches.open(JERSEY_CACHE).then(async (cache) => {
         const cachedResponse = await cache.match(event.request);
-        const now = Date.now();
+        if (cachedResponse) return cachedResponse;
 
-        if (cachedResponse) {
-          // Check if cached item is older than 30 days
-          const dateHeader = cachedResponse.headers.get('date');
-          const fetchedDate = dateHeader ? new Date(dateHeader).getTime() : 0;
-          
-          if (now - fetchedDate < MONTH_IN_MS) {
-            return cachedResponse;
-          }
-        }
-
-        // Fetch new and cache
         return fetch(event.request).then((networkResponse) => {
-          cache.put(event.request, networkResponse.clone());
+          if (networkResponse.status === 200) {
+            cache.put(event.request, networkResponse.clone());
+          }
           return networkResponse;
         });
       })
     );
   } 
   
+  // 2. APP SHELL (Stale-While-Revalidate)
+  // Serves CSS/JS/HTML from cache immediately, then updates in background
   else if (STATIC_ASSETS.some(asset => url.pathname.endsWith(asset) || url.pathname === '/')) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         const fetchPromise = fetch(event.request).then((networkResponse) => {
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
-          });
+          if (networkResponse.status === 200) {
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, networkResponse.clone());
+            });
+          }
           return networkResponse;
         });
         return cachedResponse || fetchPromise;
@@ -79,6 +81,8 @@ self.addEventListener('fetch', (event) => {
     );
   }
 
+  // 3. LIVE DATA (Network-First)
+  // Points, leagues, and prices should always try the network first
   else {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request))
