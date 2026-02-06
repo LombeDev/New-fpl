@@ -67,7 +67,7 @@ body {
     overflow-y: auto;
 }
 
-/* --- PROMO CARD (The Box on the Right) --- */
+/* --- PROMO CARD --- */
 .promo-card {
     width: 100%;
     max-width: 420px;
@@ -77,6 +77,7 @@ body {
     margin-bottom: 30px;
     text-align: center;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    overflow: hidden; /* Ensures scale/blur stays inside the box */
 }
 
 .promo-card::before {
@@ -88,40 +89,59 @@ body {
     margin-bottom: 25px;
     border: 1px solid rgba(255,255,255,0.1);
     
-    /* 1. Placeholder: A blurred gradient that looks like the image colors */
     background-color: #5a1f82; 
-    background-image: linear-gradient(45deg, #3d195b, #ff005a55);
-    filter: blur(0px); /* Base state */
-
-    /* 2. The Actual Image */
-    /* We use a transition to fade it in once the browser fetches it */
-    background-image: url('fpl.PNG'), 
-                      linear-gradient(45deg, #3d195b, #7d0046);
     background-size: cover;
     background-position: center;
-    
-    /* 3. Animation */
-    animation: fadeInBlur 1.5s ease-in-out;
+
+    /* Applied the carousel animation (15s total, 5s per image) */
+    animation: promoCarousel 15s ease-in-out infinite;
 }
 
-@keyframes fadeInBlur {
-    0% {
-        filter: blur(10px);
-        opacity: 0.8;
-        transform: scale(0.98);
-    }
-    100% {
+@keyframes promoCarousel {
+    /* --- IMAGE 1 (fpl.PNG) --- */
+    0%, 28% {
+        background-image: url('fpl.PNG'), linear-gradient(45deg, #3d195b, #7d0046);
         filter: blur(0px);
         opacity: 1;
         transform: scale(1);
     }
+    /* Transition 1: Blur & Shrink */
+    33% {
+        filter: blur(10px);
+        opacity: 0.8;
+        transform: scale(0.98);
+    }
+
+    /* --- IMAGE 2 (leagues.PNG) --- */
+    38%, 61% {
+        background-image: url('carrick.jpg'), linear-gradient(45deg, #3d195b, #7d0046);
+        filter: blur(0px);
+        opacity: 1;
+        transform: scale(1);
+    }
+    /* Transition 2: Blur & Shrink */
+    66% {
+        filter: blur(10px);
+        opacity: 0.8;
+        transform: scale(0.98);
+    }
+
+    /* --- IMAGE 3 (prizes.PNG) --- */
+    71%, 95% {
+        background-image: url('double.jpg'), linear-gradient(45deg, #3d195b, #7d0046);
+        filter: blur(0px);
+        opacity: 1;
+        transform: scale(1);
+    }
+    /* Loop back to Image 1 */
+    100% {
+        filter: blur(10px);
+        opacity: 0.8;
+        transform: scale(0.98);
+    }
 }
 
-
-/* Only show image when 'visible' class is added to the parent */
-#login-screen.visible .promo-card::before {
-    background-image: url('fpl.PNG');
-}
+/* Cleanup: Since it's now an infinite carousel, we don't need the .visible trigger */
 .promo-link { 
     color: var(--pl-white); 
     text-decoration: none; 
@@ -137,7 +157,6 @@ body {
     margin-left: 8px;
     opacity: 0.7;
 }
-
 /* --- LOGIN CARD (The Form on the Left) --- */
 .login-card {
     width: 100%;
