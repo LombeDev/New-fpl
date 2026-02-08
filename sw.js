@@ -1,28 +1,27 @@
-const CACHE_NAME = 'kopala-fpl-v4'; 
+const CACHE_NAME = 'kopala-fpl-v5'; // Increment this to force updates
 const JERSEY_CACHE = 'fpl-jerseys-v1';
 
 const STATIC_ASSETS = [
   '/',
-  'index.html',
-  'leagues.html',
-  'prices.html',
-  'games.html',
-  'prizes.html', // Added prizes
-  'style.css',
-  'nav.css',
-  'footer.css',
-  'nav.js',
-  'footer.js',
-  'manifest.json',
-  // External Dependencies
+  '/index.html',
+  '/leagues.html',
+  '/prices.html',
+  '/games.html',
+  '/prizes.html',
+  '/style.css',
+  '/nav.css',
+  '/footer.css',
+  '/nav.js',
+  '/footer.js',
+  '/manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap'
 ];
 
+// 1. INSTALL: Pre-cache the App Shell
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // mapping assets to ensure one failure doesn't stop the whole cache
       return Promise.allSettled(
         STATIC_ASSETS.map(asset => cache.add(asset))
       );
@@ -31,61 +30,65 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
+// 2. ACTIVATE: Cleanup old caches & Enable Navigation Preload
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.filter(key => key !== CACHE_NAME && key !== JERSEY_CACHE)
-            .map(key => caches.delete(key))
-      );
-    })
+    Promise.all([
+      // Cleanup old versions
+      caches.keys().then((keys) => {
+        return Promise.all(
+          keys.filter(key => key !== CACHE_NAME && key !== JERSEY_CACHE)
+              .map(key => caches.delete(key))
+        );
+      }),
+      // Enable Navigation Preload to kill the startup delay
+      self.registration.navigationPreload ? self.registration.navigationPreload.enable() : Promise.resolve()
+    ]).then(() => self.clients.claim())
   );
 });
 
+// 3. FETCH: Smart Caching Strategies
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 1. JERSEY CACHING (Cache-First)
-  // Targets the specific FPL jersey image paths
+  // A. JERSEY CACHING (Cache-First)
   if (url.hostname.includes('premierleague.com') && url.pathname.includes('shirts')) {
     event.respondWith(
       caches.open(JERSEY_CACHE).then(async (cache) => {
         const cachedResponse = await cache.match(event.request);
-        if (cachedResponse) return cachedResponse;
-
-        return fetch(event.request).then((networkResponse) => {
-          if (networkResponse.status === 200) {
-            cache.put(event.request, networkResponse.clone());
-          }
+        return cachedResponse || fetch(event.request).then((networkResponse) => {
+          cache.put(event.request, networkResponse.clone());
           return networkResponse;
         });
       })
     );
   } 
   
-  // 2. APP SHELL (Stale-While-Revalidate)
-  // Serves CSS/JS/HTML from cache immediately, then updates in background
+  // B. APP SHELL (Cache-First - THIS KILLS THE LOADING BAR)
+  // We serve local files immediately so Chrome doesn't show a progress bar.
   else if (STATIC_ASSETS.some(asset => url.pathname.endsWith(asset) || url.pathname === '/')) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
-        const fetchPromise = fetch(event.request).then((networkResponse) => {
-          if (networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, networkResponse.clone());
-            });
-          }
-          return networkResponse;
-        });
-        return cachedResponse || fetchPromise;
+        return cachedResponse || fetch(event.request);
       })
     );
   }
 
-  // 3. LIVE DATA (Network-First)
-  // Points, leagues, and prices should always try the network first
+  // C. LIVE DATA & NAVIGATION (Network-First with Preload)
   else {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      (async () => {
+        // Try the preloaded response first
+        const preloadResponse = await event.preloadResponse;
+        if (preloadResponse) return preloadResponse;
+
+        // Otherwise, try network, fallback to cache
+        try {
+          return await fetch(event.request);
+        } catch (err) {
+          return caches.match(event.request);
+        }
+      })()
     );
   }
 });
