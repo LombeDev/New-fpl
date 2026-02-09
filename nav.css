@@ -1,8 +1,8 @@
-/* --- Navigation Variables & Theme Support --- */
+/* --- Navigation Variables --- */
 :root {
-  --nav-bg: #37003c;        /* FPL Purple */
-  --menu-bg: #37003c;       
-  --accent-pink: #ff0055;   /* FPL Pink */
+  --nav-bg: #37003c;
+  --menu-bg: #37003c;
+  --accent-pink: #ff0055;
   --text-white: #ffffff;
   --nav-height: 56px;
   --border-color: rgba(255, 255, 255, 0.1);
@@ -15,19 +15,11 @@
   --border-color: #eee;
 }
 
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-}
-
-#nav-placeholder {
-  position: sticky;
-  top: 0;
-  z-index: 1001;
-  width: 100%;
-}
+body { margin: 0; font-family: 'Inter', sans-serif; }
 
 /* --- Top Navigation Bar --- */
+#nav-placeholder { position: sticky; top: 0; z-index: 1001; width: 100%; }
+
 .mobile-nav {
   background-color: var(--nav-bg) !important;
   display: flex;
@@ -40,11 +32,14 @@ body {
   border-bottom: 1px solid var(--border-color);
 }
 
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* Fix for Logo Position */
+.nav-logo img {
+  height: 28px;
+  width: auto;
+  display: block;
 }
+
+.nav-right { display: flex; align-items: center; gap: 10px; }
 
 .cta-button {
   background-color: var(--accent-pink);
@@ -55,25 +50,10 @@ body {
   font-weight: 800;
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-.menu-toggle {
-  background: transparent !important;
-  border: none;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  cursor: pointer;
-  padding: 5px;
-}
-
-.bar {
-  width: 22px;
-  height: 2px;
-  background-color: #ffffff;
-  border-radius: 2px;
-}
+.menu-toggle { background: transparent !important; border: none; display: flex; flex-direction: column; gap: 5px; cursor: pointer; }
+.bar { width: 22px; height: 2px; background-color: #ffffff; border-radius: 2px; }
 
 /* --- Overlay Menu --- */
 .overlay-menu {
@@ -86,141 +66,118 @@ body {
   z-index: 2000;
   display: flex;
   flex-direction: column;
-  padding: calc(15px + env(safe-area-inset-top)) 20px 20px 20px;
+  padding: calc(15px + env(safe-area-inset-top)) 24px 24px 24px;
   box-sizing: border-box;
   transform: translateX(-100%); 
   transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-.overlay-menu.active {
-  transform: translateX(0);
-}
+.overlay-menu.active { transform: translateX(0); }
 
+/* HEADER: Fixed Logo & Close Button spacing */
 .menu-header {
   display: flex;
-  justify-content: flex-end; 
+  justify-content: space-between; /* Puts Logo on Left, Close on Right */
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
+
+.menu-logo img { height: 35px; width: auto; }
 
 .close-btn {
   background: none;
   border: none;
   color: #ffffff;
-  font-size: 32px;
-  line-height: 1;
+  font-size: 28px;
   cursor: pointer;
 }
 
-/* --- Minimal Menu Links & Animation --- */
-.menu-links {
-  list-style: none;
-  padding: 0;
-  margin: 10px 0;
-}
+/* --- Links with staggered animation --- */
+.menu-links { list-style: none; padding: 0; margin: 0; }
+.menu-links li { width: 100%; opacity: 0; transform: translateY(10px); transition: 0.4s ease; }
+.overlay-menu.active .menu-links li { opacity: 1; transform: translateY(0); }
 
-.menu-links li {
-  width: 100%;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.4s ease;
-}
-
-/* Staggered Animation Trigger */
-.overlay-menu.active .menu-links li {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Individual delays for that "one-by-one" effect */
+/* Animation Delays */
 .overlay-menu.active .menu-links li:nth-child(1) { transition-delay: 0.1s; }
 .overlay-menu.active .menu-links li:nth-child(2) { transition-delay: 0.15s; }
 .overlay-menu.active .menu-links li:nth-child(3) { transition-delay: 0.2s; }
 .overlay-menu.active .menu-links li:nth-child(4) { transition-delay: 0.25s; }
-.overlay-menu.active .menu-links li:nth-child(5) { transition-delay: 0.3s; }
 
 .menu-links li a {
   display: flex;
   align-items: center;
   color: #ffffff;
   text-decoration: none;
-  padding: 14px 0;
-  font-size: 13px; 
+  padding: 16px 0;
+  font-size: 14px;
   font-weight: 700;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* --- ACTIVE STATE: PINK TEXT ONLY + DOT --- */
-.active-link {
-  color: var(--accent-pink) !important;
-}
-
+/* Pink Text Active State */
+.active-link { color: var(--accent-pink) !important; }
 .active-link::after {
-  content: '';
-  width: 4px;
-  height: 4px;
-  background-color: var(--accent-pink);
-  border-radius: 50%;
-  margin-left: 8px;
-  box-shadow: 0 0 8px var(--accent-pink);
+  content: ''; width: 4px; height: 4px; background: var(--accent-pink);
+  border-radius: 50%; margin-left: 8px; box-shadow: 0 0 8px var(--accent-pink);
 }
 
-/* --- Theme Toggle & Footer --- */
-.theme-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 0;
-  opacity: 0;
-  transition: opacity 0.5s ease 0.4s;
-}
-
-.overlay-menu.active .theme-row { opacity: 1; }
-
-.theme-label { color: #fff; font-weight: 800; font-size: 10px; text-transform: uppercase; }
-
-.toggle-container {
-  display: flex;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 20px;
-  padding: 2px;
-  width: 90px;
-  height: 30px;
+/* --- MATERIAL YOU SEARCH INPUT --- */
+.menu-search {
+  margin: 20px 0;
   position: relative;
 }
 
+.menu-search input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: white;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+  transition: background 0.3s;
+}
+
+.menu-search input:focus { background: rgba(255, 255, 255, 0.15); border-color: var(--accent-pink); }
+.menu-search input::placeholder { color: rgba(255, 255, 255, 0.4); }
+
+/* --- THEME TOGGLE --- */
+.theme-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.theme-label { color: #fff; font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+.toggle-container {
+  display: flex; background: rgba(0, 0, 0, 0.2); border-radius: 20px;
+  padding: 2px; width: 90px; height: 30px; position: relative;
+}
+
 .slider-bg {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: calc(50% - 2px);
-  height: calc(100% - 4px);
-  background: var(--accent-pink);
-  border-radius: 18px;
-  transition: transform 0.3s ease;
-  z-index: 1;
+  position: absolute; top: 2px; left: 2px; width: calc(50% - 2px); height: calc(100% - 4px);
+  background: var(--accent-pink); border-radius: 18px; transition: 0.3s; z-index: 1;
 }
 
-.toggle-btn { flex: 1; z-index: 2; background: transparent; border: none; color: #fff; font-size: 9px; font-weight: 800; }
+.toggle-btn { flex: 1; z-index: 2; background: transparent; border: none; color: #fff; font-size: 9px; font-weight: 800; cursor: pointer; }
 
-.menu-footer {
-  margin-top: auto;
-  padding-bottom: 15px;
-  opacity: 0;
-  transition: opacity 0.5s ease 0.5s;
-}
-
-.overlay-menu.active .menu-footer { opacity: 1; }
+/* --- FOOTER / CHANGE ID BUTTON --- */
+.menu-footer { margin-top: auto; padding-bottom: 20px; }
 
 .login-btn {
   background: transparent;
-  border: 1.5px solid #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
   color: #ffffff;
   text-decoration: none;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 14px;
+  border-radius: 12px;
   font-weight: 800;
   font-size: 12px;
   display: block;
   text-align: center;
+  transition: all 0.2s;
 }
+
+.login-btn:active { background: white; color: var(--nav-bg); }
