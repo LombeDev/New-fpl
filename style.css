@@ -99,35 +99,51 @@ body {
 
 @keyframes promoCarousel {
     /* --- IMAGE 1 (fpl.PNG) --- */
-    0%, 28% {
+    0%, 40% {
         background-image: url('fpl.PNG'), linear-gradient(45deg, #3d195b, #7d0046);
-        filter: blur(0px);
+        background-position: center;
+        transform: translateX(0);
         opacity: 1;
-        transform: scale(1);
-    }
-    /* Transition 1: Blur & Shrink */
-    33% {
-        filter: blur(10px);
-        opacity: 0.8;
-        transform: scale(0.98);
     }
 
-   
-   
+    /* Transition: Slide out to the left, Slide in from the right */
+    45% {
+        transform: translateX(-10px); /* Slight nudge before the snap */
+        opacity: 0.5;
+    }
 
-    /* --- IMAGE 2 () --- */
-    71%, 95% {
+    50% {
+        /* This is the "switch" point */
         background-image: url('double.jpg'), linear-gradient(45deg, #3d195b, #7d0046);
-        filter: blur(0px);
+        transform: translateX(20px); /* Appear from the right */
+        opacity: 0;
+    }
+
+    /* --- IMAGE 2 (double.jpg) --- */
+    60%, 90% {
+        background-image: url('double.jpg'), linear-gradient(45deg, #3d195b, #7d0046);
+        transform: translateX(0);
         opacity: 1;
-        transform: scale(1);
     }
-    /* Loop back to Image 1 */
+
+    /* Transition back to Image 1 */
+    95% {
+        transform: translateX(-10px);
+        opacity: 0.5;
+    }
+
     100% {
-        filter: blur(10px);
-        opacity: 0.8;
-        transform: scale(0.98);
+        background-image: url('fpl.PNG'), linear-gradient(45deg, #3d195b, #7d0046);
+        transform: translateX(0);
+        opacity: 1;
     }
+}
+
+.your-container-class {
+    animation: promoCarousel 10s infinite ease-in-out;
+    background-size: cover;
+    background-repeat: no-repeat;
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); /* Smoother "FPL" curve */
 }
 
 /* Cleanup: Since it's now an infinite carousel, we don't need the .visible trigger */
