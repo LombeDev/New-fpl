@@ -16,129 +16,177 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    
+
     <style>
-        /* --- Navigation Variables & Theme Support --- */
-        :root {
-            --fpl-purple: #37003c;
-            --fpl-text: #242424;
-            --fpl-bg: #ffffff;
-            --nav-bg: #1a1a1a;
-            --accent-blue: #00aaff;
-            --border-color: #e3e3e3;
-        }
+    
+  /* --- Material You & FPL Theme Variables --- */
+:root {
+    --fpl-purple: #37003c;
+    --fpl-pink: #ff0055;
+    --md-surface: #fdfbff; /* Material Surface */
+    --md-surface-variant: #f3eff4; /* Shaded sections */
+    --md-primary: #37003c;
+    --md-secondary: #00aaff;
+    --text-main: #1d1b20;
+    --text-sub: #49454f;
+    --radius-lg: 28px; /* Material You rounded corners */
+    --radius-md: 16px;
+}
 
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            background-color: var(--fpl-bg);
-            color: var(--fpl-text);
-            -webkit-font-smoothing: antialiased;
-        }
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--md-surface);
+    color: var(--text-main);
+}
 
- 
+.prizes-content {
+    padding: 24px 16px;
+    max-width: 600px;
+    margin: 0 auto;
+}
 
-       
+/* Material Typography */
+h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--fpl-purple);
+    margin-bottom: 24px;
+}
 
-        /* --- Prizes Content (Photo Accurate) --- */
-        .prizes-content {
-            padding: 24px 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
+/* --- Manager of the Week (Floating Card) --- */
+.live-banner {
+    background: var(--fpl-purple);
+    color: white;
+    padding: 20px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 24px rgba(55, 0, 60, 0.15);
+}
 
-        h1 {
-            font-size: 36px;
-            font-weight: 800;
-            color: var(--fpl-purple);
-            margin: 0 0 15px 0;
-        }
+.live-banner i { 
+    background: rgba(255, 255, 255, 0.2);
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #ffd700; 
+    font-size: 22px; 
+}
 
-        h2 {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--fpl-purple);
-            margin: 20px 0;
-        }
+#winner-name { 
+    font-size: 18px;
+    font-weight: 700; 
+}
 
-        h3 {
-            font-size: 19px;
-            font-weight: 700;
-            color: var(--fpl-purple);
-            margin: 30px 0 10px 0;
-        }
+/* --- Prize Section Containers --- */
+.prize-card {
+    background: var(--md-surface-variant);
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 16px;
+    border: 1px solid rgba(0,0,0,0.03);
+    transition: transform 0.2s ease;
+}
 
-        /* LIVE WINNER BANNER */
-        .live-banner {
-            background: #f8f9fa;
-            border-left: 4px solid var(--accent-blue);
-            padding: 15px;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-radius: 4px;
-        }
+.prize-card:active {
+    transform: scale(0.98);
+}
 
-        .live-banner i { color: #ffd700; font-size: 20px; }
-        #winner-name { font-weight: 700; color: var(--fpl-purple); }
+.prize-card h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--fpl-purple);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
-        .prize-list {
-            list-style-type: disc;
-            margin: 0;
-            padding-left: 20px;
-        }
+.prize-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
 
-        .prize-list li {
-            font-size: 15px;
-            margin-bottom: 8px;
-            line-height: 1.4;
-            color: #242424;
-            padding-left: 5px;
-        }
+.prize-list li {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-sub);
+    padding: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-        .footer-note {
-            margin-top: 50px;
-            padding: 20px 0;
-            border-top: 1px solid var(--border-color);
-            font-size: 12px;
-            opacity: 0.6;
-            text-align: center;
-        }
+.prize-list li::before {
+    content: "\f058"; /* FontAwesome Check Circle */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: var(--fpl-pink);
+    font-size: 16px;
+}
 
-    </style>
+/* Small Sub-headers */
+.section-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 900;
+    color: var(--fpl-pink);
+    letter-spacing: 1.5px;
+    margin: 32px 0 12px 10px;
+}
+      </style>  
 </head>
 <body>
 
     <div id="nav-placeholder"></div>
 
-    <main class="prizes-content">
-        <h1>Prizes</h1>
-        
-        <div class="live-banner">
-            <i class="fa-solid fa-crown"></i>
-            <div>
-                <small style="text-transform: uppercase; font-size: 10px; font-weight: 800; opacity: 0.6;">Manager of th Week</small>
-                <div id="winner-name">Loading live standings...</div>
-            </div>
+  <h1>Prizes</h1>
+    
+    <div class="live-banner">
+        <i class="fa-solid fa-crown"></i>
+        <div>
+            <div style="text-transform: uppercase; font-size: 10px; font-weight: 800; opacity: 0.8; letter-spacing: 1px;">Manager of the Week</div>
+            <div id="winner-name">Syncing standings...</div>
         </div>
+    </div>
 
-        <h2>Prizes</h2>
+    <div class="section-title">End of Season Rewards</div>
 
-        <h3>1st Prize - 2025/26 Kopala FPL Mini League Champion</h3>
+    <div class="prize-card">
+        <h3><i class="fa-solid fa-trophy" style="color:#FFD700"></i> Champion</h3>
         <ul class="prize-list">
-            
-
-        <h3>Runner-up</h3>
-        <ul class="prize-list">
-          
+            <li>Custom 2025/26 Champion Jersey</li>
+            <li>Cash Prize (Amount TBC)</li>
+            <li>Kopala FPL Hall of Fame Entry</li>
         </ul>
+    </div>
 
-        <h3>Cup Winner</h3>
+    <div class="prize-card">
+        <h3><i class="fa-solid fa-medal" style="color:#C0C0C0"></i> Runner-up</h3>
         <ul class="prize-list">
+            <li>Official Premier League Merchandise</li>
+            <li>Cash Prize</li>
         </ul>
+    </div>
 
+    <div class="section-title">Tournament Cups</div>
+
+    <div class="prize-card">
+        <h3><i class="fa-solid fa-award" style="color:var(--md-secondary)"></i> Cup Winner</h3>
+        <ul class="prize-list">
+            <li>Kopala Cup Trophy (Digital)</li>
+            <li>Branded Sports Kit</li>
+        </ul>
+    </div>
        
     </main>
 
