@@ -67,162 +67,119 @@ body {
     overflow-y: auto;
 }
 
-/* --- PROMO CARD --- */
-.promo-card {
-    width: 100%;
-    max-width: 420px;
-    background-color: var(--pl-purple-light);
-    border-radius: 24px;
-    padding: 40px 30px;
-    margin-bottom: 30px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    overflow: hidden; /* Ensures scale/blur stays inside the box */
-}
-
-.promo-card::before {
-    content: "";
-    display: block;
+/* --- SMOOTH SLIDER CORE --- */
+.promo-window {
     width: 100%;
     height: 180px;
     border-radius: 12px;
     margin-bottom: 25px;
+    overflow: hidden; /* This hides the other images */
     border: 1px solid rgba(255,255,255,0.1);
-    
-    background-color: #5a1f82; 
+    position: relative;
+}
+
+.promo-track {
+    display: flex;
+    width: 700%; /* 6 images + 1 for loop = 7 slides */
+    height: 100%;
+    /* 18s total = 3s per image. Adjust time to slow down/speed up */
+    animation: fplSlideLoop 18s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    will-change: transform;
+}
+
+.promo-slide {
+    width: 100%;
+    height: 100%;
     background-size: cover;
     background-position: center;
-
-    /* Applied the carousel animation (15s total, 5s per image) */
-    animation: promoCarousel 15s ease-in-out infinite;
+    background-repeat: no-repeat;
+    /* This adds the signature FPL gradient over every image */
+    background-blend-mode: overlay;
+    background-color: rgba(61, 25, 91, 0.2); 
 }
 
-@keyframes promoCarousel {
-    /* --- IMAGE 1 (fpl.PNG) --- */
-    0%, 40% {
-        background-image: url('fpl.PNG'), linear-gradient(45deg, #3d195b, #7d0046);
-        background-position: center;
-        transform: translateX(0);
-        opacity: 1;
-    }
+/* --- THE ANIMATION --- 
+   0% to 14% = Image 1 stays still
+   14% to 16.6% = Smooth slide to Image 2
+   (Repeating this pattern for 6 images)
+*/
+@keyframes fplSlideLoop {
+    0%, 14%   { transform: translateX(0); }
+    16.6%, 30% { transform: translateX(-14.28%); } /* Slide to 2 */
+    33.2%, 47% { transform: translateX(-28.57%); } /* Slide to 3 */
+    50%, 64%   { transform: translateX(-42.85%); } /* Slide to 4 */
+    66.6%, 80% { transform: translateX(-57.14%); } /* Slide to 5 */
+    83.2%, 96% { transform: translateX(-71.42%); } /* Slide to 6 */
+    100%       { transform: translateX(-85.71%); } /* Snap to duplicate of 1 */
+}
 
-    /* Transition: Slide out to the left, Slide in from the right */
-    45% {
-        transform: translateX(-10px); /* Slight nudge before the snap */
-        opacity: 0.5;
-    }
-
-    50% {
-        /* This is the "switch" point */
-        background-image: url('double.jpg'), linear-gradient(45deg, #3d195b, #7d0046);
-        transform: translateX(20px); /* Appear from the right */
-        opacity: 0;
-    }
-
-    /* --- IMAGE 2 (double.jpg) --- */
-    60%, 90% {
-        background-image: url('double.jpg'), linear-gradient(45deg, #3d195b, #7d0046);
-        transform: translateX(0);
-        opacity: 1;
-    }
-
-    /* Transition back to Image 1 */
-    95% {
-        transform: translateX(-10px);
-        opacity: 0.5;
-    }
-
-    100% {
-        background-image: url('fpl.PNG'), linear-gradient(45deg, #3d195b, #7d0046);
-        transform: translateX(0);
-        opacity: 1;
-    }
+/* Fix for the Promo Card container */
+.promo-card {
+    width: 100%;
+    max-width: 420px;
+    background-color: var(--pl-purple); /* Ensure this matches your theme */
+    border-radius: 24px;
+    padding: 30px;
+    margin-bottom: 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    position: relative;
 }
 
 
- /* --- IMAGE 3  --- */
-    60%, 90% {
-        background-image: url('budget.PNG'), linear-gradient(45deg, #3d195b, #7d0046);
-        transform: translateX(0);
-        opacity: 1;
-    }
+/* --- DOTS CONTAINER --- */
+.promo-dots {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+}
 
-    /* Transition back to Image 1 */
-    95% {
-        transform: translateX(-10px);
-        opacity: 0.5;
-    }
+.dot {
+    width: 6px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    transition: background 0.3s ease;
+}
 
-    100% {
-        background-image: url('fpl.PNG'), linear-gradient(45deg, #3d195b, #7d0046);
-        transform: translateX(0);
-        opacity: 1;
+/* --- DOT HIGHLIGHT ANIMATION --- */
+/* We use the same 18s duration as the slide animation so they stay in sync */
+.dot {
+    animation: dotHighlight 18s infinite;
+}
+
+/* Offset each dot so they light up one after another */
+.dot:nth-child(2) { animation-delay: 3s; }
+.dot:nth-child(3) { animation-delay: 6s; }
+.dot:nth-child(4) { animation-delay: 9s; }
+.dot:nth-child(5) { animation-delay: 12s; }
+.dot:nth-child(6) { animation-delay: 15s; }
+
+@keyframes dotHighlight {
+    0%, 16.6% { 
+        background: var(--fpl-green); 
+        transform: scale(1.2); 
+        box-shadow: 0 0 8px var(--fpl-green);
+    }
+    16.7%, 100% { 
+        background: rgba(255, 255, 255, 0.4); 
+        transform: scale(1);
+        box-shadow: none;
     }
 }
 
-
- /* --- IMAGE 4  --- */
-    60%, 90% {
-        background-image: url('join.PNG'), linear-gradient(45deg, #3d195b, #7d0046);
-        transform: translateX(0);
-        opacity: 1;
-    }
-
-    /* Transition back to Image 1 */
-    95% {
-        transform: translateX(-10px);
-        opacity: 0.5;
-    }
-
-    100% {
-        background-image: url('fpl.PNG'), linear-gradient(45deg, #3d195b, #7d0046);
-        transform: translateX(0);
-        opacity: 1;
-    }
+/* Ensure the slide animation is still there from the previous step */
+.promo-track {
+    display: flex;
+    width: 700%;
+    height: 100%;
+    animation: fplSlideLoop 18s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    will-change: transform;
 }
-
-
- /* --- IMAGE 5  --- */
-    60%, 90% {
-        background-image: url('team.PNG'), linear-gradient(45deg, #3d195b, #7d0046);
-        transform: translateX(0);
-        opacity: 1;
-    }
-
-    /* Transition back to Image 1 */
-    95% {
-        transform: translateX(-10px);
-        opacity: 0.5;
-    }
-
-    100% {
-        background-image: url('fpl.PNG'), linear-gradient(45deg, #3d195b, #7d0046);
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-
- /* --- IMAGE 6  --- */
-    60%, 90% {
-        background-image: url('d.PNG'), linear-gradient(45deg, #3d195b, #7d0046);
-        transform: translateX(0);
-        opacity: 1;
-    }
-
-    /* Transition back to Image 1 */
-    95% {
-        transform: translateX(-10px);
-        opacity: 0.5;
-    }
-
-    100% {
-        background-image: url('fpl.PNG'), linear-gradient(45deg, #3d195b, #7d0046);
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
 
 .your-container-class {
     animation: promoCarousel 10s infinite ease-in-out;
