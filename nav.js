@@ -25,13 +25,13 @@ function loadNavbar() {
       </div>
       
       <ul class="menu-links">
-        <li><a href="index.html"><i class=""></i> Home <span>&rsaquo;</span></a></li>
-        <li><a href="leagues.html"><i class=""></i> Leagues <span>&rsaquo;</span></a></li>
-        <li><a href="prices.html"><i class=""></i> Prices <span>&rsaquo;</span></a></li>
-        <li><a href="games.html"><i class=""></i> Games <span>&rsaquo;</span></a></li>
+        <li><a href="index.html"><i class=""></i> Home <span></span></a></li>
+        <li><a href="leagues.html"><i class=""></i> Leagues <span></span></a></li>
+        <li><a href="prices.html"><i class=""></i> Prices <span></span></a></li>
+        <li><a href="games.html"><i class=""></i> Games <span></span></a></li>
         
         
-        <li><a href="prizes.html"><i class=""></i> Prizes <span>&rsaquo;</span></a></li>
+        <li><a href="prizes.html"><i class=""></i> Prizes <span></span></a></li>
         <li><a href="https://wa.me/260964836842" target="_blank">Help</a></li>
       </ul>
 
