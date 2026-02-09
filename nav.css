@@ -1,27 +1,27 @@
 /* --- Navigation Variables & Theme Support --- */
 :root {
   --nav-bg: #37003c;        /* FPL Purple */
-  --menu-bg: #37003c;       /* Updated to match Nav Bar */
-  --accent-pink: #ff0055;   
+  --menu-bg: #37003c;       /* Deep Purple Theme */
+  --accent-pink: #ff0055;   /* FPL Pink */
   --accent-blue: #00aaff;   
   --text-white: #ffffff;
-  --border-color: rgba(255, 255, 255, 0.15); /* Light border to separate purple areas */
+  --nav-height: 60px;
+  --border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Light Theme Variables */
 [data-theme="light"] {
   --nav-bg: #ffffff;
-  --menu-bg: #ffffff;
-  --text-white: #1a1a1a;
-  --border-color: #dee2e6;
+  --menu-bg: #fdfbff; /* Soft Material White */
+  --text-white: #1d1b20;
+  --border-color: #e6e1e5;
 }
 
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Sticky Placeholder */
 #nav-placeholder {
   position: sticky;
   top: 0;
@@ -35,176 +35,192 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: calc(12px + env(safe-area-inset-top)) 15px 12px 15px;
+  padding: calc(8px + env(safe-area-inset-top)) 16px 8px 16px;
+  height: var(--nav-height);
   width: 100%;
   box-sizing: border-box;
   border-bottom: 1px solid var(--border-color);
+  transition: background 0.3s ease;
 }
 
 .nav-right {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
+  gap: 8px;
 }
 
+/* Material You Pill Button */
 .cta-button {
   background-color: var(--accent-pink);
   color: white !important;
   text-decoration: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 800;
-  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 20px; /* Full pill shape */
+  font-weight: 700;
+  font-size: 0.65rem; /* Small, professional font */
   text-transform: uppercase;
+  letter-spacing: 0.4px;
+  box-shadow: 0 2px 4px rgba(255, 0, 85, 0.2);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* --- Hamburger Toggle (Fixed Transparency) --- */
+.cta-button:active {
+  transform: scale(0.92);
+}
+
+/* --- Hamburger Toggle --- */
 .menu-toggle {
   background: transparent !important;
   border: none;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   cursor: pointer;
-  padding: 8px;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
+  padding: 10px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.menu-toggle:active {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .bar {
-  width: 22px;
+  width: 20px;
   height: 2px;
-  background-color: #ffffff; /* Stays white on purple bg */
-  border-radius: 2px;
+  background-color: var(--text-white);
+  border-radius: 10px;
 }
 
-/* --- Full-Screen Overlay Menu (Left-to-Right) --- */
+/* --- Overlay Menu (Material You Style) --- */
 .overlay-menu {
   position: fixed;
   top: 0;
   left: 0; 
   width: 100%;
   height: 100%;
-  background-color: var(--menu-bg); /* Now #37003c */
+  background-color: var(--menu-bg);
   z-index: 2000;
   display: flex;
   flex-direction: column;
-  padding: calc(20px + env(safe-area-inset-top)) 25px 25px 25px;
+  padding: calc(15px + env(safe-area-inset-top)) 20px 20px 20px;
   box-sizing: border-box;
-  overflow-y: auto;
-  
-  /* Slide from Left */
   transform: translateX(-100%); 
-  transition: transform 0.4s cubic-bezier(0.77, 0.2, 0.05, 1.0);
+  transition: transform 0.5s cubic-bezier(0.8, 0, 0.2, 1);
 }
 
 .overlay-menu.active {
-  transform: translateX(0); 
-}
-
-.menu-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
+  transform: translateX(0);
 }
 
 .close-btn {
-  background: none;
+  background: rgba(255,255,255,0.05);
   border: none;
-  color: #ffffff;
-  font-size: 36px;
-  line-height: 1;
+  color: var(--text-white);
+  font-size: 28px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
-/* --- Menu Links --- */
+/* --- Playful Menu Links --- */
 .menu-links {
   list-style: none;
   padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
+  margin: 20px 0;
+}
+
+.menu-links li {
+  margin-bottom: 4px;
 }
 
 .menu-links li a {
   display: flex;
   align-items: center;
-  color: #ffffff;
+  color: var(--text-white);
   text-decoration: none;
-  padding: 18px 0;
-  font-size: 20px;
-  font-weight: 700;
-  border-bottom: 1px solid rgba(255,255,255,0.1); /* Subtle divider */
+  padding: 12px 16px;
+  font-size: 0.85rem; /* Clean and small */
+  font-weight: 600;
+  border-radius: 16px; /* Material You Container */
+  transition: all 0.2s ease;
+  position: relative;
 }
 
+/* --- ACTIVE STATE: FPL PINK --- */
 .active-link {
-  color: var(--accent-blue) !important;
+  background-color: var(--accent-pink) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(255, 0, 85, 0.25);
 }
 
-/* --- Menu Search --- */
+/* Playful indicator for non-active links on hover */
+.menu-links li a:not(.active-link):active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Search Bar --- */
 .menu-search {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.1); /* Slightly lighter for contrast */
-  padding: 12px 15px;
-  border-radius: 12px;
-  margin: 20px 0;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 10px 16px;
+  border-radius: 24px;
+  margin: 10px 0;
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
 .menu-search input {
   background: transparent;
   border: none;
-  color: #ffffff;
+  color: white;
   width: 100%;
   outline: none;
+  font-size: 0.8rem;
 }
 
-.menu-search input::placeholder {
-  color: rgba(255,255,255,0.5);
-}
-
-/* --- Theme Toggle Row --- */
+/* --- Theme Toggle --- */
 .theme-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 0;
-  margin-top: 10px;
+  padding: 16px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 20px;
+  margin-top: 20px;
 }
 
 .theme-label {
-  color: #ffffff;
+  color: var(--text-white);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .toggle-container {
   display: flex;
-  background: rgba(0,0,0,0.3); /* Darker track for purple theme */
-  border-radius: 20px;
-  padding: 2px;
-  width: 120px;
-  height: 34px;
+  background: #111;
+  border-radius: 30px;
+  padding: 3px;
+  width: 100px;
   position: relative;
 }
 
 .slider-bg {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: calc(50% - 2px);
-  height: calc(100% - 4px);
-  background: var(--accent-blue);
-  border-radius: 18px;
-  transition: transform 0.3s ease;
+  top: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  height: calc(100% - 6px);
+  background: var(--accent-pink); /* Matching the Pink Theme */
+  border-radius: 30px;
+  transition: transform 0.3s cubic-bezier(0.68, -0.6, 0.32, 1.6);
   z-index: 1;
-}
-
-[data-theme="light"] .slider-bg {
-  transform: translateX(100%);
 }
 
 .toggle-btn {
@@ -212,26 +228,28 @@ body {
   z-index: 2;
   background: transparent;
   border: none;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 900;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 800;
   cursor: pointer;
 }
 
-/* --- Menu Footer --- */
-.menu-footer {
-  margin-top: auto;
-  padding-bottom: 20px;
-}
-
+/* --- Material Footer Button --- */
 .login-btn {
-  background: transparent;
-  border: 2px solid #ffffff;
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
   text-decoration: none;
-  padding: 14px;
-  border-radius: 12px;
-  font-weight: 800;
+  padding: 12px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 0.8rem;
   display: block;
   text-align: center;
+  transition: all 0.2s;
+}
+
+.login-btn:active {
+  background: white;
+  color: var(--nav-bg);
 }
