@@ -1,11 +1,11 @@
 /* --- Navigation Variables & Theme Support --- */
 :root {
-  --nav-bg: #37003c;        /* FPL Purple */
-  --menu-bg: #111111;       /* Keeping your original dark menu background */
-  --accent-pink: #ff0055;   /* REMAINING THE SAME */
-  --accent-blue: #00aaff;   /* REMAINING THE SAME */
+  --nav-bg: #37003c;        /* Official FPL Purple */
+  --menu-bg: #111111;       /* Dark Menu Background */
+  --accent-pink: #ff0055;   /* CTA Button Pink */
+  --accent-blue: #00aaff;   /* Active Link Blue */
   --text-white: #ffffff;
-  --border-color: #4a0052;  /* Adjusted to a dark purple to blend with the nav */
+  --border-color: rgba(255, 255, 255, 0.1); /* Subtle blend for dark theme */
 }
 
 /* Light Theme Variables */
@@ -21,50 +21,58 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
-/* This targets the placeholder injected by your JS */
+/* Sticky Placeholder Logic */
 #nav-placeholder {
   position: sticky;
   top: 0;
-  z-index: 1001;
+  z-index: 1001; /* Stays above body content */
   width: 100%;
 }
 
+/* --- Top Navigation Bar --- */
 .mobile-nav {
-  background-color: var(--nav-bg);
+  background-color: var(--nav-bg) !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* Protects the logo/menu from the iPhone notch/status bar */
-  padding: calc(10px + env(safe-area-inset-top)) 15px 10px 15px;
+  /* iPhone Notch Protection */
+  padding: calc(12px + env(safe-area-inset-top)) 15px 12px 15px;
   width: 100%;
   box-sizing: border-box;
   border-bottom: 1px solid var(--border-color);
 }
+
 .nav-right {
   display: flex;
-  flex-direction: row;            /* Forces horizontal line */
-  align-items: center;            /* Keeps button and hamburger leveled */
-  gap: 12px;                      /* Space between button and icon */
-  flex-shrink: 0;                 /* Prevents the right side from squashing */
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
+
 .cta-button {
   background-color: var(--accent-pink);
   color: white !important;
   text-decoration: none;
   padding: 8px 16px;
   border-radius: 8px;
-  font-weight: bold;
-  font-size: 14px;
+  font-weight: 800;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
+/* --- Hamburger Menu Icon (Fixed Background) --- */
 .menu-toggle {
-  background: none;
+  background: transparent !important; /* Fixes different bg color issue */
   border: none;
   display: flex;
   flex-direction: column;
   gap: 5px;
   cursor: pointer;
-  padding: 5px;
+  padding: 8px;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .bar {
@@ -72,28 +80,31 @@ body {
   height: 2px;
   background-color: var(--text-white);
   border-radius: 2px;
+  transition: 0.3s;
 }
 
 /* --- Full-Screen Overlay Menu (Left-to-Right) --- */
 .overlay-menu {
   position: fixed;
   top: 0;
-  left: -100%; /* Hidden off-screen to the LEFT */
+  left: 0; 
   width: 100%;
   height: 100%;
   background-color: var(--menu-bg);
-  z-index: 1000;
+  z-index: 2000; /* Stays above everything */
   display: flex;
   flex-direction: column;
-  padding: 25px;
+  padding: calc(20px + env(safe-area-inset-top)) 25px 25px 25px;
   box-sizing: border-box;
   overflow-y: auto;
+  
+  /* Slide from Left Logic */
+  transform: translateX(-100%); 
   transition: transform 0.4s cubic-bezier(0.77, 0.2, 0.05, 1.0);
 }
 
-/* Slide into view when active */
 .overlay-menu.active {
-  transform: translateX(100%); 
+  transform: translateX(0); 
 }
 
 .menu-header {
@@ -107,12 +118,13 @@ body {
   background: none;
   border: none;
   color: var(--text-white);
-  font-size: 32px;
+  font-size: 36px;
   line-height: 1;
   cursor: pointer;
+  padding: 5px;
 }
 
-/* --- Menu Links (Left-Aligned, No Dividers) --- */
+/* --- Menu Links --- */
 .menu-links {
   list-style: none;
   padding: 0;
@@ -129,24 +141,42 @@ body {
 .menu-links li a {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Aligns text to left */
+  justify-content: flex-start;
   color: var(--text-white);
   text-decoration: none;
-  padding: 15px 0;
-  font-size: 18px;
-  font-weight: 600;
-  border-bottom: none !important; /* Removes divider lines */
+  padding: 18px 0;
+  font-size: 20px;
+  font-weight: 700;
   transition: color 0.2s ease;
-}
-
-.menu-links li a span {
-  margin-left: auto; /* Pushes the arrow to the far right */
-  color: #555;
-  font-size: 16px;
 }
 
 .active-link {
   color: var(--accent-blue) !important;
+}
+
+/* --- Search Bar inside Menu --- */
+.menu-search {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 12px 15px;
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+.menu-search i {
+  color: #888;
+  margin-right: 10px;
+  font-size: 14px;
+}
+
+.menu-search input {
+  background: transparent;
+  border: none;
+  color: var(--text-white);
+  width: 100%;
+  outline: none;
+  font-size: 16px;
 }
 
 /* --- Theme Toggle Row --- */
@@ -156,6 +186,7 @@ body {
   align-items: center;
   padding: 20px 0;
   margin-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.05);
 }
 
 .theme-label {
@@ -196,34 +227,16 @@ body {
   background: transparent;
   border: none;
   color: #fff;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 10px;
+  font-weight: 900;
   cursor: pointer;
   text-transform: uppercase;
 }
 
-/* --- Search & Footer --- */
-.menu-search {
-  display: flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 12px 15px;
-  border-radius: 10px;
-  margin: 20px 0;
-}
-
-.menu-search input {
-  background: transparent;
-  border: none;
-  color: var(--text-white);
-  width: 100%;
-  outline: none;
-  font-size: 15px;
-}
-
+/* --- Footer Area --- */
 .menu-footer {
   margin-top: auto;
-  padding-bottom: 10px;
+  padding: 20px 0;
 }
 
 .login-btn {
@@ -231,9 +244,15 @@ body {
   border: 2px solid var(--text-white);
   color: var(--text-white);
   text-decoration: none;
-  padding: 12px;
-  border-radius: 10px;
-  font-weight: bold;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 800;
   display: block;
   text-align: center;
+  transition: all 0.2s;
+}
+
+.login-btn:active {
+  background: var(--text-white);
+  color: var(--menu-bg);
 }
