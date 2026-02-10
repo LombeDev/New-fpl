@@ -192,6 +192,45 @@
     filter: grayscale(0.4);
 }
 
+
+
+        /* 1. The "Press" Effect */
+.compact-player-card {
+    cursor: pointer;
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), 
+                background-color 0.2s ease;
+    -webkit-tap-highlight-color: transparent; /* Remove mobile blue highlight */
+}
+
+/* Material Ripple-like shrink on click */
+.compact-player-card:active {
+    transform: scale(0.92); /* Shrink slightly */
+}
+
+/* 2. Persistent Selection State (Material You Focus) */
+.compact-player-card.is-selected {
+    background-color: var(--md-sys-color-primary-container);
+    outline: 1.5px solid var(--md-sys-color-on-primary-container);
+    outline-offset: 2px;
+}
+
+/* 3. The "Pulse" Animation for the Point Box on click */
+@keyframes point-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); color: var(--fpl-magenta); }
+    100% { transform: scale(1); }
+}
+
+.compact-player-card:active .card-points {
+    animation: point-pop 0.3s ease-out;
+}
+
+/* 4. Enhancement for the Avatar/Jersey */
+.compact-player-card:active img {
+    filter: brightness(0.8) drop-shadow(0 4px 4px rgba(0,0,0,0.2));
+}
+        
+
 /* Main section - tighter and consistent with transfer cards */
 .deadline-section {
     padding: 16px;
