@@ -490,18 +490,8 @@
     padding: 0 10px 6px 10px;
     text-transform: uppercase;
 }
-
-
-        body {
-    /* This stops the browser from showing the loading bar when swiping down */
-    overscroll-behavior-y: contain;
-}
 </style>
 </head>
-
-    <div id="app-loader" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--theme-color, #37003c); z-index:9999; justify-content:center; align-items:center;">
-    <i class="fa-solid fa-circle-notch fa-spin" style="color:#00ff85; font-size:2rem;"></i>
-</div>
 <body class="dark-mode">
 
     <div id="login-screen" style="display:none;">
@@ -636,29 +626,19 @@
             return; 
         }
 
-        // Inside handleLogin function
-try {
-    loginBtn.disabled = true;
-    loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking ID...';
-    
-    const res = await fetch(`${PROXY}entry/${id}/`);
-    if (!res.ok) throw new Error("ID not found");
-    
-    localStorage.setItem('kopala_id', id);
-
-    // INSTEAD OF: location.reload();
-    // DO THIS:
-    document.getElementById('login-screen').style.display = 'none'; // Hide login
-    state.fplId = id; // Update state
-    await initData(); // Re-fetch background data
-    await fetchAndRender(); // Re-render the UI
-    
-} catch (err) {
-    showError("Team ID not found.");
-    loginBtn.disabled = false;
-    loginBtn.textContent = 'Continue';
-}
+        try {
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking ID...';
+            const res = await fetch(`${PROXY}entry/${id}/`);
+            if (!res.ok) throw new Error("ID not found");
             
+            localStorage.setItem('kopala_id', id);
+            location.reload();
+        } catch (err) {
+            showError("Team ID not found.");
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Continue';
+        }
 
         function showError(msg) {
             inputField.classList.add('error');
@@ -829,16 +809,7 @@ try {
         setTheme(savedTheme);
     });
 
-async function fetchAndRender() {
-    const loader = document.getElementById('app-loader');
-    if(loader) loader.style.display = 'flex'; // Show app-level loader
 
-    try {
-        // ... your existing fetch logic ...
-    } finally {
-        if(loader) loader.style.display = 'none'; // Hide when done
-    }
-}
       
 </script>
     <script src="nav.js"></script>
