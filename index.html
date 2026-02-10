@@ -21,6 +21,28 @@
     <style>
 
 
+        /* Elements will be slightly lower and invisible initially */
+.reveal-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* The state triggered by the Scroll Observer */
+.reveal-item.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Staggered load for the Stat Boxes (1-6) */
+.header-stats-grid .stat-box:nth-child(1) { transition-delay: 0.05s; }
+.header-stats-grid .stat-box:nth-child(2) { transition-delay: 0.1s; }
+.header-stats-grid .stat-box:nth-child(3) { transition-delay: 0.15s; }
+.header-stats-grid .stat-box:nth-child(4) { transition-delay: 0.2s; }
+.header-stats-grid .stat-box:nth-child(5) { transition-delay: 0.25s; }
+.header-stats-grid .stat-box:nth-child(6) { transition-delay: 0.3s; }
+
+
         /* Container spacing */
 .page-content {
     padding-top: 10px;
@@ -642,6 +664,25 @@
         }
     }
 
+
+
+
+        async function fetchAndRender() {
+    try {
+        // ... (All your existing API fetch and innerHTML logic) ...
+
+        // FINAL STEP: Trigger the animations once DOM is updated
+        requestAnimationFrame(() => {
+            setTimeout(applyScrollReveal, 50);
+        });
+
+    } catch (e) {
+        console.error("Render failed", e);
+    }
+}
+
+
+        
     // 5. FETCH AND RENDER USER DATA
     async function fetchAndRender() {
         try {
@@ -775,6 +816,26 @@
         const savedTheme = localStorage.getItem('fplTheme') || 'dark';
         setTheme(savedTheme);
     });
+
+
+        function applyScrollReveal() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target); // Stop watching once visible
+            }
+        });
+    }, { threshold: 0.1 });
+
+    // Target everything in the main content area EXCEPT nav/login
+    const items = document.querySelectorAll('.stat-box, .compact-player-card, .transfer-card-wrapper, .deadline-section');
+    
+    items.forEach(item => {
+        item.classList.add('reveal-item'); // Programmatically add the hidden class
+        observer.observe(item);
+    });
+}
 
 
       
