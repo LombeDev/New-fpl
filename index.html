@@ -1,382 +1,339 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>View Current GW points</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#37003c">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Kopala FPL">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="nav.css">
-    <link rel="stylesheet" href="footer.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>View Current GW points</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#37003c">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kopala FPL">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="nav.css">
+    <link rel="stylesheet" href="footer.css">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
-    <style>
-
-
-        /* Animation Base */
-.reveal-item {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy pop effect */
-}
-
-.reveal-item.active {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-}
-
-/* Staggered Delay for the Stat Grid */
-.header-stats-grid .stat-box:nth-child(1) { transition-delay: 0.1s; }
-.header-stats-grid .stat-box:nth-child(2) { transition-delay: 0.15s; }
-.header-stats-grid .stat-box:nth-child(3) { transition-delay: 0.2s; }
-.header-stats-grid .stat-box:nth-child(4) { transition-delay: 0.25s; }
-.header-stats-grid .stat-box:nth-child(5) { transition-delay: 0.3s; }
-.header-stats-grid .stat-box:nth-child(6) { transition-delay: 0.35s; }
+    <style>
 
 
-        /* Elements will be slightly lower and invisible initially */
-.reveal-item {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-/* The state triggered by the Scroll Observer */
-.reveal-item.active {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Staggered load for the Stat Boxes (1-6) */
-.header-stats-grid .stat-box:nth-child(1) { transition-delay: 0.05s; }
-.header-stats-grid .stat-box:nth-child(2) { transition-delay: 0.1s; }
-.header-stats-grid .stat-box:nth-child(3) { transition-delay: 0.15s; }
-.header-stats-grid .stat-box:nth-child(4) { transition-delay: 0.2s; }
-.header-stats-grid .stat-box:nth-child(5) { transition-delay: 0.25s; }
-.header-stats-grid .stat-box:nth-child(6) { transition-delay: 0.3s; }
-
-
-        /* Container spacing */
+        /* Container spacing */
 .page-content {
-    padding-top: 10px;
+    padding-top: 10px;
 }
 
 /* Manager Name Section */
 #manager-header {
-    padding: 0 16px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 0 16px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 #disp-name {
-    font-weight: 900;
-    font-size: 1rem;
-    color: var(--text-color, #1d1b20);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--surface-variant, #f6f3f8);
-    padding: 6px 12px;
-    border-radius: 20px; /* Pill shape for the manager name */
+    font-weight: 900;
+    font-size: 1rem;
+    color: var(--text-color, #1d1b20);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface-variant, #f6f3f8);
+    padding: 6px 12px;
+    border-radius: 20px; /* Pill shape for the manager name */
 }
 
 /* Stats Grid - Material You Style */
 .header-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px; /* Gap instead of borders */
-    padding: 0 16px;
-    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px; /* Gap instead of borders */
+    padding: 0 16px;
+    margin-bottom: 20px;
 }
 
 .header-stats-grid > div {
-    background: var(--card-bg, #ffffff);
-    padding: 10px 8px;
-    border-radius: 16px; /* Playful small cards */
-    text-align: center;
-    border: 1px solid rgba(0,0,0,0.03); /* Tiny boundary */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    background: var(--card-bg, #ffffff);
+    padding: 10px 8px;
+    border-radius: 16px; /* Playful small cards */
+    text-align: center;
+    border: 1px solid rgba(0,0,0,0.03); /* Tiny boundary */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
 
 /* Individual Stat Labels */
 .stat-label {
-    font-size: 0.55rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.5;
-    margin-bottom: 2px;
+    font-size: 0.55rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.5;
+    margin-bottom: 2px;
 }
 
 .stat-value {
-    font-size: 0.9rem;
-    font-weight: 900;
-    color: var(--accent-color, #38003c);
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: var(--accent-color, #38003c);
 }
 
 /* Specific styling for the Live Pts to make it "Pop" */
 #disp-total {
-    color: #00ff87; /* FPL Green or a bright Material primary */
-    text-shadow: 0 0 10px rgba(0, 255, 135, 0.2);
+    color: #00ff87; /* FPL Green or a bright Material primary */
+    text-shadow: 0 0 10px rgba(0, 255, 135, 0.2);
 }
 .mobile-nav, .overlay-menu {
-    background-color: var(--nav-bg);
-    border-bottom: 1px solid var(--border-color);
+    background-color: var(--nav-bg);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .menu-links a {
-    color: var(--text-color);
+    color: var(--text-color);
 }
-        
-    
-   
+        
+    
+   
 
-    /* 8-Column Grid for maximum horizontal density */
-    .player-list-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 6px 1px;
-        justify-items: center;
-    }
+    /* 8-Column Grid for maximum horizontal density */
+    .player-list-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px 1px;
+        justify-items: center;
+    }
 
-    .compact-player-card {
-        width: 44px; /* Narrowest possible width to fit 8 across */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        position: relative;
-    }
+    .compact-player-card {
+        width: 44px; /* Narrowest possible width to fit 8 across */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+    }
 
-    /* Nano Jersey */
-    .compact-player-card img {
-        width: 22px; 
-        margin-bottom: 1px;
-        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
-        z-index: 2;
-    }
+    /* Nano Jersey */
+    .compact-player-card img {
+        width: 22px; 
+        margin-bottom: 1px;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+        z-index: 2;
+    }
 
-    .card-data-box {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
+    .card-data-box {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-    /* Nano Typography */
-    .card-name {
-        font-size: 0.45rem; /* Tiny text for 8-column fit */
-        font-weight: 800;
-        color: #2d3436;
-        margin-bottom: 1px;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 100%;
-    }
+    /* Nano Typography */
+    .card-name {
+        font-size: 0.45rem; /* Tiny text for 8-column fit */
+        font-weight: 800;
+        color: #2d3436;
+        margin-bottom: 1px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+    }
 
-    /* Minimal Pill Box */
-    .card-points {
-        background: #ffffff;
-        color: #000;
-        font-size: 0.6rem;
-        font-weight: 900;
-        padding: 0px 4px;
-        border-radius: 5px;
-        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-        margin-bottom: 1px;
-        min-width: 20px;
-        text-align: center;
-    }
+    /* Minimal Pill Box */
+    .card-points {
+        background: #ffffff;
+        color: #000;
+        font-size: 0.6rem;
+        font-weight: 900;
+        padding: 0px 4px;
+        border-radius: 5px;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        margin-bottom: 1px;
+        min-width: 20px;
+        text-align: center;
+    }
 
-    /* Nano Ownership Bar */
-    .card-ownership-bar {
-        background: #00ff85; 
-        color: #1a1a1a;
-        font-size: 0.4rem;
-        padding: 0px;
-        border-radius: 2px;
-        font-weight: 700;
-        width: 95%;
-        text-align: center;
-    }
+    /* Nano Ownership Bar */
+    .card-ownership-bar {
+        background: #00ff85; 
+        color: #1a1a1a;
+        font-size: 0.4rem;
+        padding: 0px;
+        border-radius: 2px;
+        font-weight: 700;
+        width: 95%;
+        text-align: center;
+    }
 
-    /* Micro Badges for C/V */
-    .badge {
-        position: absolute;
-        top: 10px;
-        right: 2px;
-        width: 11px;
-        height: 11px;
-        background: #2d3436;
-        color: white;
-        border-radius: 50%;
-        font-size: 0.35rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 900;
-        border: 1px solid white;
-        z-index: 3;
-    }
+    /* Micro Badges for C/V */
+    .badge {
+        position: absolute;
+        top: 10px;
+        right: 2px;
+        width: 11px;
+        height: 11px;
+        background: #2d3436;
+        color: white;
+        border-radius: 50%;
+        font-size: 0.35rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        border: 1px solid white;
+        z-index: 3;
+    }
 
-    .star-icon {
-        position: absolute;
-        top: -2px;
-        left: 2px;
-        font-size: 0.5rem;
-        color: #f1c40f;
-        z-index: 3;
-    }
+    .star-icon {
+        position: absolute;
+        top: -2px;
+        left: 2px;
+        font-size: 0.5rem;
+        color: #f1c40f;
+        z-index: 3;
+    }
 
-    .is-bench { opacity: 0.5; }
+    .is-bench { opacity: 0.5; }
 
 
 /* Main section - tighter and consistent with transfer cards */
 .deadline-section {
-    padding: 16px;
-    background: var(--card-bg, #ffffff);
-    border-radius: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-    margin-top: 20px;
-    border: 1px solid rgba(0,0,0,0.04);
+    padding: 16px;
+    background: var(--card-bg, #ffffff);
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    margin-top: 20px;
+    border: 1px solid rgba(0,0,0,0.04);
 }
 
-.deadline-title { 
-    font-size: 0.9rem; 
-    font-weight: 800; 
-    margin-bottom: 2px;
-    color: var(--text-color, #1d1b20);
+.deadline-title { 
+    font-size: 0.9rem; 
+    font-weight: 800; 
+    margin-bottom: 2px;
+    color: var(--text-color, #1d1b20);
 }
 
-.gw-subtitle { 
-    font-size: 0.7rem; 
-    font-weight: 700; 
-    margin-bottom: 12px; 
-    opacity: 0.6;
-    text-transform: uppercase;
+.gw-subtitle { 
+    font-size: 0.7rem; 
+    font-weight: 700; 
+    margin-bottom: 12px; 
+    opacity: 0.6;
+    text-transform: uppercase;
 }
 
 /* Compact Countdown Bar */
 .countdown-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 16px;
-    background: var(--secondary-container, #eaddff);
-    padding: 10px 14px;
-    border-radius: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 16px;
+    background: var(--secondary-container, #eaddff);
+    padding: 10px 14px;
+    border-radius: 14px;
 }
 
 .time-unit {
-    display: flex;
-    align-items: baseline;
-    gap: 3px;
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
 }
 
-.time-unit span { 
-    font-size: 1.2rem; /* Much smaller but bold */
-    font-weight: 900; 
-    color: var(--accent-color, #21005d); 
+.time-unit span { 
+    font-size: 1.2rem; /* Much smaller but bold */
+    font-weight: 900; 
+    color: var(--accent-color, #21005d); 
 }
 
-.time-unit label { 
-    font-size: 0.6rem; 
-    font-weight: 800; 
-    text-transform: uppercase;
-    opacity: 0.7;
+.time-unit label { 
+    font-size: 0.6rem; 
+    font-weight: 800; 
+    text-transform: uppercase;
+    opacity: 0.7;
 }
 
-.time-separator { 
-    font-size: 1rem; 
-    font-weight: 900; 
-    opacity: 0.2;
-    color: var(--accent-color, #38003c);
+.time-separator { 
+    font-size: 1rem; 
+    font-weight: 900; 
+    opacity: 0.2;
+    color: var(--accent-color, #38003c);
 }
 
 /* Compact Table Rows */
-.upcoming-title { 
-    font-size: 0.8rem; 
-    font-weight: 800; 
-    margin: 12px 0 8px 4px; 
+.upcoming-title { 
+    font-size: 0.8rem; 
+    font-weight: 800; 
+    margin: 12px 0 8px 4px; 
 }
 
 .deadline-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    background: var(--surface-variant, #f6f3f8);
-    margin-bottom: 4px;
-    border-radius: 10px;
-    font-size: 0.75rem;
-    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--surface-variant, #f6f3f8);
+    margin-bottom: 4px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    border: none;
 }
 
-.deadline-row b { 
-    font-weight: 800;
-    color: var(--accent-color, #38003c);
+.deadline-row b { 
+    font-weight: 800;
+    color: var(--accent-color, #38003c);
 }
-        
-       /* Container */
+        
+       /* Container */
 .grid-top-info {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 0;
-    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+    width: 100%;
 }
 
 /* Individual Pill - Material You Style */
 .info-pill {
-    /* Micro Size */
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-    
-    /* Shape & Spacing */
-    padding: 6px 14px;
-    border-radius: 100px; /* Perfect pill shape */
-    
-    /* Material You Colors (Adaptive) */
-    background-color: var(--pill-bg, #eaddff); /* Light lavender/blue tint */
-    color: var(--pill-text, #21005d);
-    
-    /* Soft elevation instead of harsh borders */
-    border: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    
-    transition: all 0.2s ease;
-    cursor: default;
+    /* Micro Size */
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    
+    /* Shape & Spacing */
+    padding: 6px 14px;
+    border-radius: 100px; /* Perfect pill shape */
+    
+    /* Material You Colors (Adaptive) */
+    background-color: var(--pill-bg, #eaddff); /* Light lavender/blue tint */
+    color: var(--pill-text, #21005d);
+    
+    /* Soft elevation instead of harsh borders */
+    border: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    
+    transition: all 0.2s ease;
+    cursor: default;
 }
 
 /* Theme-specific overrides for Material You look */
 [data-theme="dark"] .info-pill {
-    --pill-bg: #4f378b;
-    --pill-text: #eaddff;
+    --pill-bg: #4f378b;
+    --pill-text: #eaddff;
 }
 
 [data-theme="light"] .info-pill {
-    --pill-bg: #f3edf7;
-    --pill-text: #21005d;
+    --pill-bg: #f3edf7;
+    --pill-text: #21005d;
 }
 
 /* Accent for the 'PLAYED' pill to follow Material secondary colors */
 .info-pill:last-child {
-    background-color: var(--accent-color, #3498db);
-    color: #ffffff;
+    background-color: var(--accent-color, #3498db);
+    color: #ffffff;
 }
 
 
@@ -384,478 +341,448 @@
 
 /* Layout container */
 .transfers-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px; /* Tighter gap */
-    padding: 0;
-    background: transparent;
-    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px; /* Tighter gap */
+    padding: 0;
+    background: transparent;
+    margin-top: 15px;
 }
 
 /* Compact Primary Cards */
 .transfer-card-wrapper {
-    flex: 1;
-    min-width: 280px; /* Narrower minimum for small screens */
-    background: var(--card-bg, #ffffff);
-    border-radius: 20px; /* Slightly smaller radius for smaller cards */
-    padding: 14px; /* Tight padding */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-    border: 1px solid rgba(0,0,0,0.04);
+    flex: 1;
+    min-width: 280px; /* Narrower minimum for small screens */
+    background: var(--card-bg, #ffffff);
+    border-radius: 20px; /* Slightly smaller radius for smaller cards */
+    padding: 14px; /* Tight padding */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.04);
 }
 
 /* Header - Smaller and tighter */
 .transfer-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    padding: 0 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 0 4px;
 }
 
 .transfer-card-header h3 {
-    font-size: 0.85rem; /* Small, professional header */
-    font-weight: 800;
-    margin: 0;
-    color: var(--accent-color, #38003c);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
+    font-size: 0.85rem; /* Small, professional header */
+    font-weight: 800;
+    margin: 0;
+    color: var(--accent-color, #38003c);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 /* Mini Player Rows */
 .transfer-item-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 10px; /* Very thin vertical padding */
-    margin-bottom: 4px;
-    background: var(--surface-variant, #f6f3f8);
-    border-radius: 12px; /* Smaller "pill" radius */
-    transition: transform 0.1s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px; /* Very thin vertical padding */
+    margin-bottom: 4px;
+    background: var(--surface-variant, #f6f3f8);
+    border-radius: 12px; /* Smaller "pill" radius */
+    transition: transform 0.1s ease;
 }
 
 .transfer-item-row:hover {
-    background: var(--secondary-container, #f0eaff);
-    transform: scale(1.01);
+    background: var(--secondary-container, #f0eaff);
+    transform: scale(1.01);
 }
 
 /* Tiny Jersey and Info */
 .player-info-side {
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Tighter spacing */
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Tighter spacing */
 }
 
 .mini-shirt {
-    width: 18px; /* Very small jersey */
-    height: auto;
-    flex-shrink: 0;
+    width: 18px; /* Very small jersey */
+    height: auto;
+    flex-shrink: 0;
 }
 
 .p-name {
-    font-size: 0.75rem;
-    font-weight: 800; /* Made slightly heavier for better readability on small scale */
-    line-height: 1.1;
-    color: var(--text-color, #1d1b20); /* Dark, high-contrast color */
-    background: transparent !important; /* Forces removal of any background */
-    padding: 0;
-    margin: 0;
-    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 800; /* Made slightly heavier for better readability on small scale */
+    line-height: 1.1;
+    color: var(--text-color, #1d1b20); /* Dark, high-contrast color */
+    background: transparent !important; /* Forces removal of any background */
+    padding: 0;
+    margin: 0;
+    display: inline-block;
 }
 
 .p-team {
-    font-size: 0.55rem;
-    font-weight: 600;
-    color: var(--text-color, #49454f); /* Material 'on-surface-variant' color */
-    opacity: 0.7; /* Slightly higher for better readability at micro size */
-    background: transparent !important;
-    text-transform: uppercase; /* Looks more professional for team abbreviations */
-    letter-spacing: 0.2px;
+    font-size: 0.55rem;
+    font-weight: 600;
+    color: var(--text-color, #49454f); /* Material 'on-surface-variant' color */
+    opacity: 0.7; /* Slightly higher for better readability at micro size */
+    background: transparent !important;
+    text-transform: uppercase; /* Looks more professional for team abbreviations */
+    letter-spacing: 0.2px;
 }
 
 /* If the team name is inside the same container as the player name */
 .player-text {
-    display: flex;
-    flex-direction: row; /* Use row if you want them side-by-side like the photo */
-    align-items: baseline;
-    gap: 4px;
+    display: flex;
+    flex-direction: row; /* Use row if you want them side-by-side like the photo */
+    align-items: baseline;
+    gap: 4px;
 }
-        
+        
 /* Count Badge */
 .transfer-count {
-    font-size: 0.7rem;
-    font-weight: 800;
-    padding: 2px 8px;
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 8px;
-    color: var(--accent-color, #38003c);
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    color: var(--accent-color, #38003c);
 }
 
 /* Hide Table Head or keep it tiny */
 .transfer-table-head {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.6rem;
-    font-weight: 800;
-    opacity: 0.4;
-    padding: 0 10px 6px 10px;
-    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6rem;
+    font-weight: 800;
+    opacity: 0.4;
+    padding: 0 10px 6px 10px;
+    text-transform: uppercase;
 }
 </style>
 </head>
 <body class="dark-mode">
 
-    <div id="login-screen" style="display:none;">
-        <div class="promo-card">
-    <div class="promo-window">
-        <div class="promo-track">
-            <div class="promo-slide" style="background-image: url('fpl.PNG');"></div>
-            <div class="promo-slide" style="background-image: url('double.jpg');"></div>
-            <div class="promo-slide" style="background-image: url('budget.PNG');"></div>
-            <div class="promo-slide" style="background-image: url('join.PNG');"></div>
-            <div class="promo-slide" style="background-image: url('team.PNG');"></div>
-            <div class="promo-slide" style="background-image: url('d.PNG');"></div>
-            <div class="promo-slide" style="background-image: url('fpl.PNG');"></div>
-        </div>
+    <div id="login-screen" style="display:none;">
+        <div class="promo-card">
+    <div class="promo-window">
+        <div class="promo-track">
+            <div class="promo-slide" style="background-image: url('fpl.PNG');"></div>
+            <div class="promo-slide" style="background-image: url('double.jpg');"></div>
+            <div class="promo-slide" style="background-image: url('budget.PNG');"></div>
+            <div class="promo-slide" style="background-image: url('join.PNG');"></div>
+            <div class="promo-slide" style="background-image: url('team.PNG');"></div>
+            <div class="promo-slide" style="background-image: url('d.PNG');"></div>
+            <div class="promo-slide" style="background-image: url('fpl.PNG');"></div>
+        </div>
 
-        <div class="promo-dots">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-        </div>
-    </div>
-   
-            <a href="#" id="install-pwa-link" class="promo-link">
-                Get the App 
-                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7rem;"></i>
-            </a>
+        <div class="promo-dots">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
+   
+            <a href="#" id="install-pwa-link" class="promo-link">
+                Get the App 
+                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7rem;"></i>
+            </a>
 </div>
-       
-            
-     
+       
+            
+     
 
-        <div class="login-card">
-           
+        <div class="login-card">
+           
 
-           <h2>Enter your FPL ID</h2>
+           <h2>Enter your FPL ID</h2>
 
 <div class="input-container">
-    <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste link">
-    <div id="error-message" class="error-msg">Please enter a valid Team ID</div>
+    <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste link">
+    <div id="error-message" class="error-msg">Please enter a valid Team ID</div>
 </div>
 
 <button id="login-btn" class="continue-btn" onclick="handleLogin()">Continue</button>
-           <div class="find-id-link" onclick="window.open('https://youtu.be/gZqblBRbAjw?si=IQ-hmIEES27jDaTn', '_blank')">
-                <i class="fa-solid fa-chevron-down"></i> How to find my team ID?
-            </div>
-        </div>
-    </div>
+           <div class="find-id-link" onclick="window.open('https://youtu.be/gZqblBRbAjw?si=IQ-hmIEES27jDaTn', '_blank')">
+                <i class="fa-solid fa-chevron-down"></i> How to find my team ID?
+            </div>
+        </div>
+    </div>
 
 
-    <div id="nav-placeholder"></div>
-    
+    <div id="nav-placeholder"></div>
+    
 
-    <main class="page-content">
-        <div id="deadline-container"></div>
-        <div style="padding: 0 15px 15px; display:flex; justify-content:space-between; align-items:center;">
-            <div class="header-content">
-    <span id="disp-name" style="font-weight:900; font-size: 1.1rem;">Manager Name</span>
-    <div id="disp-team" style="font-size: 0.8rem; opacity: 0.7;">Team Name</div>
+    <main class="page-content">
+        <div id="deadline-container"></div>
+        <div style="padding: 0 15px 15px; display:flex; justify-content:space-between; align-items:center;">
+            <div class="header-content">
+    <span id="disp-name" style="font-weight:900; font-size: 1.1rem;">Manager Name</span>
+    <div id="disp-team" style="font-size: 0.8rem; opacity: 0.7;">Team Name</div>
 </div>
-        </div>
-        
-       <div class="header-stats-grid">
-    <div class="stat-box border-right"><div class="stat-label">GW Rank</div><div class="stat-value" id="disp-gw-rank">-</div></div>
-    <div class="stat-box border-right"><div class="stat-label">Overall Rank</div><div class="stat-value" id="disp-rank">0</div></div>
-    <div class="stat-box"><div class="stat-label">Points</div><div class="stat-value" id="disp-total">0</div></div>
+        </div>
+        
+       <div class="header-stats-grid">
+    <div class="stat-box border-right"><div class="stat-label">GW Rank</div><div class="stat-value" id="disp-gw-rank">-</div></div>
+    <div class="stat-box border-right"><div class="stat-label">Overall Rank</div><div class="stat-value" id="disp-rank">0</div></div>
+    <div class="stat-box"><div class="stat-label">Points</div><div class="stat-value" id="disp-total">0</div></div>
 
-    <div class="stat-box border-right border-top"><div class="stat-label">Overall</div><div class="stat-value" id="disp-total-pts">0</div></div>
-    <div class="stat-box border-right border-top"><div class="stat-label">Average</div><div class="stat-value" id="disp-gw-avg">0</div></div>
-    <div class="stat-box border-top"><div class="stat-label">Highest</div><div class="stat-value" id="disp-gw-high">0</div></div>
+    <div class="stat-box border-right border-top"><div class="stat-label">Overall</div><div class="stat-value" id="disp-total-pts">0</div></div>
+    <div class="stat-box border-right border-top"><div class="stat-label">Average</div><div class="stat-value" id="disp-gw-avg">0</div></div>
+    <div class="stat-box border-top"><div class="stat-label">Highest</div><div class="stat-value" id="disp-gw-high">0</div></div>
 </div>
 
-        <div class="player-grid-container">
-            <div id="squad-info-container"></div>
-            <div id="player-list-grid" class="player-list-grid"></div>
+        <div class="player-grid-container">
+            <div id="squad-info-container"></div>
+            <div id="player-list-grid" class="player-list-grid"></div>
 
 
-            <div id="transfers-container" class="transfers-grid"></div>
-        
+            <div id="transfers-container" class="transfers-grid"></div>
+        
 
-            
-    
-    </main>
-    
+            
+    
+    </main>
+    
 
-    <script>
-    // 1. GLOBAL STATE
-    const state = {
-        fplId: localStorage.getItem('kopala_id'),
-        playerMap: {},
-        teamMap: {},
-        currentGW: 1,
-        gwAverage: 0,
-        gwHigh: 0
-    };
+    <script>
+    // 1. GLOBAL STATE
+    const state = {
+        fplId: localStorage.getItem('kopala_id'),
+        playerMap: {},
+        teamMap: {},
+        currentGW: 1,
+        gwAverage: 0,
+        gwHigh: 0
+    };
 
-    const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
+    const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
 
-    // 2. THEME LOGIC
-    function setTheme(mode) {
-        const body = document.body;
-        const darkBtn = document.getElementById('btn-dark');
-        const lightBtn = document.getElementById('btn-light');
-        if (mode === 'dark') {
-            body.classList.add('dark-mode');
-            if (darkBtn) darkBtn.className = 'toggle-btn active';
-            if (lightBtn) lightBtn.className = 'toggle-btn inactive';
-        } else {
-            body.classList.remove('dark-mode');
-            if (darkBtn) darkBtn.className = 'toggle-btn inactive';
-            if (lightBtn) lightBtn.className = 'toggle-btn active';
-        }
-    }
+    // 2. THEME LOGIC
+    function setTheme(mode) {
+        const body = document.body;
+        const darkBtn = document.getElementById('btn-dark');
+        const lightBtn = document.getElementById('btn-light');
+        if (mode === 'dark') {
+            body.classList.add('dark-mode');
+            if (darkBtn) darkBtn.className = 'toggle-btn active';
+            if (lightBtn) lightBtn.className = 'toggle-btn inactive';
+        } else {
+            body.classList.remove('dark-mode');
+            if (darkBtn) darkBtn.className = 'toggle-btn inactive';
+            if (lightBtn) lightBtn.className = 'toggle-btn active';
+        }
+    }
 
-    // 3. LOGIN / ID HANDLING
-    async function handleLogin() {
-        const inputField = document.getElementById('team-id-input');
-        const errorDiv = document.getElementById('error-message');
-        const loginBtn = document.getElementById('login-btn');
-        let rawValue = inputField.value.trim();
-        
-        if (rawValue.includes('entry/')) {
-            const match = rawValue.match(/entry\/(\d+)/);
-            if (match) rawValue = match[1];
-        }
-        
-        const id = parseInt(rawValue);
-        if (!id || isNaN(id)) { 
-            showError("Please enter a valid numeric ID"); 
-            return; 
-        }
+    // 3. LOGIN / ID HANDLING
+    async function handleLogin() {
+        const inputField = document.getElementById('team-id-input');
+        const errorDiv = document.getElementById('error-message');
+        const loginBtn = document.getElementById('login-btn');
+        let rawValue = inputField.value.trim();
+        
+        if (rawValue.includes('entry/')) {
+            const match = rawValue.match(/entry\/(\d+)/);
+            if (match) rawValue = match[1];
+        }
+        
+        const id = parseInt(rawValue);
+        if (!id || isNaN(id)) { 
+            showError("Please enter a valid numeric ID"); 
+            return; 
+        }
 
-        try {
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking ID...';
-            const res = await fetch(`${PROXY}entry/${id}/`);
-            if (!res.ok) throw new Error("ID not found");
-            
-            localStorage.setItem('kopala_id', id);
-            location.reload();
-        } catch (err) {
-            showError("Team ID not found.");
-            loginBtn.disabled = false;
-            loginBtn.textContent = 'Continue';
-        }
+        try {
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking ID...';
+            const res = await fetch(`${PROXY}entry/${id}/`);
+            if (!res.ok) throw new Error("ID not found");
+            
+            localStorage.setItem('kopala_id', id);
+            location.reload();
+        } catch (err) {
+            showError("Team ID not found.");
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Continue';
+        }
 
-        function showError(msg) {
-            inputField.classList.add('error');
-            errorDiv.textContent = msg;
-            errorDiv.style.display = 'block';
-        }
-    }
+        function showError(msg) {
+            inputField.classList.add('error');
+            errorDiv.textContent = msg;
+            errorDiv.style.display = 'block';
+        }
+    }
 
-    // 4. INITIALIZE GLOBAL DATA (BOOTSTRAP)
-    async function initData() {
-        try {
-            const res = await fetch(`${PROXY}bootstrap-static/`);
-            const data = await res.json();
-            
-            // Map team codes and players
-            data.teams.forEach(t => state.teamMap[t.id] = { code: t.code });
-            data.elements.forEach(p => {
-                state.playerMap[p.id] = { 
-                    name: p.web_name, 
-                    team_code: state.teamMap[p.team].code, 
-                    pos: p.element_type,
-                    ownership: p.selected_by_percent
-                };
-            });
+    // 4. INITIALIZE GLOBAL DATA (BOOTSTRAP)
+    async function initData() {
+        try {
+            const res = await fetch(`${PROXY}bootstrap-static/`);
+            const data = await res.json();
+            
+            // Map team codes and players
+            data.teams.forEach(t => state.teamMap[t.id] = { code: t.code });
+            data.elements.forEach(p => {
+                state.playerMap[p.id] = { 
+                    name: p.web_name, 
+                    team_code: state.teamMap[p.team].code, 
+                    pos: p.element_type,
+                    ownership: p.selected_by_percent
+                };
+            });
 
-            // Find current Gameweek and global stats
-            const currentEvent = data.events.find(e => e.is_current) || data.events[0];
-            state.currentGW = currentEvent.id;
-            state.gwAverage = currentEvent.average_entry_score;
-            state.gwHigh = currentEvent.highest_score;
+            // Find current Gameweek and global stats
+            const currentEvent = data.events.find(e => e.is_current) || data.events[0];
+            state.currentGW = currentEvent.id;
+            state.gwAverage = currentEvent.average_entry_score;
+            state.gwHigh = currentEvent.highest_score;
 
-        } catch (e) { 
-            console.error("Init failed", e); 
-        }
-    }
+        } catch (e) { 
+            console.error("Init failed", e); 
+        }
+    }
 
+    // 5. FETCH AND RENDER USER DATA
+    async function fetchAndRender() {
+        try {
+            const [entryRes, picksRes, liveRes, transRes] = await Promise.all([
+                fetch(`${PROXY}entry/${state.fplId}/`),
+                fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`),
+                fetch(`${PROXY}event/${state.currentGW}/live/`),
+                fetch(`${PROXY}entry/${state.fplId}/transfers/`)
+            ]);
+            
+            const entry = await entryRes.json();
+            const picks = await picksRes.json();
+            const live = await liveRes.json();
+            const allTransfers = await transRes.json();
 
-
-
-      
-
-        
-    // 5. FETCH AND RENDER USER DATA
-    async function fetchAndRender() {
-        try {
-            const [entryRes, picksRes, liveRes, transRes] = await Promise.all([
-                fetch(`${PROXY}entry/${state.fplId}/`),
-                fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`),
-                fetch(`${PROXY}event/${state.currentGW}/live/`),
-                fetch(`${PROXY}entry/${state.fplId}/transfers/`)
-            ]);
-            
-            const entry = await entryRes.json();
-            const picks = await picksRes.json();
-            const live = await liveRes.json();
-            const allTransfers = await transRes.json();
-
-            // A. UPDATE MANAGER NAME & TEAM
-            if (entry) {
-                document.getElementById('disp-name').innerHTML = `
-                    ${entry.player_first_name} ${entry.player_last_name} 
-                `;
-                const teamElem = document.getElementById('disp-team');
-                if (teamElem) teamElem.textContent = entry.name;
-            }
-
-            // B. CALCULATE SQUAD STATS
-            const teamValue = (entry.last_deadline_value / 10).toFixed(1);
-            const transferCost = picks.entry_history.event_transfers_cost;
-            const gwTransfers = allTransfers.filter(t => t.event === state.currentGW);
-            
-            // C. POINTS MAP & PLAYED COUNT
-            const ptsMap = {};
-            live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
-            
-            let playedCount = 0;
-            picks.picks.forEach(p => {
-                const stats = live.elements.find(el => el.id === p.element);
-                if (stats && stats.stats.minutes > 0) playedCount++;
-            });
-
-            // D. RENDER SQUAD INFO BAR & TRANSFERS
-            let infoHtml = `
-                <div class="squad-stats-bar">
-                    <div class="stat-pill">FT <b>${entry.extra_free_transfers || 1}</b></div>
-                    <div class="stat-pill">TV <b>£${teamValue}</b></div>
-                    <div class="stat-pill">Played <b>${playedCount}/15</b></div>
-                </div>
-            `;
-
-            if (gwTransfers.length > 0) {
-                gwTransfers.forEach(t => {
-                    const pIn = state.playerMap[t.element_in]?.name || "In";
-                    const pOut = state.playerMap[t.element_out]?.name || "Out";
-                    infoHtml += `
-                        <div class="transfer-row">
-                            <span class="transfer-name-out">${pOut}</span>
-                            <span class="transfer-arrow">→</span>
-                            <span class="transfer-name-in">${pIn}</span>
-                            ${transferCost > 0 ? `<span class="transfer-hit">-${transferCost}</span>` : ''}
-                        </div>
-                    `;
-                });
-            }
-            const infoContainer = document.getElementById('squad-info-container');
-            if (infoContainer) infoContainer.innerHTML = infoHtml;
-
-            // E. POPULATE THE 6-GRID STATS
-            document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || 0).toLocaleString();
-            document.getElementById('disp-gw-high').textContent = state.gwHigh || 0;
-            document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
-             
-            
-            document.getElementById('disp-total-pts').textContent = entry.summary_overall_points.toLocaleString();
-            document.getElementById('disp-gw-avg').textContent = state.gwAverage || 0;
-            document.getElementById('disp-total').textContent = (picks.entry_history.points - transferCost); // Net Points
-            
-
-            // F. RENDER PLAYER GRID
-            renderPlayerGrid(picks.picks, ptsMap); 
-
-    // Trigger animations after content is injected
-    requestAnimationFrame(() => {
-        setTimeout(applyScrollReveal, 150);
-    });
-
-} catch (e) { 
-    console.error("Fetch failed", e); 
-}
-
-    // 6. RENDER PLAYER CARDS
-    function renderPlayerGrid(picks, ptsMap) {
-        const grid = document.getElementById('player-list-grid');
-        if (!grid) return;
-        grid.innerHTML = ''; 
-
-        picks.forEach((p, index) => {
-            const meta = state.playerMap[p.element];
-            if (!meta) return;
-
-            const rawPts = ptsMap[p.element] || 0;
-            const totalPts = rawPts * (p.multiplier || 1);
-            const isBench = index >= 11;
-            const ownership = meta.ownership || "0.0"; 
-
-            const cardHtml = `
-                <div class="compact-player-card ${isBench ? 'is-bench' : ''}">
-                    <i class="fa-solid fa-star star-icon"></i>
-                    <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png">
-                    
-                    ${p.is_captain ? `<div class="badge">C</div>` : ''}
-                    ${p.is_vice_captain ? `<div class="badge">V</div>` : ''}
-                    
-                    <div class="card-data-box">
-                        <div class="card-name">${meta.name}</div>
-                        <div class="card-points">${totalPts}</div>
-                        <div class="card-ownership-bar" style="background: linear-gradient(90deg, var(--accent-blue) ${ownership}%, #444 ${ownership}%)">
-                            ${ownership}%
-                        </div>
-                    </div>
-                </div>`;
-
-            grid.innerHTML += cardHtml;
-        });
-    }
-
-    // 7. APP INVOCATION
-    if (state.fplId) {
-        initData().then(fetchAndRender);
-    } else {
-        const loginScreen = document.getElementById('login-screen');
-        if (loginScreen) loginScreen.style.display = 'flex';
-    }
-
-    // 8. EVENT LISTENERS
-    document.addEventListener('DOMContentLoaded', () => {
-        const savedTheme = localStorage.getItem('fplTheme') || 'dark';
-        setTheme(savedTheme);
-    });
-
-
-
-        function applyScrollReveal() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-                observer.unobserve(entry.target);
+            // A. UPDATE MANAGER NAME & TEAM
+            if (entry) {
+                document.getElementById('disp-name').innerHTML = `
+                    ${entry.player_first_name} ${entry.player_last_name} 
+                `;
+                const teamElem = document.getElementById('disp-team');
+                if (teamElem) teamElem.textContent = entry.name;
             }
+
+            // B. CALCULATE SQUAD STATS
+            const teamValue = (entry.last_deadline_value / 10).toFixed(1);
+            const transferCost = picks.entry_history.event_transfers_cost;
+            const gwTransfers = allTransfers.filter(t => t.event === state.currentGW);
+            
+            // C. POINTS MAP & PLAYED COUNT
+            const ptsMap = {};
+            live.elements.forEach(el => ptsMap[el.id] = el.stats.total_points);
+            
+            let playedCount = 0;
+            picks.picks.forEach(p => {
+                const stats = live.elements.find(el => el.id === p.element);
+                if (stats && stats.stats.minutes > 0) playedCount++;
+            });
+
+            // D. RENDER SQUAD INFO BAR & TRANSFERS
+            let infoHtml = `
+                <div class="squad-stats-bar">
+                    <div class="stat-pill">FT <b>${entry.extra_free_transfers || 1}</b></div>
+                    <div class="stat-pill">TV <b>£${teamValue}</b></div>
+                    <div class="stat-pill">Played <b>${playedCount}/15</b></div>
+                </div>
+            `;
+
+            if (gwTransfers.length > 0) {
+                gwTransfers.forEach(t => {
+                    const pIn = state.playerMap[t.element_in]?.name || "In";
+                    const pOut = state.playerMap[t.element_out]?.name || "Out";
+                    infoHtml += `
+                        <div class="transfer-row">
+                            <span class="transfer-name-out">${pOut}</span>
+                            <span class="transfer-arrow">→</span>
+                            <span class="transfer-name-in">${pIn}</span>
+                            ${transferCost > 0 ? `<span class="transfer-hit">-${transferCost}</span>` : ''}
+                        </div>
+                    `;
+                });
+            }
+            const infoContainer = document.getElementById('squad-info-container');
+            if (infoContainer) infoContainer.innerHTML = infoHtml;
+
+            // E. POPULATE THE 6-GRID STATS
+            document.getElementById('disp-gw-rank').textContent = (picks.entry_history.rank || 0).toLocaleString();
+            document.getElementById('disp-gw-high').textContent = state.gwHigh || 0;
+            document.getElementById('disp-rank').textContent = entry.summary_overall_rank.toLocaleString();
+             
+            
+            document.getElementById('disp-total-pts').textContent = entry.summary_overall_points.toLocaleString();
+            document.getElementById('disp-gw-avg').textContent = state.gwAverage || 0;
+            document.getElementById('disp-total').textContent = (picks.entry_history.points - transferCost); // Net Points
+            
+
+            // F. RENDER PLAYER GRID
+            renderPlayerGrid(picks.picks, ptsMap); 
+
+        } catch (e) { 
+            console.error("Fetch failed", e); 
+        }
+    }
+
+    // 6. RENDER PLAYER CARDS
+    function renderPlayerGrid(picks, ptsMap) {
+        const grid = document.getElementById('player-list-grid');
+        if (!grid) return;
+        grid.innerHTML = ''; 
+
+        picks.forEach((p, index) => {
+            const meta = state.playerMap[p.element];
+            if (!meta) return;
+
+            const rawPts = ptsMap[p.element] || 0;
+            const totalPts = rawPts * (p.multiplier || 1);
+            const isBench = index >= 11;
+            const ownership = meta.ownership || "0.0"; 
+
+            const cardHtml = `
+                <div class="compact-player-card ${isBench ? 'is-bench' : ''}">
+                    <i class="fa-solid fa-star star-icon"></i>
+                    <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${meta.team_code}${meta.pos === 1 ? '_1' : ''}-66.png">
+                    
+                    ${p.is_captain ? `<div class="badge">C</div>` : ''}
+                    ${p.is_vice_captain ? `<div class="badge">V</div>` : ''}
+                    
+                    <div class="card-data-box">
+                        <div class="card-name">${meta.name}</div>
+                        <div class="card-points">${totalPts}</div>
+                        <div class="card-ownership-bar" style="background: linear-gradient(90deg, var(--accent-blue) ${ownership}%, #444 ${ownership}%)">
+                            ${ownership}%
+                        </div>
+                    </div>
+                </div>`;
+
+            grid.innerHTML += cardHtml;
         });
-    }, { threshold: 0.1 });
+    }
 
-    // Target the specific components you want to animate
-    const items = document.querySelectorAll('.stat-box, .compact-player-card, .transfer-row, .squad-stats-bar');
-    items.forEach(item => {
-        item.classList.add('reveal-item');
-        observer.observe(item);
+    // 7. APP INVOCATION
+    if (state.fplId) {
+        initData().then(fetchAndRender);
+    } else {
+        const loginScreen = document.getElementById('login-screen');
+        if (loginScreen) loginScreen.style.display = 'flex';
+    }
+
+    // 8. EVENT LISTENERS
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('fplTheme') || 'dark';
+        setTheme(savedTheme);
     });
-}
 
 
-      
+      
 </script>
-    <script src="nav.js"></script>
-    <script src="deadline.js"></script>
-    <script src="transfers.js"></script>
-    <div id="footer-placeholder"></div>
+    <script src="nav.js"></script>
+    <script src="deadline.js"></script>
+    <script src="transfers.js"></script>
+    <div id="footer-placeholder"></div>
 <script src="footer.js"></script>
 </body>
 </html>
