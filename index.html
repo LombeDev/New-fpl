@@ -26,103 +26,78 @@
     padding-top: 10px;
 }
 
-/* Header Section */
-#manager-header {
-    padding: 24px 16px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.logo-badge {
-    width: 48px;
-    height: 48px;
-    border: 3px solid var(--md-sys-color-primary);
-    border-radius: 12px; /* M3 small shape */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--md-sys-color-primary);
-}
-
-#team-name {
-    font-size: 2rem;
-    font-weight: 900;
-    margin: 0;
-    letter-spacing: -0.5px;
-    color: var(--md-sys-color-on-surface);
+/* Container for the whole section */
+.header-content {
+    padding: 24px 16px 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    margin-bottom: 16px;
 }
 
 #disp-name {
-    font-size: 1rem;
-    color: #79747e; /* M3 secondary text */
+    display: block;
+    font-size: 2rem !important; /* Large expressive heading */
+    font-weight: 900;
+    color: #38003c; /* FPL Purple */
+    line-height: 1.1;
+    margin-bottom: 4px;
+}
+
+#disp-team {
+    font-size: 1rem !important;
     font-weight: 500;
+    opacity: 0.6;
+    color: #1d1b20;
 }
 
-/* Points & Rankings Section */
-.points-rankings-section {
-    padding: 0 16px;
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    border-top: 1px solid var(--md-sys-color-outline-variant);
-    padding-top: 16px;
-}
-
-.section-header h2 {
+/* Points & Rankings Section Label */
+.header-stats-grid::before {
+    content: "Points & Rankings";
+    display: block;
     font-size: 1.4rem;
     font-weight: 800;
-    color: var(--md-sys-color-primary);
+    color: #38003c;
+    padding: 0 16px 16px;
 }
 
-/* M3 Tonal Button Style */
-.m3-button-tonal {
-    background: var(--md-sys-color-surface-variant);
-    border: none;
-    padding: 10px 16px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #49454f;
-    cursor: pointer;
-}
-
-/* Vertical Stats List */
-.stats-list {
+/* Transform Grid into a Vertical List */
+.header-stats-grid {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    padding: 0 16px;
+    gap: 2px; /* Small gap for a clean look */
 }
 
-.stat-row {
+.stat-box {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Pushes label to left, value to right */
     align-items: center;
-    padding: 8px 0;
+    padding: 12px 0;
+    border: none !important; /* Remove old borders */
+}
+
+/* Add a thin divider between items except the last one */
+.stat-box:not(:last-child) {
+    border-bottom: 1px solid rgba(0,0,0,0.05) !important;
 }
 
 .stat-label {
-    font-size: 1.1rem;
-    font-weight: 400;
-    color: var(--md-sys-color-on-surface);
+    font-size: 1rem;
+    font-weight: 500;
+    color: #49454f; /* M3 Neutral Variant */
+    text-transform: none; /* More modern than all-caps */
+    letter-spacing: 0;
 }
 
 .stat-value {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 900;
-    color: var(--md-sys-color-on-surface);
+    color: #1d1b20;
 }
 
-/* Expressive Highlight for Gameweek Points */
-.stat-row:last-child .stat-value {
-    color: var(--md-sys-color-primary);
-    font-size: 1.4rem;
+/* Make the last stat (Points) pop slightly */
+#disp-total {
+    color: #38003c;
+    font-size: 1.2rem;
 }
 .mobile-nav, .overlay-menu {
     background-color: var(--nav-bg);
