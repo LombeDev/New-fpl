@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Price Change | Kopala FPL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --fpl-purple: #37003c;
+            --fpl-green: #00ff85;
+            --fpl-pink: #ff005a;
+            --fpl-dark: #111827;
+            --fpl-yellow: #fff9c4;
+            --bg-light: #f0f2f5;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); margin: 0; padding: 0; color: #1a1a1a; }
+        
+        /* Banner & Tabs */
+        .timer-banner { background: var(--fpl-purple); color: white; padding: 12px; text-align: center; font-size: 0.7rem; font-weight: 700; }
+        .view-tabs { display: flex; gap: 10px; padding: 15px; background: white; border-bottom: 1px solid #ddd; }
+        .view-tab { flex: 1; padding: 12px; text-align: center; font-size: 0.75rem; font-weight: 800; border-radius: 30px; background: #eee; color: #666; cursor: pointer; transition: 0.3s; }
+        .view-tab.active { background: #ffd7f3; color: var(--fpl-purple); }
+
+        /* Filter Section (Matching Photo) */
+        .filter-container { background: white; padding: 20px; text-align: center; border-bottom: 1px solid #eee; }
+        .page-title { font-size: 1.3rem; font-weight: 800; color: var(--fpl-purple); display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .page-subtitle { font-size: 0.7rem; color: #666; margin-bottom: 20px; line-height: 1.4; }
+        
+        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 500px; margin: 0 auto 10px; }
+        .filter-box { background: white; border: 1px solid #ccc; border-radius: 15px; padding: 8px 12px; display: flex; align-items: center; }
+        .filter-box label { font-size: 0.7rem; font-weight: 800; margin-right: 8px; color: #333; }
+        .filter-box select, .filter-box input { border: none; outline: none; font-size: 0.8rem; width: 100%; font-family: inherit; }
+
+        /* Table Styling */
+        .table-card { margin: 15px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: var(--fpl-dark); color: white; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
+        th { padding: 15px; text-align: left; }
+        .center { text-align: center; }
+
+        /* Date Header Rows */
+        .date-header { background: var(--fpl-yellow); border-bottom: 1px solid #e5e7eb; }
+        .date-header td { padding: 12px 15px; font-weight: 800; color: var(--fpl-purple); font-size: 0.8rem; }
+        .latest-pill { background: #ffcc00; color: black; padding: 2px 8px; border-radius: 12px; font-size: 0.6rem; margin-left: 8px; font-weight: 900; }
+
+        .player-row { border-bottom: 1px solid #f3f4f6; transition: background 0.2s; }
+        .player-row:hover { background: #fafafa; }
+        .player-name { font-weight: 700; font-size: 0.85rem; }
+        .team-name { color: #6b7280; font-size: 0.8rem; }
+        .price-old { color: #9ca3af; font-size: 0.8rem; }
+        .price-new { font-weight: 800; color: var(--fpl-dark); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<main>
+    <div class="timer-banner">NEXT FPL PRICE UPDATE IN: <span id="price-timer">00:00:00</span></div>
+
+    <div class="view-tabs">
+        <div class="view-tab active" id="tab-market" onclick="switchView('market')">PREDICTIONS</div>
+        <div class="view-tab" id="tab-watchlist" onclick="switchView('watchlist')">PRICE CHANGES</div>
+    </div>
+
+    <div id="view-market" class="content-view">
+        <div style="padding:50px; text-align:center; color:#888;">Predictions Table Content...</div>
+    </div>
+
+    <div id="view-watchlist" class="content-view" style="display: none;">
+        <div class="filter-container">
+            <div class="page-title">
+                <div style="width:4px; height:20px; background:var(--fpl-green);"></div>
+                Price Changes
+            </div>
+            <p class="page-subtitle">Check our price change predictor <span style="color:blue; text-decoration:underline;">here</span><br>Page updates instantly after any price changes occur (usually at 1:30 am GMT)</p>
+            
+            <div class="filter-grid">
+                <div class="filter-box"><label>Direction</label><select id="dirFilter"><option value="all">...</option></select></div>
+                <div class="filter-box"><label>Team</label><select id="teamFilterChange"><option value="all">...</option></select></div>
+            </div>
+            <div class="filter-grid" style="grid-template-columns: 1fr;">
+                <div class="filter-box"><label>Search</label><input type="text" id="changeSearch" placeholder="Player / team / price..." onkeyup="renderDailyChanges()"></div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">Player</th>
+                        <th style="width: 25%;">Team</th>
+                        <th class="center">Old</th>
+                        <th class="center">New</th>
+                        <th class="center">Dir</th>
+                    </tr>
+                </thead>
+                <tbody id="daily-changes-body"></tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script>
+    const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
+    const HISTORY_KEY = 'kopala_price_history_v2';
+    let playerData = [], teamMap = {}, currentView = 'market';
+
+    async function init() {
+        try {
+            const res = await fetch(PROXY);
+            const data = await res.json();
+            data.teams.forEach(t => { teamMap[t.id] = t.short_name; });
+
+            playerData = data.elements.map(p => ({
+                id: p.id,
+                name: p.web_name,
+                team: p.team,
+                teamCode: p.team_code,
+                price: (p.now_cost/10).toFixed(1),
+                rawChange: p.cost_change_event 
+            }));
+
+            saveDailyHistory();
+            renderDailyChanges();
+            setInterval(updateTimer, 1000);
+        } catch (e) { console.error("Error loading FPL data:", e); }
+    }
+
+    function saveDailyHistory() {
+        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+        const today = new Date().toISOString().split('T')[0];
+
+        const todaysMovers = playerData.filter(p => p.rawChange !== 0).map(p => ({
+            name: p.name,
+            team: teamMap[p.team],
+            teamCode: p.teamCode,
+            old: (parseFloat(p.price) - (p.rawChange/10)).toFixed(1),
+            new: p.price,
+            dir: p.rawChange > 0 ? 'rise' : 'fall'
+        }));
+
+        if (todaysMovers.length > 0) {
+            history[today] = todaysMovers;
+        }
+
+        const dates = Object.keys(history).sort().reverse().slice(0, 5);
+        const trimmedHistory = {};
+        dates.forEach(d => trimmedHistory[d] = history[d]);
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmedHistory));
+    }
+
+    function renderDailyChanges() {
+        const container = document.getElementById('daily-changes-body');
+        const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+        const sortedDates = Object.keys(history).sort().reverse();
+        const searchTerm = document.getElementById('changeSearch').value.toLowerCase();
+        
+        let html = '';
+        if (sortedDates.length === 0) {
+            container.innerHTML = '<tr><td colspan="5" style="padding:40px; text-align:center;">No movements recorded yet.</td></tr>';
+            return;
+        }
+
+        sortedDates.forEach((date, index) => {
+            html += `<tr class="date-header"><td colspan="5">Price Changes ${date} ${index === 0 ? '<span class="latest-pill">LATEST</span>' : ''}</td></tr>`;
+
+            history[date].forEach(p => {
+                if (p.name.toLowerCase().includes(searchTerm) || p.team.toLowerCase().includes(searchTerm)) {
+                    html += `
+                    <tr class="player-row">
+                        <td style="padding:15px; display:flex; align-items:center; gap:10px;">
+                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:25px;">
+                            <span class="player-name">${p.name}</span>
+                        </td>
+                        <td class="team-name">${p.team}</td>
+                        <td class="center price-old">£${p.old}</td>
+                        <td class="center price-new">£${p.new}</td>
+                        <td class="center">
+                            <i class="fa-solid ${p.dir === 'rise' ? 'fa-circle-up' : 'fa-circle-down'}" 
+                               style="color: ${p.dir === 'rise' ? 'var(--fpl-green)' : 'var(--fpl-pink)'}; font-size: 1.1rem;"></i>
+                        </td>
+                    </tr>`;
+                }
+            });
+        });
+        container.innerHTML = html;
+    }
+
+    function switchView(v) {
+        currentView = v;
+        document.getElementById('tab-market').classList.toggle('active', v === 'market');
+        document.getElementById('tab-watchlist').classList.toggle('active', v === 'watchlist');
+        document.getElementById('view-market').style.display = v === 'market' ? 'block' : 'none';
+        document.getElementById('view-watchlist').style.display = v === 'watchlist' ? 'block' : 'none';
+        if(v === 'watchlist') renderDailyChanges();
+    }
+
+    function updateTimer() {
+        const now = new Date();
+        let t = new Date();
+        t.setUTCHours(1, 30, 0, 0);
+        if (now > t) t.setUTCDate(t.getUTCDate() + 1);
+        const d = t - now;
+        const h = String(Math.floor(d / 3600000)).padStart(2,'0'), 
+              m = String(Math.floor((d%3600000)/60000)).padStart(2,'0'), 
+              s = String(Math.floor((d%60000)/1000)).padStart(2,'0');
+        document.getElementById('price-timer').innerText = `${h}:${m}:${s}`;
+    }
+
+    init();
+</script>
+</body>
+</html>
