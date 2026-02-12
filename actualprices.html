@@ -19,252 +19,378 @@
 
     <style>
         :root {
-            --fpl-purple: #37003c;
-            --fpl-green: #00ff85;
-            --fpl-pink: #ff005a;
-            --fpl-dark: #111827;
+            /* Material 3 Tonal Palette */
+            --md-sys-color-primary: #37003c;
+            --md-sys-color-on-primary: #ffffff;
+            --md-sys-color-secondary: #00ff85; /* FPL Green */
+            --md-sys-color-tertiary: #ff005a;  /* FPL Pink */
+            --md-sys-color-surface: #fdfbff;
+            --md-sys-color-surface-variant: #f3f0f5;
+            --md-sys-color-on-surface: #1c1b1f;
+            --md-sys-color-outline: #79747e;
+            
             --fpl-yellow: #fff9c4;
-            --bg-light: #f0f2f5;
+            --radius-xl: 28px;
+            --shadow-2: 0 4px 12px rgba(55, 0, 60, 0.08);
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); margin: 0; padding: 0; color: #1a1a1a; }
-        
-        .timer-banner { background: var(--fpl-purple); color: white; padding: 12px; text-align: center; font-size: 0.7rem; font-weight: 700; position: sticky; top: 0; z-index: 100; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--md-sys-color-surface); 
+            margin: 0; 
+            color: var(--md-sys-color-on-surface);
+            line-height: 1.5;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        /* Filter Section (Matching Photo) */
-        .filter-container { background: white; padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
-        .page-title { font-size: 1.4rem; font-weight: 800; color: var(--fpl-purple); display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .page-subtitle { font-size: 0.75rem; color: #666; margin-bottom: 20px; line-height: 1.5; max-width: 400px; margin-left: auto; margin-right: auto; }
-        
-        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 500px; margin: 0 auto 12px; }
-        .filter-box { background: white; border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 10px 15px; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .filter-box label { font-size: 0.75rem; font-weight: 800; margin-right: 10px; color: #4b5563; }
-        .filter-box select, .filter-box input { border: none; outline: none; font-size: 0.85rem; width: 100%; font-family: inherit; background: transparent; cursor: pointer; }
+        /* Expressive Timer Banner */
+        .timer-banner { 
+            background: var(--md-sys-color-primary); 
+            color: white; 
+            padding: 16px; 
+            text-align: center; 
+            font-size: 0.8rem; 
+            font-weight: 900; 
+            letter-spacing: 1px;
+            position: sticky; 
+            top: 0; 
+            z-index: 100;
+            border-bottom: 3px solid var(--md-sys-color-secondary);
+        }
 
-        /* Table Styling */
-        .section-label { margin: 20px 15px 10px; font-size: 0.8rem; font-weight: 900; color: var(--fpl-purple); text-transform: uppercase; letter-spacing: 1px; }
-        .table-card { margin: 0 15px 30px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        /* M3 Header Section */
+        .filter-container { 
+            background: white; 
+            padding: 32px 20px; 
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+            box-shadow: var(--shadow-2);
+            margin-bottom: 24px;
+        }
+
+        .page-title { 
+            font-size: 1.8rem; 
+            font-weight: 900; 
+            color: var(--md-sys-color-primary); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .page-subtitle { 
+            font-size: 0.85rem; 
+            color: var(--md-sys-color-outline); 
+            text-align: center;
+            margin-bottom: 28px;
+            font-weight: 500;
+        }
+
+        /* M3 Input Chips */
+        .filter-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+            max-width: 500px; 
+            margin: 0 auto 12px; 
+        }
+
+        .filter-box { 
+            background: var(--md-sys-color-surface-variant); 
+            border-radius: 16px; 
+            padding: 10px 16px; 
+            display: flex; 
+            flex-direction: column;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .filter-box:focus-within {
+            background: white;
+            box-shadow: 0 0 0 2px var(--md-sys-color-primary);
+        }
+
+        .filter-box label { 
+            font-size: 0.65rem; 
+            font-weight: 800; 
+            color: var(--md-sys-color-primary);
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .filter-box select, .filter-box input { 
+            border: none; 
+            outline: none; 
+            font-size: 1rem; 
+            font-weight: 700;
+            background: transparent; 
+            color: var(--md-sys-color-on-surface);
+            font-family: inherit;
+        }
+
+        /* Table Card */
+        .section-label { 
+            margin: 32px 20px 12px; 
+            font-size: 1rem; 
+            font-weight: 900; 
+            color: var(--md-sys-color-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-card { 
+            margin: 0 16px 32px; 
+            background: white; 
+            border-radius: var(--radius-xl); 
+            overflow: hidden; 
+            box-shadow: var(--shadow-2);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
         table { width: 100%; border-collapse: collapse; }
-        thead { background: var(--fpl-dark); color: white; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.8px; }
-        th { padding: 16px 12px; text-align: left; }
+        thead { background: #f8f7f9; color: var(--md-sys-color-outline); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+        th { padding: 16px; text-align: left; }
         .center { text-align: center; }
 
-        /* Date Header Rows */
-        .date-header { background: var(--fpl-yellow); border-bottom: 1px solid #e5e7eb; }
-        .date-header td { padding: 12px 15px; font-weight: 800; color: var(--fpl-purple); font-size: 0.85rem; }
-        .latest-pill { background: #ffcc00; color: black; padding: 2px 8px; border-radius: 8px; font-size: 0.65rem; margin-left: 10px; font-weight: 900; }
-
-        .player-row { border-bottom: 1px solid #f3f4f6; }
-        .player-name { font-weight: 700; font-size: 0.9rem; color: #111827; }
-        .team-name { color: #6b7280; font-size: 0.8rem; font-weight: 500; }
-        .price-old { color: #9ca3af; font-size: 0.85rem; }
-        .price-new { font-weight: 800; color: var(--fpl-dark); font-size: 0.9rem; }
+        /* Rows */
+        .player-row { border-bottom: 1px solid var(--md-sys-color-surface-variant); transition: background 0.2s; }
+        .player-name { font-weight: 800; font-size: 0.95rem; color: var(--md-sys-color-on-surface); }
+        .team-name { color: var(--md-sys-color-outline); font-size: 0.75rem; font-weight: 600; }
         
-        .prediction-target { font-weight: 800; font-size: 0.85rem; }
+        .price-pill {
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            background: var(--md-sys-color-surface-variant);
+        }
+
+        .date-header { background: var(--fpl-yellow); }
+        .date-header td { padding: 14px 20px; font-weight: 900; color: var(--md-sys-color-primary); font-size: 0.85rem; }
+        .latest-pill { background: var(--md-sys-color-primary); color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.6rem; margin-left: 8px; vertical-align: middle; }
+
+        /* Shimmer Loading */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body>
-<div id="nav-placeholder"></div>
-<main>
-    <div class="timer-banner">NEXT FPL PRICE UPDATE IN: <span id="price-timer">00:00:00</span></div>
-
-    <div class="filter-container">
-        <div class="page-title">
-            <div style="width:5px; height:24px; background:var(--fpl-green); border-radius: 2px;"></div>
-            Price Changes
+    <div id="nav-placeholder"></div>
+    <main>
+        <div class="timer-banner">
+            <span class="material-symbols-rounded" style="vertical-align: middle; font-size: 18px; margin-right: 4px;">history</span>
+            NEXT UPDATE IN: <span id="price-timer">00:00:00</span>
         </div>
-        <p class="page-subtitle">Page updates instantly after any price changes occur<br>(usually at 1:30 am GMT)</p>
-        
-        <div class="filter-grid">
-            <div class="filter-box"><label>Direction</label><select id="dirFilter" onchange="renderAll()"><option value="all">...</option><option value="rise">Rise</option><option value="fall">Fall</option></select></div>
-            <div class="filter-box"><label>Team</label><select id="teamFilter" onchange="renderAll()"><option value="all">...</option></select></div>
-        </div>
-        <div class="filter-grid" style="grid-template-columns: 1fr;">
-            <div class="filter-box"><label>Search</label><input type="text" id="mainSearch" placeholder="Player / team / price..." onkeyup="renderAll()"></div>
-        </div>
-    </div>
 
-    <div class="section-label">Market History (Last 5 Days)</div>
-    <div class="table-card">
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 40%;">Player</th>
-                    <th style="width: 25%;">Team</th>
-                    <th class="center">Old</th>
-                    <th class="center">New</th>
-                    <th class="center">Dir</th>
-                </tr>
-            </thead>
-            <tbody id="daily-changes-body"></tbody>
-        </table>
-    </div>
-
-    <div class="section-label">Live Predictions</div>
-    <div class="table-card">
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 50%;">Player</th>
-                    <th class="center">Target %</th>
-                    <th class="center">Price</th>
-                </tr>
-            </thead>
-            <tbody id="predictions-body"></tbody>
-        </table>
-    </div>
-</main>
-
-<script>
-    const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
-    const HISTORY_KEY = 'kopala_price_history_v3';
-    let playerData = [], teamMap = {};
-
-    async function init() {
-        try {
-            const res = await fetch(PROXY);
-            const data = await res.json();
+        <div class="filter-container">
+            <div class="page-title">
+                <span class="material-symbols-rounded" style="font-size: 32px; color: var(--md-sys-color-secondary); font-variation-settings: 'FILL' 1;">analytics</span>
+                Market Data
+            </div>
+            <p class="page-subtitle">Real-time price changes & transfer predictions</p>
             
-            // Map Teams
-            const teamSelect = document.getElementById('teamFilter');
-            data.teams.forEach(t => { 
-                teamMap[t.id] = t.short_name;
-                let opt = document.createElement('option');
-                opt.value = t.id; opt.innerText = t.name;
-                teamSelect.appendChild(opt);
-            });
+            <div class="filter-grid">
+                <div class="filter-box">
+                    <label>Trend</label>
+                    <select id="dirFilter" onchange="renderAll()">
+                        <option value="all">All Trends</option>
+                        <option value="rise">Risers</option>
+                        <option value="fall">Fallers</option>
+                    </select>
+                </div>
+                <div class="filter-box">
+                    <label>Club</label>
+                    <select id="teamFilter" onchange="renderAll()">
+                        <option value="all">All Clubs</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-grid" style="grid-template-columns: 1fr;">
+                <div class="filter-box">
+                    <label>Search Scout</label>
+                    <input type="text" id="mainSearch" placeholder="Filter by player or team..." onkeyup="renderAll()">
+                </div>
+            </div>
+        </div>
 
-            // Process Players
-            playerData = data.elements.map(p => {
-                let net = (p.transfers_in_event - p.transfers_out_event) * 0.8;
-                let thresh = (7200 + (parseFloat(p.selected_by_percent) * 1500)) * 0.8;
-                if (p.status !== 'a') thresh *= 3.5;
-                let target = (net / thresh) * 100;
+        <div class="section-label">Price History</div>
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50%;">Player</th>
+                        <th class="center">Old</th>
+                        <th class="center">New</th>
+                        <th class="center">Var</th>
+                    </tr>
+                </thead>
+                <tbody id="daily-changes-body">
+                    <tr><td colspan="4" style="padding:20px;"><div class="shimmer" style="height:20px; width:100%;"></div></td></tr>
+                    <tr><td colspan="4" style="padding:20px;"><div class="shimmer" style="height:20px; width:80%;"></div></td></tr>
+                </tbody>
+            </table>
+        </div>
 
-                return {
-                    id: p.id,
-                    name: p.web_name,
-                    team: p.team,
-                    teamCode: p.team_code,
-                    price: (p.now_cost/10).toFixed(1),
-                    target: target.toFixed(1),
-                    rawChange: p.cost_change_event 
-                };
-            });
+        <div class="section-label">Live Predictions</div>
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 55%;">Player</th>
+                        <th class="center">Target %</th>
+                        <th class="center">Cost</th>
+                    </tr>
+                </thead>
+                <tbody id="predictions-body"></tbody>
+            </table>
+        </div>
+    </main>
 
-            saveDailyHistory();
-            renderAll();
-            setInterval(updateTimer, 1000);
-        } catch (e) { console.error("Error loading FPL data:", e); }
-    }
+    <script>
+        const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
+        const HISTORY_KEY = 'kopala_price_history_v3';
+        let playerData = [], teamMap = {};
 
-    function saveDailyHistory() {
-        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
-        const today = new Date().toISOString().split('T')[0];
-
-        const todaysMovers = playerData.filter(p => p.rawChange !== 0).map(p => ({
-            name: p.name,
-            team: teamMap[p.team],
-            teamId: p.team,
-            teamCode: p.teamCode,
-            old: (parseFloat(p.price) - (p.rawChange/10)).toFixed(1),
-            new: p.price,
-            dir: p.rawChange > 0 ? 'rise' : 'fall'
-        }));
-
-        if (todaysMovers.length > 0) { history[today] = todaysMovers; }
-
-        const dates = Object.keys(history).sort().reverse().slice(0, 5);
-        const trimmedHistory = {};
-        dates.forEach(d => trimmedHistory[d] = history[d]);
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmedHistory));
-    }
-
-    function renderAll() {
-        renderDailyChanges();
-        renderPredictions();
-    }
-
-    function renderDailyChanges() {
-        const container = document.getElementById('daily-changes-body');
-        const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
-        const sortedDates = Object.keys(history).sort().reverse();
-        const search = document.getElementById('mainSearch').value.toLowerCase();
-        const teamF = document.getElementById('teamFilter').value;
-        const dirF = document.getElementById('dirFilter').value;
-        
-        let html = '';
-        sortedDates.forEach((date, index) => {
-            let entries = history[date].filter(p => {
-                const matchesSearch = p.name.toLowerCase().includes(search);
-                const matchesTeam = teamF === 'all' || String(p.teamId) === teamF;
-                const matchesDir = dirF === 'all' || p.dir === dirF;
-                return matchesSearch && matchesTeam && matchesDir;
-            });
-
-            if (entries.length > 0) {
-                html += `<tr class="date-header"><td colspan="5">Price Changes ${date} ${index === 0 ? '<span class="latest-pill">LATEST</span>' : ''}</td></tr>`;
-                entries.forEach(p => {
-                    html += `
-                    <tr class="player-row">
-                        <td style="padding:15px; display:flex; align-items:center; gap:10px;">
-                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:25px;">
-                            <span class="player-name">${p.name}</span>
-                        </td>
-                        <td class="team-name">${p.team}</td>
-                        <td class="center price-old">£${p.old}</td>
-                        <td class="center price-new">£${p.new}</td>
-                        <td class="center">
-                            <i class="fa-solid ${p.dir === 'rise' ? 'fa-circle-up' : 'fa-circle-down'}" 
-                               style="color: ${p.dir === 'rise' ? 'var(--fpl-green)' : 'var(--fpl-pink)'}; font-size: 1.1rem;"></i>
-                        </td>
-                    </tr>`;
+        async function init() {
+            try {
+                const res = await fetch(PROXY);
+                const data = await res.json();
+                
+                const teamSelect = document.getElementById('teamFilter');
+                data.teams.forEach(t => { 
+                    teamMap[t.id] = t.short_name;
+                    let opt = document.createElement('option');
+                    opt.value = t.id; opt.innerText = t.name;
+                    teamSelect.appendChild(opt);
                 });
+
+                playerData = data.elements.map(p => {
+                    let net = (p.transfers_in_event - p.transfers_out_event) * 0.8;
+                    let thresh = (7200 + (parseFloat(p.selected_by_percent) * 1500)) * 0.8;
+                    if (p.status !== 'a') thresh *= 3.5;
+                    let target = (net / thresh) * 100;
+
+                    return {
+                        id: p.id,
+                        name: p.web_name,
+                        team: p.team,
+                        teamCode: p.team_code,
+                        price: (p.now_cost/10).toFixed(1),
+                        target: target.toFixed(1),
+                        rawChange: p.cost_change_event 
+                    };
+                });
+
+                saveDailyHistory();
+                renderAll();
+                setInterval(updateTimer, 1000);
+            } catch (e) { 
+                console.error("Error:", e); 
+                document.getElementById('daily-changes-body').innerHTML = '<tr><td colspan="4" class="center" style="padding:40px;">Failed to load data.</td></tr>';
             }
-        });
-        container.innerHTML = html || '<tr><td colspan="5" style="padding:30px; text-align:center; color:#888;">No history matches filters.</td></tr>';
-    }
+        }
 
-    function renderPredictions() {
-        const container = document.getElementById('predictions-body');
-        const search = document.getElementById('mainSearch').value.toLowerCase();
-        const teamF = document.getElementById('teamFilter').value;
-        
-        let filtered = playerData.filter(p => {
-            return p.name.toLowerCase().includes(search) && (teamF === 'all' || String(p.team) === teamF);
-        }).sort((a,b) => b.target - a.target).slice(0, 20);
+        function saveDailyHistory() {
+            let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+            const today = new Date().toISOString().split('T')[0];
+            const todaysMovers = playerData.filter(p => p.rawChange !== 0).map(p => ({
+                name: p.name,
+                team: teamMap[p.team],
+                teamId: p.team,
+                teamCode: p.teamCode,
+                old: (parseFloat(p.price) - (p.rawChange/10)).toFixed(1),
+                new: p.price,
+                dir: p.rawChange > 0 ? 'rise' : 'fall'
+            }));
+            if (todaysMovers.length > 0) { history[today] = todaysMovers; }
+            const dates = Object.keys(history).sort().reverse().slice(0, 5);
+            const trimmed = {};
+            dates.forEach(d => trimmed[d] = history[d]);
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
+        }
 
-        container.innerHTML = filtered.map(p => `
-            <tr class="player-row">
-                <td style="padding:15px; display:flex; align-items:center; gap:10px;">
-                    <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:25px;">
-                    <div>
-                        <div class="player-name">${p.name}</div>
-                        <div class="team-name">${teamMap[p.team]}</div>
-                    </div>
-                </td>
-                <td class="center prediction-target" style="color:${p.target >= 90 ? 'var(--fpl-green)' : (p.target <= -90 ? 'var(--fpl-pink)' : '#111')}">
-                    ${p.target}%
-                </td>
-                <td class="center price-new">£${p.price}</td>
-            </tr>
-        `).join('');
-    }
+        function renderAll() {
+            renderDailyChanges();
+            renderPredictions();
+        }
 
-    function updateTimer() {
-        const now = new Date();
-        let t = new Date();
-        t.setUTCHours(1, 30, 0, 0);
-        if (now > t) t.setUTCDate(t.getUTCDate() + 1);
-        const d = t - now;
-        const h = String(Math.floor(d / 3600000)).padStart(2,'0'), 
-              m = String(Math.floor((d%3600000)/60000)).padStart(2,'0'), 
-              s = String(Math.floor((d%60000)/1000)).padStart(2,'0');
-        document.getElementById('price-timer').innerText = `${h}:${m}:${s}`;
-    }
+        function renderDailyChanges() {
+            const container = document.getElementById('daily-changes-body');
+            const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+            const sortedDates = Object.keys(history).sort().reverse();
+            const search = document.getElementById('mainSearch').value.toLowerCase();
+            const teamF = document.getElementById('teamFilter').value;
+            const dirF = document.getElementById('dirFilter').value;
+            
+            let html = '';
+            sortedDates.forEach((date, index) => {
+                let entries = history[date].filter(p => {
+                    return p.name.toLowerCase().includes(search) && (teamF === 'all' || String(p.teamId) === teamF) && (dirF === 'all' || p.dir === dirF);
+                });
 
-    init();
-</script>
+                if (entries.length > 0) {
+                    html += `<tr class="date-header"><td colspan="4">${date} ${index === 0 ? '<span class="latest-pill">LATEST</span>' : ''}</td></tr>`;
+                    entries.forEach(p => {
+                        const icon = p.dir === 'rise' ? 'trending_up' : 'trending_down';
+                        const color = p.dir === 'rise' ? 'var(--md-sys-color-secondary)' : 'var(--md-sys-color-tertiary)';
+                        html += `
+                        <tr class="player-row">
+                            <td style="padding:16px; display:flex; align-items:center; gap:12px;">
+                                <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:30px;">
+                                <div><div class="player-name">${p.name}</div><div class="team-name">${p.team}</div></div>
+                            </td>
+                            <td class="center" style="color:var(--md-sys-color-outline); font-weight:700;">£${p.old}</td>
+                            <td class="center"><span class="price-pill">£${p.new}</span></td>
+                            <td class="center"><span class="material-symbols-rounded" style="color:${color}; font-weight:900;">${icon}</span></td>
+                        </tr>`;
+                    });
+                }
+            });
+            container.innerHTML = html || '<tr><td colspan="4" class="center" style="padding:30px;">No matches found.</td></tr>';
+        }
+
+        function renderPredictions() {
+            const container = document.getElementById('predictions-body');
+            const search = document.getElementById('mainSearch').value.toLowerCase();
+            const teamF = document.getElementById('teamFilter').value;
+            
+            let filtered = playerData.filter(p => {
+                return p.name.toLowerCase().includes(search) && (teamF === 'all' || String(p.team) === teamF);
+            }).sort((a,b) => b.target - a.target).slice(0, 20);
+
+            container.innerHTML = filtered.map(p => {
+                let color = p.target >= 90 ? 'var(--md-sys-color-secondary)' : (p.target <= -90 ? 'var(--md-sys-color-tertiary)' : 'inherit');
+                return `
+                <tr class="player-row">
+                    <td style="padding:16px; display:flex; align-items:center; gap:12px;">
+                        <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:30px;">
+                        <div><div class="player-name">${p.name}</div><div class="team-name">${teamMap[p.team]}</div></div>
+                    </td>
+                    <td class="center" style="font-weight:900; color:${color}">${p.target}%</td>
+                    <td class="center"><span class="price-pill" style="background:var(--md-sys-color-primary); color:white;">£${p.price}</span></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function updateTimer() {
+            const now = new Date();
+            let t = new Date();
+            t.setUTCHours(1, 30, 0, 0);
+            if (now > t) t.setUTCDate(t.getUTCDate() + 1);
+            const d = t - now;
+            const h = String(Math.floor(d / 3600000)).padStart(2,'0'), 
+                  m = String(Math.floor((d%3600000)/60000)).padStart(2,'0'), 
+                  s = String(Math.floor((d%60000)/1000)).padStart(2,'0');
+            document.getElementById('price-timer').innerText = `${h}:${m}:${s}`;
+        }
+
+        init();
+    </script>
+
 
 
     <script src="nav.js"></script>
