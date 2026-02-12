@@ -24,41 +24,96 @@
             --text-sub: #656565;
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--m3-surface); margin: 0; padding: 0; color: var(--text-main); }
-        .timer-banner { background: var(--m3-primary); color: white; padding: 10px; text-align: center; font-size: 0.65rem; font-weight: 700; }
-        .countdown-box { background: var(--livefpl-green); color: black; padding: 2px 8px; border-radius: 6px; font-weight: 900; margin-left: 5px; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--m3-surface); 
+            margin: 0; padding: 0; 
+            color: var(--text-main);
+        }
+
+        /* TIMER AREA */
+        .timer-banner { 
+            background: var(--m3-primary); color: white; 
+            padding: 10px; text-align: center; font-size: 0.65rem; font-weight: 700;
+        }
+        .countdown-box { 
+            background: var(--livefpl-green); color: black; 
+            padding: 2px 8px; border-radius: 6px; font-weight: 900; margin-left: 5px;
+        }
+
+        /* TABS & NAVIGATION */
         .view-tabs { display: flex; gap: 8px; padding: 10px 15px; background: white; }
-        .view-tab { flex: 1; padding: 10px; text-align: center; font-size: 0.7rem; font-weight: 800; border-radius: 25px; background: var(--m3-surface-variant); color: var(--text-sub); transition: 0.2s; cursor: pointer; }
+        .view-tab { 
+            flex: 1; padding: 10px; text-align: center; font-size: 0.7rem; 
+            font-weight: 800; border-radius: 25px; background: var(--m3-surface-variant);
+            color: var(--text-sub); transition: 0.2s;
+        }
         .view-tab.active { background: var(--m3-primary-container); color: var(--m3-primary); }
+
+        /* INPUTS & CONTROLS */
         .control-hub { padding: 0 15px 10px; background: white; }
-        #playerSearch { width: 100%; border: 1.5px solid var(--m3-surface-variant); background: white; border-radius: 12px; padding: 12px; font-size: 0.85rem; outline: none; box-sizing: border-box; color: var(--text-main); }
+        #playerSearch { 
+            width: 100%; border: 1.5px solid var(--m3-surface-variant); background: white;
+            border-radius: 12px; padding: 12px; font-size: 0.85rem; outline: none; box-sizing: border-box;
+            color: var(--text-main);
+        }
         .sort-row { display: flex; gap: 6px; margin-top: 10px; }
-        .sort-btn { flex: 1; border: none; padding: 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 800; background: var(--m3-surface-variant); color: var(--text-sub); }
+        .sort-btn { 
+            flex: 1; border: none; padding: 10px; border-radius: 10px;
+            font-size: 0.65rem; font-weight: 800; background: var(--m3-surface-variant); color: var(--text-sub);
+        }
         .sort-btn.active-rise { background: var(--livefpl-green); color: #00331a; }
         .sort-btn.active-fall { background: var(--livefpl-red); color: white; }
-        #teamFilter { flex: 1.2; border: none; background: var(--m3-surface-variant); border-radius: 10px; padding: 8px; font-size: 0.65rem; font-weight: 700; color: var(--m3-primary); }
+        #teamFilter {
+            flex: 1.2; border: none; background: var(--m3-surface-variant);
+            border-radius: 10px; padding: 8px; font-size: 0.65rem; font-weight: 700; color: var(--m3-primary);
+        }
+
+        /* RECENT CHANGES SECTION */
         .history-log { margin: 10px 15px; background: #fafafa; border-radius: 16px; border: 1px solid #eee; }
         .history-header { padding: 10px 15px; font-size: 0.6rem; font-weight: 900; color: var(--text-sub); letter-spacing: 0.5px; }
         .history-item { display: flex; justify-content: space-between; padding: 8px 15px; border-top: 1px solid #f0f0f0; align-items: center; }
         .h-name { font-size: 0.75rem; font-weight: 700; color: var(--text-main); }
         .price-pill { padding: 3px 8px; border-radius: 6px; font-weight: 900; font-size: 0.65rem; }
-        .pill-rise { background: #dcfce7; color: #16a34a; }
-        .pill-fall { background: #fee2e2; color: #dc2626; }
+
+        /* PREDICTION TABLE */
         .price-table { width: 100%; border-collapse: collapse; background: white; }
-        .price-table thead { position: sticky; top: 0; z-index: 10; background: #f8f9fb; font-size: 0.55rem; color: var(--text-sub); }
+        .price-table thead { 
+            position: sticky; top: 0; z-index: 10;
+            background: #f8f9fb; font-size: 0.55rem; color: var(--text-sub); 
+        }
         .price-table th { padding: 12px 5px; border-bottom: 2px solid var(--m3-surface-variant); }
         .player-row { border-bottom: 1px solid #f0f0f0; }
+        
+        /* PLAYER CELL FIX */
         .info-col { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
         .p-img-box { position: relative; width: 32px; flex-shrink: 0; }
         .shirt-img { width: 100%; height: auto; }
         .p-text-box { display: flex; flex-direction: column; overflow: hidden; }
-        .p-name { font-size: 0.85rem; font-weight: 800; color: var(--text-main); margin-bottom: 2px; }
+        
+       .p-name { 
+    font-size: 0.85rem; 
+    font-weight: 800; 
+    /* Use a dynamic color so it works in both modes */
+    color: var(--text-color, #1d1b20) !important; 
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    position: relative;
+    z-index: 5; /* Ensures it sits above any background blocks */
+    background: transparent !important; /* Removes the black block seen in your image */
+}
         .p-meta { font-size: 0.6rem; color: var(--text-sub); font-weight: 600; }
-        .star-btn { color: #ccc; font-size: 1rem; transition: 0.2s; cursor: pointer; }
+
+        .star-btn { color: #ccc; font-size: 1rem; transition: 0.2s; }
         .star-btn.active { color: #ffb400; }
+        
         .target-box { font-weight: 900; font-size: 0.75rem; display: block; margin-bottom: 4px; }
         .progress-wrapper { width: 40px; background: #eee; border-radius: 4px; height: 4px; overflow: hidden; margin: 0 auto; }
         .progress-fill { height: 100%; }
+
         .smart-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #fff8fe; border-radius: 12px; margin: 10px 15px; border: 1px dashed var(--m3-primary-container); }
         .smart-row span { font-size: 0.7rem; font-weight: 800; color: var(--m3-primary); }
     </style>
@@ -72,71 +127,51 @@
     </div>
 
     <div class="view-tabs">
-    <div class="view-tab active" id="tab-market" onclick="switchView('market')">PREDICTIONS</div>
-    <div class="view-tab" id="tab-watchlist" onclick="switchView('watchlist')">DAILY CHANGES (<span id="daily-move-count">0</span>)</div>
-</div>
-
-<div id="view-watchlist" class="content-view" style="display: none;">
-    <div id="daily-summary-bar" style="padding: 12px 15px; background: #f0f0f7; display: flex; justify-content: space-between; align-items: center;">
-        <span id="update-date" style="font-size: 0.65rem; font-weight: 800; color: #37003c;">RESULTS: --/--</span>
-        <span id="move-stats" style="font-size: 0.65rem; font-weight: 700;"></span>
-    </div>
-    <div id="watchlist-container">
-        </div>
-</div>
-    <div id="view-market" class="content-view">
-        <div class="control-hub">
-            <input type="text" id="playerSearch" placeholder="🔍 Search players..." onkeyup="render()">
-            <div class="sort-row">
-                <button class="sort-btn active-rise" id="btn-rise" onclick="setSort('rise')">TOP RISERS</button>
-                <button class="sort-btn" id="btn-fall" onclick="setSort('fall')">TOP FALLERS</button>
-                <select id="teamFilter" onchange="render()"><option value="all">ALL TEAMS</option></select>
-            </div>
-        </div>
-
-        <div class="smart-row">
-            <span><i class="fa-solid fa-bolt"></i> HIDE COMPLETED MOVES</span>
-            <input type="checkbox" id="smartFilter" checked onchange="render()" style="width:18px; height:18px;">
-        </div>
-
-        <section class="history-log">
-            <div class="history-header">LAST NIGHT'S MOVES</div>
-            <div id="history-container"></div>
-        </section>
-
-        <table class="price-table">
-            <thead>
-                <tr>
-                    <th style="width:50%; text-align:left; padding-left:12px;">PLAYER</th>
-                    <th style="width:20%;">TARGET</th>
-                    <th style="width:15%;">PROB</th>
-                    <th style="width:15%;">PRED</th>
-                </tr>
-            </thead>
-            <tbody id="prediction-list"></tbody>
-        </table>
+        <div class="view-tab active" id="tab-market" onclick="switchView('market')">MARKET</div>
+        <div class="view-tab" id="tab-watchlist" onclick="switchView('watchlist')">WATCHLIST (<span id="watch-count">0</span>)</div>
     </div>
 
-    <div id="view-watchlist" class="content-view" style="display: none;">
-        <div id="watchlist-container"></div>
+    <div class="control-hub">
+        <input type="text" id="playerSearch" placeholder="🔍 Search players..." onkeyup="render()">
+        <div class="sort-row">
+            <button class="sort-btn active-rise" id="btn-rise" onclick="setSort('rise')">TOP RISERS</button>
+            <button class="sort-btn" id="btn-fall" onclick="setSort('fall')">TOP FALLERS</button>
+            <select id="teamFilter" onchange="render()"><option value="all">ALL TEAMS</option></select>
+        </div>
     </div>
+
+    <div class="smart-row">
+        <span><i class="fa-solid fa-bolt"></i> HIDE COMPLETED MOVES</span>
+        <input type="checkbox" id="smartFilter" checked onchange="render()" style="width:18px; height:18px;">
+    </div>
+
+    <section class="history-log">
+        <div class="history-header">LAST NIGHT'S MOVES</div>
+        <div id="history-container"></div>
+    </section>
+
+    <table class="price-table">
+        <thead>
+            <tr>
+                <th style="width:50%; text-align:left; padding-left:12px;">PLAYER</th>
+                <th style="width:20%;">TARGET</th>
+                <th style="width:15%;">PROB</th>
+                <th style="width:15%;">PRED</th>
+            </tr>
+        </thead>
+        <tbody id="prediction-list"></tbody>
+    </table>
 </main>
 
 <script>
     const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
-    const CACHE_KEY = 'kopala_price_cache';
-    const WATCHLIST_KEY = 'kopala_watchlist';
-
     let playerData = [], teamMap = {}, currentSort = 'rise', currentView = 'market';
-    let watchlist = JSON.parse(localStorage.getItem(WATCHLIST_KEY) || '[]');
-    let currentPriceData = {};
+    let watchlist = JSON.parse(localStorage.getItem('kopala_watchlist') || '[]');
 
     async function init() {
         try {
             const res = await fetch(PROXY);
             const data = await res.json();
-            
-            // Map Teams
             data.teams.forEach(t => { 
                 teamMap[t.id] = t.short_name;
                 const opt = document.createElement('option');
@@ -144,7 +179,8 @@
                 document.getElementById('teamFilter').appendChild(opt);
             });
 
-            // Handle History & Processing
+            const currentGW = (data.events.find(e => e.is_current) || {id: 1}).id;
+            const decay = Math.max(0.7, 1 - (currentGW * 0.025)); 
             const savedPrices = JSON.parse(localStorage.getItem('kopala_price_tracker') || '{}');
             let history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
             const currentTracker = {};
@@ -152,158 +188,87 @@
             playerData = data.elements.map(p => {
                 currentTracker[p.id] = p.now_cost;
                 if (savedPrices[p.id] && savedPrices[p.id] !== p.now_cost) {
-                    history.unshift({ 
-                        name: p.web_name, 
-                        old: (savedPrices[p.id]/10).toFixed(1), 
-                        new: (p.now_cost/10).toFixed(1), 
-                        type: p.now_cost > savedPrices[p.id] ? 'rise' : 'fall' 
-                    });
+                    history.unshift({ name: p.web_name, old: (savedPrices[p.id]/10).toFixed(1), new: (p.now_cost/10).toFixed(1), type: p.now_cost > savedPrices[p.id] ? 'rise' : 'fall' });
                 }
 
                 let net = (p.transfers_in_event - p.transfers_out_event) * 0.8;
-                let thresh = (7200 + (parseFloat(p.selected_by_percent) * 1500)) * 0.8;
+                let thresh = (7200 + (parseFloat(p.selected_by_percent) * 1500)) * decay;
                 if (p.status !== 'a') thresh *= 3.5;
 
                 let target = (net / thresh) * 100;
                 let prob = Math.min(99, Math.abs(target) / 1.1);
 
                 return {
-                    id: p.id, name: p.web_name, team: p.team, teamCode: p.team_code, 
-                    pos: ["","GKP","DEF","MID","FWD"][p.element_type],
+                    id: p.id, name: p.web_name, team: p.team, teamCode: p.team_code, pos: ["","GKP","DEF","MID","FWD"][p.element_type],
                     price: (p.now_cost/10).toFixed(1), target: parseFloat(target.toFixed(1)), 
-                    prob: Math.round(prob), 
-                    prediction: p.cost_change_event !== 0 ? "DONE" : (target >= 100 ? "TONIGHT" : (target >= 85 ? "SOON" : "-")),
+                    prob: Math.round(prob), prediction: p.cost_change_event !== 0 ? "DONE" : (target >= 100 ? "TONIGHT" : (target >= 85 ? "SOON" : "-")),
                     hasChanged: p.cost_change_event !== 0
                 };
             });
 
             localStorage.setItem('kopala_price_tracker', JSON.stringify(currentTracker));
             localStorage.setItem('kopala_change_history', JSON.stringify(history.slice(0, 3)));
-            
-            renderHistory(); 
-            updateWatchCount();
-            await refreshWatchlistPrices();
-            render();
-            
-            setInterval(updateTimer, 1000);
-            scheduleDailyUpdate();
+            renderHistory(); render(); updateWatchCount(); setInterval(updateTimer, 1000);
         } catch (e) { console.error(e); }
     }
 
-    // --- TAB & SEARCH LOGIC ---
-    function switchView(v) {
-        currentView = v;
-        document.getElementById('tab-market').classList.toggle('active', v === 'market');
-        document.getElementById('tab-watchlist').classList.toggle('active', v === 'watchlist');
-        document.getElementById('view-market').style.display = v === 'market' ? 'block' : 'none';
-        document.getElementById('view-watchlist').style.display = v === 'watchlist' ? 'block' : 'none';
-        render();
-    }
+    function render() {
+        const list = document.getElementById('prediction-list');
+        const search = document.getElementById('playerSearch').value.toLowerCase();
+        const teamF = document.getElementById('teamFilter').value;
+        const smart = document.getElementById('smartFilter').checked;
 
-    function setSort(s) {
-        currentSort = s;
-        document.getElementById('btn-rise').className = 'sort-btn' + (s === 'rise' ? ' active-rise' : '');
-        document.getElementById('btn-fall').className = 'sort-btn' + (s === 'fall' ? ' active-fall' : '');
-        render();
-    }
-
-    // --- WATCHLIST & CACHE ---
-    async function toggleWatch(id, e) {
-        if (e) e.stopPropagation();
-        const idx = watchlist.indexOf(id);
-        if (idx > -1) watchlist.splice(idx, 1); else watchlist.push(id);
-        
-        localStorage.setItem(WATCHLIST_KEY, JSON.stringify(watchlist));
-        updateWatchCount();
-        await refreshWatchlistPrices(true);
-        render();
-    }
-
-    async function refreshWatchlistPrices(force = false) {
-        const now = new Date();
-        let anchor = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 2, 30, 0, 0));
-        if (now < anchor) anchor.setUTCDate(anchor.getUTCDate() - 1);
-
-        const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
-        if (!force && cached && cached.timestamp > anchor.getTime()) {
-            currentPriceData = cached.data;
-            return;
-        }
-
-        // Mapping current player data to a price object for the watchlist
-        const dataMap = {};
-        playerData.forEach(p => {
-            dataMap[p.id] = { price: p.price, change: p.target };
+        let filtered = playerData.filter(p => {
+            return p.name.toLowerCase().includes(search) && (teamF === "all" || String(p.team) === teamF) && (smart ? !p.hasChanged : true) && (currentView === 'watchlist' ? watchlist.includes(p.id) : true);
         });
-        currentPriceData = dataMap;
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data: dataMap }));
-    }
 
-  function render() {
-    if (currentView === 'market') {
-        // ... (Keep your existing Predictions rendering logic here) ...
-    } else {
-        // --- DAILY PRICE CHANGES LOGIC ---
-        const container = document.getElementById('watchlist-container');
-        const countEl = document.getElementById('daily-move-count');
-        const dateEl = document.getElementById('update-date');
-        const statsEl = document.getElementById('move-stats');
+        filtered.sort((a,b) => currentSort === 'rise' ? b.target - a.target : a.target - b.target);
 
-        // Filter for players who actually moved in the last 24h cycle
-        const dailyMovers = playerData.filter(p => p.rawChange !== 0);
-        
-        // Update the Tab Count
-        countEl.innerText = dailyMovers.length;
-
-        // Set the Date Header
-        const today = new Date();
-        dateEl.innerText = `RESULTS: ${today.getUTCDate()}/${today.getUTCMonth() + 1} (02:30 AM UTC)`;
-
-        if (dailyMovers.length === 0) {
-            container.innerHTML = `
-                <div style="padding:50px 20px; text-align:center; color:#888;">
-                    <i class="fa-solid fa-calendar-day" style="font-size:2rem; margin-bottom:10px; opacity:0.3;"></i>
-                    <p style="font-size:0.8rem; font-weight:700;">No price changes recorded for this cycle yet.</p>
-                </div>`;
-            statsEl.innerText = "";
-            return;
-        }
-
-        // Calculate Stats
-        const rises = dailyMovers.filter(p => p.rawChange > 0).length;
-        const falls = dailyMovers.filter(p => p.rawChange < 0).length;
-        statsEl.innerHTML = `<span style="color:#16a34a">▲${rises}</span> <span style="color:#dc2626; margin-left:8px;">▼${falls}</span>`;
-
-        // Sort: Risers first, then biggest falls
-        dailyMovers.sort((a, b) => b.rawChange - a.rawChange);
-
-        container.innerHTML = dailyMovers.map(p => {
-            const isRise = p.rawChange > 0;
+        list.innerHTML = filtered.slice(0, 50).map(p => {
+            const isRise = p.target >= 0;
             return `
-                <div class="history-item" style="display:flex; justify-content:space-between; align-items:center; padding:15px; border-bottom:1px solid #eee; background:white;">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <div style="width:35px;"><img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:100%;"></div>
-                        <div>
-                            <div style="font-weight:900; font-size:0.85rem;">${p.name}</div>
-                            <div style="font-size:0.65rem; color:#666; font-weight:700;">${teamMap[p.team]} • ${p.pos}</div>
+                <tr class="player-row">
+                    <td class="player-cell">
+                        <div class="info-col">
+                            <i class="fa-solid fa-star star-btn ${watchlist.includes(p.id) ? 'active' : ''}" onclick="toggleWatch(${p.id}, event)"></i>
+                            <div class="p-img-box">
+                                <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" class="shirt-img">
+                            </div>
+                            <div class="p-text-box">
+                                <span class="p-name">${p.name}</span>
+                                <span class="p-meta">${p.pos} • ${teamMap[p.team]} • £${p.price}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="background:${isRise ? '#dcfce7' : '#fee2e2'}; color:${isRise ? '#16a34a' : '#dc2626'}; padding:3px 10px; border-radius:6px; font-weight:900; font-size:0.7rem; margin-bottom:3px;">
-                            ${isRise ? '▲ RISE' : '▼ FALL'} £${(Math.abs(p.rawChange)/10).toFixed(1)}
+                    </td>
+                    <td style="text-align:center;">
+                        <span class="target-box" style="color:${isRise?'#16a34a':'#dc2626'}">${Math.abs(p.target).toFixed(1)}%</span>
+                        <div class="progress-wrapper">
+                            <div class="progress-fill" style="width:${Math.min(100, Math.abs(p.target))}%; background:${isRise ? 'var(--livefpl-green)' : 'var(--livefpl-red)'}"></div>
                         </div>
-                        <div style="font-weight:800; font-size:0.75rem;">NEW: £${p.price}</div>
-                    </div>
-                </div>`;
-        }).join('');
+                    </td>
+                    <td style="text-align:center; font-weight:800; font-size:0.75rem; color:var(--text-main)">${p.prob}%</td>
+                    <td style="text-align:center; font-size:0.6rem; font-weight:900; color:${p.prediction==='TONIGHT'?'#e11d48':'#64748b'}">${p.prediction}</td>
+                </tr>
+            `;
+        }).join('') || '<tr><td colspan="4" style="text-align:center; padding:40px; font-size:0.8rem;">No players match filters</td></tr>';
     }
-}
+
     function renderHistory() {
         const history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
         document.getElementById('history-container').innerHTML = history.map(h => `<div class="history-item"><span class="h-name">${h.name}</span> <span class="price-pill ${h.type==='rise'?'pill-rise':'pill-fall'}">£${h.old} → £${h.new}</span></div>`).join('') || '<div style="padding:15px; font-size:0.7rem; color:#999; text-align:center;">No recent price movements.</div>';
     }
 
+    function toggleWatch(id, e) {
+        e.stopPropagation();
+        const idx = watchlist.indexOf(id);
+        if (idx > -1) watchlist.splice(idx, 1); else watchlist.push(id);
+        localStorage.setItem('kopala_watchlist', JSON.stringify(watchlist));
+        updateWatchCount(); render();
+    }
+
     function updateWatchCount() { document.getElementById('watch-count').innerText = watchlist.length; }
+    function switchView(v) { currentView = v; document.getElementById('tab-market').classList.toggle('active', v === 'market'); document.getElementById('tab-watchlist').classList.toggle('active', v === 'watchlist'); render(); }
+    function setSort(s) { currentSort = s; document.getElementById('btn-rise').className = 'sort-btn' + (s === 'rise' ? ' active-rise' : ''); document.getElementById('btn-fall').className = 'sort-btn' + (s === 'fall' ? ' active-fall' : ''); render(); }
 
     function updateTimer() {
         const now = new Date(); let t = new Date(); t.setUTCHours(1, 30, 0, 0);
@@ -311,13 +276,6 @@
         const d = t - now;
         const h = String(Math.floor(d / 3600000)).padStart(2,'0'), m = String(Math.floor((d%3600000)/60000)).padStart(2,'0'), s = String(Math.floor((d%60000)/1000)).padStart(2,'0');
         document.getElementById('price-timer').innerText = `${h}:${m}:${s}`;
-    }
-
-    function scheduleDailyUpdate() {
-        const now = new Date();
-        let target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 2, 30, 0, 0));
-        if (now >= target) target.setUTCDate(target.getUTCDate() + 1);
-        setTimeout(() => { refreshWatchlistPrices(true); render(); scheduleDailyUpdate(); }, target - now);
     }
 
     init();
