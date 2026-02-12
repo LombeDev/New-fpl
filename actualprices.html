@@ -19,40 +19,38 @@
 
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); margin: 0; padding: 0; color: #1a1a1a; }
         
-        /* Banner & Tabs */
-        .timer-banner { background: var(--fpl-purple); color: white; padding: 12px; text-align: center; font-size: 0.7rem; font-weight: 700; }
-        .view-tabs { display: flex; gap: 10px; padding: 15px; background: white; border-bottom: 1px solid #ddd; }
-        .view-tab { flex: 1; padding: 12px; text-align: center; font-size: 0.75rem; font-weight: 800; border-radius: 30px; background: #eee; color: #666; cursor: pointer; transition: 0.3s; }
-        .view-tab.active { background: #ffd7f3; color: var(--fpl-purple); }
+        .timer-banner { background: var(--fpl-purple); color: white; padding: 12px; text-align: center; font-size: 0.7rem; font-weight: 700; position: sticky; top: 0; z-index: 100; }
 
         /* Filter Section (Matching Photo) */
-        .filter-container { background: white; padding: 20px; text-align: center; border-bottom: 1px solid #eee; }
-        .page-title { font-size: 1.3rem; font-weight: 800; color: var(--fpl-purple); display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 5px; }
-        .page-subtitle { font-size: 0.7rem; color: #666; margin-bottom: 20px; line-height: 1.4; }
+        .filter-container { background: white; padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
+        .page-title { font-size: 1.4rem; font-weight: 800; color: var(--fpl-purple); display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .page-subtitle { font-size: 0.75rem; color: #666; margin-bottom: 20px; line-height: 1.5; max-width: 400px; margin-left: auto; margin-right: auto; }
         
-        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 500px; margin: 0 auto 10px; }
-        .filter-box { background: white; border: 1px solid #ccc; border-radius: 15px; padding: 8px 12px; display: flex; align-items: center; }
-        .filter-box label { font-size: 0.7rem; font-weight: 800; margin-right: 8px; color: #333; }
-        .filter-box select, .filter-box input { border: none; outline: none; font-size: 0.8rem; width: 100%; font-family: inherit; }
+        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 500px; margin: 0 auto 12px; }
+        .filter-box { background: white; border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 10px 15px; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .filter-box label { font-size: 0.75rem; font-weight: 800; margin-right: 10px; color: #4b5563; }
+        .filter-box select, .filter-box input { border: none; outline: none; font-size: 0.85rem; width: 100%; font-family: inherit; background: transparent; cursor: pointer; }
 
         /* Table Styling */
-        .table-card { margin: 15px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .section-label { margin: 20px 15px 10px; font-size: 0.8rem; font-weight: 900; color: var(--fpl-purple); text-transform: uppercase; letter-spacing: 1px; }
+        .table-card { margin: 0 15px 30px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
         table { width: 100%; border-collapse: collapse; }
-        thead { background: var(--fpl-dark); color: white; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
-        th { padding: 15px; text-align: left; }
+        thead { background: var(--fpl-dark); color: white; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.8px; }
+        th { padding: 16px 12px; text-align: left; }
         .center { text-align: center; }
 
         /* Date Header Rows */
         .date-header { background: var(--fpl-yellow); border-bottom: 1px solid #e5e7eb; }
-        .date-header td { padding: 12px 15px; font-weight: 800; color: var(--fpl-purple); font-size: 0.8rem; }
-        .latest-pill { background: #ffcc00; color: black; padding: 2px 8px; border-radius: 12px; font-size: 0.6rem; margin-left: 8px; font-weight: 900; }
+        .date-header td { padding: 12px 15px; font-weight: 800; color: var(--fpl-purple); font-size: 0.85rem; }
+        .latest-pill { background: #ffcc00; color: black; padding: 2px 8px; border-radius: 8px; font-size: 0.65rem; margin-left: 10px; font-weight: 900; }
 
-        .player-row { border-bottom: 1px solid #f3f4f6; transition: background 0.2s; }
-        .player-row:hover { background: #fafafa; }
-        .player-name { font-weight: 700; font-size: 0.85rem; }
-        .team-name { color: #6b7280; font-size: 0.8rem; }
-        .price-old { color: #9ca3af; font-size: 0.8rem; }
+        .player-row { border-bottom: 1px solid #f3f4f6; }
+        .player-name { font-weight: 700; font-size: 0.9rem; color: #111827; }
+        .team-name { color: #6b7280; font-size: 0.8rem; font-weight: 500; }
+        .price-old { color: #9ca3af; font-size: 0.85rem; }
         .price-new { font-weight: 800; color: var(--fpl-dark); font-size: 0.9rem; }
+        
+        .prediction-target { font-weight: 800; font-size: 0.85rem; }
     </style>
 </head>
 <body>
@@ -60,71 +58,92 @@
 <main>
     <div class="timer-banner">NEXT FPL PRICE UPDATE IN: <span id="price-timer">00:00:00</span></div>
 
-    <div class="view-tabs">
-        <div class="view-tab active" id="tab-market" onclick="switchView('market')">PREDICTIONS</div>
-        <div class="view-tab" id="tab-watchlist" onclick="switchView('watchlist')">PRICE CHANGES</div>
+    <div class="filter-container">
+        <div class="page-title">
+            <div style="width:5px; height:24px; background:var(--fpl-green); border-radius: 2px;"></div>
+            Price Changes
+        </div>
+        <p class="page-subtitle">Page updates instantly after any price changes occur<br>(usually at 1:30 am GMT)</p>
+        
+        <div class="filter-grid">
+            <div class="filter-box"><label>Direction</label><select id="dirFilter" onchange="renderAll()"><option value="all">...</option><option value="rise">Rise</option><option value="fall">Fall</option></select></div>
+            <div class="filter-box"><label>Team</label><select id="teamFilter" onchange="renderAll()"><option value="all">...</option></select></div>
+        </div>
+        <div class="filter-grid" style="grid-template-columns: 1fr;">
+            <div class="filter-box"><label>Search</label><input type="text" id="mainSearch" placeholder="Player / team / price..." onkeyup="renderAll()"></div>
+        </div>
     </div>
 
-    <div id="view-market" class="content-view">
-        <div style="padding:50px; text-align:center; color:#888;">Predictions Table Content...</div>
+    <div class="section-label">Market History (Last 5 Days)</div>
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40%;">Player</th>
+                    <th style="width: 25%;">Team</th>
+                    <th class="center">Old</th>
+                    <th class="center">New</th>
+                    <th class="center">Dir</th>
+                </tr>
+            </thead>
+            <tbody id="daily-changes-body"></tbody>
+        </table>
     </div>
 
-    <div id="view-watchlist" class="content-view" style="display: none;">
-        <div class="filter-container">
-            <div class="page-title">
-                <div style="width:4px; height:20px; background:var(--fpl-green);"></div>
-                Price Changes
-            </div>
-            <p class="page-subtitle">Check our price change predictor <span style="color:blue; text-decoration:underline;">here</span><br>Page updates instantly after any price changes occur (usually at 1:30 am GMT)</p>
-            
-            <div class="filter-grid">
-                <div class="filter-box"><label>Direction</label><select id="dirFilter"><option value="all">...</option></select></div>
-                <div class="filter-box"><label>Team</label><select id="teamFilterChange"><option value="all">...</option></select></div>
-            </div>
-            <div class="filter-grid" style="grid-template-columns: 1fr;">
-                <div class="filter-box"><label>Search</label><input type="text" id="changeSearch" placeholder="Player / team / price..." onkeyup="renderDailyChanges()"></div>
-            </div>
-        </div>
-
-        <div class="table-card">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 40%;">Player</th>
-                        <th style="width: 25%;">Team</th>
-                        <th class="center">Old</th>
-                        <th class="center">New</th>
-                        <th class="center">Dir</th>
-                    </tr>
-                </thead>
-                <tbody id="daily-changes-body"></tbody>
-            </table>
-        </div>
+    <div class="section-label">Live Predictions</div>
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 50%;">Player</th>
+                    <th class="center">Target %</th>
+                    <th class="center">Price</th>
+                </tr>
+            </thead>
+            <tbody id="predictions-body"></tbody>
+        </table>
     </div>
 </main>
 
 <script>
     const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
-    const HISTORY_KEY = 'kopala_price_history_v2';
-    let playerData = [], teamMap = {}, currentView = 'market';
+    const HISTORY_KEY = 'kopala_price_history_v3';
+    let playerData = [], teamMap = {};
 
     async function init() {
         try {
             const res = await fetch(PROXY);
             const data = await res.json();
-            data.teams.forEach(t => { teamMap[t.id] = t.short_name; });
+            
+            // Map Teams
+            const teamSelect = document.getElementById('teamFilter');
+            data.teams.forEach(t => { 
+                teamMap[t.id] = t.short_name;
+                let opt = document.createElement('option');
+                opt.value = t.id; opt.innerText = t.name;
+                teamSelect.appendChild(opt);
+            });
 
-            playerData = data.elements.map(p => ({
-                id: p.id,
-                name: p.web_name,
-                team: p.team,
-                teamCode: p.team_code,
-                price: (p.now_cost/10).toFixed(1),
-                rawChange: p.cost_change_event 
-            }));
+            // Process Players
+            playerData = data.elements.map(p => {
+                let net = (p.transfers_in_event - p.transfers_out_event) * 0.8;
+                let thresh = (7200 + (parseFloat(p.selected_by_percent) * 1500)) * 0.8;
+                if (p.status !== 'a') thresh *= 3.5;
+                let target = (net / thresh) * 100;
+
+                return {
+                    id: p.id,
+                    name: p.web_name,
+                    team: p.team,
+                    teamCode: p.team_code,
+                    price: (p.now_cost/10).toFixed(1),
+                    target: target.toFixed(1),
+                    rawChange: p.cost_change_event 
+                };
+            });
 
             saveDailyHistory();
-            renderDailyChanges();
+            renderAll();
             setInterval(updateTimer, 1000);
         } catch (e) { console.error("Error loading FPL data:", e); }
     }
@@ -136,15 +155,14 @@
         const todaysMovers = playerData.filter(p => p.rawChange !== 0).map(p => ({
             name: p.name,
             team: teamMap[p.team],
+            teamId: p.team,
             teamCode: p.teamCode,
             old: (parseFloat(p.price) - (p.rawChange/10)).toFixed(1),
             new: p.price,
             dir: p.rawChange > 0 ? 'rise' : 'fall'
         }));
 
-        if (todaysMovers.length > 0) {
-            history[today] = todaysMovers;
-        }
+        if (todaysMovers.length > 0) { history[today] = todaysMovers; }
 
         const dates = Object.keys(history).sort().reverse().slice(0, 5);
         const trimmedHistory = {};
@@ -152,23 +170,31 @@
         localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmedHistory));
     }
 
+    function renderAll() {
+        renderDailyChanges();
+        renderPredictions();
+    }
+
     function renderDailyChanges() {
         const container = document.getElementById('daily-changes-body');
         const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
         const sortedDates = Object.keys(history).sort().reverse();
-        const searchTerm = document.getElementById('changeSearch').value.toLowerCase();
+        const search = document.getElementById('mainSearch').value.toLowerCase();
+        const teamF = document.getElementById('teamFilter').value;
+        const dirF = document.getElementById('dirFilter').value;
         
         let html = '';
-        if (sortedDates.length === 0) {
-            container.innerHTML = '<tr><td colspan="5" style="padding:40px; text-align:center;">No movements recorded yet.</td></tr>';
-            return;
-        }
-
         sortedDates.forEach((date, index) => {
-            html += `<tr class="date-header"><td colspan="5">Price Changes ${date} ${index === 0 ? '<span class="latest-pill">LATEST</span>' : ''}</td></tr>`;
+            let entries = history[date].filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(search);
+                const matchesTeam = teamF === 'all' || String(p.teamId) === teamF;
+                const matchesDir = dirF === 'all' || p.dir === dirF;
+                return matchesSearch && matchesTeam && matchesDir;
+            });
 
-            history[date].forEach(p => {
-                if (p.name.toLowerCase().includes(searchTerm) || p.team.toLowerCase().includes(searchTerm)) {
+            if (entries.length > 0) {
+                html += `<tr class="date-header"><td colspan="5">Price Changes ${date} ${index === 0 ? '<span class="latest-pill">LATEST</span>' : ''}</td></tr>`;
+                entries.forEach(p => {
                     html += `
                     <tr class="player-row">
                         <td style="padding:15px; display:flex; align-items:center; gap:10px;">
@@ -183,19 +209,36 @@
                                style="color: ${p.dir === 'rise' ? 'var(--fpl-green)' : 'var(--fpl-pink)'}; font-size: 1.1rem;"></i>
                         </td>
                     </tr>`;
-                }
-            });
+                });
+            }
         });
-        container.innerHTML = html;
+        container.innerHTML = html || '<tr><td colspan="5" style="padding:30px; text-align:center; color:#888;">No history matches filters.</td></tr>';
     }
 
-    function switchView(v) {
-        currentView = v;
-        document.getElementById('tab-market').classList.toggle('active', v === 'market');
-        document.getElementById('tab-watchlist').classList.toggle('active', v === 'watchlist');
-        document.getElementById('view-market').style.display = v === 'market' ? 'block' : 'none';
-        document.getElementById('view-watchlist').style.display = v === 'watchlist' ? 'block' : 'none';
-        if(v === 'watchlist') renderDailyChanges();
+    function renderPredictions() {
+        const container = document.getElementById('predictions-body');
+        const search = document.getElementById('mainSearch').value.toLowerCase();
+        const teamF = document.getElementById('teamFilter').value;
+        
+        let filtered = playerData.filter(p => {
+            return p.name.toLowerCase().includes(search) && (teamF === 'all' || String(p.team) === teamF);
+        }).sort((a,b) => b.target - a.target).slice(0, 20);
+
+        container.innerHTML = filtered.map(p => `
+            <tr class="player-row">
+                <td style="padding:15px; display:flex; align-items:center; gap:10px;">
+                    <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:25px;">
+                    <div>
+                        <div class="player-name">${p.name}</div>
+                        <div class="team-name">${teamMap[p.team]}</div>
+                    </div>
+                </td>
+                <td class="center prediction-target" style="color:${p.target >= 90 ? 'var(--fpl-green)' : (p.target <= -90 ? 'var(--fpl-pink)' : '#111')}">
+                    ${p.target}%
+                </td>
+                <td class="center price-new">£${p.price}</td>
+            </tr>
+        `).join('');
     }
 
     function updateTimer() {
