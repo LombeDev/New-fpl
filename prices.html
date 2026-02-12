@@ -73,17 +73,17 @@
 
     <div class="view-tabs">
     <div class="view-tab active" id="tab-market" onclick="switchView('market')">PREDICTIONS</div>
-    <div class="view-tab" id="tab-watchlist" onclick="switchView('watchlist')">DAILY CHANGES</div>
+    <div class="view-tab" id="tab-watchlist" onclick="switchView('watchlist')">DAILY CHANGES (<span id="daily-move-count">0</span>)</div>
 </div>
 
 <div id="view-watchlist" class="content-view" style="display: none;">
-    <div id="actual-changes-header" style="padding: 15px; font-size: 0.7rem; font-weight: 800; color: var(--text-sub); background: #f8f9fb;">
-        PRICE MOVEMENTS SINCE 02:30 AM UTC
+    <div id="daily-summary-bar" style="padding: 12px 15px; background: #f0f0f7; display: flex; justify-content: space-between; align-items: center;">
+        <span id="update-date" style="font-size: 0.65rem; font-weight: 800; color: #37003c;">RESULTS: --/--</span>
+        <span id="move-stats" style="font-size: 0.65rem; font-weight: 700;"></span>
     </div>
     <div id="watchlist-container">
         </div>
 </div>
-
     <div id="view-market" class="content-view">
         <div class="control-hub">
             <input type="text" id="playerSearch" placeholder="🔍 Search players..." onkeyup="render()">
@@ -239,91 +239,65 @@
         localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data: dataMap }));
     }
 
-   /**
- * REPLACEMENT RENDER FUNCTION
- */
-function render() {
+  function render() {
     if (currentView === 'market') {
-        const list = document.getElementById('prediction-list');
-        const search = document.getElementById('playerSearch').value.toLowerCase();
-        const teamF = document.getElementById('teamFilter').value;
-        const smart = document.getElementById('smartFilter').checked;
-
-        let filtered = playerData.filter(p => {
-            return p.name.toLowerCase().includes(search) && 
-                   (teamF === "all" || String(p.team) === teamF) && 
-                   (smart ? !p.hasChanged : true);
-        });
-        
-        filtered.sort((a,b) => currentSort === 'rise' ? b.target - a.target : a.target - b.target);
-
-        list.innerHTML = filtered.slice(0, 50).map(p => {
-            const isRise = p.target >= 0;
-            return `
-                <tr class="player-row">
-                    <td class="player-cell">
-                        <div class="info-col">
-                            <i class="fa-solid fa-star star-btn ${watchlist.includes(p.id) ? 'active' : ''}" onclick="toggleWatch(${p.id}, event)"></i>
-                            <div class="p-img-box"><img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" class="shirt-img"></div>
-                            <div class="p-text-box">
-                                <span class="p-name">${p.name}</span>
-                                <span class="p-meta">${p.pos} • ${teamMap[p.team]} • £${p.price}</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td style="text-align:center;">
-                        <span class="target-box" style="color:${isRise?'#16a34a':'#dc2626'}">${Math.abs(p.target).toFixed(1)}%</span>
-                        <div class="progress-wrapper"><div class="progress-fill" style="width:${Math.min(100, Math.abs(p.target))}%; background:${isRise ? 'var(--livefpl-green)' : 'var(--livefpl-red)'}"></div></div>
-                    </td>
-                    <td style="text-align:center; font-weight:800; font-size:0.75rem;">${p.prob}%</td>
-                    <td style="text-align:center; font-size:0.6rem; font-weight:900; color:${p.prediction==='TONIGHT'?'#e11d48':'#64748b'}">${p.prediction}</td>
-                </tr>`;
-        }).join('');
-
+        // ... (Keep your existing Predictions rendering logic here) ...
     } else {
-        // --- NEW ACTUAL DAILY CHANGES VIEW ---
+        // --- DAILY PRICE CHANGES LOGIC ---
         const container = document.getElementById('watchlist-container');
-        
-        // Filter for players whose price ACTUALLY changed in the FPL system today
-        const movers = playerData.filter(p => p.rawChange !== 0);
+        const countEl = document.getElementById('daily-move-count');
+        const dateEl = document.getElementById('update-date');
+        const statsEl = document.getElementById('move-stats');
 
-        if (movers.length === 0) {
+        // Filter for players who actually moved in the last 24h cycle
+        const dailyMovers = playerData.filter(p => p.rawChange !== 0);
+        
+        // Update the Tab Count
+        countEl.innerText = dailyMovers.length;
+
+        // Set the Date Header
+        const today = new Date();
+        dateEl.innerText = `RESULTS: ${today.getUTCDate()}/${today.getUTCMonth() + 1} (02:30 AM UTC)`;
+
+        if (dailyMovers.length === 0) {
             container.innerHTML = `
-                <div style="padding:60px 20px; text-align:center;">
-                    <i class="fa-solid fa-clock-rotate-left" style="font-size: 2rem; color: #ccc; margin-bottom: 15px;"></i>
-                    <div style="font-weight:800; font-size:0.9rem;">No Price Changes Yet</div>
-                    <div style="font-size:0.7rem; color:#888; margin-top:5px;">Check back after the 02:30 AM UTC update.</div>
+                <div style="padding:50px 20px; text-align:center; color:#888;">
+                    <i class="fa-solid fa-calendar-day" style="font-size:2rem; margin-bottom:10px; opacity:0.3;"></i>
+                    <p style="font-size:0.8rem; font-weight:700;">No price changes recorded for this cycle yet.</p>
                 </div>`;
+            statsEl.innerText = "";
             return;
         }
 
-        // Sort by the biggest moves first
-        movers.sort((a, b) => Math.abs(b.rawChange) - Math.abs(a.rawChange));
+        // Calculate Stats
+        const rises = dailyMovers.filter(p => p.rawChange > 0).length;
+        const falls = dailyMovers.filter(p => p.rawChange < 0).length;
+        statsEl.innerHTML = `<span style="color:#16a34a">▲${rises}</span> <span style="color:#dc2626; margin-left:8px;">▼${falls}</span>`;
 
-        container.innerHTML = movers.map(p => {
+        // Sort: Risers first, then biggest falls
+        dailyMovers.sort((a, b) => b.rawChange - a.rawChange);
+
+        container.innerHTML = dailyMovers.map(p => {
             const isRise = p.rawChange > 0;
             return `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:16px; border-bottom:1px solid #f0f0f0; background: white;">
+                <div class="history-item" style="display:flex; justify-content:space-between; align-items:center; padding:15px; border-bottom:1px solid #eee; background:white;">
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <div class="p-img-box" style="width:32px;">
-                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:100%;">
-                        </div>
-                        <div style="display:flex; flex-direction:column;">
-                            <span style="font-weight:800; font-size:0.85rem; color:#1a1a1a;">${p.name}</span>
-                            <span style="font-size:0.65rem; color:#656565; font-weight:600;">${teamMap[p.team]} • ${p.pos}</span>
+                        <div style="width:35px;"><img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:100%;"></div>
+                        <div>
+                            <div style="font-weight:900; font-size:0.85rem;">${p.name}</div>
+                            <div style="font-size:0.65rem; color:#666; font-weight:700;">${teamMap[p.team]} • ${p.pos}</div>
                         </div>
                     </div>
                     <div style="text-align:right;">
-                        <div style="background:${isRise ? '#dcfce7' : '#fee2e2'}; color:${isRise ? '#16a34a' : '#dc2626'}; padding:4px 10px; border-radius:8px; font-weight:900; font-size:0.75rem; display:inline-block; margin-bottom:4px;">
-                            ${isRise ? '▲' : '▼'} £${(Math.abs(p.rawChange)/10).toFixed(1)}
+                        <div style="background:${isRise ? '#dcfce7' : '#fee2e2'}; color:${isRise ? '#16a34a' : '#dc2626'}; padding:3px 10px; border-radius:6px; font-weight:900; font-size:0.7rem; margin-bottom:3px;">
+                            ${isRise ? '▲ RISE' : '▼ FALL'} £${(Math.abs(p.rawChange)/10).toFixed(1)}
                         </div>
-                        <div style="font-size:0.75rem; font-weight:800; color:#1a1a1a;">NEW: £${p.price}</div>
+                        <div style="font-weight:800; font-size:0.75rem;">NEW: £${p.price}</div>
                     </div>
                 </div>`;
         }).join('');
     }
 }
-
     function renderHistory() {
         const history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
         document.getElementById('history-container').innerHTML = history.map(h => `<div class="history-item"><span class="h-name">${h.name}</span> <span class="price-pill ${h.type==='rise'?'pill-rise':'pill-fall'}">£${h.old} → £${h.new}</span></div>`).join('') || '<div style="padding:15px; font-size:0.7rem; color:#999; text-align:center;">No recent price movements.</div>';
