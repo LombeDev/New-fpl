@@ -10,329 +10,305 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Kopala FPL">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
-
     <style>
         :root {
             --dark-navy: #1a1e36;
-            --fpl-green: #00ff85;
             --fpl-purple: #37003c;
-            --up-green: #2ecc71;
-            --down-red: #e74c3c;
+            --up-green: #00ff85; /* Bright FPL Green */
+            --down-red: #ff005a;
             --bg-gray: #f4f7f6;
+            --date-bg: #fff9db;
         }
 
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg-gray);
             margin: 0;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
+            padding: 0;
         }
 
         .container {
-            width: 100%;
+            width: 95%;
             max-width: 700px;
             background: white;
-            padding: 25px;
+            margin: 20px auto;
+            padding: 20px;
             border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            box-sizing: border-box;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
+        header { text-align: center; margin-bottom: 25px; }
         header h1 {
             color: var(--fpl-purple);
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            font-size: 26px;
+            font-weight: 800;
+            margin: 0;
         }
 
-        .up-arrow { color: var(--up-green); }
-
-        /* Filters Section */
+        /* Filter Layout */
         .filters {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 12px;
             margin-bottom: 15px;
         }
 
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
+        .filter-group { display: flex; flex-direction: column; }
         .filter-group label {
-            font-weight: bold;
-            font-size: 14px;
-            color: #666;
+            font-weight: 700;
+            font-size: 13px;
+            color: #444;
+            margin-bottom: 6px;
             margin-left: 10px;
         }
 
         select, input {
-            padding: 12px 15px;
-            border-radius: 25px;
-            border: 1px solid #ddd;
+            padding: 12px 18px;
+            border-radius: 30px;
+            border: 2px solid #f0f0f0;
             background: #fff;
             font-size: 14px;
             outline: none;
-            transition: border 0.2s;
+            font-weight: 600;
+            transition: border-color 0.3s;
         }
 
-        select:focus, input:focus {
-            border-color: var(--fpl-purple);
-        }
+        select:focus, input:focus { border-color: var(--fpl-purple); }
 
-        .search-container {
-            margin-top: 15px;
-            width: 100%;
-        }
-
-        .search-container input {
-            width: 100%;
-            box-sizing: border-box;
-        }
+        .search-container input { width: 100%; box-sizing: border-box; text-align: center; }
 
         .count-text {
             text-align: center;
-            color: #888;
-            font-size: 13px;
+            color: #777;
+            font-size: 14px;
             margin: 15px 0;
+            font-weight: 600;
         }
 
-        /* Table Styling */
+        /* Table UI */
         .table-wrapper {
-            border-radius: 12px;
+            border-radius: 15px;
             overflow: hidden;
             border: 1px solid #eee;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
+        table { width: 100%; border-collapse: collapse; }
+        
         thead th {
             background-color: var(--dark-navy);
             color: white;
-            padding: 15px;
+            padding: 16px;
             text-align: left;
             font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .date-header {
-            background-color: #fff9db;
-            padding: 10px 15px;
-            font-weight: bold;
+            background-color: var(--date-bg);
+            padding: 12px 15px;
+            font-weight: 800;
             font-size: 14px;
-            color: #444;
+            color: #333;
+            border-bottom: 1px solid #eee;
         }
 
         .latest-badge {
             background: #ffcc00;
-            padding: 2px 8px;
-            border-radius: 5px;
+            padding: 3px 8px;
+            border-radius: 6px;
             font-size: 10px;
             margin-left: 10px;
+            color: #000;
         }
 
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f0f0f0;
+        td { 
+            padding: 14px; 
+            border-bottom: 1px solid #f9f9f9; 
             font-size: 14px;
+            color: #333;
         }
 
         .dir-icon {
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 10px;
+            margin: 0 auto;
         }
 
-        .up { background-color: var(--up-green); }
-        .down { background-color: var(--down-red); }
+        .up { background-color: #2ecc71; }
+        .down { background-color: #e74c3c; }
 
-        .loading { text-align: center; padding: 20px; color: #666; }
+        .loading { text-align: center; padding: 50px; color: #888; font-weight: 600; }
     </style>
 </head>
 <body>
     <div id="nav-placeholder"></div>
 
-<div class="container">
-    <header>
-        <h1><span class="up-arrow">▲</span> Price Changes</h1>
-        <p style="font-size: 12px; color: #666;">Page updates instantly after changes (approx. 1:30 AM GMT)</p>
-    </header>
+    <div class="container">
+        <header>
+            <h1><i class="fa-solid fa-circle-up" style="color: #2ecc71"></i> Price Changes</h1>
+            <p style="font-size: 12px; color: #666; margin-top: 8px;">Check our price change predictor <a href="#" style="color: var(--fpl-purple)">here</a></p>
+        </header>
 
-    <div class="filters">
-        <div class="filter-group">
-            <label>Direction</label>
-            <select id="directionFilter">
-                <option value="any">Any</option>
-                <option value="up">Rise</option>
-                <option value="down">Fall</option>
-            </select>
+        <div class="filters">
+            <div class="filter-group">
+                <label>Direction</label>
+                <select id="directionFilter">
+                    <option value="any">Any</option>
+                    <option value="up">Rise</option>
+                    <option value="down">Fall</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Team</label>
+                <select id="teamFilter">
+                    <option value="any">Any Team</option>
+                </select>
+            </div>
         </div>
-        <div class="filter-group">
-            <label>Team</label>
-            <select id="teamFilter">
-                <option value="any">Any Team</option>
-            </select>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Player / team / price...">
+        </div>
+
+        <p class="count-text" id="countLabel">0 shown</p>
+
+        <div class="table-wrapper">
+            <div id="tableContent">
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Fetching live data...</div>
+            </div>
         </div>
     </div>
 
-    <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Search Player / team / price...">
-    </div>
+    <script>
+        let allPlayers = [];
+        const API_URL = "/.netlify/functions/fpl-proxy";
 
-    <p class="count-text" id="countLabel">0 shown</p>
+        async function init() {
+            try {
+                // Initial cached load
+                const cached = sessionStorage.getItem('fpl_cache_v2');
+                if (cached) processData(JSON.parse(cached));
 
-    <div class="table-wrapper">
-        <div id="tableContent">
-            <div class="loading">Fetching live data...</div>
-        </div>
-    </div>
-</div>
-
-<script>
-    let allPlayers = [];
-    // This points to your Netlify Function
-    const API_URL = "/.netlify/functions/fpl-proxy";
-
-    async function init() {
-        try {
-            // 1. Check Browser Cache (Session Storage)
-            const cached = sessionStorage.getItem('fpl_cache');
-            if (cached) {
-                processData(JSON.parse(cached));
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                sessionStorage.setItem('fpl_cache_v2', JSON.stringify(data));
+                processData(data);
+            } catch (err) {
+                console.error("Fetch error:", err);
+                document.getElementById('tableContent').innerHTML = "<div class='loading'>Could not load data. Ensure function is deployed.</div>";
             }
-
-            // 2. Fetch from Netlify Function (which has Edge Caching)
-            const response = await fetch(API_URL);
-            const data = await response.json();
-            
-            // Update cache and UI
-            sessionStorage.setItem('fpl_cache', JSON.stringify(data));
-            processData(data);
-
-        } catch (error) {
-            console.error("Fetch failed:", error);
-            document.getElementById('tableContent').innerHTML = "<div class='loading'>Error loading data. Make sure Netlify Functions are deployed.</div>";
         }
-    }
 
-    function processData(data) {
-        // Map FPL raw data to a clean format
-        allPlayers = data.elements
-            .filter(p => p.cost_change_event !== 0) // Only get players with recent changes
-            .map(p => ({
+        function processData(data) {
+            // Helper to format player arrays
+            const formatSet = (set, isLatest) => (set.changes || []).map(p => ({
                 name: p.web_name,
-                team: data.teams.find(t => t.id === p.team).name,
+                team: (set.teams || data.today.teams).find(t => t.id === p.team).name,
                 old: (p.now_cost - p.cost_change_event) / 10,
                 new: p.now_cost / 10,
-                dir: p.cost_change_event > 0 ? 'up' : 'down'
+                dir: p.cost_change_event > 0 ? 'up' : 'down',
+                date: set.date,
+                isLatest
             }));
 
-        // Populate Teams dropdown dynamically
-        const teamSelect = document.getElementById('teamFilter');
-        const teams = [...new Set(allPlayers.map(p => p.team))].sort();
-        
-        // Clear previous except first
-        teamSelect.innerHTML = '<option value="any">Any Team</option>';
-        teams.forEach(t => {
-            const opt = document.createElement('option');
-            opt.value = t;
-            opt.innerText = t;
-            teamSelect.appendChild(opt);
-        });
+            // Combine Today + Yesterday from the Blob response
+            const today = formatSet(data.today, true);
+            const yesterday = formatSet(data.yesterday, false);
+            
+            allPlayers = [...today, ...yesterday];
 
-        renderTable(allPlayers);
-    }
+            // Dynamic Team Dropdown
+            const teamSelect = document.getElementById('teamFilter');
+            const teams = [...new Set(allPlayers.map(p => p.team))].sort();
+            const currentVal = teamSelect.value;
+            
+            teamSelect.innerHTML = '<option value="any">Any Team</option>';
+            teams.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t; opt.innerText = t;
+                teamSelect.appendChild(opt);
+            });
+            teamSelect.value = currentVal;
 
-    function applyFilters() {
-        const search = document.getElementById('searchInput').value.toLowerCase();
-        const dir = document.getElementById('directionFilter').value;
-        const team = document.getElementById('teamFilter').value;
-
-        const filtered = allPlayers.filter(p => {
-            const matchSearch = p.name.toLowerCase().includes(search) || p.team.toLowerCase().includes(search);
-            const matchDir = dir === 'any' || p.dir === dir;
-            const matchTeam = team === 'any' || p.team === team;
-            return matchSearch && matchDir && matchTeam;
-        });
-
-        renderTable(filtered);
-    }
-
-    function renderTable(data) {
-        const container = document.getElementById('tableContent');
-        const countLabel = document.getElementById('countLabel');
-        countLabel.innerText = `${data.length} shown`;
-
-        if (data.length === 0) {
-            container.innerHTML = "<div class='loading'>No changes found.</div>";
-            return;
+            applyFilters();
         }
 
-        let html = `
-            <table>
-                <thead>
-                    <tr>
-                        <th>Player</th>
-                        <th>Team</th>
-                        <th>Old</th>
-                        <th>New</th>
-                        <th>Dir</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td colspan="5" class="date-header">Price Changes Today <span class="latest-badge">LATEST</span></td></tr>
-        `;
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const dir = document.getElementById('directionFilter').value;
+            const team = document.getElementById('teamFilter').value;
 
-        data.forEach(p => {
-            html += `
-                <tr>
-                    <td><strong>${p.name}</strong></td>
-                    <td>${p.team}</td>
-                    <td>£${p.old.toFixed(1)}</td>
-                    <td>£${p.new.toFixed(1)}</td>
-                    <td><div class="dir-icon ${p.dir}">${p.dir === 'up' ? '▲' : '▼'}</div></td>
-                </tr>
-            `;
-        });
+            const filtered = allPlayers.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(search) || p.team.toLowerCase().includes(search);
+                const matchDir = dir === 'any' || p.dir === dir;
+                const matchTeam = team === 'any' || p.team === team;
+                return matchSearch && matchDir && matchTeam;
+            });
 
-        html += `</tbody></table>`;
-        container.innerHTML = html;
-    }
+            renderTable(filtered);
+        }
 
-    // Event Listeners
-    document.getElementById('searchInput').addEventListener('input', applyFilters);
-    document.getElementById('directionFilter').addEventListener('change', applyFilters);
-    document.getElementById('teamFilter').addEventListener('change', applyFilters);
+        function renderTable(data) {
+            const container = document.getElementById('tableContent');
+            const countLabel = document.getElementById('countLabel');
+            countLabel.innerText = `${data.length} shown`;
 
-    init();
-</script>
+            if (data.length === 0) {
+                container.innerHTML = "<div class='loading'>No price changes found in this view.</div>";
+                return;
+            }
 
+            // Group by Date
+            const dates = [...new Set(data.map(p => p.date))].sort().reverse();
+            let html = `<table><thead><tr><th>Player</th><th>Team</th><th>Old</th><th>New</th><th style="text-align:center">Dir</th></tr></thead><tbody>`;
 
-<script src="nav.js"></script>
-<div id="footer-placeholder"></div>
-<script src="footer.js"></script>
+            dates.forEach(date => {
+                const dayPlayers = data.filter(p => p.date === date);
+                html += `<tr><td colspan="5" class="date-header">Price Changes ${date} ${dayPlayers[0].isLatest ? '<span class="latest-badge">LATEST</span>' : ''}</td></tr>`;
+                
+                dayPlayers.forEach(p => {
+                    html += `
+                        <tr>
+                            <td><strong>${p.name}</strong></td>
+                            <td>${p.team}</td>
+                            <td>£${p.old.toFixed(1)}</td>
+                            <td>£${p.new.toFixed(1)}</td>
+                            <td><div class="dir-icon ${p.dir}">${p.dir === 'up' ? '▲' : '▼'}</div></td>
+                        </tr>
+                    `;
+                });
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        // Listeners
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('directionFilter').addEventListener('change', applyFilters);
+        document.getElementById('teamFilter').addEventListener('change', applyFilters);
+
+        init();
+    </script>
+
+    <script src="nav.js"></script>
+    <div id="footer-placeholder"></div>
+    <script src="footer.js"></script>
 </body>
 </html>
