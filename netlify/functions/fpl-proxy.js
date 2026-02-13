@@ -1,19 +1,32 @@
-const fetch = require('node-fetch');
+const https = require('https');
 
-exports.handler = async function() {
-    try {
-        const response = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
-        const data = await response.json();
+exports.handler = async (event) => {
+    const endpoint = event.queryStringParameters.endpoint;
+    const url = `https://fantasy.premierleague.com/api/${endpoint}`;
 
-        return {
-            statusCode: 200,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                changes: data.elements.filter(p => p.cost_change_event !== 0),
-                teams: data.teams
-            })
-        };
-    } catch (error) {
-        return { statusCode: 500, body: error.toString() };
-    }
-}
+    return new Promise((resolve, reject) => {
+        https.get(url, (res) => {
+            let data = '';
+            res.on('data', (chunk) => data += chunk);
+            res.on('end', () => {
+                resolve({
+                    statusCode: 200,
+                    headers: {
+                        "Access-Control-Allow-Origin": "*",
+                        "Content-Type": "application/json"
+                    },
+                    body: data
+                });
+            });
+        }).on('error', (e) => {
+            resolve({
+                statusCode: 500,
+                body: JSON.stringify({ error: e.message })
+            });
+        });
+    });
+};
+
+
+
+
