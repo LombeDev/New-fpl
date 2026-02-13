@@ -30,8 +30,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-gray);
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
         }
 
         .container {
@@ -79,7 +78,6 @@
             border-color: var(--fpl-purple);
         }
 
-        /* Filter Layout */
         .filters {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -89,48 +87,33 @@
 
         .filter-group { display: flex; flex-direction: column; }
         .filter-group label {
-            font-weight: 700;
-            font-size: 13px;
-            color: #444;
-            margin-bottom: 6px;
-            margin-left: 10px;
+            font-weight: 700; font-size: 12px; color: #444;
+            margin-bottom: 6px; margin-left: 10px;
         }
 
         select, input {
-            padding: 12px 18px;
-            border-radius: 30px;
-            border: 2px solid #f0f0f0;
-            background: #fff;
-            font-size: 14px;
-            outline: none;
-            font-weight: 600;
-            transition: border-color 0.3s;
+            padding: 12px 18px; border-radius: 30px;
+            border: 2px solid #f0f0f0; background: #fff;
+            font-size: 14px; outline: none; font-weight: 600;
         }
 
         select:focus, input:focus { border-color: var(--fpl-purple); }
         .search-container input { width: 100%; box-sizing: border-box; text-align: center; }
-        .count-text { text-align: center; color: #777; font-size: 14px; margin: 15px 0; font-weight: 600; }
+        .count-text { text-align: center; color: #777; font-size: 13px; margin: 15px 0; font-weight: 600; }
 
         .table-wrapper { border-radius: 15px; overflow: hidden; border: 1px solid #eee; }
         table { width: 100%; border-collapse: collapse; }
-        thead th { background-color: var(--dark-navy); color: white; padding: 16px; text-align: left; font-size: 14px; }
+        thead th { background-color: var(--dark-navy); color: white; padding: 16px; text-align: left; font-size: 13px; }
 
         .date-header {
             background-color: var(--date-bg);
-            padding: 12px 15px;
-            font-weight: 800;
-            font-size: 14px;
-            color: #333;
-            border-bottom: 1px solid #eee;
+            padding: 12px 15px; font-weight: 800; font-size: 13px;
+            color: #333; border-bottom: 1px solid #eee;
         }
 
         .latest-badge {
-            background: #ffcc00;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 10px;
-            margin-left: 10px;
-            color: #000;
+            background: #ffcc00; padding: 3px 8px; border-radius: 6px;
+            font-size: 10px; margin-left: 10px; color: #000;
         }
 
         td { padding: 14px; border-bottom: 1px solid #f9f9f9; font-size: 14px; color: #333; }
@@ -151,7 +134,7 @@
     <div class="container">
         <header>
             <h1><i class="fa-solid fa-circle-up" style="color: #2ecc71"></i> Price Changes</h1>
-            <p style="font-size: 12px; color: #666; margin-top: 8px;">Check our price change predictor <a href="#" style="color: var(--fpl-purple)">here</a></p>
+            <p style="font-size: 12px; color: #666; margin-top: 8px;">Real-time FPL market tracker</p>
         </header>
 
         <div class="view-toggle">
@@ -177,14 +160,14 @@
         </div>
 
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search Player / Team / Price...">
+            <input type="text" id="searchInput" placeholder="Search Player or Team...">
         </div>
 
-        <p class="count-text" id="countLabel">0 shown</p>
+        <p class="count-text" id="countLabel">0 players shown</p>
 
         <div class="table-wrapper">
             <div id="tableContent">
-                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Fetching live data...</div>
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading market data...</div>
             </div>
         </div>
     </div>
@@ -196,21 +179,12 @@
 
         async function init() {
             try {
-                // Check cache first
-                const cached = sessionStorage.getItem('fpl_cache_v4');
-                if (cached) processData(JSON.parse(cached));
-
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error("Server error " + response.status);
-                
                 const data = await response.json();
-                sessionStorage.setItem('fpl_cache_v4', JSON.stringify(data));
                 processData(data);
             } catch (err) {
                 console.error("Fetch error:", err);
-                if (allPlayers.length === 0) {
-                    document.getElementById('tableContent').innerHTML = `<div class='loading'>Could not connect to FPL API.</div>`;
-                }
+                document.getElementById('tableContent').innerHTML = `<div class='loading'>Failed to load data. Please refresh.</div>`;
             }
         }
 
@@ -236,7 +210,7 @@
                         new: p.now_cost / 10,
                         dir: p.cost_change_event > 0 ? 'up' : 'down',
                         date: set.date || "Today",
-                        isLatest
+                        isLatest: isLatest
                     };
                 });
             };
@@ -245,9 +219,8 @@
             const yesterday = formatSet(data.yesterday, false);
             allPlayers = [...today, ...yesterday];
 
-            // Setup Team Filter
+            // Update Team Dropdown
             const teamSelect = document.getElementById('teamFilter');
-            const current = teamSelect.value;
             const teams = [...new Set(allPlayers.map(p => p.team))].sort();
             teamSelect.innerHTML = '<option value="any">Any Team</option>';
             teams.forEach(t => {
@@ -255,7 +228,6 @@
                 opt.value = t; opt.innerText = t;
                 teamSelect.appendChild(opt);
             });
-            teamSelect.value = current;
 
             applyFilters();
         }
@@ -265,13 +237,15 @@
             const dir = document.getElementById('directionFilter').value;
             const team = document.getElementById('teamFilter').value;
 
-            // First, filter by the Toggle Mode
+            // Logic to find the absolute latest date present in the data
+            const datesInSystem = [...new Set(allPlayers.map(p => p.date))].sort().reverse();
+            const latestDate = datesInSystem[0];
+
             let filtered = allPlayers;
             if (viewMode === 'today') {
-                filtered = allPlayers.filter(p => p.isLatest);
+                filtered = allPlayers.filter(p => p.date === latestDate);
             }
 
-            // Then, filter by User Inputs
             filtered = filtered.filter(p => {
                 const matchSearch = p.name.toLowerCase().includes(search) || p.team.toLowerCase().includes(search);
                 const matchDir = dir === 'any' || p.dir === dir;
@@ -285,10 +259,10 @@
         function renderTable(data) {
             const container = document.getElementById('tableContent');
             const countLabel = document.getElementById('countLabel');
-            countLabel.innerText = `${data.length} shown`;
+            countLabel.innerText = `${data.length} players shown`;
 
             if (data.length === 0) {
-                container.innerHTML = "<div class='loading'>No price changes found in this view.</div>";
+                container.innerHTML = "<div class='loading'>No price changes found.</div>";
                 return;
             }
 
@@ -314,7 +288,6 @@
             container.innerHTML = html;
         }
 
-        // Listeners
         document.getElementById('searchInput').addEventListener('input', applyFilters);
         document.getElementById('directionFilter').addEventListener('change', applyFilters);
         document.getElementById('teamFilter').addEventListener('change', applyFilters);
