@@ -6,9 +6,6 @@
     <title>Price Change | Kopala FPL</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#37003c">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Kopala FPL">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     
     <link rel="stylesheet" href="style.css">
@@ -24,7 +21,6 @@
             --up-green: #00ff85;
             --down-red: #ff005a;
             --bg-gray: #f4f7f6;
-            --date-bg: #fff9db;
         }
 
         body {
@@ -50,32 +46,6 @@
             font-size: 26px;
             font-weight: 800;
             margin: 0;
-        }
-
-        /* View Toggle Styling */
-        .view-toggle {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .toggle-btn {
-            padding: 10px 20px;
-            border-radius: 25px;
-            border: 2px solid #f0f0f0;
-            background: white;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            color: #666;
-            transition: 0.3s;
-        }
-
-        .toggle-btn.active {
-            background: var(--fpl-purple);
-            color: white;
-            border-color: var(--fpl-purple);
         }
 
         .filters {
@@ -105,26 +75,17 @@
         table { width: 100%; border-collapse: collapse; }
         thead th { background-color: var(--dark-navy); color: white; padding: 16px; text-align: left; font-size: 13px; }
 
-        .date-header {
-            background-color: var(--date-bg);
-            padding: 12px 15px; font-weight: 800; font-size: 13px;
-            color: #333; border-bottom: 1px solid #eee;
-        }
-
-        .latest-badge {
-            background: #ffcc00; padding: 3px 8px; border-radius: 6px;
-            font-size: 10px; margin-left: 10px; color: #000;
-        }
-
         td { padding: 14px; border-bottom: 1px solid #f9f9f9; font-size: 14px; color: #333; }
+        
+        /* Direction Badges */
         .dir-icon {
             width: 24px; height: 24px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             color: white; font-size: 10px; margin: 0 auto;
         }
-
         .up { background-color: #2ecc71; }
         .down { background-color: #e74c3c; }
+
         .loading { text-align: center; padding: 50px; color: #888; font-weight: 600; }
     </style>
 </head>
@@ -134,13 +95,8 @@
     <div class="container">
         <header>
             <h1><i class="fa-solid fa-circle-up" style="color: #2ecc71"></i> Price Changes</h1>
-            <p style="font-size: 12px; color: #666; margin-top: 8px;">Real-time FPL market tracker</p>
+            <p style="font-size: 12px; color: #666; margin-top: 8px;">Latest market updates from FPL</p>
         </header>
-
-        <div class="view-toggle">
-            <button class="toggle-btn active" id="btnToday" onclick="setViewMode('today')">Today Only</button>
-            <button class="toggle-btn" id="btnHistory" onclick="setViewMode('all')">Last 2 Days</button>
-        </div>
 
         <div class="filters">
             <div class="filter-group">
@@ -163,67 +119,55 @@
             <input type="text" id="searchInput" placeholder="Search Player or Team...">
         </div>
 
-        <p class="count-text" id="countLabel">0 players shown</p>
+        <p class="count-text" id="countLabel">0 players updated</p>
 
         <div class="table-wrapper">
             <div id="tableContent">
-                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading market data...</div>
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading latest prices...</div>
             </div>
         </div>
     </div>
 
     <script>
         let allPlayers = [];
-        let viewMode = 'today';
         const API_URL = "/.netlify/functions/fpl-proxy";
 
         async function init() {
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
-                processData(data);
+                
+                // If you updated your function to return {today, yesterday}, 
+                // we just extract 'today' for this 1-day view.
+                const todayData = data.today ? data.today : data; 
+
+                processData(todayData);
             } catch (err) {
                 console.error("Fetch error:", err);
-                document.getElementById('tableContent').innerHTML = `<div class='loading'>Failed to load data. Please refresh.</div>`;
+                document.getElementById('tableContent').innerHTML = `<div class='loading'>Error loading data.</div>`;
             }
         }
 
-        function setViewMode(mode) {
-            viewMode = mode;
-            document.getElementById('btnToday').classList.toggle('active', mode === 'today');
-            document.getElementById('btnHistory').classList.toggle('active', mode === 'all');
-            applyFilters();
-        }
-
         function processData(data) {
-            if (!data || !data.today) return;
+            if (!data || !data.changes) return;
 
-            const formatSet = (set, isLatest) => {
-                const list = (set && set.changes) ? set.changes : [];
-                const teams = data.today.teams || [];
-                return list.map(p => {
-                    const t = teams.find(team => team.id === p.team);
-                    return {
-                        name: p.web_name,
-                        team: t ? t.name : "Unknown",
-                        old: (p.now_cost - p.cost_change_event) / 10,
-                        new: p.now_cost / 10,
-                        dir: p.cost_change_event > 0 ? 'up' : 'down',
-                        date: set.date || "Today",
-                        isLatest: isLatest
-                    };
-                });
-            };
+            const teams = data.teams || [];
+            allPlayers = data.changes.map(p => {
+                const t = teams.find(team => team.id === p.team);
+                return {
+                    name: p.web_name,
+                    team: t ? t.name : "Unknown",
+                    old: (p.now_cost - p.cost_change_event) / 10,
+                    new: p.now_cost / 10,
+                    dir: p.cost_change_event > 0 ? 'up' : 'down'
+                };
+            });
 
-            const today = formatSet(data.today, true);
-            const yesterday = formatSet(data.yesterday, false);
-            allPlayers = [...today, ...yesterday];
-
-            // Update Team Dropdown
+            // Populate Team Filter
             const teamSelect = document.getElementById('teamFilter');
-            const teams = [...new Set(allPlayers.map(p => p.team))].sort();
+            const uniqueTeams = [...new Set(allPlayers.map(p => p.team))].sort();
             teamSelect.innerHTML = '<option value="any">Any Team</option>';
-            teams.forEach(t => {
+            uniqueTeams.forEach(t => {
                 const opt = document.createElement('option');
                 opt.value = t; opt.innerText = t;
                 teamSelect.appendChild(opt);
@@ -237,16 +181,7 @@
             const dir = document.getElementById('directionFilter').value;
             const team = document.getElementById('teamFilter').value;
 
-            // Logic to find the absolute latest date present in the data
-            const datesInSystem = [...new Set(allPlayers.map(p => p.date))].sort().reverse();
-            const latestDate = datesInSystem[0];
-
-            let filtered = allPlayers;
-            if (viewMode === 'today') {
-                filtered = allPlayers.filter(p => p.date === latestDate);
-            }
-
-            filtered = filtered.filter(p => {
+            const filtered = allPlayers.filter(p => {
                 const matchSearch = p.name.toLowerCase().includes(search) || p.team.toLowerCase().includes(search);
                 const matchDir = dir === 'any' || p.dir === dir;
                 const matchTeam = team === 'any' || p.team === team;
@@ -262,26 +197,31 @@
             countLabel.innerText = `${data.length} players shown`;
 
             if (data.length === 0) {
-                container.innerHTML = "<div class='loading'>No price changes found.</div>";
+                container.innerHTML = "<div class='loading'>No price changes found today.</div>";
                 return;
             }
 
-            const dates = [...new Set(data.map(p => p.date))].sort().reverse();
-            let html = `<table><thead><tr><th>Player</th><th>Team</th><th>Old</th><th>New</th><th style="text-align:center">Dir</th></tr></thead><tbody>`;
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Team</th>
+                        <th>Old</th>
+                        <th>New</th>
+                        <th style="text-align:center">Dir</th>
+                    </tr>
+                </thead>
+                <tbody>`;
 
-            dates.forEach(date => {
-                const dayPlayers = data.filter(p => p.date === date);
-                html += `<tr><td colspan="5" class="date-header">${date} ${dayPlayers[0].isLatest ? '<span class="latest-badge">LATEST</span>' : ''}</td></tr>`;
-                dayPlayers.forEach(p => {
-                    html += `
-                        <tr>
-                            <td><strong>${p.name}</strong></td>
-                            <td>${p.team}</td>
-                            <td>£${p.old.toFixed(1)}</td>
-                            <td>£${p.new.toFixed(1)}</td>
-                            <td><div class="dir-icon ${p.dir}">${p.dir === 'up' ? '▲' : '▼'}</div></td>
-                        </tr>`;
-                });
+            data.forEach(p => {
+                html += `
+                    <tr>
+                        <td><strong>${p.name}</strong></td>
+                        <td>${p.team}</td>
+                        <td>£${p.old.toFixed(1)}</td>
+                        <td>£${p.new.toFixed(1)}</td>
+                        <td><div class="dir-icon ${p.dir}">${p.dir === 'up' ? '▲' : '▼'}</div></td>
+                    </tr>`;
             });
 
             html += `</tbody></table>`;
