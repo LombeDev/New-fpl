@@ -1,61 +1,43 @@
-const https = require('https');
-
-exports.handler = async (event) => {
-    const endpoint = event.queryStringParameters.endpoint;
-    const url = `https://fantasy.premierleague.com/api/${endpoint}`;
-
-    return new Promise((resolve, reject) => {
-        https.get(url, (res) => {
-            let data = '';
-            res.on('data', (chunk) => data += chunk);
-            res.on('end', () => {
-                resolve({
-                    statusCode: 200,
-                    headers: {
-                        "Access-Control-Allow-Origin": "*",
-                        "Content-Type": "application/json"
-                    },
-                    body: data
-                });
-            });
-        }).on('error', (e) => {
-            resolve({
-                statusCode: 500,
-                body: JSON.stringify({ error: e.message })
-            });
-        });
-    });
-};
-
-
-
 const fetch = require('node-fetch');
 const { getStore } = require('@netlify/blobs');
 
 exports.handler = async function(event, context) {
     try {
+        // 1. Fetch live data from FPL
         const response = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
+        if (!response.ok) throw new Error(`FPL API responded with status: ${response.status}`);
         
-        // Check if FPL API actually returned JSON
-        if (!response.ok) throw new Error('FPL API unreachable');
         const data = await response.json();
-
-        // Netlify Blobs Logic for 2-day history
-        const store = getStore("fpl_history");
         const todayStr = new Date().toISOString().split('T')[0];
-        
-        // Save today's data
-        await store.setJSON(todayStr, { 
-            date: todayStr, 
-            changes: data.elements.filter(p => p.cost_change_event !== 0),
-            teams: data.teams 
-        });
+        const todayChanges = data.elements.filter(p => p.cost_change_event !== 0);
 
-        // Get yesterday's data
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
-        const yesterdayData = await store.getJSON(yesterdayStr) || { changes: [], date: yesterdayStr };
+        // 2. Access Blob Store
+        // Note: Blobs require a site to be linked to Netlify. 
+        // If this part fails, we still want the 'Today' data to work.
+        let yesterdayData = { changes: [], date: "" };
+        
+        try {
+            const store = getStore("fpl_history");
+            
+            // Save today's data for future "yesterday" lookups
+            await store.setJSON(todayStr, { 
+                date: todayStr, 
+                changes: todayChanges,
+                teams: data.teams 
+            });
+
+            // Try to get yesterday's date
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            
+            const savedYesterday = await store.getJSON(yesterdayStr);
+            if (savedYesterday) yesterdayData = savedYesterday;
+
+        } catch (blobError) {
+            console.error("Blob Store Error (Expected on first run):", blobError);
+            // We don't throw here; we want the function to continue even if Blobs fail
+        }
 
         return {
             statusCode: 200,
@@ -66,19 +48,19 @@ exports.handler = async function(event, context) {
             body: JSON.stringify({
                 today: { 
                     date: todayStr, 
-                    changes: data.elements.filter(p => p.cost_change_event !== 0),
+                    changes: todayChanges,
                     teams: data.teams 
                 },
                 yesterday: yesterdayData
             })
         };
+
     } catch (error) {
+        console.error("Function Crash:", error);
         return {
             statusCode: 500,
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ error: error.message, message: "Ensure your Netlify Function is correctly configured." })
+            body: JSON.stringify({ error: "Internal Server Error", details: error.message })
         };
     }
 }
-
-
