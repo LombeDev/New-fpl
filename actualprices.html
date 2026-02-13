@@ -146,42 +146,16 @@
         } catch (e) { console.error("Error loading FPL data:", e); }
     }
 
-    function saveDailyHistory() {
-        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
-        const today = new Date().toISOString().split('T')[0];
-
-        const todaysMovers = playerData.filter(p => p.rawChange !== 0).map(p => ({
-            name: p.name,
-            team: teamMap[p.team],
-            teamId: p.team,
-            teamCode: p.teamCode,
-            old: (parseFloat(p.price) - (p.rawChange/10)).toFixed(1),
-            new: p.price,
-            dir: p.rawChange > 0 ? 'rise' : 'fall'
-        }));
-
-        if (todaysMovers.length > 0) { history[today] = todaysMovers; }
-
-        const dates = Object.keys(history).sort().reverse().slice(0, 5);
-        const trimmedHistory = {};
-        dates.forEach(d => trimmedHistory[d] = history[d]);
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmedHistory));
-    }
-
-    function renderAll() {
-        renderDailyChanges();
-        renderPredictions();
-    }
-
-    function saveDailyHistory() {
+    
+    // 1. IMPROVED SAVE LOGIC: Ensures only NEW price points are saved
+function saveDailyHistory() {
     let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
-    // We'll use a secondary key to track which specific changes we've already logged
     const LOGGED_CHANGES_KEY = 'kopala_logged_changes';
     let loggedChanges = JSON.parse(localStorage.getItem(LOGGED_CHANGES_KEY) || '[]');
     
-    const today = new Date().toISOString().split('T')[0];
+    // Use local date string (YYYY-MM-DD)
+    const today = new Date().toLocaleDateString('en-CA'); 
 
-    // 1. Identify players with changes in the current API response
     const todaysMovers = playerData.filter(p => p.rawChange !== 0).map(p => ({
         id: p.id,
         name: p.name,
@@ -193,61 +167,83 @@
         dir: p.rawChange > 0 ? 'rise' : 'fall'
     }));
 
-    // 2. Filter out movers we have already recorded in the past
-    // A change is unique if the "Player ID" + "New Price" combo is new
-    const newMoversForToday = todaysMovers.filter(mover => {
-        const changeId = `${mover.id}_${mover.new}`;
-        if (loggedChanges.includes(changeId)) {
-            return false; // Already recorded this price change previously
-        }
+    // Check if this specific price change was already logged
+    const newMovers = todaysMovers.filter(mover => {
+        const changeId = `${mover.id}_${mover.new}`; 
+        if (loggedChanges.includes(changeId)) return false;
         loggedChanges.push(changeId);
         return true;
     });
 
-    // 3. Only update the history object if there are actually NEW changes today
-    if (newMoversForToday.length > 0) {
-        // If we already have entries for today, merge them; otherwise create new array
-        history[today] = [...(history[today] || []), ...newMoversForToday];
+    if (newMovers.length > 0) {
+        // Append new movers to today's date (handles multiple visits per day)
+        history[today] = [...(history[today] || []), ...newMovers];
         
-        // Keep loggedChanges list from growing infinitely (keep last 200 changes)
-        if (loggedChanges.length > 200) loggedChanges = loggedChanges.slice(-200);
+        // Limit the "already seen" list to avoid bloat
+        if (loggedChanges.length > 300) loggedChanges = loggedChanges.slice(-300);
         
-        // Save back to localStorage
         localStorage.setItem(LOGGED_CHANGES_KEY, JSON.stringify(loggedChanges));
     }
 
-    // 4. Standard cleanup: keep only last 5 days and save
-    const dates = Object.keys(history).sort().reverse().slice(0, 5);
+    // Keep only the last 5 days of history
+    const sortedDates = Object.keys(history).sort().reverse().slice(0, 5);
     const trimmedHistory = {};
-    dates.forEach(d => trimmedHistory[d] = history[d]);
+    sortedDates.forEach(d => trimmedHistory[d] = history[d]);
     localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmedHistory));
 }
-    function renderPredictions() {
-        const container = document.getElementById('predictions-body');
-        const search = document.getElementById('mainSearch').value.toLowerCase();
-        const teamF = document.getElementById('teamFilter').value;
-        
-        let filtered = playerData.filter(p => {
-            return p.name.toLowerCase().includes(search) && (teamF === 'all' || String(p.team) === teamF);
-        }).sort((a,b) => b.target - a.target).slice(0, 20);
 
-        container.innerHTML = filtered.map(p => `
-            <tr class="player-row">
-                <td style="padding:15px; display:flex; align-items:center; gap:10px;">
-                    <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:25px;">
-                    <div>
-                        <div class="player-name">${p.name}</div>
-                        <div class="team-name">${teamMap[p.team]}</div>
-                    </div>
-                </td>
-                <td class="center prediction-target" style="color:${p.target >= 90 ? 'var(--fpl-green)' : (p.target <= -90 ? 'var(--fpl-pink)' : '#111')}">
-                    ${p.target}%
-                </td>
-                <td class="center price-new">£${p.price}</td>
-            </tr>
-        `).join('');
-    }
+// 2. IMPROVED RENDER LOGIC: Forces latest date to the top
+function renderDailyChanges() {
+    const container = document.getElementById('daily-changes-body');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+    const search = document.getElementById('mainSearch').value.toLowerCase();
+    const teamF = document.getElementById('teamFilter').value;
+    const dirF = document.getElementById('dirFilter').value;
 
+    // Get dates and sort them newest -> oldest
+    const sortedDates = Object.keys(history).sort((a, b) => new Date(b) - new Date(a));
+    
+    let html = '';
+    sortedDates.forEach((date, index) => {
+        let entries = history[date].filter(p => {
+            const matchesSearch = p.name.toLowerCase().includes(search);
+            const matchesTeam = teamF === 'all' || String(p.teamId) === teamF;
+            const matchesDir = dirF === 'all' || p.dir === dirF;
+            return matchesSearch && matchesTeam && matchesDir;
+        });
+
+        if (entries.length > 0) {
+            // Index 0 will always be the most recent date found in storage
+            const isLatest = index === 0; 
+            html += `
+                <tr class="date-header">
+                    <td colspan="5">
+                        ${date} 
+                        ${isLatest ? '<span class="latest-pill">LATEST UPDATE</span>' : ''}
+                    </td>
+                </tr>`;
+
+            entries.forEach(p => {
+                html += `
+                <tr class="player-row">
+                    <td style="padding:15px; display:flex; align-items:center; gap:10px;">
+                        <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:25px;">
+                        <span class="player-name">${p.name}</span>
+                    </td>
+                    <td class="team-name">${p.team}</td>
+                    <td class="center price-old">£${p.old}</td>
+                    <td class="center price-new">£${p.new}</td>
+                    <td class="center">
+                        <i class="fa-solid ${p.dir === 'rise' ? 'fa-circle-up' : 'fa-circle-down'}" 
+                           style="color: ${p.dir === 'rise' ? 'var(--fpl-green)' : 'var(--fpl-pink)'}; font-size: 1.1rem;"></i>
+                    </td>
+                </tr>`;
+            });
+        }
+    });
+
+    container.innerHTML = html || '<tr><td colspan="5" style="padding:30px; text-align:center; color:#888;">No recent price changes found.</td></tr>';
+}
     function updateTimer() {
         const now = new Date();
         let t = new Date();
