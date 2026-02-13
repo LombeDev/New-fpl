@@ -18,190 +18,128 @@
 
     <style>
 
+  
         :root {
-            --fpl-purple: #37003c; --fpl-green: #00ff85; --fpl-pink: #ff005a;
-            --fpl-dark: #111827; --fpl-yellow: #fff9c4; --bg-light: #f0f2f5;
+            --fpl-purple: #37003c;
+            --fpl-cyan: #00ffdf; /* Match your image color */
+            --fpl-green: #00ff85;
+            --fpl-pink: #ff005a;
         }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); margin: 0; color: #1a1a1a; }
-        .timer-banner { background: var(--fpl-purple); color: white; padding: 12px; text-align: center; font-size: 0.7rem; font-weight: 700; position: sticky; top: 0; z-index: 100; }
-        .filter-container { background: white; padding: 25px 20px; text-align: center; border-bottom: 1px solid #eee; }
-        .page-title { font-size: 1.4rem; font-weight: 800; color: var(--fpl-purple); display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 500px; margin: 0 auto 12px; }
-        .filter-box { background: white; border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 10px 15px; display: flex; align-items: center; }
-        .filter-box label { font-size: 0.75rem; font-weight: 800; margin-right: 10px; color: #4b5563; }
-        .filter-box select, .filter-box input { border: none; outline: none; font-size: 0.85rem; width: 100%; background: transparent; }
-        .section-label { margin: 20px 15px 10px; font-size: 0.8rem; font-weight: 900; color: var(--fpl-purple); text-transform: uppercase; }
-        .table-card { margin: 0 15px 30px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        table { width: 100%; border-collapse: collapse; }
-        thead { background: var(--fpl-dark); color: white; text-transform: uppercase; font-size: 0.7rem; }
-        th { padding: 16px 12px; text-align: left; }
+        body { font-family: 'Inter', sans-serif; background-color: #fff; margin: 0; padding: 10px; }
+        
+        /* The Date Banner */
+        .date-banner {
+            background: var(--fpl-cyan);
+            color: #000;
+            text-align: center;
+            padding: 12px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        /* Two-Column Grid */
+        .change-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+            background-color: #eee; /* Thin divider line */
+            border: 1px solid #eee;
+        }
+
+        .column { background: #fff; }
+
+        /* Table Styling */
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { text-align: left; padding: 10px; color: #666; font-weight: 700; border-bottom: 1px solid #f0f0f0; }
+        td { padding: 12px 10px; font-weight: 700; }
+        
         .center { text-align: center; }
-        .date-header { background: var(--fpl-yellow); border-bottom: 1px solid #e5e7eb; }
-        .date-header td { padding: 12px 15px; font-weight: 800; color: var(--fpl-purple); font-size: 0.85rem; }
-        .latest-pill { background: #ffcc00; color: black; padding: 2px 8px; border-radius: 8px; font-size: 0.65rem; margin-left: 10px; }
-        .player-row { border-bottom: 1px solid #f3f4f6; }
-        .player-name { font-weight: 700; font-size: 0.9rem; }
+        .empty-msg { padding: 20px; font-weight: 800; color: #000; font-size: 1rem; }
+
+        /* Icon Styling */
+        .icon-up { color: var(--fpl-green); margin-right: 8px; font-size: 1.1rem; }
+        .icon-down { color: var(--fpl-pink); margin-right: 8px; font-size: 1.1rem; }
     </style>
 </head>
 <body>
 <div id="nav-placeholder"></div>
-<main>
-    <div class="timer-banner">NEXT FPL PRICE UPDATE IN: <span id="price-timer">00:00:00</span></div>
-
-    <div class="filter-container">
-        <div class="page-title">
-            <div style="width:5px; height:24px; background:var(--fpl-green); border-radius: 2px;"></div>
-            Daily Price Changes
-        </div>
-        <p style="font-size: 0.75rem; color: #666;">Showing the latest market movements</p>
-        
-        <div class="filter-grid">
-            <div class="filter-box"><label>Dir</label><select id="dirFilter" onchange="renderAll()"><option value="all">All</option><option value="rise">Rise</option><option value="fall">Fall</option></select></div>
-            <div class="filter-box"><label>Team</label><select id="teamFilter" onchange="renderAll()"><option value="all">All</option></select></div>
-        </div>
-        <div class="filter-grid" style="grid-template-columns: 1fr;">
-            <div class="filter-box"><label>Search</label><input type="text" id="mainSearch" placeholder="Search player..." onkeyup="renderAll()"></div>
-        </div>
+<div id="price-changes-container">
     </div>
-
-    <div class="section-label">Current Update</div>
-    <div class="table-card">
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 45%;">Player</th>
-                    <th class="center">Old</th>
-                    <th class="center">New</th>
-                    <th class="center">Dir</th>
-                </tr>
-            </thead>
-            <tbody id="daily-changes-body"></tbody>
-        </table>
-    </div>
-</main>
 
 <script>
     const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
-    const HISTORY_KEY = 'kopala_price_history_v3';
-    const LOGGED_CHANGES_KEY = 'kopala_logged_changes';
-    let playerData = [], teamMap = {};
+    let teamMap = {};
 
     async function init() {
         try {
             const res = await fetch(PROXY);
             const data = await res.json();
             
-            data.teams.forEach(t => { 
-                teamMap[t.id] = t.short_name;
-                let opt = document.createElement('option');
-                opt.value = t.id; opt.innerText = t.name;
-                document.getElementById('teamFilter').appendChild(opt);
-            });
+            data.teams.forEach(t => teamMap[t.id] = t.short_name);
 
-            playerData = data.elements.map(p => ({
-                id: p.id,
-                name: p.web_name,
-                team: p.team,
-                teamCode: p.team_code,
-                price: (p.now_cost/10).toFixed(1),
-                rawChange: p.cost_change_event 
-            }));
+            // Filter for players with price changes in the current 24h event
+            const movers = data.elements
+                .filter(p => p.cost_change_event !== 0)
+                .map(p => ({
+                    name: p.web_name,
+                    team: teamMap[p.team],
+                    cost: (p.now_cost / 10).toFixed(1),
+                    dir: p.cost_change_event > 0 ? 'up' : 'down'
+                }));
 
-            saveDailyHistory();
-            renderAll();
-            setInterval(updateTimer, 1000);
-        } catch (e) { console.error("Error:", e); }
+            renderUI(movers);
+        } catch (e) { console.error("Error loading data", e); }
     }
 
-    function saveDailyHistory() {
-        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
-        let loggedChanges = JSON.parse(localStorage.getItem(LOGGED_CHANGES_KEY) || '[]');
-        const today = new Date().toLocaleDateString('en-CA'); 
-
-        // 1. Get current movers from API
-        const currentMovers = playerData.filter(p => p.rawChange !== 0).map(p => ({
-            id: p.id,
-            name: p.name,
-            teamId: p.team,
-            teamCode: p.teamCode,
-            old: (parseFloat(p.price) - (p.rawChange/10)).toFixed(1),
-            new: p.price,
-            dir: p.rawChange > 0 ? 'rise' : 'fall'
-        }));
-
-        // 2. Only add players if this specific price point hasn't been logged yet
-        const newUniqueMovers = currentMovers.filter(mover => {
-            const changeId = `${mover.id}_${mover.new}`;
-            if (loggedChanges.includes(changeId)) return false;
-            loggedChanges.push(changeId);
-            return true;
+    function renderUI(movers) {
+        const container = document.getElementById('price-changes-container');
+        const today = new Date().toLocaleDateString('en-GB', { 
+            weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' 
         });
 
-        if (newUniqueMovers.length > 0) {
-            // Add to today's list
-            history[today] = [...(history[today] || []), ...newUniqueMovers];
-            localStorage.setItem(LOGGED_CHANGES_KEY, JSON.stringify(loggedChanges.slice(-500)));
-        }
+        const risers = movers.filter(m => m.dir === 'up');
+        const fallers = movers.filter(m => m.dir === 'down');
 
-        // 3. RESET LOGIC: Keep ONLY the most recent date
-        const sortedDates = Object.keys(history).sort((a,b) => new Date(b) - new Date(a)).slice(0, 1);
-        const singleDayHistory = {};
-        if(sortedDates.length > 0) singleDayHistory[sortedDates[0]] = history[sortedDates[0]];
-        
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(singleDayHistory));
-    }
+        let html = `
+            <div class="date-banner">${today}</div>
+            <div class="change-grid">
+                <div class="column">
+                    <table>
+                        <thead><tr><th>Name</th><th>Team</th><th class="center">Cost</th></tr></thead>
+                        <tbody>
+                            ${risers.length > 0 ? risers.map(p => `
+                                <tr>
+                                    <td><i class="fa-solid fa-circle-up icon-up"></i>${p.name}</td>
+                                    <td>${p.team}</td>
+                                    <td class="center">${p.cost}</td>
+                                </tr>`).join('') : '<tr><td colspan="3" class="empty-msg">No price rises</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
 
-    function renderAll() {
-        const container = document.getElementById('daily-changes-body');
-        const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
-        const search = document.getElementById('mainSearch').value.toLowerCase();
-        const teamF = document.getElementById('teamFilter').value;
-        const dirF = document.getElementById('dirFilter').value;
-
-        const sortedDates = Object.keys(history).sort((a,b) => new Date(b) - new Date(a));
-        if (sortedDates.length === 0) {
-            container.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">No changes yet for this cycle.</td></tr>';
-            return;
-        }
-
-        const latestDate = sortedDates[0];
-        let entries = history[latestDate].filter(p => {
-            return p.name.toLowerCase().includes(search) && 
-                   (teamF === 'all' || String(p.teamId) === teamF) &&
-                   (dirF === 'all' || p.dir === dirF);
-        });
-
-        let html = `<tr class="date-header"><td colspan="4">${latestDate} <span class="latest-pill">LATEST</span></td></tr>`;
-        entries.forEach(p => {
-            html += `
-            <tr class="player-row">
-                <td style="padding:15px; display:flex; align-items:center; gap:10px;">
-                    <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:25px;">
-                    <span class="player-name">${p.name}</span>
-                </td>
-                <td class="center" style="color:#999">£${p.old}</td>
-                <td class="center" style="font-weight:800">£${p.new}</td>
-                <td class="center"><i class="fa-solid ${p.dir === 'rise' ? 'fa-circle-up' : 'fa-circle-down'}" style="color:${p.dir === 'rise' ? 'var(--fpl-green)' : 'var(--fpl-pink)'};"></i></td>
-            </tr>`;
-        });
+                <div class="column">
+                    <table>
+                        <thead><tr><th>Name</th><th>Team</th><th class="center">Cost</th></tr></thead>
+                        <tbody>
+                            ${fallers.length > 0 ? fallers.map(p => `
+                                <tr>
+                                    <td><i class="fa-solid fa-circle-down icon-down"></i>${p.name}</td>
+                                    <td>${p.team}</td>
+                                    <td class="center">${p.cost}</td>
+                                </tr>`).join('') : '<tr><td colspan="3" class="empty-msg">No price falls</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
 
         container.innerHTML = html;
     }
 
-    function updateTimer() {
-        const now = new Date();
-        let t = new Date();
-        t.setUTCHours(1, 30, 0, 0);
-        if (now > t) t.setUTCDate(t.getUTCDate() + 1);
-        const d = t - now;
-        const h = String(Math.floor(d / 3600000)).padStart(2,'0'), 
-              m = String(Math.floor((d%3600000)/60000)).padStart(2,'0'), 
-              s = String(Math.floor((d%60000)/1000)).padStart(2,'0');
-        document.getElementById('price-timer').innerText = `${h}:${m}:${s}`;
-    }
-
     init();
 </script>
+
 
 
 <script src="nav.js"></script>
