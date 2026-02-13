@@ -13,10 +13,8 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="footer.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-
 
     <style>
         :root {
@@ -74,7 +72,7 @@
         </div>
     </div>
 
-    <div class="section-label">Market History (Last 5 Days)</div>
+    <div class="section-label">Market Updates (Current)</div>
     <div class="table-card">
         <table>
             <thead>
@@ -124,82 +122,84 @@
         } catch (e) { console.error("Error:", e); }
     }
 
-function saveDailyHistory() {
-    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
-    let loggedChanges = JSON.parse(localStorage.getItem(LOGGED_CHANGES_KEY) || '[]');
-    const today = new Date().toLocaleDateString('en-CA'); 
+    function saveDailyHistory() {
+        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+        let loggedChanges = JSON.parse(localStorage.getItem(LOGGED_CHANGES_KEY) || '[]');
+        const today = new Date().toLocaleDateString('en-CA'); 
 
-    const newMovers = playerData.filter(p => p.rawChange !== 0).map(p => ({
-        id: p.id,
-        name: p.name,
-        team: teamMap[p.team],
-        teamId: p.team,
-        teamCode: p.teamCode,
-        old: (parseFloat(p.price) - (p.rawChange/10)).toFixed(1),
-        new: p.price,
-        dir: p.rawChange > 0 ? 'rise' : 'fall'
-    })).filter(mover => {
-        const changeId = `${mover.id}_${mover.new}`;
-        if (loggedChanges.includes(changeId)) return false;
-        loggedChanges.push(changeId);
-        return true;
-    });
-
-    if (newMovers.length > 0) {
-        history[today] = [...(history[today] || []), ...newMovers];
-        if (loggedChanges.length > 300) loggedChanges = loggedChanges.slice(-300);
-        localStorage.setItem(LOGGED_CHANGES_KEY, JSON.stringify(loggedChanges));
-    }
-
-    // CHANGE HERE: Get only the single most recent date
-    const sortedDates = Object.keys(history).sort((a,b) => new Date(b) - new Date(a)).slice(0, 1);
-    const trimmed = {};
-    sortedDates.forEach(d => trimmed[d] = history[d]);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
-}
-
-function renderDailyChanges() {
-    const container = document.getElementById('daily-changes-body');
-    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
-    const search = document.getElementById('mainSearch').value.toLowerCase();
-    const teamF = document.getElementById('teamFilter').value;
-    const dirF = document.getElementById('dirFilter').value;
-
-    // Sort and take only the first (latest) date
-    const sortedDates = Object.keys(history).sort((a, b) => new Date(b) - new Date(a));
-    const latestDate = sortedDates[0]; 
-    
-    let html = '';
-
-    if (latestDate && history[latestDate]) {
-        let entries = history[latestDate].filter(p => {
-            return p.name.toLowerCase().includes(search) && 
-                   (teamF === 'all' || String(p.teamId) === teamF) &&
-                   (dirF === 'all' || p.dir === dirF);
+        const newMovers = playerData.filter(p => p.rawChange !== 0).map(p => ({
+            id: p.id,
+            name: p.name,
+            team: teamMap[p.team],
+            teamId: p.team,
+            teamCode: p.teamCode,
+            old: (parseFloat(p.price) - (p.rawChange/10)).toFixed(1),
+            new: p.price,
+            dir: p.rawChange > 0 ? 'rise' : 'fall'
+        })).filter(mover => {
+            const changeId = `${mover.id}_${mover.new}`;
+            if (loggedChanges.includes(changeId)) return false;
+            loggedChanges.push(changeId);
+            return true;
         });
 
-        if (entries.length > 0) {
-            html += `<tr class="date-header"><td colspan="5">${latestDate} <span class="latest-pill">LATEST UPDATE</span></td></tr>`;
-            entries.forEach(p => {
-                html += `
-                <tr class="player-row">
-                    <td style="padding:15px; display:flex; align-items:center; gap:10px;">
-                        <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:25px;">
-                        <span class="player-name">${p.name}</span>
-                    </td>
-                    <td class="team-name">${p.team}</td>
-                    <td class="center price-old">£${p.old}</td>
-                    <td class="center price-new">£${p.new}</td>
-                    <td class="center"><i class="fa-solid ${p.dir === 'rise' ? 'fa-circle-up' : 'fa-circle-down'}" style="color:${p.dir === 'rise' ? 'var(--fpl-green)' : 'var(--fpl-pink)'};"></i></td>
-                </tr>`;
-            });
+        if (newMovers.length > 0) {
+            history[today] = [...(history[today] || []), ...newMovers];
+            if (loggedChanges.length > 500) loggedChanges = loggedChanges.slice(-500);
+            localStorage.setItem(LOGGED_CHANGES_KEY, JSON.stringify(loggedChanges));
         }
+
+        // Keep only the single latest date
+        const sortedDates = Object.keys(history).sort((a,b) => new Date(b) - new Date(a)).slice(0, 1);
+        const trimmed = {};
+        sortedDates.forEach(d => trimmed[d] = history[d]);
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
     }
 
-    container.innerHTML = html || '<tr><td colspan="5" style="text-align:center; padding:20px;">No price changes for today yet.</td></tr>';
-}
+    function renderAll() {
+        renderDailyChanges();
+    }
 
-    
+    function renderDailyChanges() {
+        const container = document.getElementById('daily-changes-body');
+        const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+        const search = document.getElementById('mainSearch').value.toLowerCase();
+        const teamF = document.getElementById('teamFilter').value;
+        const dirF = document.getElementById('dirFilter').value;
+
+        const sortedDates = Object.keys(history).sort((a, b) => new Date(b) - new Date(a));
+        const latestDate = sortedDates[0]; 
+        
+        let html = '';
+
+        if (latestDate && history[latestDate]) {
+            let entries = history[latestDate].filter(p => {
+                return p.name.toLowerCase().includes(search) && 
+                       (teamF === 'all' || String(p.teamId) === teamF) &&
+                       (dirF === 'all' || p.dir === dirF);
+            });
+
+            if (entries.length > 0) {
+                html += `<tr class="date-header"><td colspan="5">${latestDate} <span class="latest-pill">LATEST</span></td></tr>`;
+                entries.forEach(p => {
+                    html += `
+                    <tr class="player-row">
+                        <td style="padding:15px; display:flex; align-items:center; gap:10px;">
+                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" style="width:25px;">
+                            <span class="player-name">${p.name}</span>
+                        </td>
+                        <td class="team-name">${p.team}</td>
+                        <td class="center price-old">£${p.old}</td>
+                        <td class="center price-new">£${p.new}</td>
+                        <td class="center"><i class="fa-solid ${p.dir === 'rise' ? 'fa-circle-up' : 'fa-circle-down'}" style="color:${p.dir === 'rise' ? 'var(--fpl-green)' : 'var(--fpl-pink)'};"></i></td>
+                    </tr>`;
+                });
+            }
+        }
+
+        container.innerHTML = html || '<tr><td colspan="5" style="text-align:center; padding:20px;">No price changes recorded yet today.</td></tr>';
+    }
+
     function updateTimer() {
         const now = new Date();
         let t = new Date();
@@ -215,10 +215,8 @@ function renderDailyChanges() {
     init();
 </script>
 
-
-
-    <script src="nav.js"></script>
-    <div id="footer-placeholder"></div>
+<script src="nav.js"></script>
+<div id="footer-placeholder"></div>
 <script src="footer.js"></script>
 </body>
 </html>
