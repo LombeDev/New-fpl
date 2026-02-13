@@ -2,389 +2,417 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Price Change | Kopala FPL</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#37003c">
+    <meta name="theme-color" content="#ffffff">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="footer.css">
 
     <style>
         :root {
-            --fpl-purple: #37003c;
-            --fpl-accent: #00ff85;
+            --primary: #37003c;
+            --accent: #00ff85;
             --danger: #ff2882;
-            --glass: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.6);
-            --surface: #f3f5f9;
-            --shadow-sm: 0 4px 15px rgba(0,0,0,0.03);
-            --shadow-md: 0 8px 30px rgba(55, 0, 60, 0.08);
+            --glass: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --surface: #ffffff;
+            --text-main: #1a1a1a;
+            --text-sub: #666;
+            --shadow-float: 0 10px 30px -10px rgba(0,0,0,0.1);
         }
 
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            background: linear-gradient(180deg, #f3f5f9 0%, #eef2f6 100%); 
-            margin: 0; padding: 0; 
-            color: #1a1a1a;
+        /* --- 1. THE LIVING BACKGROUND --- */
+        body {
+            font-family: 'Outfit', sans-serif;
+            margin: 0; padding: 0;
+            background-color: #f0f2f5;
+            color: var(--text-main);
+            overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- TIMER HERO SECTION --- */
-        .timer-hero {
-            background: var(--fpl-purple);
-            color: white;
-            padding: 20px 20px 30px;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
-            box-shadow: var(--shadow-md);
+        /* Abstract animated blobs */
+        .ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
+            background: radial-gradient(circle at 0% 0%, rgba(55, 0, 60, 0.05), transparent 50%),
+                        radial-gradient(circle at 100% 100%, rgba(0, 255, 133, 0.08), transparent 50%);
+        }
+
+        /* --- 2. HEADER & PULSE --- */
+        .hero-section {
+            padding: 20px 20px 40px;
+            background: linear-gradient(135deg, #ffffff 0%, #f7f9fc 100%);
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            box-shadow: 0 20px 40px -20px rgba(55,0,60,0.15);
             text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .timer-hero::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-            animation: rotate 20s linear infinite;
-        }
-        @keyframes rotate { 100% { transform: rotate(360deg); } }
-
-        .timer-label { font-size: 0.75rem; opacity: 0.8; letter-spacing: 1px; font-weight: 600; text-transform: uppercase; position: relative; }
-        .timer-clock { 
-            font-size: 2.5rem; font-weight: 900; margin: 5px 0; 
-            font-variant-numeric: tabular-nums; letter-spacing: -1px;
-            background: linear-gradient(180deg, #fff 0%, #e0e0e0 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            position: relative;
-            text-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        /* --- CONTROLS CONTAINER --- */
-        .control-dock {
-            margin: -20px 15px 10px;
-            background: var(--glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 15px;
-            border-radius: 20px;
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--shadow-sm);
             position: relative;
             z-index: 10;
         }
 
-        /* TABS */
-        .segmented-control {
-            display: flex; background: #eaecf0; padding: 4px; border-radius: 14px; margin-bottom: 12px;
+        .market-status {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(55, 0, 60, 0.05); color: var(--primary);
+            padding: 6px 14px; border-radius: 20px;
+            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;
+            margin-bottom: 15px;
         }
-        .segment-btn {
-            flex: 1; border: none; padding: 10px; border-radius: 10px;
-            font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.8rem;
-            color: #666; background: transparent; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .segment-btn.active { background: white; color: var(--fpl-purple); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-        /* SEARCH & FILTERS */
-        .search-wrapper { position: relative; margin-bottom: 10px; }
-        .search-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #999; }
-        #playerSearch {
-            width: 100%; padding: 14px 14px 14px 40px; border-radius: 14px;
-            border: 2px solid transparent; background: #fff;
-            font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.9rem;
-            box-sizing: border-box; transition: 0.3s;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        .status-dot {
+            width: 8px; height: 8px; background: var(--accent); border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(0, 255, 133, 0.7);
+            animation: pulse-green 2s infinite;
         }
-        #playerSearch:focus { outline: none; border-color: var(--fpl-purple); background: #fff; }
 
-        .filter-row { display: flex; gap: 8px; }
-        .chip-btn {
-            flex: 1; border: none; padding: 10px; border-radius: 12px;
-            font-weight: 700; font-size: 0.75rem; background: white; color: #555;
-            transition: 0.2s; border: 1px solid transparent;
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 133, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 255, 133, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 133, 0); }
         }
-        .chip-btn.active-rise { background: #e6ffef; color: #00a859; border-color: #00ff85; }
-        .chip-btn.active-fall { background: #ffe6eb; color: #d00040; border-color: #ff2882; }
-        #teamFilter { flex: 1.5; border-radius: 12px; border: none; padding: 0 10px; font-weight: 700; background: white; color: #333; }
 
-        /* --- LIST & ANIMATIONS --- */
-        .list-container { padding: 0 15px 100px; }
+        .timer-display {
+            font-size: 3rem; font-weight: 900; line-height: 1;
+            background: linear-gradient(180deg, #37003c 0%, #6b0075 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -2px;
+        }
         
+        .timer-sub { font-size: 0.75rem; color: #999; font-weight: 500; margin-top: 5px; }
+
+        /* --- 3. GLASS CONTROLS --- */
+        .control-deck {
+            margin: -25px 20px 20px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            padding: 6px;
+            box-shadow: 0 15px 35px -10px rgba(0,0,0,0.1);
+            display: flex; gap: 5px;
+            position: relative; z-index: 20;
+        }
+
+        .deck-tab {
+            flex: 1; border: none; padding: 12px; border-radius: 18px;
+            background: transparent; color: #888; font-weight: 700; font-size: 0.8rem;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        
+        .deck-tab.active {
+            background: #fff; color: var(--primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transform: scale(1.02);
+        }
+
+        /* --- 4. PLAYER CARDS --- */
+        .feed-container { padding: 0 20px 100px; max-width: 600px; margin: 0 auto; }
+        
+        .search-bar {
+            width: 100%; border: none; background: white;
+            padding: 16px 20px; border-radius: 20px;
+            font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 600;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            margin-bottom: 20px; transition: 0.3s;
+        }
+        .search-bar:focus { outline: none; box-shadow: 0 8px 25px rgba(55,0,60,0.1); }
+
         .player-card {
-            background: white; border-radius: 16px; margin-bottom: 10px;
-            padding: 12px; display: flex; align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-            border: 1px solid rgba(0,0,0,0.03);
-            opacity: 0; transform: translateY(10px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: white; border-radius: 22px;
+            padding: 16px; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: var(--shadow-float);
+            border: 1px solid rgba(0,0,0,0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative; overflow: hidden;
+            animation: enter 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
         }
-        .player-card.show { opacity: 1; transform: translateY(0); }
-
-        .shirt-icon { width: 38px; height: 38px; object-fit: contain; margin-right: 12px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1)); }
         
-        .info-block { flex: 1; overflow: hidden; }
-        .p-name { display: block; font-weight: 800; font-size: 0.95rem; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .p-meta { font-size: 0.7rem; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
-
-        .stats-block { text-align: right; min-width: 80px; }
-        .prob-badge { 
-            display: inline-block; padding: 4px 8px; border-radius: 6px;
-            font-size: 0.7rem; font-weight: 900; color: #fff; margin-bottom: 4px;
+        @keyframes enter {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .prob-high { background: var(--danger); box-shadow: 0 2px 8px rgba(255, 40, 130, 0.3); }
-        .prob-med { background: #ffa000; }
-        .prob-low { background: #cbd5e1; color: #64748b; }
 
-        .progress-track { width: 100%; height: 6px; background: #edf2f7; border-radius: 3px; overflow: hidden; margin-top: 4px; }
-        .progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease-out; }
-
-        /* Star Button */
-        .star-btn { font-size: 1.1rem; color: #e2e8f0; padding: 10px; margin-right: -5px; transition: 0.2s; cursor: pointer; }
-        .star-btn.active { color: #ffb400; transform: scale(1.1); }
-
-        /* Header for List */
-        .section-title { font-size: 0.8rem; font-weight: 900; color: #94a3b8; margin: 20px 5px 10px; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* History Toast */
-        .history-toast {
-            background: #2d3748; color: white; padding: 12px 20px;
-            border-radius: 12px; margin-bottom: 8px; font-size: 0.8rem;
-            display: flex; justify-content: space-between; align-items: center;
+        /* The "Hot" Glow Effect */
+        .player-card.hot-border {
+            border: 2px solid var(--accent);
+            box-shadow: 0 8px 30px rgba(0, 255, 133, 0.25);
         }
+
+        .p-left { display: flex; align-items: center; gap: 15px; }
+        .shirt-wrapper { 
+            width: 44px; height: 44px; background: #f4f6f8; 
+            border-radius: 14px; display: flex; align-items: center; justify-content: center;
+        }
+        .shirt-img { width: 32px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+
+        .p-info h3 { margin: 0; font-size: 0.95rem; font-weight: 800; color: var(--text-main); line-height: 1.2; }
+        .p-info p { margin: 0; font-size: 0.75rem; font-weight: 600; color: #999; }
+
+        .p-right { text-align: right; min-width: 80px; }
+        
+        /* The Target Pill */
+        .target-pill {
+            display: inline-block; padding: 4px 10px; border-radius: 10px;
+            font-size: 0.8rem; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 4px;
+        }
+        .pill-rise { background: #e6ffef; color: #008f4c; }
+        .pill-fall { background: #fff0f3; color: var(--danger); }
+        
+        .prob-bar { width: 100%; height: 5px; background: #edf2f7; border-radius: 3px; overflow: hidden; }
+        .prob-fill { height: 100%; border-radius: 3px; }
+
+        /* Watch Star */
+        .action-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #ddd; font-size: 1.1rem; cursor: pointer;
+            transition: 0.2s; margin-left: 10px;
+        }
+        .action-btn.active { color: #ffb400; background: #fffbf0; transform: scale(1.1); }
+
+        /* Skeleton Loading */
+        .skeleton { background: #f0f2f5; border-radius: 20px; height: 80px; margin-bottom: 12px; position: relative; overflow: hidden; }
+        .skeleton::after {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
     </style>
 </head>
 <body>
+
+    <div class="ambient-bg"></div>
     <div id="nav-placeholder"></div>
 
-    <main>
-        <div class="timer-hero">
-            <div class="timer-label">Next Price Change</div>
-            <div class="timer-clock" id="price-timer">00:00:00</div>
-            <div style="font-size: 0.7rem; opacity: 0.7;">London Time (GMT)</div>
+    <header class="hero-section">
+        <div class="market-status">
+            <div class="status-dot"></div> MARKET ACTIVE
+        </div>
+        <div class="timer-display" id="main-timer">00:00:00</div>
+        <div class="timer-sub">UNTIL PRICE CHANGE</div>
+    </header>
+
+    <nav class="control-deck">
+        <button class="deck-tab active" id="view-market" onclick="setView('market')">
+            <i class="fa-solid fa-bolt"></i> Market
+        </button>
+        <button class="deck-tab" id="view-watchlist" onclick="setView('watchlist')">
+            <i class="fa-solid fa-star"></i> Watchlist
+            <span id="watch-badge" style="background:var(--primary); color:#fff; font-size:0.6rem; padding:2px 6px; border-radius:10px; margin-left:5px; display:none;">0</span>
+        </button>
+    </nav>
+
+    <main class="feed-container">
+        
+        <input type="text" class="search-bar" id="searchInput" placeholder="Search player (e.g. Salah)..." onkeyup="render()">
+
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;">
+            <button class="deck-tab active" id="sort-rise" onclick="setSort('rise')" style="background: white; border-radius: 12px; padding: 8px 16px; min-width: 100px;">Top Risers</button>
+            <button class="deck-tab" id="sort-fall" onclick="setSort('fall')" style="background: white; border-radius: 12px; padding: 8px 16px; min-width: 100px;">Top Fallers</button>
         </div>
 
-        <div class="control-dock">
-            <div class="segmented-control">
-                <button class="segment-btn active" id="tab-market" onclick="switchView('market')">Market</button>
-                <button class="segment-btn" id="tab-watchlist" onclick="switchView('watchlist')">
-                    Watchlist <span id="watch-count" style="background:var(--fpl-purple); color:white; padding:1px 5px; border-radius:4px; font-size:0.6rem; margin-left:4px;">0</span>
-                </button>
-            </div>
-
-            <div class="search-wrapper">
-                <i class="fa-solid fa-search"></i>
-                <input type="text" id="playerSearch" placeholder="Search player..." onkeyup="render()">
-            </div>
-
-            <div class="filter-row">
-                <button class="chip-btn active-rise" id="btn-rise" onclick="setSort('rise')">
-                    <i class="fa-solid fa-arrow-trend-up"></i> Risers
-                </button>
-                <button class="chip-btn" id="btn-fall" onclick="setSort('fall')">
-                    <i class="fa-solid fa-arrow-trend-down"></i> Fallers
-                </button>
-                <select id="teamFilter" onchange="render()"><option value="all">All Teams</option></select>
-            </div>
-            
-            <div style="margin-top: 12px; display:flex; align-items:center; justify-content:space-between; font-size:0.75rem; font-weight:600; color:#666;">
-                <span>Hide Completed</span>
-                <input type="checkbox" id="smartFilter" checked onchange="render()" style="accent-color: var(--fpl-purple); transform: scale(1.2);">
-            </div>
-        </div>
-
-        <div class="list-container">
-            
-            <div id="history-section" style="display:none; margin-bottom:20px;">
-                <div class="section-title"><i class="fa-solid fa-history"></i> Recent Changes</div>
-                <div id="history-container"></div>
-            </div>
-
-            <div class="section-title"><i class="fa-solid fa-bolt"></i> Market Predictions</div>
-            <div id="prediction-list"></div>
+        <div id="app-content">
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
         </div>
     </main>
 
-<script>
-    const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
-    let playerData = [], teamMap = {}, currentSort = 'rise', currentView = 'market';
-    let watchlist = JSON.parse(localStorage.getItem('kopala_watchlist') || '[]');
+    <div id="footer-placeholder"></div>
 
-    async function init() {
-        try {
-            document.getElementById('prediction-list').innerHTML = `<div style="text-align:center; padding:40px; color:#999;"><i class="fa-solid fa-circle-notch fa-spin fa-2x"></i><br><br>Analyzing Market...</div>`;
-            
-            const res = await fetch(PROXY);
-            const data = await res.json();
-            
-            // Populate Teams
-            data.teams.forEach(t => { 
-                teamMap[t.id] = t.short_name;
-                const opt = document.createElement('option');
-                opt.value = t.id; opt.innerText = t.name;
-                document.getElementById('teamFilter').appendChild(opt);
-            });
+    <script>
+        const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
+        let playerData = [], currentView = 'market', currentSort = 'rise';
+        let watchlist = JSON.parse(localStorage.getItem('kopala_watchlist_v2') || '[]');
 
-            // Logic setup
-            const currentGW = (data.events.find(e => e.is_current) || {id: 1}).id;
-            const decay = Math.max(0.7, 1 - (currentGW * 0.025)); 
-            const savedPrices = JSON.parse(localStorage.getItem('kopala_price_tracker') || '{}');
-            let history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
-            const currentTracker = {};
+        async function init() {
+            try {
+                const res = await fetch(PROXY);
+                const data = await res.json();
+                
+                // Process Data
+                const teams = {};
+                data.teams.forEach(t => teams[t.id] = t.short_name);
+                
+                const currentGW = (data.events.find(e => e.is_current) || {id: 1}).id;
+                // A simpler decay model for clearer "Targets"
+                const decay = Math.max(0.7, 1 - (currentGW * 0.02)); 
 
-            playerData = data.elements.map(p => {
-                currentTracker[p.id] = p.now_cost;
-                // History Logic
-                if (savedPrices[p.id] && savedPrices[p.id] !== p.now_cost) {
-                    history.unshift({ 
-                        name: p.web_name, 
-                        old: (savedPrices[p.id]/10).toFixed(1), 
-                        new: (p.now_cost/10).toFixed(1), 
-                        type: p.now_cost > savedPrices[p.id] ? 'rise' : 'fall',
-                        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-                    });
-                }
-
-                // Prediction Logic
-                let net = (p.transfers_in_event - p.transfers_out_event) * 0.8;
-                let thresh = (7200 + (parseFloat(p.selected_by_percent) * 1500)) * decay;
-                if (p.status !== 'a') thresh *= 3.5;
-
-                let target = (net / thresh) * 100;
-                let prob = Math.min(99, Math.abs(target) / 1.1);
-
-                return {
-                    id: p.id, name: p.web_name, team: p.team, teamCode: p.team_code, 
-                    pos: ["","GKP","DEF","MID","FWD"][p.element_type],
-                    price: (p.now_cost/10).toFixed(1), target: parseFloat(target.toFixed(1)), 
-                    prob: Math.round(prob), 
-                    prediction: p.cost_change_event !== 0 ? "DONE" : (target >= 100 ? "TONIGHT" : (target >= 85 ? "SOON" : "-")),
-                    hasChanged: p.cost_change_event !== 0
-                };
-            });
-
-            localStorage.setItem('kopala_price_tracker', JSON.stringify(currentTracker));
-            localStorage.setItem('kopala_change_history', JSON.stringify(history.slice(0, 10)));
-            
-            renderHistory(); 
-            render(); 
-            updateWatchCount(); 
-            setInterval(updateTimer, 1000);
-
-        } catch (e) { console.error(e); }
-    }
-
-    function render() {
-        const list = document.getElementById('prediction-list');
-        const search = document.getElementById('playerSearch').value.toLowerCase();
-        const teamF = document.getElementById('teamFilter').value;
-        const smart = document.getElementById('smartFilter').checked;
-
-        let filtered = playerData.filter(p => {
-            return p.name.toLowerCase().includes(search) && 
-                   (teamF === "all" || String(p.team) === teamF) && 
-                   (smart ? !p.hasChanged : true) && 
-                   (currentView === 'watchlist' ? watchlist.includes(p.id) : true);
-        });
-
-        // Sort logic
-        filtered.sort((a,b) => currentSort === 'rise' ? b.target - a.target : a.target - b.target);
-
-        // Generate HTML with Card Style
-        const html = filtered.slice(0, 50).map((p, index) => {
-            const isRise = p.target >= 0;
-            const color = isRise ? 'var(--fpl-accent)' : 'var(--danger)';
-            const probClass = p.prediction === 'TONIGHT' ? 'prob-high' : (p.prob > 50 ? 'prob-med' : 'prob-low');
-            
-            return `
-                <div class="player-card" style="transition-delay: ${index * 0.03}s">
-                    <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.webp" class="shirt-icon">
+                playerData = data.elements.map(p => {
+                    // Logic to calculate target
+                    let net = (p.transfers_in_event - p.transfers_out_event) * 0.8; // conservative multiplier
+                    let base = 8000 + (parseFloat(p.selected_by_percent) * 1200);
+                    if(p.status !== 'a') base *= 3; // injured players harder to move
                     
-                    <div class="info-block">
-                        <span class="p-name">${p.name}</span>
-                        <div class="p-meta">${p.pos} • ${teamMap[p.team]} • £${p.price}m</div>
-                    </div>
+                    let target = (net / (base * decay)) * 100;
+                    
+                    // Cap probability visual at 100
+                    let prob = Math.min(100, Math.abs(target));
 
-                    <div class="stats-block">
-                        <span class="prob-badge ${probClass}">${p.prediction === 'TONIGHT' ? 'LIKELY' : p.prob + '%'}</span>
-                        <div class="progress-track">
-                            <div class="progress-fill" style="width:${Math.min(100, Math.abs(p.target))}%; background:${color};"></div>
+                    return {
+                        id: p.id,
+                        name: p.web_name,
+                        team: teams[p.team],
+                        code: p.team_code,
+                        price: (p.now_cost / 10).toFixed(1),
+                        target: parseFloat(target.toFixed(1)),
+                        prob: prob,
+                        status: p.cost_change_event !== 0 ? 'LOCKED' : 'ACTIVE'
+                    };
+                });
+
+                // Pre-sort
+                playerData.sort((a,b) => b.target - a.target);
+                
+                updateWatchBadge();
+                render();
+                startTimer();
+                
+            } catch (e) {
+                document.getElementById('app-content').innerHTML = `<div style="text-align:center; padding:40px; color:#999;">Offline mode. Check connection.</div>`;
+            }
+        }
+
+        function render() {
+            const container = document.getElementById('app-content');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Filter
+            let filtered = playerData.filter(p => {
+                if(currentView === 'watchlist' && !watchlist.includes(p.id)) return false;
+                if(!p.name.toLowerCase().includes(search)) return false;
+                // Simple filter to remove inactive noise
+                if(currentView === 'market' && Math.abs(p.target) < 5) return false; 
+                return true;
+            });
+
+            // Sort
+            filtered.sort((a,b) => currentSort === 'rise' ? b.target - a.target : a.target - b.target);
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:40px; color:#ccc; font-weight:600;">No players found.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.slice(0, 50).map((p, i) => {
+                const isRise = p.target >= 0;
+                const isHot = Math.abs(p.target) >= 100;
+                const color = isRise ? 'var(--accent)' : 'var(--danger)';
+                const pillClass = isRise ? 'pill-rise' : 'pill-fall';
+                
+                // Staggered Animation Delay
+                const delay = i * 0.05;
+
+                return `
+                <div class="player-card ${isHot ? 'hot-border' : ''}" style="animation-delay: ${delay}s">
+                    <div class="p-left">
+                        <div class="shirt-wrapper">
+                            <img src="https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.code}-66.webp" class="shirt-img">
+                        </div>
+                        <div class="p-info">
+                            <h3>${p.name}</h3>
+                            <p>${p.team} • £${p.price}m</p>
                         </div>
                     </div>
                     
-                    <div class="star-btn ${watchlist.includes(p.id) ? 'active' : ''}" onclick="toggleWatch(${p.id}, event)">
-                        <i class="fa-${watchlist.includes(p.id) ? 'solid' : 'regular'} fa-star"></i>
+                    <div style="display:flex; align-items:center;">
+                        <div class="p-right">
+                            <span class="target-pill ${pillClass}">
+                                ${isRise ? '+' : ''}${p.target.toFixed(1)}%
+                            </span>
+                            <div class="prob-bar">
+                                <div class="prob-fill" style="width:${p.prob}%; background:${color}"></div>
+                            </div>
+                        </div>
+
+                        <div class="action-btn ${watchlist.includes(p.id) ? 'active' : ''}" onclick="toggleWatch(${p.id}, this)">
+                            <i class="fa-${watchlist.includes(p.id) ? 'solid' : 'regular'} fa-star"></i>
+                        </div>
                     </div>
-                </div>
-            `;
-        }).join('');
-
-        list.innerHTML = html || '<div style="text-align:center; padding:30px; color:#999;">No players found.</div>';
-
-        // Trigger Animations
-        setTimeout(() => {
-            document.querySelectorAll('.player-card').forEach(c => c.classList.add('show'));
-        }, 10);
-    }
-
-    function renderHistory() {
-        const history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
-        const container = document.getElementById('history-container');
-        
-        if(history.length > 0) {
-            document.getElementById('history-section').style.display = 'block';
-            container.innerHTML = history.map(h => `
-                <div class="history-toast">
-                    <span style="font-weight:700;">${h.name}</span>
-                    <span style="color:${h.type==='rise'?'#4ade80':'#fb7185'}; font-weight:800;">
-                        ${h.type==='rise'?'▲':'▼'} £${h.new}
-                    </span>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         }
-    }
 
-    function toggleWatch(id, e) {
-        e.stopPropagation();
-        const idx = watchlist.indexOf(id);
-        if (idx > -1) watchlist.splice(idx, 1); else watchlist.push(id);
-        localStorage.setItem('kopala_watchlist', JSON.stringify(watchlist));
-        updateWatchCount(); render();
-    }
+        /* --- DELIGHT FUNCTIONS --- */
 
-    function updateWatchCount() { document.getElementById('watch-count').innerText = watchlist.length; }
-    
-    function switchView(v) { 
-        currentView = v; 
-        document.getElementById('tab-market').classList.toggle('active', v === 'market'); 
-        document.getElementById('tab-watchlist').classList.toggle('active', v === 'watchlist'); 
-        render(); 
-    }
-    
-    function setSort(s) { 
-        currentSort = s; 
-        document.getElementById('btn-rise').className = 'chip-btn' + (s === 'rise' ? ' active-rise' : ''); 
-        document.getElementById('btn-fall').className = 'chip-btn' + (s === 'fall' ? ' active-fall' : ''); 
-        render(); 
-    }
+        function toggleWatch(id, btn) {
+            const index = watchlist.indexOf(id);
+            if (index > -1) {
+                watchlist.splice(index, 1);
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="fa-regular fa-star"></i>';
+            } else {
+                watchlist.push(id);
+                btn.classList.add('active');
+                btn.innerHTML = '<i class="fa-solid fa-star"></i>';
+                
+                // THE JUICE: Confetti Explosion on Watch
+                confetti({
+                    particleCount: 40,
+                    spread: 70,
+                    origin: { y: btn.getBoundingClientRect().top / window.innerHeight, x: btn.getBoundingClientRect().left / window.innerWidth },
+                    colors: ['#ffb400', '#37003c']
+                });
+            }
+            localStorage.setItem('kopala_watchlist_v2', JSON.stringify(watchlist));
+            updateWatchBadge();
+            if(currentView === 'watchlist') setTimeout(render, 300); // Give time for animation
+        }
 
-    function updateTimer() {
-        const now = new Date(); let t = new Date(); t.setUTCHours(1, 30, 0, 0);
-        if (now > t) t.setUTCDate(t.getUTCDate() + 1);
-        const d = t - now;
-        const h = String(Math.floor(d / 3600000)).padStart(2,'0');
-        const m = String(Math.floor((d%3600000)/60000)).padStart(2,'0');
-        const s = String(Math.floor((d%60000)/1000)).padStart(2,'0');
-        document.getElementById('price-timer').innerText = `${h}:${m}:${s}`;
-    }
+        function setView(view) {
+            currentView = view;
+            document.getElementById('view-market').className = `deck-tab ${view === 'market' ? 'active' : ''}`;
+            document.getElementById('view-watchlist').className = `deck-tab ${view === 'watchlist' ? 'active' : ''}`;
+            render();
+        }
 
-    init();
-</script>
+        function setSort(sort) {
+            currentSort = sort;
+            document.getElementById('sort-rise').style.background = sort === 'rise' ? '#37003c' : 'white';
+            document.getElementById('sort-rise').style.color = sort === 'rise' ? 'white' : '#666';
+            document.getElementById('sort-fall').style.background = sort === 'fall' ? '#37003c' : 'white';
+            document.getElementById('sort-fall').style.color = sort === 'fall' ? 'white' : '#666';
+            render();
+        }
 
-<script src="nav.js"></script>
-<div id="footer-placeholder"></div>
-<script src="footer.js"></script>
+        function updateWatchBadge() {
+            const b = document.getElementById('watch-badge');
+            b.innerText = watchlist.length;
+            b.style.display = watchlist.length > 0 ? 'inline-block' : 'none';
+        }
+
+        function startTimer() {
+            setInterval(() => {
+                const now = new Date();
+                let t = new Date(); 
+                t.setUTCHours(1, 30, 0, 0); // 1:30 AM GMT
+                if(now > t) t.setUTCDate(t.getUTCDate() + 1);
+                
+                const diff = t - now;
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                
+                document.getElementById('main-timer').innerText = 
+                    `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            }, 1000);
+        }
+
+        init();
+    </script>
+
+    <script src="nav.js"></script>
+    <div id="footer-placeholder"></div>
+    <script src="footer.js"></script>
 </body>
 </html>
