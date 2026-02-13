@@ -16,27 +16,34 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
-    <style>
 
-  
+    <style>
         :root {
-            --fpl-purple: #37003c;
-            --fpl-cyan: #00ffdf; /* Match your image color */
+            --fpl-cyan: #00ffdf;
             --fpl-green: #00ff85;
             --fpl-pink: #ff005a;
         }
-        body { font-family: 'Inter', sans-serif; background-color: #fff; margin: 0; padding: 10px; }
-        
+        body { font-family: 'Inter', sans-serif; background-color: #fff; margin: 0; padding: 20px; color: #000; }
+
+        /* Search & Filter Bar Styling */
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .controls input, .controls select { 
+            padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 0.9rem;
+        }
+        .search-box { flex: 2; }
+        .filter-box { flex: 1; }
+
         /* The Date Banner */
         .date-banner {
             background: var(--fpl-cyan);
             color: #000;
             text-align: center;
-            padding: 12px;
+            padding: 15px;
             font-weight: 900;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             border-radius: 4px;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
+            text-transform: none;
         }
 
         /* Two-Column Grid */
@@ -44,29 +51,41 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2px;
-            background-color: #eee; /* Thin divider line */
-            border: 1px solid #eee;
+            background-color: #f0f0f0; /* The thin middle line */
+            border: 1px solid #f0f0f0;
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
-        .column { background: #fff; }
+        .column { background: #fff; min-height: 100px; }
 
-        /* Table Styling */
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { text-align: left; padding: 10px; color: #666; font-weight: 700; border-bottom: 1px solid #f0f0f0; }
-        td { padding: 12px 10px; font-weight: 700; }
+        /* Table Design */
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px 10px; color: #333; font-weight: 700; font-size: 0.85rem; border-bottom: 1px solid #eee; }
+        td { padding: 12px 10px; font-weight: 700; font-size: 0.95rem; vertical-align: middle; }
         
-        .center { text-align: center; }
-        .empty-msg { padding: 20px; font-weight: 800; color: #000; font-size: 1rem; }
+        .center { text-align: right; padding-right: 20px; }
+        .empty-msg { padding: 30px 10px; font-weight: 800; font-size: 1.1rem; color: #000; }
 
-        /* Icon Styling */
-        .icon-up { color: var(--fpl-green); margin-right: 8px; font-size: 1.1rem; }
-        .icon-down { color: var(--fpl-pink); margin-right: 8px; font-size: 1.1rem; }
+        /* Arrow Icons */
+        .icon-up { color: var(--fpl-green); background: #00ff8522; border-radius: 50%; padding: 4px; margin-right: 10px; font-size: 0.8rem; }
+        .icon-down { color: var(--fpl-pink); background: #ff005a22; border-radius: 50%; padding: 4px; margin-right: 10px; font-size: 0.8rem; }
+        
+        @media (max-width: 600px) {
+            .change-grid { grid-template-columns: 1fr; }
+            .controls { flex-direction: column; }
+        }
     </style>
-    <div id="nav-placeholder"></div>
 </head>
-    
 <body>
 
+<div class="controls">
+    <input type="text" id="mainSearch" class="search-box" placeholder="Search Player Name..." onkeyup="init()">
+    <select id="teamFilter" class="filter-box" onchange="init()">
+        <option value="all">All Teams</option>
+    </select>
+</div>
+<div id="nav-placeholder"></div>
 <div id="price-changes-container">
     </div>
 
@@ -79,11 +98,25 @@
             const res = await fetch(PROXY);
             const data = await res.json();
             
-            data.teams.forEach(t => teamMap[t.id] = t.short_name);
+            // Map Team Names and populate dropdown once
+            const teamSelect = document.getElementById('teamFilter');
+            if (teamSelect.options.length === 1) {
+                data.teams.sort((a,b) => a.name.localeCompare(b.name)).forEach(t => {
+                    teamMap[t.id] = t.short_name;
+                    let opt = document.createElement('option');
+                    opt.value = t.id; opt.innerText = t.name;
+                    teamSelect.appendChild(opt);
+                });
+            }
 
-            // Filter for players with price changes in the current 24h event
+            const searchVal = document.getElementById('mainSearch').value.toLowerCase();
+            const teamVal = document.getElementById('teamFilter').value;
+
+            // Filter logic: Only current day's changes + search/team filters
             const movers = data.elements
                 .filter(p => p.cost_change_event !== 0)
+                .filter(p => p.web_name.toLowerCase().includes(searchVal))
+                .filter(p => teamVal === 'all' || String(p.team) === teamVal)
                 .map(p => ({
                     name: p.web_name,
                     team: teamMap[p.team],
@@ -92,28 +125,29 @@
                 }));
 
             renderUI(movers);
-        } catch (e) { console.error("Error loading data", e); }
+        } catch (e) { console.error("API Error", e); }
     }
 
     function renderUI(movers) {
         const container = document.getElementById('price-changes-container');
-        const today = new Date().toLocaleDateString('en-GB', { 
-            weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' 
-        });
+        
+        // Format date like: "Fri, 13 February 2026"
+        const options = { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' };
+        const today = new Date().toLocaleDateString('en-GB', options);
 
         const risers = movers.filter(m => m.dir === 'up');
         const fallers = movers.filter(m => m.dir === 'down');
 
-        let html = `
+        container.innerHTML = `
             <div class="date-banner">${today}</div>
             <div class="change-grid">
                 <div class="column">
                     <table>
-                        <thead><tr><th>Name</th><th>Team</th><th class="center">Cost</th></tr></thead>
+                        <thead><tr><th style="width:50%">Name</th><th>Team</th><th class="center">Cost</th></tr></thead>
                         <tbody>
                             ${risers.length > 0 ? risers.map(p => `
                                 <tr>
-                                    <td><i class="fa-solid fa-circle-up icon-up"></i>${p.name}</td>
+                                    <td><i class="fa-solid fa-chevron-up icon-up"></i>${p.name}</td>
                                     <td>${p.team}</td>
                                     <td class="center">${p.cost}</td>
                                 </tr>`).join('') : '<tr><td colspan="3" class="empty-msg">No price rises</td></tr>'}
@@ -123,11 +157,11 @@
 
                 <div class="column">
                     <table>
-                        <thead><tr><th>Name</th><th>Team</th><th class="center">Cost</th></tr></thead>
+                        <thead><tr><th style="width:50%">Name</th><th>Team</th><th class="center">Cost</th></tr></thead>
                         <tbody>
                             ${fallers.length > 0 ? fallers.map(p => `
                                 <tr>
-                                    <td><i class="fa-solid fa-circle-down icon-down"></i>${p.name}</td>
+                                    <td><i class="fa-solid fa-chevron-down icon-down"></i>${p.name}</td>
                                     <td>${p.team}</td>
                                     <td class="center">${p.cost}</td>
                                 </tr>`).join('') : '<tr><td colspan="3" class="empty-msg">No price falls</td></tr>'}
@@ -135,8 +169,6 @@
                     </table>
                 </div>
             </div>`;
-
-        container.innerHTML = html;
     }
 
     init();
