@@ -19,161 +19,316 @@
 
     <style>
         :root {
-            --fpl-cyan: #00ffdf;
+            --dark-navy: #1a1e36;
             --fpl-green: #00ff85;
-            --fpl-pink: #ff005a;
+            --fpl-purple: #37003c;
+            --up-green: #2ecc71;
+            --down-red: #e74c3c;
+            --bg-gray: #f4f7f6;
         }
-        body { font-family: 'Inter', sans-serif; background-color: #fff; margin: 0; padding: 20px; color: #000; }
 
-        /* Search & Filter Bar Styling */
-        .controls { display: flex; gap: 10px; margin-bottom: 20px; max-width: 800px; margin-left: auto; margin-right: auto; }
-        .controls input, .controls select { 
-            padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 0.9rem;
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-gray);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
         }
-        .search-box { flex: 2; }
-        .filter-box { flex: 1; }
 
-        /* The Date Banner */
-        .date-banner {
-            background: var(--fpl-cyan);
-            color: #000;
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        header {
             text-align: center;
-            padding: 15px;
-            font-weight: 900;
-            font-size: 1.4rem;
-            border-radius: 4px;
-            margin-bottom: 2px;
-            text-transform: none;
+            margin-bottom: 30px;
         }
 
-        /* Two-Column Grid */
-        .change-grid {
+        header h1 {
+            color: var(--fpl-purple);
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .up-arrow { color: var(--up-green); }
+
+        /* Filters Section */
+        .filters {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 2px;
-            background-color: #f0f0f0; /* The thin middle line */
-            border: 1px solid #f0f0f0;
-            max-width: 1000px;
-            margin: 0 auto;
+            gap: 15px;
+            margin-bottom: 15px;
         }
 
-        .column { background: #fff; min-height: 100px; }
-
-        /* Table Design */
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px 10px; color: #333; font-weight: 700; font-size: 0.85rem; border-bottom: 1px solid #eee; }
-        td { padding: 12px 10px; font-weight: 700; font-size: 0.95rem; vertical-align: middle; }
-        
-        .center { text-align: right; padding-right: 20px; }
-        .empty-msg { padding: 30px 10px; font-weight: 800; font-size: 1.1rem; color: #000; }
-
-        /* Arrow Icons */
-        .icon-up { color: var(--fpl-green); background: #00ff8522; border-radius: 50%; padding: 4px; margin-right: 10px; font-size: 0.8rem; }
-        .icon-down { color: var(--fpl-pink); background: #ff005a22; border-radius: 50%; padding: 4px; margin-right: 10px; font-size: 0.8rem; }
-        
-        @media (max-width: 600px) {
-            .change-grid { grid-template-columns: 1fr; }
-            .controls { flex-direction: column; }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
+
+        .filter-group label {
+            font-weight: bold;
+            font-size: 14px;
+            color: #666;
+            margin-left: 10px;
+        }
+
+        select, input {
+            padding: 12px 15px;
+            border-radius: 25px;
+            border: 1px solid #ddd;
+            background: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--fpl-purple);
+        }
+
+        .search-container {
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .search-container input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .count-text {
+            text-align: center;
+            color: #888;
+            font-size: 13px;
+            margin: 15px 0;
+        }
+
+        /* Table Styling */
+        .table-wrapper {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            background-color: var(--dark-navy);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .date-header {
+            background-color: #fff9db;
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #444;
+        }
+
+        .latest-badge {
+            background: #ffcc00;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 10px;
+            margin-left: 10px;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        .dir-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+
+        .up { background-color: var(--up-green); }
+        .down { background-color: var(--down-red); }
+
+        .loading { text-align: center; padding: 20px; color: #666; }
     </style>
 </head>
 <body>
+    <div id="nav-placeholder"></div>
 
-<div class="controls">
-    <input type="text" id="mainSearch" class="search-box" placeholder="Search Player Name..." onkeyup="init()">
-    <select id="teamFilter" class="filter-box" onchange="init()">
-        <option value="all">All Teams</option>
-    </select>
-</div>
-<div id="nav-placeholder"></div>
-<div id="price-changes-container">
+<div class="container">
+    <header>
+        <h1><span class="up-arrow">▲</span> Price Changes</h1>
+        <p style="font-size: 12px; color: #666;">Page updates instantly after changes (approx. 1:30 AM GMT)</p>
+    </header>
+
+    <div class="filters">
+        <div class="filter-group">
+            <label>Direction</label>
+            <select id="directionFilter">
+                <option value="any">Any</option>
+                <option value="up">Rise</option>
+                <option value="down">Fall</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Team</label>
+            <select id="teamFilter">
+                <option value="any">Any Team</option>
+            </select>
+        </div>
     </div>
 
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search Player / team / price...">
+    </div>
+
+    <p class="count-text" id="countLabel">0 shown</p>
+
+    <div class="table-wrapper">
+        <div id="tableContent">
+            <div class="loading">Fetching live data...</div>
+        </div>
+    </div>
+</div>
+
 <script>
-    const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
-    let teamMap = {};
+    let allPlayers = [];
+    // This points to your Netlify Function
+    const API_URL = "/.netlify/functions/fpl-proxy";
 
     async function init() {
         try {
-            const res = await fetch(PROXY);
-            const data = await res.json();
-            
-            // Map Team Names and populate dropdown once
-            const teamSelect = document.getElementById('teamFilter');
-            if (teamSelect.options.length === 1) {
-                data.teams.sort((a,b) => a.name.localeCompare(b.name)).forEach(t => {
-                    teamMap[t.id] = t.short_name;
-                    let opt = document.createElement('option');
-                    opt.value = t.id; opt.innerText = t.name;
-                    teamSelect.appendChild(opt);
-                });
+            // 1. Check Browser Cache (Session Storage)
+            const cached = sessionStorage.getItem('fpl_cache');
+            if (cached) {
+                processData(JSON.parse(cached));
             }
 
-            const searchVal = document.getElementById('mainSearch').value.toLowerCase();
-            const teamVal = document.getElementById('teamFilter').value;
+            // 2. Fetch from Netlify Function (which has Edge Caching)
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            
+            // Update cache and UI
+            sessionStorage.setItem('fpl_cache', JSON.stringify(data));
+            processData(data);
 
-            // Filter logic: Only current day's changes + search/team filters
-            const movers = data.elements
-                .filter(p => p.cost_change_event !== 0)
-                .filter(p => p.web_name.toLowerCase().includes(searchVal))
-                .filter(p => teamVal === 'all' || String(p.team) === teamVal)
-                .map(p => ({
-                    name: p.web_name,
-                    team: teamMap[p.team],
-                    cost: (p.now_cost / 10).toFixed(1),
-                    dir: p.cost_change_event > 0 ? 'up' : 'down'
-                }));
-
-            renderUI(movers);
-        } catch (e) { console.error("API Error", e); }
+        } catch (error) {
+            console.error("Fetch failed:", error);
+            document.getElementById('tableContent').innerHTML = "<div class='loading'>Error loading data. Make sure Netlify Functions are deployed.</div>";
+        }
     }
 
-    function renderUI(movers) {
-        const container = document.getElementById('price-changes-container');
+    function processData(data) {
+        // Map FPL raw data to a clean format
+        allPlayers = data.elements
+            .filter(p => p.cost_change_event !== 0) // Only get players with recent changes
+            .map(p => ({
+                name: p.web_name,
+                team: data.teams.find(t => t.id === p.team).name,
+                old: (p.now_cost - p.cost_change_event) / 10,
+                new: p.now_cost / 10,
+                dir: p.cost_change_event > 0 ? 'up' : 'down'
+            }));
+
+        // Populate Teams dropdown dynamically
+        const teamSelect = document.getElementById('teamFilter');
+        const teams = [...new Set(allPlayers.map(p => p.team))].sort();
         
-        // Format date like: "Fri, 13 February 2026"
-        const options = { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' };
-        const today = new Date().toLocaleDateString('en-GB', options);
+        // Clear previous except first
+        teamSelect.innerHTML = '<option value="any">Any Team</option>';
+        teams.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.innerText = t;
+            teamSelect.appendChild(opt);
+        });
 
-        const risers = movers.filter(m => m.dir === 'up');
-        const fallers = movers.filter(m => m.dir === 'down');
-
-        container.innerHTML = `
-            <div class="date-banner">${today}</div>
-            <div class="change-grid">
-                <div class="column">
-                    <table>
-                        <thead><tr><th style="width:50%">Name</th><th>Team</th><th class="center">Cost</th></tr></thead>
-                        <tbody>
-                            ${risers.length > 0 ? risers.map(p => `
-                                <tr>
-                                    <td><i class="fa-solid fa-chevron-up icon-up"></i>${p.name}</td>
-                                    <td>${p.team}</td>
-                                    <td class="center">${p.cost}</td>
-                                </tr>`).join('') : '<tr><td colspan="3" class="empty-msg">No price rises</td></tr>'}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="column">
-                    <table>
-                        <thead><tr><th style="width:50%">Name</th><th>Team</th><th class="center">Cost</th></tr></thead>
-                        <tbody>
-                            ${fallers.length > 0 ? fallers.map(p => `
-                                <tr>
-                                    <td><i class="fa-solid fa-chevron-down icon-down"></i>${p.name}</td>
-                                    <td>${p.team}</td>
-                                    <td class="center">${p.cost}</td>
-                                </tr>`).join('') : '<tr><td colspan="3" class="empty-msg">No price falls</td></tr>'}
-                        </tbody>
-                    </table>
-                </div>
-            </div>`;
+        renderTable(allPlayers);
     }
+
+    function applyFilters() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const dir = document.getElementById('directionFilter').value;
+        const team = document.getElementById('teamFilter').value;
+
+        const filtered = allPlayers.filter(p => {
+            const matchSearch = p.name.toLowerCase().includes(search) || p.team.toLowerCase().includes(search);
+            const matchDir = dir === 'any' || p.dir === dir;
+            const matchTeam = team === 'any' || p.team === team;
+            return matchSearch && matchDir && matchTeam;
+        });
+
+        renderTable(filtered);
+    }
+
+    function renderTable(data) {
+        const container = document.getElementById('tableContent');
+        const countLabel = document.getElementById('countLabel');
+        countLabel.innerText = `${data.length} shown`;
+
+        if (data.length === 0) {
+            container.innerHTML = "<div class='loading'>No changes found.</div>";
+            return;
+        }
+
+        let html = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Team</th>
+                        <th>Old</th>
+                        <th>New</th>
+                        <th>Dir</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="5" class="date-header">Price Changes Today <span class="latest-badge">LATEST</span></td></tr>
+        `;
+
+        data.forEach(p => {
+            html += `
+                <tr>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.team}</td>
+                    <td>£${p.old.toFixed(1)}</td>
+                    <td>£${p.new.toFixed(1)}</td>
+                    <td><div class="dir-icon ${p.dir}">${p.dir === 'up' ? '▲' : '▼'}</div></td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    }
+
+    // Event Listeners
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    document.getElementById('directionFilter').addEventListener('change', applyFilters);
+    document.getElementById('teamFilter').addEventListener('change', applyFilters);
 
     init();
 </script>
-
 
 
 <script src="nav.js"></script>
