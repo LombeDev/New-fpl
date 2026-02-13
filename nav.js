@@ -28,7 +28,6 @@ function loadNavbar() {
         <li><a href="index.html"><i class=""></i> Home <span></span></a></li>
         <li><a href="leagues.html"><i class=""></i> Leagues <span></span></a></li>
         <li><a href="prices.html"><i class=""></i> Prices <span></span></a></li>
-        <li><a href="actualprices.html"><i class=""></i> actual prices <span></span></a></li>
         <li><a href="games.html"><i class=""></i> Games <span></span></a></li>
         
         
