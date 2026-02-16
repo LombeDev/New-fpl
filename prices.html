@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,92 +23,75 @@
             --livefpl-red: #ff5449;
             --text-main: #1a1a1a;
             --text-sub: #656565;
+            /* SHIMMER COLORS */
+            --shimmer-base: #f0f4f9;
+            --shimmer-shine: rgba(255, 255, 255, 0.7);
         }
 
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--m3-surface); 
-            margin: 0; padding: 0; 
-            color: var(--text-main);
+        body { font-family: 'Inter', sans-serif; background-color: var(--m3-surface); margin: 0; padding: 0; color: var(--text-main); }
+
+        /* --- LOADING SHIMMER ANIMATION --- */
+        .skeleton {
+            background-color: var(--shimmer-base) !important;
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        .skeleton::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -150%; width: 100%; height: 100%;
+            background: linear-gradient(110deg, rgba(255, 255, 255, 0) 20%, var(--shimmer-shine) 50%, rgba(255, 255, 255, 0) 80%);
+            animation: glass-shine 1.6s infinite ease-in-out;
+        }
+
+        @keyframes glass-shine {
+            0% { left: -150%; }
+            100% { left: 150%; }
         }
 
         /* TIMER AREA */
-        .timer-banner { 
-            background: var(--m3-primary); color: white; 
-            padding: 10px; text-align: center; font-size: 0.65rem; font-weight: 700;
-        }
-        .countdown-box { 
-            background: var(--livefpl-green); color: black; 
-            padding: 2px 8px; border-radius: 6px; font-weight: 900; margin-left: 5px;
-        }
+        .timer-banner { background: var(--m3-primary); color: white; padding: 10px; text-align: center; font-size: 0.65rem; font-weight: 700; }
+        .countdown-box { background: var(--livefpl-green); color: black; padding: 2px 8px; border-radius: 6px; font-weight: 900; margin-left: 5px; }
 
         /* TABS & NAVIGATION */
         .view-tabs { display: flex; gap: 8px; padding: 10px 15px; background: white; }
-        .view-tab { 
-            flex: 1; padding: 10px; text-align: center; font-size: 0.7rem; 
-            font-weight: 800; border-radius: 25px; background: var(--m3-surface-variant);
-            color: var(--text-sub); transition: 0.2s;
-        }
+        .view-tab { flex: 1; padding: 10px; text-align: center; font-size: 0.7rem; font-weight: 800; border-radius: 25px; background: var(--m3-surface-variant); color: var(--text-sub); transition: 0.2s; cursor: pointer; }
         .view-tab.active { background: var(--m3-primary-container); color: var(--m3-primary); }
 
         /* INPUTS & CONTROLS */
         .control-hub { padding: 0 15px 10px; background: white; }
-        #playerSearch { 
-            width: 100%; border: 1.5px solid var(--m3-surface-variant); background: white;
-            border-radius: 12px; padding: 12px; font-size: 0.85rem; outline: none; box-sizing: border-box;
-            color: var(--text-main);
-        }
+        #playerSearch { width: 100%; border: 1.5px solid var(--m3-surface-variant); background: white; border-radius: 12px; padding: 12px; font-size: 0.85rem; outline: none; box-sizing: border-box; color: var(--text-main); }
         .sort-row { display: flex; gap: 6px; margin-top: 10px; }
-        .sort-btn { 
-            flex: 1; border: none; padding: 10px; border-radius: 10px;
-            font-size: 0.65rem; font-weight: 800; background: var(--m3-surface-variant); color: var(--text-sub);
-        }
+        .sort-btn { flex: 1; border: none; padding: 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 800; background: var(--m3-surface-variant); color: var(--text-sub); }
         .sort-btn.active-rise { background: var(--livefpl-green); color: #00331a; }
         .sort-btn.active-fall { background: var(--livefpl-red); color: white; }
-        #teamFilter {
-            flex: 1.2; border: none; background: var(--m3-surface-variant);
-            border-radius: 10px; padding: 8px; font-size: 0.65rem; font-weight: 700; color: var(--m3-primary);
-        }
+        #teamFilter { flex: 1.2; border: none; background: var(--m3-surface-variant); border-radius: 10px; padding: 8px; font-size: 0.65rem; font-weight: 700; color: var(--m3-primary); }
 
-        /* RECENT CHANGES SECTION */
+        /* RECENT CHANGES */
         .history-log { margin: 10px 15px; background: #fafafa; border-radius: 16px; border: 1px solid #eee; }
         .history-header { padding: 10px 15px; font-size: 0.6rem; font-weight: 900; color: var(--text-sub); letter-spacing: 0.5px; }
         .history-item { display: flex; justify-content: space-between; padding: 8px 15px; border-top: 1px solid #f0f0f0; align-items: center; }
         .h-name { font-size: 0.75rem; font-weight: 700; color: var(--text-main); }
         .price-pill { padding: 3px 8px; border-radius: 6px; font-weight: 900; font-size: 0.65rem; }
+        .pill-rise { background: #dcfce7; color: #166534; }
+        .pill-fall { background: #fee2e2; color: #991b1b; }
 
-        /* PREDICTION TABLE */
+        /* TABLE */
         .price-table { width: 100%; border-collapse: collapse; background: white; }
-        .price-table thead { 
-            position: sticky; top: 0; z-index: 10;
-            background: #f8f9fb; font-size: 0.55rem; color: var(--text-sub); 
-        }
+        .price-table thead { position: sticky; top: 0; z-index: 10; background: #f8f9fb; font-size: 0.55rem; color: var(--text-sub); }
         .price-table th { padding: 12px 5px; border-bottom: 2px solid var(--m3-surface-variant); }
         .player-row { border-bottom: 1px solid #f0f0f0; }
         
-        /* PLAYER CELL FIX */
         .info-col { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
         .p-img-box { position: relative; width: 32px; flex-shrink: 0; }
         .shirt-img { width: 100%; height: auto; }
         .p-text-box { display: flex; flex-direction: column; overflow: hidden; }
-        
-       .p-name { 
-    font-size: 0.85rem; 
-    font-weight: 800; 
-    /* Use a dynamic color so it works in both modes */
-    color: var(--text-color, #1d1b20) !important; 
-    margin-bottom: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    position: relative;
-    z-index: 5; /* Ensures it sits above any background blocks */
-    background: transparent !important; /* Removes the black block seen in your image */
-}
+        .p-name { font-size: 0.85rem; font-weight: 800; color: var(--text-main); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
         .p-meta { font-size: 0.6rem; color: var(--text-sub); font-weight: 600; }
 
-        .star-btn { color: #ccc; font-size: 1rem; transition: 0.2s; }
+        .star-btn { color: #ccc; font-size: 1rem; transition: 0.2s; cursor: pointer; }
         .star-btn.active { color: #ffb400; }
         
         .target-box { font-weight: 900; font-size: 0.75rem; display: block; margin-bottom: 4px; }
@@ -121,114 +105,156 @@
 <body>
     <div id="nav-placeholder"></div>
 
-<main style="padding-bottom: 100px;">
-    <div class="timer-banner">
-        NEXT FPL PRICE UPDATE IN: <span class="countdown-box" id="price-timer">00:00:00</span>
-    </div>
-
-    <div class="view-tabs">
-        <div class="view-tab active" id="tab-market" onclick="switchView('market')">MARKET</div>
-        <div class="view-tab" id="tab-watchlist" onclick="switchView('watchlist')">WATCHLIST (<span id="watch-count">0</span>)</div>
-    </div>
-
-    <div class="control-hub">
-        <input type="text" id="playerSearch" placeholder="🔍 Search players..." onkeyup="render()">
-        <div class="sort-row">
-            <button class="sort-btn active-rise" id="btn-rise" onclick="setSort('rise')">TOP RISERS</button>
-            <button class="sort-btn" id="btn-fall" onclick="setSort('fall')">TOP FALLERS</button>
-            <select id="teamFilter" onchange="render()"><option value="all">ALL TEAMS</option></select>
+    <main style="padding-bottom: 100px;">
+        <div class="timer-banner">
+            NEXT FPL PRICE UPDATE IN: <span class="countdown-box" id="price-timer">00:00:00</span>
         </div>
-    </div>
 
-    <div class="smart-row">
-        <span><i class="fa-solid fa-bolt"></i> HIDE COMPLETED MOVES</span>
-        <input type="checkbox" id="smartFilter" checked onchange="render()" style="width:18px; height:18px;">
-    </div>
+        <div class="view-tabs">
+            <div class="view-tab active" id="tab-market" onclick="switchView('market')">MARKET</div>
+            <div class="view-tab" id="tab-watchlist" onclick="switchView('watchlist')">WATCHLIST (<span id="watch-count">0</span>)</div>
+        </div>
 
-    <section class="history-log">
-        <div class="history-header">ACTUAL PRICE CHANGES</div>
-        <div id="history-container"></div>
-    </section>
+        <div class="control-hub">
+            <input type="text" id="playerSearch" placeholder="🔍 Search players..." onkeyup="render()">
+            <div class="sort-row">
+                <button class="sort-btn active-rise" id="btn-rise" onclick="setSort('rise')">TOP RISERS</button>
+                <button class="sort-btn" id="btn-fall" onclick="setSort('fall')">TOP FALLERS</button>
+                <select id="teamFilter" onchange="render()"><option value="all">ALL TEAMS</option></select>
+            </div>
+        </div>
 
-    <table class="price-table">
-        <thead>
-            <tr>
-                <th style="width:50%; text-align:left; padding-left:12px;">PLAYER</th>
-                <th style="width:20%;">TARGET</th>
-                <th style="width:15%;">PROB</th>
-                <th style="width:15%;">PRED</th>
-            </tr>
-        </thead>
-        <tbody id="prediction-list"></tbody>
-    </table>
-</main>
+        <div class="smart-row">
+            <span><i class="fa-solid fa-bolt"></i> HIDE COMPLETED MOVES</span>
+            <input type="checkbox" id="smartFilter" checked onchange="render()" style="width:18px; height:18px;">
+        </div>
 
-<script>
-    const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
-    let playerData = [], teamMap = {}, currentSort = 'rise', currentView = 'market';
-    let watchlist = JSON.parse(localStorage.getItem('kopala_watchlist') || '[]');
+        <section class="history-log">
+            <div class="history-header">ACTUAL PRICE CHANGES</div>
+            <div id="history-container"></div>
+        </section>
 
-    async function init() {
-        try {
-            const res = await fetch(PROXY);
-            const data = await res.json();
-            data.teams.forEach(t => { 
-                teamMap[t.id] = t.short_name;
-                const opt = document.createElement('option');
-                opt.value = t.id; opt.innerText = t.name;
-                document.getElementById('teamFilter').appendChild(opt);
-            });
+        <table class="price-table">
+            <thead>
+                <tr>
+                    <th style="width:50%; text-align:left; padding-left:12px;">PLAYER</th>
+                    <th style="width:20%;">TARGET</th>
+                    <th style="width:15%;">PROB</th>
+                    <th style="width:15%;">PRED</th>
+                </tr>
+            </thead>
+            <tbody id="prediction-list"></tbody>
+        </table>
+    </main>
 
-            const currentGW = (data.events.find(e => e.is_current) || {id: 1}).id;
-            const decay = Math.max(0.7, 1 - (currentGW * 0.025)); 
-            const savedPrices = JSON.parse(localStorage.getItem('kopala_price_tracker') || '{}');
-            let history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
-            const currentTracker = {};
+    <script>
+        const PROXY = "/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/";
+        let playerData = [], teamMap = {}, currentSort = 'rise', currentView = 'market';
+        let watchlist = JSON.parse(localStorage.getItem('kopala_watchlist') || '[]');
 
-            playerData = data.elements.map(p => {
-                currentTracker[p.id] = p.now_cost;
-                if (savedPrices[p.id] && savedPrices[p.id] !== p.now_cost) {
-                    history.unshift({ name: p.web_name, old: (savedPrices[p.id]/10).toFixed(1), new: (p.now_cost/10).toFixed(1), type: p.now_cost > savedPrices[p.id] ? 'rise' : 'fall' });
-                }
-
-                let net = (p.transfers_in_event - p.transfers_out_event) * 0.8;
-                let thresh = (7200 + (parseFloat(p.selected_by_percent) * 1500)) * decay;
-                if (p.status !== 'a') thresh *= 3.5;
-
-                let target = (net / thresh) * 100;
-                let prob = Math.min(99, Math.abs(target) / 1.1);
-
-                return {
-                    id: p.id, name: p.web_name, team: p.team, teamCode: p.team_code, pos: ["","GKP","DEF","MID","FWD"][p.element_type],
-                    price: (p.now_cost/10).toFixed(1), target: parseFloat(target.toFixed(1)), 
-                    prob: Math.round(prob), prediction: p.cost_change_event !== 0 ? "DONE" : (target >= 100 ? "TONIGHT" : (target >= 85 ? "SOON" : "-")),
-                    hasChanged: p.cost_change_event !== 0
-                };
-            });
-
-            localStorage.setItem('kopala_price_tracker', JSON.stringify(currentTracker));
-            localStorage.setItem('kopala_change_history', JSON.stringify(history.slice(0, 10)));
-            renderHistory(); render(); updateWatchCount(); setInterval(updateTimer, 1000);
-        } catch (e) { console.error(e); }
-    }
-
-    function render() {
-        const list = document.getElementById('prediction-list');
-        const search = document.getElementById('playerSearch').value.toLowerCase();
-        const teamF = document.getElementById('teamFilter').value;
-        const smart = document.getElementById('smartFilter').checked;
-
-        let filtered = playerData.filter(p => {
-            return p.name.toLowerCase().includes(search) && (teamF === "all" || String(p.team) === teamF) && (smart ? !p.hasChanged : true) && (currentView === 'watchlist' ? watchlist.includes(p.id) : true);
-        });
-
-        filtered.sort((a,b) => currentSort === 'rise' ? b.target - a.target : a.target - b.target);
-
-        list.innerHTML = filtered.slice(0, 50).map(p => {
-            const isRise = p.target >= 0;
-            return `
+        // SKELETON BUILDER
+        function showSkeletons() {
+            const list = document.getElementById('prediction-list');
+            let html = '';
+            for (let i = 0; i < 10; i++) {
+                html += `
                 <tr class="player-row">
-                    <td class="player-cell">
+                    <td>
+                        <div class="info-col">
+                            <div class="skeleton" style="width:20px; height:20px; border-radius:50%"></div>
+                            <div class="skeleton" style="width:32px; height:32px; border-radius:4px"></div>
+                            <div style="flex:1">
+                                <div class="skeleton" style="width:70%; height:12px; margin-bottom:6px;"></div>
+                                <div class="skeleton" style="width:40%; height:8px;"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><div class="skeleton" style="width:30px; height:12px; margin: 0 auto;"></div></td>
+                    <td><div class="skeleton" style="width:25px; height:12px; margin: 0 auto;"></div></td>
+                    <td><div class="skeleton" style="width:35px; height:12px; margin: 0 auto;"></div></td>
+                </tr>`;
+            }
+            list.innerHTML = html;
+        }
+
+        async function init() {
+            showSkeletons();
+            try {
+                const res = await fetch(PROXY);
+                const data = await res.json();
+                
+                data.teams.forEach(t => { 
+                    teamMap[t.id] = t.short_name;
+                    const opt = document.createElement('option');
+                    opt.value = t.id; opt.innerText = t.name;
+                    document.getElementById('teamFilter').appendChild(opt);
+                });
+
+                const currentGW = (data.events.find(e => e.is_current) || {id: 1}).id;
+                const decay = Math.max(0.7, 1 - (currentGW * 0.025)); 
+                const savedPrices = JSON.parse(localStorage.getItem('kopala_price_tracker') || '{}');
+                let history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
+                const currentTracker = {};
+
+                playerData = data.elements.map(p => {
+                    currentTracker[p.id] = p.now_cost;
+                    if (savedPrices[p.id] && savedPrices[p.id] !== p.now_cost) {
+                        history.unshift({ 
+                            name: p.web_name, 
+                            old: (savedPrices[p.id]/10).toFixed(1), 
+                            new: (p.now_cost/10).toFixed(1), 
+                            type: p.now_cost > savedPrices[p.id] ? 'rise' : 'fall' 
+                        });
+                    }
+
+                    let net = (p.transfers_in_event - p.transfers_out_event) * 0.8;
+                    let thresh = (7200 + (parseFloat(p.selected_by_percent) * 1500)) * decay;
+                    if (p.status !== 'a') thresh *= 3.5;
+
+                    let target = (net / thresh) * 100;
+                    let prob = Math.min(99, Math.abs(target) / 1.1);
+
+                    return {
+                        id: p.id, name: p.web_name, team: p.team, teamCode: p.team_code, 
+                        pos: ["","GKP","DEF","MID","FWD"][p.element_type],
+                        price: (p.now_cost/10).toFixed(1), target: parseFloat(target.toFixed(1)), 
+                        prob: Math.round(prob), 
+                        prediction: p.cost_change_event !== 0 ? "DONE" : (target >= 100 ? "TONIGHT" : (target >= 85 ? "SOON" : "-")),
+                        hasChanged: p.cost_change_event !== 0
+                    };
+                });
+
+                localStorage.setItem('kopala_price_tracker', JSON.stringify(currentTracker));
+                localStorage.setItem('kopala_change_history', JSON.stringify(history.slice(0, 10)));
+                
+                renderHistory(); 
+                render(); 
+                updateWatchCount(); 
+                setInterval(updateTimer, 1000);
+            } catch (e) { console.error(e); }
+        }
+
+        function render() {
+            const list = document.getElementById('prediction-list');
+            const search = document.getElementById('playerSearch').value.toLowerCase();
+            const teamF = document.getElementById('teamFilter').value;
+            const smart = document.getElementById('smartFilter').checked;
+
+            let filtered = playerData.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(search);
+                const matchesTeam = teamF === "all" || String(p.team) === teamF;
+                const matchesSmart = smart ? !p.hasChanged : true;
+                const matchesWatch = currentView === 'watchlist' ? watchlist.includes(p.id) : true;
+                return matchesSearch && matchesTeam && matchesSmart && matchesWatch;
+            });
+
+            filtered.sort((a,b) => currentSort === 'rise' ? b.target - a.target : a.target - b.target);
+
+            list.innerHTML = filtered.slice(0, 50).map(p => {
+                const isRise = p.target >= 0;
+                return `
+                <tr class="player-row">
+                    <td>
                         <div class="info-col">
                             <i class="fa-solid fa-star star-btn ${watchlist.includes(p.id) ? 'active' : ''}" onclick="toggleWatch(${p.id}, event)"></i>
                             <div class="p-img-box">
@@ -246,43 +272,59 @@
                             <div class="progress-fill" style="width:${Math.min(100, Math.abs(p.target))}%; background:${isRise ? 'var(--livefpl-green)' : 'var(--livefpl-red)'}"></div>
                         </div>
                     </td>
-                    <td style="text-align:center; font-weight:800; font-size:0.75rem; color:var(--text-main)">${p.prob}%</td>
+                    <td style="text-align:center; font-weight:800; font-size:0.75rem;">${p.prob}%</td>
                     <td style="text-align:center; font-size:0.6rem; font-weight:900; color:${p.prediction==='TONIGHT'?'#e11d48':'#64748b'}">${p.prediction}</td>
-                </tr>
-            `;
-        }).join('') || '<tr><td colspan="4" style="text-align:center; padding:40px; font-size:0.8rem;">No players match filters</td></tr>';
-    }
+                </tr>`;
+            }).join('') || '<tr><td colspan="4" style="text-align:center; padding:40px; font-size:0.8rem;">No players match filters</td></tr>';
+        }
 
-    function renderHistory() {
-        const history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
-        document.getElementById('history-container').innerHTML = history.map(h => `<div class="history-item"><span class="h-name">${h.name}</span> <span class="price-pill ${h.type==='rise'?'pill-rise':'pill-fall'}">£${h.old} → £${h.new}</span></div>`).join('') || '<div style="padding:15px; font-size:0.7rem; color:#999; text-align:center;">No recent price movements.</div>';
-    }
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('kopala_change_history') || '[]');
+            document.getElementById('history-container').innerHTML = history.map(h => `
+                <div class="history-item">
+                    <span class="h-name">${h.name}</span> 
+                    <span class="price-pill ${h.type==='rise'?'pill-rise':'pill-fall'}">£${h.old} → £${h.new}</span>
+                </div>`).join('') || '<div style="padding:15px; font-size:0.7rem; color:#999; text-align:center;">No recent price movements.</div>';
+        }
 
-    function toggleWatch(id, e) {
-        e.stopPropagation();
-        const idx = watchlist.indexOf(id);
-        if (idx > -1) watchlist.splice(idx, 1); else watchlist.push(id);
-        localStorage.setItem('kopala_watchlist', JSON.stringify(watchlist));
-        updateWatchCount(); render();
-    }
+        function toggleWatch(id, e) {
+            e.stopPropagation();
+            const idx = watchlist.indexOf(id);
+            if (idx > -1) watchlist.splice(idx, 1); else watchlist.push(id);
+            localStorage.setItem('kopala_watchlist', JSON.stringify(watchlist));
+            updateWatchCount(); render();
+        }
 
-    function updateWatchCount() { document.getElementById('watch-count').innerText = watchlist.length; }
-    function switchView(v) { currentView = v; document.getElementById('tab-market').classList.toggle('active', v === 'market'); document.getElementById('tab-watchlist').classList.toggle('active', v === 'watchlist'); render(); }
-    function setSort(s) { currentSort = s; document.getElementById('btn-rise').className = 'sort-btn' + (s === 'rise' ? ' active-rise' : ''); document.getElementById('btn-fall').className = 'sort-btn' + (s === 'fall' ? ' active-fall' : ''); render(); }
+        function updateWatchCount() { document.getElementById('watch-count').innerText = watchlist.length; }
+        
+        function switchView(v) { 
+            currentView = v; 
+            document.getElementById('tab-market').classList.toggle('active', v === 'market'); 
+            document.getElementById('tab-watchlist').classList.toggle('active', v === 'watchlist'); 
+            render(); 
+        }
 
-    function updateTimer() {
-        const now = new Date(); let t = new Date(); t.setUTCHours(1, 30, 0, 0);
-        if (now > t) t.setUTCDate(t.getUTCDate() + 1);
-        const d = t - now;
-        const h = String(Math.floor(d / 3600000)).padStart(2,'0'), m = String(Math.floor((d%3600000)/60000)).padStart(2,'0'), s = String(Math.floor((d%60000)/1000)).padStart(2,'0');
-        document.getElementById('price-timer').innerText = `${h}:${m}:${s}`;
-    }
+        function setSort(s) { 
+            currentSort = s; 
+            document.getElementById('btn-rise').className = 'sort-btn' + (s === 'rise' ? ' active-rise' : ''); 
+            document.getElementById('btn-fall').className = 'sort-btn' + (s === 'fall' ? ' active-fall' : ''); 
+            render(); 
+        }
 
-    init();
-</script>
+        function updateTimer() {
+            const now = new Date(); let t = new Date(); t.setUTCHours(1, 30, 0, 0);
+            if (now > t) t.setUTCDate(t.getUTCDate() + 1);
+            const d = t - now;
+            const h = String(Math.floor(d / 3600000)).padStart(2,'0'), 
+                  m = String(Math.floor((d%3600000)/60000)).padStart(2,'0'), 
+                  s = String(Math.floor((d%60000)/1000)).padStart(2,'0');
+            document.getElementById('price-timer').innerText = `${h}:${m}:${s}`;
+        }
 
-<script src="nav.js"></script>
-<div id="footer-placeholder"></div>
-<script src="footer.js"></script>
+        init();
+    </script>
+    <script src="nav.js"></script>
+    <div id="footer-placeholder"></div>
+    <script src="footer.js"></script>
 </body>
 </html>
