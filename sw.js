@@ -1,4 +1,4 @@
-lconst CACHE_NAME = 'kopala-fpl-v5'; // Update this to v6 when you change your CSS
+const CACHE_NAME = 'kopala-fpl-v6'; 
 const JERSEY_CACHE = 'fpl-jerseys-v1';
 
 const STATIC_ASSETS = [
@@ -13,73 +13,65 @@ const STATIC_ASSETS = [
   '/footer.css',
   '/nav.js',
   '/footer.js',
+  '/deadline.js',
+  '/transfers.js',
   '/manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap'
 ];
 
-// 1. INSTALL: Force-cache the App Shell
+// 1. INSTALL: Save the shell to the phone
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // addAll is strict; use map with settled if you have unstable assets
       return cache.addAll(STATIC_ASSETS);
     })
   );
   self.skipWaiting();
 });
 
-// 2. ACTIVATE: Enable Navigation Preload
+// 2. ACTIVATE: Clean old versions
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     Promise.all([
-      // Clean up old caches
       caches.keys().then((keys) => {
         return Promise.all(
           keys.filter(key => key !== CACHE_NAME && key !== JERSEY_CACHE)
               .map(key => caches.delete(key))
         );
       }),
-      // Tells the browser to start fetching data parallel to SW boot
       self.registration.navigationPreload ? self.registration.navigationPreload.enable() : Promise.resolve()
     ]).then(() => self.clients.claim())
   );
 });
 
-// 3. FETCH: The Logic that Kills the Loading Bar
+// 3. FETCH: The "Instant Load" Logic
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+  // Skip cross-origin requests like analytics if you have any
+  if (!event.request.url.startsWith(self.location.origin) && !event.request.url.includes('cdnjs')) {
+    return;
+  }
 
-  // A. STATIC FILES (Cache-First)
-  // If the file is in our shell list, return it from disk immediately.
-  // This is what prevents the Chrome progress bar.
-  if (STATIC_ASSETS.some(asset => url.pathname.endsWith(asset) || url.pathname === '/')) {
-    event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        return cachedResponse || fetch(event.request);
-      })
-    );
-  } 
+  event.respondWith(
+    (async () => {
+      // THE KEY FIX: Try to find a match ignoring URL parameters (?from=pwa)
+      const cachedResponse = await caches.match(event.request, { ignoreSearch: true });
+      
+      // If it's in the cache, return it INSTANTLY (This kills the loading bar)
+      if (cachedResponse) {
+        return cachedResponse;
+      }
 
-  // B. LIVE DATA (Network-First with Preload)
-  // For FPL data, we want fresh info, but use Preload for speed.
-  else {
-    event.respondWith(
-      (async () => {
-        const cachedResponse = await caches.match(event.request);
-        
-        // Try the navigation preload response first (fastest for 2026 browsers)
+      // If not in cache (like FPL API data), try the network
+      try {
         const preloadResponse = await event.preloadResponse;
         if (preloadResponse) return preloadResponse;
 
-        try {
-          const networkResponse = await fetch(event.request);
-          return networkResponse;
-        } catch (err) {
-          // Fallback to cache if the user is in a lift or basement
-          return cachedResponse;
-        }
-      })()
-    );
-  }
+        return await fetch(event.request);
+      } catch (err) {
+        // Fallback for when there's no internet
+        return new Response("Offline - Check your connection", { status: 503 });
+      }
+    })()
+  );
 });
