@@ -6,19 +6,13 @@
     <title>Games - Kopala FPL</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#37003c">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Kopala FPL">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="footer.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-
         :root {
             --bg-color: #f3f4f6;
             --card-bg: #ffffff;
@@ -31,54 +25,56 @@
             --live-badge: #e90052; 
             --expand-mint: #f8fafc;
             --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
-            --md-sys-color-primary: #006a60;
+            --shimmer-base: #f0f4f9;
+            --shimmer-shine: rgba(255, 255, 255, 0.7);
         }
 
-        body.dark-mode {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --expand-mint: #2d3748;
-        }
-
-        body { margin: 0; background-color: var(--bg-color); color: var(--text-main); font-family: 'Inter', sans-serif; transition: background 0.3s ease; }
+        body { margin: 0; background-color: var(--bg-color); color: var(--text-main); font-family: 'Inter', sans-serif; }
         .page-content { padding-top: 20px; padding-bottom: 100px; max-width: 600px; margin: 0 auto; padding-left: 10px; padding-right: 10px; }
 
-        /* --- SPINNER --- */
-        .spinner-container { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 60vh; width: 100%; }
-        .md-spinner { width: 32px; height: 32px; border: 3.5px solid rgba(0,0,0,0.1); border-top: 3.5px solid var(--md-sys-color-primary); border-radius: 50%; animation: md-spin 0.8s infinite linear; }
-        @keyframes md-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        /* --- SHIMMER SYSTEM --- */
+        .skeleton {
+            background-color: var(--shimmer-base) !important;
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+        .skeleton::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -150%; width: 100%; height: 100%;
+            background: linear-gradient(110deg, rgba(255, 255, 255, 0) 20%, var(--shimmer-shine) 50%, rgba(255, 255, 255, 0) 80%);
+            animation: glass-shine 1.6s infinite ease-in-out;
+        }
+        @keyframes glass-shine { 0% { left: -150%; } 100% { left: 150%; } }
 
         /* --- TABS --- */
         .gw-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-        .gw-tab { flex: 1; padding: 12px; text-align: center; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--border-color); font-size: 0.75rem; font-weight: 800; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
+        .gw-tab { flex: 1; padding: 12px; text-align: center; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--border-color); font-size: 0.75rem; font-weight: 800; cursor: pointer; color: var(--text-muted); }
         .gw-tab.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
 
         /* MATCH CARD */
         .m-card { background: var(--card-bg); border-radius: 20px; margin-bottom: 16px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow-md); }
-        .m-time-bar { font-size: 0.65rem; font-weight: 700; text-align: center; padding: 8px; opacity: 0.6; letter-spacing: 0.5px; border-bottom: 1px solid var(--border-color); }
+        .m-time-bar { font-size: 0.65rem; font-weight: 700; text-align: center; padding: 8px; opacity: 0.6; border-bottom: 1px solid var(--border-color); }
         .m-main { display: flex; align-items: center; justify-content: space-between; padding: 20px 10px; }
         .team-box { flex: 1; text-align: center; }
         .kit-img { width: 36px; height: auto; margin-bottom: 6px; }
-        .team-name { font-weight: 900; font-size: 0.75rem; display: block; color: var(--text-main); }
+        .team-name { font-weight: 900; font-size: 0.75rem; color: var(--text-main); }
         
         .score-center { flex: 1.2; text-align: center; }
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; display: inline-block; margin-bottom: 8px; }
         .badge-done { background: rgba(30, 58, 138, 0.1); color: var(--done-badge); }
-        .badge-live { background: rgba(233, 0, 82, 0.1); color: var(--live-badge); animation: pulse 2s infinite; }
+        .badge-live { background: rgba(233, 0, 82, 0.1); color: var(--live-badge); }
         .score-val { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; }
         
-        /* EVENTS (GOALS/ASSISTS) */
+        /* PLAYER INFO FIX (Prevent Dark BG) */
+        .p-name { color: var(--text-main) !important; background: transparent !important; font-weight: 800; }
+
         .m-events { background: var(--expand-mint); padding: 12px; font-size: 0.65rem; border-top: 1px solid var(--border-color); }
         .event-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .event-side { display: flex; flex-direction: column; gap: 4px; }
-        .event-item { display: flex; align-items: center; gap: 4px; font-weight: 600; opacity: 0.9; }
-        .event-side.home { align-items: flex-start; text-align: left; }
-        .event-side.away { align-items: flex-end; text-align: right; }
+        .event-item { display: flex; align-items: center; gap: 4px; font-weight: 600; }
         
-        /* BONUS SECTION */
         .m-footer { background: var(--card-bg); padding: 10px; font-size: 0.6rem; text-align: center; border-top: 1px dashed var(--border-color); color: var(--text-muted); }
         .bonus-player { margin: 0 4px; font-weight: 700; color: var(--text-main); }
         .pts-pill { background: var(--primary-blue); color: #fff; padding: 1px 4px; border-radius: 4px; margin-left: 2px; }
@@ -90,38 +86,53 @@
     </style>
 </head>
 <body>
-
     <div id="nav-placeholder"></div>
 
     <main class="page-content">
-        <div id="loading-state">
-            <div class="spinner-container">
-                <div class="md-spinner"></div>
-                <div class="loading-text">Live Match Center</div>
-            </div>
+        <div class="gw-tabs">
+            <div id="tab-curr" class="gw-tab active" onclick="switchGW('curr')">Current GW</div>
+            <div id="tab-next" class="gw-tab" onclick="switchGW('next')">Next GW</div>
         </div>
-
-        <div id="main-content" style="display: none;">
-            <div class="gw-tabs">
-                <div id="tab-curr" class="gw-tab active" onclick="switchGW('curr')">Current GW</div>
-                <div id="tab-next" class="gw-tab" onclick="switchGW('next')">Next GW</div>
+        <div id="gw-display-header" style="font-weight: 900; margin-bottom: 15px; font-size: 1.2rem;">Gameweek --</div>
+        
+        <div id="games-list">
             </div>
-            <div id="gw-display-header" style="font-weight: 900; margin-bottom: 15px; font-size: 1.2rem;"></div>
-            <div id="games-list"></div>
-        </div>
     </main>
 
     <div id="footer-placeholder"></div>
 
     <script>
-        let players = [];
-        let teams = [];
-        let currentFixtures = [];
-        let nextFixtures = [];
-        let currentGWId = 1;
+        let players = [], teams = [], currentFixtures = [], nextFixtures = [], currentGWId = 1;
         const PROXY = "/.netlify/functions/fpl-proxy?endpoint=";
 
+        function showSkeletons() {
+            const list = document.getElementById('games-list');
+            let html = '';
+            for (let i = 0; i < 4; i++) {
+                html += `
+                <div class="m-card">
+                    <div class="m-time-bar"><div class="skeleton" style="width:100px; height:8px; margin:0 auto;"></div></div>
+                    <div class="m-main">
+                        <div class="team-box">
+                            <div class="skeleton" style="width:36px; height:36px; border-radius:50%; margin:0 auto 6px;"></div>
+                            <div class="skeleton" style="width:60%; height:10px; margin:0 auto;"></div>
+                        </div>
+                        <div class="score-center">
+                            <div class="skeleton" style="width:40px; height:14px; border-radius:10px; margin:0 auto 8px;"></div>
+                            <div class="skeleton" style="width:60px; height:30px; margin:0 auto;"></div>
+                        </div>
+                        <div class="team-box">
+                            <div class="skeleton" style="width:36px; height:36px; border-radius:50%; margin:0 auto 6px;"></div>
+                            <div class="skeleton" style="width:60%; height:10px; margin:0 auto;"></div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+            list.innerHTML = html;
+        }
+
         async function init() {
+            showSkeletons();
             try {
                 const bootRes = await fetch(`${PROXY}bootstrap-static/`);
                 const bootData = await bootRes.json();
@@ -138,12 +149,7 @@
                 nextFixtures = await nextRes.json();
 
                 switchGW('curr'); 
-                document.getElementById('loading-state').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         function formatMatchTime(kickoff) {
@@ -155,12 +161,11 @@
         function getMatchMinute(f) {
             if (f.finished) return 'FT';
             if (!f.started) return 'Scheduled';
-            // Simple calculation for live minute
             const start = new Date(f.kickoff_time);
             const now = new Date();
             let diff = Math.floor((now - start) / 60000);
             if (diff > 45 && diff < 60) return "HT";
-            if (diff >= 60) diff -= 15; // Rough estimate for halftime
+            if (diff >= 60) diff -= 15;
             return diff > 90 ? "90+" : diff + "'";
         }
 
@@ -191,7 +196,6 @@
                 const goals = getEvents(f, 'goals_scored');
                 const assists = getEvents(f, 'assists');
                 
-                // Bonus logic
                 let bonusMarkup = "";
                 const bpsStat = f.stats.find(s => s.identifier === (f.finished ? "bonus" : "bps"));
                 if (bpsStat) {
@@ -261,7 +265,6 @@
 
         init();
     </script>
-
     <script src="footer.js"></script>
     <script src="nav.js"></script>
 </body>
