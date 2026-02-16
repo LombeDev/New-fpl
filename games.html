@@ -2,10 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Games - Kopala FPL</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#37003c">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="footer.css">
@@ -18,7 +22,7 @@
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
-            --primary-blue: #2563eb;
+            --primary-blue: #37003c; /* Changed to match your branding */
             --fpl-green: #00ff85;
             --border-color: #e2e8f0;
             --done-badge: #1e3a8a;
@@ -32,7 +36,18 @@
         body { margin: 0; background-color: var(--bg-color); color: var(--text-main); font-family: 'Inter', sans-serif; }
         .page-content { padding-top: 20px; padding-bottom: 100px; max-width: 600px; margin: 0 auto; padding-left: 10px; padding-right: 10px; }
 
-        /* --- SHIMMER SYSTEM --- */
+        /* --- SCROLL REVEAL ANIMATION --- */
+        .reveal-item {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal-item.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- SKELETON LOADER --- */
         .skeleton {
             background-color: var(--shimmer-base) !important;
             position: relative;
@@ -50,39 +65,43 @@
 
         /* --- TABS --- */
         .gw-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-        .gw-tab { flex: 1; padding: 12px; text-align: center; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--border-color); font-size: 0.75rem; font-weight: 800; cursor: pointer; color: var(--text-muted); }
-        .gw-tab.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
+        .gw-tab { flex: 1; padding: 12px; text-align: center; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--border-color); font-size: 0.75rem; font-weight: 800; cursor: pointer; color: var(--text-muted); transition: 0.3s; }
+        .gw-tab.active { background: var(--primary-blue); color: #00ff85; border-color: var(--primary-blue); }
 
         /* MATCH CARD */
         .m-card { background: var(--card-bg); border-radius: 20px; margin-bottom: 16px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow-md); }
-        .m-time-bar { font-size: 0.65rem; font-weight: 700; text-align: center; padding: 8px; opacity: 0.6; border-bottom: 1px solid var(--border-color); }
+        .m-time-bar { font-size: 0.65rem; font-weight: 700; text-align: center; padding: 8px; opacity: 0.6; border-bottom: 1px solid var(--border-color); background: #fafafa; }
         .m-main { display: flex; align-items: center; justify-content: space-between; padding: 20px 10px; }
-        .team-box { flex: 1; text-align: center; }
-        .kit-img { width: 36px; height: auto; margin-bottom: 6px; }
+        .team-box { flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .kit-img { width: 42px; height: auto; margin-bottom: 6px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1)); }
         .team-name { font-weight: 900; font-size: 0.75rem; color: var(--text-main); }
         
         .score-center { flex: 1.2; text-align: center; }
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; display: inline-block; margin-bottom: 8px; }
-        .badge-done { background: rgba(30, 58, 138, 0.1); color: var(--done-badge); }
-        .badge-live { background: rgba(233, 0, 82, 0.1); color: var(--live-badge); }
-        .score-val { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; display: inline-block; margin-bottom: 8px; text-transform: uppercase; }
+        .badge-done { background: #e2e8f0; color: var(--text-muted); }
+        .badge-live { background: #ffe4e6; color: var(--live-badge); animation: pulse 2s infinite; }
+        .badge-sched { background: #f1f5f9; color: var(--text-muted); }
+        .score-val { font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; color: var(--primary-blue); }
         
-        /* PLAYER INFO FIX (Prevent Dark BG) */
-        .p-name { color: var(--text-main) !important; background: transparent !important; font-weight: 800; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
         .m-events { background: var(--expand-mint); padding: 12px; font-size: 0.65rem; border-top: 1px solid var(--border-color); }
         .event-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .event-side { display: flex; flex-direction: column; gap: 4px; }
-        .event-item { display: flex; align-items: center; gap: 4px; font-weight: 600; }
+        .event-item { display: flex; align-items: center; gap: 4px; font-weight: 600; color: #333; }
         
         .m-footer { background: var(--card-bg); padding: 10px; font-size: 0.6rem; text-align: center; border-top: 1px dashed var(--border-color); color: var(--text-muted); }
-        .bonus-player { margin: 0 4px; font-weight: 700; color: var(--text-main); }
-        .pts-pill { background: var(--primary-blue); color: #fff; padding: 1px 4px; border-radius: 4px; margin-left: 2px; }
+        .bonus-player { margin: 0 4px; font-weight: 700; color: var(--text-main); display: inline-block; }
+        .pts-pill { background: var(--primary-blue); color: #00ff85; padding: 2px 6px; border-radius: 4px; margin-left: 3px; font-size: 0.6rem; }
 
-        .expand-btn { background: var(--card-bg); border: none; width: 100%; padding: 10px; font-size: 0.65rem; font-weight: 800; color: var(--primary-blue); cursor: pointer; border-top: 1px solid var(--border-color); }
-        .drawer { display: none; padding: 10px; background: var(--expand-mint); }
-        .drawer.active { display: block; }
-        .own-row { display: flex; justify-content: space-between; padding: 8px 5px; border-bottom: 1px solid var(--border-color); font-size: 0.75rem; }
+        .expand-btn { background: var(--card-bg); border: none; width: 100%; padding: 12px; font-size: 0.7rem; font-weight: 800; color: var(--primary-blue); cursor: pointer; border-top: 1px solid var(--border-color); transition: background 0.2s; }
+        .expand-btn:active { background: #f1f5f9; }
+        .drawer { display: none; padding: 10px; background: var(--expand-mint); border-top: 1px solid var(--border-color); }
+        .drawer.active { display: block; animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .own-row { display: flex; justify-content: space-between; padding: 8px 5px; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 0.75rem; }
+        .own-row:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -93,10 +112,9 @@
             <div id="tab-curr" class="gw-tab active" onclick="switchGW('curr')">Current GW</div>
             <div id="tab-next" class="gw-tab" onclick="switchGW('next')">Next GW</div>
         </div>
-        <div id="gw-display-header" style="font-weight: 900; margin-bottom: 15px; font-size: 1.2rem;">Gameweek --</div>
+        <div id="gw-display-header" style="font-weight: 900; margin-bottom: 15px; font-size: 1.2rem; padding-left: 5px;">Gameweek --</div>
         
-        <div id="games-list">
-            </div>
+        <div id="games-list"></div>
     </main>
 
     <div id="footer-placeholder"></div>
@@ -108,9 +126,9 @@
         function showSkeletons() {
             const list = document.getElementById('games-list');
             let html = '';
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 5; i++) {
                 html += `
-                <div class="m-card">
+                <div class="m-card reveal-item">
                     <div class="m-time-bar"><div class="skeleton" style="width:100px; height:8px; margin:0 auto;"></div></div>
                     <div class="m-main">
                         <div class="team-box">
@@ -160,13 +178,15 @@
 
         function getMatchMinute(f) {
             if (f.finished) return 'FT';
-            if (!f.started) return 'Scheduled';
+            if (!f.started) return 'v';
             const start = new Date(f.kickoff_time);
             const now = new Date();
+            // Simple estimation. For real precision, use 'minutes' from live data if available
             let diff = Math.floor((now - start) / 60000);
             if (diff > 45 && diff < 60) return "HT";
             if (diff >= 60) diff -= 15;
-            return diff > 90 ? "90+" : diff + "'";
+            if (diff > 90) return "90+";
+            return diff + "'";
         }
 
         function getEvents(f, type) {
@@ -185,29 +205,50 @@
             document.getElementById('tab-next').classList.toggle('active', !isCurr);
             const targetGW = isCurr ? currentGWId : currentGWId + 1;
             document.getElementById('gw-display-header').innerText = `Gameweek ${targetGW}`;
-            renderGames(isCurr ? currentFixtures : nextFixtures);
+            
+            const fixtures = isCurr ? currentFixtures : nextFixtures;
+            renderGames(fixtures);
         }
 
         function renderGames(fixtures) {
             const list = document.getElementById('games-list');
+            
+            if(!fixtures || fixtures.length === 0) {
+                list.innerHTML = `<div style="text-align:center; padding:20px; opacity:0.6;">No games found.</div>`;
+                return;
+            }
+
             list.innerHTML = fixtures.map(f => {
                 const hTeam = teams.find(t => t.id === f.team_h);
                 const aTeam = teams.find(t => t.id === f.team_a);
+                
+                // Safety check in case teams aren't loaded yet
+                if(!hTeam || !aTeam) return '';
+
                 const goals = getEvents(f, 'goals_scored');
                 const assists = getEvents(f, 'assists');
                 
                 let bonusMarkup = "";
                 const bpsStat = f.stats.find(s => s.identifier === (f.finished ? "bonus" : "bps"));
-                if (bpsStat) {
-                    const top3 = [...bpsStat.h, ...bpsStat.a].sort((a,b) => b.value - a.value).slice(0,3);
-                    bonusMarkup = top3.map((p, i) => {
-                        const name = players.find(x => x.id === p.element)?.web_name;
-                        return `<span class="bonus-player">${name}<span class="pts-pill">${f.finished ? p.value : (3-i)}</span></span>`;
+                
+                if (bpsStat && (bpsStat.h.length > 0 || bpsStat.a.length > 0)) {
+                    // Combine and sort by value (BPS or Bonus)
+                    const allBps = [
+                        ...bpsStat.h.map(x => ({...x, team: 'h'})), 
+                        ...bpsStat.a.map(x => ({...x, team: 'a'}))
+                    ].sort((a,b) => b.value - a.value).slice(0, 3);
+
+                    bonusMarkup = allBps.map((p, i) => {
+                        const name = players.find(x => x.id === p.element)?.web_name || "Unknown";
+                        // If finished, show actual bonus (3,2,1). If live, show projected rank (1st, 2nd, 3rd)
+                        const displayVal = f.finished ? p.value : (3 - i); 
+                        return `<span class="bonus-player">${name}<span class="pts-pill">${displayVal}</span></span>`;
                     }).join('');
                 }
 
+                // Add 'reveal-item' class for animation
                 return `
-                    <div class="m-card">
+                    <div class="m-card reveal-item">
                         <div class="m-time-bar">${formatMatchTime(f.kickoff_time)}</div>
                         <div class="m-main">
                             <div class="team-box">
@@ -218,7 +259,9 @@
                                 <div class="status-badge ${f.finished ? 'badge-done' : (f.started ? 'badge-live' : 'badge-sched')}">
                                     ${getMatchMinute(f)}
                                 </div>
-                                <div class="score-val">${f.team_h_score ?? 0} : ${f.team_a_score ?? 0}</div>
+                                <div class="score-val">
+                                    ${f.started ? `${f.team_h_score} : ${f.team_a_score}` : 'vs'}
+                                </div>
                             </div>
                             <div class="team-box">
                                 <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${aTeam.code}-66.png" class="kit-img">
@@ -226,46 +269,88 @@
                             </div>
                         </div>
 
-                        ${f.started ? `
+                        ${f.started && (goals.h.length > 0 || goals.a.length > 0) ? `
                         <div class="m-events">
                             <div class="event-grid">
-                                <div class="event-side home">
-                                    ${goals.h.map(g => `<div class="event-item">⚽ ${g.name} ${g.val > 1 ? 'x'+g.val : ''}</div>`).join('')}
-                                    ${assists.h.map(a => `<div class="event-item">🅰️ ${a.name} ${a.val > 1 ? 'x'+a.val : ''}</div>`).join('')}
+                                <div class="event-side home" style="text-align:right;">
+                                    ${goals.h.map(g => `<div class="event-item" style="justify-content: flex-end;">${g.name} ⚽</div>`).join('')}
+                                    ${assists.h.map(a => `<div class="event-item" style="justify-content: flex-end; opacity:0.7;">${a.name} 🅰️</div>`).join('')}
                                 </div>
                                 <div class="event-side away">
-                                    ${goals.a.map(g => `<div class="event-item">${g.name} ${g.val > 1 ? 'x'+g.val : ''} ⚽</div>`).join('')}
-                                    ${assists.a.map(a => `<div class="event-item">${a.name} ${a.val > 1 ? 'x'+a.val : ''} 🅰️</div>`).join('')}
+                                    ${goals.a.map(g => `<div class="event-item">⚽ ${g.name}</div>`).join('')}
+                                    ${assists.a.map(a => `<div class="event-item" style="opacity:0.7;">🅰️ ${a.name}</div>`).join('')}
                                 </div>
                             </div>
                         </div>` : ''}
 
+                        ${bonusMarkup ? `
                         <div class="m-footer">
-                            <div style="font-weight:800; opacity:0.6; margin-bottom:4px; font-size:0.55rem; letter-spacing:1px">BONUS POINTS</div>
-                            ${bonusMarkup || '---'}
-                        </div>
+                            <div style="font-weight:800; opacity:0.6; margin-bottom:4px; font-size:0.55rem; letter-spacing:1px">${f.finished ? 'BONUS POINTS' : 'PROJECTED BONUS'}</div>
+                            ${bonusMarkup}
+                        </div>` : ''}
                         
-                        <button class="expand-btn" onclick="toggleDrawer(${f.id})">MATCH STATS <i class="fa-solid fa-chevron-down"></i></button>
+                        <button class="expand-btn" onclick="toggleDrawer(${f.id})">
+                            PLAYER OWNERSHIP <i class="fa-solid fa-chevron-down"></i>
+                        </button>
                         <div class="drawer" id="drawer-${f.id}">
-                            <div style="padding:5px; text-align:center; font-size:0.6rem; color:var(--text-muted); font-weight:800; letter-spacing:1px">TOP OWNED PLAYERS</div>
-                            ${players.filter(p => p.team === f.team_h || p.team === f.team_a)
-                                .sort((a,b) => b.selected_by_percent - a.selected_by_percent).slice(0,5).map(p => `
-                                <div class="own-row">
-                                    <span>${p.web_name} <small style="opacity:0.6">${p.selected_by_percent}%</small></span>
-                                    <span style="font-weight:900; color:var(--primary-blue)">${f.started ? 'LIVE' : 'PRE'}</span>
-                                </div>`).join('')}
+                             ${getTopOwnedMarkup(f.team_h, f.team_a)}
                         </div>
                     </div>`;
             }).join('');
+
+            // Trigger animations
+            applyScrollReveal();
+        }
+
+        function getTopOwnedMarkup(teamHId, teamAId) {
+            // Filter players from these two teams, sort by ownership
+            const relevantPlayers = players.filter(p => p.team === teamHId || p.team === teamAId)
+                                           .sort((a,b) => parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent))
+                                           .slice(0, 5);
+            
+            return relevantPlayers.map(p => `
+                <div class="own-row">
+                    <span>${p.web_name} <small style="opacity:0.6">${p.selected_by_percent}%</small></span>
+                    <span style="font-weight:900; color:var(--primary-blue)">${p.element_type === 1 ? 'GK' : (p.element_type === 2 ? 'DEF' : (p.element_type===3 ? 'MID' : 'FWD'))}</span>
+                </div>
+            `).join('');
         }
 
         function toggleDrawer(id) {
-            document.getElementById(`drawer-${id}`).classList.toggle('active');
+            const el = document.getElementById(`drawer-${id}`);
+            if(el) el.classList.toggle('active');
         }
 
+        function applyScrollReveal() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal-item').forEach(item => {
+                observer.observe(item);
+            });
+        }
+
+        // Initialize
         init();
     </script>
+    
     <script src="footer.js"></script>
     <script src="nav.js"></script>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(() => console.log('SW Registered'))
+            .catch((err) => console.log('SW Failed', err));
+        });
+      }
+    </script>
 </body>
 </html>
