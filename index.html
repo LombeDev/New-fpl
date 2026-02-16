@@ -19,580 +19,617 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-
-
         /* Container spacing */
-.page-content {
-    padding-top: 10px;
-}
+        .page-content {
+            padding-top: 10px;
+        }
 
-/* Container for the whole section */
-.header-content {
-    padding: 24px 16px 16px;
-    border-bottom: 1px solid rgba(0,0,0,0.08);
-    margin-bottom: 16px;
-}
+        /* Container for the whole section */
+        .header-content {
+            padding: 24px 16px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+        }
 
-#disp-name {
-    display: block;
-    font-size: 2rem !important; /* Large expressive heading */
-    font-weight: 900;
-    color: #38003c; /* FPL Purple */
-    line-height: 1.1;
-    margin-bottom: 4px;
-}
+        #disp-name {
+            display: block;
+            font-size: 2rem !important; /* Large expressive heading */
+            font-weight: 900;
+            color: #38003c; /* FPL Purple */
+            line-height: 1.1;
+            margin-bottom: 4px;
+            min-height: 2rem; /* Prevent collapse during load */
+        }
 
-#disp-team {
-    font-size: 1rem !important;
-    font-weight: 500;
-    opacity: 0.6;
-    color: #1d1b20;
-}
+        #disp-team {
+            font-size: 1rem !important;
+            font-weight: 500;
+            opacity: 0.6;
+            color: #1d1b20;
+            min-height: 1rem; /* Prevent collapse during load */
+        }
 
-/* Points & Rankings Section Label */
-.header-stats-grid::before {
-    content: "Points & Rankings";
-    display: block;
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: #38003c;
-    padding: 0 16px 16px;
-}
+        /* Points & Rankings Section Label */
+        .header-stats-grid::before {
+            content: "Points & Rankings";
+            display: block;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #38003c;
+            padding: 0 16px 16px;
+        }
 
-/* Transform Grid into a Vertical List */
-.header-stats-grid {
-    display: flex;
-    flex-direction: column;
-    padding: 0 16px;
-    gap: 2px; /* Small gap for a clean look */
-}
+        /* Transform Grid into a Vertical List */
+        .header-stats-grid {
+            display: flex;
+            flex-direction: column;
+            padding: 0 16px;
+            gap: 2px; /* Small gap for a clean look */
+        }
 
-.stat-box {
-    display: flex;
-    justify-content: space-between; /* Pushes label to left, value to right */
-    align-items: center;
-    padding: 12px 0;
-    border: none !important; /* Remove old borders */
-}
+        .stat-box {
+            display: flex;
+            justify-content: space-between; /* Pushes label to left, value to right */
+            align-items: center;
+            padding: 12px 0;
+            border: none !important; /* Remove old borders */
+        }
 
-/* Add a thin divider between items except the last one */
-.stat-box:not(:last-child) {
-    border-bottom: 1px solid rgba(0,0,0,0.05) !important;
-}
+        /* Add a thin divider between items except the last one */
+        .stat-box:not(:last-child) {
+            border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+        }
 
-.stat-label {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #49454f; /* M3 Neutral Variant */
-    text-transform: none; /* More modern than all-caps */
-    letter-spacing: 0;
-}
+        .stat-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #49454f; /* M3 Neutral Variant */
+            text-transform: none; /* More modern than all-caps */
+            letter-spacing: 0;
+        }
 
-.stat-value {
-    font-size: 1.1rem;
-    font-weight: 900;
-    color: #1d1b20;
-}
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #1d1b20;
+            min-width: 40px; /* Prevent collapse during load */
+            text-align: right;
+        }
 
-/* Make the last stat (Points) pop slightly */
-#disp-total {
-    color: #38003c;
-    font-size: 1.2rem;
-}
-.mobile-nav, .overlay-menu {
-    background-color: var(--nav-bg);
-    border-bottom: 1px solid var(--border-color);
-}
+        /* Make the last stat (Points) pop slightly */
+        #disp-total {
+            color: #38003c;
+            font-size: 1.2rem;
+        }
+        .mobile-nav, .overlay-menu {
+            background-color: var(--nav-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
 
-.menu-links a {
-    color: var(--text-color);
-}
+        .menu-links a {
+            color: var(--text-color);
+        }
         
-    
-   
+        .player-list-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px 2px; /* Slightly more vertical breathing room */
+            justify-items: center;
+            padding: 4px;
+        }
 
-   .player-list-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px 2px; /* Slightly more vertical breathing room */
-    justify-items: center;
-    padding: 4px;
-}
+        .compact-player-card {
+            width: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            padding: 2px 0;
+            border-radius: 8px; /* Material rounded corners */
+            transition: background-color 0.2s ease;
+            min-height: 60px; /* Ensure skeleton has height */
+        }
 
-.compact-player-card {
-    width: 44px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    padding: 2px 0;
-    border-radius: 8px; /* Material rounded corners */
-    transition: background-color 0.2s ease;
-}
+        /* Nano Jersey */
+        .compact-player-card img {
+            width: 24px; /* Slightly larger for clarity */
+            margin-bottom: 2px;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+            z-index: 2;
+        }
 
-/* Nano Jersey */
-.compact-player-card img {
-    width: 24px; /* Slightly larger for clarity */
-    margin-bottom: 2px;
-    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
-    z-index: 2;
-}
+        /* Material Name Box */
+        .card-name {
+            font-size: 0.48rem;
+            font-weight: 700;
+            color: #1d1b20;
+            background: var(--md-sys-color-surface-container);
+            margin-bottom: 1px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            padding: 1px 0;
+            border-radius: 2px;
+        }
 
-/* Material Name Box */
-.card-name {
-    font-size: 0.48rem;
-    font-weight: 700;
-    color: #1d1b20;
-    background: var(--md-sys-color-surface-container);
-    margin-bottom: 1px;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-    padding: 1px 0;
-    border-radius: 2px;
-}
+        /* Material You Tonal Pill for Points */
+        .card-points {
+            background: var(--md-sys-color-primary-container);
+            color: var(--md-sys-color-on-primary-container);
+            font-size: 0.65rem;
+            font-weight: 900;
+            padding: 1px 4px;
+            border-radius: 6px; /* M3 pill shape */
+            margin-bottom: 2px;
+            min-width: 24px;
+            text-align: center;
+        }
 
-/* Material You Tonal Pill for Points */
-.card-points {
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-    font-size: 0.65rem;
-    font-weight: 900;
-    padding: 1px 4px;
-    border-radius: 6px; /* M3 pill shape */
-    margin-bottom: 2px;
-    min-width: 24px;
-    text-align: center;
-}
+        /* Refined Ownership Bar */
+        .card-ownership-bar {
+            background: var(--md-sys-color-secondary-container); 
+            color: #00391c; /* Deep green for contrast */
+            font-size: 0.42rem;
+            padding: 1px 0;
+            border-radius: 4px;
+            font-weight: 800;
+            width: 90%;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
 
-/* Refined Ownership Bar */
-.card-ownership-bar {
-    background: var(--md-sys-color-secondary-container); 
-    color: #00391c; /* Deep green for contrast */
-    font-size: 0.42rem;
-    padding: 1px 0;
-    border-radius: 4px;
-    font-weight: 800;
-    width: 90%;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-}
+        /* Floating Badges */
+        .badge {
+            position: absolute;
+            top: 8px;
+            right: 0px;
+            width: 12px;
+            height: 12px;
+            background: #37003c; /* FPL Purple */
+            color: #00ff85; /* FPL Green */
+            border-radius: 4px; /* Material squircle */
+            font-size: 0.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            border: 1px solid var(--md-sys-color-surface);
+            z-index: 3;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
 
-/* Floating Badges */
-.badge {
-    position: absolute;
-    top: 8px;
-    right: 0px;
-    width: 12px;
-    height: 12px;
-    background: #37003c; /* FPL Purple */
-    color: #00ff85; /* FPL Green */
-    border-radius: 4px; /* Material squircle */
-    font-size: 0.4rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    border: 1px solid var(--md-sys-color-surface);
-    z-index: 3;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-}
-
-.is-bench { 
-    opacity: 0.6; 
-    filter: grayscale(0.4);
-}
-
-
+        .is-bench { 
+            opacity: 0.6; 
+            filter: grayscale(0.4);
+        }
 
         /* 1. The "Press" Effect */
-.compact-player-card {
-    cursor: pointer;
-    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), 
-                background-color 0.2s ease;
-    -webkit-tap-highlight-color: transparent; /* Remove mobile blue highlight */
-}
+        .compact-player-card {
+            cursor: pointer;
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), 
+                        background-color 0.2s ease;
+            -webkit-tap-highlight-color: transparent; /* Remove mobile blue highlight */
+        }
 
-/* Material Ripple-like shrink on click */
-.compact-player-card:active {
-    transform: scale(0.92); /* Shrink slightly */
-}
+        /* Material Ripple-like shrink on click */
+        .compact-player-card:active {
+            transform: scale(0.92); /* Shrink slightly */
+        }
 
-/* 2. Persistent Selection State (Material You Focus) */
-.compact-player-card.is-selected {
-    background-color: var(--md-sys-color-primary-container);
-    outline: 1.5px solid var(--md-sys-color-on-primary-container);
-    outline-offset: 2px;
-}
+        /* 2. Persistent Selection State (Material You Focus) */
+        .compact-player-card.is-selected {
+            background-color: var(--md-sys-color-primary-container);
+            outline: 1.5px solid var(--md-sys-color-on-primary-container);
+            outline-offset: 2px;
+        }
 
-/* 3. The "Pulse" Animation for the Point Box on click */
-@keyframes point-pop {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); color: var(--fpl-magenta); }
-    100% { transform: scale(1); }
-}
+        /* 3. The "Pulse" Animation for the Point Box on click */
+        @keyframes point-pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); color: var(--fpl-magenta); }
+            100% { transform: scale(1); }
+        }
 
-.compact-player-card:active .card-points {
-    animation: point-pop 0.3s ease-out;
-}
+        .compact-player-card:active .card-points {
+            animation: point-pop 0.3s ease-out;
+        }
 
-/* 4. Enhancement for the Avatar/Jersey */
-.compact-player-card:active img {
-    filter: brightness(0.8) drop-shadow(0 4px 4px rgba(0,0,0,0.2));
-}
+        /* 4. Enhancement for the Avatar/Jersey */
+        .compact-player-card:active img {
+            filter: brightness(0.8) drop-shadow(0 4px 4px rgba(0,0,0,0.2));
+        }
         
+        /* Main section - tighter and consistent with transfer cards */
+        .deadline-section {
+            padding: 16px;
+            background: var(--card-bg, #ffffff);
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            margin-top: 20px;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
 
-/* Main section - tighter and consistent with transfer cards */
-.deadline-section {
-    padding: 16px;
-    background: var(--card-bg, #ffffff);
-    border-radius: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-    margin-top: 20px;
-    border: 1px solid rgba(0,0,0,0.04);
-}
+        .deadline-title { 
+            font-size: 0.9rem; 
+            font-weight: 800; 
+            margin-bottom: 2px;
+            color: var(--text-color, #1d1b20);
+        }
 
-.deadline-title { 
-    font-size: 0.9rem; 
-    font-weight: 800; 
-    margin-bottom: 2px;
-    color: var(--text-color, #1d1b20);
-}
+        .gw-subtitle { 
+            font-size: 0.7rem; 
+            font-weight: 700; 
+            margin-bottom: 12px; 
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
 
-.gw-subtitle { 
-    font-size: 0.7rem; 
-    font-weight: 700; 
-    margin-bottom: 12px; 
-    opacity: 0.6;
-    text-transform: uppercase;
-}
+        /* Compact Countdown Bar */
+        .countdown-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 16px;
+            background: var(--secondary-container, #eaddff);
+            padding: 10px 14px;
+            border-radius: 14px;
+        }
 
-/* Compact Countdown Bar */
-.countdown-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 16px;
-    background: var(--secondary-container, #eaddff);
-    padding: 10px 14px;
-    border-radius: 14px;
-}
+        .time-unit {
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
+        }
 
-.time-unit {
-    display: flex;
-    align-items: baseline;
-    gap: 3px;
-}
+        .time-unit span { 
+            font-size: 1.2rem; /* Much smaller but bold */
+            font-weight: 900; 
+            color: var(--accent-color, #21005d); 
+        }
 
-.time-unit span { 
-    font-size: 1.2rem; /* Much smaller but bold */
-    font-weight: 900; 
-    color: var(--accent-color, #21005d); 
-}
+        .time-unit label { 
+            font-size: 0.6rem; 
+            font-weight: 800; 
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
 
-.time-unit label { 
-    font-size: 0.6rem; 
-    font-weight: 800; 
-    text-transform: uppercase;
-    opacity: 0.7;
-}
+        .time-separator { 
+            font-size: 1rem; 
+            font-weight: 900; 
+            opacity: 0.2;
+            color: var(--accent-color, #38003c);
+        }
 
-.time-separator { 
-    font-size: 1rem; 
-    font-weight: 900; 
-    opacity: 0.2;
-    color: var(--accent-color, #38003c);
-}
+        /* Compact Table Rows */
+        .upcoming-title { 
+            font-size: 0.8rem; 
+            font-weight: 800; 
+            margin: 12px 0 8px 4px; 
+        }
 
-/* Compact Table Rows */
-.upcoming-title { 
-    font-size: 0.8rem; 
-    font-weight: 800; 
-    margin: 12px 0 8px 4px; 
-}
+        .deadline-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--surface-variant, #f6f3f8);
+            margin-bottom: 4px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            border: none;
+        }
 
-.deadline-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    background: var(--surface-variant, #f6f3f8);
-    margin-bottom: 4px;
-    border-radius: 10px;
-    font-size: 0.75rem;
-    border: none;
-}
-
-.deadline-row b { 
-    font-weight: 800;
-    color: var(--accent-color, #38003c);
-}
+        .deadline-row b { 
+            font-weight: 800;
+            color: var(--accent-color, #38003c);
+        }
         
-       /* Container */
-.grid-top-info {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 0;
-    width: 100%;
-}
+        /* Container */
+        .grid-top-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 0;
+            width: 100%;
+        }
 
-/* Individual Pill - Material You Style */
-.info-pill {
-    /* Micro Size */
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-    
-    /* Shape & Spacing */
-    padding: 6px 14px;
-    border-radius: 100px; /* Perfect pill shape */
-    
-    /* Material You Colors (Adaptive) */
-    background-color: var(--pill-bg, #eaddff); /* Light lavender/blue tint */
-    color: var(--pill-text, #21005d);
-    
-    /* Soft elevation instead of harsh borders */
-    border: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    
-    transition: all 0.2s ease;
-    cursor: default;
-}
+        /* Individual Pill - Material You Style */
+        .info-pill {
+            /* Micro Size */
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            
+            /* Shape & Spacing */
+            padding: 6px 14px;
+            border-radius: 100px; /* Perfect pill shape */
+            
+            /* Material You Colors (Adaptive) */
+            background-color: var(--pill-bg, #eaddff); /* Light lavender/blue tint */
+            color: var(--pill-text, #21005d);
+            
+            /* Soft elevation instead of harsh borders */
+            border: none;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            
+            transition: all 0.2s ease;
+            cursor: default;
+        }
 
-/* Theme-specific overrides for Material You look */
-[data-theme="dark"] .info-pill {
-    --pill-bg: #4f378b;
-    --pill-text: #eaddff;
-}
+        /* Theme-specific overrides for Material You look */
+        [data-theme="dark"] .info-pill {
+            --pill-bg: #4f378b;
+            --pill-text: #eaddff;
+        }
 
-[data-theme="light"] .info-pill {
-    --pill-bg: #f3edf7;
-    --pill-text: #21005d;
-}
+        [data-theme="light"] .info-pill {
+            --pill-bg: #f3edf7;
+            --pill-text: #21005d;
+        }
 
-/* Accent for the 'PLAYED' pill to follow Material secondary colors */
-.info-pill:last-child {
-    background-color: var(--accent-color, #3498db);
-    color: #ffffff;
-}
+        /* Accent for the 'PLAYED' pill to follow Material secondary colors */
+        .info-pill:last-child {
+            background-color: var(--accent-color, #3498db);
+            color: #ffffff;
+        }
 
+        /* Layout container */
+        .transfers-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px; /* Tighter gap */
+            padding: 0;
+            background: transparent;
+            margin-top: 15px;
+        }
 
+        /* Compact Primary Cards */
+        .transfer-card-wrapper {
+            flex: 1;
+            min-width: 280px; /* Narrower minimum for small screens */
+            background: var(--card-bg, #ffffff);
+            border-radius: 20px; /* Slightly smaller radius for smaller cards */
+            padding: 14px; /* Tight padding */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
 
+        /* Header - Smaller and tighter */
+        .transfer-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
 
-/* Layout container */
-.transfers-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px; /* Tighter gap */
-    padding: 0;
-    background: transparent;
-    margin-top: 15px;
-}
+        .transfer-card-header h3 {
+            font-size: 0.85rem; /* Small, professional header */
+            font-weight: 800;
+            margin: 0;
+            color: var(--accent-color, #38003c);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
 
-/* Compact Primary Cards */
-.transfer-card-wrapper {
-    flex: 1;
-    min-width: 280px; /* Narrower minimum for small screens */
-    background: var(--card-bg, #ffffff);
-    border-radius: 20px; /* Slightly smaller radius for smaller cards */
-    padding: 14px; /* Tight padding */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-    border: 1px solid rgba(0,0,0,0.04);
-}
+        /* Mini Player Rows */
+        .transfer-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px; /* Very thin vertical padding */
+            margin-bottom: 4px;
+            background: var(--surface-variant, #f6f3f8);
+            border-radius: 12px; /* Smaller "pill" radius */
+            transition: transform 0.1s ease;
+        }
 
-/* Header - Smaller and tighter */
-.transfer-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    padding: 0 4px;
-}
+        .transfer-item-row:hover {
+            background: var(--secondary-container, #f0eaff);
+            transform: scale(1.01);
+        }
 
-.transfer-card-header h3 {
-    font-size: 0.85rem; /* Small, professional header */
-    font-weight: 800;
-    margin: 0;
-    color: var(--accent-color, #38003c);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
+        /* Tiny Jersey and Info */
+        .player-info-side {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Tighter spacing */
+        }
 
-/* Mini Player Rows */
-.transfer-item-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 10px; /* Very thin vertical padding */
-    margin-bottom: 4px;
-    background: var(--surface-variant, #f6f3f8);
-    border-radius: 12px; /* Smaller "pill" radius */
-    transition: transform 0.1s ease;
-}
+        .mini-shirt {
+            width: 18px; /* Very small jersey */
+            height: auto;
+            flex-shrink: 0;
+        }
 
-.transfer-item-row:hover {
-    background: var(--secondary-container, #f0eaff);
-    transform: scale(1.01);
-}
+        .p-name {
+            font-size: 0.75rem;
+            font-weight: 800; /* Made slightly heavier for better readability on small scale */
+            line-height: 1.1;
+            color: var(--text-color, #1d1b20); /* Dark, high-contrast color */
+            background: transparent !important; /* Forces removal of any background */
+            padding: 0;
+            margin: 0;
+            display: inline-block;
+        }
 
-/* Tiny Jersey and Info */
-.player-info-side {
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Tighter spacing */
-}
+        .p-team {
+            font-size: 0.55rem;
+            font-weight: 600;
+            color: var(--text-color, #49454f); /* Material 'on-surface-variant' color */
+            opacity: 0.7; /* Slightly higher for better readability at micro size */
+            background: transparent !important;
+            text-transform: uppercase; /* Looks more professional for team abbreviations */
+            letter-spacing: 0.2px;
+        }
 
-.mini-shirt {
-    width: 18px; /* Very small jersey */
-    height: auto;
-    flex-shrink: 0;
-}
-
-.p-name {
-    font-size: 0.75rem;
-    font-weight: 800; /* Made slightly heavier for better readability on small scale */
-    line-height: 1.1;
-    color: var(--text-color, #1d1b20); /* Dark, high-contrast color */
-    background: transparent !important; /* Forces removal of any background */
-    padding: 0;
-    margin: 0;
-    display: inline-block;
-}
-
-.p-team {
-    font-size: 0.55rem;
-    font-weight: 600;
-    color: var(--text-color, #49454f); /* Material 'on-surface-variant' color */
-    opacity: 0.7; /* Slightly higher for better readability at micro size */
-    background: transparent !important;
-    text-transform: uppercase; /* Looks more professional for team abbreviations */
-    letter-spacing: 0.2px;
-}
-
-/* If the team name is inside the same container as the player name */
-.player-text {
-    display: flex;
-    flex-direction: row; /* Use row if you want them side-by-side like the photo */
-    align-items: baseline;
-    gap: 4px;
-}
+        /* If the team name is inside the same container as the player name */
+        .player-text {
+            display: flex;
+            flex-direction: row; /* Use row if you want them side-by-side like the photo */
+            align-items: baseline;
+            gap: 4px;
+        }
         
-/* Count Badge */
-.transfer-count {
-    font-size: 0.7rem;
-    font-weight: 800;
-    padding: 2px 8px;
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 8px;
-    color: var(--accent-color, #38003c);
-}
+        /* Count Badge */
+        .transfer-count {
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            color: var(--accent-color, #38003c);
+        }
 
-/* Hide Table Head or keep it tiny */
-.transfer-table-head {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.6rem;
-    font-weight: 800;
-    opacity: 0.4;
-    padding: 0 10px 6px 10px;
-    text-transform: uppercase;
-}
-</style>
+        /* Hide Table Head or keep it tiny */
+        .transfer-table-head {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.6rem;
+            font-weight: 800;
+            opacity: 0.4;
+            padding: 0 10px 6px 10px;
+            text-transform: uppercase;
+        }
+
+        /* --- LOADING SHIMMER STYLES --- */
+        .skeleton {
+            color: transparent !important;
+            cursor: wait;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+            background: #e0e0e0;
+            border-radius: 4px;
+        }
+
+        /* The moving shine animation */
+        .skeleton::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            transform: translateX(-100%);
+            background-image: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0,
+                rgba(255, 255, 255, 0.2) 20%,
+                rgba(255, 255, 255, 0.5) 60%,
+                rgba(255, 255, 255, 0)
+            );
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        /* Dark Mode Specific Colors */
+        body.dark-mode .skeleton {
+            background: #2b2633;
+        }
+        body.dark-mode .skeleton::after {
+            background-image: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0,
+                rgba(255, 255, 255, 0.05) 20%,
+                rgba(255, 255, 255, 0.1) 60%,
+                rgba(255, 255, 255, 0)
+            );
+        }
+
+        .skeleton-card {
+            width: 44px;
+            height: 60px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+    </style>
 </head>
 <body class="dark-mode">
 
     <div id="login-screen" style="display:none;">
         <div class="promo-card">
-    <div class="promo-window">
-        <div class="promo-track">
-            <div class="promo-slide" style="background-image: url('fpl.PNG');"></div>
-            <div class="promo-slide" style="background-image: url('double.jpg');"></div>
-            <div class="promo-slide" style="background-image: url('budget.PNG');"></div>
-            <div class="promo-slide" style="background-image: url('join.PNG');"></div>
-            <div class="promo-slide" style="background-image: url('team.PNG');"></div>
-            <div class="promo-slide" style="background-image: url('d.PNG');"></div>
-            <div class="promo-slide" style="background-image: url('fpl.PNG');"></div>
-        </div>
+            <div class="promo-window">
+                <div class="promo-track">
+                    <div class="promo-slide" style="background-image: url('fpl.PNG');"></div>
+                    <div class="promo-slide" style="background-image: url('double.jpg');"></div>
+                    <div class="promo-slide" style="background-image: url('budget.PNG');"></div>
+                    <div class="promo-slide" style="background-image: url('join.PNG');"></div>
+                    <div class="promo-slide" style="background-image: url('team.PNG');"></div>
+                    <div class="promo-slide" style="background-image: url('d.PNG');"></div>
+                    <div class="promo-slide" style="background-image: url('fpl.PNG');"></div>
+                </div>
 
-        <div class="promo-dots">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-        </div>
-    </div>
-   
+                <div class="promo-dots">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+    
             <a href="#" id="install-pwa-link" class="promo-link">
                 Get the App 
                 <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7rem;"></i>
             </a>
-</div>
-       
-            
-     
-
+        </div>
+        
         <div class="login-card">
-           
+            <h2>Enter your FPL ID</h2>
 
-           <h2>Enter your FPL ID</h2>
+            <div class="input-container">
+                <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste link">
+                <div id="error-message" class="error-msg">Please enter a valid Team ID</div>
+            </div>
 
-<div class="input-container">
-    <input type="text" id="team-id-input" class="fpl-input" placeholder="e.g. 1234567 or paste link">
-    <div id="error-message" class="error-msg">Please enter a valid Team ID</div>
-</div>
-
-<button id="login-btn" class="continue-btn" onclick="handleLogin()">Continue</button>
-           <div class="find-id-link" onclick="window.open('https://youtu.be/gZqblBRbAjw?si=IQ-hmIEES27jDaTn', '_blank')">
+            <button id="login-btn" class="continue-btn" onclick="handleLogin()">Continue</button>
+            <div class="find-id-link" onclick="window.open('https://youtu.be/gZqblBRbAjw?si=IQ-hmIEES27jDaTn', '_blank')">
                 <i class="fa-solid fa-chevron-down"></i> How to find my team ID?
             </div>
         </div>
     </div>
 
-
     <div id="nav-placeholder"></div>
     
-
     <main class="page-content">
         <div id="deadline-container"></div>
         <div style="padding: 0 15px 15px; display:flex; justify-content:space-between; align-items:center;">
             <div class="header-content">
-    <span id="disp-name" style="font-weight:900; font-size: 1.1rem;">Manager Name</span>
-    <div id="disp-team" style="font-size: 0.8rem; opacity: 0.7;">Team Name</div>
-</div>
+                <span id="disp-name" style="font-weight:900; font-size: 1.1rem;">Manager Name</span>
+                <div id="disp-team" style="font-size: 0.8rem; opacity: 0.7;">Team Name</div>
+            </div>
         </div>
         
-       <div class="header-stats-grid">
-    <div class="stat-box border-right"><div class="stat-label">GW Rank</div><div class="stat-value" id="disp-gw-rank">-</div></div>
-    <div class="stat-box border-right"><div class="stat-label">Overall Rank</div><div class="stat-value" id="disp-rank">0</div></div>
-    <div class="stat-box"><div class="stat-label">Points</div><div class="stat-value" id="disp-total">0</div></div>
+        <div class="header-stats-grid">
+            <div class="stat-box border-right"><div class="stat-label">GW Rank</div><div class="stat-value" id="disp-gw-rank">-</div></div>
+            <div class="stat-box border-right"><div class="stat-label">Overall Rank</div><div class="stat-value" id="disp-rank">0</div></div>
+            <div class="stat-box"><div class="stat-label">Points</div><div class="stat-value" id="disp-total">0</div></div>
 
-    <div class="stat-box border-right border-top"><div class="stat-label">Total</div><div class="stat-value" id="disp-total-pts">0</div></div>
-    <div class="stat-box border-right border-top"><div class="stat-label">Average</div><div class="stat-value" id="disp-gw-avg">0</div></div>
-    <div class="stat-box border-top"><div class="stat-label">Highest</div><div class="stat-value" id="disp-gw-high">0</div></div>
-</div>
+            <div class="stat-box border-right border-top"><div class="stat-label">Total</div><div class="stat-value" id="disp-total-pts">0</div></div>
+            <div class="stat-box border-right border-top"><div class="stat-label">Average</div><div class="stat-value" id="disp-gw-avg">0</div></div>
+            <div class="stat-box border-top"><div class="stat-label">Highest</div><div class="stat-value" id="disp-gw-high">0</div></div>
+        </div>
 
         <div class="player-grid-container">
             <div id="squad-info-container"></div>
             <div id="player-list-grid" class="player-list-grid"></div>
-
-
             <div id="transfers-container" class="transfers-grid"></div>
-        
-
-            
+        </div>
     
     </main>
     
-
     <script>
     // 1. GLOBAL STATE
     const state = {
@@ -689,6 +726,60 @@
         }
     }
 
+    // NEW: Render Skeleton/Loading State
+    function renderShimmers() {
+        // Header Shimmers
+        const nameEl = document.getElementById('disp-name');
+        const teamEl = document.getElementById('disp-team');
+        
+        nameEl.classList.add('skeleton');
+        nameEl.innerHTML = "Manager Name"; 
+        
+        teamEl.classList.add('skeleton');
+        teamEl.innerHTML = "Team Name Here";
+
+        // Stats Grid Shimmers
+        const statIds = ['disp-gw-rank', 'disp-rank', 'disp-total', 'disp-total-pts', 'disp-gw-avg', 'disp-gw-high'];
+        statIds.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.classList.add('skeleton');
+                el.textContent = "000"; 
+            }
+        });
+
+        // Player Grid Shimmers
+        const grid = document.getElementById('player-list-grid');
+        if (grid) {
+            let skeletons = '';
+            for(let i=0; i<15; i++) {
+                skeletons += `<div class="compact-player-card skeleton skeleton-card"></div>`;
+            }
+            grid.innerHTML = skeletons;
+        }
+
+        // Squad Info Shimmer
+        const infoContainer = document.getElementById('squad-info-container');
+        if(infoContainer) {
+            infoContainer.innerHTML = `
+                <div style="display:flex; gap:10px; padding-bottom:10px;">
+                    <div class="skeleton" style="width:60px; height:20px; border-radius:100px;"></div>
+                    <div class="skeleton" style="width:60px; height:20px; border-radius:100px;"></div>
+                    <div class="skeleton" style="width:80px; height:20px; border-radius:100px;"></div>
+                </div>
+            `;
+        }
+    }
+
+    // NEW: Helper to remove shimmers from text elements
+    function removeTextShimmers() {
+        const ids = ['disp-name', 'disp-team', 'disp-gw-rank', 'disp-rank', 'disp-total', 'disp-total-pts', 'disp-gw-avg', 'disp-gw-high'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.classList.remove('skeleton');
+        });
+    }
+
     // 5. FETCH AND RENDER USER DATA
     async function fetchAndRender() {
         try {
@@ -703,6 +794,9 @@
             const picks = await picksRes.json();
             const live = await liveRes.json();
             const allTransfers = await transRes.json();
+
+            // REMOVE SHIMMERS
+            removeTextShimmers();
 
             // A. UPDATE MANAGER NAME & TEAM
             if (entry) {
@@ -730,10 +824,10 @@
 
             // D. RENDER SQUAD INFO BAR & TRANSFERS
             let infoHtml = `
-                <div class="squad-stats-bar">
-                    <div class="stat-pill">FT <b>${entry.extra_free_transfers || 1}</b></div>
-                    <div class="stat-pill">TV <b>£${teamValue}</b></div>
-                    <div class="stat-pill">Played <b>${playedCount}/15</b></div>
+                <div class="squad-stats-bar" style="display: flex; gap: 8px; margin-bottom: 10px;">
+                    <div class="info-pill">FT <b>${entry.extra_free_transfers || 1}</b></div>
+                    <div class="info-pill">TV <b>£${teamValue}</b></div>
+                    <div class="info-pill">Played <b>${playedCount}/15</b></div>
                 </div>
             `;
 
@@ -741,14 +835,8 @@
                 gwTransfers.forEach(t => {
                     const pIn = state.playerMap[t.element_in]?.name || "In";
                     const pOut = state.playerMap[t.element_out]?.name || "Out";
-                    infoHtml += `
-                        <div class="transfer-row">
-                            <span class="transfer-name-out">${pOut}</span>
-                            <span class="transfer-arrow">→</span>
-                            <span class="transfer-name-in">${pIn}</span>
-                            ${transferCost > 0 ? `<span class="transfer-hit">-${transferCost}</span>` : ''}
-                        </div>
-                    `;
+                    const cost = transferCost > 0 ? `<span style="color:red; font-weight:bold;">-${transferCost}</span>` : '';
+                    // Basic transfer visualization could go here
                 });
             }
             const infoContainer = document.getElementById('squad-info-container');
@@ -811,6 +899,7 @@
 
     // 7. APP INVOCATION
     if (state.fplId) {
+        renderShimmers(); // SHOW SHIMMERS IMMEDIATELY
         initData().then(fetchAndRender);
     } else {
         const loginScreen = document.getElementById('login-screen');
@@ -823,8 +912,6 @@
         setTheme(savedTheme);
     });
 
-
-      
 </script>
     <script src="nav.js"></script>
     <script src="deadline.js"></script>
