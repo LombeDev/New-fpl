@@ -256,3 +256,61 @@ body { margin: 0; font-family: 'Inter', sans-serif; }
         color: #b3b3b3;
     }
 }
+
+
+/* Hide Desktop elements on Mobile */
+.desktop-top-nav, .desktop-sidebar {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .mobile-nav { display: none; }
+
+    /* Top Bar Styling */
+    .desktop-top-nav {
+        display: block;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 60px;
+        background: #2b003d;
+        z-index: 1000;
+    }
+
+    /* Sidebar Styling */
+    .desktop-sidebar {
+        display: block;
+        position: fixed;
+        left: 0;
+        top: 60px; /* Sits below top bar */
+        width: 240px;
+        height: calc(100vh - 60px);
+        background: #fff;
+        border-right: 1px solid #eee;
+        overflow-y: auto;
+    }
+
+    /* Adjusting your main content area */
+    main, .container {
+        margin-left: 240px; /* Give space for sidebar */
+        margin-top: 60px;  /* Give space for top bar */
+        padding: 20px;
+    }
+
+    /* Sidebar Items */
+    .sidebar-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #333;
+        text-decoration: none;
+        gap: 10px;
+    }
+
+    .sidebar-item.active {
+        background: #2b003d;
+        color: white;
+        border-radius: 8px;
+        margin: 5px 10px;
+    }
+}
