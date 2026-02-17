@@ -19,198 +19,257 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
- /* ============================================================
-   1. CORE THEME & BRANDING
+/* ============================================================
+   1. GLOBAL DESIGN SYSTEM
    ============================================================ */
 :root {
-  /* Colors from your Screenshots */
-  --brand-purple: #2b003d;     /* Top Nav Background */
-  --fpl-magenta: #ff005a;      /* Primary Accent */
-  --fpl-green: #00ff85;        /* Success/Price Rise */
-  --live-red: #ff2855;         /* Live Badge Color */
-  
-  /* Quick Action Colors (Matching the Icons) */
-  --action-green: #00b894;
-  --action-gold: #fbc531;
-  --action-orange: #e67e22;
-  --action-purple: #9b59b6;
-  --action-teal: #12cbc4;
+    /* FPL Identity Colors */
+    --fpl-purple: #38003c;
+    --fpl-green: #00ff85;
+    --fpl-magenta: #ff005a;
 
-  /* Material Surface Colors */
-  --surface: #ffffff;
-  --app-bg: #f5f6f7;
-  --border-light: #eff1f3;
-  --text-main: #1a1a1b;
-  --text-muted: #64748b;
+    /* Material You (M3) Tonal Palette */
+    --md-surface: #fdf7ff;
+    --md-surface-variant: #e7e0eb;
+    --md-primary-container: #eaddff;
+    --md-on-primary-container: #21005d;
+    --md-secondary-container: #e8def8;
+    --md-on-secondary-container: #1d192b;
+    
+    /* Typography & Spacing */
+    --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
 }
 
 body {
-  background-color: var(--app-bg);
-  font-family: 'Inter', -apple-system, sans-serif;
-  color: var(--text-main);
-  margin: 0;
+    background-color: var(--md-surface);
+    font-family: var(--font-main);
+    color: #1d1b20;
+    margin: 0;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* ============================================================
-   2. TOP QUICK ACTIONS (Screenshot 3 & 4)
+   2. HEADER & IDENTITY (The "Hero" Section)
    ============================================================ */
-.quick-actions-container {
-  display: flex;
-  gap: 16px;
-  padding: 20px;
-  overflow-x: auto;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border-light);
+.header-content {
+    padding: 32px 20px 20px;
+    background: linear-gradient(to bottom, #fff, var(--md-surface));
+    border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
-.action-circle {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  color: white;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+#disp-name {
+    display: block;
+    font-size: 2.25rem !important;
+    font-weight: 900;
+    color: var(--fpl-purple);
+    letter-spacing: -0.03em;
+    line-height: 1.0;
+    margin: 0 0 6px 0;
 }
 
-.action-item:active .action-circle { transform: scale(0.9); }
-
-/* Color Mapping from your image */
-.action-add      { border: 2px dashed #cbd5e1; color: #94a3b8; }
-.action-transfers { background: var(--action-green); }
-.action-chips     { background: var(--action-gold); }
-.action-captains  { background: var(--action-orange); }
-.action-rivals    { background: var(--action-purple); }
-.action-leagues   { background: var(--action-teal); }
+#disp-team {
+    font-size: 1rem !important;
+    font-weight: 600;
+    color: var(--fpl-purple);
+    opacity: 0.5;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
 
 /* ============================================================
-   3. STATS GRID (Screenshot 2)
+   3. STATS LIST (Vertical High-Contrast)
    ============================================================ */
 .header-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 12px;
-  padding: 16px;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 20px;
+    background: white;
+    margin: 16px;
+    border-radius: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.header-stats-grid::before {
+    content: "Points & Rankings";
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--fpl-purple);
+    padding: 16px 0 8px;
+    border-bottom: 2px solid var(--md-surface-variant);
+    margin-bottom: 8px;
 }
 
 .stat-box {
-  background: var(--surface);
-  padding: 16px;
-  border-radius: 16px;
-  border: 1px solid var(--border-light);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+}
+
+.stat-box:not(:last-child) {
+    border-bottom: 1px solid var(--md-surface-variant);
 }
 
 .stat-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #49454f;
 }
 
 .stat-value {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--brand-purple);
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #1d1b20;
+}
+
+#disp-total {
+    color: var(--fpl-magenta); /* Points highlight */
+    font-size: 1.3rem;
 }
 
 /* ============================================================
-   4. CAPTAIN COMPARISON CARDS (The Highlight Feature)
-   ============================================================ */
-.captains-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 0 16px 20px;
-}
-
-.captain-card {
-  border-radius: 16px;
-  padding: 16px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-/* Orange Version */
-.your-captain {
-  background: #fff9f4;
-  border: 1px solid #ffe8d6;
-}
-.your-captain .cap-circle { background: var(--action-orange); }
-
-/* Green Version */
-.best-captain {
-  background: #f0fff9;
-  border: 1px solid #d1f7e9;
-}
-.best-captain .cap-circle { background: var(--action-green); }
-
-.cap-circle {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 900;
-}
-
-.live-badge {
-  background: var(--live-red);
-  color: white;
-  font-size: 9px;
-  font-weight: 900;
-  padding: 2px 6px;
-  border-radius: 4px;
-  position: absolute;
-  top: 12px;
-  right: 12px;
-}
-
-/* ============================================================
-   5. PLAYER GRID (Your Nano-Logic)
+   4. PLAYER GRID & CARDS (The Nano-Interface)
    ============================================================ */
 .player-list-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr); /* Fixed 7 across as per FPL pitch */
-  gap: 8px;
-  padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+    gap: 12px 6px;
+    padding: 20px;
+    justify-items: center;
 }
 
 .compact-player-card {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: transform 0.1s;
+    width: 46px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.compact-player-card:active { transform: scale(0.92); }
-
-.card-name {
-  font-size: 9px;
-  font-weight: 700;
-  background: var(--brand-purple);
-  color: white;
-  width: 100%;
-  text-align: center;
-  padding: 2px 0;
-  border-radius: 2px;
-  margin-top: 4px;
+.compact-player-card:active {
+    transform: scale(0.9);
 }
 
+/* Nano Jersey */
+.compact-player-card img {
+    width: 28px;
+    z-index: 2;
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.15));
+}
+
+/* Points Pill */
 .card-points {
-  font-size: 11px;
-  font-weight: 900;
-  color: var(--text-main);
+    background: var(--md-primary-container);
+    color: var(--md-on-primary-container);
+    font-size: 0.7rem;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 8px;
+    margin: -2px 0 2px 0;
+    min-width: 26px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    z-index: 3;
+}
+
+/* Name Box */
+.card-name {
+    font-size: 0.5rem;
+    font-weight: 800;
+    background: white;
+    color: var(--fpl-purple);
+    width: 100%;
+    text-align: center;
+    padding: 2px 0;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Ownership Bar */
+.card-ownership-bar {
+    margin-top: 3px;
+    background: var(--md-secondary-container);
+    color: var(--md-on-secondary-container);
+    font-size: 0.45rem;
+    font-weight: 800;
+    padding: 1px 4px;
+    border-radius: 4px;
+    width: 85%;
+    text-align: center;
+}
+
+/* Floating Badges (C/V) */
+.badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 15px;
+    height: 15px;
+    background: var(--fpl-purple);
+    color: var(--fpl-green);
+    border-radius: 5px;
+    font-size: 0.55rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid white;
+    box-shadow: var(--shadow-sm);
+    z-index: 4;
+}
+
+/* ============================================================
+   5. UTILITIES (Deadline & Shimmer)
+   ============================================================ */
+.deadline-section {
+    margin: 16px;
+    padding: 20px;
+    background: white;
+    border-radius: 28px;
+    border: 1px solid var(--md-surface-variant);
+}
+
+.countdown-container {
+    display: flex;
+    justify-content: space-around;
+    background: var(--md-primary-container);
+    padding: 12px;
+    border-radius: 20px;
+}
+
+.time-unit span {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--md-on-primary-container);
+}
+
+/* Loading Shimmer Overlay */
+.skeleton {
+    background: #eee;
+    overflow: hidden;
+    position: relative;
+    border-radius: 8px;
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 1.8s infinite;
+}
+
+@keyframes shimmer {
+    100% { transform: translateX(100%); }
 }
     </style>
 </head>
