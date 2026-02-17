@@ -31,12 +31,11 @@ function loadNavbar() {
           <li><a href="index.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
           <li><a href="how-it-works.html"><i class="fa-solid fa-brain"></i> How It Works</a></li>
           <li><a href="preferences.html"><i class="fa-solid fa-gear"></i> Preferences</a></li>
-          <li><a href="account.html"><i class="fa-solid fa-circle-user"></i> Account</a></li>
         </ul>
         <div class="user-profile" onclick="resetTeamID()">
           <div class="user-info">
             <span class="user-name">Ayew Ready?</span>
-            <span class="plan-tag">Free Plan</span>
+           
           </div>
         </div>
       </div>
