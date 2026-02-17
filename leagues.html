@@ -64,56 +64,151 @@
         .skeleton-text { height: 12px; border-radius: 4px; margin-bottom: 4px; }
         .skeleton-text.short { width: 60%; }
 
-        /* Material You Style Controls */
-        .controls-wrapper { background: white; padding: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .m3-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; }
-        .m3-input-wrapper { position: relative; display: flex; align-items: center; }
-        .m3-input-wrapper i { position: absolute; left: 10px; font-size: 0.65rem; color: #666; pointer-events: none; }
+       /* --- 1. SEARCH & FILTERS (Material You / M3) --- */
+.controls-wrapper {
+    background: var(--m3-surface);
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
 
-        #league-select, #manager-search {
-            width: 100%; border: none; background: var(--m3-input-bg);
-            border-radius: 20px; padding: 8px 12px; font-size: 0.65rem; font-weight: 600;
-            color: #1d1b20; outline: none; box-sizing: border-box; transition: background 0.2s;
-        }
-        #manager-search { padding-left: 28px; }
+#league-select, #manager-search {
+    background-color: var(--m3-input-bg);
+    border: none;
+    border-radius: 24px; /* Pill shape */
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
 
-        /* Table Styles */
-        .table-header { 
-            display: grid; grid-template-columns: 40px 1fr 65px 30px 55px; 
-            font-size: 0.55rem; font-weight: 800; padding: 6px 10px; color: #aaa; text-transform: uppercase; gap: 4px;
-        }
+#manager-search:focus {
+    background-color: #fff;
+    box-shadow: 0 0 0 2px var(--accent-blue);
+}
 
-        .manager-row { margin: 4px 8px; background: white; border-radius: 15px; border: 1px solid #e0e0e0; overflow: hidden; }
-        .manager-row.is-me { border: 1.5px solid var(--accent-blue); background: #f6f9ff; }
-        .row-summary { display: grid; grid-template-columns: 40px 1fr 65px 30px 55px; align-items: center; padding: 8px 10px; cursor: pointer; gap: 4px; }
-        
-        .pos-container { display: flex; flex-direction: column; align-items: center; min-width: 35px; }
-        .pos-cell { font-weight: 800; font-size: 0.75rem; color: #111; line-height: 1; }
-        .move-indicator { font-size: 0.5rem; width: 12px; height: 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; margin-bottom: 1px; }
-        .move-up { background: var(--pos-up); }
-        .move-down { background: var(--pos-down); }
+/* --- 2. THE LEAGUE TABLE HEADER --- */
+.table-header {
+    display: grid;
+    grid-template-columns: 40px 1fr 65px 30px 55px; /* Matches your ID logic */
+    gap: 4px;
+    padding: 12px 18px;
+    font-size: 0.7rem;
+    color: #94a3b8;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
 
-        .name-cell b { font-size: 0.75rem; color: #000; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .name-cell small { font-size: 0.65rem; color: #777; font-weight: 500; display: block; }
-        
-        .chip-pill { display: inline-block; background: var(--chip-bg); border: 1px solid #ccc; border-radius: 3px; padding: 0px 3px; font-size: 0.5rem; font-weight: 900; margin-left: 2px; color: #444; }
-        .or-pill { display: inline-block; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 1px 5px; font-size: 0.6rem; font-weight: 700; margin-top: 2px; color: #555; }
+/* --- 3. MANAGER ROWS (LiveFPL Style) --- */
+.manager-row {
+    margin: 6px 12px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
 
-        .cap-info { text-align: center; font-size: 0.65rem; font-weight: 700; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .cap-sub { font-size: 0.55rem; color: #999; font-weight: 400; }
-        .gw-pts { font-size: 0.85rem; font-weight: 800; text-align: center; color: #111; }
-        .total-pts { font-size: 0.85rem; font-weight: 800; text-align: right; color: #111; }
+/* The Blue Gradient Highlight for "is-me" */
+.manager-row.is-me {
+    background: linear-gradient(135deg, #4f46e5, #3b82f6);
+    border: none;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
 
-        .transfer-line { padding: 0 10px 8px 50px; font-size: 0.65rem; color: #2563eb; font-weight: 700; min-height: 1em; }
+/* Adjust text color for the highlighted user */
+.manager-row.is-me b, 
+.manager-row.is-me .pos-cell,
+.manager-row.is-me .gw-pts,
+.manager-row.is-me .total-pts,
+.manager-row.is-me .cap-info {
+    color: #ffffff !important;
+}
 
-        .row-expansion { display: none; background: #fafafa; border-top: 1px solid #eee; }
-        .manager-row.active .row-expansion { display: block; }
-        
-        .squad-stats-header { display: flex; justify-content: space-around; padding: 8px; background: #f8f9fa; border-bottom: 1px solid #eee; }
-        .stat-box { text-align: center; }
-        .stat-label { display: block; font-size: 0.5rem; color: #777; font-weight: 700; text-transform: uppercase; }
-        .stat-value { font-size: 0.75rem; font-weight: 800; color: #111; }
-        .hit-badge { color: #ff1744; font-size: 0.65rem; font-weight: 800; margin-left: 2px; }
+.manager-row.is-me small,
+.manager-row.is-me .cap-sub {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* --- 4. CELL SPECIFICS --- */
+.row-summary {
+    display: grid;
+    grid-template-columns: 40px 1fr 65px 30px 55px;
+    gap: 4px;
+    align-items: center;
+    padding: 12px;
+}
+
+/* Position Trend Circles */
+.move-indicator {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    font-size: 0.55rem;
+    margin-bottom: 2px;
+}
+
+/* Rank & Chip Pills */
+.or-pill {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 50px;
+    padding: 2px 8px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: #475569;
+}
+
+.is-me .or-pill {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.chip-pill {
+    background: var(--chip-bg);
+    color: var(--accent-blue);
+    border: 1px solid #cbd5e1;
+    font-size: 0.55rem;
+    padding: 1px 4px;
+}
+
+/* Captain Section */
+.cap-info {
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* Transfer Line (The Blue Text below the row) */
+.transfer-line {
+    padding: 0 12px 10px 52px;
+    font-size: 0.65rem;
+    color: var(--accent-blue);
+    font-weight: 700;
+}
+
+.is-me .transfer-line {
+    color: #fff;
+    opacity: 0.9;
+}
+
+/* --- 5. SQUAD EXPANSION --- */
+.row-expansion {
+    background: rgba(0, 0, 0, 0.02);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 10px;
+}
+
+.squad-scroller::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for a clean app feel */
+}
+
+.hit-badge {
+    background: #fee2e2;
+    color: #ef4444;
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-size: 0.6rem;
+}
 
         .squad-scroller { display: flex; overflow-x: auto; padding: 8px; gap: 6px; }
         .player-card { min-width: 48px; text-align: center; flex-shrink: 0; position: relative; }
