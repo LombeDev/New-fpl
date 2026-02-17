@@ -19,359 +19,540 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-/* ============================================================
-   1. GLOBAL DESIGN SYSTEM
-   ============================================================ */
-:root {
-    /* FPL Identity Colors */
-    --fpl-purple: #38003c;
-    --fpl-green: #00ff85;
-    --fpl-magenta: #ff005a;
+        /* Container spacing */
+        .page-content {
+            padding-top: 10px;
+        }
 
-    /* Material You (M3) Tonal Palette */
-    --md-surface: #fdf7ff;
-    --md-surface-variant: #e7e0eb;
-    --md-primary-container: #eaddff;
-    --md-on-primary-container: #21005d;
-    --md-secondary-container: #e8def8;
-    --md-on-secondary-container: #1d192b;
-    
-    /* Typography & Spacing */
-    --font-main: 'Inter', system-ui, -apple-system, sans-serif;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-}
+        /* Container for the whole section */
+        .header-content {
+            padding: 24px 16px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+        }
 
-body {
-    background-color: var(--md-surface);
-    font-family: var(--font-main);
-    color: #1d1b20;
-    margin: 0;
-    -webkit-tap-highlight-color: transparent;
-}
+        #disp-name {
+            display: block;
+            font-size: 2rem !important; /* Large expressive heading */
+            font-weight: 900;
+            color: #38003c; /* FPL Purple */
+            line-height: 1.1;
+            margin-bottom: 4px;
+            min-height: 2rem; /* Prevent collapse during load */
+        }
 
-/* ============================================================
-   2. HEADER & IDENTITY (The "Hero" Section)
-   ============================================================ */
-.header-content {
-    padding: 32px 20px 20px;
-    background: linear-gradient(to bottom, #fff, var(--md-surface));
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-}
+        #disp-team {
+            font-size: 1rem !important;
+            font-weight: 500;
+            opacity: 0.6;
+            color: #1d1b20;
+            min-height: 1rem; /* Prevent collapse during load */
+        }
 
+        /* Points & Rankings Section Label */
+        .header-stats-grid::before {
+            content: "Points & Rankings";
+            display: block;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #38003c;
+            padding: 0 16px 16px;
+        }
 
+        /* Transform Grid into a Vertical List */
+        .header-stats-grid {
+            display: flex;
+            flex-direction: column;
+            padding: 0 16px;
+            gap: 2px; /* Small gap for a clean look */
+        }
 
-        /* Container for the whole deadline block */
-#deadline-container {
-    padding: 15px;
-    max-width: 400px; /* Adjust based on mobile/desktop preference */
-}
+        .stat-box {
+            display: flex;
+            justify-content: space-between; /* Pushes label to left, value to right */
+            align-items: center;
+            padding: 12px 0;
+            border: none !important; /* Remove old borders */
+        }
 
-/* Primary Card Style (From Screenshot) */
-.deadline-card {
-    background: #ffffff;
-    border: 1px solid #edf2f7;
-    border-radius: 20px;
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-}
+        /* Add a thin divider between items except the last one */
+        .stat-box:not(:last-child) {
+            border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+        }
 
-.stat-label {
-    font-size: 12px;
-    color: #718096;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+        .stat-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #49454f; /* M3 Neutral Variant */
+            text-transform: none; /* More modern than all-caps */
+            letter-spacing: 0;
+        }
 
-.stat-main-text {
-    display: block;
-    font-size: 24px;
-    font-weight: 900; /* Matching the heavy font in image */
-    color: #1a202c;
-}
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #1d1b20;
+            min-width: 40px; /* Prevent collapse during load */
+            text-align: right;
+        }
 
-.stat-sub-text {
-    font-size: 13px;
-    color: #a0aec0;
-    font-weight: 700;
-}
+        /* Make the last stat (Points) pop slightly */
+        #disp-total {
+            color: #38003c;
+            font-size: 1.2rem;
+        }
+        .mobile-nav, .overlay-menu {
+            background-color: var(--nav-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
 
-.stat-icon-container {
-    color: #ff4d4d; /* Bright red calendar icon */
-    font-size: 28px;
-}
+        .menu-links a {
+            color: var(--text-color);
+        }
+        
+        .player-list-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px 2px; /* Slightly more vertical breathing room */
+            justify-items: center;
+            padding: 4px;
+        }
 
-/* Countdown Logic */
-.countdown-display {
-    display: flex;
-    justify-content: space-around;
-    background: #2b003d; /* FPL Purple */
-    margin: -10px 10px 15px; /* Slight overlap with card */
-    padding: 15px 10px;
-    border-radius: 0 0 20px 20px;
-    color: white;
-}
+        .compact-player-card {
+            width: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            padding: 2px 0;
+            border-radius: 8px; /* Material rounded corners */
+            transition: background-color 0.2s ease;
+            min-height: 60px; /* Ensure skeleton has height */
+        }
 
-.time-block {
-    text-align: center;
-}
+        /* Nano Jersey */
+        .compact-player-card img {
+            width: 24px; /* Slightly larger for clarity */
+            margin-bottom: 2px;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+            z-index: 2;
+        }
 
-.time-block span {
-    display: block;
-    font-size: 20px;
-    font-weight: 800;
-}
+        /* Material Name Box */
+        .card-name {
+            font-size: 0.48rem;
+            font-weight: 700;
+            color: #1d1b20;
+            background: var(--md-sys-color-surface-container);
+            margin-bottom: 1px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            padding: 1px 0;
+            border-radius: 2px;
+        }
 
-.time-block label {
-    font-size: 10px;
-    text-transform: uppercase;
-    opacity: 0.7;
-}
+        /* Material You Tonal Pill for Points */
+        .card-points {
+            background: var(--md-sys-color-primary-container);
+            color: var(--md-sys-color-on-primary-container);
+            font-size: 0.65rem;
+            font-weight: 900;
+            padding: 1px 4px;
+            border-radius: 6px; /* M3 pill shape */
+            margin-bottom: 2px;
+            min-width: 24px;
+            text-align: center;
+        }
 
-/* Upcoming Deadlines List */
-.upcoming-deadlines {
-    background: white;
-    border-radius: 16px;
-    padding: 12px 15px;
-    border: 1px solid #edf2f7;
-}
+        /* Refined Ownership Bar */
+        .card-ownership-bar {
+            background: var(--md-sys-color-secondary-container); 
+            color: #00391c; /* Deep green for contrast */
+            font-size: 0.42rem;
+            padding: 1px 0;
+            border-radius: 4px;
+            font-weight: 800;
+            width: 90%;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
 
-.section-title {
-    font-size: 11px;
-    color: #718096;
-    margin: 0 0 10px 0;
-    text-transform: uppercase;
-}
+        /* Floating Badges */
+        .badge {
+            position: absolute;
+            top: 8px;
+            right: 0px;
+            width: 12px;
+            height: 12px;
+            background: #37003c; /* FPL Purple */
+            color: #00ff85; /* FPL Green */
+            border-radius: 4px; /* Material squircle */
+            font-size: 0.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            border: 1px solid var(--md-sys-color-surface);
+            z-index: 3;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
 
-.mini-deadline-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-top: 1px solid #f7fafc;
-    font-size: 13px;
-    font-weight: 600;
-}
+        .is-bench { 
+            opacity: 0.6; 
+            filter: grayscale(0.4);
+        }
 
-.deadline-date {
-    color: #2b003d;
-    font-weight: 700;
-}
-#disp-name {
-    display: block;
-    font-size: 2.25rem !important;
-    font-weight: 900;
-    color: var(--fpl-purple);
-    letter-spacing: -0.03em;
-    line-height: 1.0;
-    margin: 0 0 6px 0;
-}
+        /* 1. The "Press" Effect */
+        .compact-player-card {
+            cursor: pointer;
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), 
+                        background-color 0.2s ease;
+            -webkit-tap-highlight-color: transparent; /* Remove mobile blue highlight */
+        }
 
-#disp-team {
-    font-size: 1rem !important;
-    font-weight: 600;
-    color: var(--fpl-purple);
-    opacity: 0.5;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
+        /* Material Ripple-like shrink on click */
+        .compact-player-card:active {
+            transform: scale(0.92); /* Shrink slightly */
+        }
 
-/* ============================================================
-   3. STATS LIST (Vertical High-Contrast)
-   ============================================================ */
-.header-stats-grid {
-    display: flex;
-    flex-direction: column;
-    padding: 8px 20px;
-    background: white;
-    margin: 16px;
-    border-radius: 24px;
-    box-shadow: var(--shadow-sm);
-}
+        /* 2. Persistent Selection State (Material You Focus) */
+        .compact-player-card.is-selected {
+            background-color: var(--md-sys-color-primary-container);
+            outline: 1.5px solid var(--md-sys-color-on-primary-container);
+            outline-offset: 2px;
+        }
 
-.header-stats-grid::before {
-    content: "Points & Rankings";
-    display: block;
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--fpl-purple);
-    padding: 16px 0 8px;
-    border-bottom: 2px solid var(--md-surface-variant);
-    margin-bottom: 8px;
-}
+        /* 3. The "Pulse" Animation for the Point Box on click */
+        @keyframes point-pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); color: var(--fpl-magenta); }
+            100% { transform: scale(1); }
+        }
 
-.stat-box {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 0;
-}
+        .compact-player-card:active .card-points {
+            animation: point-pop 0.3s ease-out;
+        }
 
-.stat-box:not(:last-child) {
-    border-bottom: 1px solid var(--md-surface-variant);
-}
+        /* 4. Enhancement for the Avatar/Jersey */
+        .compact-player-card:active img {
+            filter: brightness(0.8) drop-shadow(0 4px 4px rgba(0,0,0,0.2));
+        }
+        
+        /* Main section - tighter and consistent with transfer cards */
+        .deadline-section {
+            padding: 16px;
+            background: var(--card-bg, #ffffff);
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            margin-top: 20px;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
 
-.stat-label {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #49454f;
-}
+        .deadline-title { 
+            font-size: 0.9rem; 
+            font-weight: 800; 
+            margin-bottom: 2px;
+            color: var(--text-color, #1d1b20);
+        }
 
-.stat-value {
-    font-size: 1.1rem;
-    font-weight: 900;
-    color: #1d1b20;
-}
+        .gw-subtitle { 
+            font-size: 0.7rem; 
+            font-weight: 700; 
+            margin-bottom: 12px; 
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
 
-#disp-total {
-    color: var(--fpl-magenta); /* Points highlight */
-    font-size: 1.3rem;
-}
+        /* Compact Countdown Bar */
+        .countdown-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 16px;
+            background: var(--secondary-container, #eaddff);
+            padding: 10px 14px;
+            border-radius: 14px;
+        }
 
-/* ============================================================
-   4. PLAYER GRID & CARDS (The Nano-Interface)
-   ============================================================ */
-.player-list-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
-    gap: 12px 6px;
-    padding: 20px;
-    justify-items: center;
-}
+        .time-unit {
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
+        }
 
-.compact-player-card {
-    width: 46px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-}
+        .time-unit span { 
+            font-size: 1.2rem; /* Much smaller but bold */
+            font-weight: 900; 
+            color: var(--accent-color, #21005d); 
+        }
 
-.compact-player-card:active {
-    transform: scale(0.9);
-}
+        .time-unit label { 
+            font-size: 0.6rem; 
+            font-weight: 800; 
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
 
-/* Nano Jersey */
-.compact-player-card img {
-    width: 28px;
-    z-index: 2;
-    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.15));
-}
+        .time-separator { 
+            font-size: 1rem; 
+            font-weight: 900; 
+            opacity: 0.2;
+            color: var(--accent-color, #38003c);
+        }
 
-/* Points Pill */
-.card-points {
-    background: var(--md-primary-container);
-    color: var(--md-on-primary-container);
-    font-size: 0.7rem;
-    font-weight: 900;
-    padding: 2px 6px;
-    border-radius: 8px;
-    margin: -2px 0 2px 0;
-    min-width: 26px;
-    text-align: center;
-    box-shadow: var(--shadow-sm);
-    z-index: 3;
-}
+        /* Compact Table Rows */
+        .upcoming-title { 
+            font-size: 0.8rem; 
+            font-weight: 800; 
+            margin: 12px 0 8px 4px; 
+        }
 
-/* Name Box */
-.card-name {
-    font-size: 0.5rem;
-    font-weight: 800;
-    background: white;
-    color: var(--fpl-purple);
-    width: 100%;
-    text-align: center;
-    padding: 2px 0;
-    border-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        .deadline-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--surface-variant, #f6f3f8);
+            margin-bottom: 4px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            border: none;
+        }
 
-/* Ownership Bar */
-.card-ownership-bar {
-    margin-top: 3px;
-    background: var(--md-secondary-container);
-    color: var(--md-on-secondary-container);
-    font-size: 0.45rem;
-    font-weight: 800;
-    padding: 1px 4px;
-    border-radius: 4px;
-    width: 85%;
-    text-align: center;
-}
+        .deadline-row b { 
+            font-weight: 800;
+            color: var(--accent-color, #38003c);
+        }
+        
+        /* Container */
+        .grid-top-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 0;
+            width: 100%;
+        }
 
-/* Floating Badges (C/V) */
-.badge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 15px;
-    height: 15px;
-    background: var(--fpl-purple);
-    color: var(--fpl-green);
-    border-radius: 5px;
-    font-size: 0.55rem;
-    font-weight: 900;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1.5px solid white;
-    box-shadow: var(--shadow-sm);
-    z-index: 4;
-}
+        /* Individual Pill - Material You Style */
+        .info-pill {
+            /* Micro Size */
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            
+            /* Shape & Spacing */
+            padding: 6px 14px;
+            border-radius: 100px; /* Perfect pill shape */
+            
+            /* Material You Colors (Adaptive) */
+            background-color: var(--pill-bg, #eaddff); /* Light lavender/blue tint */
+            color: var(--pill-text, #21005d);
+            
+            /* Soft elevation instead of harsh borders */
+            border: none;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            
+            transition: all 0.2s ease;
+            cursor: default;
+        }
 
-/* ============================================================
-   5. UTILITIES (Deadline & Shimmer)
-   ============================================================ */
-.deadline-section {
-    margin: 16px;
-    padding: 20px;
-    background: white;
-    border-radius: 28px;
-    border: 1px solid var(--md-surface-variant);
-}
+        /* Theme-specific overrides for Material You look */
+        [data-theme="dark"] .info-pill {
+            --pill-bg: #4f378b;
+            --pill-text: #eaddff;
+        }
 
-.countdown-container {
-    display: flex;
-    justify-content: space-around;
-    background: var(--md-primary-container);
-    padding: 12px;
-    border-radius: 20px;
-}
+        [data-theme="light"] .info-pill {
+            --pill-bg: #f3edf7;
+            --pill-text: #21005d;
+        }
 
-.time-unit span {
-    font-size: 1.4rem;
-    font-weight: 900;
-    color: var(--md-on-primary-container);
-}
+        /* Accent for the 'PLAYED' pill to follow Material secondary colors */
+        .info-pill:last-child {
+            background-color: var(--accent-color, #3498db);
+            color: #ffffff;
+        }
 
-/* Loading Shimmer Overlay */
-.skeleton {
-    background: #eee;
-    overflow: hidden;
-    position: relative;
-    border-radius: 8px;
-}
+        /* Layout container */
+        .transfers-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px; /* Tighter gap */
+            padding: 0;
+            background: transparent;
+            margin-top: 15px;
+        }
 
-.skeleton::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    animation: shimmer 1.8s infinite;
-}
+        /* Compact Primary Cards */
+        .transfer-card-wrapper {
+            flex: 1;
+            min-width: 280px; /* Narrower minimum for small screens */
+            background: var(--card-bg, #ffffff);
+            border-radius: 20px; /* Slightly smaller radius for smaller cards */
+            padding: 14px; /* Tight padding */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
 
-@keyframes shimmer {
-    100% { transform: translateX(100%); }
-}
+        /* Header - Smaller and tighter */
+        .transfer-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .transfer-card-header h3 {
+            font-size: 0.85rem; /* Small, professional header */
+            font-weight: 800;
+            margin: 0;
+            color: var(--accent-color, #38003c);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* Mini Player Rows */
+        .transfer-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px; /* Very thin vertical padding */
+            margin-bottom: 4px;
+            background: var(--surface-variant, #f6f3f8);
+            border-radius: 12px; /* Smaller "pill" radius */
+            transition: transform 0.1s ease;
+        }
+
+        .transfer-item-row:hover {
+            background: var(--secondary-container, #f0eaff);
+            transform: scale(1.01);
+        }
+
+        /* Tiny Jersey and Info */
+        .player-info-side {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Tighter spacing */
+        }
+
+        .mini-shirt {
+            width: 18px; /* Very small jersey */
+            height: auto;
+            flex-shrink: 0;
+        }
+
+        .p-name {
+            font-size: 0.75rem;
+            font-weight: 800; /* Made slightly heavier for better readability on small scale */
+            line-height: 1.1;
+            color: var(--text-color, #1d1b20); /* Dark, high-contrast color */
+            background: transparent !important; /* Forces removal of any background */
+            padding: 0;
+            margin: 0;
+            display: inline-block;
+        }
+
+        .p-team {
+            font-size: 0.55rem;
+            font-weight: 600;
+            color: var(--text-color, #49454f); /* Material 'on-surface-variant' color */
+            opacity: 0.7; /* Slightly higher for better readability at micro size */
+            background: transparent !important;
+            text-transform: uppercase; /* Looks more professional for team abbreviations */
+            letter-spacing: 0.2px;
+        }
+
+        /* If the team name is inside the same container as the player name */
+        .player-text {
+            display: flex;
+            flex-direction: row; /* Use row if you want them side-by-side like the photo */
+            align-items: baseline;
+            gap: 4px;
+        }
+        
+        /* Count Badge */
+        .transfer-count {
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            color: var(--accent-color, #38003c);
+        }
+
+        /* Hide Table Head or keep it tiny */
+        .transfer-table-head {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.6rem;
+            font-weight: 800;
+            opacity: 0.4;
+            padding: 0 10px 6px 10px;
+            text-transform: uppercase;
+        }
+
+        /* --- LOADING SHIMMER STYLES --- */
+        .skeleton {
+            color: transparent !important;
+            cursor: wait;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+            background: #f0f4f9;
+            border-radius: 4px;
+        }
+
+        /* The moving shine animation */
+        .skeleton::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            transform: translateX(-100%);
+            background-image: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0,
+                rgba(255, 255, 255, 0.2) 20%,
+                rgba(255, 255, 255, 0.5) 60%,
+                rgba(255, 255, 255, 0)
+            );
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        /* Dark Mode Specific Colors */
+        body.dark-mode .skeleton {
+            background: #f0f4f9;
+        }
+        body.dark-mode .skeleton::after {
+            background-image: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0,
+                rgba(255, 255, 255, 0.05) 20%,
+                rgba(255, 255, 255, 0.1) 60%,
+                rgba(255, 255, 255, 0)
+            );
+        }
+
+        .skeleton-card {
+            width: 44px;
+            height: 60px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body class="dark-mode">
