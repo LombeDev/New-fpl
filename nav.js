@@ -3,6 +3,10 @@
  * Includes: Mobile Overlay, Desktop Top Bar, and Desktop Sidebar
  */
 
+/**
+ * nav.js - Centralized Navigation
+ */
+
 function loadNavbar() {
     const navHTML = `
     <nav class="mobile-nav">
@@ -42,24 +46,14 @@ function loadNavbar() {
       <div class="sidebar-content">
         <h3 class="sidebar-title">Navigation</h3>
         
-        <div class="sidebar-section">
-          <a href="overview.html" class="sidebar-item active">
-            <i class="fa-solid fa-house"></i> Overview
-          </a>
-          <a href="live.html" class="sidebar-item">
-            <i class="fa-solid fa-tower-broadcast"></i> Live <span class="dot"></span>
-          </a>
-        </div>
-
         <div class="sidebar-group">
-          <li><a href="index.html">Home</a></li>
-        <li><a href="leagues.html">Leagues</a></li>
-        <li><a href="prices.html">Prices</a></li>
-        <li><a href="games.html">Games</a></li>
-        <li><a href="prizes.html">Prizes</a></li>
-        <li><a href="#" onclick="resetTeamID()">Change ID</a></li>
+            <a href="index.html" class="sidebar-item"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="leagues.html" class="sidebar-item"><i class="fa-solid fa-trophy"></i> Leagues</a>
+            <a href="prices.html" class="sidebar-item"><i class="fa-solid fa-tags"></i> Prices</a>
+            <a href="games.html" class="sidebar-item"><i class="fa-solid fa-gamepad"></i> Games</a>
+            <a href="prizes.html" class="sidebar-item"><i class="fa-solid fa-gift"></i> Prizes</a>
+            <a href="#" class="sidebar-item" onclick="resetTeamID()"><i class="fa-solid fa-right-from-bracket"></i> Change ID</a>
         </div>
-
       </div>
     </aside>
 
@@ -69,7 +63,7 @@ function loadNavbar() {
         <button class="close-btn" id="closeMenu">&times;</button>
       </div>
       <ul class="menu-links">
-        <li><a href="index.html">Dashboard</a></li>
+        <li><a href="index.html">Home</a></li>
         <li><a href="leagues.html">Leagues</a></li>
         <li><a href="prices.html">Prices</a></li>
         <li><a href="games.html">Games</a></li>
@@ -86,6 +80,8 @@ function loadNavbar() {
         highlightCurrentPage();
     }
 }
+
+// ... Keep setupMenuLogic, highlightCurrentPage, and resetTeamID functions as they were ...
 
 function setupMenuLogic() {
     const openBtn = document.getElementById('openMenu');
