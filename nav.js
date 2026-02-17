@@ -1,5 +1,6 @@
 /**
- * nav.js - Centralized Navigation with FPL ID Reset Logic
+ * nav.js - Centralized Responsive Navigation
+ * Logic for Mobile Overlay + Desktop Horizontal Bar
  */
 
 function loadNavbar() {
@@ -18,6 +19,28 @@ function loadNavbar() {
       </div>
     </nav>
 
+    <nav class="desktop-nav">
+      <div class="nav-container">
+        <div class="logo">
+          <img src="logo.png" alt="Logo" height="35">
+        </div>
+
+        <ul class="nav-links">
+          <li><a href="index.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+          <li><a href="how-it-works.html"><i class="fa-solid fa-brain"></i> How It Works</a></li>
+          <li><a href="preferences.html"><i class="fa-solid fa-gear"></i> Preferences</a></li>
+          <li><a href="account.html"><i class="fa-solid fa-circle-user"></i> Account</a></li>
+        </ul>
+
+        <div class="user-profile" onclick="resetTeamID()" style="cursor:pointer">
+          <div class="user-info">
+            <span class="user-name">Ayew Ready?</span>
+            <span class="plan-tag">Free Plan</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
     <div id="mobileMenu" class="overlay-menu">
       <div class="menu-header">
         <img src="logo.png" alt="Logo" height="40">
@@ -25,17 +48,13 @@ function loadNavbar() {
       </div>
       
       <ul class="menu-links">
-        <li><a href="index.html"><i class=""></i> Home <span></span></a></li>
-        <li><a href="leagues.html"><i class=""></i> Leagues <span></span></a></li>
-        <li><a href="prices.html"><i class=""></i> Prices <span></span></a></li>
-        <li><a href="games.html"><i class=""></i> Games <span></span></a></li>
-        
-        
-        <li><a href="prizes.html"><i class=""></i> Prizes <span></span></a></li>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="leagues.html">Leagues</a></li>
+        <li><a href="prices.html">Prices</a></li>
+        <li><a href="games.html">Games</a></li>
+        <li><a href="prizes.html">Prizes</a></li>
         <li><a href="https://wa.me/260964836842" target="_blank">Help</a></li>
       </ul>
-
-     
 
       <div class="menu-search">
         <i class="fa fa-search"></i>
@@ -56,35 +75,29 @@ function loadNavbar() {
     }
 }
 
-// THE RESET LOGIC (Matched to your provided script)
-function resetTeamID() {
-    if (confirm("Would you like to change your Team ID?")) {
-        // 1. Clear the saved ID from the browser memory using your specific key
-        localStorage.removeItem('kopala_id');
-        
-        // 2. Refresh the page
-        // Since the 'state.fplId' will be null on reload, your main 
-        // script will show the login screen automatically.
-        location.reload();
-    }
-}
-
+/**
+ * Handles the opening and closing of the mobile overlay
+ */
 function setupMenuLogic() {
     const openBtn = document.getElementById('openMenu');
     const closeBtn = document.getElementById('closeMenu');
     const menu = document.getElementById('mobileMenu');
 
-    openBtn.addEventListener('click', () => {
-        menu.classList.add('active');
-        document.body.style.overflow = 'hidden'; 
-    });
+    if (openBtn && menu) {
+        openBtn.addEventListener('click', () => {
+            menu.classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+        });
+    }
 
-    closeBtn.addEventListener('click', () => {
-        menu.classList.remove('active');
-        document.body.style.overflow = 'auto'; 
-    });
+    if (closeBtn && menu) {
+        closeBtn.addEventListener('click', () => {
+            menu.classList.remove('active');
+            document.body.style.overflow = 'auto'; 
+        });
+    }
 
-    // Close menu if a link is clicked
+    // Close menu if any link is clicked
     const navLinks = document.querySelectorAll('.menu-links a');
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
@@ -94,9 +107,12 @@ function setupMenuLogic() {
     });
 }
 
+/**
+ * Applies the 'active-link' class to the current page link in both menus
+ */
 function highlightCurrentPage() {
     const currentPath = window.location.pathname.split("/").pop() || "index.html";
-    const links = document.querySelectorAll('.menu-links a');
+    const links = document.querySelectorAll('.menu-links a, .nav-links a');
     links.forEach(link => {
         if (link.getAttribute('href') === currentPath) {
             link.classList.add('active-link');
@@ -104,4 +120,15 @@ function highlightCurrentPage() {
     });
 }
 
+/**
+ * Reset logic for the FPL Team ID
+ */
+function resetTeamID() {
+    if (confirm("Would you like to change your Team ID?")) {
+        localStorage.removeItem('kopala_id');
+        location.reload();
+    }
+}
+
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', loadNavbar);
