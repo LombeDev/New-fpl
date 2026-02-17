@@ -26,17 +26,16 @@ function loadNavbar() {
         </div>
 
         <ul class="nav-links">
-          <li><a href="index.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
-          <li><a href="how-it-works.html"><i class="fa-solid fa-brain"></i> How It Works</a></li>
-          <li><a href="preferences.html"><i class="fa-solid fa-gear"></i> Preferences</a></li>
-          <li><a href="account.html"><i class="fa-solid fa-circle-user"></i> Account</a></li>
+          <li><a href="index.html">Home</a></li>
+        <li><a href="leagues.html">Leagues</a></li>
+        <li><a href="prices.html">Prices</a></li>
+        <li><a href="games.html">Games</a></li>
+        <li><a href="prizes.html">Prizes</a></li>
+        <li><a href="https://wa.me/260964836842" target="_blank">Help</a></li>
         </ul>
 
         <div class="user-profile" onclick="resetTeamID()" style="cursor:pointer">
-          <div class="user-info">
-            <span class="user-name">Ayew Ready?</span>
-            <span class="plan-tag">Free Plan</span>
-          </div>
+       
         </div>
       </div>
     </nav>
