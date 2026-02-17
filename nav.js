@@ -1,17 +1,16 @@
 /**
- * nav.js - Centralized Responsive Navigation
- * Logic for Mobile Overlay + Desktop Horizontal Bar
+ * nav.js - Complete Responsive Navigation
+ * Includes: Mobile Overlay, Desktop Top Bar, and Desktop Sidebar
  */
 
 function loadNavbar() {
     const navHTML = `
     <nav class="mobile-nav">
       <div class="logo">
-        <img src="logo.png" alt="Logo" height="40">
+        <img src="logo.png" alt="Logo" height="35">
       </div>
       <div class="nav-right">
-        <a href="#" class="cta-button" onclick="resetTeamID()">Change ID</a>
-        <button class="menu-toggle" id="openMenu" aria-label="Open Menu">
+        <button class="menu-toggle" id="openMenu">
           <span class="bar"></span>
           <span class="bar"></span>
           <span class="bar"></span>
@@ -19,50 +18,66 @@ function loadNavbar() {
       </div>
     </nav>
 
-    <nav class="desktop-nav">
-      <div class="nav-container">
+    <nav class="desktop-top-nav">
+      <div class="top-nav-container">
         <div class="logo">
-          <img src="logo.png" alt="Logo" height="35">
+          <img src="logo.png" alt="Logo" height="30">
         </div>
-
-        <ul class="nav-links">
-          <li><a href="index.html">Home</a></li>
-        <li><a href="leagues.html">Leagues</a></li>
-        <li><a href="prices.html">Prices</a></li>
-        <li><a href="games.html">Games</a></li>
-        <li><a href="prizes.html">Prizes</a></li>
-        <li><a href="https://wa.me/260964836842" target="_blank">Help</a></li>
+        <ul class="top-nav-links">
+          <li><a href="index.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+          <li><a href="how-it-works.html"><i class="fa-solid fa-brain"></i> How It Works</a></li>
+          <li><a href="preferences.html"><i class="fa-solid fa-gear"></i> Preferences</a></li>
+          <li><a href="account.html"><i class="fa-solid fa-circle-user"></i> Account</a></li>
         </ul>
-
-        <div class="user-profile" onclick="resetTeamID()" style="cursor:pointer">
-       
+        <div class="user-profile" onclick="resetTeamID()">
+          <div class="user-info">
+            <span class="user-name">Ayew Ready?</span>
+            <span class="plan-tag">Free Plan</span>
+          </div>
         </div>
       </div>
     </nav>
 
+    <aside class="desktop-sidebar">
+      <div class="sidebar-content">
+        <h3 class="sidebar-title">Navigation</h3>
+        
+        <div class="sidebar-section">
+          <a href="overview.html" class="sidebar-item active">
+            <i class="fa-solid fa-house"></i> Overview
+          </a>
+          <a href="live.html" class="sidebar-item">
+            <i class="fa-solid fa-tower-broadcast"></i> Live <span class="dot"></span>
+          </a>
+        </div>
+
+        <div class="sidebar-group">
+          <div class="group-title"><i class="fa-solid fa-chevron-right"></i> My Team</div>
+          <div class="group-title"><i class="fa-solid fa-chevron-right"></i> Top Performers <i class="fa-solid fa-lock"></i></div>
+          <div class="group-title"><i class="fa-solid fa-chevron-right"></i> All Fixtures <i class="fa-solid fa-lock"></i></div>
+          <div class="group-title"><i class="fa-solid fa-chevron-right"></i> League Table <i class="fa-solid fa-lock"></i></div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-item"><i class="fa-solid fa-user-group"></i> Team <i class="fa-solid fa-lock"></i></div>
+          <div class="sidebar-sub-item"><i class="fa-solid fa-chevron-right"></i> Squad Analysis <i class="fa-solid fa-lock"></i></div>
+        </div>
+      </div>
+    </aside>
+
     <div id="mobileMenu" class="overlay-menu">
       <div class="menu-header">
         <img src="logo.png" alt="Logo" height="40">
-        <button class="close-btn" id="closeMenu" aria-label="Close Menu">&times;</button>
+        <button class="close-btn" id="closeMenu">&times;</button>
       </div>
-      
       <ul class="menu-links">
-        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html">Dashboard</a></li>
         <li><a href="leagues.html">Leagues</a></li>
         <li><a href="prices.html">Prices</a></li>
         <li><a href="games.html">Games</a></li>
         <li><a href="prizes.html">Prizes</a></li>
-        <li><a href="https://wa.me/260964836842" target="_blank">Help</a></li>
+        <li><a href="#" onclick="resetTeamID()">Change ID</a></li>
       </ul>
-
-      <div class="menu-search">
-        <i class="fa fa-search"></i>
-        <input type="text" id="menuSearch" placeholder="Search pages...">
-      </div>
-
-      <div class="menu-footer">
-        <a href="#" class="login-btn" onclick="resetTeamID()">Change ID</a>
-      </div>
     </div>
     `;
 
@@ -74,44 +89,22 @@ function loadNavbar() {
     }
 }
 
-/**
- * Handles the opening and closing of the mobile overlay
- */
 function setupMenuLogic() {
     const openBtn = document.getElementById('openMenu');
     const closeBtn = document.getElementById('closeMenu');
     const menu = document.getElementById('mobileMenu');
 
-    if (openBtn && menu) {
-        openBtn.addEventListener('click', () => {
-            menu.classList.add('active');
-            document.body.style.overflow = 'hidden'; 
-        });
+    if(openBtn && menu) {
+        openBtn.addEventListener('click', () => menu.classList.add('active'));
     }
-
-    if (closeBtn && menu) {
-        closeBtn.addEventListener('click', () => {
-            menu.classList.remove('active');
-            document.body.style.overflow = 'auto'; 
-        });
+    if(closeBtn && menu) {
+        closeBtn.addEventListener('click', () => menu.classList.remove('active'));
     }
-
-    // Close menu if any link is clicked
-    const navLinks = document.querySelectorAll('.menu-links a');
-    navLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            menu.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        });
-    });
 }
 
-/**
- * Applies the 'active-link' class to the current page link in both menus
- */
 function highlightCurrentPage() {
     const currentPath = window.location.pathname.split("/").pop() || "index.html";
-    const links = document.querySelectorAll('.menu-links a, .nav-links a');
+    const links = document.querySelectorAll('.top-nav-links a, .sidebar-item, .menu-links a');
     links.forEach(link => {
         if (link.getAttribute('href') === currentPath) {
             link.classList.add('active-link');
@@ -119,9 +112,6 @@ function highlightCurrentPage() {
     });
 }
 
-/**
- * Reset logic for the FPL Team ID
- */
 function resetTeamID() {
     if (confirm("Would you like to change your Team ID?")) {
         localStorage.removeItem('kopala_id');
@@ -129,5 +119,4 @@ function resetTeamID() {
     }
 }
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', loadNavbar);
