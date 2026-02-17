@@ -52,16 +52,14 @@ function loadNavbar() {
         </div>
 
         <div class="sidebar-group">
-          <div class="group-title"><i class="fa-solid fa-chevron-right"></i> My Team</div>
-          <div class="group-title"><i class="fa-solid fa-chevron-right"></i> Top Performers <i class="fa-solid fa-lock"></i></div>
-          <div class="group-title"><i class="fa-solid fa-chevron-right"></i> All Fixtures <i class="fa-solid fa-lock"></i></div>
-          <div class="group-title"><i class="fa-solid fa-chevron-right"></i> League Table <i class="fa-solid fa-lock"></i></div>
+          <li><a href="index.html">Home</a></li>
+        <li><a href="leagues.html">Leagues</a></li>
+        <li><a href="prices.html">Prices</a></li>
+        <li><a href="games.html">Games</a></li>
+        <li><a href="prizes.html">Prizes</a></li>
+        <li><a href="#" onclick="resetTeamID()">Change ID</a></li>
         </div>
 
-        <div class="sidebar-section">
-          <div class="sidebar-item"><i class="fa-solid fa-user-group"></i> Team <i class="fa-solid fa-lock"></i></div>
-          <div class="sidebar-sub-item"><i class="fa-solid fa-chevron-right"></i> Squad Analysis <i class="fa-solid fa-lock"></i></div>
-        </div>
       </div>
     </aside>
 
