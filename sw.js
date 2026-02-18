@@ -32,3 +32,44 @@ self.addEventListener('install', (event) => {
   );
   self.skipWaiting();
 });
+
+
+// 1. Activation - Cleanup old caches
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter(key => key !== CACHE_NAME && key !== JERSEY_CACHE)
+            .map(key => caches.delete(key))
+      );
+    })
+  );
+  return self.clients.claim();
+});
+
+// 2. Fetch Handler (Essential for Standalone Mode)
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // Strategy for Jerseys: Cache then Network
+  if (url.hostname.includes('premierleague.com')) {
+    event.respondWith(
+      caches.open(JERSEY_CACHE).then((cache) => {
+        return cache.match(event.request).then((response) => {
+          return response || fetch(event.request).then((networkResponse) => {
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse;
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  // General Strategy: Cache First, fallback to Network
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
+  );
+});
