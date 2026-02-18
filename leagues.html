@@ -207,90 +207,111 @@
         }
 
         async function loadStandings(leagueId) {
-            const container = document.getElementById('manager-list-container');
-            container.innerHTML = getSkeletonHtml();
-            
-            try {
-                const res = await fetch(`${state.PROXY}leagues-classic/${leagueId}/standings/`);
-                const data = await res.json();
-                let results = data.standings.results;
+    const container = document.getElementById('manager-list-container');
+    container.innerHTML = getSkeletonHtml();
+    
+    try {
+        const res = await fetch(`${state.PROXY}leagues-classic/${leagueId}/standings/`);
+        const data = await res.json();
+        let results = data.standings.results;
 
-                if (leagueId == state.ELITE_LEAGUE) {
-                    const myEntryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
-                    const me = await myEntryRes.json();
-                    if (!results.find(r => r.entry == state.fplId)) {
-                        results = [{ 
-                            entry: state.fplId, entry_name: me.name, player_name: `${me.player_first_name} ${me.player_last_name}`, 
-                            event_total: me.summary_event_points, total: me.summary_overall_points, 
-                            rank: me.summary_overall_rank, last_rank: me.summary_overall_rank
-                        }, ...results];
-                    }
-                }
-
-                container.innerHTML = `<div class="table-header"><span>Pos</span><span>Manager</span><span>(C)</span><span>GW</span><span style="text-align:right">Total</span></div>` + 
-                    results.map((r, i) => {
-                        const rank = r.rank || i+1;
-                        fetchManagerDetails(r.entry); 
-                        return `
-                        <div class="manager-row ${r.entry == state.fplId ? 'is-me' : ''}" id="entry-${r.entry}">
-                            <div class="row-summary" onclick="expandManager(${r.entry})">
-                                <div class="pos-container">
-                                    <div class="move-indicator ${rank <= (r.last_rank || rank) ? 'move-up' : 'move-down'}"><i class="fa-solid ${rank <= (r.last_rank || rank) ? 'fa-arrow-up' : 'fa-arrow-down'}"></i></div>
-                                    <span class="pos-cell">${rank}</span>
-                                </div>
-                                <div class="name-cell">
-                                    <b>${r.entry_name} <span id="chip-${r.entry}"></span></b>
-                                    <small>${r.player_name}</small>
-                                    <div class="skeleton skeleton-text short" id="or-${r.entry}" style="margin-top:4px;"></div>
-                                </div>
-                                <div class="cap-info">
-                                    <div id="cap-${r.entry}" style="color:var(--accent-blue)">-</div>
-                                    <div class="cap-sub" id="vc-${r.entry}">-</div>
-                                </div>
-                                <div class="gw-pts">${r.event_total}</div>
-                                <div class="total-pts">${r.total.toLocaleString()}</div>
-                            </div>
-                            <div class="transfer-line" id="transfers-${r.entry}"></div>
-                            <div class="row-expansion"></div>
-                        </div>`;
-                    }).join('');
-            } catch (e) { container.innerHTML = '<p>Error loading.</p>'; }
+        // Elite League logic (Keep your existing check)
+        if (leagueId == state.ELITE_LEAGUE) {
+            const myEntryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
+            const me = await myEntryRes.json();
+            if (!results.find(r => r.entry == state.fplId)) {
+                results = [{ 
+                    entry: state.fplId, entry_name: me.name, player_name: `${me.player_first_name} ${me.player_last_name}`, 
+                    event_total: me.summary_event_points, total: me.summary_overall_points, 
+                    rank: me.summary_overall_rank, last_rank: me.summary_overall_rank
+                }, ...results];
+            }
         }
 
-        async function fetchManagerDetails(entryId) {
-            try {
-                const [entryRes, transRes, picksRes] = await Promise.all([
-                    fetch(`${state.PROXY}entry/${entryId}/`),
-                    fetch(`${state.PROXY}entry/${entryId}/transfers/`),
-                    fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`)
-                ]);
-                const entryData = await entryRes.json();
-                const transData = await transRes.json();
-                const picksData = await picksRes.json();
+        // Render the list
+        container.innerHTML = `<div class="table-header"><span>Pos</span><span>Manager</span><span>(C)</span><span>GW</span><span style="text-align:right">Total</span></div>` + 
+            results.map((r, i) => {
+                const rank = r.rank || i+1;
+                return `
+                <div class="manager-row ${r.entry == state.fplId ? 'is-me' : ''}" id="entry-${r.entry}">
+                    <div class="row-summary" onclick="expandManager(${r.entry})">
+                        <div class="pos-container">
+                            <div class="move-indicator ${rank <= (r.last_rank || rank) ? 'move-up' : 'move-down'}"><i class="fa-solid ${rank <= (r.last_rank || rank) ? 'fa-arrow-up' : 'fa-arrow-down'}"></i></div>
+                            <span class="pos-cell">${rank}</span>
+                        </div>
+                        <div class="name-cell">
+                            <b>${r.entry_name} <span id="chip-${r.entry}"></span></b>
+                            <small>${r.player_name}</small>
+                            <div class="skeleton skeleton-text short" id="or-${r.entry}" style="margin-top:4px;"></div>
+                        </div>
+                        <div class="cap-info">
+                            <div id="cap-${r.entry}" style="color:var(--accent-blue); font-size: 0.6rem;">...</div>
+                            <div class="cap-sub" id="vc-${r.entry}"></div>
+                        </div>
+                        <div class="gw-pts">${r.event_total}</div>
+                        <div class="total-pts">${r.total.toLocaleString()}</div>
+                    </div>
+                    <div class="transfer-line" id="transfers-${r.entry}"></div>
+                    <div class="row-expansion"></div>
+                </div>`;
+            }).join('');
 
-                // 1. Update Overall Rank
-                const orEl = document.getElementById(`or-${entryId}`);
-                if(orEl) {
-                    orEl.classList.remove('skeleton', 'skeleton-text');
-                    orEl.style.height = 'auto';
-                    orEl.innerHTML = `<div class="or-pill">OR ${entryData.summary_overall_rank?.toLocaleString()}</div>`;
-                }
-
-                // 2. Update Active Chip
-                const chipEl = document.getElementById(`chip-${entryId}`);
-                if (chipEl && picksData.active_chip) {
-                    const map = { 'wildcard': 'WC', 'freehit': 'FH', 'bboost': 'BB', '3xc': 'TC' };
-                    chipEl.innerHTML = `<span class="chip-pill">${map[picksData.active_chip] || 'C'}</span>`;
-                }
-
-                // 3. Update Transfers
-                const transEl = document.getElementById(`transfers-${entryId}`);
-                const latest = transData.filter(t => t.event === state.currentGW);
-                if (transEl && latest.length > 0) {
-                    transEl.textContent = latest.map(t => `${state.playerMap[t.element_out].name} → ${state.playerMap[t.element_in].name}`).join(' • ');
-                }
-            } catch (e) {}
+        // --- NEW: AUTO-LOAD TOP 10 ---
+        // We load these one-by-one to avoid 429 Rate Limit errors
+        for (let i = 0; i < Math.min(results.length, 10); i++) {
+            await fetchManagerDetails(results[i].entry);
+            // Small 50ms pause to be "kind" to the API
+            await new Promise(resolve => setTimeout(resolve, 50));
         }
+
+    } catch (e) { 
+        console.error(e);
+        container.innerHTML = '<p>Error loading standings.</p>'; 
+    }
+}
+       async function fetchManagerDetails(entryId) {
+    try {
+        const [entryRes, transRes, picksRes] = await Promise.all([
+            fetch(`${state.PROXY}entry/${entryId}/`),
+            fetch(`${state.PROXY}entry/${entryId}/transfers/`),
+            fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`)
+        ]);
+        const entryData = await entryRes.json();
+        const transData = await transRes.json();
+        const picksData = await picksRes.json();
+
+        // Update Overall Rank
+        const orEl = document.getElementById(`or-${entryId}`);
+        if(orEl) {
+            orEl.classList.remove('skeleton', 'skeleton-text');
+            orEl.innerHTML = `<div class="or-pill">OR ${entryData.summary_overall_rank?.toLocaleString() || 'N/A'}</div>`;
+        }
+
+        // Update Captain Column (The Fix!)
+        const capBtn = document.getElementById(`cap-${entryId}`);
+        if(capBtn && picksData.picks) {
+            const captainPick = picksData.picks.find(p => p.is_captain);
+            if(captainPick) {
+                const pName = state.playerMap[captainPick.element]?.name || "Unknown";
+                capBtn.textContent = pName;
+            }
+        }
+
+        // Update Active Chip
+        const chipEl = document.getElementById(`chip-${entryId}`);
+        if (chipEl && picksData.active_chip) {
+            const map = { 'wildcard': 'WC', 'freehit': 'FH', 'bboost': 'BB', '3xc': 'TC' };
+            chipEl.innerHTML = `<span class="chip-pill">${map[picksData.active_chip] || 'C'}</span>`;
+        }
+
+        // Update Transfers
+        const transEl = document.getElementById(`transfers-${entryId}`);
+        const latest = transData.filter(t => t.event === state.currentGW);
+        if (transEl && latest.length > 0) {
+            transEl.textContent = latest.map(t => `${state.playerMap[t.element_out]?.name} → ${state.playerMap[t.element_in]?.name}`).join(' • ');
+        }
+    } catch (e) { console.warn(`Details failed for ${entryId}`); }
+}
 
         async function expandManager(entryId) {
             const row = document.getElementById(`entry-${entryId}`);
@@ -357,7 +378,7 @@
             }
         }
 
-        // Search Logic
+        // 9. SEARCH LOGIC
         document.getElementById('manager-search').addEventListener('input', function(e) {
             const term = e.target.value.toLowerCase();
             document.querySelectorAll('.manager-row').forEach(row => {
@@ -366,8 +387,17 @@
             });
         });
 
-        init();
+        // 10. BOOTSTRAP
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Nav and Footer first if they aren't already
+            if (typeof initNav === 'function') initNav(); 
+            if (typeof initFooter === 'function') initFooter();
+            
+            // Start the FPL Data Engine
+            init();
+        });
     </script>
+    
     <script src="nav.js"></script>
     <div id="footer-placeholder"></div>
     <script src="footer.js"></script>
