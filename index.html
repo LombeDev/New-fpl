@@ -8,8 +8,9 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#37003c">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Kopala FPL">
+    <link rel="apple-touch-icon" href="/android-chrome-192x192.png">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="nav.css">
@@ -19,6 +20,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+    --accent-blue: #00ff85; /* Or any color you prefer */
+}
         /* Container spacing */
         .page-content {
             padding-top: 10px;
@@ -912,19 +916,27 @@
     }
 
     // 7. APP INVOCATION
-    if (state.fplId) {
-        renderShimmers(); // SHOW SHIMMERS IMMEDIATELY
-        initData().then(fetchAndRender);
-    } else {
-        const loginScreen = document.getElementById('login-screen');
-        if (loginScreen) loginScreen.style.display = 'flex';
+    // We wrap this in a function or check to ensure initData is called
+    async function startApp() {
+        if (state.fplId) {
+            renderShimmers(); 
+            await initData();
+            await fetchAndRender();
+        } else {
+            const loginScreen = document.getElementById('login-screen');
+            if (loginScreen) loginScreen.style.display = 'flex';
+        }
     }
 
-    // 8. EVENT LISTENERS
+    // 8. INITIALIZE
     document.addEventListener('DOMContentLoaded', () => {
         const savedTheme = localStorage.getItem('fplTheme') || 'dark';
         setTheme(savedTheme);
+        startApp();
     });
+
+
+
 
 </script>
     <script src="nav.js"></script>
