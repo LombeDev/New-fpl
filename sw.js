@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kopala-fpl-v5'; 
+const CACHE_NAME = 'kopala-fpl-v7'; 
 const JERSEY_CACHE = 'fpl-jerseys-v1';
 
 const STATIC_ASSETS = [
