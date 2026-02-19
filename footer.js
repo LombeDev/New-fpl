@@ -10,10 +10,7 @@
     <footer class="main-footer">
       <div class="footer-top-bar">
         <div class="footer-nav-container">
-          <a href="index.html">Live Rank</a>
-          <a href="leagues.html">Leagues</a>
-          <a href="games.html">Games</a>
-          <a href="prices.html">Prices</a>
+      
           <a href="prizes.html">Prizes</a>
           <a href="https://wa.me/260964836842" target="_blank" rel="noopener">Help</a>
         </div>
