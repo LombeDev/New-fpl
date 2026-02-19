@@ -1,1136 +1,816 @@
-/* --- MODERN FPL BRANDED VARIABLES --- */
-:root {
-    --bg-color: #f8fafc;
-    --card-bg: rgba(255, 255, 255, 0.8);
-    --text-main: #37003c;       /* FPL Purple */
-    --text-muted: #64748b;
-    --primary-blue: #e90052;    /* FPL Pink */
-    --primary-hover: #c50046;   /* Darker Pink */
-    --fpl-green: #00ff85;       /* FPL Neon Green */
-    --fpl-pink: #e90052;
-    --fpl-purple: #37003c;
-    --border-color: rgba(226, 232, 240, 0.8);
-    --pitch-green: #008040;
-    --glass-blur: blur(12px);
-    --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+/* ============================================
+   KOPALA FPL — GLOBAL DESIGN SYSTEM
+   Font: Barlow Condensed (headings/numbers) 
+         DM Sans (body)
+   ============================================ */
 
-    /* Badge Colors */
-    --live-badge: #e90052;
-    --done-badge: #37003c;
-    --success-bg: #dcfce7;
-    --success-text: #15803d;
-    --warning-bg: #fef9c3;
-    --warning-text: #a16207;
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+/* ============================================
+   1. CSS VARIABLES
+   ============================================ */
+:root {
+  /* Core Brand */
+  --purple:        #37003c;
+  --purple-mid:    #4a0050;
+  --purple-light:  #6b0075;
+
+  /* Accent — use sparingly, high value moments only */
+  --green:         #00e87a;
+  --green-dim:     rgba(0, 232, 122, 0.12);
+  --amber:         #f59e0b;
+  --red:           #ef4444;
+
+  /* Position Colors (on player cards) */
+  --pos-gk:        #f59e0b;   /* amber */
+  --pos-def:       #22c55e;   /* green */
+  --pos-mid:       #3b82f6;   /* blue */
+  --pos-fwd:       #ef4444;   /* red */
+
+  /* Surfaces */
+  --bg:            #0d0d0d;
+  --surface-1:     #161616;   /* page sections */
+  --surface-2:     #202020;   /* cards */
+  --surface-3:     #2a2a2a;   /* hover / elevated */
+
+  /* Text */
+  --text-1:        #ffffff;
+  --text-2:        #b0b0b0;
+  --text-3:        #666666;
+
+  /* Borders */
+  --border:        rgba(255, 255, 255, 0.07);
+  --border-mid:    rgba(255, 255, 255, 0.12);
+
+  /* Layout */
+  --bottom-nav-h:  64px;
+  --sidebar-w:     240px;
+  --topbar-h:      56px;
+
+  /* Radius */
+  --r-sm:          8px;
+  --r-md:          12px;
+  --r-lg:          16px;
+  --r-xl:          20px;
+
+  /* Transitions */
+  --ease:          cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ============================================
+   2. BASE RESET
+   ============================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-
-/* --- RESET & BASE --- */
-* {
-    -webkit-tap-highlight-color: transparent;
-    box-sizing: border-box;
-    transition: background-color 0.3s ease, color 0.3s ease;
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-    margin: 0; padding: 0;
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    font-family: 'Inter', -apple-system, system-ui, sans-serif;
-    line-height: 1.5;
-    overflow-x: hidden;
-}
-
-:root {
-    --pl-purple: #3d195b; /* The signature PL deep purple */
-    --pl-magenta: #ff005a; /* PL Magenta accent */
-    --pl-white: #ffffff;
-    --pl-input-bg: rgba(255, 255, 255, 0.05);
-    --pl-input-border: rgba(255, 255, 255, 0.3);
-}
-
-
-
-#login-screen {
-    position: fixed; 
-    inset: 0;
-    background-color: var(--pl-purple);
-    z-index: 5000;
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center;
-    padding: 24px;
-    font-family: 'Inter', sans-serif;
-    color: var(--pl-white);
-    overflow-y: auto;
-}
-
-/* --- SMOOTH SLIDER CORE --- */
-.promo-window {
-    width: 100%;
-    height: 180px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    overflow: hidden; /* This hides the other images */
-    border: 1px solid rgba(255,255,255,0.1);
-    position: relative;
-}
-
-.promo-track {
-    display: flex;
-    width: 700%; /* 6 images + 1 for loop = 7 slides */
-    height: 100%;
-    /* 18s total = 3s per image. Adjust time to slow down/speed up */
-    animation: fplSlideLoop 18s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    will-change: transform;
-}
-
-.promo-slide {
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    /* This adds the signature FPL gradient over every image */
-    background-blend-mode: overlay;
-    background-color: rgba(61, 25, 91, 0.2); 
-}
-
-/* --- THE ANIMATION --- 
-   0% to 14% = Image 1 stays still
-   14% to 16.6% = Smooth slide to Image 2
-   (Repeating this pattern for 6 images)
-*/
-@keyframes fplSlideLoop {
-    0%, 14%   { transform: translateX(0); }
-    16.6%, 30% { transform: translateX(-14.28%); } /* Slide to 2 */
-    33.2%, 47% { transform: translateX(-28.57%); } /* Slide to 3 */
-    50%, 64%   { transform: translateX(-42.85%); } /* Slide to 4 */
-    66.6%, 80% { transform: translateX(-57.14%); } /* Slide to 5 */
-    83.2%, 96% { transform: translateX(-71.42%); } /* Slide to 6 */
-    100%       { transform: translateX(-85.71%); } /* Snap to duplicate of 1 */
-}
-
-/* Fix for the Promo Card container */
-.promo-card {
-    width: 100%;
-    max-width: 420px;
-    background-color: var(--pl-purple); /* Ensure this matches your theme */
-    border-radius: 24px;
-    padding: 30px;
-    margin-bottom: 30px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    position: relative;
-}
-
-
-/* --- DOTS CONTAINER --- */
-.promo-dots {
-    position: absolute;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 6px;
-    z-index: 10;
-}
-
-.dot {
-    width: 6px;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.4);
-    border-radius: 50%;
-    transition: background 0.3s ease;
-}
-
-/* --- DOT HIGHLIGHT ANIMATION --- */
-/* We use the same 18s duration as the slide animation so they stay in sync */
-.dot {
-    animation: dotHighlight 18s infinite;
-}
-
-/* Offset each dot so they light up one after another */
-.dot:nth-child(2) { animation-delay: 3s; }
-.dot:nth-child(3) { animation-delay: 6s; }
-.dot:nth-child(4) { animation-delay: 9s; }
-.dot:nth-child(5) { animation-delay: 12s; }
-.dot:nth-child(6) { animation-delay: 15s; }
-
-@keyframes dotHighlight {
-    0%, 16.6% { 
-        background: var(--fpl-green); 
-        transform: scale(1.2); 
-        box-shadow: 0 0 8px var(--fpl-green);
-    }
-    16.7%, 100% { 
-        background: rgba(255, 255, 255, 0.4); 
-        transform: scale(1);
-        box-shadow: none;
-    }
-}
-
-/* Ensure the slide animation is still there from the previous step */
-.promo-track {
-    display: flex;
-    width: 700%;
-    height: 100%;
-    animation: fplSlideLoop 18s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    will-change: transform;
-}
-
-.your-container-class {
-    animation: promoCarousel 10s infinite ease-in-out;
-    background-size: cover;
-    background-repeat: no-repeat;
-    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); /* Smoother "FPL" curve */
-}
-
-/* Cleanup: Since it's now an infinite carousel, we don't need the .visible trigger */
-.promo-link { 
-    color: var(--pl-white); 
-    text-decoration: none; 
-    font-size: 1.6rem; 
-    font-weight: 700; 
-    line-height: 1.2;
-    display: block;
-}
-
-.promo-link i {
-    font-size: 0.8rem;
-    vertical-align: middle;
-    margin-left: 8px;
-    opacity: 0.7;
-}
-/* --- LOGIN CARD (The Form on the Left) --- */
-.login-card {
-    width: 100%;
-    max-width: 420px;
-    background: transparent;
-}
-
-.login-card h2 { 
-    font-size: 2.8rem; 
-    font-weight: 700; 
-    line-height: 1;
-    margin-bottom: 35px;
-    letter-spacing: -1px;
-}
-
-/* --- THEME TOGGLE --- */
-.theme-row {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    margin-bottom: 40px;
-}
-
-.theme-label { font-weight: 600; opacity: 0.6; font-size: 0.9rem; }
-
-.toggle-container { 
-    display: flex; 
-    background: rgba(0,0,0,0.2); 
-    padding: 4px; 
-    border-radius: 100px; 
-}
-
-.toggle-btn {
-    border: none; 
-    padding: 6px 18px; 
-    border-radius: 100px; 
-    font-weight: 700; 
-    font-size: 0.8rem; 
-    cursor: pointer;
-}
-
-.toggle-btn.active { background: var(--pl-white); color: var(--pl-purple); }
-.toggle-btn.inactive { background: transparent; color: var(--pl-white); opacity: 0.7; }
-
-/* --- INPUTS & BUTTONS --- */
-.fpl-input { 
-    width: 100%; 
-    padding: 16px; 
-    border-radius: 8px; 
-    border: 1px solid rgba(255,255,255,0.3); 
-    font-size: 1rem; 
-    margin-bottom: 20px;
-    background: transparent; 
-    color: var(--pl-white);
-    box-sizing: border-box;
-}
-
-.fpl-input:focus { outline: none; border-color: var(--pl-white); }
-
-.continue-btn { 
-    width: 100%; 
-    padding: 18px; 
-    background: var(--pl-white); 
-    color: var(--pl-purple); 
-    border: none; 
-    border-radius: 100px; 
-    font-weight: 800; 
-    font-size: 1rem; 
-    cursor: pointer;
-    transition: transform 0.1s;
-}
-
-.continue-btn:active { transform: scale(0.98); }
-
-.find-id-link {
-    margin-top: 30px;
-    text-align: center;
-    font-size: 0.9rem;
-    opacity: 0.8;
-    cursor: pointer;
-}
-
-/* --- DESKTOP LAYOUT (Side-by-Side) --- */
-@media (min-width: 900px) {
-    #login-screen {
-        flex-direction: row-reverse;
-        gap: 80px;
-    }
-    .login-card { text-align: left; }
-    .promo-card { margin-bottom: 0; }
-}
-
-/* Footer Link */
-.find-id-link {
-    text-align: center;
-    font-size: 0.9rem;
-    cursor: pointer;
-    opacity: 0.8;
-}
-
-.find-id-link:hover {
-    text-decoration: underline;
-    opacity: 1;
-}
-
-.error-msg {
-    color: #ff4d4d;
-    font-size: 0.8rem;
-    margin-top: 5px;
-    display: none; /* Controlled by logic */
-}
-/* --- NAVIGATION --- */
-.top-nav {
-    position: fixed; top: 0; width: 100%; height: 65px;
-    background: var(--fpl-purple);
-    backdrop-filter: var(--glass-blur);
-    border-bottom: 2px solid var(--fpl-green);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 20px; z-index: 3000;
-    color: white;
-}
-
-.logo-container { font-weight: 900; font-size: 1.3rem; letter-spacing: -0.5px; }
-.logo-container span { color: var(--fpl-green); }
-
-.bottom-nav {
-    position: fixed; bottom: 0; width: 100%; height: 80px;
-    background: var(--card-bg); backdrop-filter: var(--glass-blur);
-    border-top: 1px solid var(--border-color);
-    display: grid; grid-template-columns: repeat(8, 1fr);
-    padding: 8px 0; z-index: 3000;
-}
-
-.nav-item {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    color: var(--text-muted); text-decoration: none; font-size: 0.6rem; font-weight: 600;
-}
-
-.nav-item.active { color: var(--primary-blue); }
-.nav-item i { font-size: 1.2rem; margin-bottom: 4px; }
-
-/* --- DASHBOARD ELEMENTS --- */
-.page-content { padding: 85px 16px 100px; max-width: 600px; margin: 0 auto; }
-
-.header-stats-grid { 
-    display: grid; grid-template-columns: repeat(3, 1fr); 
-    background: var(--card-bg); border-radius: 24px; 
-    padding: 20px; text-align: center; border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm); margin-bottom: 20px;
-}
-
-.stat-label { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-.stat-value { font-size: 1.2rem; font-weight: 900; color: var(--text-main); }
-
-/* --- PITCH AREA --- */
-.pitch-container { 
-    background: linear-gradient(180deg, #008040 0%, #005a2d 100%);
-    border-radius: 24px; padding: 20px 10px; min-height: 450px;
-    box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
-}
-
-.player-card img { filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
-.p-info-box { border-radius: 6px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); }
-.p-name { background: #111; color: #fff; font-size: 0.6rem; padding: 3px; font-weight: 600; }
-.p-pts { background: var(--fpl-green); color: #000; font-size: 0.8rem; font-weight: 900; padding: 2px; }
-
-/* --- ERROR STATES --- */
-.fpl-input.error { border-color: #ef4444; background: #fef2f2; }
-body.dark-mode .fpl-input.error { background: #450a0a; }
-.error-msg { color: #ef4444; font-size: 0.8rem; font-weight: 600; margin: -12px 0 12px 4px; display: none; }
-
-/* --- LEAGUES SPECIFIC STYLES --- */
-.controls-wrapper {
-    margin-top: 65px; 
-    background: var(--card-bg);
-    padding: 16px;
-    border-bottom: 1px solid var(--border-color);
-    backdrop-filter: var(--glass-blur);
-}
-
-.toggle-group { 
-    display: flex; 
-    background: var(--bg-color); 
-    border-radius: 12px; 
-    padding: 4px; 
-    width: fit-content; 
-    margin: 0 auto 16px; 
-}
-
-.toggle-btn-small { 
-    padding: 6px 16px; 
-    font-size: 0.75rem; 
-    font-weight: 700; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    color: var(--text-muted); 
-    border: none;
-    background: transparent;
-}
-
-.toggle-btn-small.active { 
-    background: var(--card-bg); 
-    color: var(--text-main); 
-    box-shadow: var(--shadow-sm); 
-}
-
-.select-row { 
-    display: grid; 
-    grid-template-columns: 1fr 110px; 
-    gap: 10px; 
-}
-
-select { 
-    background: var(--bg-color); 
-    color: var(--text-main); 
-    padding: 10px; 
-    border-radius: 12px; 
-    border: 1px solid var(--border-color); 
-    font-weight: 600; 
-    font-size: 0.9rem;
-}
-
-.table-header {
-    background: var(--fpl-purple);
-    color: white;
-    padding: 12px 16px;
-    display: grid;
-    grid-template-columns: 40px 1fr 50px 50px 70px;
-    font-size: 0.65rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-body.dark-mode .table-header { background: #000; }
-
-.manager-row { 
-    background: var(--card-bg); 
-    border-bottom: 1px solid var(--border-color); 
-}
-
-.row-summary {
-    display: grid;
-    grid-template-columns: 40px 1fr 50px 50px 70px;
-    padding: 14px 16px;
-    align-items: center;
-    cursor: pointer;
-}
-
-.pos-cell { font-weight: 900; color: var(--text-muted); font-size: 0.9rem; }
-.name-cell b { font-weight: 800; font-size: 0.95rem; color: var(--text-main); display: block; }
-.name-cell small { font-size: 0.75rem; color: var(--text-muted); }
-.gw-pts-cell { font-weight: 700; text-align: center; }
-.total-pts-cell { font-weight: 900; text-align: right; color: var(--primary-blue); }
-
-.row-expansion { 
-    max-height: 0; 
-    overflow: hidden; 
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
-                      url('https://fantasy.premierleague.com/static/media/pitch-default.7937318e.svg');
-    background-size: cover;
-    background-position: center;
-}
-
-.manager-row.active .row-expansion { max-height: 500px; }
-
-.squad-scroller { 
-    display: flex; flex-wrap: wrap; justify-content: center; 
-    gap: 12px 6px; padding: 20px 10px; 
-}
-
-.squad-stats-bar { display: flex; justify-content: center; gap: 8px; padding: 15px 10px 0; }
-.stat-pill {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 20px;
-    padding: 6px 12px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: #fff;
-}
-.stat-pill b { color: var(--fpl-green); }
-
-.transfer-row {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 12px;
-    padding: 6px 12px;
-    font-size: 0.7rem;
-    margin: 10px auto;
-    width: fit-content;
-    color: #fff;
-}
-
-/* --- PRICES PAGE --- */
-.timer-banner { 
-    background: var(--fpl-purple); 
-    color: white; 
-    margin: 10px; 
-    padding: 15px; 
-    border-radius: 16px; 
-    text-align: center;
-}
-
-.countdown-display { 
-    background: var(--fpl-green); 
-    color: #000; 
-    font-weight: 900; 
-    padding: 4px 12px; 
-    border-radius: 6px; 
-    font-family: 'JetBrains Mono', monospace; 
-    font-size: 1.1rem;
-}
-
-.price-section { 
-    margin: 12px; 
-    background: var(--card-bg); 
-    border-radius: 16px; 
-    border: 1px solid var(--border-color); 
-    overflow: hidden; 
-}
-
-.section-title { 
-    padding: 14px; 
-    font-weight: 800; 
-    border-bottom: 1px solid var(--border-color); 
-    display: flex; justify-content: center; gap: 8px;
-    text-transform: uppercase;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background-color: var(--bg);
+  color: var(--text-1);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  /* Space for bottom nav on mobile */
+  padding-bottom: var(--bottom-nav-h);
 }
 
-.summary-table { width: 100%; border-collapse: collapse; }
-.summary-table th { background: var(--fpl-purple); color: white; padding: 10px; font-size: 0.7rem; }
-.summary-table td { border: 1px solid var(--border-color); padding: 12px 5px; text-align: center; width: 50%; }
-
-.shirt-card { display: inline-flex; flex-direction: column; align-items: center; margin: 4px; width: 55px; }
-.shirt-name { background: var(--fpl-purple); color: #fff; font-size: 0.5rem; width: 100%; padding: 1px 2px; border-radius: 2px; text-transform: uppercase; }
-
-/* Modal & Progress */
-.progress-fill { height: 100%; background: var(--fpl-pink); }
-.stat-val { font-weight: 900; color: var(--primary-blue); font-size: 1.1rem; }
-
-/* --- DATA TABLEIndicator --- */
-.count-in { color: var(--fpl-green); font-weight: 800; }
-.count-out { color: var(--fpl-pink); font-weight: 800; }
-
-/* --- MATCH CARDS --- */
-.pts-pill { background: var(--fpl-pink); color: #fff; padding: 1px 5px; border-radius: 3px; font-weight: 800; }
-.badge-live { background: var(--live-badge); animation: pulse 2s infinite; }
-.live-pts-badge { background: var(--fpl-green); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; }
-
-@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-
-/* --- MEMBERS PAGE --- */
-.status-paid { background: var(--success-bg); color: var(--success-text); }
-.status-pending { background: var(--warning-bg); color: var(--warning-text); }
-.player-pts { background: var(--fpl-green); color: #000; border-radius: 3px; width: 24px; text-align: center; 
-
-
-
-
-/* --- GAMES.HTML SPECIFIC STYLES (RESTORED ALIGNMENT) --- */
-.gw-tabs { display: flex; gap: 10px; margin: 15px 0; padding: 0 5px; }
-.gw-tab {
-    flex: 1; padding: 10px; text-align: center; border-radius: 8px;
-    background: var(--card-bg); border: 1px solid var(--border-color);
-    font-size: 0.8rem; font-weight: 800; cursor: pointer; color: var(--text-muted);
-}
-.gw-tab.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
-
-.page-content { padding-top: 70px; padding-bottom: 90px; min-height: 100vh; box-sizing: border-box; padding-left: 10px; padding-right: 10px; }
-.gw-header { border-left: 4px solid var(--fpl-green); padding-left: 10px; margin-bottom: 15px; font-size: 1.1rem; font-weight: 800; }
-
-/* MATCH CARD LAYOUT */
-.m-card { background: var(--card-bg); border-radius: 15px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-.m-main { display: flex; align-items: center; justify-content: space-between; padding: 15px 10px; }
-
-.team-box { flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; }
-.kit-img { 
-    width: 30px; 
-    height: auto; 
-    margin-bottom: 5px; 
-    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15));
-}
-.team-name { font-weight: 800; font-size: 0.75rem; display: block; text-transform: uppercase; color: var(--text-main); }
-
-.score-center { flex: 1.2; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.status-badge { color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 0.6rem; font-weight: 900; display: inline-block; margin-bottom: 8px; text-transform: uppercase; }
-.badge-done { background: var(--done-badge); }
-.badge-live { background: var(--live-badge); animation: pulse 2s infinite; }
-.badge-sched { background: var(--text-muted); }
-
-.score-val { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: var(--text-main); line-height: 1; }
-.m-footer { background: var(--bg-color); padding: 10px; font-size: 0.65rem; text-align: center; border-top: 1px solid var(--border-color); color: var(--text-muted); }
-
-/* DRAWER */
-.expand-btn { background: transparent; border: none; width: 100%; padding: 12px; font-size: 0.7rem; font-weight: 700; color: var(--text-main); cursor: pointer; border-top: 1px solid var(--border-color); }
-.drawer { display: none; padding: 5px 15px; background: var(--card-bg); }
-.drawer.active { display: block; }
-.own-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); font-size: 0.8rem; align-items: center; }
-.live-pts-badge { background: var(--fpl-green); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; }
-
-/* --- LEAGUES & MEMBERS TABLES --- */
-.table-header {
-    background: var(--fpl-purple); color: white; padding: 12px 16px;
-    display: grid; grid-template-columns: 40px 1fr 50px 50px 70px;
-    font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
-}
-.row-summary { display: grid; grid-template-columns: 40px 1fr 50px 50px 70px; padding: 14px 16px; align-items: center; }
-
-/* --- PITCH --- */
-.pitch-container { background: linear-gradient(180deg, #008040 0%, #005a2d 100%); border-radius: 24px; padding: 20px 10px; min-height: 450px; }
-.player-pts { background: var(--fpl-green); color: #000; font-size: 0.8rem; font-weight: 900; padding: 2px; border-radius: 4px; }
-
-/* --- PRICES --- */
-.count-in { color: var(--fpl-green); font-weight: 800; }
-.count-out { color: var(--fpl-pink); font-weight: 800; }
-
-@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-
-
-
-
-
-
-
-
-
-
-
-
-/* --- GAMES PAGE LAYOUT --- */
-.page-content { padding: 85px 16px 100px; max-width: 600px; margin: 0 auto; }
-
-.gw-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-.gw-tab {
-    flex: 1; padding: 12px; text-align: center; border-radius: 12px;
-    background: var(--card-bg); border: 1px solid var(--border-color);
-    font-weight: 800; font-size: 0.85rem; cursor: pointer;
-}
-.gw-tab.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
-
-.gw-header { 
-    font-weight: 900; font-size: 1.2rem; margin-bottom: 15px; 
-    border-left: 4px solid var(--fpl-green); padding-left: 12px; 
-}
-
-/* --- MATCH CARD (FIXED ALIGNMENT) --- */
-.m-card { 
-    background: var(--card-bg); border-radius: 20px; 
-    margin-bottom: 16px; border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm); overflow: hidden;
-}
-
-.m-main { 
-    display: flex; align-items: center; justify-content: space-between; 
-    padding: 20px 10px; 
-}
-
-.team-box { 
-    flex: 1; display: flex; flex-direction: column; 
-    align-items: center; text-align: center; 
-}
-
-.kit-img { width: 38px; height: auto; margin-bottom: 8px; }
-.team-name { font-weight: 800; font-size: 0.8rem; text-transform: uppercase; }
-
-.score-center { 
-    flex: 1.5; display: flex; flex-direction: column; 
-    align-items: center; justify-content: center; 
-}
-
-.score-val { 
-    font-size: 2rem; font-weight: 900; letter-spacing: 2px; 
-    margin: 5px 0; line-height: 1;
-}
-
-.status-badge {
-    font-size: 0.6rem; font-weight: 900; padding: 4px 10px;
-    border-radius: 6px; text-transform: uppercase; color: white;
-}
-.badge-done { background: var(--done-badge); }
-.badge-live { background: var(--live-badge); animation: pulse 2s infinite; }
-.badge-sched { background: var(--text-muted); }
-
-/* --- FOOTER & BONUS ALIGNMENT --- */
-.m-footer {
-    background: rgba(0,0,0,0.03); padding: 12px;
-    border-top: 1px solid var(--border-color);
-    text-align: center; font-size: 0.7rem;
-}
-
-body.dark-mode .m-footer { background: rgba(255,255,255,0.03); }
-
-.bonus-player {
-    display: inline-flex; align-items: center;
-    margin: 4px 6px; font-weight: 600;
-}
-
-.pts-pill {
-    background: var(--fpl-green); color: #000;
-    font-size: 0.6rem; font-weight: 900;
-    padding: 1px 5px; border-radius: 4px; margin-left: 4px;
-}
-
-/* --- DRAWER & STATS --- */
-.expand-btn {
-    width: 100%; padding: 12px; background: none; border: none;
-    border-top: 1px solid var(--border-color); color: var(--text-main);
-    font-weight: 700; font-size: 0.75rem; cursor: pointer;
-}
-
-.drawer { display: none; padding: 10px 20px; background: rgba(0,0,0,0.02); }
-.drawer.active { display: block; }
-
-.own-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 0; border-bottom: 1px solid var(--border-color);
-}
-
-.live-pts-badge {
-    background: var(--fpl-green); color: #000;
-    padding: 2px 8px; border-radius: 6px; font-weight: 900;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-}
-
-
-
-
-.date-separator {
-    background: var(--fpl-purple);
-    color: var(--fpl-green);
-    padding: 8px 16px;
-    margin: 20px -16px 15px -16px; /* Bleeds to the edge of the container */
-    font-size: 0.75rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    position: sticky;
-    top: 65px; /* Sticks below the top nav */
-    z-index: 10;
-}
-
-body.dark-mode .date-separator {
-    background: #1e293b;
-    border-bottom: 1px solid var(--border-color);
-}
-
-
-
-
-
-
-/* --- FPL BRANDED VARIABLES --- */
-:root {
-    --fpl-purple: #37003c;
-    --fpl-pink: #e90052;
-    --fpl-green: #00ff85;
-    --fpl-blue: #04f5ff;
-    --bg-light: #f8fafc;
-    --card-white: #ffffff;
-    --text-dark: #37003c;
-    --text-muted: #64748b;
-    --pitch-green: #008040;
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* Dark Mode Variables */
-body.dark-mode {
-    --bg-light: #020617;
-    --card-white: #1e293b;
-    --text-dark: #f8fafc;
-    --text-muted: #94a3b8;
-    --fpl-purple: #000000;
-}
-
-/* --- BASE STYLES --- */
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
-
-body {
-    font-family: 'Inter', -apple-system, sans-serif;
-    background: var(--bg-light);
-    color: var(--text-dark);
-    margin: 0;
-    padding-bottom: 90px;
-    user-select: none;
-    overscroll-behavior-y: contain;
-}
-
-/* --- NAVIGATION --- */
-header {
-    background: var(--fpl-purple) !important;
-    color: white;
-    padding: 15px;
-    position: sticky;
-    top: 0;
-    z-index: 3000;
-    border-bottom: 3px solid var(--fpl-green);
-    display: flex;
-    align-items: center;
-}
-
-.logo-container {
-    font-weight: 900;
-    font-size: 1.2rem;
-    letter-spacing: -0.5px;
-}
-
-.logo-container span {
-    color: var(--fpl-green);
-}
-
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 75px;
-    background: var(--card-white);
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    border-top: 1px solid rgba(0,0,0,0.1);
-    z-index: 3000;
-    padding-bottom: env(safe-area-inset-bottom);
-}
-
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    text-decoration: none;
-    font-size: 0.6rem;
-    font-weight: 700;
-}
-
-.nav-item.active {
-    color: var(--fpl-pink);
-}
-
-/* --- INPUT & SYNC --- */
-.sync-container {
-    background: var(--card-white) !important;
-    padding: 15px;
-    margin: 20px 10px;
-    border-radius: 16px;
-    display: flex;
-    gap: 10px;
-    border: 1px solid rgba(0,0,0,0.05);
-    box-shadow: var(--shadow);
-}
-
-#team-id {
-    flex: 1;
-    padding: 12px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 16px;
-    background: var(--bg-light);
-    color: var(--text-dark);
-}
-
-#sync-btn {
-    background: var(--fpl-pink);
-    color: white;
-    border: none;
-    padding: 0 20px;
-    border-radius: 10px;
-    font-weight: 800;
-    cursor: pointer;
+a {
+  text-decoration: none;
+  color: inherit;
 }
 
-/* --- RANK DASHBOARD --- */
-.rank-header {
-    background: linear-gradient(135deg, var(--fpl-purple) 0%, #7d0046 100%);
-    color: white;
-    padding: 20px;
-    border-radius: 15px 15px 0 0;
+img {
+  display: block;
+  max-width: 100%;
 }
 
-.rank-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: rgba(255,255,255,0.1);
+button {
+  font-family: inherit;
+  cursor: pointer;
 }
 
-.stat-tile {
-    background: var(--card-white);
-    padding: 15px 5px;
-    text-align: center;
+/* ============================================
+   3. TYPOGRAPHY SCALE
+   ============================================ */
+.t-display {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -0.5px;
 }
 
-.stat-tile span {
-    font-size: 0.6rem;
-    color: var(--text-muted);
-    font-weight: 800;
-    text-transform: uppercase;
+.t-heading {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.2rem, 4vw, 1.8rem);
+  line-height: 1.1;
 }
 
-.stat-tile strong {
-    font-size: 1.1rem;
-    color: var(--text-dark);
+.t-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text-2);
 }
 
-/* --- PITCH UI --- */
-.pitch {
-    background: var(--pitch-green);
-    background-image: 
-        linear-gradient(rgba(255,255,255,0.1) 2px, transparent 2px),
-        linear-gradient(90deg, rgba(255,255,255,0.1) 2px, transparent 2px);
-    background-size: 50% 100%, 100% 50%;
-    padding: 20px 5px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+.t-number {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
 
-.player-mini {
-    width: 65px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* ============================================
+   4. PAGE LAYOUT
+   ============================================ */
+.page-content {
+  min-height: 100vh;
+  padding-bottom: calc(var(--bottom-nav-h) + 20px);
 }
 
-.name-tag {
-    background: #37003c;
-    color: white;
-    font-size: 0.55rem;
-    width: 100%;
-    padding: 3px 0;
-    font-weight: 700;
-    text-align: center;
+/* Section wrapper */
+.section {
+  padding: 20px 16px;
 }
 
-.pts-tag {
-    width: 100%;
-    font-size: 0.8rem;
-    font-weight: 900;
-    padding: 4px 0;
-    text-align: center;
-    background: var(--fpl-green);
-    color: #000;
+.section + .section {
+  padding-top: 0;
 }
-
-.pts-out { background: #e2e8f0; color: #64748b; }
-
-/* --- UTILITIES --- */
-.card {
-    background: var(--card-white);
-    border-radius: 15px;
-    margin: 15px 10px;
-    overflow: hidden;
-    box-shadow: var(--shadow);
-}
-
-.card-header {
-    padding: 12px 15px;
-    background: #f8fafc;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-}
-
-body.dark-mode .card-header { background: #0f172a; }
-
-.hidden { display: none; }
-
-
-
-/* Container for the entire grid */
-.player-grid-container {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 10px;
-}
-
-.grid-top-info {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-.info-pill {
-    background: white;
-    padding: 4px 10px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-}
-
-/* Flex grid for players */
-.player-list-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: flex-start;
-}
-
-/* Specific Card Styling from the image */
-.compact-player-card {
-    width: 100px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-}
-
-.compact-player-card img {
-    width: 35px;
-    margin-bottom: 5px;
-}
-
-.card-data-box {
-    width: 100%;
-    border: 1px solid #ddd;
-    text-align: center;
-    background: white;
-}
-
-.card-name {
-    background: #1a1a1a;
-    color: white;
-    font-size: 0.75rem;
-    padding: 3px 2px;
-    font-weight: bold;
-}
-
-.card-ownership-bar {
-    background: #00ff85; /* Bright green from image */
-    font-size: 0.7rem;
-    padding: 2px 0;
-    border-top: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-}
-
-.card-points {
-    font-size: 0.9rem;
-    font-weight: 800;
-    padding: 4px 0;
-    background: #f0f0f0;
-}
-
-/* Captain & Chips */
-.chip-icon {
-    position: absolute;
-    top: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: white;
-    border-radius: 50%;
-    font-size: 0.6rem;
-    padding: 2px;
-    border: 1px solid #ddd;
-}
-
-.star-icon {
-    position: absolute;
-    top: 35px;
-    right: 5px;
-    color: #ffd700;
-}
-
-
-
 
-/* 1. Shrink the Manager Rows for a tighter list */
-.manager-row {
-    padding: 4px 8px !important;
-    min-height: auto !important;
+/* Section header row */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
 }
 
-.name-cell b {
-    font-size: 0.8rem; /* Smaller Manager Name */
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-2);
 }
 
-.name-cell small {
-    font-size: 0.65rem; /* Smaller Player Name */
-    display: block;
+/* ============================================
+   5. SKELETON / SHIMMER LOADING
+   ============================================ */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
 }
 
-/* 2. Shrink the Squad Scroller & Player Cards */
-.squad-scroller {
-    display: flex;
-    gap: 4px; /* Tighter spacing between players */
-    padding: 5px 0;
-    overflow-x: auto;
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    var(--surface-3) 50%,
+    var(--surface-2) 75%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.6s ease infinite;
+  border-radius: var(--r-sm);
+  color: transparent !important;
+  pointer-events: none;
+  user-select: none;
+}
+
+.skeleton * {
+  visibility: hidden;
+}
+
+/* ============================================
+   6. STAT CHIPS (Header Performance Row)
+   ============================================ */
+.stat-chips-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 16px 16px 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.stat-chips-row::-webkit-scrollbar {
+  display: none;
+}
+
+.stat-chip {
+  flex: 0 0 auto;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  min-width: 90px;
+  text-align: center;
+}
+
+.stat-chip__label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 4px;
+}
+
+.stat-chip__value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-1);
+  line-height: 1;
+}
+
+.stat-chip--highlight .stat-chip__value {
+  color: var(--green);
+}
+
+.stat-chip--highlight {
+  border-color: var(--green-dim);
+  background: linear-gradient(135deg, var(--surface-2), rgba(0,232,122,0.04));
+}
+
+/* ============================================
+   7. MANAGER HEADER
+   ============================================ */
+.manager-header {
+  padding: 20px 16px 16px;
+  background: linear-gradient(180deg, #1a0d1c 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+}
+
+.manager-header__name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.3px;
+  color: var(--text-1);
+}
+
+.manager-header__team {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-top: 4px;
+}
+
+/* ============================================
+   8. SQUAD INFO BAR (FT / TV / Played pills)
+   ============================================ */
+.squad-bar {
+  display: flex;
+  gap: 8px;
+  padding: 16px 16px 0;
+  flex-wrap: wrap;
+}
+
+.squad-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.squad-pill__value {
+  color: var(--text-1);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.squad-pill--cost .squad-pill__value {
+  color: var(--red);
+}
+
+/* ============================================
+   9. PLAYER CARDS
+   ============================================ */
+.player-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 16px;
+}
+
+@media (min-width: 480px) {
+  .player-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 680px) {
+  .player-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 
 .player-card {
-    min-width: 50px !important; /* Narrower cards */
-    text-align: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px 6px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s var(--ease), background 0.15s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
 }
 
-/* 3. The Jersey (Shirt) Size */
-.player-shirt {
-    width: 30px !important; /* Reduced from default size */
-    height: auto;
-    margin-bottom: 2px;
+/* Position colour strip on top edge */
+.player-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--r-md) var(--r-md) 0 0;
 }
 
-/* 4. Font sizes for Player Info */
-.player-label {
-    font-size: 0.6rem !important; /* Very small text for player names */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 55px;
-    font-weight: 600;
+.player-card[data-pos="1"]::before { background: var(--pos-gk); }
+.player-card[data-pos="2"]::before { background: var(--pos-def); }
+.player-card[data-pos="3"]::before { background: var(--pos-mid); }
+.player-card[data-pos="4"]::before { background: var(--pos-fwd); }
+
+.player-card:active {
+  transform: scale(0.94);
+  background: var(--surface-3);
 }
 
-.player-pts {
-    font-size: 0.65rem !important; /* Smaller points display */
-    background: rgba(0,0,0,0.05);
-    border-radius: 3px;
-    padding: 1px 0;
+.player-card.is-bench {
+  opacity: 0.45;
+  border-style: dashed;
 }
 
-/* Optional: Make the Stats Bar smaller too */
-.stat-pill {
-    font-size: 0.6rem !important;
-    padding: 2px 6px !important;
+.player-card.is-bench::before {
+  opacity: 0.4;
 }
+
+/* Captain / VC badge */
+.player-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.player-badge--captain {
+  background: var(--green);
+  color: #000;
+}
+
+.player-badge--vice {
+  background: var(--surface-3);
+  color: var(--text-1);
+  border: 1px solid var(--border-mid);
+}
+
+/* Shirt image */
+.player-card__shirt {
+  width: 38px;
+  height: auto;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));
+  margin-top: 4px;
+}
+
+/* Name */
+.player-card__name {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-1);
+  text-align: center;
+  line-height: 1.2;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+/* Points */
+.player-card__pts {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--green);
+  line-height: 1;
+}
+
+.player-card__pts--zero {
+  color: var(--text-3);
+}
+
+/* Ownership bar */
+.player-card__ownership {
+  width: calc(100% - 8px);
+  height: 3px;
+  background: var(--surface-3);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.player-card__ownership-fill {
+  height: 100%;
+  background: var(--text-3);
+  border-radius: 100px;
+  transition: width 0.6s var(--ease);
+}
+
+/* ============================================
+   10. BENCH DIVIDER
+   ============================================ */
+.bench-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  margin: 4px 0;
+}
+
+.bench-divider__line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.bench-divider__label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* ============================================
+   11. DEADLINE BANNER
+   ============================================ */
+.deadline-banner {
+  background: linear-gradient(90deg, var(--purple), var(--purple-light));
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.deadline-banner__label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+}
+
+.deadline-banner__time {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.deadline-banner__gw {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--green);
+  background: var(--green-dim);
+  border: 1px solid rgba(0,232,122,0.2);
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+
+/* ============================================
+   12. LOGIN SCREEN
+   ============================================ */
+#login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg);
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.login-hero {
+  background: linear-gradient(135deg, var(--purple) 0%, #0d0d0d 100%);
+  padding: 60px 24px 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,232,122,0.08) 0%, transparent 70%);
+}
+
+.login-hero__wordmark {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: #fff;
+  position: relative;
+}
+
+.login-hero__wordmark span {
+  color: var(--green);
+}
+
+.login-hero__sub {
+  font-size: 0.85rem;
+  color: var(--text-2);
+  margin-top: 6px;
+  position: relative;
+}
+
+.login-card {
+  padding: 32px 24px 40px;
+  flex: 1;
+}
+
+.login-card h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.login-card p {
+  font-size: 0.85rem;
+  color: var(--text-2);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.fpl-input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: var(--text-1);
+  outline: none;
+  transition: border-color 0.2s var(--ease);
+}
+
+.fpl-input:focus {
+  border-color: var(--green);
+}
+
+.fpl-input.error {
+  border-color: var(--red);
+}
+
+.fpl-input::placeholder {
+  color: var(--text-3);
+}
+
+.error-msg {
+  display: none;
+  font-size: 0.8rem;
+  color: var(--red);
+  margin-top: 6px;
+}
+
+.continue-btn {
+  width: 100%;
+  background: var(--green);
+  color: #000;
+  border: none;
+  border-radius: var(--r-md);
+  padding: 15px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-top: 16px;
+  transition: opacity 0.2s, transform 0.15s var(--ease);
+}
+
+.continue-btn:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.continue-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.find-id-link {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: var(--text-3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+
+.find-id-link:hover {
+  color: var(--text-2);
+}
+
+/* ============================================
+   13. TRANSFER CARDS
+   ============================================ */
+.transfers-section {
+  padding: 0 16px 16px;
+}
+
+.transfer-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.transfer-card__player-out {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--red);
+  text-align: right;
+}
+
+.transfer-card__arrow {
+  color: var(--text-3);
+  font-size: 1rem;
+}
+
+.transfer-card__player-in {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--green);
+}
+
+.transfer-card__cost {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--red);
+  background: rgba(239,68,68,0.1);
+  border-radius: 100px;
+  padding: 2px 8px;
+}
+
+/* ============================================
+   14. GENERIC CARD
+   ============================================ */
+.card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+/* ============================================
+   15. PRICE CHANGE BADGE
+   ============================================ */
+.price-rise  { color: var(--green); }
+.price-fall  { color: var(--red); }
+.price-same  { color: var(--text-3); }
+
+/* ============================================
+   16. TABLE STYLES
+   ============================================ */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.data-table th {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-2);
+  vertical-align: middle;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background: var(--surface-3);
+}
+
+/* ============================================
+   17. EMPTY / ERROR STATES
+   ============================================ */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-3);
+}
+
+.empty-state__icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  opacity: 0.4;
+}
+
+.empty-state__msg {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* ============================================
+   18. DESKTOP ADJUSTMENTS
+   ============================================ */
+@media (min-width: 1024px) {
+  body {
+    padding-bottom: 0;
+  }
+
+  .page-content {
+    margin-left: var(--sidebar-w);
+    margin-top: var(--topbar-h);
+    padding-bottom: 0;
+  }
+
+  .player-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* ============================================
+   19. UTILITY CLASSES
+   ============================================ */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.w-full { width: 100%; }
+.text-green { color: var(--green); }
+.text-dim { color: var(--text-2); }
+.text-muted { color: var(--text-3); }
