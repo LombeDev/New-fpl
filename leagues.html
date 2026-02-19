@@ -1,405 +1,972 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>View Mini Leagues | Kopala FPL</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#37003c">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Kopala FPL">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="nav.css">
-    <link rel="stylesheet" href="footer.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Leagues | Kopala FPL</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d0d0d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Kopala FPL">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-    <style>
-        :root {
-            --m3-surface: #ffffff;
-            --m3-input-bg: #eeeeee;
-            --accent-blue: #2563eb;
-            --pos-up: #00e676;
-            --pos-down: #ff1744;
-            --chip-bg: #f1f3f4;
-            --md-sys-color-primary: #006a60;
-            /* YOUR NEW COLORS */
-            --shimmer-base: #f0f4f9;
-            --shimmer-shine: rgba(255, 255, 255, 0.7);
-        }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="nav.css">
+  <link rel="stylesheet" href="footer.css">
 
-        /* --- LOADING SHIMMER ANIMATION --- */
-        .skeleton {
-            background-color: var(--shimmer-base) !important;
-            position: relative;
-            overflow: hidden;
-            border-radius: 4px;
-        }
+  <style>
+    /* ============================================
+       LEAGUES PAGE — LOCAL STYLES
+       ============================================ */
 
-        .skeleton::after {
-            content: "";
-            position: absolute;
-            top: 0; left: -150%; width: 100%; height: 100%;
-            background: linear-gradient(110deg, rgba(255, 255, 255, 0) 20%, var(--shimmer-shine) 50%, rgba(255, 255, 255, 0) 80%);
-            animation: glass-shine 1.6s infinite ease-in-out;
-        }
+    /* ---- Sticky controls bar ---- */
+    .lg-controls {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(13, 13, 13, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      gap: 8px;
+    }
 
-        @keyframes glass-shine {
-            0% { left: -150%; }
-            100% { left: 150%; }
-        }
+    /* Custom select wrapper */
+    .lg-select-wrap {
+      position: relative;
+      flex: 1;
+    }
+    .lg-select-wrap i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.7rem;
+      color: var(--text-3);
+      pointer-events: none;
+    }
+    #league-select {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 10px 12px 10px 32px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-1);
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    #league-select:focus { border-color: var(--border-mid); }
 
-        .skeleton-row {
-            margin: 4px 8px; background: white; border-radius: 15px; height: 65px;
-            display: grid; grid-template-columns: 40px 1fr 65px 30px 55px; align-items: center; padding: 8px 10px; gap: 4px;
-        }
+    /* Search input */
+    .lg-search-wrap {
+      position: relative;
+      flex: 0 0 120px;
+    }
+    .lg-search-wrap i {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.7rem;
+      color: var(--text-3);
+      pointer-events: none;
+    }
+    #manager-search {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 10px 10px 10px 30px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      color: var(--text-1);
+      outline: none;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+    #manager-search:focus { border-color: var(--border-mid); }
+    #manager-search::placeholder { color: var(--text-3); }
 
-        .skeleton-circle { width: 24px; height: 24px; border-radius: 50%; justify-self: center; }
-        .skeleton-text { height: 12px; border-radius: 4px; margin-bottom: 4px; }
-        .skeleton-text.short { width: 60%; }
+    /* ---- Table column header ---- */
+    .lg-table-head {
+      display: grid;
+      grid-template-columns: 44px 1fr 72px 44px 60px 24px;
+      align-items: center;
+      padding: 8px 16px;
+      gap: 6px;
+    }
+    .lg-table-head span {
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+    .lg-table-head span:nth-child(4),
+    .lg-table-head span:nth-child(5) { text-align: center; }
 
-        /* Material You Style Controls */
-        .controls-wrapper { background: white; padding: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .m3-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; }
-        .m3-input-wrapper { position: relative; display: flex; align-items: center; }
-        .m3-input-wrapper i { position: absolute; left: 10px; font-size: 0.65rem; color: #666; pointer-events: none; }
+    /* ---- Manager rows ---- */
+    .lg-list {
+      padding: 0 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
 
-        #league-select, #manager-search {
-            width: 100%; border: none; background: var(--m3-input-bg);
-            border-radius: 20px; padding: 8px 12px; font-size: 0.65rem; font-weight: 600;
-            color: #1d1b20; outline: none; box-sizing: border-box; transition: background 0.2s;
-        }
-        #manager-search { padding-left: 28px; }
+    .lg-row {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      transition: border-color 0.2s;
+      /* Staggered fade-in */
+      opacity: 0;
+      animation: lg-row-in 0.3s var(--ease) forwards;
+    }
 
-        /* Table Styles */
-        .table-header { 
-            display: grid; grid-template-columns: 40px 1fr 65px 30px 55px; 
-            font-size: 0.55rem; font-weight: 800; padding: 6px 10px; color: #aaa; text-transform: uppercase; gap: 4px;
-        }
+    @keyframes lg-row-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-        .manager-row { margin: 4px 8px; background: white; border-radius: 15px; border: 1px solid #e0e0e0; overflow: hidden; }
-        .manager-row.is-me { border: 1.5px solid var(--accent-blue); background: #f6f9ff; }
-        .row-summary { display: grid; grid-template-columns: 40px 1fr 65px 30px 55px; align-items: center; padding: 8px 10px; cursor: pointer; gap: 4px; }
-        
-        .pos-container { display: flex; flex-direction: column; align-items: center; min-width: 35px; }
-        .pos-cell { font-weight: 800; font-size: 0.75rem; color: #111; line-height: 1; }
-        .move-indicator { font-size: 0.5rem; width: 12px; height: 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; margin-bottom: 1px; }
-        .move-up { background: var(--pos-up); }
-        .move-down { background: var(--pos-down); }
+    /* "Me" highlight */
+    .lg-row.is-me {
+      border-color: rgba(0, 232, 122, 0.3);
+      background: linear-gradient(135deg, rgba(0,232,122,0.04), var(--surface-2));
+    }
 
-        .name-cell b { font-size: 0.75rem; color: #000; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .name-cell small { font-size: 0.65rem; color: #777; font-weight: 500; display: block; }
-        
-        .chip-pill { display: inline-block; background: var(--chip-bg); border: 1px solid #ccc; border-radius: 3px; padding: 0px 3px; font-size: 0.5rem; font-weight: 900; margin-left: 2px; color: #444; }
-        .or-pill { display: inline-block; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 1px 5px; font-size: 0.6rem; font-weight: 700; margin-top: 2px; color: #555; }
+    /* Top 3 highlights */
+    .lg-row.rank-1 { border-color: rgba(255, 200, 0, 0.35); }
+    .lg-row.rank-2 { border-color: rgba(180, 180, 180, 0.35); }
+    .lg-row.rank-3 { border-color: rgba(200, 120, 60, 0.35); }
 
-        .cap-info { text-align: center; font-size: 0.65rem; font-weight: 700; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .cap-sub { font-size: 0.55rem; color: #999; font-weight: 400; }
-        .gw-pts { font-size: 0.85rem; font-weight: 800; text-align: center; color: #111; }
-        .total-pts { font-size: 0.85rem; font-weight: 800; text-align: right; color: #111; }
+    /* Summary row (always visible) */
+    .lg-row-summary {
+      display: grid;
+      grid-template-columns: 44px 1fr 72px 44px 60px 24px;
+      align-items: center;
+      padding: 12px 16px;
+      gap: 6px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s;
+    }
+    .lg-row-summary:active { background: var(--surface-3); }
 
-        .transfer-line { padding: 0 10px 8px 50px; font-size: 0.65rem; color: #2563eb; font-weight: 700; min-height: 1em; }
+    /* Position + movement */
+    .lg-pos {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
 
-        .row-expansion { display: none; background: #fafafa; border-top: 1px solid #eee; }
-        .manager-row.active .row-expansion { display: block; }
-        
-        .squad-stats-header { display: flex; justify-content: space-around; padding: 8px; background: #f8f9fa; border-bottom: 1px solid #eee; }
-        .stat-box { text-align: center; }
-        .stat-label { display: block; font-size: 0.5rem; color: #777; font-weight: 700; text-transform: uppercase; }
-        .stat-value { font-size: 0.75rem; font-weight: 800; color: #111; }
-        .hit-badge { color: #ff1744; font-size: 0.65rem; font-weight: 800; margin-left: 2px; }
+    .lg-rank {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--text-1);
+      line-height: 1;
+    }
 
-        .squad-scroller { display: flex; overflow-x: auto; padding: 8px; gap: 6px; }
-        .player-card { min-width: 48px; text-align: center; flex-shrink: 0; position: relative; }
-        .player-shirt { width: 20px; margin-bottom: 2px; }
-        .player-label { font-size: 0.45rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
-        
-        .player-events { display: flex; justify-content: center; align-items: center; gap: 2px; margin-top: 1px; min-height: 10px; }
-        .icon-goal { color: #000; font-size: 0.45rem; }
-        .icon-assist { color: #1976d2; font-size: 0.55rem; font-weight: 900; font-style: normal; line-height: 1; }
-        .icon-yellow { color: #ffd600; font-size: 0.45rem; }
-        .icon-red { color: #d50000; font-size: 0.45rem; }
-        .icon-bonus { color: #ff9800; font-size: 0.45rem; }
-    </style>
+    .lg-rank.gold   { color: #ffc800; }
+    .lg-rank.silver { color: #b0b0b0; }
+    .lg-rank.bronze { color: #cd7c3c; }
+
+    .lg-move {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.4rem;
+    }
+    .lg-move.up   { background: rgba(0,232,122,0.15); color: var(--green); }
+    .lg-move.down { background: rgba(239,68,68,0.15);  color: var(--red); }
+    .lg-move.same { background: var(--surface-3);       color: var(--text-3); }
+
+    /* Name cell */
+    .lg-name {
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .lg-name__team {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      line-height: 1.2;
+    }
+
+    .lg-chip {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.58rem;
+      font-weight: 900;
+      padding: 1px 4px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .lg-chip.wc { background: rgba(59,130,246,0.2); color: #3b82f6; }
+    .lg-chip.fh { background: rgba(245,158,11,0.2); color: #f59e0b; }
+    .lg-chip.bb { background: rgba(0,232,122,0.2);  color: #00e87a; }
+    .lg-chip.tc { background: rgba(239,68,68,0.2);   color: #ef4444; }
+
+    .lg-name__manager {
+      font-size: 0.68rem;
+      font-weight: 500;
+      color: var(--text-3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 1px;
+    }
+
+    .lg-or {
+      display: inline-block;
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+
+    /* Captain column */
+    .lg-cap {
+      text-align: center;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .lg-cap__name {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--green);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .lg-cap__vc {
+      font-size: 0.58rem;
+      font-weight: 500;
+      color: var(--text-3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 1px;
+    }
+
+    /* Points cells */
+    .lg-gw-pts {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 900;
+      text-align: center;
+      color: var(--text-1);
+      line-height: 1;
+    }
+
+    .lg-total-pts {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      text-align: center;
+      color: var(--text-2);
+      line-height: 1;
+    }
+
+    /* Chevron */
+    .lg-chevron {
+      font-size: 0.65rem;
+      color: var(--text-3);
+      transition: transform 0.25s var(--ease);
+      justify-self: center;
+    }
+    .lg-row.open .lg-chevron { transform: rotate(180deg); }
+
+    /* Transfer line */
+    .lg-transfers {
+      padding: 0 16px 10px 60px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-3);
+      display: none;
+    }
+
+    .lg-transfers.visible { display: block; }
+
+    .lg-transfer-arrow { color: var(--green); margin: 0 3px; }
+    .lg-transfer-sep   { margin: 0 6px; color: var(--border-mid); }
+
+    /* ---- Expansion panel ---- */
+    .lg-expansion {
+      display: none;
+      border-top: 1px solid var(--border);
+      background: var(--surface-1);
+    }
+    .lg-row.open .lg-expansion { display: block; }
+
+    /* Stats strip */
+    .lg-stats-strip {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lg-stat {
+      flex: 1;
+      text-align: center;
+      padding: 10px 6px;
+      border-right: 1px solid var(--border);
+    }
+    .lg-stat:last-child { border-right: none; }
+
+    .lg-stat__label {
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-3);
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .lg-stat__value {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--text-1);
+      line-height: 1;
+    }
+
+    .lg-stat__value.hit { color: var(--red); }
+
+    /* Squad horizontal scroller */
+    .lg-squad {
+      display: flex;
+      overflow-x: auto;
+      gap: 6px;
+      padding: 12px 16px;
+      scrollbar-width: none;
+    }
+    .lg-squad::-webkit-scrollbar { display: none; }
+
+    /* Individual player mini-card */
+    .lg-player {
+      flex: 0 0 auto;
+      width: 52px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      position: relative;
+    }
+
+    .lg-player.is-bench { opacity: 0.4; }
+
+    .lg-player__shirt-wrap {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Position strip above shirt */
+    .lg-player__pos-strip {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 2px;
+      border-radius: 100px;
+    }
+    .pos-1 { background: var(--pos-gk); }
+    .pos-2 { background: var(--pos-def); }
+    .pos-3 { background: var(--pos-mid); }
+    .pos-4 { background: var(--pos-fwd); }
+
+    .lg-player__shirt {
+      width: 30px;
+      height: auto;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+    }
+
+    .lg-player__badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.5rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .lg-player__badge.cap  { background: var(--green); color: #000; }
+    .lg-player__badge.vice { background: var(--surface-3); color: var(--text-2); border: 1px solid var(--border-mid); }
+
+    .lg-player__name {
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: var(--text-2);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+
+    .lg-player__pts {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 900;
+      color: var(--text-1);
+      line-height: 1;
+    }
+
+    /* Events icons (goal, assist, card, bonus) */
+    .lg-player__events {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-height: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ev-goal   { color: var(--text-1); font-size: 0.45rem; }
+    .ev-assist { color: #3b82f6; font-size: 0.5rem; font-weight: 900; font-style: normal; line-height: 1; }
+    .ev-yellow { color: #ffd600; font-size: 0.42rem; }
+    .ev-red    { color: #ef4444; font-size: 0.42rem; }
+    .ev-bonus  { color: var(--amber); font-size: 0.42rem; }
+    .ev-cs     { color: var(--green); font-size: 0.42rem; }
+
+    /* ---- Shimmer skeletons ---- */
+    .lg-skeleton-row {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      height: 68px;
+      overflow: hidden;
+    }
+
+    .lg-loading-grid {
+      padding: 0 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* ---- No results / error ---- */
+    .lg-empty {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-3);
+    }
+    .lg-empty i { font-size: 2rem; margin-bottom: 12px; opacity: 0.3; display: block; }
+    .lg-empty p { font-size: 0.9rem; }
+  </style>
 </head>
 <body>
-    <div id="nav-placeholder"></div>
 
-    <div class="controls-wrapper">
-        <div class="m3-row">
-            <select id="league-select" onchange="loadStandings(this.value)"></select>
-            <div class="m3-input-wrapper">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="manager-search" placeholder="Search...">
-            </div>
-        </div>
+<div id="nav-placeholder"></div>
+
+<main class="page-content">
+
+  <!-- Sticky controls -->
+  <div class="lg-controls">
+    <div class="lg-select-wrap">
+      <i class="fa-solid fa-trophy"></i>
+      <select id="league-select" onchange="loadStandings(this.value)"></select>
     </div>
+    <div class="lg-search-wrap">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="manager-search" placeholder="Search…" autocomplete="off">
+    </div>
+  </div>
 
-    <div id="manager-list-container"></div>
+  <!-- Table column headers -->
+  <div class="lg-table-head">
+    <span>Pos</span>
+    <span>Manager</span>
+    <span style="text-align:center">(C)</span>
+    <span style="text-align:center">GW</span>
+    <span style="text-align:center">Total</span>
+    <span></span>
+  </div>
 
-    <script>
-        const state = {
-            fplId: localStorage.getItem('kopala_id'),
-            currentGW: 1,
-            playerMap: {},
-            liveData: {},
-            PROXY: "/.netlify/functions/fpl-proxy?endpoint=",
-            ELITE_LEAGUE: 32885
-        };
+  <!-- Manager list -->
+  <div id="manager-list-container" class="lg-list"></div>
 
-        // SHARED SKELETON BUILDER
-        const getSkeletonHtml = () => {
-            let html = '<div class="table-header"><span>Pos</span><span>Manager</span><span>(C)</span><span>GW</span><span style="text-align:right">Total</span></div>';
-            for (let i = 0; i < 12; i++) {
-                html += `
-                <div class="skeleton-row">
-                    <div class="skeleton skeleton-circle"></div>
-                    <div>
-                        <div class="skeleton skeleton-text"></div>
-                        <div class="skeleton skeleton-text short"></div>
-                    </div>
-                    <div class="skeleton skeleton-text" style="width:80%; justify-self:center;"></div>
-                    <div class="skeleton skeleton-text" style="width:20px; justify-self:center;"></div>
-                    <div class="skeleton skeleton-text" style="width:40px; justify-self:end;"></div>
-                </div>`;
-            }
-            return html;
-        };
+  <div id="footer-placeholder"></div>
+</main>
 
-        async function init() {
-            const container = document.getElementById('manager-list-container');
-            container.innerHTML = getSkeletonHtml();
+<script>
+/* ============================================
+   STATE
+   ============================================ */
+const state = {
+  fplId:      localStorage.getItem('kopala_id'),
+  currentGW:  1,
+  playerMap:  {},
+  liveData:   {},
+  PROXY:      '/.netlify/functions/fpl-proxy?endpoint=',
+  ELITE_LEAGUE: 32885,
+};
 
-            if(!state.fplId) return;
-            try {
-                const staticRes = await fetch(`${state.PROXY}bootstrap-static/`);
-                const staticData = await staticRes.json();
-                state.currentGW = staticData.events.find(e => e.is_current).id;
-                
-                staticData.elements.forEach(p => {
-                    state.playerMap[p.id] = { 
-                        name: p.web_name, 
-                        team: staticData.teams.find(t => t.id === p.team).code, 
-                        pos: p.element_type 
-                    };
-                });
+const CHIP_MAP = { wildcard: 'WC', freehit: 'FH', bboost: 'BB', '3xc': 'TC' };
+const CHIP_CLASS = { wildcard: 'wc', freehit: 'fh', bboost: 'bb', '3xc': 'tc' };
 
-                const liveRes = await fetch(`${state.PROXY}event/${state.currentGW}/live/`);
-                const liveData = await liveRes.json();
-                liveData.elements.forEach(el => { 
-                    state.liveData[el.id] = { pts: el.stats.total_points, explain: el.explain }; 
-                });
+/* ============================================
+   SKELETON LOADERS
+   ============================================ */
+function skeletonRows(count = 10) {
+  const container = document.getElementById('manager-list-container');
+  container.innerHTML = Array.from({ length: count }, (_, i) => `
+    <div class="lg-skeleton-row skeleton" style="animation-delay:${i * 0.04}s"></div>
+  `).join('');
+}
 
-                const entryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
-                const entryData = await entryRes.json();
-                const select = document.getElementById('league-select');
-                let options = `<option value="${state.ELITE_LEAGUE}">You vs FPL Celebs</option>`;
-                options += entryData.leagues.classic.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
-                select.innerHTML = options;
-                loadStandings(state.ELITE_LEAGUE);
-            } catch (err) { console.error(err); }
-        }
+/* ============================================
+   BOOTSTRAP INIT
+   ============================================ */
+async function init() {
+  if (!state.fplId) {
+    document.getElementById('manager-list-container').innerHTML = `
+      <div class="lg-empty">
+        <i class="fa-solid fa-id-card"></i>
+        <p>No Team ID found.<br>Please go back and log in.</p>
+      </div>`;
+    return;
+  }
 
-        async function loadStandings(leagueId) {
-    const container = document.getElementById('manager-list-container');
-    container.innerHTML = getSkeletonHtml();
-    
-    try {
-        const res = await fetch(`${state.PROXY}leagues-classic/${leagueId}/standings/`);
-        const data = await res.json();
-        let results = data.standings.results;
+  skeletonRows();
 
-        // Elite League logic (Keep your existing check)
-        if (leagueId == state.ELITE_LEAGUE) {
-            const myEntryRes = await fetch(`${state.PROXY}entry/${state.fplId}/`);
-            const me = await myEntryRes.json();
-            if (!results.find(r => r.entry == state.fplId)) {
-                results = [{ 
-                    entry: state.fplId, entry_name: me.name, player_name: `${me.player_first_name} ${me.player_last_name}`, 
-                    event_total: me.summary_event_points, total: me.summary_overall_points, 
-                    rank: me.summary_overall_rank, last_rank: me.summary_overall_rank
-                }, ...results];
-            }
-        }
+  try {
+    // Fetch bootstrap + entry in parallel
+    const [staticRes, entryRes] = await Promise.all([
+      fetch(`${state.PROXY}bootstrap-static/`),
+      fetch(`${state.PROXY}entry/${state.fplId}/`),
+    ]);
+    const [staticData, entryData] = await Promise.all([staticRes.json(), entryRes.json()]);
 
-        // Render the list
-        container.innerHTML = `<div class="table-header"><span>Pos</span><span>Manager</span><span>(C)</span><span>GW</span><span style="text-align:right">Total</span></div>` + 
-            results.map((r, i) => {
-                const rank = r.rank || i+1;
-                return `
-                <div class="manager-row ${r.entry == state.fplId ? 'is-me' : ''}" id="entry-${r.entry}">
-                    <div class="row-summary" onclick="expandManager(${r.entry})">
-                        <div class="pos-container">
-                            <div class="move-indicator ${rank <= (r.last_rank || rank) ? 'move-up' : 'move-down'}"><i class="fa-solid ${rank <= (r.last_rank || rank) ? 'fa-arrow-up' : 'fa-arrow-down'}"></i></div>
-                            <span class="pos-cell">${rank}</span>
-                        </div>
-                        <div class="name-cell">
-                            <b>${r.entry_name} <span id="chip-${r.entry}"></span></b>
-                            <small>${r.player_name}</small>
-                            <div class="skeleton skeleton-text short" id="or-${r.entry}" style="margin-top:4px;"></div>
-                        </div>
-                        <div class="cap-info">
-                            <div id="cap-${r.entry}" style="color:var(--accent-blue); font-size: 0.6rem;">...</div>
-                            <div class="cap-sub" id="vc-${r.entry}"></div>
-                        </div>
-                        <div class="gw-pts">${r.event_total}</div>
-                        <div class="total-pts">${r.total.toLocaleString()}</div>
-                    </div>
-                    <div class="transfer-line" id="transfers-${r.entry}"></div>
-                    <div class="row-expansion"></div>
-                </div>`;
-            }).join('');
+    // Build player map
+    const teamCodeMap = {};
+    staticData.teams.forEach(t => { teamCodeMap[t.id] = t.code; });
+    staticData.elements.forEach(p => {
+      state.playerMap[p.id] = {
+        name: p.web_name,
+        teamCode: teamCodeMap[p.team],
+        pos: p.element_type,
+      };
+    });
 
-        // --- NEW: AUTO-LOAD TOP 10 ---
-        // We load these one-by-one to avoid 429 Rate Limit errors
-        for (let i = 0; i < Math.min(results.length, 10); i++) {
-            await fetchManagerDetails(results[i].entry);
-            // Small 50ms pause to be "kind" to the API
-            await new Promise(resolve => setTimeout(resolve, 50));
-        }
+    // Current GW
+    const currentEvent = staticData.events.find(e => e.is_current) || staticData.events[0];
+    state.currentGW = currentEvent.id;
 
-    } catch (e) { 
-        console.error(e);
-        container.innerHTML = '<p>Error loading standings.</p>'; 
+    // Fetch live data
+    const liveRes  = await fetch(`${state.PROXY}event/${state.currentGW}/live/`);
+    const liveData = await liveRes.json();
+    liveData.elements.forEach(el => {
+      state.liveData[el.id] = { pts: el.stats.total_points, explain: el.explain || [] };
+    });
+
+    // Populate league select
+    const select = document.getElementById('league-select');
+    let opts = `<option value="${state.ELITE_LEAGUE}">⚽ FPL Celebs</option>`;
+    opts += entryData.leagues.classic.map(l =>
+      `<option value="${l.id}">${l.name}</option>`
+    ).join('');
+    select.innerHTML = opts;
+
+    // Cache entry data for elite league fallback
+    state.myEntry = entryData;
+
+    loadStandings(state.ELITE_LEAGUE);
+  } catch (err) {
+    console.error('[Init]', err);
+    document.getElementById('manager-list-container').innerHTML = `
+      <div class="lg-empty">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <p>Failed to load. Check your connection.</p>
+      </div>`;
+  }
+}
+
+/* ============================================
+   LOAD STANDINGS
+   ============================================ */
+async function loadStandings(leagueId) {
+  skeletonRows();
+
+  try {
+    const res  = await fetch(`${state.PROXY}leagues-classic/${leagueId}/standings/`);
+    const data = await res.json();
+    let results = data.standings.results;
+
+    // Elite league — inject user if not present
+    if (parseInt(leagueId) === state.ELITE_LEAGUE && state.myEntry) {
+      const me = state.myEntry;
+      if (!results.find(r => r.entry == state.fplId)) {
+        results = [{
+          entry:       state.fplId,
+          entry_name:  me.name,
+          player_name: `${me.player_first_name} ${me.player_last_name}`,
+          event_total: me.summary_event_points,
+          total:       me.summary_overall_points,
+          rank:        null,
+          last_rank:   null,
+        }, ...results];
+      }
     }
-}
-       async function fetchManagerDetails(entryId) {
-    try {
-        const [entryRes, transRes, picksRes] = await Promise.all([
-            fetch(`${state.PROXY}entry/${entryId}/`),
-            fetch(`${state.PROXY}entry/${entryId}/transfers/`),
-            fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`)
-        ]);
-        const entryData = await entryRes.json();
-        const transData = await transRes.json();
-        const picksData = await picksRes.json();
 
-        // Update Overall Rank
-        const orEl = document.getElementById(`or-${entryId}`);
-        if(orEl) {
-            orEl.classList.remove('skeleton', 'skeleton-text');
-            orEl.innerHTML = `<div class="or-pill">OR ${entryData.summary_overall_rank?.toLocaleString() || 'N/A'}</div>`;
-        }
+    renderList(results);
 
-        // Update Captain Column (The Fix!)
-        const capBtn = document.getElementById(`cap-${entryId}`);
-        if(capBtn && picksData.picks) {
-            const captainPick = picksData.picks.find(p => p.is_captain);
-            if(captainPick) {
-                const pName = state.playerMap[captainPick.element]?.name || "Unknown";
-                capBtn.textContent = pName;
-            }
-        }
+    // Load details for top 10 concurrently (batched to avoid 429s)
+    const top = results.slice(0, 10);
+    await Promise.allSettled(top.map(r => fetchManagerDetails(r.entry)));
 
-        // Update Active Chip
-        const chipEl = document.getElementById(`chip-${entryId}`);
-        if (chipEl && picksData.active_chip) {
-            const map = { 'wildcard': 'WC', 'freehit': 'FH', 'bboost': 'BB', '3xc': 'TC' };
-            chipEl.innerHTML = `<span class="chip-pill">${map[picksData.active_chip] || 'C'}</span>`;
-        }
-
-        // Update Transfers
-        const transEl = document.getElementById(`transfers-${entryId}`);
-        const latest = transData.filter(t => t.event === state.currentGW);
-        if (transEl && latest.length > 0) {
-            transEl.textContent = latest.map(t => `${state.playerMap[t.element_out]?.name} → ${state.playerMap[t.element_in]?.name}`).join(' • ');
-        }
-    } catch (e) { console.warn(`Details failed for ${entryId}`); }
+  } catch (err) {
+    console.error('[Standings]', err);
+    document.getElementById('manager-list-container').innerHTML = `
+      <div class="lg-empty">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <p>Failed to load standings.</p>
+      </div>`;
+  }
 }
 
-        async function expandManager(entryId) {
-            const row = document.getElementById(`entry-${entryId}`);
-            const expansionArea = row.querySelector('.row-expansion');
-            if (row.classList.toggle('active') && !row.dataset.loaded) {
-                // SQUAD SHIMMER
-                expansionArea.innerHTML = `
-                    <div class="squad-stats-header">
-                        ${Array(3).fill('<div class="stat-box"><div class="skeleton skeleton-text" style="width:30px;"></div><div class="skeleton skeleton-text" style="width:20px;"></div></div>').join('')}
-                    </div>
-                    <div class="squad-scroller">
-                        ${Array(11).fill('<div class="player-card"><div class="skeleton skeleton-circle"></div><div class="skeleton skeleton-text"></div></div>').join('')}
-                    </div>`;
-                
-                try {
-                    const [picksRes, entryRes] = await Promise.all([
-                        fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`),
-                        fetch(`${state.PROXY}entry/${entryId}/`)
-                    ]);
-                    const picksData = await picksRes.json();
-                    const entryData = await entryRes.json();
+/* ============================================
+   RENDER LIST
+   ============================================ */
+function renderList(results) {
+  const container = document.getElementById('manager-list-container');
 
-                    const starters = picksData.picks.slice(0, 11);
-                    const playedCount = starters.filter(p => (state.liveData[p.element]?.pts || 0) !== 0).length;
-                    const teamValue = (entryData.last_deadline_value / 10).toFixed(1);
-                    const transferCost = picksData.entry_history.event_transfers_cost;
-                    const hitDisplay = transferCost > 0 ? `<span class="hit-badge">(-${transferCost})</span>` : '';
+  if (!results.length) {
+    container.innerHTML = `
+      <div class="lg-empty">
+        <i class="fa-solid fa-users-slash"></i>
+        <p>No managers found in this league.</p>
+      </div>`;
+    return;
+  }
 
-                    const statsHeader = `
-                        <div class="squad-stats-header">
-                            <div class="stat-box"><span class="stat-label">Played</span><span class="stat-value">${playedCount}/11</span></div>
-                            <div class="stat-box"><span class="stat-label">Value</span><span class="stat-value">£${teamValue}m</span></div>
-                            <div class="stat-box"><span class="stat-label">Transfers</span><span class="stat-value">${picksData.entry_history.event_transfers}${hitDisplay}</span></div>
-                        </div>`;
+  container.innerHTML = results.map((r, i) => {
+    const rank     = r.rank || (i + 1);
+    const lastRank = r.last_rank || rank;
+    const isMe     = r.entry == state.fplId;
 
-                    const squadHtml = picksData.picks.map((p, idx) => {
-                        const player = state.playerMap[p.element];
-                        const live = state.liveData[p.element] || { pts: 0, explain: [] };
-                        if(p.is_captain) document.getElementById(`cap-${entryId}`).textContent = player.name;
-                        if(p.is_vice_captain) document.getElementById(`vc-${entryId}`).textContent = player.name;
+    const moveDir = rank < lastRank ? 'up' : rank > lastRank ? 'down' : 'same';
+    const moveIcon = moveDir === 'up' ? 'fa-arrow-up' : moveDir === 'down' ? 'fa-arrow-down' : 'fa-minus';
 
-                        let icons = '';
-                        const allStats = live.explain.flatMap(e => e.stats);
-                        allStats.forEach(s => {
-                            if (s.identifier === 'goals_scored' && s.value > 0) icons += '<i class="fa-solid fa-futbol icon-goal"></i>'.repeat(s.value);
-                            if (s.identifier === 'assists' && s.value > 0) icons += `<i class="icon-assist">${'A'.repeat(s.value)}</i>`;
-                            if (s.identifier === 'yellow_cards' && s.value > 0) icons += '<i class="fa-solid fa-square icon-yellow"></i>';
-                            if (s.identifier === 'red_cards' && s.value > 0) icons += '<i class="fa-solid fa-square icon-red"></i>';
-                            if (s.identifier === 'bonus' && s.value > 0) icons += '<i class="fa-solid fa-star icon-bonus"></i>';
-                        });
+    const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+    const rowClass  = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
 
-                        return `
-                            <div class="player-card" style="${idx > 10 ? 'opacity:0.6' : ''}">
-                                <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${player.team}${player.pos === 1 ? '_1' : ''}-66.png" class="player-shirt">
-                                <div class="player-label">${player.name}${p.multiplier > 1 ? ' (C)' : ''}</div>
-                                <div style="font-weight:800; font-size:0.6rem;">${live.pts * (p.multiplier || 1)}</div>
-                                <div class="player-events">${icons}</div>
-                            </div>`;
-                    }).join('');
+    return `
+      <div class="lg-row ${isMe ? 'is-me' : ''} ${rowClass}"
+           id="entry-${r.entry}"
+           style="animation-delay:${i * 0.03}s">
 
-                    expansionArea.innerHTML = statsHeader + `<div class="squad-scroller">${squadHtml}</div>`;
-                    row.dataset.loaded = "true";
-                } catch (e) { expansionArea.innerHTML = 'Error.'; }
-            }
-        }
+        <div class="lg-row-summary" onclick="toggleExpand(${r.entry}, this)">
 
-        // 9. SEARCH LOGIC
-        document.getElementById('manager-search').addEventListener('input', function(e) {
-            const term = e.target.value.toLowerCase();
-            document.querySelectorAll('.manager-row').forEach(row => {
-                const text = row.querySelector('.name-cell').textContent.toLowerCase();
-                row.style.display = text.includes(term) ? 'block' : 'none';
-            });
-        });
+          <!-- Position -->
+          <div class="lg-pos">
+            <div class="lg-move ${moveDir}"><i class="fa-solid ${moveIcon}"></i></div>
+            <div class="lg-rank ${rankClass}">${rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}</div>
+          </div>
 
-        // 10. BOOTSTRAP
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize Nav and Footer first if they aren't already
-            if (typeof initNav === 'function') initNav(); 
-            if (typeof initFooter === 'function') initFooter();
-            
-            // Start the FPL Data Engine
-            init();
-        });
-    </script>
-    
-    <script src="nav.js"></script>
-    <div id="footer-placeholder"></div>
-    <script src="footer.js"></script>
+          <!-- Name -->
+          <div class="lg-name">
+            <div class="lg-name__team">
+              <span>${r.entry_name}</span>
+              <span id="chip-${r.entry}"></span>
+            </div>
+            <div class="lg-name__manager">${r.player_name}</div>
+            <span class="lg-or skeleton" id="or-${r.entry}" style="width:60px;height:11px;display:inline-block;border-radius:4px;"></span>
+          </div>
+
+          <!-- Captain -->
+          <div class="lg-cap">
+            <div class="lg-cap__name skeleton" id="cap-${r.entry}" style="width:52px;height:11px;border-radius:4px;margin:0 auto;"></div>
+            <div class="lg-cap__vc" id="vc-${r.entry}"></div>
+          </div>
+
+          <!-- GW Points -->
+          <div class="lg-gw-pts">${r.event_total}</div>
+
+          <!-- Total -->
+          <div class="lg-total-pts">${r.total.toLocaleString()}</div>
+
+          <!-- Chevron -->
+          <i class="fa-solid fa-chevron-down lg-chevron"></i>
+        </div>
+
+        <!-- Transfer line (hidden until populated) -->
+        <div class="lg-transfers" id="transfers-${r.entry}"></div>
+
+        <!-- Expansion -->
+        <div class="lg-expansion" id="expansion-${r.entry}"></div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ============================================
+   FETCH MANAGER DETAILS (summary row data)
+   ============================================ */
+async function fetchManagerDetails(entryId) {
+  try {
+    const [entryRes, transRes, picksRes] = await Promise.all([
+      fetch(`${state.PROXY}entry/${entryId}/`),
+      fetch(`${state.PROXY}entry/${entryId}/transfers/`),
+      fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`),
+    ]);
+    const [entryData, transData, picksData] = await Promise.all([
+      entryRes.json(), transRes.json(), picksRes.json(),
+    ]);
+
+    // Overall rank
+    const orEl = document.getElementById(`or-${entryId}`);
+    if (orEl) {
+      orEl.classList.remove('skeleton');
+      orEl.style.cssText = '';
+      orEl.textContent = entryData.summary_overall_rank
+        ? `OR ${entryData.summary_overall_rank.toLocaleString()}`
+        : '';
+    }
+
+    // Captain / VC
+    if (picksData.picks) {
+      const cap = picksData.picks.find(p => p.is_captain);
+      const vc  = picksData.picks.find(p => p.is_vice_captain);
+
+      const capEl = document.getElementById(`cap-${entryId}`);
+      if (capEl && cap) {
+        capEl.classList.remove('skeleton');
+        capEl.style.cssText = '';
+        capEl.textContent = state.playerMap[cap.element]?.name || '—';
+      }
+
+      const vcEl = document.getElementById(`vc-${entryId}`);
+      if (vcEl && vc) {
+        vcEl.textContent = state.playerMap[vc.element]?.name || '';
+      }
+    }
+
+    // Active chip badge
+    if (picksData.active_chip) {
+      const chipEl = document.getElementById(`chip-${entryId}`);
+      if (chipEl) {
+        const key = picksData.active_chip;
+        chipEl.innerHTML = `<span class="lg-chip ${CHIP_CLASS[key] || ''}">${CHIP_MAP[key] || key.toUpperCase()}</span>`;
+      }
+    }
+
+    // GW transfers
+    const gwTrans = transData.filter(t => t.event === state.currentGW);
+    if (gwTrans.length > 0) {
+      const transEl = document.getElementById(`transfers-${entryId}`);
+      if (transEl) {
+        transEl.classList.add('visible');
+        transEl.innerHTML = gwTrans.map((t, i) => {
+          const out = state.playerMap[t.element_out]?.name || '?';
+          const inn = state.playerMap[t.element_in]?.name  || '?';
+          return `${i > 0 ? '<span class="lg-transfer-sep">•</span>' : ''}<span style="color:var(--red)">${out}</span><span class="lg-transfer-arrow">→</span><span style="color:var(--green)">${inn}</span>`;
+        }).join('');
+      }
+    }
+
+  } catch (err) {
+    console.warn(`[Details] failed for ${entryId}`);
+  }
+}
+
+/* ============================================
+   EXPAND / COLLAPSE ROW
+   ============================================ */
+async function toggleExpand(entryId, summaryEl) {
+  const row       = document.getElementById(`entry-${entryId}`);
+  const expansion = document.getElementById(`expansion-${entryId}`);
+  const isOpen    = row.classList.toggle('open');
+
+  if (!isOpen) return; // Collapsed — nothing to do
+
+  // Already loaded
+  if (row.dataset.loaded) return;
+
+  // Show squad shimmer
+  expansion.innerHTML = `
+    <div class="lg-stats-strip">
+      ${Array(3).fill(`
+        <div class="lg-stat">
+          <span class="lg-stat__label skeleton" style="width:40px;height:9px;display:inline-block;border-radius:4px;"></span>
+          <span class="lg-stat__value skeleton" style="width:28px;height:14px;display:inline-block;border-radius:4px;margin-top:4px;"></span>
+        </div>
+      `).join('')}
+    </div>
+    <div class="lg-squad">
+      ${Array(11).fill(`
+        <div class="lg-player">
+          <div class="skeleton" style="width:30px;height:30px;border-radius:6px;"></div>
+          <div class="skeleton" style="width:44px;height:9px;border-radius:4px;margin-top:3px;"></div>
+          <div class="skeleton" style="width:22px;height:12px;border-radius:4px;margin-top:2px;"></div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  try {
+    const [picksRes, entryRes] = await Promise.all([
+      fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`),
+      fetch(`${state.PROXY}entry/${entryId}/`),
+    ]);
+    const [picksData, entryData] = await Promise.all([picksRes.json(), entryRes.json()]);
+
+    const starters      = picksData.picks.slice(0, 11);
+    const bench         = picksData.picks.slice(11);
+    const transferCost  = picksData.entry_history.event_transfers_cost || 0;
+    const teamValue     = (entryData.last_deadline_value / 10).toFixed(1);
+    const playedCount   = starters.filter(p => (state.liveData[p.element]?.pts ?? 0) > 0).length;
+    const gwTrans       = picksData.entry_history.event_transfers;
+
+    // Stats strip
+    const statsHtml = `
+      <div class="lg-stats-strip">
+        <div class="lg-stat">
+          <span class="lg-stat__label">Played</span>
+          <span class="lg-stat__value">${playedCount}/11</span>
+        </div>
+        <div class="lg-stat">
+          <span class="lg-stat__label">Value</span>
+          <span class="lg-stat__value">£${teamValue}m</span>
+        </div>
+        <div class="lg-stat">
+          <span class="lg-stat__label">Transfers</span>
+          <span class="lg-stat__value">
+            ${gwTrans}${transferCost > 0 ? `<span class="hit"> -${transferCost}</span>` : ''}
+          </span>
+        </div>
+      </div>
+    `;
+
+    // Build all players
+    const buildPlayers = (picks, isBench) => picks.map(p => {
+      const player  = state.playerMap[p.element];
+      if (!player) return '';
+      const live    = state.liveData[p.element] || { pts: 0, explain: [] };
+      const pts     = live.pts * (p.multiplier || 1);
+      const shirt   = `https://draft.premierleague.com/img/shirts/standard/shirt_${player.teamCode}${player.pos === 1 ? '_1' : ''}-66.png`;
+
+      const badge = p.is_captain
+        ? '<div class="lg-player__badge cap">C</div>'
+        : p.is_vice_captain
+          ? '<div class="lg-player__badge vice">V</div>'
+          : '';
+
+      // Event icons
+      const allStats = live.explain.flatMap(e => e.stats || []);
+      let icons = '';
+      allStats.forEach(s => {
+        if (s.identifier === 'goals_scored'  && s.value > 0) icons += `<i class="fa-solid fa-futbol ev-goal"></i>`.repeat(s.value);
+        if (s.identifier === 'assists'       && s.value > 0) icons += `<i class="ev-assist">${'A'.repeat(s.value)}</i>`;
+        if (s.identifier === 'clean_sheets'  && s.value > 0 && (player.pos === 1 || player.pos === 2)) icons += `<i class="fa-solid fa-shield ev-cs"></i>`;
+        if (s.identifier === 'yellow_cards'  && s.value > 0) icons += `<i class="fa-solid fa-square ev-yellow"></i>`;
+        if (s.identifier === 'red_cards'     && s.value > 0) icons += `<i class="fa-solid fa-square ev-red"></i>`;
+        if (s.identifier === 'bonus'         && s.value > 0) icons += `<i class="fa-solid fa-star ev-bonus"></i>`.repeat(Math.min(s.value, 3));
+      });
+
+      return `
+        <div class="lg-player ${isBench ? 'is-bench' : ''}">
+          <div class="lg-player__shirt-wrap">
+            <div class="lg-player__pos-strip pos-${player.pos}"></div>
+            <img class="lg-player__shirt" src="${shirt}" alt="${player.name}"
+              loading="lazy"
+              onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
+            ${badge}
+          </div>
+          <div class="lg-player__name">${player.name}</div>
+          <div class="lg-player__pts">${pts}</div>
+          <div class="lg-player__events">${icons}</div>
+        </div>
+      `;
+    }).join('');
+
+    // Bench divider
+    const benchDivider = `
+      <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 4px;gap:4px;">
+        <div style="width:1px;flex:1;background:var(--border);"></div>
+        <span style="font-size:0.5rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);writing-mode:vertical-lr;">Bench</span>
+        <div style="width:1px;flex:1;background:var(--border);"></div>
+      </div>
+    `;
+
+    expansion.innerHTML = statsHtml + `
+      <div class="lg-squad">
+        ${buildPlayers(starters, false)}
+        ${benchDivider}
+        ${buildPlayers(bench, true)}
+      </div>
+    `;
+
+    row.dataset.loaded = 'true';
+  } catch (err) {
+    expansion.innerHTML = `
+      <div class="lg-empty" style="padding:20px">
+        <i class="fa-solid fa-triangle-exclamation" style="font-size:1rem;"></i>
+        <p style="font-size:0.8rem">Couldn't load squad.</p>
+      </div>`;
+  }
+}
+
+/* ============================================
+   SEARCH FILTER
+   ============================================ */
+document.getElementById('manager-search').addEventListener('input', function () {
+  const term = this.value.toLowerCase().trim();
+  document.querySelectorAll('.lg-row').forEach(row => {
+    const text = row.querySelector('.lg-name')?.textContent.toLowerCase() || '';
+    row.style.display = !term || text.includes(term) ? '' : 'none';
+  });
+});
+
+/* ============================================
+   BOOT
+   ============================================ */
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<script src="nav.js"></script>
+<script src="footer.js"></script>
+
 </body>
 </html>
