@@ -1,52 +1,55 @@
 /**
- * footer.js - Universal Footer with Full-Width Green Bar
+ * footer.js — Kopala FPL Footer
  */
+(function () {
+  'use strict';
 
-const footerTemplate = `
-<footer class="main-footer">
-    <div class="footer-top-bar">
+  const year = new Date().getFullYear();
+
+  const footerHTML = `
+    <footer class="main-footer">
+      <div class="footer-top-bar">
         <div class="footer-nav-container">
-            <a href="index.html">LIVE RANK</a>
-            <a href="leagues.html">LIVE LEAGUES</a>
-            <a href="games.html">GAMES</a>
-            <a href="prices.html">PRICE CHANGES</a>
-            
-            <a href="prizes.html">PRIZES</a>
-            <a href="https://wa.me/260964836842" target="_blank">HELP</a>
-          
-            
+          <a href="index.html">Live Rank</a>
+          <a href="leagues.html">Leagues</a>
+          <a href="games.html">Games</a>
+          <a href="prices.html">Prices</a>
+          <a href="prizes.html">Prizes</a>
+          <a href="https://wa.me/260964836842" target="_blank" rel="noopener">Help</a>
         </div>
-    </div>
-
-    <div class="footer-main-content">
+      </div>
+      <div class="footer-main-content">
         <div class="footer-network-brand">
-            <div class="network-label">KOPALA FPL</div>
-            <div class="network-title">Tabesha tata😎</div>
+          <div class="network-label">Kopala FPL</div>
+          <div class="network-title">Tabesha tata&nbsp;😎</div>
         </div>
-
         <div class="footer-bottom">
-            &copy; Copyright Kopala FPL ${new Date().getFullYear()}. All rights reserved.
-            <br>
-            <small style="opacity: 0.6; font-size: 0.6rem; margin-top: 10px; display: block;">
-                This app is not officially affiliated with Premier League or Fantasy Premier League.
-            </small>
+          &copy; ${year} Kopala FPL. All rights reserved.
+          <div class="footer-disclaimer">
+            Not officially affiliated with the Premier League or Fantasy Premier League.
+          </div>
         </div>
-    </div>
-</footer>
-`;
+      </div>
+    </footer>
+  `;
 
-function injectFooter() {
+  function injectFooter() {
     const placeholder = document.getElementById('footer-placeholder');
     if (placeholder) {
-        placeholder.innerHTML = footerTemplate;
+      placeholder.innerHTML = footerHTML;
     }
-}
+  }
 
-// Lazy Load: Injects when the browser has finished main tasks
-window.addEventListener('load', () => {
-    if ('requestIdleCallback' in window) {
-        requestIdleCallback(injectFooter);
-    } else {
-        setTimeout(injectFooter, 1500);
-    }
-});
+  // Use idle callback to not block main thread, fall back to load event
+  if (document.readyState === 'complete') {
+    'requestIdleCallback' in window
+      ? requestIdleCallback(injectFooter)
+      : setTimeout(injectFooter, 0);
+  } else {
+    window.addEventListener('load', () => {
+      'requestIdleCallback' in window
+        ? requestIdleCallback(injectFooter)
+        : setTimeout(injectFooter, 0);
+    });
+  }
+})();
