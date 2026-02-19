@@ -1,573 +1,457 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Games | Kopala FPL</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0d0d0d">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Kopala FPL">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="nav.css">
-  <link rel="stylesheet" href="footer.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Games - Kopala FPL</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0d0d0d">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kopala FPL">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-  <style>
-    /* ==============================================
-       GAMES PAGE STYLES
-       ============================================== */
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    /* GW navigation bar */
-    .gw-bar {
-      position: sticky;
-      top: 0;
-      z-index: 200;
-      background: rgba(13,13,13,0.95);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="nav.css">
+    <link rel="stylesheet" href="footer.css">
 
-    .gw-nav-btn {
-      width: 36px; height: 36px;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: var(--r-sm); color: var(--text-2);
-      font-size: 0.75rem; cursor: pointer;
-      transition: all 0.15s; flex-shrink: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .gw-nav-btn:active { background: var(--surface-3); }
-    .gw-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    <style>
+        body { background:#0d0d0d; color:#fff; font-family:'DM Sans',sans-serif; margin:0; }
 
-    .gw-tabs {
-      flex: 1;
-      display: flex;
-      gap: 4px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      padding: 4px;
-    }
+        .games-wrap {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 10px 120px;
+        }
 
-    .gw-tab {
-      flex: 1; padding: 7px 4px;
-      border: none; border-radius: 10px; background: transparent;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.82rem; font-weight: 800;
-      color: var(--text-3); cursor: pointer;
-      transition: all 0.18s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .gw-tab.active {
-      background: var(--surface-3);
-      color: var(--text-1);
-    }
+        /* ---- GW nav ---- */
+        .gw-nav {
+            position: sticky; top: 0; z-index: 200;
+            background: rgba(13,13,13,0.96);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            padding: 10px 12px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .gw-arrow {
+            width:36px; height:36px; flex-shrink:0;
+            display:flex; align-items:center; justify-content:center;
+            background:#1e1e1e; border:1px solid rgba(255,255,255,0.1);
+            border-radius:8px; color:#888; font-size:0.7rem; cursor:pointer;
+            -webkit-tap-highlight-color:transparent; transition:background 0.15s;
+        }
+        .gw-arrow:active { background:#2a2a2a; }
+        .gw-arrow:disabled { opacity:0.3; cursor:not-allowed; }
+        .gw-tab-row {
+            flex:1; display:flex;
+            background:#1a1a1a; border:1px solid rgba(255,255,255,0.08);
+            border-radius:12px; padding:3px; gap:3px;
+        }
+        .gw-tab {
+            flex:1; padding:8px 4px; border:none; border-radius:9px; background:transparent;
+            font-family:'Barlow Condensed',sans-serif; font-size:0.82rem; font-weight:800;
+            color:#555; cursor:pointer; transition:all 0.18s;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .gw-tab.active { background:#2a2a2a; color:#fff; }
 
-    /* GW label + live indicator */
-    .gw-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px 8px;
-    }
-    .gw-header__title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.3rem; font-weight: 900; color: var(--text-1);
-    }
-    .gw-header__live {
-      display: none;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.65rem; font-weight: 700;
-      color: #ef4444;
-    }
-    .gw-header__live.visible { display: flex; }
-    .live-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: #ef4444;
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+        /* GW header row */
+        .gw-header-row {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:12px 12px 8px;
+        }
+        .gw-title {
+            font-family:'Barlow Condensed',sans-serif;
+            font-size:1.3rem; font-weight:900; color:#fff;
+        }
+        .live-pill {
+            display:none; align-items:center; gap:5px;
+            font-size:0.62rem; font-weight:700; color:#ef4444;
+        }
+        .live-pill.show { display:flex; }
+        .live-dot {
+            width:7px; height:7px; border-radius:50%; background:#ef4444;
+            animation: liveblink 1.4s ease-in-out infinite;
+        }
+        @keyframes liveblink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    /* ---- Match card ---- */
-    .m-list { padding: 0 12px; display: flex; flex-direction: column; gap: 8px; }
+        /* ---- Cards ---- */
+        .games-list { display:flex; flex-direction:column; gap:8px; }
 
-    .m-card {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      overflow: hidden;
-      opacity: 0;
-      animation: card-in 0.28s var(--ease) forwards;
-    }
-    @keyframes card-in { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+        .date-lbl {
+            font-size:0.58rem; font-weight:700; letter-spacing:1.3px;
+            text-transform:uppercase; color:#444; padding:10px 4px 4px;
+        }
 
-    /* Live card gets a subtle red left border */
-    .m-card.is-live { border-color: rgba(239,68,68,0.4); }
+        .m-card {
+            background:#1a1a1a; border:1px solid rgba(255,255,255,0.08);
+            border-radius:16px; overflow:hidden;
+            opacity:0; animation:fadeUp 0.3s ease forwards;
+        }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+        .m-card.is-live { border-color:rgba(239,68,68,0.35); }
 
-    /* Kickoff time strip */
-    .m-timebar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 14px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface-1);
-    }
-    .m-timebar__time {
-      font-size: 0.62rem; font-weight: 600; color: var(--text-3);
-    }
+        /* Timebar + FDR */
+        .m-timebar {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:7px 14px; background:#141414;
+            border-bottom:1px solid rgba(255,255,255,0.05);
+        }
+        .m-time-txt { font-size:0.6rem; font-weight:600; color:#555; }
+        .fdr-wrap { display:flex; align-items:center; gap:5px; }
+        .fdr-badge {
+            font-family:'Barlow Condensed',sans-serif;
+            font-size:0.65rem; font-weight:900; padding:2px 7px; border-radius:4px;
+        }
+        .fdr-1,.fdr-2 { background:rgba(34,197,94,0.18);  color:#22c55e; }
+        .fdr-3        { background:rgba(251,191,36,0.18); color:#fbbf24; }
+        .fdr-4        { background:rgba(239,68,68,0.18);  color:#ef4444; }
+        .fdr-5        { background:rgba(185,28,28,0.25);  color:#dc2626; }
+        .fdr-sep { font-size:0.5rem; color:#444; font-weight:700; }
 
-    /* FDR difficulty badges */
-    .m-fdr {
-      display: flex; align-items: center; gap: 6px;
-    }
-    .fdr-badge {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.65rem; font-weight: 900;
-      padding: 2px 7px; border-radius: 4px;
-      letter-spacing: 0.3px;
-    }
-    /* FDR 1-2 easy, 3 mid, 4-5 hard */
-    .fdr-1,.fdr-2 { background: rgba(34,197,94,0.18); color: #22c55e; }
-    .fdr-3         { background: rgba(251,191,36,0.18); color: #fbbf24; }
-    .fdr-4         { background: rgba(239,68,68,0.18);  color: #ef4444; }
-    .fdr-5         { background: rgba(220,38,38,0.25);  color: #dc2626; }
-    .fdr-ha { font-size: 0.52rem; font-weight: 700; color: var(--text-3); }
+        /* Main match row */
+        .m-main { display:flex; align-items:center; padding:14px 10px; gap:6px; }
+        .m-team {
+            flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; min-width:0;
+        }
+        .m-shirt { width:40px; height:auto; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
+        .m-name {
+            font-family:'Barlow Condensed',sans-serif; font-size:0.85rem; font-weight:800; color:#fff;
+            text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;
+        }
+        .m-ha { font-size:0.52rem; font-weight:700; letter-spacing:0.5px; color:#444; }
+        .m-ha.home { color:#00e87a; }
 
-    /* Main match row */
-    .m-main {
-      display: flex;
-      align-items: center;
-      padding: 14px 10px;
-      gap: 8px;
-    }
+        .m-center { flex:0 0 86px; display:flex; flex-direction:column; align-items:center; gap:5px; }
+        .m-status {
+            font-family:'Barlow Condensed',sans-serif; font-size:0.7rem; font-weight:900;
+            padding:3px 10px; border-radius:100px;
+        }
+        .s-ft   { background:#222; color:#555; }
+        .s-live { background:rgba(239,68,68,0.15); color:#ef4444; animation:liveblink 2s infinite; }
+        .s-sch  { background:#222; color:#555; }
 
-    /* Team column */
-    .m-team {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      min-width: 0;
-    }
-    .m-shirt {
-      width: 38px; height: auto;
-      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
-    }
-    .m-teamname {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.82rem; font-weight: 800; color: var(--text-1);
-      text-align: center; line-height: 1.1;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      width: 100%;
-    }
-    .m-ha {
-      font-size: 0.55rem; font-weight: 700;
-      color: var(--text-3); letter-spacing: 0.5px;
-    }
-    .m-ha.home { color: var(--green); }
+        .m-score {
+            font-family:'Barlow Condensed',sans-serif;
+            font-size:2.1rem; font-weight:900; color:#fff; letter-spacing:2px; line-height:1;
+        }
+        .m-score .sep { color:#333; margin:0 2px; }
+        .m-vs { font-family:'Barlow Condensed',sans-serif; font-size:1rem; color:#444; }
 
-    /* Score / status center */
-    .m-center {
-      flex: 0 0 90px;
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-    }
+        /* Events strip */
+        .m-events {
+            border-top:1px solid rgba(255,255,255,0.05);
+            padding:8px 14px;
+            display:grid; grid-template-columns:1fr 1fr;
+        }
+        .ev-col { display:flex; flex-direction:column; gap:4px; }
+        .ev-col.left  { border-right:1px solid rgba(255,255,255,0.05); padding-right:10px; text-align:right; }
+        .ev-col.right { padding-left:10px; }
+        .ev-item {
+            font-size:0.68rem; font-weight:600; color:#ccc;
+            display:flex; align-items:center; gap:4px; line-height:1.3;
+        }
+        .ev-col.left .ev-item { justify-content:flex-end; }
+        .ic-goal   { color:#fff;    font-size:0.5rem; }
+        .ic-assist { color:#3b82f6; font-size:0.5rem; }
+        .ic-og     { color:#ef4444; font-size:0.5rem; }
+        .ic-pen    { color:#f59e0b; font-size:0.5rem; }
+        .ic-yellow { color:#ffd600; font-size:0.5rem; }
+        .ic-red    { color:#ef4444; font-size:0.5rem; }
+        .ic-save   { color:#00e87a; font-size:0.5rem; }
+        .ic-miss   { color:#ef4444; font-size:0.5rem; }
 
-    .m-status {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.68rem; font-weight: 900;
-      padding: 3px 10px; border-radius: 100px;
-      letter-spacing: 0.3px;
-    }
-    .s-ft     { background: var(--surface-3); color: var(--text-3); }
-    .s-live   { background: rgba(239,68,68,0.15); color: #ef4444; animation: pulse 2s infinite; }
-    .s-sched  { background: var(--surface-3); color: var(--text-3); }
+        /* Bonus strip */
+        .m-bonus {
+            border-top:1px solid rgba(255,255,255,0.05);
+            padding:8px 14px; display:flex; align-items:center; gap:10px;
+        }
+        .bonus-lbl {
+            font-size:0.55rem; font-weight:700; letter-spacing:1px;
+            text-transform:uppercase; color:#444; flex-shrink:0;
+        }
+        .bonus-list { display:flex; gap:8px; flex-wrap:wrap; }
+        .bonus-item { display:flex; align-items:center; gap:5px; font-size:0.72rem; font-weight:700; color:#ddd; }
+        .bonus-pts {
+            font-family:'Barlow Condensed',sans-serif; font-size:0.78rem; font-weight:900;
+            background:#00e87a; color:#000; padding:1px 5px; border-radius:4px;
+        }
 
-    .m-score {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 2rem; font-weight: 900; color: var(--text-1);
-      letter-spacing: 2px; line-height: 1;
-    }
-    .m-score .sep { color: var(--text-3); margin: 0 2px; }
-    .m-score.vs-text {
-      font-size: 1rem; color: var(--text-3); letter-spacing: 0;
-    }
+        /* Expand btn */
+        .m-expand {
+            width:100%; padding:10px 14px; background:transparent; border:none;
+            border-top:1px solid rgba(255,255,255,0.05);
+            display:flex; align-items:center; justify-content:space-between;
+            font-family:'DM Sans',sans-serif; font-size:0.68rem; font-weight:700;
+            color:#555; cursor:pointer; -webkit-tap-highlight-color:transparent;
+            transition:background 0.15s;
+        }
+        .m-expand:active { background:rgba(255,255,255,0.03); }
+        .m-chevron { font-size:0.6rem; transition:transform 0.25s ease; }
+        .m-card.open .m-chevron { transform:rotate(180deg); }
 
-    /* Goal scorers strip */
-    .m-scorers {
-      border-top: 1px solid var(--border);
-      padding: 8px 14px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      font-size: 0;
-    }
-    .m-scorer-side { display: flex; flex-direction: column; gap: 3px; }
-    .m-scorer-side:first-child { text-align: right; border-right: 1px solid var(--border); padding-right: 10px; }
-    .m-scorer-side:last-child  { padding-left: 10px; }
+        /* Drawer */
+        .m-drawer { display:none; border-top:1px solid rgba(255,255,255,0.05); background:#141414; }
+        .m-card.open .m-drawer { display:block; }
 
-    .m-scorer-item {
-      font-size: 0.68rem; font-weight: 600; color: var(--text-2);
-      display: flex; align-items: center; gap: 4px;
-      white-space: nowrap;
-    }
-    .m-scorer-side:first-child .m-scorer-item { justify-content: flex-end; }
-    .m-scorer-item i { font-size: 0.55rem; }
-    .ev-goal    { color: var(--text-1); }
-    .ev-assist  { color: #3b82f6; }
-    .ev-og      { color: var(--red); }
-    .ev-pen     { color: var(--amber); }
-    .ev-yellow  { color: #ffd600; }
-    .ev-red     { color: var(--red); }
-    .ev-save    { color: var(--green); }
-    .ev-pen-miss{ color: var(--red); }
+        .drawer-tabs { display:flex; border-bottom:1px solid rgba(255,255,255,0.06); }
+        .dtab {
+            flex:1; padding:9px 4px; font-size:0.66rem; font-weight:700;
+            color:#555; text-align:center; cursor:pointer;
+            border-bottom:2px solid transparent; transition:all 0.15s;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .dtab.active { color:#00e87a; border-bottom-color:#00e87a; }
 
-    /* Bonus / projected bonus strip */
-    .m-bonus {
-      border-top: 1px solid var(--border);
-      padding: 8px 14px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .m-bonus__label {
-      font-size: 0.55rem; font-weight: 700; letter-spacing: 1px;
-      text-transform: uppercase; color: var(--text-3);
-      flex-shrink: 0;
-    }
-    .m-bonus__players { display: flex; gap: 8px; flex-wrap: wrap; }
-    .m-bonus-item {
-      display: flex; align-items: center; gap: 5px;
-      font-size: 0.72rem; font-weight: 700; color: var(--text-1);
-    }
-    .bonus-pts {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.78rem; font-weight: 900;
-      background: var(--green); color: #000;
-      padding: 1px 5px; border-radius: 4px;
-    }
+        .dpanel { display:none; padding:10px 14px; }
+        .dpanel.active { display:block; }
 
-    /* Expand toggle */
-    .m-expand-btn {
-      width: 100%; padding: 10px 14px;
-      background: transparent; border: none;
-      border-top: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      font-size: 0.68rem; font-weight: 700;
-      color: var(--text-3); cursor: pointer;
-      transition: background 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .m-expand-btn:active { background: var(--surface-3); }
-    .m-chevron { font-size: 0.6rem; transition: transform 0.25s var(--ease); }
-    .m-card.open .m-chevron { transform: rotate(180deg); }
+        /* Ownership table */
+        .own-table { width:100%; border-collapse:collapse; }
+        .own-table tr { border-bottom:1px solid rgba(255,255,255,0.05); }
+        .own-table tr:last-child { border-bottom:none; }
+        .own-table td { padding:8px 4px; font-size:0.7rem; vertical-align:middle; }
+        .own-shirt { width:22px; }
+        .own-pname { font-weight:700; color:#eee; }
+        .own-price { font-size:0.58rem; color:#555; }
+        .own-pos {
+            font-size:0.56rem; font-weight:800; padding:1px 4px; border-radius:3px; display:inline-block;
+        }
+        .p-gkp { background:rgba(245,158,11,0.15); color:#f59e0b; }
+        .p-def  { background:rgba(34,197,94,0.15);  color:#22c55e; }
+        .p-mid  { background:rgba(59,130,246,0.15);  color:#3b82f6; }
+        .p-fwd  { background:rgba(239,68,68,0.15);   color:#ef4444; }
+        .own-bar-bg { width:54px; height:4px; background:#2a2a2a; border-radius:100px; overflow:hidden; }
+        .own-bar-fg { height:100%; background:#00e87a; border-radius:100px; }
+        .own-pct {
+            font-family:'Barlow Condensed',sans-serif;
+            font-size:0.88rem; font-weight:800; color:#fff; text-align:right;
+        }
 
-    /* Drawer */
-    .m-drawer {
-      display: none;
-      border-top: 1px solid var(--border);
-      background: var(--surface-1);
-    }
-    .m-card.open .m-drawer { display: block; }
+        /* xG panel */
+        .xg-grid { display:grid; grid-template-columns:1fr 1fr; }
+        .xg-side { display:flex; flex-direction:column; gap:7px; }
+        .xg-side:first-child { border-right:1px solid rgba(255,255,255,0.06); padding-right:12px; }
+        .xg-side:last-child  { padding-left:12px; }
+        .xg-team-lbl {
+            font-family:'Barlow Condensed',sans-serif;
+            font-size:0.75rem; font-weight:900; color:#aaa;
+            text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;
+        }
+        .xg-row { display:flex; justify-content:space-between; align-items:center; }
+        .xg-lbl { font-size:0.62rem; color:#555; font-weight:600; }
+        .xg-val { font-family:'Barlow Condensed',sans-serif; font-size:0.88rem; font-weight:900; color:#fff; }
+        .xg-val.g { color:#00e87a; }
+        .xg-val.r { color:#ef4444; }
 
-    /* Drawer tabs */
-    .drawer-tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-    }
-    .drawer-tab {
-      flex: 1; padding: 9px 4px;
-      font-size: 0.68rem; font-weight: 700;
-      color: var(--text-3); text-align: center;
-      cursor: pointer; border-bottom: 2px solid transparent;
-      transition: all 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .drawer-tab.active { color: var(--green); border-bottom-color: var(--green); }
+        /* All events panel */
+        .evp-sec { margin-bottom:12px; }
+        .evp-head {
+            font-size:0.56rem; font-weight:700; letter-spacing:1.2px;
+            text-transform:uppercase; color:#444; margin-bottom:6px;
+        }
+        .evp-cols { display:grid; grid-template-columns:1fr 1fr; }
+        .evp-col { display:flex; flex-direction:column; gap:3px; }
+        .evp-col.left  { border-right:1px solid rgba(255,255,255,0.05); padding-right:8px; text-align:right; }
+        .evp-col.right { padding-left:8px; }
+        .evp-entry { font-size:0.67rem; font-weight:600; color:#bbb; display:flex; align-items:center; gap:4px; }
+        .evp-col.left .evp-entry { justify-content:flex-end; }
+        .evp-nil { font-size:0.65rem; color:#333; }
 
-    /* Drawer panel */
-    .drawer-panel { display: none; padding: 10px 14px; }
-    .drawer-panel.active { display: block; }
+        /* Skeleton */
+        .m-skel {
+            height:110px; background:#1a1a1a;
+            border:1px solid rgba(255,255,255,0.06); border-radius:16px;
+            position:relative; overflow:hidden;
+        }
+        .m-skel::after {
+            content:''; position:absolute; top:0; left:-150%; width:100%; height:100%;
+            background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,0.04) 50%,transparent 80%);
+            animation:shimmer 1.6s infinite ease-in-out;
+        }
+        @keyframes shimmer { from{left:-150%} to{left:150%} }
 
-    /* Ownership table */
-    .own-table { width: 100%; border-collapse: collapse; }
-    .own-table tr { border-bottom: 1px solid var(--border); }
-    .own-table tr:last-child { border-bottom: none; }
-    .own-table td { padding: 8px 4px; font-size: 0.72rem; vertical-align: middle; }
-
-    .own-shirt { width: 22px; vertical-align: middle; }
-    .own-name  { font-weight: 700; color: var(--text-1); }
-    .own-pos   { font-size: 0.6rem; font-weight: 800; padding: 1px 4px; border-radius: 3px; }
-    .own-pos.gkp { background: rgba(245,158,11,0.15); color: #f59e0b; }
-    .own-pos.def { background: rgba(34,197,94,0.15);  color: #22c55e; }
-    .own-pos.mid { background: rgba(59,130,246,0.15);  color: #3b82f6; }
-    .own-pos.fwd { background: rgba(239,68,68,0.15);   color: #ef4444; }
-
-    .own-bar-wrap { width: 60px; background: var(--surface-3); border-radius: 100px; height: 4px; overflow: hidden; }
-    .own-bar-fill { height: 100%; background: var(--green); border-radius: 100px; }
-    .own-pct {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.85rem; font-weight: 800; color: var(--text-1);
-      text-align: right;
-    }
-    .own-price { font-size: 0.62rem; color: var(--text-3); white-space: nowrap; }
-
-    /* xG stats panel */
-    .xg-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .xg-side { display: flex; flex-direction: column; gap: 6px; }
-    .xg-side:first-child { border-right: 1px solid var(--border); padding-right: 8px; }
-    .xg-side:last-child  { padding-left: 8px; }
-    .xg-row  { display: flex; align-items: center; justify-content: space-between; }
-    .xg-stat-label { font-size: 0.62rem; color: var(--text-3); font-weight: 600; }
-    .xg-stat-val   {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.9rem; font-weight: 900; color: var(--text-1);
-    }
-    .xg-stat-val.green { color: var(--green); }
-    .xg-stat-val.red   { color: var(--red); }
-    .xg-team-label {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.75rem; font-weight: 900; color: var(--text-2);
-      text-transform: uppercase; letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-
-    /* All stats (goals/cards etc from finished) */
-    .stat-section { margin-bottom: 10px; }
-    .stat-section__head {
-      font-size: 0.56rem; font-weight: 700; letter-spacing: 1.2px;
-      text-transform: uppercase; color: var(--text-3); margin-bottom: 6px;
-    }
-    .stat-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-    .stat-col { display: flex; flex-direction: column; gap: 3px; }
-    .stat-col:first-child { border-right: 1px solid var(--border); padding-right: 8px; text-align: right; }
-    .stat-col:last-child  { padding-left: 8px; }
-    .stat-entry { font-size: 0.68rem; font-weight: 600; color: var(--text-2); display: flex; align-items: center; gap: 4px; }
-    .stat-col:first-child .stat-entry { justify-content: flex-end; }
-
-    /* Skeleton */
-    .m-skel {
-      height: 100px; border-radius: var(--r-lg);
-      background: var(--surface-2); border: 1px solid var(--border);
-    }
-
-    /* Empty */
-    .m-empty { text-align: center; padding: 48px 24px; color: var(--text-3); }
-    .m-empty i { font-size: 2rem; margin-bottom: 12px; opacity: 0.28; display: block; }
-    .m-empty p { font-size: 0.9rem; }
-  </style>
+        .m-empty { text-align:center; padding:48px 20px; color:#444; }
+        .m-empty i { font-size:2rem; margin-bottom:12px; display:block; }
+        .m-empty p { font-size:0.85rem; }
+    </style>
 </head>
 <body>
 
 <div id="nav-placeholder"></div>
 
-<main class="page-content">
+<div class="games-wrap">
 
-  <!-- GW navigation bar -->
-  <div class="gw-bar">
-    <button class="gw-nav-btn" id="btn-prev" onclick="shiftGW(-1)" title="Previous GW">
-      <i class="fa-solid fa-chevron-left"></i>
-    </button>
-
-    <div class="gw-tabs">
-      <button class="gw-tab active" id="tab-curr" onclick="jumpToGW('curr')">Current</button>
-      <button class="gw-tab"        id="tab-next" onclick="jumpToGW('next')">Next GW</button>
+    <div class="gw-nav">
+        <button class="gw-arrow" id="btn-prev" onclick="shiftGW(-1)">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="gw-tab-row">
+            <button class="gw-tab" id="tab-prev" onclick="jumpRel(-1)">Prev GW</button>
+            <button class="gw-tab active" id="tab-curr" onclick="jumpRel(0)">Current</button>
+            <button class="gw-tab" id="tab-next" onclick="jumpRel(1)">Next GW</button>
+        </div>
+        <button class="gw-arrow" id="btn-next" onclick="shiftGW(1)">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
     </div>
 
-    <button class="gw-nav-btn" id="btn-next" onclick="shiftGW(1)" title="Next GW">
-      <i class="fa-solid fa-chevron-right"></i>
-    </button>
-  </div>
-
-  <!-- GW header + live pill -->
-  <div class="gw-header">
-    <div class="gw-header__title" id="gw-title">Gameweek —</div>
-    <div class="gw-header__live" id="live-pill">
-      <div class="live-dot"></div> LIVE
+    <div class="gw-header-row">
+        <div class="gw-title" id="gw-title">Gameweek —</div>
+        <div class="live-pill" id="live-pill">
+            <div class="live-dot"></div> LIVE
+        </div>
     </div>
-  </div>
 
-  <!-- Match list -->
-  <div id="games-list" class="m-list"></div>
+    <div id="games-list" class="games-list"></div>
+</div>
 
-  <div id="footer-placeholder"></div>
-</main>
+<div id="footer-placeholder"></div>
 
 <script>
-/* ============================================
-   STATE
-   ============================================ */
-const PROXY = '/.netlify/functions/fpl-proxy?endpoint=';
+    let players = [], teams = [];
+    let currentGWId = 1, maxGWId = 38, viewingGW = 1;
+    let fixtureCache = {}, refreshTimer = null;
+    const PROXY = '/.netlify/functions/fpl-proxy?endpoint=';
+    const POS_LBL   = ['','GKP','DEF','MID','FWD'];
+    const POS_CLS   = ['','p-gkp','p-def','p-mid','p-fwd'];
 
-let players         = [];
-let teams           = [];
-let currentGWId     = 1;
-let maxGWId         = 38;
-let viewingGW       = 1;
-let cachedFixtures  = {};   // keyed by GW number
-let liveRefreshTimer = null;
+    /* ---- INIT ---- */
+    async function init() {
+        showSkels(5);
+        try {
+            const res  = await fetch(`${PROXY}bootstrap-static/`);
+            const data = await res.json();
+            players  = data.elements;
+            teams    = data.teams;
+            maxGWId  = data.events.length;
+            const ev = data.events.find(e => e.is_current) || data.events.find(e => e.is_next) || data.events[0];
+            currentGWId = ev.id;
+            viewingGW   = currentGWId;
 
-/* ============================================
-   BOOT
-   ============================================ */
-async function init() {
-  showSkeletons(5);
+            // Prefetch prev/curr/next
+            await Promise.all(
+                [currentGWId-1, currentGWId, currentGWId+1]
+                .filter(g => g >= 1 && g <= maxGWId)
+                .map(fetchFix)
+            );
+            renderGW(currentGWId);
+            startRefresh();
+        } catch(e) {
+            console.error(e);
+            document.getElementById('games-list').innerHTML = `<div class="m-empty"><i class="fa-solid fa-triangle-exclamation"></i><p>Failed to load.</p></div>`;
+        }
+    }
 
-  try {
-    const res  = await fetch(`${PROXY}bootstrap-static/`);
-    const data = await res.json();
+    async function fetchFix(gw) {
+        if (fixtureCache[gw]) return;
+        const r = await fetch(`${PROXY}fixtures/?event=${gw}`);
+        fixtureCache[gw] = await r.json();
+    }
 
-    players     = data.elements;
-    teams       = data.teams;
-    const curr  = data.events.find(e => e.is_current) || data.events.find(e => e.is_next) || data.events[0];
-    currentGWId = curr.id;
-    maxGWId     = data.events.length;
-    viewingGW   = currentGWId;
+    /* ---- NAVIGATION ---- */
+    async function shiftGW(d) {
+        const next = viewingGW + d;
+        if (next < 1 || next > maxGWId) return;
+        viewingGW = next;
+        showSkels(5);
+        await fetchFix(viewingGW);
+        renderGW(viewingGW);
+    }
 
-    // Pre-fetch current + next in parallel
-    const [cRes, nRes] = await Promise.all([
-      fetch(`${PROXY}fixtures/?event=${currentGWId}`),
-      fetch(`${PROXY}fixtures/?event=${Math.min(currentGWId + 1, maxGWId)}`),
-    ]);
-    cachedFixtures[currentGWId]     = await cRes.json();
-    cachedFixtures[currentGWId + 1] = await nRes.json();
+    function jumpRel(offset) {
+        const target = currentGWId + offset;
+        if (target < 1 || target > maxGWId) return;
+        viewingGW = target;
+        fetchFix(viewingGW).then(() => renderGW(viewingGW));
+    }
 
-    renderGW(currentGWId);
-    startLiveRefresh();
-  } catch (err) {
-    console.error('[Games]', err);
-    document.getElementById('games-list').innerHTML = `
-      <div class="m-empty">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <p>Failed to load fixtures.</p>
-      </div>`;
-  }
-}
+    function syncTabs() {
+        const d = viewingGW - currentGWId;
+        document.getElementById('tab-prev').classList.toggle('active', d === -1);
+        document.getElementById('tab-curr').classList.toggle('active', d === 0);
+        document.getElementById('tab-next').classList.toggle('active', d === 1);
+        document.getElementById('btn-prev').disabled = viewingGW <= 1;
+        document.getElementById('btn-next').disabled = viewingGW >= maxGWId;
+    }
 
-/* ============================================
-   GW NAVIGATION
-   ============================================ */
-async function loadGW(gw) {
-  if (cachedFixtures[gw]) return;
-  showSkeletons(5);
-  const res = await fetch(`${PROXY}fixtures/?event=${gw}`);
-  cachedFixtures[gw] = await res.json();
-}
+    /* ---- LIVE REFRESH ---- */
+    function startRefresh() {
+        clearInterval(refreshTimer);
+        refreshTimer = setInterval(async () => {
+            if (viewingGW !== currentGWId) return;
+            const fx = fixtureCache[currentGWId] || [];
+            if (!fx.some(f => f.started && !f.finished)) return;
+            const r = await fetch(`${PROXY}fixtures/?event=${currentGWId}`);
+            fixtureCache[currentGWId] = await r.json();
+            renderGW(currentGWId);
+        }, 60000);
+    }
 
-async function shiftGW(delta) {
-  const next = viewingGW + delta;
-  if (next < 1 || next > maxGWId) return;
-  viewingGW = next;
-  syncTabHighlights();
-  await loadGW(viewingGW);
-  renderGW(viewingGW);
-}
+    /* ---- RENDER GW ---- */
+    function renderGW(gw) {
+        document.getElementById('gw-title').textContent = `Gameweek ${gw}`;
+        syncTabs();
+        const fixtures = fixtureCache[gw];
+        const list = document.getElementById('games-list');
+        if (!fixtures || !fixtures.length) {
+            list.innerHTML = `<div class="m-empty"><i class="fa-solid fa-calendar-xmark"></i><p>No fixtures found.</p></div>`;
+            return;
+        }
 
-function jumpToGW(which) {
-  viewingGW = which === 'curr' ? currentGWId : Math.min(currentGWId + 1, maxGWId);
-  syncTabHighlights();
-  loadGW(viewingGW).then(() => renderGW(viewingGW));
-}
+        const sorted = [...fixtures].sort((a,b) => {
+            const al = a.started && !a.finished ? 0 : 1;
+            const bl = b.started && !b.finished ? 0 : 1;
+            return al !== bl ? al - bl : new Date(a.kickoff_time) - new Date(b.kickoff_time);
+        });
 
-function syncTabHighlights() {
-  document.getElementById('tab-curr').classList.toggle('active', viewingGW === currentGWId);
-  document.getElementById('tab-next').classList.toggle('active', viewingGW === currentGWId + 1);
-  document.getElementById('btn-prev').disabled = viewingGW <= 1;
-  document.getElementById('btn-next').disabled = viewingGW >= maxGWId;
-}
+        const hasLive = sorted.some(f => f.started && !f.finished);
+        document.getElementById('live-pill').classList.toggle('show', hasLive);
 
-/* ============================================
-   LIVE REFRESH — only re-fetch fixture scores
-   ============================================ */
-function startLiveRefresh() {
-  clearInterval(liveRefreshTimer);
-  liveRefreshTimer = setInterval(async () => {
-    if (viewingGW !== currentGWId) return;
-    const fixtures = cachedFixtures[currentGWId];
-    if (!fixtures) return;
-    const hasLive = fixtures.some(f => f.started && !f.finished);
-    if (!hasLive) return; // Nothing live — don't hammer the API
+        // Group by date
+        const byDate = {};
+        sorted.forEach(f => {
+            const d = new Date(f.kickoff_time).toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'});
+            (byDate[d] = byDate[d] || []).push(f);
+        });
 
-    try {
-      const res = await fetch(`${PROXY}fixtures/?event=${currentGWId}`);
-      cachedFixtures[currentGWId] = await res.json();
-      renderGW(currentGWId);
-    } catch {}
-  }, 60000);
-}
+        let html = '', idx = 0;
+        for (const [date, group] of Object.entries(byDate)) {
+            html += `<div class="date-lbl">${date}</div>`;
+            group.forEach(f => { html += buildCard(f, idx++); });
+        }
+        list.innerHTML = html;
+    }
 
-/* ============================================
-   RENDER GW
-   ============================================ */
-function renderGW(gw) {
-  document.getElementById('gw-title').textContent = `Gameweek ${gw}`;
-  syncTabHighlights();
+    /* ---- BUILD CARD ---- */
+    function buildCard(f, idx) {
+        const hT = teams.find(t => t.id === f.team_h);
+        const aT = teams.find(t => t.id === f.team_a);
+        if (!hT || !aT) return '';
 
-  const fixtures = cachedFixtures[gw];
-  const list     = document.getElementById('games-list');
+        const isLive = f.started && !f.finished;
+        const isDone = f.finished || f.finished_provisional;
+        const isSch  = !f.started;
 
-  if (!fixtures || !fixtures.length) {
-    list.innerHTML = `<div class="m-empty"><i class="fa-solid fa-calendar-xmark"></i><p>No fixtures for this gameweek.</p></div>`;
-    return;
-  }
+        const statusTxt = isDone ? 'FT' : isLive ? getMin(f) : formatKO(f.kickoff_time);
+        const statusCls = isDone ? 's-ft' : isLive ? 's-live' : 's-sch';
+        const hD = f.team_h_difficulty || 3;
+        const aD = f.team_a_difficulty || 3;
+        const shirt = c => `https://draft.premierleague.com/img/shirts/standard/shirt_${c}-66.png`;
 
-  // Sort: live first, then by kickoff
-  const sorted = [...fixtures].sort((a, b) => {
-    const aLive = a.started && !a.finished ? 0 : 1;
-    const bLive = b.started && !b.finished ? 0 : 1;
-    if (aLive !== bLive) return aLive - bLive;
-    return new Date(a.kickoff_time) - new Date(b.kickoff_time);
-  });
+        // Build event columns
+        const { hEvs, aEvs } = buildEvents(f);
+        const hasEvs = hEvs.length || aEvs.length;
 
-  const hasLive = sorted.some(f => f.started && !f.finished);
-  const livePill = document.getElementById('live-pill');
-  livePill.classList.toggle('visible', hasLive);
+        // Bonus
+        const bonusHtml = buildBonus(f, isDone);
 
-  // Group by date
-  const byDate = {};
-  sorted.forEach(f => {
-    const d = new Date(f.kickoff_time).toLocaleDateString([], { weekday:'short', day:'numeric', month:'short' });
-    if (!byDate[d]) byDate[d] = [];
-    byDate[d].push(f);
-  });
-
-  let html = '';
-  Object.entries(byDate).forEach(([date, fixtures], groupIdx) => {
-    html += `<div class="pc-section-label" style="padding:10px 4px 4px;font-size:0.58rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-3)">${date}</div>`;
-    fixtures.forEach((f, fi) => {
-      html += buildCard(f, groupIdx * 10 + fi);
-    });
-  });
-
-  list.innerHTML = html;
-}
-
-/* ============================================
-   BUILD MATCH CARD HTML
-   ============================================ */
-function buildCard(f, idx) {
-  const hTeam = teams.find(t => t.id === f.team_h);
-  const aTeam = teams.find(t => t.id === f.team_a);
-  if (!hTeam || !aTeam) return '';
-
-  const isLive     = f.started && !f.finished;
-  const isFinished = f.finished || f.finished_provisional;
-  const isScheduled = !f.started;
-
-  const statusText  = isFinished ? 'FT' : isLive ? 
+        return `
+        <div class="m-card${isLive?' is-live':''}" id="card-${f.id}" style="animation-delay:${idx*0.04}s">
+            <div cl
