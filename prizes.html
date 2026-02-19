@@ -1,227 +1,516 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prizes - Kopala FPL</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#37003c">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Kopala FPL">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="nav.css">
-    <link rel="stylesheet" href="footer.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Planner | Kopala FPL</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d0d0d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Kopala FPL">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="nav.css">
+  <link rel="stylesheet" href="footer.css">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* =====================================================
+       PLANNER — all hardcoded colours, no var() deps
+       ===================================================== */
+    body { background:#0d0d0d; color:#fff; font-family:'DM Sans',sans-serif; margin:0; }
 
-    <style>
-    
-  /* --- Material You & FPL Theme Variables --- */
-:root {
-    --fpl-purple: #37003c;
-    --fpl-pink: #ff0055;
-    --md-surface: #fdfbff; /* Material Surface */
-    --md-surface-variant: #f3eff4; /* Shaded sections */
-    --md-primary: #37003c;
-    --md-secondary: #00aaff;
-    --text-main: #1d1b20;
-    --text-sub: #49454f;
-    --radius-lg: 28px; /* Material You rounded corners */
-    --radius-md: 16px;
-}
+    .planner-wrap { max-width:640px; margin:0 auto; padding:0 10px 120px; }
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: var(--md-surface);
-    color: var(--text-main);
-}
+    /* ---- GW nav bar ---- */
+    .pl-topbar {
+      position:sticky; top:0; z-index:200;
+      background:rgba(13,13,13,0.96);
+      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,0.07);
+      padding:10px 12px; display:flex; align-items:center; gap:8px;
+    }
+    .pl-arrow {
+      width:36px; height:36px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      background:#1e1e1e; border:1px solid rgba(255,255,255,0.1);
+      border-radius:8px; color:#888; font-size:0.7rem;
+      cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background 0.15s;
+    }
+    .pl-arrow:active { background:#2a2a2a; }
+    .pl-arrow:disabled { opacity:0.3; cursor:not-allowed; }
 
-.prizes-content {
-    padding: 24px 16px;
-    max-width: 600px;
-    margin: 0 auto;
-}
+    .pl-gw-label {
+      flex:1; text-align:center;
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:1.1rem; font-weight:900; color:#fff;
+    }
+    .pl-gw-label span { color:#00e87a; }
 
-/* Material Typography */
-h1 {
-    font-size: 32px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: var(--fpl-purple);
-    margin-bottom: 24px;
-}
+    /* ---- Stats strip (FT / Hits / Bank / Chip) ---- */
+    .pl-stats {
+      display:grid; grid-template-columns:repeat(4,1fr);
+      gap:6px; padding:10px 0 6px;
+    }
+    .pl-stat {
+      background:#1a1a1a; border:1px solid rgba(255,255,255,0.08);
+      border-radius:10px; padding:8px 6px; text-align:center;
+      cursor:pointer; transition:border-color 0.2s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .pl-stat:active { border-color:rgba(255,255,255,0.2); }
+    .pl-stat__label {
+      font-size:0.52rem; font-weight:700; letter-spacing:1px;
+      text-transform:uppercase; color:#555; margin-bottom:3px;
+    }
+    .pl-stat__val {
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:1.1rem; font-weight:900; color:#fff; line-height:1;
+    }
+    .pl-stat__val.green { color:#00e87a; }
+    .pl-stat__val.red   { color:#ef4444; }
+    .pl-stat__val.amber { color:#f59e0b; }
 
-/* --- Manager of the Week (Floating Card) --- */
-.live-banner {
-    background: var(--fpl-purple);
-    color: white;
-    padding: 20px;
-    margin-bottom: 32px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    border-radius: var(--radius-lg);
-    box-shadow: 0 8px 24px rgba(55, 0, 60, 0.15);
-}
+    /* ---- Chip selector ---- */
+    .pl-chip-row {
+      display:flex; gap:6px; margin-bottom:8px;
+    }
+    .pl-chip-btn {
+      flex:1; padding:8px 4px;
+      background:#1a1a1a; border:1px solid rgba(255,255,255,0.08);
+      border-radius:8px; font-family:'Barlow Condensed',sans-serif;
+      font-size:0.78rem; font-weight:800; color:#555;
+      cursor:pointer; transition:all 0.15s; text-align:center;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .pl-chip-btn.active-wc { background:rgba(59,130,246,0.15); color:#3b82f6; border-color:rgba(59,130,246,0.3); }
+    .pl-chip-btn.active-bb { background:rgba(0,232,122,0.12); color:#00e87a; border-color:rgba(0,232,122,0.3); }
+    .pl-chip-btn.active-tc { background:rgba(239,68,68,0.15); color:#ef4444; border-color:rgba(239,68,68,0.3); }
+    .pl-chip-btn.active-fh { background:rgba(251,191,36,0.15); color:#fbbf24; border-color:rgba(251,191,36,0.3); }
 
-.live-banner i { 
-    background: rgba(255, 255, 255, 0.2);
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    color: #ffd700; 
-    font-size: 22px; 
-}
+    /* ---- Squad pitch ---- */
+    .pl-section-label {
+      font-size:0.58rem; font-weight:700; letter-spacing:1.3px;
+      text-transform:uppercase; color:#444; padding:10px 0 6px;
+    }
 
-#winner-name { 
-    font-size: 18px;
-    font-weight: 700; 
-}
+    .pl-row {
+      display:flex; justify-content:center; gap:6px;
+      margin-bottom:8px;
+    }
 
-/* --- Prize Section Containers --- */
-.prize-card {
-    background: var(--md-surface-variant);
-    padding: 24px;
-    border-radius: var(--radius-lg);
-    margin-bottom: 16px;
-    border: 1px solid rgba(0,0,0,0.03);
-    transition: transform 0.2s ease;
-}
+    /* Player card on pitch */
+    .pc {
+      display:flex; flex-direction:column; align-items:center; gap:3px;
+      width:70px; cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      position:relative;
+    }
+    .pc.selected .pc-inner { border-color:#00e87a; background:rgba(0,232,122,0.08); }
+    .pc.bench-player { opacity:0.65; }
 
-.prize-card:active {
-    transform: scale(0.98);
-}
+    .pc-inner {
+      width:100%; padding:6px 3px 5px;
+      background:#1a1a1a; border:1px solid rgba(255,255,255,0.08);
+      border-radius:10px; display:flex; flex-direction:column;
+      align-items:center; gap:3px; position:relative;
+      transition:border-color 0.15s, background 0.15s;
+    }
+    .pc:active .pc-inner { background:#222; }
 
-.prize-card h3 {
-    margin: 0 0 12px 0;
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--fpl-purple);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+    /* Position colour strip at top */
+    .pc-pos-strip {
+      position:absolute; top:0; left:50%; transform:translateX(-50%);
+      width:28px; height:2px; border-radius:100px;
+    }
+    .strip-gkp { background:#f59e0b; }
+    .strip-def { background:#22c55e; }
+    .strip-mid { background:#3b82f6; }
+    .strip-fwd { background:#ef4444; }
 
-.prize-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
+    .pc-shirt { width:30px; height:auto; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
 
-.prize-list li {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-sub);
-    padding: 8px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+    /* Captain / VC badge */
+    .pc-badge {
+      position:absolute; top:4px; right:4px;
+      width:14px; height:14px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:0.5rem; font-weight:900; line-height:1;
+    }
+    .badge-c  { background:#00e87a; color:#000; }
+    .badge-vc { background:#2a2a2a; color:#aaa; border:1px solid rgba(255,255,255,0.15); }
 
-.prize-list li::before {
-    content: "\f058"; /* FontAwesome Check Circle */
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    color: var(--fpl-pink);
-    font-size: 16px;
-}
+    .pc-name {
+      font-size:0.52rem; font-weight:700; color:#ddd;
+      text-align:center; white-space:nowrap;
+      overflow:hidden; text-overflow:ellipsis; width:100%;
+      padding:0 2px;
+    }
+    .pc-price {
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:0.68rem; font-weight:800; color:#555;
+    }
+    .pc-price.changed { color:#00e87a; }
 
-/* Small Sub-headers */
-.section-title {
-    font-size: 12px;
-    text-transform: uppercase;
-    font-weight: 900;
-    color: var(--fpl-pink);
-    letter-spacing: 1.5px;
-    margin: 32px 0 12px 10px;
-}
-      </style>  
+    /* Transfer indicators */
+    .pc-transfer-in  { border-color:rgba(0,232,122,0.5) !important; background:rgba(0,232,122,0.06) !important; }
+    .pc-transfer-out { border-color:rgba(239,68,68,0.5) !important; background:rgba(239,68,68,0.06) !important; opacity:0.5; }
+
+    /* Bench divider */
+    .bench-div {
+      display:flex; align-items:center; gap:10px;
+      margin:10px 0 8px;
+    }
+    .bench-div__line { flex:1; height:1px; background:rgba(255,255,255,0.07); }
+    .bench-div__label {
+      font-size:0.58rem; font-weight:700; letter-spacing:1px;
+      text-transform:uppercase; color:#444;
+    }
+
+    /* ---- Fixture ticker ---- */
+    .pl-ticker {
+      overflow-x:auto; scrollbar-width:none;
+      margin-bottom:10px;
+    }
+    .pl-ticker::-webkit-scrollbar { display:none; }
+    .pl-ticker-table {
+      border-collapse:collapse; min-width:100%;
+    }
+    .pl-ticker-table th {
+      font-size:0.5rem; font-weight:700; letter-spacing:0.8px;
+      text-transform:uppercase; color:#444; padding:4px 6px;
+      text-align:center; white-space:nowrap;
+    }
+    .pl-ticker-table td {
+      padding:2px 3px; text-align:center;
+    }
+    .pl-ticker-table tr:nth-child(even) td { background:rgba(255,255,255,0.015); }
+
+    .pl-player-row td:first-child {
+      text-align:left; padding-left:6px; white-space:nowrap;
+    }
+    .pl-player-name {
+      font-size:0.68rem; font-weight:700; color:#ddd;
+    }
+    .pl-player-pos {
+      font-size:0.5rem; font-weight:800; margin-right:4px;
+    }
+    .pos-gkp { color:#f59e0b; }
+    .pos-def  { color:#22c55e; }
+    .pos-mid  { color:#3b82f6; }
+    .pos-fwd  { color:#ef4444; }
+
+    .fix-cell {
+      font-size:0.6rem; font-weight:800; padding:3px 5px;
+      border-radius:5px; display:inline-block;
+      white-space:nowrap; min-width:28px;
+    }
+    .fdr-1,.fdr-2 { background:rgba(34,197,94,0.2);  color:#22c55e; }
+    .fdr-3         { background:rgba(251,191,36,0.2); color:#fbbf24; }
+    .fdr-4         { background:rgba(239,68,68,0.2);  color:#ef4444; }
+    .fdr-5         { background:rgba(185,28,28,0.25); color:#dc2626; }
+    .fdr-none      { color:#333; font-size:0.55rem; }
+
+    /* ---- Player search modal ---- */
+    .pl-modal-overlay {
+      display:none; position:fixed; inset:0; z-index:1000;
+      background:rgba(0,0,0,0.7); backdrop-filter:blur(6px);
+      align-items:flex-end; justify-content:center;
+    }
+    .pl-modal-overlay.open { display:flex; }
+
+    .pl-modal {
+      background:#171717; border:1px solid rgba(255,255,255,0.1);
+      border-radius:20px 20px 0 0; width:100%; max-width:640px;
+      max-height:80vh; display:flex; flex-direction:column;
+      animation:slideUp 0.3s ease;
+    }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+    .pl-modal-header {
+      padding:14px 16px 10px;
+      display:flex; align-items:center; gap:10px;
+      border-bottom:1px solid rgba(255,255,255,0.07);
+      flex-shrink:0;
+    }
+    .pl-modal-header h3 {
+      margin:0; font-family:'Barlow Condensed',sans-serif;
+      font-size:1.1rem; font-weight:900; flex:1;
+    }
+    .pl-modal-close {
+      width:30px; height:30px; border-radius:50%;
+      background:#222; border:none; color:#888;
+      font-size:0.75rem; cursor:pointer; display:flex;
+      align-items:center; justify-content:center;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    .pl-modal-filters {
+      padding:10px 16px; display:flex; gap:8px; flex-shrink:0;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    .pl-search-wrap { position:relative; flex:1; }
+    .pl-search-wrap i { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#555; font-size:0.7rem; pointer-events:none; }
+    #pl-search {
+      width:100%; background:#222; border:1px solid rgba(255,255,255,0.1);
+      border-radius:10px; padding:9px 10px 9px 30px;
+      font-family:'DM Sans',sans-serif; font-size:0.78rem;
+      color:#fff; outline:none; box-sizing:border-box;
+    }
+    #pl-search::placeholder { color:#444; }
+
+    .pl-pos-filters { display:flex; gap:4px; }
+    .pl-pf-btn {
+      padding:6px 10px; border-radius:8px;
+      background:#1e1e1e; border:1px solid rgba(255,255,255,0.08);
+      font-family:'Barlow Condensed',sans-serif; font-size:0.78rem; font-weight:800;
+      color:#555; cursor:pointer; transition:all 0.15s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .pl-pf-btn.act { background:rgba(0,232,122,0.12); color:#00e87a; border-color:rgba(0,232,122,0.3); }
+
+    /* Sort bar */
+    .pl-sort-bar {
+      display:flex; gap:4px; padding:6px 16px; flex-shrink:0;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      overflow-x:auto; scrollbar-width:none;
+    }
+    .pl-sort-bar::-webkit-scrollbar { display:none; }
+    .pl-sort-btn {
+      padding:5px 10px; border-radius:6px; flex-shrink:0;
+      background:#1e1e1e; border:1px solid rgba(255,255,255,0.08);
+      font-size:0.65rem; font-weight:700; color:#555;
+      cursor:pointer; white-space:nowrap;
+      -webkit-tap-highlight-color:transparent; transition:all 0.15s;
+    }
+    .pl-sort-btn.act { background:#222; color:#fff; border-color:rgba(255,255,255,0.2); }
+
+    /* Player list in modal */
+    .pl-player-list { overflow-y:auto; flex:1; }
+
+    .pl-prow {
+      display:flex; align-items:center; gap:10px;
+      padding:10px 16px;
+      border-bottom:1px solid rgba(255,255,255,0.04);
+      cursor:pointer; transition:background 0.12s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .pl-prow:active { background:rgba(255,255,255,0.04); }
+    .pl-prow.disabled { opacity:0.3; cursor:not-allowed; }
+
+    .pl-prow-shirt { width:28px; height:auto; filter:drop-shadow(0 1px 3px rgba(0,0,0,0.4)); }
+
+    .pl-prow-info { flex:1; min-width:0; }
+    .pl-prow-name { font-size:0.82rem; font-weight:700; color:#eee; }
+    .pl-prow-meta { font-size:0.62rem; color:#555; margin-top:1px; display:flex; gap:5px; align-items:center; }
+
+    .pl-prow-price {
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:0.9rem; font-weight:900; color:#fff; white-space:nowrap;
+    }
+
+    .pl-prow-own {
+      font-size:0.62rem; font-weight:700; color:#555; white-space:nowrap;
+      text-align:right; min-width:36px;
+    }
+
+    /* Action sheet (tap on own player) */
+    .pl-action-sheet {
+      display:none; position:fixed; inset:0; z-index:1000;
+      background:rgba(0,0,0,0.65); backdrop-filter:blur(4px);
+      align-items:flex-end; justify-content:center;
+    }
+    .pl-action-sheet.open { display:flex; }
+    .pl-action-inner {
+      background:#1a1a1a; border:1px solid rgba(255,255,255,0.1);
+      border-radius:20px 20px 0 0; width:100%; max-width:640px;
+      padding:16px 16px 32px;
+      animation:slideUp 0.25s ease;
+    }
+    .pl-action-player {
+      display:flex; align-items:center; gap:12px;
+      margin-bottom:16px; padding-bottom:14px;
+      border-bottom:1px solid rgba(255,255,255,0.07);
+    }
+    .pl-action-shirt { width:40px; }
+    .pl-action-name {
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:1.2rem; font-weight:900; color:#fff;
+    }
+    .pl-action-meta { font-size:0.68rem; color:#555; }
+
+    .pl-actions { display:flex; flex-direction:column; gap:8px; }
+    .pl-action-btn {
+      padding:13px 16px;
+      background:#222; border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px; font-size:0.85rem; font-weight:700;
+      color:#ddd; cursor:pointer; text-align:left;
+      display:flex; align-items:center; gap:10px;
+      -webkit-tap-highlight-color:transparent; transition:background 0.15s;
+    }
+    .pl-action-btn:active { background:#2a2a2a; }
+    .pl-action-btn i { width:18px; text-align:center; }
+    .pl-action-btn.danger { color:#ef4444; }
+    .pl-action-btn.success { color:#00e87a; }
+    .pl-action-btn.gold { color:#fbbf24; }
+    .pl-action-btn.cancel { color:#555; border-color:transparent; background:transparent; }
+
+    /* ---- Skeleton ---- */
+    .pl-skel {
+      height:120px; background:#1a1a1a;
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius:14px; position:relative; overflow:hidden;
+      margin-bottom:8px;
+    }
+    .pl-skel::after {
+      content:''; position:absolute; top:0; left:-150%; width:100%; height:100%;
+      background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,0.04) 50%,transparent 80%);
+      animation:shimmer 1.6s infinite ease-in-out;
+    }
+    @keyframes shimmer { from{left:-150%} to{left:150%} }
+
+    /* ---- No ID state ---- */
+    .pl-no-id {
+      text-align:center; padding:60px 20px; color:#444;
+    }
+    .pl-no-id i { font-size:2.5rem; display:block; margin-bottom:16px; opacity:0.3; }
+    .pl-no-id h3 { font-family:'Barlow Condensed',sans-serif; font-size:1.4rem; font-weight:900; color:#888; margin:0 0 8px; }
+    .pl-no-id p { font-size:0.85rem; margin:0 0 20px; }
+    .pl-no-id a {
+      display:inline-block; padding:12px 24px;
+      background:#00e87a; color:#000; border-radius:10px;
+      font-weight:800; font-size:0.85rem; text-decoration:none;
+    }
+  </style>
 </head>
 <body>
 
-    <div id="nav-placeholder"></div>
+<div id="nav-placeholder"></div>
 
-  <h1>Prizes</h1>
-    
-    <div class="live-banner">
-        <i class="fa-solid fa-crown"></i>
-        <div>
-            <div style="text-transform: uppercase; font-size: 10px; font-weight: 800; opacity: 0.8; letter-spacing: 1px;">Manager of the Week</div>
-            <div id="winner-name">Syncing standings...</div>
-        </div>
+<div class="planner-wrap">
+
+  <!-- GW navigation -->
+  <div class="pl-topbar">
+    <button class="pl-arrow" id="pl-prev" onclick="shiftGW(-1)">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <div class="pl-gw-label" id="pl-gw-label">Planner · <span>GW —</span></div>
+    <button class="pl-arrow" id="pl-next" onclick="shiftGW(1)">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <div id="planner-body"></div>
+
+</div>
+
+<!-- Action sheet (tap own player) -->
+<div class="pl-action-sheet" id="action-sheet" onclick="closeActionSheet(event)">
+  <div class="pl-action-inner">
+    <div class="pl-action-player">
+      <img class="pl-action-shirt" id="action-shirt" src="">
+      <div>
+        <div class="pl-action-name" id="action-name">—</div>
+        <div class="pl-action-meta" id="action-meta">—</div>
+      </div>
     </div>
+    <div class="pl-actions" id="action-buttons"></div>
+  </div>
+</div>
 
-    <div class="section-title">End of Season Rewards</div>
-
-    <div class="prize-card">
-        <h3><i class="fa-solid fa-trophy" style="color:#FFD700"></i> Champion</h3>
-        <ul class="prize-list">
-            <li>Custom 2025/26 Champion Jersey</li>
-            <li>Cash Prize (Amount TBC)</li>
-            <li>Kopala FPL Hall of Fame Entry</li>
-        </ul>
+<!-- Player search modal -->
+<div class="pl-modal-overlay" id="search-modal" onclick="closeModal(event)">
+  <div class="pl-modal">
+    <div class="pl-modal-header">
+      <h3 id="modal-title">Select Player</h3>
+      <button class="pl-modal-close" onclick="closeSearchModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
-
-    <div class="prize-card">
-        <h3><i class="fa-solid fa-medal" style="color:#C0C0C0"></i> Runner-up</h3>
-        <ul class="prize-list">
-            <li>Official Premier League Merchandise</li>
-            <li>Cash Prize</li>
-        </ul>
+    <div class="pl-modal-filters">
+      <div class="pl-search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="pl-search" placeholder="Search players…" oninput="filterModal()" autocomplete="off">
+      </div>
+      <div class="pl-pos-filters" id="pos-filters">
+        <button class="pl-pf-btn act" onclick="setPosFilter(0,this)">ALL</button>
+        <button class="pl-pf-btn" onclick="setPosFilter(1,this)">GKP</button>
+        <button class="pl-pf-btn" onclick="setPosFilter(2,this)">DEF</button>
+        <button class="pl-pf-btn" onclick="setPosFilter(3,this)">MID</button>
+        <button class="pl-pf-btn" onclick="setPosFilter(4,this)">FWD</button>
+      </div>
     </div>
-
-    <div class="section-title">Tournament Cups</div>
-
-    <div class="prize-card">
-        <h3><i class="fa-solid fa-award" style="color:var(--md-secondary)"></i> Cup Winner</h3>
-        <ul class="prize-list">
-            <li>Kopala Cup Trophy (Digital)</li>
-            <li>Branded Sports Kit</li>
-        </ul>
+    <div class="pl-sort-bar">
+      <button class="pl-sort-btn act" id="sort-price" onclick="setSort('price',this)">Price ↓</button>
+      <button class="pl-sort-btn" id="sort-own" onclick="setSort('own',this)">Ownership</button>
+      <button class="pl-sort-btn" id="sort-form" onclick="setSort('form',this)">Form</button>
+      <button class="pl-sort-btn" id="sort-pts" onclick="setSort('pts',this)">Total Pts</button>
     </div>
-       
-    </main>
+    <div class="pl-player-list" id="modal-player-list"></div>
+  </div>
+</div>
 
-    <script src="nav.js"></script>
+<div id="footer-placeholder"></div>
 
-    <script>
-        async function fetchLiveWinner() {
-            const leagueId = "101712";
-            const nameField = document.getElementById('winner-name');
-            
-            // This works because of your netlify.toml redirect
-            const url = `/fpl-api/leagues-classic/${leagueId}/standings/`;
+<script>
+/* =====================================================
+   STATE
+   ===================================================== */
+const PROXY   = '/.netlify/functions/fpl-proxy?endpoint=';
+const STORE   = 'kopala_planner';
 
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Proxy error');
-                
-                const data = await response.json();
-                const standings = data.standings.results;
+let fplId        = localStorage.getItem('kopala_id');
+let currentGW    = 1;
+let maxGW        = 38;
+let viewingGW    = 1;
+let allPlayers   = [];   // bootstrap elements
+let allTeams     = [];
+let teamCodeMap  = {};   // teamId → code
+let allFixtures  = {};   // gw → fixtures[]
 
-                // Find manager with highest points in the CURRENT Gameweek
-                const topScorer = standings.reduce((max, p) => 
-                    (p.event_total > max.event_total) ? p : max, standings[0]
-                );
+// Plan state per GW — stored in localStorage
+// plan[gw] = { squad:[], chip:null }
+// squad item: { id, isCaptain, isVice, isBench, purchasePrice }
+let plan = {};
 
-                nameField.innerHTML = `${topScorer.player_name} <span style="color:var(--accent-blue)">(${topScorer.event_total} pts)</span>`;
-            } catch (error) {
-                console.error("FPL Data Error:", error);
-                nameField.innerText = "Standings temporarily unavailable";
-            }
-        }
+// UI state
+let selectedSlot     = null;  // { gwNum, slotIndex } — waiting for replacement
+let actionPlayer     = null;  // player in action sheet
+let modalPosFilter   = 0;
+let modalSort        = 'price';
 
-        document.addEventListener('DOMContentLoaded', fetchLiveWinner);
-    </script>
-   <div id="footer-placeholder"></div>
-<script src="footer.js"></script>
-</body>
-</html>
+const POS_LBL   = ['','GKP','DEF','MID','FWD'];
+const POS_CLS   = ['','pos-gkp','pos-def','pos-mid','pos-fwd'];
+const STRIP_CLS = ['','strip-gkp','strip-def','strip-mid','strip-fwd'];
+const CHIP_KEYS = ['wc','bb','tc','fh'];
+
+/* =====================================================
+   INIT
+   ===================================================== */
+async function init() {
+  if (!fplId) {
+    renderNoId();
+    return;
+  }
+
+  showSkeleton();
+  loadPlan();
+
+  try {
+    const [bootRes, entryRes] = await Promise.all([
+      fetch(`${PROXY}bootstrap-static/`),
+      fetch(`${PROXY}entry/${fplId}/`),
+    ]);
+    const [boot, entry] = await Promise.all([bootRes.json(), entryRes.json()]);
+
+    allTeams   = boot.teams;
+    allPlayers = boot.elements;
+    allTeams.forEach(t => { teamCodeMap[t.id] = t.code; });
+
+    const curr = boot.events.find(e => e.is_current) || boot.events.find(e => e.is_next) || boot.events[0]
