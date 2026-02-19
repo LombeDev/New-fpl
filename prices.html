@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Price Changes | Kopala FPL</title>
-
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0d0d0d">
   <meta name="mobile-web-app-capable" content="yes">
@@ -12,460 +11,330 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Kopala FPL">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="nav.css">
   <link rel="stylesheet" href="footer.css">
 
   <style>
-    /* ============================================
-       PRICES PAGE — LOCAL STYLES
-       ============================================ */
+    /* ==============================================
+       PRICES PAGE STYLES
+       ============================================== */
 
-    /* ---- Countdown banner ---- */
+    /* Countdown banner */
     .pc-banner {
-      background: linear-gradient(90deg, #0a1a0a 0%, #111 100%);
+      background: linear-gradient(90deg, #091409 0%, #111 100%);
       border-bottom: 1px solid var(--border);
       padding: 10px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
     }
-
-    .pc-banner__label {
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      color: var(--text-3);
-    }
-
+    .pc-banner__left { display: flex; flex-direction: column; gap: 2px; }
+    .pc-banner__label { font-size: 0.58rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-3); }
+    .pc-banner__note  { font-size: 0.58rem; color: var(--text-3); }
     .pc-banner__timer {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.3rem;
-      font-weight: 900;
-      color: var(--green);
-      font-variant-numeric: tabular-nums;
-      letter-spacing: -0.5px;
+      font-size: 1.5rem; font-weight: 900;
+      color: var(--green); font-variant-numeric: tabular-nums; letter-spacing: -0.5px;
     }
+    .pc-banner__timer.urgent { color: var(--red); animation: pc-blink 1s ease-in-out infinite; }
+    @keyframes pc-blink { 0%,100%{opacity:1} 50%{opacity:0.45} }
 
-    .pc-banner__timer.urgent { color: var(--red); animation: blink 1s ease-in-out infinite; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
-
-    .pc-banner__note {
-      font-size: 0.6rem;
-      font-weight: 600;
-      color: var(--text-3);
-    }
-
-    /* ---- Today's actual changes ---- */
-    .pc-actual-section {
-      padding: 12px 16px 0;
-    }
-
-    .pc-actual-scroll {
-      display: flex;
+    /* ---- Zone summary cards (at-a-glance) ---- */
+    .pc-zones {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      scrollbar-width: none;
+      padding: 14px 16px 0;
     }
-    .pc-actual-scroll::-webkit-scrollbar { display: none; }
+    .pc-zone {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 10px 10px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pc-zone.zone-confirmed { border-color: rgba(239,68,68,0.4);  background: rgba(239,68,68,0.05); }
+    .pc-zone.zone-soon      { border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.05); }
+    .pc-zone.zone-watch     { border-color: rgba(59,130,246,0.35); background: rgba(59,130,246,0.05); }
+    .pc-zone__count {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2rem; font-weight: 900; line-height: 1;
+    }
+    .zone-confirmed .pc-zone__count { color: #ef4444; }
+    .zone-soon      .pc-zone__count { color: #fbbf24; }
+    .zone-watch     .pc-zone__count { color: #3b82f6; }
+    .pc-zone__label {
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--text-3); margin-top: 2px;
+    }
+    .pc-zone__names {
+      font-size: 0.58rem; color: var(--text-3); margin-top: 5px;
+      line-height: 1.4; overflow: hidden;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    }
 
+    /* ---- Actual changes strip ---- */
+    .pc-actual {
+      padding: 12px 16px 0;
+      display: none;
+    }
+    .pc-actual__label {
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 8px;
+    }
+    .pc-actual__scroll {
+      display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
+    }
+    .pc-actual__scroll::-webkit-scrollbar { display: none; }
     .pc-actual-pill {
       flex: 0 0 auto;
-      display: flex;
-      align-items: center;
-      gap: 7px;
+      display: flex; align-items: center; gap: 8px;
       background: var(--surface-2);
       border: 1px solid var(--border);
       border-radius: 100px;
       padding: 6px 12px;
-      white-space: nowrap;
     }
-
     .pc-actual-pill.rise { border-color: rgba(0,232,122,0.3); }
     .pc-actual-pill.fall { border-color: rgba(239,68,68,0.3); }
-
-    .pc-actual-pill__name {
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--text-1);
+    .pc-actual-pill__name { font-size: 0.78rem; font-weight: 700; color: var(--text-1); }
+    .pc-actual-pill__delta {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 900;
     }
+    .rise .pc-actual-pill__delta { color: var(--green); }
+    .fall .pc-actual-pill__delta { color: var(--red); }
 
-    .pc-actual-pill__change {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 900;
-    }
-    .rise .pc-actual-pill__change { color: var(--green); }
-    .fall .pc-actual-pill__change { color: var(--red); }
-
-    /* ---- Controls ---- */
+    /* ---- Sticky controls ---- */
     .pc-controls {
-      position: sticky;
-      top: 0;
-      z-index: 200;
-      background: rgba(13,13,13,0.94);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(13,13,13,0.95);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
       padding: 10px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      display: flex; flex-direction: column; gap: 9px;
     }
 
-    /* Tab switcher */
+    /* View tabs */
     .pc-tabs {
-      display: flex;
+      display: flex; gap: 4px;
       background: var(--surface-2);
       border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      padding: 4px;
-      gap: 4px;
+      border-radius: var(--r-lg); padding: 4px;
     }
-
     .pc-tab {
-      flex: 1;
-      padding: 8px;
-      border: none;
-      border-radius: 10px;
-      background: transparent;
+      flex: 1; padding: 8px 4px;
+      border: none; border-radius: 10px; background: transparent;
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 800;
-      letter-spacing: 0.3px;
-      color: var(--text-3);
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
+      font-size: 0.8rem; font-weight: 800;
+      color: var(--text-3); cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
       -webkit-tap-highlight-color: transparent;
     }
+    .pc-tab i { font-size: 0.65rem; }
+    .pc-tab.active-rise  { background: rgba(0,232,122,0.12);  color: var(--green); }
+    .pc-tab.active-fall  { background: rgba(239,68,68,0.12);   color: var(--red); }
+    .pc-tab.active-watch { background: rgba(251,191,36,0.12);  color: #fbbf24; }
 
-    .pc-tab.active-rise { background: rgba(0,232,122,0.12); color: var(--green); }
-    .pc-tab.active-fall { background: rgba(239,68,68,0.12);  color: var(--red); }
-    .pc-tab.active-watch { background: rgba(251,191,36,0.12); color: #fbbf24; }
-
-    /* Filter row */
-    .pc-filters {
-      display: flex;
-      gap: 8px;
-    }
-
-    .pc-search-wrap {
-      position: relative;
-      flex: 1;
-    }
-    .pc-search-wrap i {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 0.7rem;
-      color: var(--text-3);
-      pointer-events: none;
-    }
-    #playerSearch {
-      width: 100%;
-      background: var(--surface-2);
+    /* Position filter pills */
+    .pc-pos-row { display: flex; gap: 5px; }
+    .pc-pos-btn {
+      flex: 1; padding: 6px 4px;
       border: 1px solid var(--border);
-      border-radius: var(--r-md);
-      padding: 9px 10px 9px 30px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.78rem;
-      color: var(--text-1);
-      outline: none;
-      box-sizing: border-box;
+      border-radius: var(--r-sm);
+      background: var(--surface-2);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.75rem; font-weight: 800;
+      color: var(--text-3); cursor: pointer;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pc-pos-btn.act-all { background: rgba(255,255,255,0.07); color: var(--text-1); border-color: var(--border-mid); }
+    .pc-pos-btn.act-gkp { background: rgba(245,158,11,0.14); color: #f59e0b; border-color: rgba(245,158,11,0.3); }
+    .pc-pos-btn.act-def { background: rgba(34,197,94,0.14);  color: #22c55e; border-color: rgba(34,197,94,0.3); }
+    .pc-pos-btn.act-mid { background: rgba(59,130,246,0.14);  color: #3b82f6; border-color: rgba(59,130,246,0.3); }
+    .pc-pos-btn.act-fwd { background: rgba(239,68,68,0.14);   color: #ef4444; border-color: rgba(239,68,68,0.3); }
+
+    /* Search + team filter row */
+    .pc-filter-row { display: flex; gap: 8px; }
+    .pc-search-wrap { position: relative; flex: 1; }
+    .pc-search-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.68rem; color: var(--text-3); pointer-events: none; }
+    #playerSearch {
+      width: 100%; background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--r-md); padding: 9px 10px 9px 30px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
+      color: var(--text-1); outline: none; box-sizing: border-box;
       transition: border-color 0.2s;
     }
     #playerSearch:focus { border-color: var(--border-mid); }
     #playerSearch::placeholder { color: var(--text-3); }
 
-    .pc-select-wrap {
-      position: relative;
-      flex: 0 0 100px;
-    }
-    .pc-select-wrap i {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 0.65rem;
-      color: var(--text-3);
-      pointer-events: none;
-    }
+    .pc-team-wrap { position: relative; flex: 0 0 100px; }
+    .pc-team-wrap i { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); font-size: 0.65rem; color: var(--text-3); pointer-events: none; }
     #teamFilter {
-      width: 100%;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--r-md);
-      padding: 9px 8px 9px 28px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-1);
-      outline: none;
-      appearance: none;
-      -webkit-appearance: none;
-      cursor: pointer;
+      width: 100%; background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--r-md); padding: 9px 8px 9px 26px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.72rem; font-weight: 600;
+      color: var(--text-1); outline: none; appearance: none; -webkit-appearance: none; cursor: pointer;
+    }
+
+    /* Ownership slider row */
+    .pc-own-row { display: flex; align-items: center; gap: 10px; }
+    .pc-own-label { font-size: 0.68rem; font-weight: 600; color: var(--text-3); flex-shrink: 0; }
+    .pc-own-val {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 800;
+      color: var(--text-1); flex-shrink: 0; min-width: 40px; text-align: right;
+    }
+    input[type="range"]#ownershipMin {
+      flex: 1; -webkit-appearance: none; height: 4px;
+      border-radius: 100px; background: var(--surface-3); outline: none; cursor: pointer;
+    }
+    input[type="range"]#ownershipMin::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 16px; height: 16px;
+      border-radius: 50%; background: var(--green); cursor: pointer;
+      box-shadow: 0 0 0 3px rgba(0,232,122,0.15);
     }
 
     /* Hide-completed toggle */
-    .pc-toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .pc-toggle-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--text-3);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .pc-toggle-row { display: flex; align-items: center; justify-content: space-between; }
+    .pc-toggle-label { font-size: 0.7rem; font-weight: 600; color: var(--text-3); display: flex; align-items: center; gap: 6px; }
     .pc-toggle-label i { color: var(--amber); }
-
-    /* Toggle switch */
-    .toggle-switch {
-      position: relative;
-      width: 36px;
-      height: 20px;
-      flex-shrink: 0;
-    }
+    .toggle-switch { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
-    .toggle-track {
-      position: absolute;
-      inset: 0;
-      background: var(--surface-3);
-      border-radius: 100px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+    .toggle-track { position: absolute; inset: 0; background: var(--surface-3); border-radius: 100px; cursor: pointer; transition: background 0.2s; }
     .toggle-switch input:checked + .toggle-track { background: var(--green); }
-    .toggle-thumb {
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 14px;
-      height: 14px;
-      background: #fff;
-      border-radius: 50%;
-      transition: transform 0.2s;
-      pointer-events: none;
-    }
+    .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; background: #fff; border-radius: 50%; transition: transform 0.2s; pointer-events: none; }
     .toggle-switch input:checked ~ .toggle-thumb { transform: translateX(16px); }
 
-    /* ---- Table header ---- */
+    /* Table head */
     .pc-table-head {
       display: grid;
-      grid-template-columns: 1fr 56px 48px 60px 28px;
-      padding: 8px 16px;
-      gap: 6px;
+      grid-template-columns: 1fr 52px 42px 54px 46px 26px;
+      padding: 8px 16px; gap: 4px;
     }
     .pc-table-head span {
-      font-size: 0.58rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--text-3);
+      font-size: 0.56rem; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--text-3);
     }
-    .pc-table-head span:nth-child(2),
-    .pc-table-head span:nth-child(3),
-    .pc-table-head span:nth-child(4) { text-align: center; }
+    .pc-table-head span:not(:first-child) { text-align: center; }
 
-    /* ---- Player rows ---- */
-    .pc-list {
-      padding: 0 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
+    /* Player list */
+    .pc-list { padding: 0 12px; display: flex; flex-direction: column; gap: 5px; }
 
+    /* Player row */
     .pc-row {
       background: var(--surface-2);
       border: 1px solid var(--border);
       border-radius: var(--r-md);
       display: grid;
-      grid-template-columns: 1fr 56px 48px 60px 28px;
+      grid-template-columns: 1fr 52px 42px 54px 46px 26px;
       align-items: center;
-      padding: 10px 16px;
-      gap: 6px;
+      padding: 9px 14px;
+      gap: 4px;
       opacity: 0;
-      animation: pc-row-in 0.25s var(--ease) forwards;
+      animation: pc-in 0.22s var(--ease) forwards;
     }
-    @keyframes pc-row-in {
-      from { opacity: 0; transform: translateY(4px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes pc-in { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:none} }
+    .pc-row.done { opacity: 0.4; border-style: dashed; }
 
-    .pc-row.done {
-      opacity: 0.45;
-      border-style: dashed;
-    }
-
-    /* Player info */
-    .pc-player {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
+    /* Player info cell */
+    .pc-player { display: flex; align-items: center; gap: 9px; min-width: 0; }
     .pc-shirt {
-      width: 30px;
-      height: auto;
-      flex-shrink: 0;
+      width: 28px; height: auto; flex-shrink: 0;
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
     }
-
-    .pc-player-text {
-      min-width: 0;
+    .pc-ptext { min-width: 0; }
+    .pc-pname {
+      font-size: 0.8rem; font-weight: 700; color: var(--text-1);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;
     }
-
-    .pc-player__name {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--text-1);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 1.2;
+    .pc-pmeta {
+      font-size: 0.6rem; color: var(--text-3); margin-top: 1px;
+      display: flex; align-items: center; gap: 4px;
     }
-
-    .pc-player__meta {
-      font-size: 0.62rem;
-      font-weight: 500;
-      color: var(--text-3);
-      margin-top: 1px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
+    .pc-sell-hint {
+      font-size: 0.58rem; font-weight: 700; color: var(--green);
+      display: none; margin-top: 1px;
     }
+    .pc-row.rising .pc-sell-hint { display: block; }
 
-    .pc-pos-badge {
-      font-size: 0.55rem;
-      font-weight: 800;
-      padding: 1px 4px;
-      border-radius: 3px;
-    }
-    .pos-gkp { background: rgba(245,158,11,0.15); color: #f59e0b; }
-    .pos-def  { background: rgba(34,197,94,0.15);  color: #22c55e; }
-    .pos-mid  { background: rgba(59,130,246,0.15);  color: #3b82f6; }
-    .pos-fwd  { background: rgba(239,68,68,0.15);   color: #ef4444; }
+    /* Position badge */
+    .pc-pos { font-size: 0.55rem; font-weight: 800; padding: 1px 4px; border-radius: 3px; }
+    .pc-pos.gkp { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .pc-pos.def { background: rgba(34,197,94,0.15);  color: #22c55e; }
+    .pc-pos.mid { background: rgba(59,130,246,0.15);  color: #3b82f6; }
+    .pc-pos.fwd { background: rgba(239,68,68,0.15);   color: #ef4444; }
 
-    /* Progress column */
-    .pc-progress-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .pc-progress-pct {
+    /* Progress cell */
+    .pc-prog-col { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .pc-prog-pct {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.92rem;
-      font-weight: 900;
-      line-height: 1;
+      font-size: 0.9rem; font-weight: 900; line-height: 1;
     }
-    .rise-text { color: var(--green); }
-    .fall-text { color: var(--red); }
-    .done-text { color: var(--text-3); }
+    .rt { color: var(--green); }
+    .ft { color: var(--red); }
+    .dt { color: var(--text-3); }
+    .pc-prog-bar { width: 100%; height: 4px; background: var(--surface-3); border-radius: 100px; overflow: hidden; position: relative; }
+    .pc-prog-tonight { /* tonight estimate — dimmer background */ height: 100%; border-radius: 100px; position: absolute; top:0; left:0; }
+    .pc-prog-now     { /* current progress — bright foreground   */ height: 100%; border-radius: 100px; position: absolute; top:0; left:0; }
+    .pc-prog-sub { font-size: 0.48rem; color: var(--text-3); white-space: nowrap; }
 
-    .pc-progress-bar {
-      width: 100%;
-      height: 4px;
-      background: var(--surface-3);
-      border-radius: 100px;
-      overflow: hidden;
+    /* Net transfers */
+    .pc-net {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 800;
+      text-align: center; color: var(--text-3);
     }
-    .pc-progress-fill {
-      height: 100%;
-      border-radius: 100px;
-      transition: width 0.5s var(--ease);
-    }
-    .fill-rise { background: var(--green); }
-    .fill-fall { background: var(--red); }
-    .fill-done { background: var(--text-3); }
+    .pc-net.pos { color: var(--green); }
+    .pc-net.neg { color: var(--red); }
 
-    /* Prob column */
+    /* Probability */
     .pc-prob {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 800;
-      text-align: center;
-      color: var(--text-2);
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; font-weight: 800;
+      text-align: center; color: var(--text-2);
     }
 
-    /* Prediction column */
-    .pc-pred {
-      text-align: center;
-    }
+    /* Prediction badge */
+    .pc-pred { text-align: center; }
     .pred-badge {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.7rem;
-      font-weight: 900;
-      padding: 3px 6px;
-      border-radius: 6px;
-      letter-spacing: 0.3px;
-      display: inline-block;
+      font-size: 0.68rem; font-weight: 900;
+      padding: 3px 6px; border-radius: 5px; display: inline-block;
     }
-    .pred-tonight  { background: rgba(239,68,68,0.15);  color: #ef4444; }
-    .pred-soon     { background: rgba(251,191,36,0.15);  color: #fbbf24; }
-    .pred-watching { background: rgba(59,130,246,0.15);  color: #3b82f6; }
-    .pred-done     { background: var(--surface-3); color: var(--text-3); }
-    .pred-default  { color: var(--text-3); font-size: 0.7rem; }
+    .p-tonight { background: rgba(239,68,68,0.15);  color: #ef4444; }
+    .p-soon    { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+    .p-watch   { background: rgba(59,130,246,0.15);  color: #3b82f6; }
+    .p-done    { background: var(--surface-3); color: var(--text-3); }
+    .p-none    { color: var(--text-3); font-size: 0.7rem; }
 
-    /* Star / watchlist */
+    /* Star */
     .pc-star {
-      font-size: 0.85rem;
-      color: var(--text-3);
-      cursor: pointer;
-      text-align: center;
-      transition: color 0.2s, transform 0.15s;
+      font-size: 0.82rem; color: var(--text-3); cursor: pointer;
+      text-align: center; transition: color 0.18s, transform 0.13s;
+      background: none; border: none; padding: 4px;
       -webkit-tap-highlight-color: transparent;
-      background: none;
-      border: none;
-      padding: 4px;
     }
-    .pc-star:active { transform: scale(1.3); }
-    .pc-star.starred { color: #fbbf24; }
+    .pc-star:active { transform: scale(1.35); }
+    .pc-star.on { color: #fbbf24; }
 
-    /* Skeleton rows */
-    .pc-skeleton-row {
-      height: 60px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--r-md);
-    }
+    /* Skeleton */
+    .pc-skel { height: 58px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); }
 
-    /* Empty state */
-    .pc-empty {
-      text-align: center;
-      padding: 48px 24px;
-      color: var(--text-3);
-    }
-    .pc-empty i { font-size: 2rem; margin-bottom: 12px; opacity: 0.3; display: block; }
+    /* Empty */
+    .pc-empty { text-align: center; padding: 48px 24px; color: var(--text-3); }
+    .pc-empty i { font-size: 2rem; margin-bottom: 12px; opacity: 0.28; display: block; }
     .pc-empty p { font-size: 0.88rem; }
 
-    /* Section title */
-    .pc-section-title {
+    .pc-section-label {
       padding: 14px 16px 6px;
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 1.3px;
-      text-transform: uppercase;
-      color: var(--text-3);
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 1.3px;
+      text-transform: uppercase; color: var(--text-3);
     }
   </style>
 </head>
@@ -475,55 +344,90 @@
 
 <main class="page-content">
 
-  <!-- Price update countdown -->
+  <!-- Countdown -->
   <div class="pc-banner">
-    <div>
+    <div class="pc-banner__left">
       <div class="pc-banner__label">Next price update</div>
-      <div class="pc-banner__note">Daily at 01:30 UTC</div>
+      <div class="pc-banner__note">Daily · 01:30 UTC</div>
     </div>
-    <div class="pc-banner__timer" id="pc-timer">00:00:00</div>
+    <div class="pc-banner__timer" id="pc-timer">--:--:--</div>
   </div>
 
-  <!-- Today's confirmed changes (from localStorage) -->
-  <div class="pc-actual-section" id="actual-section" style="display:none;">
-    <div class="pc-section-title">Tonight's Confirmed Changes</div>
-    <div class="pc-actual-scroll" id="actual-scroll"></div>
+  <!-- Zone summary — at-a-glance (populated by JS) -->
+  <div class="pc-zones" id="pc-zones">
+    <div class="pc-zone zone-confirmed" id="zone-confirmed" onclick="jumpToZone('confirmed')">
+      <div class="pc-zone__count" id="z-confirmed">—</div>
+      <div class="pc-zone__label">Tonight</div>
+      <div class="pc-zone__names" id="z-confirmed-names"></div>
+    </div>
+    <div class="pc-zone zone-soon" id="zone-soon" onclick="jumpToZone('soon')">
+      <div class="pc-zone__count" id="z-soon">—</div>
+      <div class="pc-zone__label">Soon (≥75%)</div>
+      <div class="pc-zone__names" id="z-soon-names"></div>
+    </div>
+    <div class="pc-zone zone-watch" id="zone-watch-card" onclick="jumpToZone('watch-zone')">
+      <div class="pc-zone__count" id="z-watch">—</div>
+      <div class="pc-zone__label">Watch (≥40%)</div>
+      <div class="pc-zone__names" id="z-watch-names"></div>
+    </div>
+  </div>
+
+  <!-- Confirmed changes from localStorage diff -->
+  <div class="pc-actual" id="pc-actual">
+    <div class="pc-actual__label">Tonight's Confirmed Moves</div>
+    <div class="pc-actual__scroll" id="pc-actual-scroll"></div>
   </div>
 
   <!-- Sticky controls -->
   <div class="pc-controls">
-    <!-- View tabs -->
-    <div class="pc-tabs" role="tablist">
+
+    <!-- Risers / Fallers / Watchlist tabs -->
+    <div class="pc-tabs">
       <button class="pc-tab active-rise" id="tab-rise" onclick="setView('rise')">
-        <i class="fa-solid fa-arrow-up"></i> Risers
+        <i class="fa-solid fa-arrow-trend-up"></i> Risers
       </button>
       <button class="pc-tab" id="tab-fall" onclick="setView('fall')">
-        <i class="fa-solid fa-arrow-down"></i> Fallers
+        <i class="fa-solid fa-arrow-trend-down"></i> Fallers
       </button>
       <button class="pc-tab" id="tab-watch" onclick="setView('watch')">
-        <i class="fa-solid fa-star"></i> Watch <span id="watch-count">0</span>
+        <i class="fa-solid fa-star"></i> Watch<span id="watch-count"></span>
       </button>
     </div>
 
-    <!-- Search + team filter -->
-    <div class="pc-filters">
+    <!-- Position filter -->
+    <div class="pc-pos-row">
+      <button class="pc-pos-btn act-all" id="pos-all" onclick="setPos(0)">ALL</button>
+      <button class="pc-pos-btn" id="pos-gkp" onclick="setPos(1)">GKP</button>
+      <button class="pc-pos-btn" id="pos-def" onclick="setPos(2)">DEF</button>
+      <button class="pc-pos-btn" id="pos-mid" onclick="setPos(3)">MID</button>
+      <button class="pc-pos-btn" id="pos-fwd" onclick="setPos(4)">FWD</button>
+    </div>
+
+    <!-- Search + team -->
+    <div class="pc-filter-row">
       <div class="pc-search-wrap">
         <i class="fa-solid fa-magnifying-glass"></i>
         <input type="text" id="playerSearch" placeholder="Search players…" oninput="render()" autocomplete="off">
       </div>
-      <div class="pc-select-wrap">
-        <i class="fa-solid fa-filter"></i>
+      <div class="pc-team-wrap">
+        <i class="fa-solid fa-shield-halved"></i>
         <select id="teamFilter" onchange="render()">
           <option value="all">All teams</option>
         </select>
       </div>
     </div>
 
-    <!-- Hide completed toggle -->
+    <!-- Ownership min slider -->
+    <div class="pc-own-row">
+      <span class="pc-own-label"><i class="fa-solid fa-users" style="margin-right:4px;opacity:0.6"></i>Min ownership</span>
+      <input type="range" id="ownershipMin" min="0" max="30" step="0.5" value="0" oninput="updateOwnLabel();render()">
+      <span class="pc-own-val" id="own-val">0%</span>
+    </div>
+
+    <!-- Hide completed -->
     <div class="pc-toggle-row">
       <label class="pc-toggle-label" for="smartFilter">
-        <i class="fa-solid fa-bolt"></i>
-        Hide completed moves
+        <i class="fa-solid fa-bolt"></i> Hide completed moves
       </label>
       <label class="toggle-switch">
         <input type="checkbox" id="smartFilter" checked onchange="render()">
@@ -531,18 +435,19 @@
         <div class="toggle-thumb"></div>
       </label>
     </div>
+
   </div>
 
   <!-- Table header -->
   <div class="pc-table-head">
     <span>Player</span>
     <span>Progress</span>
+    <span>Net</span>
     <span>Prob</span>
-    <span>Prediction</span>
+    <span>Pred</span>
     <span></span>
   </div>
 
-  <!-- List -->
   <div id="pc-list" class="pc-list"></div>
 
   <div id="footer-placeholder"></div>
@@ -550,129 +455,306 @@
 
 <script>
 /* ============================================
-   CONSTANTS & STATE
+   CONFIG
    ============================================ */
-const PROXY = '/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/';
+const PROXY          = '/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/';
+const UPDATE_H_UTC   = 1;
+const UPDATE_M_UTC   = 30;
+const POS_LABELS     = ['','GKP','DEF','MID','FWD'];
+const POS_CLASSES    = ['','gkp','def','mid','fwd'];
 
-// Price update happens at 01:30 UTC daily
-const UPDATE_HOUR_UTC = 1;
-const UPDATE_MIN_UTC  = 30;
-
-const POS_LABELS = ['', 'GKP', 'DEF', 'MID', 'FWD'];
-const POS_CLASS  = ['', 'pos-gkp', 'pos-def', 'pos-mid', 'pos-fwd'];
-
+/* ============================================
+   STATE
+   ============================================ */
 let allPlayers  = [];
-let teamMap     = {};         // id → short_name
+let teamMap     = {};
 let currentView = 'rise';
+let currentPos  = 0;        // 0 = all
 let watchlist   = JSON.parse(localStorage.getItem('kopala_watchlist') || '[]');
 
 /* ============================================
-   PRICE CHANGE ALGORITHM
-   (Based on known FPL behaviour + livefpl research)
-
-   Rise threshold:  net_transfers > RISE_BASE × ownership_factor × gameweek_decay
-   Fall threshold:  net_transfers < -FALL_BASE × ownership_factor × flag_multiplier
-
-   We estimate net = (transfers_in - transfers_out) × 0.8
-   (the 0.8 accounts for ~20% wildcard/freehit noise that doesn't count)
-
-   Progress = net / threshold × 100 (clamped 0–100)
-   Probability = sigmoid-shaped curve so it accelerates near 100%
+   PRICE ALGORITHM
+   Rise: net > (7000 + ownership*1800) * gwDecay
+   Fall: net < -((5500 + ownership*900) * gwDecay * flagMult)
+   Progress/hour → tonight estimate
    ============================================ */
 function calcPrice(p, gwNumber) {
-  const ownership = parseFloat(p.selected_by_percent) || 0;
+  const own      = parseFloat(p.selected_by_percent) || 0;
+  const gwDecay  = Math.max(0.65, 1 - gwNumber * 0.022);
+  const riseBase = (7000 + own * 1800) * gwDecay;
+  const flagMult = p.status === 'a' ? 1 : p.status === 'd' ? 1.8 : 3.2;
+  const fallBase = (5500 + own * 900) * gwDecay * flagMult;
 
-  // Threshold decays ~2.5% per GW to account for dead teams
-  const gwDecay = Math.max(0.65, 1 - (gwNumber * 0.022));
+  // Strip ~20% chip noise
+  const rawNet   = (p.transfers_in_event - p.transfers_out_event) * 0.8;
+  const isRising = rawNet >= 0;
+  const progress = isRising
+    ? Math.max(0, (rawNet / riseBase) * 100)
+    : Math.max(0, (-rawNet / fallBase) * 100);
 
-  // Base thresholds (tuned to match livefpl accuracy)
-  // Rise: higher-owned players need more transfers to rise
-  const riseBase = (7000 + ownership * 1800) * gwDecay;
+  // Probability: accelerates as progress nears 100
+  const prob = Math.round(Math.min(99, (Math.min(progress, 100) ** 1.55) / 100));
 
-  // Fall: lower-owned easier to fall; flags raise the threshold
-  const flagMultiplier = p.status === 'a' ? 1.0 : p.status === 'd' ? 1.8 : 3.2;
-  const fallBase = (5500 + ownership * 900) * gwDecay * flagMultiplier;
+  // Tonight estimate: progress/hour × hours remaining
+  const now        = new Date();
+  const target     = new Date(); target.setUTCHours(UPDATE_H_UTC, UPDATE_M_UTC, 0, 0);
+  if (now >= target) target.setUTCDate(target.getUTCDate() + 1);
+  const hoursLeft  = (target - now) / 3600000;
+  // Rough GW start — noon UTC on Monday (approximate)
+  const gwStart    = new Date(now); gwStart.setUTCHours(12,0,0,0); gwStart.setUTCDate(gwStart.getUTCDate() - gwStart.getUTCDay() % 7);
+  const hoursGone  = Math.max(1, (now - gwStart) / 3600000);
+  const perHour    = progress / hoursGone;
+  const tonightEst = Math.min(100, progress + perHour * hoursLeft);
 
-  // Estimated clean transfer count (strip ~20% chip noise)
-  const rawNet = (p.transfers_in_event - p.transfers_out_event) * 0.8;
+  // Sell price hint: FPL profit halved on rises
+  // If a player at £X.Y rises to £X.(Y+1), sell price = buy price + 0.05 (rounded down)
+  const sellHint = isRising && !p.cost_change_event
+    ? `↑ sell price +£0.05 if tonight` : '';
 
-  // Progress toward rise or fall
-  const riseProgress = (rawNet / riseBase) * 100;
-  const fallProgress = (-rawNet / fallBase) * 100;
-
-  const isRising  = rawNet > 0;
-  const progress  = isRising ? riseProgress : fallProgress;
-  const threshold = isRising ? riseBase : fallBase;
-
-  // Probability: sigmoid-ish curve (slow at start, fast near threshold)
-  const clampedProg = Math.min(100, Math.max(0, progress));
-  const prob = Math.round(Math.min(99, (clampedProg ** 1.6) / 100));
-
-  // Estimate progress per hour since GW start
-  // We use transfers_in_event as a proxy for elapsed activity
-  // and assume GW runs ~96h total — so hourly rate = progress/hoursElapsed
-  const now         = new Date();
-  const gwStartEst  = new Date(now); gwStartEst.setHours(0,0,0,0); // rough
-  const hoursElapsed = Math.max(1, (now - gwStartEst) / 3600000);
-  const progressPerHour = clampedProg / hoursElapsed;
-
-  // Estimate tonight's expected progress (hours left until 01:30 UTC)
-  const target = new Date();
-  target.setUTCHours(UPDATE_HOUR_UTC, UPDATE_MIN_UTC, 0, 0);
-  if (now > target) target.setUTCDate(target.getUTCDate() + 1);
-  const hoursLeft = (target - now) / 3600000;
-  const tonightEst = Math.min(100, clampedProg + progressPerHour * hoursLeft);
-
-  // Prediction label
+  // Prediction
+  const moved = p.cost_change_event !== 0;
   let prediction, predClass;
-  const alreadyMoved = p.cost_change_event !== 0;
-
-  if (alreadyMoved) {
-    prediction = 'Done';
-    predClass  = 'pred-done';
+  if (moved) {
+    prediction = isRising ? '+£0.1' : '-£0.1';
+    predClass  = 'p-done';
   } else if (tonightEst >= 95) {
-    prediction = 'TONIGHT';
-    predClass  = 'pred-tonight';
-  } else if (tonightEst >= 78) {
-    prediction = 'SOON';
-    predClass  = 'pred-soon';
-  } else if (clampedProg >= 40) {
-    prediction = 'WATCH';
-    predClass  = 'pred-watching';
+    prediction = 'TONIGHT'; predClass = 'p-tonight';
+  } else if (tonightEst >= 75) {
+    prediction = 'SOON';    predClass = 'p-soon';
+  } else if (progress >= 40) {
+    prediction = 'WATCH';   predClass = 'p-watch';
   } else {
-    prediction = '—';
-    predClass  = 'pred-default';
+    prediction = '—';       predClass = 'p-none';
   }
 
+  // Net display (human-readable)
+  const netAbs  = Math.abs(Math.round(rawNet));
+  const netStr  = netAbs >= 1000 ? (netAbs/1000).toFixed(1)+'k' : netAbs.toString();
+  const netDisplay = `${isRising ? '+' : '-'}${netStr}`;
+
   return {
-    id:         p.id,
-    name:       p.web_name,
-    teamId:     p.team,
-    teamCode:   p.team_code,
-    pos:        p.element_type,
-    price:      (p.now_cost / 10).toFixed(1),
-    ownership,
-    progress:   parseFloat(clampedProg.toFixed(1)),
+    id: p.id, name: p.web_name, teamId: p.team, teamCode: p.team_code,
+    pos: p.element_type, price: (p.now_cost/10).toFixed(1), own,
+    progress: parseFloat(progress.toFixed(1)),
     tonightEst: parseFloat(tonightEst.toFixed(1)),
-    prob,
-    prediction,
-    predClass,
-    isRising,
-    rawNet,
-    alreadyMoved,
-    actualChange: p.cost_change_event, // non-zero = moved today
+    prob, prediction, predClass, isRising, rawNet,
+    netDisplay, netClass: isRising ? 'pos' : 'neg',
+    moved: p.cost_change_event !== 0,
+    actualChange: p.cost_change_event,
+    sellHint,
+    status: p.status,
   };
 }
 
 /* ============================================
-   LOAD DATA
+   ZONE SUMMARY
+   ============================================ */
+function updateZones(risers, fallers) {
+  const all = [...risers, ...fallers];
+
+  const confirmed = all.filter(p => !p.moved && p.tonightEst >= 95);
+  const soon      = all.filter(p => !p.moved && p.tonightEst >= 75 && p.tonightEst < 95);
+  const watching  = all.filter(p => !p.moved && p.progress >= 40 && p.tonightEst < 75);
+
+  setText('z-confirmed', confirmed.length);
+  setText('z-soon',      soon.length);
+  setText('z-watch',     watching.length);
+
+  setText('z-confirmed-names', confirmed.slice(0,4).map(p => p.name).join(', ') || '—');
+  setText('z-soon-names',      soon.slice(0,4).map(p => p.name).join(', ') || '—');
+  setText('z-watch-names',     watching.slice(0,4).map(p => p.name).join(', ') || '—');
+}
+
+function jumpToZone(zone) {
+  // Switch to appropriate view and scroll down
+  if (zone === 'confirmed' || zone === 'soon') {
+    setView(currentView === 'fall' ? 'fall' : 'rise');
+  }
+  setTimeout(() => {
+    const list = document.getElementById('pc-list');
+    if (list) list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+/* ============================================
+   ACTUAL CHANGES (localStorage diff)
+   ============================================ */
+function renderActualChanges(changes) {
+  if (!changes.length) return;
+  const wrap   = document.getElementById('pc-actual');
+  const scroll = document.getElementById('pc-actual-scroll');
+  wrap.style.display = '';
+  scroll.innerHTML = changes.map(c => `
+    <div class="pc-actual-pill ${c.type}">
+      <span class="pc-actual-pill__name">${c.name}</span>
+      <span class="pc-actual-pill__delta">${c.type === 'rise' ? '+£0.1' : '-£0.1'}</span>
+      <span style="font-size:0.58rem;color:var(--text-3)">£${c.old}→£${c.now}</span>
+    </div>`).join('');
+}
+
+/* ============================================
+   SKELETONS
    ============================================ */
 function showSkeletons() {
-  const list = document.getElementById('pc-list');
-  list.innerHTML = Array.from({ length: 12 }, (_, i) =>
-    `<div class="pc-skeleton-row skeleton" style="animation-delay:${i * 0.03}s"></div>`
+  document.getElementById('pc-list').innerHTML = Array.from({length:12},(_,i) =>
+    `<div class="pc-skel skeleton" style="animation-delay:${i*.03}s"></div>`
   ).join('');
 }
+
+/* ============================================
+   RENDER
+   ============================================ */
+function render() {
+  const list     = document.getElementById('pc-list');
+  const search   = document.getElementById('playerSearch').value.toLowerCase().trim();
+  const teamF    = document.getElementById('teamFilter').value;
+  const hideDone = document.getElementById('smartFilter').checked;
+  const minOwn   = parseFloat(document.getElementById('ownershipMin').value) || 0;
+
+  let pool = allPlayers.filter(p => {
+    if (currentView === 'rise'  && !p.isRising) return false;
+    if (currentView === 'fall'  &&  p.isRising) return false;
+    if (currentView === 'watch' && !watchlist.includes(p.id)) return false;
+    if (currentPos !== 0 && p.pos !== currentPos) return false;
+    if (search && !p.name.toLowerCase().includes(search)) return false;
+    if (teamF !== 'all' && String(p.teamId) !== teamF) return false;
+    if (hideDone && p.moved) return false;
+    if (p.own < minOwn) return false;
+    return true;
+  });
+
+  pool.sort((a, b) => b.progress - a.progress);
+
+  if (!pool.length) {
+    list.innerHTML = `
+      <div class="pc-empty">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <p>${currentView === 'watch' ? 'No players on your watchlist yet.<br>Star players to track them here.' : 'No players match your filters.'}</p>
+      </div>`;
+    return;
+  }
+
+  const green = 'rgba(0,232,122,0.18)';
+  const red   = 'rgba(239,68,68,0.18)';
+
+  list.innerHTML = pool.slice(0, 60).map((p, i) => {
+    const isStarred  = watchlist.includes(p.id);
+    const tonightW   = p.moved ? 100 : p.tonightEst;
+    const currentW   = p.moved ? 100 : Math.min(100, p.progress);
+    const progRatio  = tonightW > 0 ? (currentW / tonightW * 100) : 0;
+    const fillColor  = p.moved ? 'var(--text-3)' : p.isRising ? 'var(--green)' : 'var(--red)';
+    const dimColor   = p.isRising ? green : red;
+    const pctClass   = p.moved ? 'dt' : p.isRising ? 'rt' : 'ft';
+    const shirt      = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos===1?'_1':''}-66.png`;
+
+    return `
+      <div class="pc-row ${p.moved ? 'done' : ''} ${p.isRising && !p.moved ? 'rising' : ''}"
+           style="animation-delay:${i*.018}s">
+
+        <div class="pc-player">
+          <img class="pc-shirt" src="${shirt}" alt="${p.name}" loading="lazy"
+            onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
+          <div class="pc-ptext">
+            <div class="pc-pname">${p.name}</div>
+            <div class="pc-pmeta">
+              <span class="pc-pos ${POS_CLASSES[p.pos]}">${POS_LABELS[p.pos]}</span>
+              <span>${teamMap[p.teamId] || ''}</span>
+              <span style="color:var(--text-2);font-weight:700">£${p.price}</span>
+              ${p.status !== 'a' ? `<i class="fa-solid fa-triangle-exclamation" style="color:var(--amber);font-size:0.55rem" title="Fitness concern"></i>` : ''}
+            </div>
+            ${p.sellHint ? `<div class="pc-sell-hint"><i class="fa-solid fa-arrow-up" style="font-size:0.5rem"></i> sell price +£0.05 if rises tonight</div>` : ''}
+          </div>
+        </div>
+
+        <div class="pc-prog-col">
+          <div class="pc-prog-pct ${pctClass}">
+            ${p.moved ? (p.actualChange > 0 ? '+£0.1' : '-£0.1') : `${p.progress.toFixed(0)}%`}
+          </div>
+          <div class="pc-prog-bar" title="Tonight: ~${p.tonightEst.toFixed(0)}%">
+            <div class="pc-prog-tonight" style="width:${tonightW}%;background:${dimColor}"></div>
+            <div class="pc-prog-now"     style="width:${progRatio}%;background:${fillColor}"></div>
+          </div>
+          <div class="pc-prog-sub">~${p.tonightEst.toFixed(0)}% tonight</div>
+        </div>
+
+        <div class="pc-net ${p.netClass}">${p.moved ? '✓' : p.netDisplay}</div>
+
+        <div class="pc-prob">${p.moved ? '✓' : `${p.prob}%`}</div>
+
+        <div class="pc-pred">
+          <span class="pred-badge ${p.predClass}">${p.prediction}</span>
+        </div>
+
+        <button class="pc-star ${isStarred ? 'on' : ''}"
+          onclick="toggleWatch(${p.id},event)"
+          aria-label="${isStarred ? 'Remove from' : 'Add to'} watchlist">
+          <i class="fa-${isStarred?'solid':'regular'} fa-star"></i>
+        </button>
+      </div>`;
+  }).join('');
+}
+
+/* ============================================
+   CONTROLS
+   ============================================ */
+const POS_ACT = ['act-all','act-gkp','act-def','act-mid','act-fwd'];
+const POS_IDS = ['pos-all','pos-gkp','pos-def','pos-mid','pos-fwd'];
+
+function setPos(pos) {
+  currentPos = pos;
+  POS_IDS.forEach((id, i) => {
+    const btn = document.getElementById(id);
+    btn.className = 'pc-pos-btn' + (i === pos ? ` ${POS_ACT[i]}` : '');
+  });
+  render();
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('tab-rise').className  = 'pc-tab' + (v==='rise'  ? ' active-rise'  : '');
+  document.getElementById('tab-fall').className  = 'pc-tab' + (v==='fall'  ? ' active-fall'  : '');
+  document.getElementById('tab-watch').className = 'pc-tab' + (v==='watch' ? ' active-watch' : '');
+  render();
+}
+
+function updateOwnLabel() {
+  const v = document.getElementById('ownershipMin').value;
+  document.getElementById('own-val').textContent = `${parseFloat(v).toFixed(1)}%`;
+}
+
+function toggleWatch(id, e) {
+  e.stopPropagation();
+  const idx = watchlist.indexOf(id);
+  if (idx > -1) watchlist.splice(idx, 1); else watchlist.push(id);
+  localStorage.setItem('kopala_watchlist', JSON.stringify(watchlist));
+  const wc = document.getElementById('watch-count');
+  wc.textContent = watchlist.length || '';
+  render();
+}
+
+/* ============================================
+   COUNTDOWN
+   ============================================ */
+function startTimer() {
+  function tick() {
+    const now    = new Date();
+    const target = new Date();
+    target.setUTCHours(UPDATE_H_UTC, UPDATE_M_UTC, 0, 0);
+    if (now >= target) target.setUTCDate(target.getUTCDate() + 1);
+    const d     = target - now;
+    const h     = String(Math.floor(d/3600000)).padStart(2,'0');
+    const m     = String(Math.floor((d%3600000)/60000)).padStart(2,'0');
+    const s     = String(Math.floor((d%60000)/1000)).padStart(2,'0');
+    const el    = document.getElementById('pc-timer');
+    if (el) { el.textContent = `${h}:${m}:${s}`; el.classList.toggle('urgent', d < 3600000); }
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+/* ============================================
+   INIT
+   ============================================ */
+function setText(id, v) { const el=document.getElementById(id); if(el) el.textContent=v; }
 
 async function init() {
   showSkeletons();
@@ -682,237 +764,55 @@ async function init() {
     const res  = await fetch(PROXY);
     const data = await res.json();
 
-    // Team map
     data.teams.forEach(t => {
       teamMap[t.id] = t.short_name;
       const opt = document.createElement('option');
-      opt.value = t.id;
-      opt.textContent = t.name;
+      opt.value = t.id; opt.textContent = t.name;
       document.getElementById('teamFilter').appendChild(opt);
     });
 
-    const currentEvent = data.events.find(e => e.is_current) || data.events[0];
-    const gwNumber     = currentEvent.id;
+    const gw = (data.events.find(e => e.is_current) || data.events[0]).id;
 
-    // Track price changes using localStorage
-    const savedPrices   = JSON.parse(localStorage.getItem('kopala_prices') || '{}');
-    const changeHistory = [];
-    const nowCosts      = {};
-
+    // localStorage price diff → actual changes
+    const saved     = JSON.parse(localStorage.getItem('kopala_prices') || '{}');
+    const nowCosts  = {};
+    const changes   = [];
     data.elements.forEach(p => {
       nowCosts[p.id] = p.now_cost;
-      if (savedPrices[p.id] && savedPrices[p.id] !== p.now_cost) {
-        changeHistory.push({
-          name:  p.web_name,
-          old:   (savedPrices[p.id] / 10).toFixed(1),
-          now:   (p.now_cost / 10).toFixed(1),
-          type:  p.now_cost > savedPrices[p.id] ? 'rise' : 'fall',
+      if (saved[p.id] && saved[p.id] !== p.now_cost) {
+        changes.push({
+          name: p.web_name,
+          old:  (saved[p.id]/10).toFixed(1),
+          now:  (p.now_cost/10).toFixed(1),
+          type: p.now_cost > saved[p.id] ? 'rise' : 'fall',
         });
       }
     });
-
     localStorage.setItem('kopala_prices', JSON.stringify(nowCosts));
-    renderActualChanges(changeHistory);
+    renderActualChanges(changes);
 
-    // Calculate predictions for all players
-    allPlayers = data.elements.map(p => calcPrice(p, gwNumber));
+    allPlayers = data.elements.map(p => calcPrice(p, gw));
 
-    updateWatchCount();
+    // Populate zone summary
+    const risers = allPlayers.filter(p =>  p.isRising);
+    const fallers = allPlayers.filter(p => !p.isRising);
+    updateZones(risers, fallers);
+
+    // Watchlist count
+    const wc = document.getElementById('watch-count');
+    if (watchlist.length) wc.textContent = watchlist.length;
+
     render();
-
   } catch (err) {
     console.error('[Prices]', err);
     document.getElementById('pc-list').innerHTML = `
       <div class="pc-empty">
         <i class="fa-solid fa-triangle-exclamation"></i>
-        <p>Failed to load price data.</p>
+        <p>Failed to load price data.<br>Check your connection.</p>
       </div>`;
   }
 }
 
-/* ============================================
-   RENDER ACTUAL CHANGES (from localStorage diff)
-   ============================================ */
-function renderActualChanges(history) {
-  if (!history.length) return;
-  const section = document.getElementById('actual-section');
-  const scroll  = document.getElementById('actual-scroll');
-  section.style.display = '';
-  scroll.innerHTML = history.map(h => `
-    <div class="pc-actual-pill ${h.type}">
-      <span class="pc-actual-pill__name">${h.name}</span>
-      <span class="pc-actual-pill__change">${h.type === 'rise' ? '+' : '-'}£0.1</span>
-      <span style="font-size:0.62rem;color:var(--text-3)">£${h.old}→£${h.now}</span>
-    </div>
-  `).join('');
-}
-
-/* ============================================
-   RENDER PLAYER LIST
-   ============================================ */
-function render() {
-  const list     = document.getElementById('pc-list');
-  const search   = document.getElementById('playerSearch').value.toLowerCase().trim();
-  const teamF    = document.getElementById('teamFilter').value;
-  const hideDone = document.getElementById('smartFilter').checked;
-
-  let filtered = allPlayers.filter(p => {
-    if (currentView === 'rise'  && !p.isRising)          return false;
-    if (currentView === 'fall'  &&  p.isRising)          return false;
-    if (currentView === 'watch' && !watchlist.includes(p.id)) return false;
-    if (search  && !p.name.toLowerCase().includes(search)) return false;
-    if (teamF !== 'all' && String(p.teamId) !== teamF)    return false;
-    if (hideDone && p.alreadyMoved)                        return false;
-    return true;
-  });
-
-  // Sort by progress descending
-  filtered.sort((a, b) => b.progress - a.progress);
-
-  if (!filtered.length) {
-    list.innerHTML = `
-      <div class="pc-empty">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <p>${currentView === 'watch' ? 'No players on your watchlist.' : 'No players match your filters.'}</p>
-      </div>`;
-    return;
-  }
-
-  list.innerHTML = filtered.slice(0, 60).map((p, i) => {
-    const fillClass = p.alreadyMoved ? 'fill-done' : p.isRising ? 'fill-rise' : 'fill-fall';
-    const pctClass  = p.alreadyMoved ? 'done-text' : p.isRising ? 'rise-text' : 'fall-text';
-    const isStarred = watchlist.includes(p.id);
-
-    // Progress bar: show tonight's estimate as a lighter overlay
-    const progressWidth = Math.min(100, p.progress);
-    const tonightWidth  = Math.min(100, p.tonightEst);
-
-    const shirt = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos === 1 ? '_1' : ''}-66.png`;
-
-    return `
-      <div class="pc-row ${p.alreadyMoved ? 'done' : ''}" style="animation-delay:${i * 0.02}s">
-
-        <!-- Player info -->
-        <div class="pc-player">
-          <img class="pc-shirt" src="${shirt}" alt="${p.name}"
-            loading="lazy"
-            onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
-          <div class="pc-player-text">
-            <div class="pc-player__name">${p.name}</div>
-            <div class="pc-player__meta">
-              <span class="pc-pos-badge ${POS_CLASS[p.pos]}">${POS_LABELS[p.pos]}</span>
-              ${teamMap[p.teamId] || ''}
-              <span style="color:var(--text-2);font-weight:700">£${p.price}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Progress -->
-        <div class="pc-progress-col">
-          <div class="pc-progress-pct ${pctClass}">
-            ${p.alreadyMoved
-              ? (p.actualChange > 0 ? '+£0.1' : '-£0.1')
-              : `${p.progress.toFixed(0)}%`
-            }
-          </div>
-          <div class="pc-progress-bar" title="Tonight estimate: ${p.tonightEst.toFixed(0)}%">
-            <!-- Tonight estimate (dimmer background fill) -->
-            <div style="
-              position:relative;
-              width:${tonightWidth}%;
-              height:100%;
-              background:${p.isRising ? 'rgba(0,232,122,0.2)' : 'rgba(239,68,68,0.2)'};
-              border-radius:100px;
-            ">
-              <!-- Actual current progress (brighter fill) -->
-              <div class="pc-progress-fill ${fillClass}" style="
-                position:absolute;
-                top:0; left:0;
-                width:${progressWidth / Math.max(tonightWidth, 1) * 100}%;
-                height:100%;
-              "></div>
-            </div>
-          </div>
-          <div style="font-size:0.5rem;color:var(--text-3);margin-top:1px;">
-            ~${p.tonightEst.toFixed(0)}% tonight
-          </div>
-        </div>
-
-        <!-- Probability -->
-        <div class="pc-prob">${p.alreadyMoved ? '✓' : `${p.prob}%`}</div>
-
-        <!-- Prediction -->
-        <div class="pc-pred">
-          <span class="pred-badge ${p.predClass}">${p.prediction}</span>
-        </div>
-
-        <!-- Watchlist star -->
-        <button class="pc-star ${isStarred ? 'starred' : ''}"
-          onclick="toggleWatch(${p.id}, event)"
-          aria-label="${isStarred ? 'Remove from' : 'Add to'} watchlist">
-          <i class="fa-${isStarred ? 'solid' : 'regular'} fa-star"></i>
-        </button>
-      </div>
-    `;
-  }).join('');
-}
-
-/* ============================================
-   VIEW & SORT CONTROLS
-   ============================================ */
-function setView(v) {
-  currentView = v;
-  document.getElementById('tab-rise').className  = 'pc-tab' + (v === 'rise'  ? ' active-rise'  : '');
-  document.getElementById('tab-fall').className  = 'pc-tab' + (v === 'fall'  ? ' active-fall'  : '');
-  document.getElementById('tab-watch').className = 'pc-tab' + (v === 'watch' ? ' active-watch' : '');
-  render();
-}
-
-/* ============================================
-   WATCHLIST
-   ============================================ */
-function toggleWatch(id, e) {
-  e.stopPropagation();
-  const idx = watchlist.indexOf(id);
-  if (idx > -1) watchlist.splice(idx, 1);
-  else watchlist.push(id);
-  localStorage.setItem('kopala_watchlist', JSON.stringify(watchlist));
-  updateWatchCount();
-  render();
-}
-
-function updateWatchCount() {
-  document.getElementById('watch-count').textContent = watchlist.length || '';
-}
-
-/* ============================================
-   COUNTDOWN TIMER
-   ============================================ */
-function startTimer() {
-  function tick() {
-    const now    = new Date();
-    const target = new Date();
-    target.setUTCHours(UPDATE_HOUR_UTC, UPDATE_MIN_UTC, 0, 0);
-    if (now >= target) target.setUTCDate(target.getUTCDate() + 1);
-
-    const diff    = target - now;
-    const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
-    const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-    const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-    const timerEl = document.getElementById('pc-timer');
-    if (timerEl) {
-      timerEl.textContent = `${h}:${m}:${s}`;
-      // Turn red in final hour
-      timerEl.classList.toggle('urgent', diff < 3600000);
-    }
-  }
-  tick();
-  setInterval(tick, 1000);
-}
-
-/* ============================================
-   BOOT
-   ============================================ */
 document.addEventListener('DOMContentLoaded', init);
 </script>
 
