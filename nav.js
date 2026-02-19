@@ -1,115 +1,144 @@
 /**
- * nav.js - Complete Responsive Navigation
- * Includes: Mobile Overlay, Desktop Top Bar, and Desktop Sidebar
+ * nav.js — Kopala FPL Navigation
+ * Mobile: sticky top bar + fixed bottom tab bar
+ * Desktop: fixed top bar + fixed sidebar
  */
 
-/**
- * nav.js - Centralized Navigation
- */
+(function () {
+  'use strict';
 
-function loadNavbar() {
-    const navHTML = `
-    <nav class="mobile-nav">
-      <div class="logo">
-        <img src="logo.png" alt="Logo" height="35">
-      </div>
-      <div class="nav-right">
-        <button class="menu-toggle" id="openMenu">
-          <span class="bar"></span>
-          <span class="bar"></span>
-          <span class="bar"></span>
-        </button>
-      </div>
-    </nav>
+  const NAV_LINKS = [
+    { href: 'index.html',   label: 'Home',    icon: 'fa-house' },
+    { href: 'leagues.html', label: 'Leagues', icon: 'fa-trophy' },
+    { href: 'prices.html',  label: 'Prices',  icon: 'fa-tags' },
+    { href: 'games.html',   label: 'Games',   icon: 'fa-gamepad' },
+    { href: 'prizes.html',  label: 'Prizes',  icon: 'fa-gift' },
+  ];
 
-    <nav class="desktop-top-nav">
-      <div class="top-nav-container">
-        <div class="logo">
-          <img src="logo.png" alt="Logo" height="30">
+  // Get current page filename
+  function currentPage() {
+    return window.location.pathname.split('/').pop() || 'index.html';
+  }
+
+  function isActive(href) {
+    return href === currentPage();
+  }
+
+  // Build mobile top bar
+  function buildMobileTopbar() {
+    return `
+      <header class="mobile-topbar">
+        <img src="logo.png" alt="Kopala FPL" class="mobile-topbar__logo">
+        <div class="mobile-topbar__actions">
+          <button class="icon-btn" id="change-id-btn" title="Change Team ID" aria-label="Change Team ID">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
         </div>
-        <ul class="top-nav-links">
-          <li><a href="index.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
-          <li><a href="how-it-works.html"><i class="fa-solid fa-brain"></i> How It Works</a></li>
-          <li><a href="preferences.html"><i class="fa-solid fa-gear"></i> Preferences</a></li>
-        </ul>
-        <div class="user-profile" onclick="resetTeamID()">
-          <div class="user-info">
-            <span class="user-name">Ayew Ready?</span>
-           
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <aside class="desktop-sidebar">
-      <div class="sidebar-content">
-        <h3 class="sidebar-title">Navigation</h3>
-        
-        <div class="sidebar-group">
-            <a href="index.html" class="sidebar-item"><i class="fa-solid fa-house"></i> Home</a>
-            <a href="leagues.html" class="sidebar-item"><i class="fa-solid fa-trophy"></i> Leagues</a>
-            <a href="prices.html" class="sidebar-item"><i class="fa-solid fa-tags"></i> Prices</a>
-            <a href="games.html" class="sidebar-item"><i class="fa-solid fa-gamepad"></i> Games</a>
-            <a href="prizes.html" class="sidebar-item"><i class="fa-solid fa-gift"></i> Prizes</a>
-            <a href="#" class="sidebar-item" onclick="resetTeamID()"><i class="fa-solid fa-right-from-bracket"></i> Change ID</a>
-        </div>
-      </div>
-    </aside>
-
-    <div id="mobileMenu" class="overlay-menu">
-      <div class="menu-header">
-        <img src="logo.png" alt="Logo" height="40">
-        <button class="close-btn" id="closeMenu">&times;</button>
-      </div>
-      <ul class="menu-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="leagues.html">Leagues</a></li>
-        <li><a href="prices.html">Prices</a></li>
-        <li><a href="games.html">Games</a></li>
-        <li><a href="prizes.html">Prizes</a></li>
-        <li><a href="#" onclick="resetTeamID()">Change ID</a></li>
-      </ul>
-    </div>
+      </header>
     `;
+  }
 
-    const placeholder = document.getElementById('nav-placeholder');
-    if (placeholder) {
-        placeholder.innerHTML = navHTML;
-        setupMenuLogic();
-        highlightCurrentPage();
-    }
-}
+  // Build mobile bottom tab bar
+  function buildBottomNav() {
+    const items = NAV_LINKS.map(link => `
+      <a href="${link.href}" class="bottom-nav__item ${isActive(link.href) ? 'active' : ''}">
+        <i class="fa-solid ${link.icon} bottom-nav__icon"></i>
+        <span class="bottom-nav__label">${link.label}</span>
+      </a>
+    `).join('');
 
-// ... Keep setupMenuLogic, highlightCurrentPage, and resetTeamID functions as they were ...
+    return `<nav class="bottom-nav" role="navigation" aria-label="Main navigation">${items}</nav>`;
+  }
 
-function setupMenuLogic() {
-    const openBtn = document.getElementById('openMenu');
-    const closeBtn = document.getElementById('closeMenu');
-    const menu = document.getElementById('mobileMenu');
+  // Build desktop top bar
+  function buildDesktopTopbar() {
+    const links = NAV_LINKS.slice(0, 3).map(link => `
+      <a href="${link.href}" class="desktop-topbar__link ${isActive(link.href) ? 'active' : ''}">
+        <i class="fa-solid ${link.icon}"></i>
+        ${link.label}
+      </a>
+    `).join('');
 
-    if(openBtn && menu) {
-        openBtn.addEventListener('click', () => menu.classList.add('active'));
-    }
-    if(closeBtn && menu) {
-        closeBtn.addEventListener('click', () => menu.classList.remove('active'));
-    }
-}
+    return `
+      <header class="desktop-topbar" role="banner">
+        <img src="logo.png" alt="Kopala FPL" class="desktop-topbar__logo">
+        <div class="desktop-topbar__divider"></div>
+        <nav class="desktop-topbar__links" aria-label="Quick nav">${links}</nav>
+        <div class="desktop-topbar__right">
+          <button class="topbar-id-btn" id="change-id-btn-desktop">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Change ID
+          </button>
+        </div>
+      </header>
+    `;
+  }
 
-function highlightCurrentPage() {
-    const currentPath = window.location.pathname.split("/").pop() || "index.html";
-    const links = document.querySelectorAll('.top-nav-links a, .sidebar-item, .menu-links a');
-    links.forEach(link => {
-        if (link.getAttribute('href') === currentPath) {
-            link.classList.add('active-link');
-        }
+  // Build desktop sidebar
+  function buildDesktopSidebar() {
+    const links = NAV_LINKS.map(link => `
+      <a href="${link.href}" class="sidebar-link ${isActive(link.href) ? 'active' : ''}">
+        <i class="fa-solid ${link.icon}"></i>
+        ${link.label}
+      </a>
+    `).join('');
+
+    return `
+      <aside class="desktop-sidebar" role="complementary" aria-label="Site navigation">
+        <p class="sidebar-section-title">Menu</p>
+        ${links}
+        <div class="sidebar-divider"></div>
+        <p class="sidebar-section-title">Account</p>
+        <button class="sidebar-link" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;" id="change-id-btn-sidebar">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          Change ID
+        </button>
+      </aside>
+    `;
+  }
+
+  // Wire up change-ID buttons
+  function setupChangeId() {
+    const ids = ['change-id-btn', 'change-id-btn-desktop', 'change-id-btn-sidebar'];
+    ids.forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) {
+        btn.addEventListener('click', () => {
+          if (confirm('Change your Team ID?')) {
+            localStorage.removeItem('kopala_id');
+            window.location.href = 'index.html';
+          }
+        });
+      }
     });
-}
+  }
 
-function resetTeamID() {
-    if (confirm("Would you like to change your Team ID?")) {
-        localStorage.removeItem('kopala_id');
-        location.reload();
+  // Inject everything
+  function loadNav() {
+    const placeholder = document.getElementById('nav-placeholder');
+    if (!placeholder) return;
+
+    placeholder.innerHTML =
+      buildMobileTopbar() +
+      buildBottomNav() +
+      buildDesktopTopbar() +
+      buildDesktopSidebar();
+
+    setupChangeId();
+  }
+
+  // Run on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadNav);
+  } else {
+    loadNav();
+  }
+
+  // Expose resetTeamID globally for any legacy inline calls
+  window.resetTeamID = function () {
+    if (confirm('Change your Team ID?')) {
+      localStorage.removeItem('kopala_id');
+      window.location.href = 'index.html';
     }
-}
-
-document.addEventListener('DOMContentLoaded', loadNavbar);
+  };
+})();
