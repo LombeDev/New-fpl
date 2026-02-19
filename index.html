@@ -18,52 +18,272 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="nav.css">
   <link rel="stylesheet" href="footer.css">
 
   <style>
-    /* ---- Compact 6-column player grid for index page ---- */
-    #starting-grid,
-    #bench-grid {
-      grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
-      padding: 12px;
+    /* =============================================
+       PITCH VIEW
+       ============================================= */
+
+    .pitch-wrap {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 0 12px 8px;
+      /* Alternating grass stripes */
+      background:
+        repeating-linear-gradient(
+          180deg,
+          rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px,
+          transparent 1px, transparent 44px
+        ),
+        linear-gradient(
+          180deg,
+          #1b4d1b 0%, #1b4d1b 12.5%,
+          #1f5620 12.5%, #1f5620 25%,
+          #1b4d1b 25%, #1b4d1b 37.5%,
+          #1f5620 37.5%, #1f5620 50%,
+          #1b4d1b 50%, #1b4d1b 62.5%,
+          #1f5620 62.5%, #1f5620 75%,
+          #1b4d1b 75%, #1b4d1b 87.5%,
+          #1f5620 87.5%, #1f5620 100%
+        );
+      box-shadow:
+        inset 0 0 80px rgba(0,0,0,0.5),
+        0 4px 24px rgba(0,0,0,0.4);
     }
 
-    /* Smaller cards to fit 6 across */
-    #starting-grid .player-card,
-    #bench-grid .player-card {
-      padding: 7px 3px 6px;
-      border-radius: 10px;
-      gap: 4px;
+    /* Blurry overlay — just enough to feel like real grass depth */
+    .pitch-wrap::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.15);
+      backdrop-filter: blur(0.5px);
+      -webkit-backdrop-filter: blur(0.5px);
+      pointer-events: none; z-index: 0;
     }
 
-    #starting-grid .player-card__shirt,
-    #bench-grid .player-card__shirt {
-      width: 28px;
+    /* SVG pitch markings */
+    .pitch-markings {
+      position: absolute; inset: 0;
+      pointer-events: none; z-index: 1;
+    }
+    .pitch-markings svg { width:100%; height:100%; opacity:0.1; }
+
+    /* Player rows sit above everything */
+    .pitch-field {
+      position: relative; z-index: 2;
+      padding: 12px 8px 8px;
+      display: flex; flex-direction: column; gap: 4px;
     }
 
-    #starting-grid .player-card__name,
-    #bench-grid .player-card__name {
-      font-size: 0.52rem;
-      padding: 0 2px;
+    .pitch-row {
+      display: flex; justify-content: center; gap: 4px;
     }
 
-    #starting-grid .player-card__pts,
-    #bench-grid .player-card__pts {
-      font-size: 0.9rem;
+    /* ---- Pitch player card ---- */
+    .ppc {
+      display: flex; flex-direction: column; align-items: center;
+      width: 60px; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    /* Captain/VC badge smaller too */
-    #starting-grid .player-badge,
-    #bench-grid .player-badge {
-      width: 14px;
-      height: 14px;
-      font-size: 0.55rem;
-      top: 4px;
-      right: 4px;
+    .ppc__shirt-wrap {
+      position: relative;
+      width: 44px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .ppc__shirt {
+      width: 42px; height: auto;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.7));
+      transition: transform 0.15s ease;
+    }
+    .ppc:active .ppc__shirt { transform: scale(0.9); }
+
+    /* Captain / VC */
+    .ppc__badge {
+      position: absolute; top: 1px; right: -1px;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.58rem; font-weight: 900;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.6);
+    }
+    .badge-c  { background: #00e87a; color: #000; }
+    .badge-vc { background: rgba(0,0,0,0.8); color: #bbb; border: 1px solid rgba(255,255,255,0.18); }
+
+    /* Live playing dot */
+    .ppc__live {
+      display: none;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #00e87a;
+      position: absolute; bottom: 1px; left: 0;
+      box-shadow: 0 0 5px #00e87a;
+      animation: livep 1.4s ease-in-out infinite;
+    }
+    .ppc.playing .ppc__live { display: block; }
+    @keyframes livep { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.65)} }
+
+    /* Points pill */
+    .ppc__pts {
+      background: rgba(0,0,0,0.85);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 5px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.9rem; font-weight: 900; color: #fff;
+      padding: 1px 7px; min-width: 24px; text-align: center;
+      line-height: 1.35; margin-top: 2px; margin-bottom: 2px;
+    }
+    .ppc__pts.pts-zero  { color: #555; background: rgba(0,0,0,0.7); }
+    .ppc__pts.pts-high  { background: rgba(0,232,122,0.88); color: #000; border-color: transparent; }
+    .ppc__pts.pts-great { background: rgba(0,232,122,1); color: #000; border-color: transparent; }
+
+    /* Name tag */
+    .ppc__name {
+      background: rgba(0,0,0,0.82);
+      border-radius: 4px;
+      font-size: 0.5rem; font-weight: 700; color: #f2f2f2;
+      padding: 2px 5px; text-align: center;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 60px; width: 100%;
+    }
+
+    /* Bench section */
+    .bench-stripe {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 10px; position: relative; z-index: 2;
+    }
+    .bench-stripe__line { flex:1; height:1px; background: rgba(255,255,255,0.1); }
+    .bench-stripe__txt {
+      font-size: 0.54rem; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: rgba(255,255,255,0.3);
+    }
+
+    .pitch-bench {
+      position: relative; z-index: 2;
+      display: flex; justify-content: center; gap: 4px;
+      padding: 0 8px 14px;
+    }
+    .pitch-bench .ppc { opacity: 0.65; }
+    .pitch-bench .ppc__shirt { width: 34px; }
+    .pitch-bench .ppc__shirt-wrap { width: 38px; height: 40px; }
+    .pitch-bench .ppc__pts { font-size: 0.82rem; }
+
+    /* =============================================
+       PITCH / LIST TOGGLE
+       ============================================= */
+    .view-toggle {
+      display: flex; gap: 3px;
+      background: #1a1a1a;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px; padding: 3px;
+      margin: 0 12px 10px;
+    }
+    .vtb {
+      flex: 1; padding: 7px 4px; border: none; border-radius: 7px;
+      background: transparent; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.82rem; font-weight: 800; color: #555;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      transition: all 0.18s; -webkit-tap-highlight-color: transparent;
+    }
+    .vtb i { font-size: 0.72rem; }
+    .vtb.on { background: #272727; color: #fff; }
+
+    /* =============================================
+       LIST VIEW
+       ============================================= */
+    .lv-wrap { padding: 0 12px; }
+
+    .lv-section { margin-bottom: 14px; }
+    .lv-pos-head {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 0 5px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 3px;
+    }
+    .lv-pos-badge {
+      font-size: 0.57rem; font-weight: 800; letter-spacing: 0.8px;
+      text-transform: uppercase; padding: 2px 7px; border-radius: 4px;
+    }
+    .pos-b-gkp { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .pos-b-def  { background: rgba(34,197,94,0.15);  color: #22c55e; }
+    .pos-b-mid  { background: rgba(59,130,246,0.15);  color: #3b82f6; }
+    .pos-b-fwd  { background: rgba(239,68,68,0.15);   color: #ef4444; }
+    .pos-b-bnc  { background: rgba(255,255,255,0.06); color: #555; }
+    .lv-pos-total {
+      margin-left: auto;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.78rem; font-weight: 900; color: #444;
+    }
+
+    .lv-row {
+      display: grid;
+      grid-template-columns: 32px 1fr 32px;
+      align-items: center; gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .lv-row:last-child { border-bottom: none; }
+    .lv-row.bench { opacity: 0.5; }
+
+    .lv-shirt { width: 28px; height: auto; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4)); }
+
+    .lv-info { min-width: 0; }
+    .lv-name {
+      font-size: 0.84rem; font-weight: 700; color: #eee;
+      display: flex; align-items: center; gap: 5px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .lv-cap-badge {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.54rem; font-weight: 900;
+      padding: 1px 4px; border-radius: 3px; flex-shrink: 0;
+    }
+    .cap-c  { background: #00e87a; color: #000; }
+    .cap-vc { background: #222; color: #777; border: 1px solid rgba(255,255,255,0.1); }
+
+    .lv-meta {
+      font-size: 0.6rem; color: #555; margin-top: 2px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .lv-own-bar { width: 38px; height: 3px; background: #222; border-radius: 100px; overflow: hidden; }
+    .lv-own-fill { height: 100%; background: #00e87a; border-radius: 100px; }
+
+    .lv-pts {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.15rem; font-weight: 900; color: #fff;
+      text-align: right;
+    }
+    .lv-pts.pts-zero  { color: #444; }
+    .lv-pts.pts-high  { color: #00e87a; }
+
+    /* =============================================
+       SKELETONS
+       ============================================= */
+    .pitch-skel {
+      height: 420px; border-radius: 16px; margin: 0 12px 8px;
+      background: #171717; position: relative; overflow: hidden;
+    }
+    .pitch-skel::after {
+      content: ''; position: absolute; top:0; left:-150%; width:100%; height:100%;
+      background: linear-gradient(110deg,transparent 20%,rgba(255,255,255,0.03) 50%,transparent 80%);
+      animation: shim 1.6s infinite ease-in-out;
+    }
+    @keyframes shim { from{left:-150%} to{left:150%} }
+
+    .list-skel { padding: 0 12px; }
+    .list-skel-row {
+      height: 50px; border-radius: 10px; margin-bottom: 6px;
+      background: #171717; position: relative; overflow: hidden;
+    }
+    .list-skel-row::after {
+      content:''; position:absolute; top:0; left:-150%; width:100%; height:100%;
+      background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,0.03) 50%,transparent 80%);
+      animation:shim 1.6s infinite;
     }
   </style>
 </head>
@@ -91,19 +311,19 @@
   </div>
 </div>
 
-<!-- NAV -->
 <div id="nav-placeholder"></div>
 
-<!-- MAIN -->
 <main class="page-content" id="main-content">
 
   <div id="deadline-container"></div>
 
+  <!-- Manager header -->
   <div class="manager-header">
     <div id="disp-name" class="manager-header__name">Manager Name</div>
     <div id="disp-team" class="manager-header__team">Team Name</div>
   </div>
 
+  <!-- Stat chips -->
   <div class="stat-chips-row" id="stat-chips-row">
     <div class="stat-chip stat-chip--highlight">
       <div class="stat-chip__label">GW Points</div>
@@ -131,305 +351,173 @@
     </div>
   </div>
 
+  <!-- Squad bar pills -->
   <div id="squad-bar-container" class="squad-bar"></div>
 
-  <!-- My GW transfers (from fetchAndRender) -->
+  <!-- My transfers -->
   <div id="my-transfers-container"></div>
 
-  <!-- Starting XI -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-title">Starting XI</span>
-      <span id="gw-label" class="t-label" style="color:var(--text-3)">GW —</span>
+  <!-- Pitch / List toggle -->
+  <div class="view-toggle">
+    <button class="vtb on" id="btn-pitch" onclick="setView('pitch')">
+      <i class="fa-solid fa-table-cells-large"></i> Pitch View
+    </button>
+    <button class="vtb" id="btn-list" onclick="setView('list')">
+      <i class="fa-solid fa-list"></i> List View
+    </button>
+  </div>
+
+  <!-- PITCH VIEW -->
+  <div id="view-pitch">
+    <!-- Skeleton -->
+    <div class="pitch-skel" id="pitch-skel"></div>
+    <!-- Real pitch (hidden until data loads) -->
+    <div id="pitch-real" style="display:none">
+      <div class="pitch-wrap">
+        <!-- Pitch markings -->
+        <div class="pitch-markings">
+          <svg viewBox="0 0 320 460" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="0" y1="230" x2="320" y2="230" stroke="white" stroke-width="2"/>
+            <circle cx="160" cy="230" r="42" fill="none" stroke="white" stroke-width="2"/>
+            <circle cx="160" cy="230" r="3" fill="white"/>
+            <rect x="68" y="0"   width="184" height="76"  fill="none" stroke="white" stroke-width="2"/>
+            <rect x="68" y="384" width="184" height="76"  fill="none" stroke="white" stroke-width="2"/>
+            <rect x="108" y="0"  width="104" height="32"  fill="none" stroke="white" stroke-width="2"/>
+            <rect x="108" y="428" width="104" height="32" fill="none" stroke="white" stroke-width="2"/>
+            <circle cx="160" cy="57"  r="2.5" fill="white"/>
+            <circle cx="160" cy="403" r="2.5" fill="white"/>
+            <path d="M0 0 Q12 0 12 12"     fill="none" stroke="white" stroke-width="1.5"/>
+            <path d="M320 0 Q308 0 308 12" fill="none" stroke="white" stroke-width="1.5"/>
+            <path d="M0 460 Q12 460 12 448"   fill="none" stroke="white" stroke-width="1.5"/>
+            <path d="M320 460 Q308 460 308 448" fill="none" stroke="white" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <!-- Rows -->
+        <div class="pitch-field" id="pitch-field"></div>
+        <!-- Bench divider -->
+        <div class="bench-stripe">
+          <div class="bench-stripe__line"></div>
+          <div class="bench-stripe__txt">Bench</div>
+          <div class="bench-stripe__line"></div>
+        </div>
+        <!-- Bench row -->
+        <div class="pitch-bench" id="pitch-bench"></div>
+        <div style="height:12px;position:relative;z-index:2"></div>
+      </div>
     </div>
-    <div id="starting-grid" class="player-grid"></div>
   </div>
 
-  <!-- Bench -->
-  <div class="bench-divider">
-    <div class="bench-divider__line"></div>
-    <div class="bench-divider__label">Bench</div>
-    <div class="bench-divider__line"></div>
+  <!-- LIST VIEW -->
+  <div id="view-list" style="display:none">
+    <div class="list-skel" id="list-skel">
+      <div class="list-skel-row"></div>
+      <div class="list-skel-row"></div>
+      <div class="list-skel-row"></div>
+      <div class="list-skel-row"></div>
+      <div class="list-skel-row"></div>
+      <div class="list-skel-row"></div>
+      <div class="list-skel-row"></div>
+    </div>
+    <div class="lv-wrap" id="list-real" style="display:none"></div>
   </div>
 
-  <div class="section" style="padding-top:0;">
-    <div id="bench-grid" class="player-grid"></div>
-  </div>
-
-  <!-- Top GW transfers in/out (from transfers.js) -->
+  <!-- Top GW transfers -->
   <div id="transfers-container"></div>
 
   <div id="footer-placeholder"></div>
-
 </main>
 
 <script>
 const state = {
-  fplId:     localStorage.getItem('kopala_id'),
-  playerMap: {},
-  teamMap:   {},
-  currentGW: 1,
-  gwAverage: 0,
-  gwHigh:    0,
+  fplId:    localStorage.getItem('kopala_id'),
+  playerMap:{},
+  teamMap:  {},
+  ptsMap:   {},
+  currentGW:1,
+  gwAverage:0,
+  gwHigh:   0,
+  view:     localStorage.getItem('kopala_view') || 'pitch',
 };
-
 const PROXY = '/.netlify/functions/fpl-proxy?endpoint=';
+const POS_LBL = ['','GKP','DEF','MID','FWD'];
 
-/* LOGIN */
+/* ---- VIEW TOGGLE ---- */
+function setView(v) {
+  state.view = v;
+  localStorage.setItem('kopala_view', v);
+  document.getElementById('btn-pitch').classList.toggle('on', v==='pitch');
+  document.getElementById('btn-list').classList.toggle('on',  v==='list');
+  document.getElementById('view-pitch').style.display = v==='pitch' ? '' : 'none';
+  document.getElementById('view-list').style.display  = v==='list'  ? '' : 'none';
+}
+
+/* ---- LOGIN ---- */
 async function handleLogin() {
-  const input   = document.getElementById('team-id-input');
-  const errorEl = document.getElementById('error-message');
-  const btn     = document.getElementById('login-btn');
-
-  input.classList.remove('error');
-  errorEl.style.display = 'none';
-
+  const input = document.getElementById('team-id-input');
+  const errEl = document.getElementById('error-message');
+  const btn   = document.getElementById('login-btn');
+  input.classList.remove('error'); errEl.style.display='none';
   let raw = input.value.trim();
-  const match = raw.match(/entry\/(\d+)/);
-  if (match) raw = match[1];
-
-  const id = parseInt(raw, 10);
-  if (!id || isNaN(id)) return showErr('Please enter a valid numeric ID');
-
+  const m = raw.match(/entry\/(\d+)/); if(m) raw=m[1];
+  const id = parseInt(raw,10);
+  if(!id||isNaN(id)) return showErr('Please enter a valid numeric ID');
   try {
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking…';
-    const res = await fetch(`${PROXY}entry/${id}/`);
-    if (!res.ok) throw new Error('Not found');
-    localStorage.setItem('kopala_id', id);
-    location.reload();
-  } catch {
-    showErr('Team ID not found. Please try again.');
-    btn.disabled = false;
-    btn.textContent = 'Continue';
-  }
-
-  function showErr(msg) {
-    input.classList.add('error');
-    errorEl.textContent = msg;
-    errorEl.style.display = 'block';
-  }
+    btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Checking…';
+    const r = await fetch(`${PROXY}entry/${id}/`);
+    if(!r.ok) throw 0;
+    localStorage.setItem('kopala_id',id); location.reload();
+  } catch { showErr('Team ID not found. Please try again.'); btn.disabled=false; btn.textContent='Continue'; }
+  function showErr(msg){input.classList.add('error');errEl.textContent=msg;errEl.style.display='block';}
 }
+document.getElementById('team-id-input')?.addEventListener('keydown',e=>{if(e.key==='Enter')handleLogin();});
 
-document.getElementById('team-id-input')?.addEventListener('keydown', e => {
-  if (e.key === 'Enter') handleLogin();
-});
-
-/* SKELETONS */
+/* ---- SKELETONS ---- */
 function showSkeletons() {
-  ['disp-name', 'disp-team'].forEach(id => {
-    document.getElementById(id)?.classList.add('skeleton');
+  ['disp-name','disp-team'].forEach(id=>document.getElementById(id)?.classList.add('skeleton'));
+  ['disp-total','disp-gw-rank','disp-rank','disp-total-pts','disp-gw-avg','disp-gw-high'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.textContent='—';el.closest('.stat-chip')?.classList.add('skeleton');}
   });
-  ['disp-total','disp-gw-rank','disp-rank','disp-total-pts','disp-gw-avg','disp-gw-high'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.textContent = '—'; el.closest('.stat-chip')?.classList.add('skeleton'); }
-  });
-  renderGhostCards('starting-grid', 11);
-  renderGhostCards('bench-grid', 4);
-  const bar = document.getElementById('squad-bar-container');
-  if (bar) bar.innerHTML = [80,70,90].map(w =>
-    `<div class="squad-pill skeleton" style="width:${w}px;height:32px;"></div>`
-  ).join('');
+  const bar=document.getElementById('squad-bar-container');
+  if(bar) bar.innerHTML=[80,70,90].map(w=>`<div class="squad-pill skeleton" style="width:${w}px;height:32px"></div>`).join('');
 }
 
-function renderGhostCards(gridId, count) {
-  const grid = document.getElementById(gridId);
-  if (!grid) return;
-  grid.innerHTML = Array.from({ length: count }, () =>
-    `<div class="player-card skeleton" style="height:100px;"></div>`
-  ).join('');
+function revealData() {
+  document.querySelectorAll('.skeleton').forEach(el=>el.classList.remove('skeleton'));
+  document.getElementById('pitch-skel').style.display='none';
+  document.getElementById('pitch-real').style.display='';
+  document.getElementById('list-skel').style.display='none';
+  document.getElementById('list-real').style.display='';
 }
 
-function removeSkeletons() {
-  document.querySelectorAll('.skeleton').forEach(el => el.classList.remove('skeleton'));
-}
-
-/* BOOTSTRAP */
-async function initBootstrap() {
-  const res  = await fetch(`${PROXY}bootstrap-static/`);
-  const data = await res.json();
-
-  data.teams.forEach(t => { state.teamMap[t.id] = { code: t.code }; });
-  data.elements.forEach(p => {
-    state.playerMap[p.id] = {
-      name:      p.web_name,
-      teamCode:  state.teamMap[p.team].code,
-      pos:       p.element_type,
-      ownership: p.selected_by_percent,
+/* ---- BOOTSTRAP ---- */
+async function initBoot() {
+  const r    = await fetch(`${PROXY}bootstrap-static/`);
+  const data = await r.json();
+  data.teams.forEach(t=>{ state.teamMap[t.id]={code:t.code,name:t.short_name}; });
+  data.elements.forEach(p=>{
+    state.playerMap[p.id]={
+      name:     p.web_name,
+      teamCode: state.teamMap[p.team]?.code,
+      teamName: state.teamMap[p.team]?.name,
+      pos:      p.element_type,
+      own:      parseFloat(p.selected_by_percent)||0,
     };
   });
-
-  const live = data.events.find(e => e.is_current) || data.events.find(e => e.is_next) || data.events[0];
-  state.currentGW = live.id;
-  state.gwAverage = live.average_entry_score || 0;
-  state.gwHigh    = live.highest_score || 0;
+  const ev = data.events.find(e=>e.is_current)||data.events.find(e=>e.is_next)||data.events[0];
+  state.currentGW = ev.id;
+  state.gwAverage = ev.average_entry_score||0;
+  state.gwHigh    = ev.highest_score||0;
 }
 
-/* FETCH & RENDER */
+/* ---- MAIN RENDER ---- */
 async function fetchAndRender() {
-  const [entryRes, picksRes, liveRes, transRes] = await Promise.all([
+  const [eR,pR,lR,tR] = await Promise.all([
     fetch(`${PROXY}entry/${state.fplId}/`),
     fetch(`${PROXY}entry/${state.fplId}/event/${state.currentGW}/picks/`),
     fetch(`${PROXY}event/${state.currentGW}/live/`),
     fetch(`${PROXY}entry/${state.fplId}/transfers/`),
   ]);
+  const [entry,picks,live,trans] = await Promise.all([eR.json(),pR.json(),lR.json(),tR.json()]);
 
-  const [entry, picks, live, allTransfers] = await Promise.all([
-    entryRes.json(), picksRes.json(), liveRes.json(), transRes.json(),
-  ]);
-
-  removeSkeletons();
-
-  document.getElementById('disp-name').textContent = `${entry.player_first_name} ${entry.player_last_name}`;
-  document.getElementById('disp-team').textContent = entry.name;
-  const gwLabel = document.getElementById('gw-label');
-  if (gwLabel) gwLabel.textContent = `GW ${state.currentGW}`;
-
-  const ptsMap = {};
-  live.elements.forEach(el => { ptsMap[el.id] = el.stats.total_points; });
-
-  const transferCost = picks.entry_history.event_transfers_cost || 0;
-  const netPoints    = picks.entry_history.points - transferCost;
-
-  setText('disp-total',     netPoints.toLocaleString());
-  setText('disp-gw-rank',   (picks.entry_history.rank || 0).toLocaleString());
-  setText('disp-rank',      entry.summary_overall_rank.toLocaleString());
-  setText('disp-total-pts', entry.summary_overall_points.toLocaleString());
-  setText('disp-gw-avg',    state.gwAverage);
-  setText('disp-gw-high',   state.gwHigh);
-
-  const teamValue = (entry.last_deadline_value / 10).toFixed(1);
-  const freeTrans = entry.extra_free_transfers ?? 1;
-  let playedCount = 0;
-  picks.picks.forEach(p => {
-    const el = live.elements.find(e => e.id === p.element);
-    if (el && el.stats.minutes > 0) playedCount++;
-  });
-
-  const bar = document.getElementById('squad-bar-container');
-  if (bar) {
-    let pills = `
-      <div class="squad-pill"><span class="squad-pill__value">${freeTrans}</span> FT</div>
-      <div class="squad-pill">£<span class="squad-pill__value">${teamValue}m</span></div>
-      <div class="squad-pill"><span class="squad-pill__value">${playedCount}/15</span> played</div>
-    `;
-    if (transferCost > 0) {
-      pills += `<div class="squad-pill squad-pill--cost"><span class="squad-pill__value">-${transferCost}pts</span> hit</div>`;
-    }
-    bar.innerHTML = pills;
-  }
-
-  renderMyTransfers(allTransfers, transferCost);
-  renderPlayerGrid('starting-grid', picks.picks.slice(0, 11), ptsMap, false);
-  renderPlayerGrid('bench-grid',    picks.picks.slice(11),    ptsMap, true);
-}
-
-/* MY GW TRANSFERS (user's own transfers, not top transfers) */
-function renderMyTransfers(allTransfers, cost) {
-  const container = document.getElementById('my-transfers-container');
-  if (!container) return;
-
-  const gwTransfers = allTransfers.filter(t => t.event === state.currentGW);
-  if (gwTransfers.length === 0) { container.innerHTML = ''; return; }
-
-  const costBadge = cost > 0
-    ? `<span class="transfer-card__cost">-${cost}pts</span>`
-    : '<span style="font-size:0.7rem;color:var(--text-3)">Free</span>';
-
-  const cards = gwTransfers.map((t, i) => {
-    const pIn  = state.playerMap[t.element_in]?.name  || '?';
-    const pOut = state.playerMap[t.element_out]?.name || '?';
-    return `
-      <div class="transfer-card">
-        <div class="transfer-card__player-out">
-          <i class="fa-solid fa-arrow-down" style="font-size:0.65rem;margin-right:4px;"></i>${pOut}
-        </div>
-        <i class="fa-solid fa-arrow-right transfer-card__arrow"></i>
-        <div class="transfer-card__player-in">
-          <i class="fa-solid fa-arrow-up" style="font-size:0.65rem;margin-right:4px;"></i>${pIn}
-        </div>
-        ${i === 0 ? costBadge : ''}
-      </div>
-    `;
-  }).join('');
-
-  container.innerHTML = `
-    <div class="section" style="padding-top:12px;padding-bottom:0;">
-      <div class="section-header"><span class="section-title">My Transfers</span></div>
-      <div class="transfers-section" style="padding:0;">${cards}</div>
-    </div>
-  `;
-}
-
-/* PLAYER GRID */
-function renderPlayerGrid(gridId, picks, ptsMap, isBench) {
-  const grid = document.getElementById(gridId);
-  if (!grid) return;
-
-  grid.innerHTML = picks.map(p => {
-    const meta = state.playerMap[p.element];
-    if (!meta) return '';
-
-    const totalPts  = (ptsMap[p.element] || 0) * (p.multiplier || 1);
-    const ptsClass  = totalPts === 0 ? 'player-card__pts--zero' : '';
-    const shirtSrc  = `https://draft.premierleague.com/img/shirts/standard/shirt_${meta.teamCode}${meta.pos === 1 ? '_1' : ''}-66.png`;
-    const ownershipW = Math.min(parseFloat(meta.ownership) || 0, 100);
-
-    const badge = p.is_captain
-      ? '<div class="player-badge player-badge--captain">C</div>'
-      : p.is_vice_captain
-        ? '<div class="player-badge player-badge--vice">V</div>'
-        : '';
-
-    return `
-      <div class="player-card ${isBench ? 'is-bench' : ''}" data-pos="${meta.pos}">
-        ${badge}
-        <img class="player-card__shirt" src="${shirtSrc}" alt="${meta.name}"
-          loading="lazy" onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
-        <div class="player-card__name">${meta.name}</div>
-        <div class="player-card__pts ${ptsClass}">${totalPts}</div>
-        <div class="player-card__ownership">
-          <div class="player-card__ownership-fill" style="width:${ownershipW}%"></div>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-/* UTILS */
-function setText(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val;
-}
-
-/* BOOT */
-async function startApp() {
-  if (!state.fplId) {
-    const ls = document.getElementById('login-screen');
-    if (ls) ls.style.display = 'flex';
-    return;
-  }
-  try {
-    showSkeletons();
-    await initBootstrap();
-    await fetchAndRender();
-  } catch (err) {
-    console.error('App error:', err);
-    const nameEl = document.getElementById('disp-name');
-    if (nameEl) { nameEl.textContent = 'Failed to load'; nameEl.style.color = 'var(--red)'; }
-    const teamEl = document.getElementById('disp-team');
-    if (teamEl) teamEl.textContent = 'Check your connection and refresh';
-    removeSkeletons();
-  }
-}
-
-document.addEventListener('DOMContentLoaded', startApp);
-</script>
-
-<script src="nav.js"></script>
-<script src="deadline.js"></script>
-<script src="transfers.js"></script>
-<script src="footer.js"></script>
-
-</body>
-</html>
+  live.elements.forEach(e
