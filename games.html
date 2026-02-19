@@ -454,4 +454,224 @@
 
         return `
         <div class="m-card${isLive?' is-live':''}" id="card-${f.id}" style="animation-delay:${idx*0.04}s">
-            <div cl
+            <div class="m-timebar">
+                <span class="m-time-txt">${isLive ? '🔴 LIVE' : isDone ? 'Full Time' : fmtDT(f.kickoff_time)}</span>
+                <div class="fdr-wrap">
+                    <span class="fdr-badge fdr-${hD}">${hT.short_name} ${hD}</span>
+                    <span class="fdr-sep">FDR</span>
+                    <span class="fdr-badge fdr-${aD}">${aD} ${aT.short_name}</span>
+                </div>
+            </div>
+
+            <div class="m-main">
+                <div class="m-team">
+                    <img class="m-shirt" src="${shirt(hT.code)}" loading="lazy" onerror="this.src='${shirt(1)}'">
+                    <div class="m-name">${hT.short_name}</div>
+                    <div class="m-ha home">HOME</div>
+                </div>
+                <div class="m-center">
+                    <div class="m-status ${statusCls}">${statusTxt}</div>
+                    ${f.started
+                        ? `<div class="m-score"><span>${f.team_h_score}</span><span class="sep">:</span><span>${f.team_a_score}</span></div>`
+                        : `<div class="m-vs">vs</div>`}
+                </div>
+                <div class="m-team">
+                    <img class="m-shirt" src="${shirt(aT.code)}" loading="lazy" onerror="this.src='${shirt(1)}'">
+                    <div class="m-name">${aT.short_name}</div>
+                    <div class="m-ha">AWAY</div>
+                </div>
+            </div>
+
+            ${hasEvs ? `<div class="m-events">
+                <div class="ev-col left">${hEvs.join('')}</div>
+                <div class="ev-col right">${aEvs.join('')}</div>
+            </div>` : ''}
+
+            ${bonusHtml}
+
+            <button class="m-expand" onclick="toggleCard(${f.id})">
+                <span>Squad info & stats</span>
+                <i class="fa-solid fa-chevron-down m-chevron"></i>
+            </button>
+
+            <div class="m-drawer">
+                <div class="drawer-tabs">
+                    <div class="dtab active" id="dtab-own-${f.id}" onclick="switchTab(${f.id},'own')">
+                        <i class="fa-solid fa-users" style="margin-right:3px;font-size:0.6rem"></i>Ownership
+                    </div>
+                    <div class="dtab" id="dtab-xg-${f.id}" onclick="switchTab(${f.id},'xg')">
+                        <i class="fa-solid fa-chart-bar" style="margin-right:3px;font-size:0.6rem"></i>Team Stats
+                    </div>
+                    ${f.started ? `<div class="dtab" id="dtab-ev-${f.id}" onclick="switchTab(${f.id},'ev')">
+                        <i class="fa-solid fa-list" style="margin-right:3px;font-size:0.6rem"></i>All Events
+                    </div>` : ''}
+                </div>
+                <div class="dpanel active" id="dpanel-own-${f.id}">${buildOwnership(f.team_h, f.team_a)}</div>
+                <div class="dpanel" id="dpanel-xg-${f.id}">${buildXG(f, hT, aT)}</div>
+                ${f.started ? `<div class="dpanel" id="dpanel-ev-${f.id}">${buildAllEvents(f)}</div>` : ''}
+            </div>
+        </div>`;
+    }
+
+    /* ---- EVENTS ---- */
+    function getStat(f, id) { return f.stats.find(s => s.identifier === id) || {h:[],a:[]}; }
+    function getName(id) { return players.find(p => p.id === id)?.web_name || '?'; }
+
+    function buildEvents(f) {
+        if (!f.started) return { hEvs:[], aEvs:[] };
+        const hEvs = [], aEvs = [];
+        const push = (stat, icon, cls, suf='') => {
+            stat.h.forEach(e => {
+                const r = e.value > 1 ? ` ×${e.value}` : '';
+                hEvs.push(`<div class="ev-item"><i class="${icon} ${cls}"></i>${getName(e.element)}${r}${suf}</div>`);
+            });
+            stat.a.forEach(e => {
+                const r = e.value > 1 ? ` ×${e.value}` : '';
+                aEvs.push(`<div class="ev-item"><i class="${icon} ${cls}"></i>${getName(e.element)}${r}${suf}</div>`);
+            });
+        };
+        push(getStat(f,'goals_scored'),    'fa-solid fa-futbol',     'ic-goal');
+        push(getStat(f,'assists'),          'fa-solid fa-circle-dot', 'ic-assist');
+        push(getStat(f,'own_goals'),        'fa-solid fa-futbol',     'ic-og',   ' (OG)');
+        push(getStat(f,'penalties_scored'), 'fa-solid fa-circle',     'ic-pen',  ' (P)');
+        push(getStat(f,'penalties_missed'), 'fa-solid fa-xmark',      'ic-miss', ' (P×)');
+        push(getStat(f,'yellow_cards'),     'fa-solid fa-square',     'ic-yellow');
+        push(getStat(f,'red_cards'),        'fa-solid fa-square',     'ic-red');
+        push(getStat(f,'saves'),            'fa-solid fa-hand',       'ic-save');
+        return { hEvs, aEvs };
+    }
+
+    /* ---- BONUS ---- */
+    function buildBonus(f, isDone) {
+        const stat = f.stats.find(s => s.identifier === (isDone ? 'bonus' : 'bps'));
+        if (!stat || (!stat.h.length && !stat.a.length)) return '';
+        const all = [...stat.h.map(x=>({...x})), ...stat.a.map(x=>({...x}))]
+            .sort((a,b) => b.value - a.value).slice(0,3);
+        const items = all.map((p,i) => {
+            const pts = isDone ? p.value : (3-i);
+            return `<div class="bonus-item">${getName(p.element)}<span class="bonus-pts">${pts}</span></div>`;
+        }).join('');
+        return `<div class="m-bonus">
+            <span class="bonus-lbl">${isDone ? 'Bonus' : 'Proj. Bonus'}</span>
+            <div class="bonus-list">${items}</div>
+        </div>`;
+    }
+
+    /* ---- OWNERSHIP DRAWER ---- */
+    function buildOwnership(hId, aId) {
+        const relevant = players
+            .filter(p => p.team === hId || p.team === aId)
+            .sort((a,b) => parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent))
+            .slice(0, 10);
+        const rows = relevant.map(p => {
+            const t    = teams.find(t => t.id === p.team);
+            const pct  = parseFloat(p.selected_by_percent);
+            const s    = `https://draft.premierleague.com/img/shirts/standard/shirt_${t?.code}-66.png`;
+            return `<tr>
+                <td style="width:26px"><img class="own-shirt" src="${s}" loading="lazy" onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'"></td>
+                <td>
+                    <div class="own-pname">${p.web_name}</div>
+                    <div class="own-price">£${(p.now_cost/10).toFixed(1)}m · ${t?.short_name||''}</div>
+                </td>
+                <td><span class="own-pos ${POS_CLS[p.element_type]}">${POS_LBL[p.element_type]}</span></td>
+                <td><div class="own-bar-bg"><div class="own-bar-fg" style="width:${Math.min(100,pct*3.33)}%"></div></div></td>
+                <td class="own-pct">${pct}%</td>
+            </tr>`;
+        }).join('');
+        return `<table class="own-table">${rows}</table>`;
+    }
+
+    /* ---- XG / TEAM STATS DRAWER ---- */
+    function buildXG(f, hT, aT) {
+        const hPl = players.filter(p => p.team === f.team_h);
+        const aPl = players.filter(p => p.team === f.team_a);
+        const sum = (arr, key) => arr.reduce((t,p) => t+(parseFloat(p[key])||0), 0);
+        const hXG  = sum(hPl,'expected_goals_per_90').toFixed(2);
+        const aXG  = sum(aPl,'expected_goals_per_90').toFixed(2);
+        const hXGC = sum(hPl.filter(p=>p.element_type<=2),'expected_goals_conceded_per_90').toFixed(2);
+        const aXGC = sum(aPl.filter(p=>p.element_type<=2),'expected_goals_conceded_per_90').toFixed(2);
+        const hD = teams.find(t=>t.id===f.team_h);
+        const aD = teams.find(t=>t.id===f.team_a);
+        const side = (team, xg, xgc, strA, strDef, fdr) => `
+            <div class="xg-side">
+                <div class="xg-team-lbl">${team.short_name}</div>
+                <div class="xg-row"><span class="xg-lbl">xG / 90</span><span class="xg-val g">${xg}</span></div>
+                <div class="xg-row"><span class="xg-lbl">xGC / 90</span><span class="xg-val r">${xgc}</span></div>
+                <div class="xg-row"><span class="xg-lbl">Atk strength</span><span class="xg-val">${strA||'—'}</span></div>
+                <div class="xg-row"><span class="xg-lbl">Def strength</span><span class="xg-val">${strDef||'—'}</span></div>
+                <div class="xg-row"><span class="xg-lbl">FDR</span><span class="xg-val fdr-badge fdr-${fdr}" style="font-size:0.72rem">${fdr||'—'}</span></div>
+            </div>`;
+        return `<div class="xg-grid">
+            ${side(hT, hXG, hXGC, hD?.strength_attack_home, hD?.strength_defence_home, f.team_h_difficulty)}
+            ${side(aT, aXG, aXGC, aD?.strength_attack_away, aD?.strength_defence_away, f.team_a_difficulty)}
+        </div>`;
+    }
+
+    /* ---- ALL EVENTS DRAWER ---- */
+    function buildAllEvents(f) {
+        const defs = [
+            {id:'goals_scored',     lbl:'Goals',         icon:'fa-solid fa-futbol',     cls:'ic-goal'},
+            {id:'assists',          lbl:'Assists',        icon:'fa-solid fa-circle-dot', cls:'ic-assist'},
+            {id:'own_goals',        lbl:'Own Goals',      icon:'fa-solid fa-futbol',     cls:'ic-og'},
+            {id:'penalties_scored', lbl:'Penalties',      icon:'fa-solid fa-circle',     cls:'ic-pen'},
+            {id:'penalties_missed', lbl:'Pen. Missed',    icon:'fa-solid fa-xmark',      cls:'ic-miss'},
+            {id:'yellow_cards',     lbl:'Yellow Cards',   icon:'fa-solid fa-square',     cls:'ic-yellow'},
+            {id:'red_cards',        lbl:'Red Cards',      icon:'fa-solid fa-square',     cls:'ic-red'},
+            {id:'saves',            lbl:'Saves',          icon:'fa-solid fa-hand',       cls:'ic-save'},
+            {id:'bonus',            lbl:'Bonus Pts',      icon:'fa-solid fa-star',       cls:'ic-goal'},
+        ];
+        let html = '';
+        defs.forEach(({id, lbl, icon, cls}) => {
+            const s = getStat(f, id);
+            if (!s.h.length && !s.a.length) return;
+            const col = (arr) => arr.length
+                ? arr.map(e => `<div class="evp-entry"><i class="${icon} ${cls}" style="font-size:0.5rem"></i>${getName(e.element)}${e.value>1?` ×${e.value}`:''}</div>`).join('')
+                : '<div class="evp-nil">—</div>';
+            html += `<div class="evp-sec">
+                <div class="evp-head">${lbl}</div>
+                <div class="evp-cols">
+                    <div class="evp-col left">${col(s.h)}</div>
+                    <div class="evp-col right">${col(s.a)}</div>
+                </div>
+            </div>`;
+        });
+        return html || '<div style="text-align:center;padding:16px;color:#444;font-size:0.8rem">No events yet</div>';
+    }
+
+    /* ---- TOGGLE / TABS ---- */
+    function toggleCard(id) { document.getElementById(`card-${id}`).classList.toggle('open'); }
+    function switchTab(fid, p) {
+        ['own','xg','ev'].forEach(t => {
+            document.getElementById(`dtab-${t}-${fid}`)?.classList.toggle('active', t===p);
+            document.getElementById(`dpanel-${t}-${fid}`)?.classList.toggle('active', t===p);
+        });
+    }
+
+    /* ---- HELPERS ---- */
+    function getMin(f) {
+        if (f.finished || f.finished_provisional) return 'FT';
+        if (!f.started) return '';
+        if (f.minutes > 0) return `${f.minutes}'`;
+        const elapsed = Math.floor((new Date() - new Date(f.kickoff_time)) / 60000);
+        if (elapsed > 45 && elapsed < 60) return 'HT';
+        return `${Math.min(90, Math.max(1, elapsed >= 60 ? elapsed-15 : elapsed))}'`;
+    }
+    function formatKO(k) { return new Date(k).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+    function fmtDT(k) {
+        const d = new Date(k);
+        return d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'})
+             + ' · '
+             + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    }
+    function showSkels(n) {
+        document.getElementById('games-list').innerHTML =
+            Array.from({length:n},(_,i) => `<div class="m-skel" style="animation-delay:${i*.07}s"></div>`).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<script src="nav.js"></script>
+<script src="footer.js"></script>
+</body>
+</html>
