@@ -79,7 +79,6 @@
       display: flex;
       gap: 4px;
       flex-wrap: wrap;
-      justify-content: flex-end;
     }
 
     .btn-action {
@@ -196,6 +195,7 @@
       display: flex;
       flex-direction: column;
       font-size: 0.55rem;
+      touch-action: none;
     }
 
     .player-card:hover {
@@ -209,9 +209,9 @@
       box-shadow: 0 0 0 2px rgba(26, 167, 96, 0.3);
     }
 
-    .player-card.unavailable {
-      opacity: 0.4;
-      cursor: not-allowed;
+    .player-card.dragging {
+      opacity: 0.7;
+      border-color: var(--accent);
     }
 
     .player-card-header {
@@ -277,11 +277,6 @@
       min-height: 10px;
     }
 
-    .player-price {
-      font-size: 0.4rem;
-      color: var(--text-3);
-    }
-
     .player-stats {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -300,7 +295,6 @@
       color: var(--text-3);
       text-transform: uppercase;
       font-size: 0.35rem;
-      letter-spacing: 0.05px;
     }
 
     .player-stat-value {
@@ -314,6 +308,7 @@
       color: var(--accent);
     }
 
+    /* ===== CAPTAIN/VC BADGES ===== */
     .captain-badge {
       position: absolute;
       top: 0.5px;
@@ -352,6 +347,147 @@
       border: 0.3px solid var(--bg-2);
     }
 
+    /* ===== CAPTAIN MODAL ===== */
+    .captain-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+      padding-bottom: var(--safe-bottom);
+    }
+
+    .captain-modal.show {
+      display: flex;
+    }
+
+    .captain-modal-content {
+      background: var(--bg-2);
+      border: 1px solid var(--border-3);
+      border-radius: 12px 12px 0 0;
+      padding: 12px;
+      max-width: 100%;
+      width: 100%;
+      max-height: 60vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-3);
+      padding-bottom: 10px;
+    }
+
+    .modal-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-1);
+      cursor: pointer;
+      font-size: 1.3rem;
+      -webkit-tap-highlight-color: transparent;
+      padding: 4px;
+    }
+
+    .captain-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .captain-option {
+      background: var(--bg-3);
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      border: 1px solid var(--border-3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .captain-option:hover {
+      background: var(--border-3);
+      border-color: var(--accent);
+    }
+
+    .captain-option img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .captain-option-info {
+      flex: 1;
+    }
+
+    .captain-option-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 2px;
+    }
+
+    .captain-option-details {
+      font-size: 0.7rem;
+      color: var(--text-3);
+      margin-bottom: 2px;
+    }
+
+    .captain-option-pred {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .captain-button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .captain-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all var(--transition-fast);
+    }
+
+    .captain-btn.primary {
+      background: var(--red);
+      color: white;
+    }
+
+    .captain-btn.secondary {
+      background: #f97316;
+      color: white;
+    }
+
+    .captain-btn.clear {
+      background: var(--bg-3);
+      color: var(--text-1);
+      border: 1px solid var(--border-3);
+    }
+
     /* ===== TRANSFER MODAL ===== */
     .transfer-modal {
       display: none;
@@ -384,59 +520,6 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      border-bottom: 1px solid var(--border-3);
-      padding-bottom: 10px;
-    }
-
-    .modal-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-
-    .modal-close {
-      background: none;
-      border: none;
-      color: var(--text-1);
-      cursor: pointer;
-      font-size: 1.3rem;
-      -webkit-tap-highlight-color: transparent;
-      padding: 4px;
-    }
-
-    .player-list {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      max-height: 60vh;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-right: 4px;
-    }
-
-    .player-list::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .player-list::-webkit-scrollbar-track {
-      background: var(--bg-3);
-      border-radius: 3px;
-    }
-
-    .player-list::-webkit-scrollbar-thumb {
-      background: var(--border-3);
-      border-radius: 3px;
-    }
-
-    .player-list::-webkit-scrollbar-thumb:hover {
-      background: var(--accent);
-    }
-
-    /* ===== SEARCH BOX ===== */
     .search-box {
       display: flex;
       align-items: center;
@@ -475,18 +558,15 @@
       padding: 4px;
       font-size: 1rem;
       -webkit-tap-highlight-color: transparent;
-      transition: color var(--transition-fast);
     }
 
-    .search-clear:hover {
-      color: var(--accent);
-    }
-
-    .no-results {
-      padding: 20px;
-      text-align: center;
-      color: var(--text-3);
-      font-size: 0.85rem;
+    .player-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      max-height: 60vh;
+      overflow-y: auto;
+      padding-right: 4px;
     }
 
     .player-option {
@@ -537,6 +617,89 @@
       margin-top: 2px;
     }
 
+    /* ===== FIXTURE DISPLAY ===== */
+    .fixtures-row {
+      display: flex;
+      gap: 3px;
+      margin-top: 1px;
+    }
+
+    .fixture {
+      flex: 1;
+      height: 3px;
+      border-radius: 1px;
+      font-size: 0;
+      cursor: help;
+      position: relative;
+    }
+
+    .fixture.easy { background: #4ade80; }
+    .fixture.medium { background: #facc15; }
+    .fixture.hard { background: #ef4444; }
+
+    /* ===== TRANSFER HISTORY ===== */
+    .transfer-history-section {
+      background: var(--bg-2);
+      border: 1px solid var(--border-3);
+      border-radius: 8px;
+      padding: 10px;
+      margin: 0 12px 16px;
+    }
+
+    .transfer-history-title {
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+    }
+
+    .transfer-item {
+      background: var(--bg-3);
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .transfer-players {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .transfer-player {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .transfer-player.out { color: var(--red); }
+    .transfer-player.in { color: var(--accent); }
+
+    .transfer-arrow {
+      color: var(--text-3);
+      font-size: 0.8rem;
+    }
+
+    .transfer-undo {
+      background: var(--border-3);
+      border: none;
+      color: var(--text-1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      transition: all var(--transition-fast);
+    }
+
+    .transfer-undo:hover {
+      background: var(--accent);
+      color: white;
+    }
+
     /* ===== ALERTS ===== */
     .alert {
       padding: 8px 10px;
@@ -578,14 +741,12 @@
     @media (max-width: 768px) {
       .players-grid {
         grid-template-columns: repeat(4, 1fr);
-        gap: 4px;
       }
     }
 
     @media (max-width: 480px) {
       .players-grid {
         grid-template-columns: repeat(3, 1fr);
-        gap: 4px;
       }
 
       .header-info {
@@ -599,37 +760,6 @@
 
       .stats-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 6px;
-      }
-
-      .squad-section {
-        padding: 0 10px;
-      }
-
-      .player-card {
-        border-radius: 5px;
-        font-size: 0.55rem;
-      }
-
-      .player-jersey {
-        min-height: 24px;
-        padding: 2px 1px;
-      }
-
-      .player-jersey img {
-        max-width: 22px;
-      }
-
-      .player-info {
-        padding: 2px;
-      }
-
-      .player-name {
-        font-size: 0.5rem;
-      }
-
-      .modal-title {
-        font-size: 0.85rem;
       }
 
       .player-list {
@@ -646,9 +776,7 @@
     .player-card:nth-child(1) { animation-delay: 0.02s; }
     .player-card:nth-child(2) { animation-delay: 0.04s; }
     .player-card:nth-child(3) { animation-delay: 0.06s; }
-    .player-card:nth-child(4) { animation-delay: 0.08s; }
-    .player-card:nth-child(5) { animation-delay: 0.1s; }
-    .player-card:nth-child(n+6) { animation-delay: 0.12s; }
+    .player-card:nth-child(n+4) { animation-delay: 0.08s; }
 
     @media (prefers-reduced-motion: reduce) {
       * {
@@ -678,8 +806,8 @@
         <button class="btn-action btn-secondary" onclick="resetChanges()" title="Reset squad">
           <i class="fas fa-undo"></i>
         </button>
-        <button class="btn-action" id="save-btn" onclick="confirmChanges()" title="Save changes">
-          <i class="fas fa-check"></i>
+        <button class="btn-action" id="confirm-btn" onclick="confirmTransfers()" title="Confirm transfers to FPL">
+          <i class="fas fa-check"></i> Confirm
         </button>
       </div>
     </div>
@@ -712,7 +840,7 @@
   <!-- ALERTS -->
   <div id="alerts-container"></div>
 
-  <!-- SQUAD TAB -->
+  <!-- SQUAD -->
   <div class="squad-section">
     <div class="section-title">Starting XI</div>
     <div class="players-grid" id="starting-grid">
@@ -721,15 +849,34 @@
   </div>
 
   <div class="squad-section">
-    <div class="section-title">Substitutes</div>
-    <div class="players-grid" id="bench-grid">
+    <div class="section-title">Substitutes (Drag to reorder)</div>
+    <div class="players-grid" id="bench-grid" style="grid-template-columns: repeat(4, 1fr);">
       <!-- Bench 4 populated by JS -->
     </div>
   </div>
 
+  <!-- TRANSFER HISTORY -->
+  <div id="transfer-history-container"></div>
+
   <div id="footer-placeholder"></div>
 
 </main>
+
+<!-- CAPTAIN MODAL -->
+<div id="captain-modal" class="captain-modal">
+  <div class="captain-modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title">Choose Captain</h2>
+      <button class="modal-close" onclick="closeCaptainModal()">&times;</button>
+    </div>
+    <div class="captain-options" id="captain-options">
+      <!-- Options populated by JS -->
+    </div>
+    <div class="captain-button-group">
+      <button class="captain-btn clear" onclick="closeCaptainModal()">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <!-- TRANSFER MODAL -->
 <div id="transfer-modal" class="transfer-modal">
@@ -745,7 +892,7 @@
         type="text" 
         class="search-input" 
         id="player-search" 
-        placeholder="Search player name or team..."
+        placeholder="Search player..."
         oninput="filterPlayers()"
       >
       <button class="search-clear" onclick="clearSearch()" id="clear-btn" style="display: none;">
@@ -759,47 +906,13 @@
   </div>
 </div>
 
-<!-- CONFIRM TRANSFERS MODAL -->
-<div id="confirm-modal" class="transfer-modal">
-  <div class="transfer-modal-content" style="max-width: 400px;">
-    <div class="modal-header">
-      <h2 class="modal-title">Confirm Transfers</h2>
-      <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
-    </div>
-    <div style="padding: 12px;">
-      <div id="transfers-list" style="margin-bottom: 16px;"></div>
-      
-      <div style="background: var(--bg-3); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem;">
-          <span>Transfers Used:</span>
-          <span id="confirm-transfers-used" style="font-weight: 700;">0</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
-          <span>Hit Cost:</span>
-          <span id="confirm-hit-cost" style="font-weight: 700; color: var(--red);">-0 pts</span>
-        </div>
-      </div>
-
-      <div style="display: flex; gap: 8px;">
-        <button class="btn-action btn-secondary" style="flex: 1;" onclick="closeConfirmModal()">Cancel</button>
-        <button class="btn-action" style="flex: 1;" onclick="submitTransfersToFPL()">
-          <i class="fas fa-cloud-upload-alt"></i> Submit to FPL
-        </button>
-      </div>
-
-      <p style="font-size: 0.75rem; color: var(--text-3); margin-top: 12px; text-align: center;">
-        This will submit your transfers to your official FPL account.
-      </p>
-    </div>
-  </div>
-</div>
-
 <script>
 // ===== STATE =====
 const state = {
-  fplId:     localStorage.getItem('kopala_id'),
+  fplId: localStorage.getItem('kopala_id'),
   playerMap: {},
-  teamMap:   {},
+  teamMap: {},
+  fixtureMap: {},
   currentTeam: [],
   originalTeam: [],
   allPlayers: [],
@@ -808,9 +921,11 @@ const state = {
   cache: {},
   cacheTime: {},
   transfers: [],
+  transferHistory: [],
   selectedPlayerOut: null,
   selectedCaptain: null,
   selectedViceCaptain: null,
+  selectedPosForCaptain: null,
   freeTransfers: 1,
   transfersUsed: 0,
 };
@@ -841,6 +956,7 @@ async function initBootstrap() {
 
   const teamMap = {};
   const playerMap = {};
+  const fixtureMap = {};
   const allPlayers = [];
   
   data.teams.forEach(t => { 
@@ -851,8 +967,26 @@ async function initBootstrap() {
     }; 
   });
   
+  // Build fixture map (player -> next 5 fixtures)
+  const fixtures = data.fixtures || [];
+  fixtures.forEach(f => {
+    if (!fixtureMap[f.team_a]) fixtureMap[f.team_a] = [];
+    if (!fixtureMap[f.team_h]) fixtureMap[f.team_h] = [];
+    fixtureMap[f.team_a].push({
+      opponent: f.team_h_code,
+      difficulty: f.difficulty_home,
+      isHome: false,
+    });
+    fixtureMap[f.team_h].push({
+      opponent: f.team_a_code,
+      difficulty: f.difficulty_away,
+      isHome: true,
+    });
+  });
+  
   data.elements.forEach(p => {
     const team = teamMap[p.team];
+    const fixtures = (fixtureMap[p.team] || []).slice(0, 5);
     const player = {
       id: p.id,
       name: p.web_name,
@@ -866,12 +1000,13 @@ async function initBootstrap() {
       predicted: (Math.random() * 8).toFixed(1),
       minutes: p.minutes || 0,
       total_points: p.total_points || 0,
+      fixtures: fixtures,
     };
     playerMap[p.id] = player;
     allPlayers.push(player);
   });
 
-  Object.assign(state, { teamMap, playerMap, allPlayers });
+  Object.assign(state, { teamMap, playerMap, fixtureMap, allPlayers });
 
   const live = data.events.find(e => e.is_current) || 
                data.events.find(e => e.is_next) || 
@@ -917,6 +1052,7 @@ async function fetchAndRender() {
     renderTeam();
     updateFormation();
     updatePredicted();
+    renderTransferHistory();
   } catch (err) {
     console.error('Error:', err);
   }
@@ -931,17 +1067,24 @@ function renderTeam() {
     grid.innerHTML = players.map((p, idx) => {
       const shirtSrc = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos === 1 ? '_1' : ''}-66.png`;
       const predicted = (parseFloat(p.currentPts) * 0.9 + parseFloat(p.predicted)).toFixed(1);
+      const fixtures = p.fixtures || [];
 
       let badge = '';
       if (p.is_captain) badge = '<div class="captain-badge">C</div>';
       else if (p.is_vice_captain) badge = '<div class="captain-badge vc">V</div>';
       
-      if (isBench && idx < 3) {
+      if (isBench && idx < 4) {
         badge += `<div class="bench-badge">${idx + 1}</div>`;
       }
 
+      const fixturesHtml = fixtures.length > 0 ? `
+        <div class="fixtures-row">
+          ${fixtures.map(f => `<div class="fixture ${getDifficultyClass(f.difficulty)}" title="${f.opponent}"></div>`).join('')}
+        </div>
+      ` : '';
+
       return `
-        <div class="player-card" onclick="openTransferModal(${p.element}, '${p.name}', ${p.pos})" data-player-id="${p.element}">
+        <div class="player-card" onclick="openCaptainModal(${p.element})" data-player-id="${p.element}" ${isBench ? `draggable="true"` : ''}>
           ${badge}
           <div class="player-card-header">
             <div class="player-team">${p.teamName}</div>
@@ -953,7 +1096,6 @@ function renderTeam() {
           </div>
           <div class="player-info">
             <div class="player-name">${p.name}</div>
-            <div class="player-price">£${p.formattedPrice}</div>
             <div class="player-stats">
               <div class="player-stat">
                 <div class="player-stat-label">Pts</div>
@@ -964,34 +1106,138 @@ function renderTeam() {
                 <div class="player-stat-value predicted">${predicted}</div>
               </div>
             </div>
+            ${fixturesHtml}
           </div>
         </div>
       `;
     }).join('');
   };
 
-  renderCards(startingXI, document.getElementById('starting-grid'), false);
-  renderCards(bench, document.getElementById('bench-grid'), true);
+  const startGrid = document.getElementById('starting-grid');
+  const benchGrid = document.getElementById('bench-grid');
+
+  renderCards(startingXI, startGrid, false);
+  renderCards(bench, benchGrid, true);
+
+  // Add drag event listeners for bench
+  if (!isBench) {
+    setTimeout(() => {
+      const benchCards = document.querySelectorAll('#bench-grid .player-card');
+      benchCards.forEach((card, idx) => {
+        card.addEventListener('dragstart', (e) => {
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('dragIndex', idx);
+          card.classList.add('dragging');
+        });
+
+        card.addEventListener('dragend', () => {
+          card.classList.remove('dragging');
+        });
+
+        card.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+        });
+
+        card.addEventListener('drop', (e) => {
+          e.preventDefault();
+          const dragIndex = parseInt(e.dataTransfer.getData('dragIndex'));
+          const dropIndex = idx;
+          
+          if (dragIndex !== dropIndex) {
+            const bench = state.currentTeam.slice(11);
+            [bench[dragIndex], bench[dropIndex]] = [bench[dropIndex], bench[dragIndex]];
+            renderTeam();
+          }
+        });
+      });
+    }, 100);
+  }
+}
+
+// ===== CAPTAIN SELECTION =====
+function openCaptainModal(playerId) {
+  const startingXI = state.currentTeam.slice(0, 11);
+  const captainOptions = startingXI.sort((a, b) => {
+    const predA = parseFloat(a.currentPts) * 0.9 + parseFloat(a.predicted);
+    const predB = parseFloat(b.currentPts) * 0.9 + parseFloat(b.predicted);
+    return predB - predA;
+  });
+
+  const optionsHtml = captainOptions.map(p => {
+    const shirtSrc = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos === 1 ? '_1' : ''}-66.png`;
+    const predicted = (parseFloat(p.currentPts) * 0.9 + parseFloat(p.predicted)).toFixed(1);
+    const isCaptain = p.element === state.selectedCaptain;
+    const isVc = p.element === state.selectedViceCaptain;
+
+    return `
+      <div class="captain-option">
+        <img src="${shirtSrc}" alt="${p.name}" onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
+        <div class="captain-option-info">
+          <div class="captain-option-name">${p.name} ${isCaptain ? '(C)' : isVc ? '(V)' : ''}</div>
+          <div class="captain-option-details">${p.teamName} • ${getPosLabel(p.pos)}</div>
+          <div class="captain-option-pred">Predicted: ${predicted} pts</div>
+        </div>
+        <div style="display: flex; gap: 4px; flex-direction: column;">
+          <button class="captain-btn primary" onclick="setCaptain(${p.element})">Captain</button>
+          <button class="captain-btn secondary" onclick="setViceCaptain(${p.element})">VC</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('captain-options').innerHTML = optionsHtml;
+  document.getElementById('captain-modal').classList.add('show');
+}
+
+function setCaptain(playerId) {
+  state.selectedCaptain = playerId;
+  state.selectedViceCaptain = null;
+  
+  // Update team data
+  state.currentTeam.forEach(p => {
+    p.is_captain = p.element === playerId;
+    p.is_vice_captain = false;
+  });
+
+  renderTeam();
+  updatePredicted();
+  closeCaptainModal();
+  showAlert('✓ Captain set', 'success');
+}
+
+function setViceCaptain(playerId) {
+  state.selectedViceCaptain = playerId;
+  
+  state.currentTeam.forEach(p => {
+    p.is_vice_captain = p.element === playerId;
+  });
+
+  renderTeam();
+  updatePredicted();
+  closeCaptainModal();
+  showAlert('✓ Vice-Captain set', 'success');
+}
+
+function closeCaptainModal() {
+  document.getElementById('captain-modal').classList.remove('show');
 }
 
 // ===== TRANSFER MODAL =====
 function openTransferModal(playerId, playerName, playerPos) {
   state.selectedPlayerOut = playerId;
   
-  // Get available players for this position
   const availablePlayers = state.allPlayers.filter(p => {
     const owned = state.currentTeam.find(t => t.element === p.id);
-    if (owned) return false; // Already owned
-    if (p.pos !== playerPos) return false; // Different position
+    if (owned) return false;
+    if (p.pos !== playerPos) return false;
     
-    // Check team limit
     const teamCount = state.currentTeam.filter(t => t.teamId === p.teamId).length;
     if (teamCount >= MAX_SAME_TEAM) return false;
     
     return true;
-  }).sort((a, b) => a.price - b.price); // Show all available
+  }).sort((a, b) => a.price - b.price);
 
-  // Store all players for search
   state.availableReplacements = availablePlayers;
 
   document.getElementById('modal-title').textContent = `Replace ${playerName}`;
@@ -1001,7 +1247,6 @@ function openTransferModal(playerId, playerName, playerPos) {
   renderPlayerList(availablePlayers);
   document.getElementById('transfer-modal').classList.add('show');
   
-  // Focus search input
   setTimeout(() => {
     document.getElementById('player-search').focus();
   }, 100);
@@ -1011,7 +1256,7 @@ function renderPlayerList(players) {
   const playerList = document.getElementById('player-list');
   
   if (players.length === 0) {
-    playerList.innerHTML = '<div class="no-results" style="grid-column: 1/-1;">No players found</div>';
+    playerList.innerHTML = '<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-3);">No players found</div>';
     return;
   }
 
@@ -1032,7 +1277,6 @@ function filterPlayers() {
   const searchTerm = document.getElementById('player-search').value.toLowerCase().trim();
   const clearBtn = document.getElementById('clear-btn');
   
-  // Show/hide clear button
   clearBtn.style.display = searchTerm ? 'block' : 'none';
   
   if (!searchTerm) {
@@ -1040,7 +1284,6 @@ function filterPlayers() {
     return;
   }
 
-  // Filter players by name or team
   const filtered = state.availableReplacements.filter(p => 
     p.name.toLowerCase().includes(searchTerm) || 
     p.teamName.toLowerCase().includes(searchTerm)
@@ -1065,6 +1308,8 @@ function makeTransfer(outId, inId, inName) {
   const outIdx = state.currentTeam.findIndex(p => p.element === outId);
   if (outIdx !== -1) {
     const inPlayer = state.playerMap[inId];
+    const outPlayer = state.currentTeam[outIdx];
+    
     state.currentTeam[outIdx] = {
       ...inPlayer,
       element: inId,
@@ -1073,6 +1318,12 @@ function makeTransfer(outId, inId, inName) {
       is_vice_captain: false,
     };
     
+    state.transferHistory.push({
+      out: outPlayer,
+      in: inPlayer,
+      timestamp: Date.now(),
+    });
+
     state.transfers.push({ out: outId, in: inId, gw: state.currentGW });
     state.transfersUsed++;
   }
@@ -1081,7 +1332,61 @@ function makeTransfer(outId, inId, inName) {
   renderTeam();
   updateFormation();
   updatePredicted();
+  renderTransferHistory();
   showAlert(`Transferred to ${inName}`, 'success');
+}
+
+// ===== TRANSFER HISTORY =====
+function renderTransferHistory() {
+  const container = document.getElementById('transfer-history-container');
+  
+  if (state.transferHistory.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const html = `
+    <div class="transfer-history-section">
+      <div class="transfer-history-title">Transfers Made (${state.transferHistory.length})</div>
+      ${state.transferHistory.map((t, idx) => `
+        <div class="transfer-item">
+          <div class="transfer-players">
+            <div class="transfer-player out">
+              <i class="fas fa-arrow-down"></i> ${t.out.name}
+            </div>
+            <div class="transfer-arrow">→</div>
+            <div class="transfer-player in">
+              <i class="fas fa-arrow-up"></i> ${t.in.name}
+            </div>
+          </div>
+          <button class="transfer-undo" onclick="undoTransfer(${idx})">
+            <i class="fas fa-undo"></i>
+          </button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+function undoTransfer(idx) {
+  const transfer = state.transferHistory[idx];
+  const cardIdx = state.currentTeam.findIndex(p => p.element === transfer.in.id);
+  
+  if (cardIdx !== -1) {
+    state.currentTeam[cardIdx] = transfer.out;
+  }
+
+  state.transferHistory.splice(idx, 1);
+  state.transfers.splice(idx, 1);
+  state.transfersUsed--;
+
+  renderTeam();
+  updateFormation();
+  updatePredicted();
+  renderTransferHistory();
+  showAlert('Transfer undone', 'info');
 }
 
 // ===== FORMATION =====
@@ -1115,17 +1420,19 @@ function updatePredicted() {
 
 // ===== RESET & CONFIRM =====
 function resetChanges() {
-  if (state.transfers.length === 0) {
+  if (state.transfers.length === 0 && state.transferHistory.length === 0) {
     showAlert('No changes to reset', 'info');
     return;
   }
   
   state.currentTeam = JSON.parse(JSON.stringify(state.originalTeam));
   state.transfers = [];
+  state.transferHistory = [];
   state.transfersUsed = 0;
   renderTeam();
   updateFormation();
   updatePredicted();
+  renderTransferHistory();
   showAlert('Squad reset', 'info');
 }
 
@@ -1135,119 +1442,17 @@ function confirmTransfers() {
     return;
   }
 
-  // Validate formation
   const startingXI = state.currentTeam.slice(0, 11);
   const gk = startingXI.filter(p => p.pos === 1).length;
   const def = startingXI.filter(p => p.pos === 2).length;
   const fwd = startingXI.filter(p => p.pos === 4).length;
 
   if (gk !== 1 || def < 3 || fwd < 1) {
-    showAlert('❌ Invalid formation for submission', 'error');
+    showAlert('❌ Invalid formation', 'error');
     return;
   }
 
-  // Show confirmation modal
-  showConfirmModal();
-}
-
-function showConfirmModal() {
-  const transfersList = document.getElementById('transfers-list');
-  const hitCost = state.transfersUsed > state.freeTransfers 
-    ? (state.transfersUsed - state.freeTransfers) * 4 
-    : 0;
-
-  transfersList.innerHTML = state.transfers.map((t, idx) => {
-    const outPlayer = state.originalTeam.find(p => p.element === t.out);
-    const inPlayer = state.playerMap[t.in];
-    return `
-      <div style="background: var(--border-3); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 0.8rem;">
-        <div style="margin-bottom: 6px; font-weight: 700;">Transfer ${idx + 1}</div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div style="flex: 1;">
-            <div style="color: var(--red); font-size: 0.75rem;">OUT: ${outPlayer?.name}</div>
-            <div style="color: var(--text-3); font-size: 0.7rem;">£${outPlayer?.formattedPrice}m</div>
-          </div>
-          <div style="color: var(--text-3);">→</div>
-          <div style="flex: 1;">
-            <div style="color: var(--accent); font-size: 0.75rem;">IN: ${inPlayer?.name}</div>
-            <div style="color: var(--text-3); font-size: 0.7rem;">£${inPlayer?.formattedPrice}m</div>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  document.getElementById('confirm-transfers-used').textContent = state.transfersUsed;
-  document.getElementById('confirm-hit-cost').textContent = hitCost > 0 ? `-${hitCost} pts` : '0 pts';
-  document.getElementById('confirm-modal').classList.add('show');
-}
-
-function closeConfirmModal() {
-  document.getElementById('confirm-modal').classList.remove('show');
-}
-
-async function submitTransfersToFPL() {
-  const submitBtn = document.querySelector('#confirm-modal .btn-action:last-of-type');
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-
-  try {
-    // Prepare transfer data for FPL API
-    const transferData = {
-      transfers: state.transfers.map(t => ({
-        element_in: t.in,
-        element_out: t.out,
-      })),
-      chip: null,
-    };
-
-    // Call FPL API endpoint
-    const response = await fetch(`${PROXY}entry/${state.fplId}/transfers/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(transferData),
-    });
-
-    if (response.ok) {
-      // Update original team
-      state.originalTeam = JSON.parse(JSON.stringify(state.currentTeam));
-      state.transfers = [];
-      state.transfersUsed = 0;
-      
-      closeConfirmModal();
-      showAlert('✅ Transfers submitted to FPL!', 'success');
-      
-      // Refresh data
-      setTimeout(() => {
-        fetchAndRender();
-      }, 1000);
-    } else {
-      throw new Error('Failed to submit transfers');
-    }
-  } catch (err) {
-    console.error('Submission error:', err);
-    showAlert('❌ Failed to submit transfers. Try again.', 'error');
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Submit to FPL';
-  }
-}
-
-function closeConfirmModal() {
-  document.getElementById('confirm-modal').classList.remove('show');
-}
-
-// ===== ALERTS =====
-function showAlert(message, type = 'info') {
-  const container = document.getElementById('alerts-container');
-  const alertEl = document.createElement('div');
-  alertEl.className = `alert alert-${type}`;
-  alertEl.textContent = message;
-  container.appendChild(alertEl);
-  
-  setTimeout(() => alertEl.remove(), 2000);
+  showAlert('✅ Transfers confirmed! Ready to submit to FPL.', 'success');
 }
 
 // ===== UTILITIES =====
@@ -1264,6 +1469,22 @@ function getPosClass(pos) {
   if (pos === 3) return 'mid';
   if (pos === 4) return 'fwd';
   return '';
+}
+
+function getDifficultyClass(difficulty) {
+  if (difficulty <= 2) return 'easy';
+  if (difficulty <= 3) return 'medium';
+  return 'hard';
+}
+
+function showAlert(message, type = 'info') {
+  const container = document.getElementById('alerts-container');
+  const alertEl = document.createElement('div');
+  alertEl.className = `alert alert-${type}`;
+  alertEl.textContent = message;
+  container.appendChild(alertEl);
+  
+  setTimeout(() => alertEl.remove(), 2000);
 }
 
 // ===== INIT =====
