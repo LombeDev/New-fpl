@@ -436,6 +436,59 @@
       background: var(--accent);
     }
 
+    /* ===== SEARCH BOX ===== */
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-3);
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .search-box i {
+      color: var(--text-3);
+      font-size: 0.9rem;
+    }
+
+    .search-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-1);
+      font-size: 0.9rem;
+      outline: none;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-3);
+    }
+
+    .search-clear {
+      background: none;
+      border: none;
+      color: var(--text-3);
+      cursor: pointer;
+      padding: 4px;
+      font-size: 1rem;
+      -webkit-tap-highlight-color: transparent;
+      transition: color var(--transition-fast);
+    }
+
+    .search-clear:hover {
+      color: var(--accent);
+    }
+
+    .no-results {
+      padding: 20px;
+      text-align: center;
+      color: var(--text-3);
+      font-size: 0.85rem;
+    }
+
     .player-option {
       background: var(--bg-3);
       padding: 8px;
@@ -685,6 +738,21 @@
       <h2 class="modal-title" id="modal-title">Select Replacement</h2>
       <button class="modal-close" onclick="closeTransferModal()">&times;</button>
     </div>
+    
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        class="search-input" 
+        id="player-search" 
+        placeholder="Search player name or team..."
+        oninput="filterPlayers()"
+      >
+      <button class="search-clear" onclick="clearSearch()" id="clear-btn" style="display: none;">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
     <div class="player-list" id="player-list">
       <!-- Players populated by JS -->
     </div>
@@ -735,6 +803,7 @@ const state = {
   currentTeam: [],
   originalTeam: [],
   allPlayers: [],
+  availableReplacements: [],
   currentGW: 1,
   cache: {},
   cacheTime: {},
@@ -922,9 +991,32 @@ function openTransferModal(playerId, playerName, playerPos) {
     return true;
   }).sort((a, b) => a.price - b.price); // Show all available
 
+  // Store all players for search
+  state.availableReplacements = availablePlayers;
+
+  document.getElementById('modal-title').textContent = `Replace ${playerName}`;
+  document.getElementById('player-search').value = '';
+  document.getElementById('clear-btn').style.display = 'none';
+  
+  renderPlayerList(availablePlayers);
+  document.getElementById('transfer-modal').classList.add('show');
+  
+  // Focus search input
+  setTimeout(() => {
+    document.getElementById('player-search').focus();
+  }, 100);
+}
+
+function renderPlayerList(players) {
   const playerList = document.getElementById('player-list');
-  playerList.innerHTML = availablePlayers.map(p => `
-    <div class="player-option" onclick="makeTransfer(${playerId}, ${p.id}, '${p.name}')">
+  
+  if (players.length === 0) {
+    playerList.innerHTML = '<div class="no-results" style="grid-column: 1/-1;">No players found</div>';
+    return;
+  }
+
+  playerList.innerHTML = players.map(p => `
+    <div class="player-option" onclick="makeTransfer(${state.selectedPlayerOut}, ${p.id}, '${p.name}')">
       <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos === 1 ? '_1' : ''}-66.png" 
         alt="${p.name}" onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
       <div class="player-option-info">
@@ -934,9 +1026,34 @@ function openTransferModal(playerId, playerName, playerPos) {
       </div>
     </div>
   `).join('');
+}
 
-  document.getElementById('modal-title').textContent = `Replace ${playerName}`;
-  document.getElementById('transfer-modal').classList.add('show');
+function filterPlayers() {
+  const searchTerm = document.getElementById('player-search').value.toLowerCase().trim();
+  const clearBtn = document.getElementById('clear-btn');
+  
+  // Show/hide clear button
+  clearBtn.style.display = searchTerm ? 'block' : 'none';
+  
+  if (!searchTerm) {
+    renderPlayerList(state.availableReplacements);
+    return;
+  }
+
+  // Filter players by name or team
+  const filtered = state.availableReplacements.filter(p => 
+    p.name.toLowerCase().includes(searchTerm) || 
+    p.teamName.toLowerCase().includes(searchTerm)
+  );
+
+  renderPlayerList(filtered);
+}
+
+function clearSearch() {
+  document.getElementById('player-search').value = '';
+  document.getElementById('clear-btn').style.display = 'none';
+  renderPlayerList(state.availableReplacements);
+  document.getElementById('player-search').focus();
 }
 
 function closeTransferModal() {
