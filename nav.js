@@ -12,7 +12,7 @@
     { href: 'leagues.html', label: 'Leagues', icon: 'fa-trophy' },
     { href: 'prices.html',  label: 'Prices',  icon: 'fa-tags' },
     { href: 'games.html',   label: 'Games',   icon: 'fa-gamepad' },
-    { href: 'prizes.html',  label: 'Prizes',  icon: 'fa-gift' },
+    { href: 'team.html',  label: 'My team',  icon: 'fa-gift' },
   ];
 
   // Get current page filename
