@@ -412,6 +412,28 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 8px;
+      max-height: 60vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-right: 4px;
+    }
+
+    .player-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .player-list::-webkit-scrollbar-track {
+      background: var(--bg-3);
+      border-radius: 3px;
+    }
+
+    .player-list::-webkit-scrollbar-thumb {
+      background: var(--border-3);
+      border-radius: 3px;
+    }
+
+    .player-list::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
     }
 
     .player-option {
@@ -898,7 +920,7 @@ function openTransferModal(playerId, playerName, playerPos) {
     if (teamCount >= MAX_SAME_TEAM) return false;
     
     return true;
-  }).sort((a, b) => a.price - b.price).slice(0, 10); // Show 10 cheapest
+  }).sort((a, b) => a.price - b.price); // Show all available
 
   const playerList = document.getElementById('player-list');
   playerList.innerHTML = availablePlayers.map(p => `
