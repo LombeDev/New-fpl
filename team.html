@@ -308,28 +308,24 @@
     .player-card:nth-child(5) { animation-delay: 0.20s; }
 
     .card-inner {
-      background: var(--bg-2);
-      border: 1px solid var(--border-2);
-      border-radius: var(--radius);
-      overflow: hidden;
+      background: transparent;
+      border: none;
+      overflow: visible;
       transition: all var(--trans);
     }
 
     .player-card:hover .card-inner {
-      border-color: rgba(0,230,118,0.35);
-      box-shadow: 0 6px 24px rgba(0,230,118,0.12), 0 2px 8px rgba(0,0,0,0.4);
       transform: translateY(-2px);
     }
 
-    .player-card.selected .card-inner {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-glow);
+    .player-card.selected .jersey-wrap img {
+      filter: drop-shadow(0 0 5px var(--accent)) drop-shadow(0 4px 8px rgba(0,0,0,0.5));
     }
 
     /* Jersey area */
     .card-jersey {
       position: relative;
-      background: linear-gradient(160deg, var(--bg-3) 0%, var(--bg-2) 100%);
+      background: transparent;
       padding: 6px 4px 3px;
       display: flex;
       flex-direction: column;
@@ -399,16 +395,40 @@
 
     /* Card bottom */
     .card-info {
-      padding: 3px 3px 4px;
-      background: var(--bg-2);
+      padding: 3px 0 0;
+      background: transparent;
+      text-align: center;
     }
 
     .card-pos-row {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
+      gap: 3px;
       margin-bottom: 2px;
     }
+
+    /* Fixture pills */
+    .fixture-pills {
+      display: flex;
+      gap: 2px;
+      justify-content: center;
+      margin-top: 3px;
+    }
+
+    .fix-pill {
+      font-size: 0.42rem;
+      font-weight: 700;
+      padding: 1px 3px;
+      border-radius: 3px;
+      font-family: 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.2px;
+      line-height: 1.3;
+    }
+
+    .fix-pill.easy   { background: rgba(0,230,118,0.18); color: var(--accent); }
+    .fix-pill.medium { background: rgba(255,159,67,0.18); color: var(--orange); }
+    .fix-pill.hard   { background: rgba(255,71,87,0.18);  color: var(--red); }
 
     .pos-badge {
       font-size: 0.48rem;
@@ -1276,7 +1296,30 @@ async function initBootstrap() {
 
   const live = data.events.find(e => e.is_current) || data.events.find(e => e.is_next) || data.events.at(-1);
   S.currentGW = live.id;
-}
+
+  // Build fixture map: teamId → next 2 fixtures
+  try {
+    const fixtures = await cf(`${PROXY}fixtures/?future=1`);
+    if (fixtures) {
+      const upcoming = fixtures.filter(f => f.event >= S.currentGW && !f.finished).slice(0, 100);
+      const teamFixtures = {};
+      upcoming.forEach(f => {
+        const hTeam = S.teamMap[f.team_h];
+        const aTeam = S.teamMap[f.team_a];
+        if (hTeam) {
+          if (!teamFixtures[hTeam.short]) teamFixtures[hTeam.short] = [];
+          if (teamFixtures[hTeam.short].length < 2)
+            teamFixtures[hTeam.short].push({ opp: aTeam?.short || '?', d: f.team_h_difficulty });
+        }
+        if (aTeam) {
+          if (!teamFixtures[aTeam.short]) teamFixtures[aTeam.short] = [];
+          if (teamFixtures[aTeam.short].length < 2)
+            teamFixtures[aTeam.short].push({ opp: hTeam?.short || '?', d: f.team_a_difficulty });
+        }
+      });
+      S.fixtureMap = teamFixtures;
+    }
+  } catch(e) { /* fixtures optional */ }
 
 // ===== DEMO DATA (when API unavailable) =====
 function useDemoData() {
@@ -1321,6 +1364,22 @@ function useDemoData() {
   S.originalTeam = JSON.parse(JSON.stringify(S.currentTeam));
   S.allPlayers = Object.values(S.playerMap);
   S.currentGW = 12;
+
+  // Demo fixture data: teamShort → next 2 fixtures [{opp, difficulty}]
+  S.fixtureMap = {
+    'Brentford':   [{opp:'SHU',d:1},{opp:'WOL',d:2}],
+    'Liverpool':   [{opp:'MCI',d:5},{opp:'ARS',d:4}],
+    'Tottenham':   [{opp:'BHA',d:2},{opp:'NEW',d:3}],
+    'Everton':     [{opp:'BUR',d:1},{opp:'LUT',d:2}],
+    'Chelsea':     [{opp:'NEW',d:3},{opp:'TOT',d:3}],
+    'Arsenal':     [{opp:'LIV',d:4},{opp:'MCI',d:5}],
+    'Man Utd':     [{opp:'WHU',d:2},{opp:'ARS',d:4}],
+    'Aston Villa': [{opp:'BRE',d:2},{opp:'FUL',d:2}],
+    'Man City':    [{opp:'LIV',d:4},{opp:'CHE',d:3}],
+    'ARS':         [{opp:'LIV',d:4},{opp:'MCI',d:5}],
+    'BRI':         [{opp:'EVE',d:2},{opp:'BRE',d:2}],
+    'FUL':         [{opp:'AVL',d:3},{opp:'BHA',d:2}],
+  };
 
   document.getElementById('disp-team').textContent = 'Demo United';
   document.getElementById('disp-name').textContent = 'Kopala FPL Demo';
@@ -1546,15 +1605,21 @@ function renderPlayerCard(p, forBench = false) {
   const posLabel = ['','GK','DEF','MID','FWD'][p.pos] || '?';
 
   let capBadge = '';
-  if (p.is_captain)       capBadge = `<div class="captain-badge c">C</div>`;
+  if (p.is_captain)           capBadge = `<div class="captain-badge c">C</div>`;
   else if (p.is_vice_captain) capBadge = `<div class="captain-badge vc">V</div>`;
 
   const statusDot = p.status === 'i' || p.status === 'u' ? `<div class="status-dot injured"></div>` :
-                    p.status === 'd' ? `<div class="status-dot doubt"></div>` :
-                    `<div class="status-dot ok"></div>`;
+                    p.status === 'd' ? `<div class="status-dot doubt"></div>` : '';
 
-  const shortName = p.name?.length > 9 ? p.name.slice(0, 8) + '…' : (p.name || '?');
-  const ownerPct = Math.min(parseFloat(p.ownership) || 0, 100);
+  const shortName = p.name?.length > 7 ? p.name.slice(0, 6) + '…' : (p.name || '?');
+
+  // Fixtures
+  const teamKey = p.teamShort || p.teamName || '';
+  const fixes = S.fixtureMap[teamKey] || [];
+  const diffClass = d => d <= 2 ? 'easy' : d === 3 ? 'medium' : 'hard';
+  const fixturePills = fixes.slice(0, 2).map(f =>
+    `<span class="fix-pill ${diffClass(f.d)}">${f.opp}</span>`
+  ).join('');
 
   return `
     <div class="player-card${forBench ? ' bench-card' : ''}" onclick="selectCard(this, ${p.element || p.id})">
@@ -1572,12 +1637,9 @@ function renderPlayerCard(p, forBench = false) {
         <div class="card-info">
           <div class="card-pos-row">
             <span class="pos-badge ${posClass}">${posLabel}</span>
-            <span class="team-tag">${p.teamShort || p.teamName || ''}</span>
           </div>
           <div class="player-name-card">${shortName}</div>
-          <div class="ownership-bar">
-            <div class="ownership-fill" style="width:${ownerPct}%"></div>
-          </div>
+          ${fixturePills ? `<div class="fixture-pills">${fixturePills}</div>` : ''}
         </div>
       </div>
     </div>
@@ -1891,6 +1953,5 @@ if (document.readyState === 'loading') {
   boot();
 }
 </script>
- 
 </body>
 </html>
