@@ -46,58 +46,59 @@
 
     #nav-placeholder { padding-top: var(--safe-top); }
 
-    img { content-visibility: auto; will-change: contents; background: var(--bg-2); border-radius: 8px; }
+    img {
+      content-visibility: auto;
+      will-change: contents;
+      background: var(--bg-2);
+      border-radius: 8px;
+    }
 
-    /* ===== HEADER ===== */
+    /* ===== HEADER INFO ===== */
     .header-info {
       background: var(--bg-2);
       border-bottom: 1px solid var(--border-3);
-      padding: 12px;
-      margin-bottom: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
     }
 
     .manager-header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
-      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
     }
 
     .manager-info h1 {
-      font-size: 1.2rem;
+      font-size: 1.5rem;
       font-weight: 700;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
 
     .manager-info p {
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       color: var(--text-3);
     }
 
     .header-buttons {
       display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .btn-action {
-      padding: 6px 10px;
+      padding: 8px 12px;
       background: var(--accent);
       color: var(--bg-1);
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       transition: all var(--transition-fast);
       -webkit-tap-highlight-color: transparent;
-      white-space: nowrap;
     }
 
     .btn-action:hover { background: var(--accent-dark, #1a8f5f); }
     .btn-action:active { transform: scale(0.95); }
-    .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .btn-secondary {
       background: var(--bg-3);
@@ -108,127 +109,115 @@
     /* ===== STATS GRID ===== */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-      gap: 8px;
-      margin-top: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
     }
 
     .stat-item {
       background: var(--bg-3);
-      padding: 6px;
-      border-radius: 6px;
+      padding: 10px;
+      border-radius: 8px;
       text-align: center;
-      border: 1px solid var(--border-3);
     }
 
     .stat-label {
-      font-size: 0.6rem;
+      font-size: 0.7rem;
       color: var(--text-3);
       text-transform: uppercase;
-      letter-spacing: 0.2px;
-      margin-bottom: 2px;
+      letter-spacing: 0.3px;
+      margin-bottom: 4px;
     }
 
     .stat-value {
-      font-size: 1rem;
+      font-size: 1.3rem;
       font-weight: 700;
       font-family: 'Barlow Condensed', sans-serif;
       color: var(--text-1);
     }
 
-    /* ===== FORMATION ===== */
-    .formation-display {
-      background: var(--bg-3);
-      padding: 6px;
-      border-radius: 6px;
-      text-align: center;
-      border: 1px solid var(--border-3);
-      margin-top: 8px;
-    }
-
-    .formation-label {
-      font-size: 0.6rem;
+    .stat-change {
+      font-size: 0.75rem;
+      margin-top: 4px;
       color: var(--text-3);
-      text-transform: uppercase;
-      margin-bottom: 2px;
     }
 
-    .formation-value {
-      font-size: 1rem;
-      font-weight: 700;
-      font-family: 'Barlow Condensed', sans-serif;
-      color: var(--accent);
-    }
+    .stat-change.positive { color: var(--green); }
+    .stat-change.negative { color: var(--red); }
 
-    /* ===== SQUAD SECTIONS ===== */
-    .squad-section {
-      margin-bottom: 16px;
-      padding: 0 12px;
-    }
-
-    .section-title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: var(--text-3);
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      margin-bottom: 8px;
-      padding: 6px 0;
+    /* ===== TABS ===== */
+    .tabs {
+      display: flex;
+      gap: 16px;
       border-bottom: 1px solid var(--border-3);
+      padding: 0 16px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
-    .players-grid {
+    .tab {
+      padding: 12px 0;
+      border: none;
+      background: none;
+      color: var(--text-3);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all var(--transition-normal);
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .tab.active {
+      color: var(--text-1);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ===== TEAM GRID - 5 COLUMNS ===== */
+    .team-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 4px;
+      gap: 8px;
+      padding: 0 16px 24px;
+      margin-bottom: 24px;
     }
 
-    /* ===== PLAYER CARD ===== */
     .player-card {
       background: var(--bg-2);
-      border: 0.5px solid var(--border-3);
-      border-radius: 5px;
+      border: 1px solid var(--border-3);
+      border-radius: 10px;
       overflow: hidden;
       transition: all var(--transition-normal);
       cursor: pointer;
       position: relative;
       display: flex;
       flex-direction: column;
-      font-size: 0.55rem;
-      touch-action: none;
+      font-size: 0.8rem;
     }
 
     .player-card:hover {
       border-color: var(--accent);
-      box-shadow: 0 2px 8px rgba(26, 167, 96, 0.2);
+      box-shadow: 0 4px 12px rgba(26, 167, 96, 0.2);
       transform: translateY(-1px);
-    }
-
-    .player-card.selected {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(26, 167, 96, 0.3);
-    }
-
-    .player-card.dragging {
-      opacity: 0.7;
-      border-color: var(--accent);
     }
 
     .player-card-header {
       background: linear-gradient(135deg, var(--bg-3) 0%, var(--bg-2) 100%);
-      padding: 1px 2px;
+      padding: 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 0.5px solid var(--border-3);
-      gap: 1px;
+      border-bottom: 1px solid var(--border-3);
+      gap: 4px;
     }
 
     .player-team {
       background: rgba(255, 255, 255, 0.1);
-      padding: 0.5px 1px;
-      border-radius: 1px;
-      font-size: 0.4rem;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 0.65rem;
       font-weight: 600;
       color: var(--text-3);
     }
@@ -236,9 +225,9 @@
     .player-pos {
       background: var(--accent);
       color: var(--bg-1);
-      padding: 0.5px 1px;
-      border-radius: 1px;
-      font-size: 0.4rem;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 0.65rem;
       font-weight: 700;
     }
 
@@ -247,60 +236,60 @@
     .player-pos.fwd { background: #ef4444; }
 
     .player-jersey {
-      padding: 2px 1px;
+      padding: 8px 4px;
       display: flex;
       justify-content: center;
       align-items: center;
       background: rgba(26, 167, 96, 0.05);
-      min-height: 22px;
+      min-height: 50px;
       flex: 1;
     }
 
     .player-jersey img {
       width: 100%;
-      max-width: 20px;
+      max-width: 45px;
       height: auto;
       object-fit: contain;
     }
 
     .player-info {
-      padding: 2px;
+      padding: 6px;
       display: flex;
       flex-direction: column;
-      gap: 0.5px;
+      gap: 3px;
     }
 
     .player-name {
       font-weight: 700;
-      line-height: 1;
-      font-size: 0.5rem;
-      min-height: 10px;
+      line-height: 1.1;
+      font-size: 0.75rem;
     }
 
     .player-stats {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 0.5px;
+      gap: 3px;
     }
 
     .player-stat {
       background: var(--bg-3);
-      padding: 0.5px;
-      border-radius: 1px;
+      padding: 3px;
+      border-radius: 3px;
       text-align: center;
-      font-size: 0.4rem;
+      font-size: 0.65rem;
     }
 
     .player-stat-label {
       color: var(--text-3);
       text-transform: uppercase;
-      font-size: 0.35rem;
+      font-size: 0.55rem;
+      letter-spacing: 0.2px;
     }
 
     .player-stat-value {
       font-weight: 700;
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.6rem;
+      font-size: 0.85rem;
       color: var(--text-1);
     }
 
@@ -308,47 +297,141 @@
       color: var(--accent);
     }
 
-    /* ===== CAPTAIN/VC BADGES ===== */
+    .player-stat-value.red {
+      color: var(--red);
+    }
+
+    .player-ownership {
+      height: 2px;
+      background: var(--bg-3);
+      border-radius: 1px;
+      overflow: hidden;
+      margin-top: 3px;
+    }
+
+    .player-ownership-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, var(--accent));
+    }
+
     .captain-badge {
       position: absolute;
-      top: 0.5px;
-      right: 0.5px;
-      width: 10px;
-      height: 10px;
+      top: 2px;
+      right: 2px;
+      width: 18px;
+      height: 18px;
       background: var(--red);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.35rem;
+      font-size: 0.6rem;
       font-weight: 900;
       color: white;
-      border: 0.3px solid var(--bg-2);
+      border: 1px solid var(--bg-2);
     }
 
     .captain-badge.vc {
       background: #f97316;
     }
 
-    .bench-badge {
-      position: absolute;
-      top: 0.5px;
-      left: 0.5px;
-      width: 10px;
-      height: 10px;
-      background: var(--text-3);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.35rem;
-      font-weight: 900;
-      color: white;
-      border: 0.3px solid var(--bg-2);
+    /* ===== TRANSFER SECTION ===== */
+    .transfer-section {
+      background: var(--bg-2);
+      border: 1px solid var(--border-3);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 0 16px 16px;
     }
 
-    /* ===== CAPTAIN MODAL ===== */
-    .captain-modal {
+    .transfer-title {
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    .transfer-picker {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .transfer-select {
+      background: var(--bg-3);
+      border: 1px solid var(--border-3);
+      color: var(--text-1);
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .transfer-arrow {
+      text-align: center;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .transfer-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .btn-transfer {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all var(--transition-fast);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-confirm {
+      background: var(--accent);
+      color: var(--bg-1);
+    }
+
+    .btn-confirm:hover { background: var(--accent-dark, #1a8f5f); }
+
+    .btn-cancel {
+      background: var(--bg-3);
+      color: var(--text-1);
+      border: 1px solid var(--border-3);
+    }
+
+    /* ===== BENCH ===== */
+    .bench-section {
+      background: var(--bg-2);
+      border: 1px solid var(--border-3);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 0 16px 24px;
+    }
+
+    .bench-title {
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      color: var(--text-3);
+      letter-spacing: 0.3px;
+    }
+
+    .bench-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 8px;
+    }
+
+    /* ===== MODAL ===== */
+    .modal {
       display: none;
       position: fixed;
       top: 0;
@@ -357,40 +440,33 @@
       height: 100%;
       background: rgba(0, 0, 0, 0.7);
       z-index: 1000;
-      align-items: flex-end;
+      align-items: center;
       justify-content: center;
-      padding: 0;
-      padding-bottom: var(--safe-bottom);
+      padding: 16px;
     }
 
-    .captain-modal.show {
+    .modal.show {
       display: flex;
     }
 
-    .captain-modal-content {
+    .modal-content {
       background: var(--bg-2);
       border: 1px solid var(--border-3);
-      border-radius: 12px 12px 0 0;
-      padding: 12px;
-      max-width: 100%;
+      border-radius: 12px;
+      padding: 16px;
+      max-width: 500px;
       width: 100%;
-      max-height: 60vh;
+      max-height: 80vh;
       overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
     }
 
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
       border-bottom: 1px solid var(--border-3);
-      padding-bottom: 10px;
-    }
-
-    .modal-title {
-      font-size: 0.95rem;
-      font-weight: 700;
+      padding-bottom: 12px;
     }
 
     .modal-close {
@@ -398,188 +474,26 @@
       border: none;
       color: var(--text-1);
       cursor: pointer;
-      font-size: 1.3rem;
-      -webkit-tap-highlight-color: transparent;
-      padding: 4px;
-    }
-
-    .captain-options {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .captain-option {
-      background: var(--bg-3);
-      padding: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      border: 1px solid var(--border-3);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .captain-option:hover {
-      background: var(--border-3);
-      border-color: var(--accent);
-    }
-
-    .captain-option img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    .captain-option-info {
-      flex: 1;
-    }
-
-    .captain-option-name {
-      font-weight: 600;
-      font-size: 0.85rem;
-      margin-bottom: 2px;
-    }
-
-    .captain-option-details {
-      font-size: 0.7rem;
-      color: var(--text-3);
-      margin-bottom: 2px;
-    }
-
-    .captain-option-pred {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .captain-button-group {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .captain-btn {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: all var(--transition-fast);
-    }
-
-    .captain-btn.primary {
-      background: var(--red);
-      color: white;
-    }
-
-    .captain-btn.secondary {
-      background: #f97316;
-      color: white;
-    }
-
-    .captain-btn.clear {
-      background: var(--bg-3);
-      color: var(--text-1);
-      border: 1px solid var(--border-3);
-    }
-
-    /* ===== TRANSFER MODAL ===== */
-    .transfer-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 1000;
-      align-items: flex-end;
-      justify-content: center;
-      padding: 0;
-      padding-bottom: var(--safe-bottom);
-    }
-
-    .transfer-modal.show {
-      display: flex;
-    }
-
-    .transfer-modal-content {
-      background: var(--bg-2);
-      border: 1px solid var(--border-3);
-      border-radius: 12px 12px 0 0;
-      padding: 12px;
-      max-width: 100%;
-      width: 100%;
-      max-height: 80vh;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .search-box {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px;
-      background: var(--bg-3);
-      border: 1px solid var(--border-3);
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
-
-    .search-box i {
-      color: var(--text-3);
-      font-size: 0.9rem;
-    }
-
-    .search-input {
-      flex: 1;
-      background: none;
-      border: none;
-      color: var(--text-1);
-      font-size: 0.9rem;
-      outline: none;
-      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    }
-
-    .search-input::placeholder {
-      color: var(--text-3);
-    }
-
-    .search-clear {
-      background: none;
-      border: none;
-      color: var(--text-3);
-      cursor: pointer;
-      padding: 4px;
-      font-size: 1rem;
+      font-size: 1.5rem;
       -webkit-tap-highlight-color: transparent;
     }
 
     .player-list {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      max-height: 60vh;
+      max-height: 400px;
       overflow-y: auto;
-      padding-right: 4px;
     }
 
     .player-option {
       background: var(--bg-3);
-      padding: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
       border-radius: 8px;
       cursor: pointer;
       transition: all var(--transition-fast);
-      border: 1px solid var(--border-3);
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 8px;
+      border: 1px solid var(--border-3);
     }
 
     .player-option:hover {
@@ -588,182 +502,69 @@
     }
 
     .player-option img {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       object-fit: cover;
     }
 
     .player-option-info {
-      text-align: center;
-      width: 100%;
+      flex: 1;
     }
 
     .player-option-name {
       font-weight: 600;
-      font-size: 0.75rem;
       margin-bottom: 2px;
     }
 
     .player-option-details {
-      font-size: 0.65rem;
-      color: var(--text-3);
-    }
-
-    .player-option-price {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-top: 2px;
-    }
-
-    /* ===== FIXTURE DISPLAY ===== */
-    .fixtures-row {
-      display: flex;
-      gap: 3px;
-      margin-top: 1px;
-    }
-
-    .fixture {
-      flex: 1;
-      height: 3px;
-      border-radius: 1px;
-      font-size: 0;
-      cursor: help;
-      position: relative;
-    }
-
-    .fixture.easy { background: #4ade80; }
-    .fixture.medium { background: #facc15; }
-    .fixture.hard { background: #ef4444; }
-
-    /* ===== TRANSFER HISTORY ===== */
-    .transfer-history-section {
-      background: var(--bg-2);
-      border: 1px solid var(--border-3);
-      border-radius: 8px;
-      padding: 10px;
-      margin: 0 12px 16px;
-    }
-
-    .transfer-history-title {
-      font-weight: 700;
-      margin-bottom: 10px;
-      font-size: 0.85rem;
-    }
-
-    .transfer-item {
-      background: var(--bg-3);
-      padding: 8px;
-      border-radius: 6px;
-      margin-bottom: 6px;
       font-size: 0.75rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .transfer-players {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex: 1;
-    }
-
-    .transfer-player {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .transfer-player.out { color: var(--red); }
-    .transfer-player.in { color: var(--accent); }
-
-    .transfer-arrow {
       color: var(--text-3);
-      font-size: 0.8rem;
-    }
-
-    .transfer-undo {
-      background: var(--border-3);
-      border: none;
-      color: var(--text-1);
-      padding: 4px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.7rem;
-      transition: all var(--transition-fast);
-    }
-
-    .transfer-undo:hover {
-      background: var(--accent);
-      color: white;
-    }
-
-    /* ===== ALERTS ===== */
-    .alert {
-      padding: 8px 10px;
-      border-radius: 6px;
-      margin: 0 12px 8px;
-      font-size: 0.8rem;
-      position: fixed;
-      top: var(--safe-top);
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 500;
-      animation: slideDown 0.3s ease-out;
-    }
-
-    @keyframes slideDown {
-      from { transform: translateX(-50%) translateY(-100%); }
-      to { transform: translateX(-50%) translateY(0); }
-    }
-
-    .alert-warning {
-      background: rgba(249, 115, 22, 0.1);
-      border: 1px solid #f97316;
-      color: #f97316;
-    }
-
-    .alert-error {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid var(--red);
-      color: var(--red);
-    }
-
-    .alert-success {
-      background: rgba(26, 167, 96, 0.1);
-      border: 1px solid var(--accent);
-      color: var(--accent);
     }
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
-      .players-grid {
+      .team-grid {
         grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    @media (max-width: 480px) {
-      .players-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      .header-info {
-        padding: 10px;
-      }
-
-      .manager-header {
-        flex-direction: column;
-        gap: 8px;
       }
 
       .stats-grid {
         grid-template-columns: repeat(2, 1fr);
       }
+    }
 
-      .player-list {
-        grid-template-columns: 1fr;
+    @media (max-width: 480px) {
+      .team-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        padding: 0 8px 16px;
+      }
+
+      .header-info {
+        padding: 12px 8px;
+      }
+
+      .tabs {
+        padding: 0 8px;
+      }
+
+      .transfer-section, .bench-section {
+        margin-left: 8px;
+        margin-right: 8px;
+      }
+
+      .player-card {
+        border-radius: 8px;
+        font-size: 0.75rem;
+      }
+
+      .player-jersey {
+        min-height: 40px;
+        padding: 6px 2px;
+      }
+
+      .player-info {
+        padding: 4px;
       }
     }
 
@@ -773,10 +574,10 @@
     }
 
     .player-card { animation: fadeIn 0.3s ease-out forwards; }
-    .player-card:nth-child(1) { animation-delay: 0.02s; }
-    .player-card:nth-child(2) { animation-delay: 0.04s; }
-    .player-card:nth-child(3) { animation-delay: 0.06s; }
-    .player-card:nth-child(n+4) { animation-delay: 0.08s; }
+    .player-card:nth-child(1) { animation-delay: 0.05s; }
+    .player-card:nth-child(2) { animation-delay: 0.1s; }
+    .player-card:nth-child(3) { animation-delay: 0.15s; }
+    .player-card:nth-child(n+4) { animation-delay: 0.2s; }
 
     @media (prefers-reduced-motion: reduce) {
       * {
@@ -803,10 +604,10 @@
         <p id="disp-name">Manager Name</p>
       </div>
       <div class="header-buttons">
-        <button class="btn-action btn-secondary" onclick="resetChanges()" title="Reset squad">
-          <i class="fas fa-undo"></i>
+        <button class="btn-action btn-secondary" onclick="resetChanges()" title="Reset">
+          <i class="fas fa-undo"></i> Reset
         </button>
-        <button class="btn-action" id="confirm-btn" onclick="confirmTransfers()" title="Confirm transfers to FPL">
+        <button class="btn-action" onclick="confirmChanges()" title="Confirm">
           <i class="fas fa-check"></i> Confirm
         </button>
       </div>
@@ -814,92 +615,90 @@
 
     <div class="stats-grid">
       <div class="stat-item">
-        <div class="stat-label">Value</div>
-        <div class="stat-value" id="squad-value">£100m</div>
+        <div class="stat-label">Squad Value</div>
+        <div class="stat-value" id="squad-value">£100.0m</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Spent</div>
+        <div class="stat-value" id="spent-value">£100.0m</div>
       </div>
       <div class="stat-item">
         <div class="stat-label">ITB</div>
         <div class="stat-value" id="itb-value">£0.0m</div>
       </div>
       <div class="stat-item">
-        <div class="stat-label">Transfers</div>
-        <div class="stat-value" id="free-transfers">1</div>
+        <div class="stat-label">Hit Cost</div>
+        <div class="stat-value stat-change negative" id="hit-cost">-0</div>
       </div>
       <div class="stat-item">
         <div class="stat-label">Predicted</div>
         <div class="stat-value" id="predicted-pts">-</div>
       </div>
     </div>
+  </div>
 
-    <div class="formation-display">
-      <div class="formation-label">Formation</div>
-      <div class="formation-value" id="formation-display">4-3-3</div>
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('squad')">Squad</button>
+    <button class="tab" onclick="switchTab('transfers')">Transfers</button>
+    <button class="tab" onclick="switchTab('comparison')">Comparison</button>
+  </div>
+
+  <!-- SQUAD TAB -->
+  <div id="squad-tab" class="tab-content">
+    <div class="team-grid" id="team-grid">
+      <!-- Players populated by JS -->
+    </div>
+
+    <div class="bench-section">
+      <div class="bench-title">Substitutes</div>
+      <div class="bench-grid" id="bench-grid">
+        <!-- Bench players populated by JS -->
+      </div>
     </div>
   </div>
 
-  <!-- ALERTS -->
-  <div id="alerts-container"></div>
-
-  <!-- SQUAD -->
-  <div class="squad-section">
-    <div class="section-title">Starting XI</div>
-    <div class="players-grid" id="starting-grid">
-      <!-- Starting 11 populated by JS -->
+  <!-- TRANSFERS TAB -->
+  <div id="transfers-tab" class="tab-content" style="display: none;">
+    <div class="transfer-section">
+      <div class="transfer-title">Make a Transfer</div>
+      <div class="transfer-picker">
+        <select id="player-out" class="transfer-select" onchange="updateTransferPrice()">
+          <option value="">Select player to transfer out</option>
+        </select>
+        <div class="transfer-arrow">→</div>
+        <select id="player-in" class="transfer-select" onchange="updateTransferPrice()">
+          <option value="">Select player to transfer in</option>
+        </select>
+      </div>
+      <div class="transfer-actions">
+        <button class="btn-transfer btn-cancel" onclick="clearTransfer()">Clear</button>
+        <button class="btn-transfer btn-confirm" onclick="makeTransfer()">Transfer</button>
+      </div>
     </div>
+
+    <div id="transfers-history" style="padding: 0 16px;"></div>
   </div>
 
-  <div class="squad-section">
-    <div class="section-title">Substitutes (Drag to reorder)</div>
-    <div class="players-grid" id="bench-grid" style="grid-template-columns: repeat(4, 1fr);">
-      <!-- Bench 4 populated by JS -->
+  <!-- COMPARISON TAB -->
+  <div id="comparison-tab" class="tab-content" style="display: none;">
+    <div style="padding: 0 16px;">
+      <p style="color: var(--text-3); margin-bottom: 16px;">Compare your team with other formations or squads.</p>
+      <!-- Comparison content here -->
     </div>
   </div>
-
-  <!-- TRANSFER HISTORY -->
-  <div id="transfer-history-container"></div>
 
   <div id="footer-placeholder"></div>
 
 </main>
 
-<!-- CAPTAIN MODAL -->
-<div id="captain-modal" class="captain-modal">
-  <div class="captain-modal-content">
-    <div class="modal-header">
-      <h2 class="modal-title">Choose Captain</h2>
-      <button class="modal-close" onclick="closeCaptainModal()">&times;</button>
-    </div>
-    <div class="captain-options" id="captain-options">
-      <!-- Options populated by JS -->
-    </div>
-    <div class="captain-button-group">
-      <button class="captain-btn clear" onclick="closeCaptainModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
 <!-- TRANSFER MODAL -->
-<div id="transfer-modal" class="transfer-modal">
-  <div class="transfer-modal-content">
+<div id="transfer-modal" class="modal">
+  <div class="modal-content">
     <div class="modal-header">
-      <h2 class="modal-title" id="modal-title">Select Replacement</h2>
-      <button class="modal-close" onclick="closeTransferModal()">&times;</button>
+      <h2 id="modal-title">Select Player</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
     </div>
-    
-    <div class="search-box">
-      <i class="fas fa-search"></i>
-      <input 
-        type="text" 
-        class="search-input" 
-        id="player-search" 
-        placeholder="Search player..."
-        oninput="filterPlayers()"
-      >
-      <button class="search-clear" onclick="clearSearch()" id="clear-btn" style="display: none;">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-
     <div class="player-list" id="player-list">
       <!-- Players populated by JS -->
     </div>
@@ -907,34 +706,21 @@
 </div>
 
 <script>
-// ===== STATE =====
+// ===== STATE & CONFIG =====
 const state = {
-  fplId: localStorage.getItem('kopala_id'),
+  fplId:     localStorage.getItem('kopala_id'),
   playerMap: {},
-  teamMap: {},
-  fixtureMap: {},
+  teamMap:   {},
   currentTeam: [],
   originalTeam: [],
   allPlayers: [],
-  availableReplacements: [],
   currentGW: 1,
   cache: {},
   cacheTime: {},
-  transfers: [],
-  transferHistory: [],
-  selectedPlayerOut: null,
-  selectedCaptain: null,
-  selectedViceCaptain: null,
-  selectedPosForCaptain: null,
-  freeTransfers: 1,
-  transfersUsed: 0,
 };
 
 const PROXY = '/.netlify/functions/fpl-proxy?endpoint=';
 const CACHE_TTL = 5 * 60 * 1000;
-const TRANSFER_HIT = 4;
-const SQUAD_SIZE_LIMIT = 100;
-const MAX_SAME_TEAM = 3;
 
 // ===== CACHING =====
 async function cachedFetch(url) {
@@ -956,57 +742,30 @@ async function initBootstrap() {
 
   const teamMap = {};
   const playerMap = {};
-  const fixtureMap = {};
   const allPlayers = [];
   
   data.teams.forEach(t => { 
-    teamMap[t.id] = { 
-      code: t.code, 
-      name: t.name, 
-      short_name: t.short_name 
-    }; 
-  });
-  
-  // Build fixture map (player -> next 5 fixtures)
-  const fixtures = data.fixtures || [];
-  fixtures.forEach(f => {
-    if (!fixtureMap[f.team_a]) fixtureMap[f.team_a] = [];
-    if (!fixtureMap[f.team_h]) fixtureMap[f.team_h] = [];
-    fixtureMap[f.team_a].push({
-      opponent: f.team_h_code,
-      difficulty: f.difficulty_home,
-      isHome: false,
-    });
-    fixtureMap[f.team_h].push({
-      opponent: f.team_a_code,
-      difficulty: f.difficulty_away,
-      isHome: true,
-    });
+    teamMap[t.id] = { code: t.code, name: t.name, short_name: t.short_name }; 
   });
   
   data.elements.forEach(p => {
     const team = teamMap[p.team];
-    const fixtures = (fixtureMap[p.team] || []).slice(0, 5);
     const player = {
       id: p.id,
       name: p.web_name,
       teamCode: team?.code || '1',
       teamName: team?.short_name || 'UNK',
-      teamId: p.team,
       pos: p.element_type,
       ownership: p.selected_by_percent || 0,
       price: p.now_cost / 10,
       formattedPrice: (p.now_cost / 10).toFixed(1),
-      predicted: (Math.random() * 8).toFixed(1),
-      minutes: p.minutes || 0,
-      total_points: p.total_points || 0,
-      fixtures: fixtures,
+      predicted: Math.random() * 8, // Mock prediction
     };
     playerMap[p.id] = player;
     allPlayers.push(player);
   });
 
-  Object.assign(state, { teamMap, playerMap, fixtureMap, allPlayers });
+  Object.assign(state, { teamMap, playerMap, allPlayers });
 
   const live = data.events.find(e => e.is_current) || 
                data.events.find(e => e.is_next) || 
@@ -1033,10 +792,12 @@ async function fetchAndRender() {
     });
 
     const teamValue = (entry.last_deadline_value / 10).toFixed(1);
-    state.freeTransfers = entry.extra_free_transfers ?? 1;
+    const spent = (entry.last_deadline_value / 10).toFixed(1);
+    const itb = 0;
 
     document.getElementById('squad-value').textContent = `£${teamValue}m`;
-    document.getElementById('free-transfers').textContent = state.freeTransfers;
+    document.getElementById('spent-value').textContent = `£${spent}m`;
+    document.getElementById('itb-value').textContent = `£${itb.toFixed(1)}m`;
 
     // Setup team data
     state.currentTeam = picks.picks.map(p => ({
@@ -1045,14 +806,13 @@ async function fetchAndRender() {
       currentPts: ptsMap[p.element] || 0,
     }));
     state.originalTeam = JSON.parse(JSON.stringify(state.currentTeam));
-    state.selectedCaptain = picks.picks.find(p => p.is_captain)?.element;
-    state.selectedViceCaptain = picks.picks.find(p => p.is_vice_captain)?.element;
+
+    // Populate dropdowns
+    populateDropdowns();
 
     // Render
     renderTeam();
-    updateFormation();
     updatePredicted();
-    renderTransferHistory();
   } catch (err) {
     console.error('Error:', err);
   }
@@ -1063,396 +823,183 @@ function renderTeam() {
   const startingXI = state.currentTeam.slice(0, 11);
   const bench = state.currentTeam.slice(11);
 
-  const renderCards = (players, grid, isBench = false) => {
-    grid.innerHTML = players.map((p, idx) => {
-      const shirtSrc = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos === 1 ? '_1' : ''}-66.png`;
-      const predicted = (parseFloat(p.currentPts) * 0.9 + parseFloat(p.predicted)).toFixed(1);
-      const fixtures = p.fixtures || [];
-
-      let badge = '';
-      if (p.is_captain) badge = '<div class="captain-badge">C</div>';
-      else if (p.is_vice_captain) badge = '<div class="captain-badge vc">V</div>';
-      
-      if (isBench && idx < 4) {
-        badge += `<div class="bench-badge">${idx + 1}</div>`;
-      }
-
-      const fixturesHtml = fixtures.length > 0 ? `
-        <div class="fixtures-row">
-          ${fixtures.map(f => `<div class="fixture ${getDifficultyClass(f.difficulty)}" title="${f.opponent}"></div>`).join('')}
-        </div>
-      ` : '';
-
-      return `
-        <div class="player-card" onclick="openCaptainModal(${p.element})" data-player-id="${p.element}" ${isBench ? `draggable="true"` : ''}>
-          ${badge}
-          <div class="player-card-header">
-            <div class="player-team">${p.teamName}</div>
-            <div class="player-pos ${getPosClass(p.pos)}">${getPosLabel(p.pos)}</div>
-          </div>
-          <div class="player-jersey">
-            <img src="${shirtSrc}" alt="${p.name}" loading="lazy" decoding="async"
-              onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
-          </div>
-          <div class="player-info">
-            <div class="player-name">${p.name}</div>
-            <div class="player-stats">
-              <div class="player-stat">
-                <div class="player-stat-label">Pts</div>
-                <div class="player-stat-value">${p.currentPts}</div>
-              </div>
-              <div class="player-stat">
-                <div class="player-stat-label">Pred</div>
-                <div class="player-stat-value predicted">${predicted}</div>
-              </div>
-            </div>
-            ${fixturesHtml}
-          </div>
-        </div>
-      `;
-    }).join('');
-  };
-
-  const startGrid = document.getElementById('starting-grid');
-  const benchGrid = document.getElementById('bench-grid');
-
-  renderCards(startingXI, startGrid, false);
-  renderCards(bench, benchGrid, true);
-
-  // Add drag event listeners for bench
-  if (!isBench) {
-    setTimeout(() => {
-      const benchCards = document.querySelectorAll('#bench-grid .player-card');
-      benchCards.forEach((card, idx) => {
-        card.addEventListener('dragstart', (e) => {
-          e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('dragIndex', idx);
-          card.classList.add('dragging');
-        });
-
-        card.addEventListener('dragend', () => {
-          card.classList.remove('dragging');
-        });
-
-        card.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          e.dataTransfer.dropEffect = 'move';
-        });
-
-        card.addEventListener('drop', (e) => {
-          e.preventDefault();
-          const dragIndex = parseInt(e.dataTransfer.getData('dragIndex'));
-          const dropIndex = idx;
-          
-          if (dragIndex !== dropIndex) {
-            const bench = state.currentTeam.slice(11);
-            [bench[dragIndex], bench[dropIndex]] = [bench[dropIndex], bench[dragIndex]];
-            renderTeam();
-          }
-        });
-      });
-    }, 100);
-  }
-}
-
-// ===== CAPTAIN SELECTION =====
-function openCaptainModal(playerId) {
-  const startingXI = state.currentTeam.slice(0, 11);
-  const captainOptions = startingXI.sort((a, b) => {
-    const predA = parseFloat(a.currentPts) * 0.9 + parseFloat(a.predicted);
-    const predB = parseFloat(b.currentPts) * 0.9 + parseFloat(b.predicted);
-    return predB - predA;
-  });
-
-  const optionsHtml = captainOptions.map(p => {
+  const grid = document.getElementById('team-grid');
+  grid.innerHTML = startingXI.map((p, idx) => {
     const shirtSrc = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos === 1 ? '_1' : ''}-66.png`;
-    const predicted = (parseFloat(p.currentPts) * 0.9 + parseFloat(p.predicted)).toFixed(1);
-    const isCaptain = p.element === state.selectedCaptain;
-    const isVc = p.element === state.selectedViceCaptain;
+    const predicted = (p.currentPts * 0.9 + p.predicted).toFixed(1);
+
+    let badge = '';
+    if (p.is_captain) badge = '<div class="captain-badge">C</div>';
+    else if (p.is_vice_captain) badge = '<div class="captain-badge vc">V</div>';
 
     return `
-      <div class="captain-option">
-        <img src="${shirtSrc}" alt="${p.name}" onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
-        <div class="captain-option-info">
-          <div class="captain-option-name">${p.name} ${isCaptain ? '(C)' : isVc ? '(V)' : ''}</div>
-          <div class="captain-option-details">${p.teamName} • ${getPosLabel(p.pos)}</div>
-          <div class="captain-option-pred">Predicted: ${predicted} pts</div>
+      <div class="player-card" onclick="selectPlayerCard(this, ${p.element})">
+        ${badge}
+        <div class="player-card-header">
+          <div class="player-team">${p.teamName}</div>
+          <div class="player-pos ${getPosClass(p.pos)}">${getPosLabel(p.pos)}</div>
         </div>
-        <div style="display: flex; gap: 4px; flex-direction: column;">
-          <button class="captain-btn primary" onclick="setCaptain(${p.element})">Captain</button>
-          <button class="captain-btn secondary" onclick="setViceCaptain(${p.element})">VC</button>
+        <div class="player-jersey">
+          <img src="${shirtSrc}" alt="${p.name}" loading="lazy" decoding="async"
+            onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
+        </div>
+        <div class="player-info">
+          <div class="player-name">${p.name}</div>
+          <div class="player-stats">
+            <div class="player-stat">
+              <div class="player-stat-label">Pts</div>
+              <div class="player-stat-value">${p.currentPts}</div>
+            </div>
+            <div class="player-stat">
+              <div class="player-stat-label">Pred</div>
+              <div class="player-stat-value predicted">${predicted}</div>
+            </div>
+          </div>
+          <div class="player-ownership">
+            <div class="player-ownership-fill" style="width: ${Math.min(p.ownership, 100)}%"></div>
+          </div>
         </div>
       </div>
     `;
   }).join('');
 
-  document.getElementById('captain-options').innerHTML = optionsHtml;
-  document.getElementById('captain-modal').classList.add('show');
-}
-
-function setCaptain(playerId) {
-  state.selectedCaptain = playerId;
-  state.selectedViceCaptain = null;
-  
-  // Update team data
-  state.currentTeam.forEach(p => {
-    p.is_captain = p.element === playerId;
-    p.is_vice_captain = false;
-  });
-
-  renderTeam();
-  updatePredicted();
-  closeCaptainModal();
-  showAlert('✓ Captain set', 'success');
-}
-
-function setViceCaptain(playerId) {
-  state.selectedViceCaptain = playerId;
-  
-  state.currentTeam.forEach(p => {
-    p.is_vice_captain = p.element === playerId;
-  });
-
-  renderTeam();
-  updatePredicted();
-  closeCaptainModal();
-  showAlert('✓ Vice-Captain set', 'success');
-}
-
-function closeCaptainModal() {
-  document.getElementById('captain-modal').classList.remove('show');
-}
-
-// ===== TRANSFER MODAL =====
-function openTransferModal(playerId, playerName, playerPos) {
-  state.selectedPlayerOut = playerId;
-  
-  const availablePlayers = state.allPlayers.filter(p => {
-    const owned = state.currentTeam.find(t => t.element === p.id);
-    if (owned) return false;
-    if (p.pos !== playerPos) return false;
-    
-    const teamCount = state.currentTeam.filter(t => t.teamId === p.teamId).length;
-    if (teamCount >= MAX_SAME_TEAM) return false;
-    
-    return true;
-  }).sort((a, b) => a.price - b.price);
-
-  state.availableReplacements = availablePlayers;
-
-  document.getElementById('modal-title').textContent = `Replace ${playerName}`;
-  document.getElementById('player-search').value = '';
-  document.getElementById('clear-btn').style.display = 'none';
-  
-  renderPlayerList(availablePlayers);
-  document.getElementById('transfer-modal').classList.add('show');
-  
-  setTimeout(() => {
-    document.getElementById('player-search').focus();
-  }, 100);
-}
-
-function renderPlayerList(players) {
-  const playerList = document.getElementById('player-list');
-  
-  if (players.length === 0) {
-    playerList.innerHTML = '<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-3);">No players found</div>';
-    return;
-  }
-
-  playerList.innerHTML = players.map(p => `
-    <div class="player-option" onclick="makeTransfer(${state.selectedPlayerOut}, ${p.id}, '${p.name}')">
-      <img src="https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos === 1 ? '_1' : ''}-66.png" 
-        alt="${p.name}" onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
-      <div class="player-option-info">
-        <div class="player-option-name">${p.name}</div>
-        <div class="player-option-details">${p.teamName} • ${getPosLabel(p.pos)}</div>
-        <div class="player-option-price">£${p.formattedPrice}m</div>
+  const benchGrid = document.getElementById('bench-grid');
+  benchGrid.innerHTML = bench.map(p => {
+    const shirtSrc = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos === 1 ? '_1' : ''}-66.png`;
+    return `
+      <div class="player-card" onclick="selectPlayerCard(this, ${p.element})">
+        <div class="player-card-header">
+          <div class="player-team">${p.teamName}</div>
+          <div class="player-pos ${getPosClass(p.pos)}">${getPosLabel(p.pos)}</div>
+        </div>
+        <div class="player-jersey">
+          <img src="${shirtSrc}" alt="${p.name}" loading="lazy" decoding="async"
+            onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
+        </div>
+        <div class="player-info">
+          <div class="player-name">${p.name}</div>
+          <div class="player-stat-value" style="font-size: 0.85rem;">${p.currentPts}pts</div>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
-function filterPlayers() {
-  const searchTerm = document.getElementById('player-search').value.toLowerCase().trim();
-  const clearBtn = document.getElementById('clear-btn');
+// ===== UPDATE PREDICTED =====
+function updatePredicted() {
+  const totalPredicted = state.currentTeam.slice(0, 11)
+    .reduce((sum, p) => sum + (p.currentPts * 0.9 + p.predicted), 0)
+    .toFixed(1);
+  document.getElementById('predicted-pts').textContent = totalPredicted;
+}
+
+// ===== POPULATE DROPDOWNS =====
+function populateDropdowns() {
+  const outSelect = document.getElementById('player-out');
+  const inSelect = document.getElementById('player-in');
+
+  // Players you have
+  outSelect.innerHTML = '<option value="">Select player to transfer out</option>' +
+    state.currentTeam.map(p => `<option value="${p.element}">${p.name} (£${p.formattedPrice}m)</option>`).join('');
+
+  // All available players
+  inSelect.innerHTML = '<option value="">Select player to transfer in</option>' +
+    state.allPlayers.map(p => `<option value="${p.id}">${p.name} (£${p.formattedPrice}m)</option>`).join('');
+}
+
+// ===== TRANSFER LOGIC =====
+function updateTransferPrice() {
+  const outId = parseInt(document.getElementById('player-out').value);
+  const inId = parseInt(document.getElementById('player-in').value);
+
+  if (!outId || !inId) return;
+
+  const outPlayer = state.playerMap[outId];
+  const inPlayer = state.playerMap[inId];
+
+  const priceDiff = inPlayer.price - outPlayer.price;
+  let hitCost = 0;
   
-  clearBtn.style.display = searchTerm ? 'block' : 'none';
-  
-  if (!searchTerm) {
-    renderPlayerList(state.availableReplacements);
+  if (priceDiff > 0) {
+    hitCost = Math.max(0, priceDiff * 2); // Made up logic
+  }
+
+  document.getElementById('hit-cost').textContent = `-${hitCost}`;
+}
+
+function makeTransfer() {
+  const outId = parseInt(document.getElementById('player-out').value);
+  const inId = parseInt(document.getElementById('player-in').value);
+
+  if (!outId || !inId) {
+    alert('Select both players');
     return;
   }
 
-  const filtered = state.availableReplacements.filter(p => 
-    p.name.toLowerCase().includes(searchTerm) || 
-    p.teamName.toLowerCase().includes(searchTerm)
-  );
-
-  renderPlayerList(filtered);
-}
-
-function clearSearch() {
-  document.getElementById('player-search').value = '';
-  document.getElementById('clear-btn').style.display = 'none';
-  renderPlayerList(state.availableReplacements);
-  document.getElementById('player-search').focus();
-}
-
-function closeTransferModal() {
-  document.getElementById('transfer-modal').classList.remove('show');
-  state.selectedPlayerOut = null;
-}
-
-function makeTransfer(outId, inId, inName) {
+  // Find and replace
   const outIdx = state.currentTeam.findIndex(p => p.element === outId);
   if (outIdx !== -1) {
-    const inPlayer = state.playerMap[inId];
-    const outPlayer = state.currentTeam[outIdx];
-    
     state.currentTeam[outIdx] = {
-      ...inPlayer,
+      ...state.playerMap[inId],
       element: inId,
       currentPts: 0,
       is_captain: false,
       is_vice_captain: false,
     };
-    
-    state.transferHistory.push({
-      out: outPlayer,
-      in: inPlayer,
-      timestamp: Date.now(),
-    });
-
-    state.transfers.push({ out: outId, in: inId, gw: state.currentGW });
-    state.transfersUsed++;
   }
 
-  closeTransferModal();
-  renderTeam();
-  updateFormation();
-  updatePredicted();
-  renderTransferHistory();
-  showAlert(`Transferred to ${inName}`, 'success');
-}
-
-// ===== TRANSFER HISTORY =====
-function renderTransferHistory() {
-  const container = document.getElementById('transfer-history-container');
-  
-  if (state.transferHistory.length === 0) {
-    container.innerHTML = '';
-    return;
-  }
-
-  const html = `
-    <div class="transfer-history-section">
-      <div class="transfer-history-title">Transfers Made (${state.transferHistory.length})</div>
-      ${state.transferHistory.map((t, idx) => `
-        <div class="transfer-item">
-          <div class="transfer-players">
-            <div class="transfer-player out">
-              <i class="fas fa-arrow-down"></i> ${t.out.name}
-            </div>
-            <div class="transfer-arrow">→</div>
-            <div class="transfer-player in">
-              <i class="fas fa-arrow-up"></i> ${t.in.name}
-            </div>
-          </div>
-          <button class="transfer-undo" onclick="undoTransfer(${idx})">
-            <i class="fas fa-undo"></i>
-          </button>
-        </div>
-      `).join('')}
-    </div>
-  `;
-
-  container.innerHTML = html;
-}
-
-function undoTransfer(idx) {
-  const transfer = state.transferHistory[idx];
-  const cardIdx = state.currentTeam.findIndex(p => p.element === transfer.in.id);
-  
-  if (cardIdx !== -1) {
-    state.currentTeam[cardIdx] = transfer.out;
-  }
-
-  state.transferHistory.splice(idx, 1);
-  state.transfers.splice(idx, 1);
-  state.transfersUsed--;
+  document.getElementById('player-out').value = '';
+  document.getElementById('player-in').value = '';
+  document.getElementById('hit-cost').textContent = '-0';
 
   renderTeam();
-  updateFormation();
   updatePredicted();
-  renderTransferHistory();
-  showAlert('Transfer undone', 'info');
 }
 
-// ===== FORMATION =====
-function updateFormation() {
-  const startingXI = state.currentTeam.slice(0, 11);
-  const gk = startingXI.filter(p => p.pos === 1).length;
-  const def = startingXI.filter(p => p.pos === 2).length;
-  const mid = startingXI.filter(p => p.pos === 3).length;
-  const fwd = startingXI.filter(p => p.pos === 4).length;
-
-  const formation = `${def}-${mid}-${fwd}`;
-  document.getElementById('formation-display').textContent = formation;
-
-  if (gk !== 1 || def < 3 || fwd < 1) {
-    showAlert('⚠️ Invalid formation', 'warning');
-  }
+function clearTransfer() {
+  document.getElementById('player-out').value = '';
+  document.getElementById('player-in').value = '';
+  document.getElementById('hit-cost').textContent = '-0';
 }
 
-// ===== PREDICTED =====
-function updatePredicted() {
-  const startingXI = state.currentTeam.slice(0, 11);
-  const totalPredicted = startingXI.reduce((sum, p) => {
-    let predicted = (parseFloat(p.currentPts) * 0.9 + parseFloat(p.predicted));
-    if (p.is_captain) predicted *= 2;
-    else if (p.is_vice_captain) predicted *= 1.5;
-    return sum + predicted;
-  }, 0).toFixed(1);
+// ===== CAPTAIN SELECTION =====
+function selectPlayerCard(card, playerId) {
+  const allCards = document.querySelectorAll('.player-card');
+  allCards.forEach(c => c.style.opacity = '0.6');
+  card.style.opacity = '1';
 
-  document.getElementById('predicted-pts').textContent = totalPredicted;
+  // Show captain selection (can enhance with modal)
+  console.log('Selected player:', playerId);
 }
 
 // ===== RESET & CONFIRM =====
 function resetChanges() {
-  if (state.transfers.length === 0 && state.transferHistory.length === 0) {
-    showAlert('No changes to reset', 'info');
-    return;
-  }
-  
   state.currentTeam = JSON.parse(JSON.stringify(state.originalTeam));
-  state.transfers = [];
-  state.transferHistory = [];
-  state.transfersUsed = 0;
   renderTeam();
-  updateFormation();
   updatePredicted();
-  renderTransferHistory();
-  showAlert('Squad reset', 'info');
 }
 
-function confirmTransfers() {
-  if (state.transfers.length === 0) {
-    showAlert('Make transfers first', 'warning');
-    return;
-  }
+function confirmChanges() {
+  alert('Changes confirmed! (This would save to your FPL account)');
+}
 
-  const startingXI = state.currentTeam.slice(0, 11);
-  const gk = startingXI.filter(p => p.pos === 1).length;
-  const def = startingXI.filter(p => p.pos === 2).length;
-  const fwd = startingXI.filter(p => p.pos === 4).length;
+// ===== TAB SWITCHING =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
 
-  if (gk !== 1 || def < 3 || fwd < 1) {
-    showAlert('❌ Invalid formation', 'error');
-    return;
-  }
+  event.target.classList.add('active');
+  document.getElementById(tab + '-tab').style.display = 'block';
+}
 
-  showAlert('✅ Transfers confirmed! Ready to submit to FPL.', 'success');
+// ===== MODAL =====
+function openModal(title) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('transfer-modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('transfer-modal').classList.remove('show');
 }
 
 // ===== UTILITIES =====
@@ -1471,22 +1018,6 @@ function getPosClass(pos) {
   return '';
 }
 
-function getDifficultyClass(difficulty) {
-  if (difficulty <= 2) return 'easy';
-  if (difficulty <= 3) return 'medium';
-  return 'hard';
-}
-
-function showAlert(message, type = 'info') {
-  const container = document.getElementById('alerts-container');
-  const alertEl = document.createElement('div');
-  alertEl.className = `alert alert-${type}`;
-  alertEl.textContent = message;
-  container.appendChild(alertEl);
-  
-  setTimeout(() => alertEl.remove(), 2000);
-}
-
 // ===== INIT =====
 async function startApp() {
   if (!state.fplId) {
@@ -1499,7 +1030,6 @@ async function startApp() {
     await fetchAndRender();
   } catch (err) {
     console.error('App error:', err);
-    showAlert('Failed to load', 'error');
   }
 }
 
