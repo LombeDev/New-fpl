@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>My Team - Kopala FPL</title>
+
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0d0d0d">
   <meta name="mobile-web-app-capable" content="yes">
@@ -18,9 +19,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
- 
+  <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="nav.css">
   <link rel="stylesheet" href="footer.css">
+
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -295,7 +297,7 @@
 
     .player-card {
       position: relative;
-      width: 62px;
+      width: 68px;
       flex-shrink: 0;
       cursor: pointer;
       animation: cardIn 0.3s ease-out both;
@@ -307,9 +309,9 @@
     .player-card:nth-child(4) { animation-delay: 0.16s; }
     .player-card:nth-child(5) { animation-delay: 0.20s; }
 
-    /* ── The green card shell ── */
+    /* ── Outer card shell: green top, white bottom ── */
     .card-inner {
-      background: #3a7d44;
+      background: #35944a;
       border-radius: 10px;
       overflow: hidden;
       display: flex;
@@ -317,140 +319,123 @@
       align-items: center;
       position: relative;
       transition: transform 0.18s ease, box-shadow 0.18s ease;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.45);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.4);
     }
 
-    .player-card:hover .card-inner { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.55); }
-    .player-card.selected .card-inner { box-shadow: 0 0 0 2.5px var(--gold), 0 4px 12px rgba(0,0,0,0.5); }
-
-    /* ── Name bar — white text on slightly darker strip ── */
-    .pc-name {
-      width: 100%;
-      background: rgba(0,0,0,0.22);
-      text-align: center;
-      padding: 3px 4px 2px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.6rem;
-      font-weight: 700;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 1;
-      letter-spacing: 0.1px;
+    .player-card:hover .card-inner {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.5);
     }
 
-    /* ── Jersey area ── */
+    .player-card.selected .card-inner {
+      box-shadow: 0 0 0 2.5px #ffd32a, 0 4px 14px rgba(0,0,0,0.5);
+    }
+
+    /* ── Green top — jersey lives here ── */
     .pc-jersey {
       position: relative;
       width: 100%;
+      padding: 10px 6px 6px;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
-      padding: 6px 4px 4px;
+      min-height: 62px;
     }
 
     .pc-jersey img {
-      width: 48px;
+      width: 52px;
       height: auto;
       display: block;
-      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.45));
       transition: transform 0.18s ease;
+      position: relative;
+      z-index: 1;
     }
 
-    .player-card:hover .pc-jersey img { transform: scale(1.07) translateY(-2px); }
+    .player-card:hover .pc-jersey img {
+      transform: scale(1.08) translateY(-2px);
+    }
 
-    /* ── Captain / VC circle — top-left of jersey area ── */
+    /* ── Status dot — top-left yellow circle (availability) ── */
+    .pc-status {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      z-index: 4;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.42rem;
+      font-weight: 900;
+      color: #000;
+    }
+    .pc-status.ok      { background: #ffd32a; } /* yellow tick = available */
+    .pc-status.doubt   { background: #ff8f00; } /* orange = doubt */
+    .pc-status.injured { background: #e53935; color: #fff; } /* red = injured */
+
+    /* ── Captain/VC badge — top-right ── */
     .pc-cap {
       position: absolute;
-      top: 4px;
-      left: 4px;
-      width: 15px;
-      height: 15px;
+      top: 5px;
+      right: 5px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.55rem;
+      font-size: 0.5rem;
       font-weight: 900;
       line-height: 1;
       z-index: 4;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
     }
     .pc-cap.c  { background: #ffd32a; color: #000; }
-    .pc-cap.vc { background: #fff;    color: #000; }
+    .pc-cap.vc { background: rgba(255,255,255,0.9); color: #000; }
 
-    /* ── Info / points circle — top-right ── */
-    .pc-pts {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      min-width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.6);
-      border: 1.5px solid rgba(255,255,255,0.25);
+    /* ── White bottom section — name + fixture ── */
+    .pc-info {
+      width: 100%;
+      background: #fff;
+      border-radius: 0 0 9px 9px;
+      padding: 5px 4px 5px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.55rem;
+      gap: 2px;
+    }
+
+    .pc-name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.6rem;
       font-weight: 700;
-      color: #fff;
-      line-height: 1;
-      padding: 0 2px;
-      z-index: 4;
-    }
-    .pc-pts.high { background: rgba(0,180,80,0.85);  border-color: #00e676; }
-    .pc-pts.low  { background: rgba(220,50,50,0.85); border-color: #ff6b6b; }
-
-    /* ── Injury dot overlays pts circle when injured ── */
-    .pc-injured {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      background: #e53935;
-      border: 1.5px solid #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.48rem;
-      color: #fff;
-      z-index: 4;
+      color: #111;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+      text-align: center;
+      line-height: 1.1;
     }
 
-    /* ── Fixture pill — full-width bottom strip ── */
     .pc-fix {
-      width: 100%;
-      text-align: center;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.4px;
-      padding: 3px 2px;
-      line-height: 1;
-      border-radius: 0 0 8px 8px;
-    }
-    .pc-fix.easy   { background: #00c853; color: #003314; }
-    .pc-fix.medium { background: #ff8f00; color: #2a1500; }
-    .pc-fix.hard   { background: #c62828; color: #fff; }
-    .pc-fix.blank  { background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.35); }
-
-    /* ── AI pred strip between jersey and fixture ── */
-    .pc-pred {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.52rem;
-      font-weight: 700;
-      color: rgba(255,255,255,0.75);
-      letter-spacing: 0.2px;
-      padding: 1px 0 2px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.54rem;
+      font-weight: 500;
       text-align: center;
       width: 100%;
+      white-space: nowrap;
+      line-height: 1.1;
     }
+    .pc-fix.easy   { color: #1a8a3c; }
+    .pc-fix.medium { color: #b85f00; }
+    .pc-fix.hard   { color: #c0392b; }
+    .pc-fix.blank  { color: #aaa; }
 
     /* ===== BENCH ===== */
     .bench-wrap {
@@ -484,11 +469,12 @@
       justify-content: center;
     }
 
-    /* Bench — same card, slightly smaller & muted */
-    .bench-row .player-card { width: 56px; opacity: 0.82; }
+    /* Bench — same card, slightly smaller */
+    .bench-row .player-card { width: 60px; opacity: 0.85; }
     .bench-row .player-card:hover { opacity: 1; }
-    .bench-row .card-inner { background: #2a5c32; }
-    .bench-row .pc-jersey img { width: 40px; }
+    .bench-row .card-inner { background: #2d7d3d; }
+    .bench-row .pc-jersey img { width: 44px; }
+    .bench-row .pc-jersey { min-height: 54px; }
 
     /* ===== AI PANEL ===== */
     .ai-panel {
@@ -912,11 +898,12 @@
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 400px) {
-      .player-card { width: 52px; }
-      .pc-jersey img { width: 38px; }
+      .player-card { width: 56px; }
+      .pc-jersey img { width: 42px; }
+      .pc-jersey { min-height: 52px; }
       .player-row { gap: 4px; }
       .pitch-container { padding: 10px 8px 0; }
-      .bench-row .player-card { width: 46px; }
+      .bench-row .player-card { width: 50px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1521,49 +1508,46 @@ function renderPitchSection(label, players) {
 }
 
 function renderPlayerCard(p, forBench = false) {
-  const pred    = AI.predictPoints(p);
-  const shirtSrc = getShirtSrc(p);
-  const pts     = p.currentPts || 0;
-  const ptsClass = pts >= 10 ? 'high' : pts <= 1 ? 'low' : '';
+  const shirtSrc  = getShirtSrc(p);
+  const pred      = AI.predictPoints(p);
 
-  // Captain / VC badge (top-left circle)
+  // Status dot top-left — yellow ✓ available, orange ? doubt, red ✕ injured
+  const isInjured = p.status === 'i' || p.status === 'u';
+  const isDoubt   = p.status === 'd';
+  const statusIcon = isInjured ? '✕' : isDoubt ? '?' : '✓';
+  const statusCls  = isInjured ? 'injured' : isDoubt ? 'doubt' : 'ok';
+  const statusBadge = `<div class="pc-status ${statusCls}">${statusIcon}</div>`;
+
+  // Captain / VC top-right
   let capBadge = '';
   if (p.is_captain)           capBadge = `<div class="pc-cap c">C</div>`;
   else if (p.is_vice_captain) capBadge = `<div class="pc-cap vc">V</div>`;
 
-  // Injury badge replaces pts circle when injured
-  const isInjured = p.status === 'i' || p.status === 'u';
-  const isDoubt   = p.status === 'd';
-  const topRight = isInjured
-    ? `<div class="pc-injured"><i class="fas fa-times" style="font-size:0.4rem"></i></div>`
-    : isDoubt
-    ? `<div class="pc-pts" style="background:rgba(255,143,0,0.85);border-color:#ff9800">?</div>`
-    : `<div class="pc-pts ${ptsClass}">${pts}</div>`;
+  // Name — up to 10 chars
+  const shortName = p.name?.length > 10 ? p.name.slice(0, 9) + '.' : (p.name || '?');
 
-  // Name — truncate to ~9 chars
-  const shortName = p.name?.length > 9 ? p.name.slice(0, 8) + '.' : (p.name || '?');
-
-  // Fixture pill
-  const teamKey = p.teamShort || p.teamName || '';
-  const fixes   = S.fixtureMap[teamKey] || [];
-  const fix1    = fixes[0];
+  // Fixture text in white box — coloured by difficulty
+  const teamKey   = p.teamShort || p.teamName || '';
+  const fixes     = S.fixtureMap[teamKey] || [];
+  const fix1      = fixes[0];
   const diffClass = d => d <= 2 ? 'easy' : d === 3 ? 'medium' : 'hard';
-  const fixPill = fix1
+  const fixText   = fix1
     ? `<div class="pc-fix ${diffClass(fix1.d)}">${fix1.opp} (${fix1.home ? 'H' : 'A'})</div>`
-    : `<div class="pc-fix blank">—</div>`;
+    : `<div class="pc-fix blank">No fixture</div>`;
 
   return `
     <div class="player-card" onclick="selectCard(this, ${p.element || p.id})">
       <div class="card-inner">
-        <div class="pc-name">${shortName}</div>
         <div class="pc-jersey">
+          ${statusBadge}
           ${capBadge}
-          ${topRight}
           <img src="${shirtSrc}" alt="${p.name}" loading="lazy" decoding="async"
             onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
         </div>
-        <div class="pc-pred">⚡${pred}</div>
-        ${fixPill}
+        <div class="pc-info">
+          <div class="pc-name">${shortName}</div>
+          ${fixText}
+        </div>
       </div>
     </div>
   `;
