@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="nav.css">
   <link rel="stylesheet" href="footer.css">
 
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -286,18 +287,18 @@
       flex-wrap: nowrap;
     }
 
-    /* ===== PLAYER CARD - REDESIGNED ===== */
-    .player-card {
-      position: relative;
-      width: 42px;
-      flex-shrink: 0;
-      cursor: pointer;
-      animation: cardIn 0.4s ease-out both;
+    /* ===== PLAYER CARD ===== */
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    @keyframes cardIn {
-      from { opacity: 0; transform: translateY(12px) scale(0.96); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
+    .player-card {
+      position: relative;
+      width: 54px;
+      flex-shrink: 0;
+      cursor: pointer;
+      animation: cardIn 0.35s ease-out both;
     }
 
     .player-card:nth-child(1) { animation-delay: 0.04s; }
@@ -307,210 +308,164 @@
     .player-card:nth-child(5) { animation-delay: 0.20s; }
 
     .card-inner {
-      background: transparent;
-      border: none;
-      overflow: visible;
-      transition: all var(--trans);
-    }
-
-    .player-card:hover .card-inner {
-      transform: translateY(-2px);
-    }
-
-    .player-card.selected .jersey-wrap img {
-      filter: drop-shadow(0 0 5px var(--accent)) drop-shadow(0 4px 8px rgba(0,0,0,0.5));
-    }
-
-    /* Jersey area */
-    .card-jersey {
-      position: relative;
-      background: transparent;
-      padding: 6px 4px 3px;
+      background: #2d6a3f; /* FPL green */
+      border-radius: 8px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      padding: 5px 4px 0;
+      transition: transform var(--trans), box-shadow var(--trans);
+      position: relative;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
     }
 
+    .player-card:hover .card-inner {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+    }
+
+    .player-card.selected .card-inner {
+      outline: 2px solid var(--gold);
+      outline-offset: 1px;
+    }
+
+    /* Player name top */
+    .player-name-card {
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+      text-align: center;
+      line-height: 1.2;
+      margin-bottom: 2px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    /* Jersey */
     .jersey-wrap {
-      width: 28px;
-      height: 28px;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+      filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4));
       transition: transform var(--trans);
     }
 
     .player-card:hover .jersey-wrap {
-      transform: scale(1.07) translateY(-1px);
+      transform: scale(1.06) translateY(-1px);
     }
 
     .jersey-wrap img {
-      width: 27px;
+      width: 38px;
       height: auto;
       object-fit: contain;
       display: block;
     }
 
-    /* Points bubble on jersey */
-    .pts-bubble {
-      position: absolute;
-      top: -4px;
-      right: -7px;
-      background: var(--bg-1);
-      border: 1px solid var(--border-3);
-      border-radius: 5px;
-      padding: 1px 3px;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.62rem;
-      font-weight: 700;
-      color: var(--text-1);
-      line-height: 1;
-      min-width: 14px;
-      text-align: center;
-    }
-
-    .pts-bubble.high { border-color: var(--accent); color: var(--accent); background: rgba(0,0,0,0.8); }
-    .pts-bubble.low { border-color: var(--red); color: var(--red); }
-
-    /* AI prediction badge */
-    .ai-pred {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      background: var(--accent-dim);
-      border-radius: 4px;
-      padding: 1px 4px;
-      font-size: 0.52rem;
-      font-weight: 700;
-      color: var(--accent);
-      font-family: 'Barlow Condensed', sans-serif;
-      letter-spacing: 0.1px;
-    }
-
-    .ai-pred i { font-size: 0.48rem; }
-
-    /* Card bottom */
-    .card-info {
-      padding: 3px 0 0;
-      background: transparent;
-      text-align: center;
-    }
-
-    .card-pos-row {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 3px;
-      margin-bottom: 2px;
-    }
-
-    /* Fixture pills */
-    .fixture-pills {
-      display: flex;
-      gap: 2px;
-      justify-content: center;
-      margin-top: 3px;
-    }
-
-    .fix-pill {
-      font-size: 0.42rem;
-      font-weight: 700;
-      padding: 1px 3px;
-      border-radius: 3px;
-      font-family: 'Barlow Condensed', sans-serif;
-      letter-spacing: 0.2px;
-      line-height: 1.3;
-    }
-
-    .fix-pill.easy   { background: rgba(0,230,118,0.18); color: var(--accent); }
-    .fix-pill.medium { background: rgba(255,159,67,0.18); color: var(--orange); }
-    .fix-pill.hard   { background: rgba(255,71,87,0.18);  color: var(--red); }
-
-    .pos-badge {
-      font-size: 0.48rem;
-      font-weight: 700;
-      padding: 1px 3px;
-      border-radius: 3px;
-      letter-spacing: 0.2px;
-      font-family: 'Barlow Condensed', sans-serif;
-    }
-
-    .pos-gk  { background: rgba(255,159,67,0.2); color: var(--orange); }
-    .pos-def { background: var(--blue-dim); color: var(--blue); }
-    .pos-mid { background: rgba(162,155,254,0.15); color: var(--purple); }
-    .pos-fwd { background: var(--red-dim); color: var(--red); }
-
-    .team-tag {
-      font-size: 0.45rem;
-      color: var(--text-3);
-      font-weight: 600;
-    }
-
-    .player-name-card {
-      font-size: 0.5rem;
-      font-weight: 700;
-      color: var(--text-1);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 1.1;
-      margin-bottom: 2px;
-    }
-
-    /* Ownership bar */
-    .ownership-bar {
-      height: 1px;
-      background: var(--border-2);
-      border-radius: 1px;
-      overflow: hidden;
-    }
-
-    .ownership-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--blue), var(--accent));
-      border-radius: 1px;
-      transition: width 1s ease-out;
-    }
-
-    /* Captain badge */
+    /* Captain/VC badge — top-left circle like reference */
     .captain-badge {
       position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 11px;
-      height: 11px;
+      top: 3px;
+      left: 3px;
+      width: 13px;
+      height: 13px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.42rem;
+      font-size: 0.48rem;
       font-weight: 900;
       color: #000;
-      z-index: 2;
+      z-index: 3;
       font-family: 'Barlow Condensed', sans-serif;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
     }
 
     .captain-badge.c  { background: var(--gold); }
-    .captain-badge.vc { background: var(--orange); }
+    .captain-badge.vc { background: #fff; }
 
-    /* Injury / alert dot */
+    /* Points bubble top-right */
+    .pts-bubble {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      background: rgba(0,0,0,0.55);
+      border-radius: 4px;
+      padding: 1px 3px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+      z-index: 3;
+    }
+
+    .pts-bubble.high { color: var(--accent); }
+    .pts-bubble.low  { color: #ffb3b3; }
+
+    /* Status dot */
     .status-dot {
       position: absolute;
-      top: 2px;
-      right: 2px;
+      top: 3px;
+      right: 3px;
       width: 5px;
       height: 5px;
       border-radius: 50%;
-      border: 1px solid var(--bg-2);
+      z-index: 3;
     }
 
     .status-dot.injured { background: var(--red); }
     .status-dot.doubt   { background: var(--orange); }
-    .status-dot.ok      { background: var(--accent); }
+
+    /* Fixture pill — bottom of card, full-width */
+    .fix-pill {
+      width: 100%;
+      display: block;
+      text-align: center;
+      font-size: 0.5rem;
+      font-weight: 700;
+      padding: 2px 0;
+      font-family: 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.3px;
+      line-height: 1.3;
+      margin-top: 2px;
+      border-radius: 0 0 6px 6px;
+    }
+
+    .fix-pill.easy   { background: #00c853; color: #003d1a; }
+    .fix-pill.medium { background: #ff9800; color: #3d1f00; }
+    .fix-pill.hard   { background: #e53935; color: #fff; }
+    .fix-pill.blank  { background: rgba(0,0,0,0.25); color: rgba(255,255,255,0.4); }
+
+    /* AI pred — small pill inside card below jersey */
+    .ai-pred {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 3px;
+      padding: 1px 4px;
+      font-size: 0.48rem;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Barlow Condensed', sans-serif;
+      margin-bottom: 2px;
+    }
+
+    .ai-pred i { font-size: 0.44rem; opacity: 0.8; }
+
+    /* Bench cards — slightly muted */
+    .bench-row .player-card { opacity: 0.8; }
+    .bench-row .player-card:hover { opacity: 1; }
+    .bench-row .card-inner { background: #1e4d2d; }
+    .bench-row .jersey-wrap { width: 34px; height: 34px; }
+    .bench-row .jersey-wrap img { width: 32px; }
+    .bench-row .player-card { width: 48px; }
 
     /* ===== BENCH ===== */
     .bench-wrap {
@@ -1601,46 +1556,38 @@ function renderPlayerCard(p, forBench = false) {
   const pts = p.currentPts || 0;
   const ptsClass = pts >= 10 ? 'high' : pts <= 1 ? 'low' : '';
 
-  const posClass = ['','pos-gk','pos-def','pos-mid','pos-fwd'][p.pos] || '';
-  const posLabel = ['','GK','DEF','MID','FWD'][p.pos] || '?';
-
   let capBadge = '';
   if (p.is_captain)           capBadge = `<div class="captain-badge c">C</div>`;
   else if (p.is_vice_captain) capBadge = `<div class="captain-badge vc">V</div>`;
 
-  const statusDot = p.status === 'i' || p.status === 'u' ? `<div class="status-dot injured"></div>` :
-                    p.status === 'd' ? `<div class="status-dot doubt"></div>` : '';
+  const statusDot = p.status === 'i' || p.status === 'u'
+    ? `<div class="status-dot injured"></div>`
+    : p.status === 'd' ? `<div class="status-dot doubt"></div>` : '';
 
-  const shortName = p.name?.length > 7 ? p.name.slice(0, 6) + '…' : (p.name || '?');
+  // Truncate name to fit card
+  const shortName = p.name?.length > 8 ? p.name.slice(0, 7) + '.' : (p.name || '?');
 
-  // Fixtures
+  // Next fixture pill — show first upcoming fixture full-width at bottom
   const teamKey = p.teamShort || p.teamName || '';
   const fixes = S.fixtureMap[teamKey] || [];
+  const fix1 = fixes[0];
   const diffClass = d => d <= 2 ? 'easy' : d === 3 ? 'medium' : 'hard';
-  const fixturePills = fixes.slice(0, 2).map(f =>
-    `<span class="fix-pill ${diffClass(f.d)}">${f.opp}</span>`
-  ).join('');
+  const fixPill = fix1
+    ? `<div class="fix-pill ${diffClass(fix1.d)}">${fix1.opp} (${fix1.home ? 'H' : 'A'})</div>`
+    : `<div class="fix-pill blank">—</div>`;
 
   return `
     <div class="player-card${forBench ? ' bench-card' : ''}" onclick="selectCard(this, ${p.element || p.id})">
       <div class="card-inner">
-        <div class="card-jersey">
-          ${capBadge}
-          ${statusDot}
-          <div class="jersey-wrap">
-            <img src="${shirtSrc}" alt="${p.name}" loading="lazy" decoding="async"
-              onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
-            <div class="pts-bubble ${ptsClass}">${pts}</div>
-          </div>
-          <div class="ai-pred"><i class="fas fa-wand-magic-sparkles"></i>${pred}</div>
+        ${capBadge}
+        <div class="pts-bubble ${ptsClass}">${pts}</div>
+        <div class="player-name-card">${shortName}</div>
+        <div class="jersey-wrap">
+          <img src="${shirtSrc}" alt="${p.name}" loading="lazy" decoding="async"
+            onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
         </div>
-        <div class="card-info">
-          <div class="card-pos-row">
-            <span class="pos-badge ${posClass}">${posLabel}</span>
-          </div>
-          <div class="player-name-card">${shortName}</div>
-          ${fixturePills ? `<div class="fixture-pills">${fixturePills}</div>` : ''}
-        </div>
+        <div class="ai-pred"><i class="fas fa-wand-magic-sparkles"></i>${pred}</div>
+        ${fixPill}
       </div>
     </div>
   `;
