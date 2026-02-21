@@ -5,25 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>My Team - Kopala FPL</title>
 
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0d0d0d">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Kopala FPL">
-  <link rel="apple-touch-icon" href="/android-chrome-192x192.png">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="nav.css">
-  <link rel="stylesheet" href="footer.css">
-
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -289,16 +270,18 @@
 
     /* ===== PLAYER CARD ===== */
     @keyframes cardIn {
-      from { opacity: 0; transform: translateY(10px) scale(0.95); }
+      from { opacity: 0; transform: translateY(8px) scale(0.96); }
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
+    .player-row { gap: 6px; }
+
     .player-card {
       position: relative;
-      width: 54px;
+      width: 62px;
       flex-shrink: 0;
       cursor: pointer;
-      animation: cardIn 0.35s ease-out both;
+      animation: cardIn 0.3s ease-out both;
     }
 
     .player-card:nth-child(1) { animation-delay: 0.04s; }
@@ -307,180 +290,165 @@
     .player-card:nth-child(4) { animation-delay: 0.16s; }
     .player-card:nth-child(5) { animation-delay: 0.20s; }
 
+    /* ── The green card shell ── */
     .card-inner {
-      background: #2d6a3f; /* FPL green */
-      border-radius: 8px;
+      background: #3a7d44;
+      border-radius: 10px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 5px 4px 0;
-      transition: transform var(--trans), box-shadow var(--trans);
       position: relative;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.45);
     }
 
-    .player-card:hover .card-inner {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.5);
-    }
+    .player-card:hover .card-inner { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.55); }
+    .player-card.selected .card-inner { box-shadow: 0 0 0 2.5px var(--gold), 0 4px 12px rgba(0,0,0,0.5); }
 
-    .player-card.selected .card-inner {
-      outline: 2px solid var(--gold);
-      outline-offset: 1px;
-    }
-
-    /* Player name top */
-    .player-name-card {
-      font-size: 0.55rem;
+    /* ── Name bar — white text on slightly darker strip ── */
+    .pc-name {
+      width: 100%;
+      background: rgba(0,0,0,0.22);
+      text-align: center;
+      padding: 3px 4px 2px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.6rem;
       font-weight: 700;
       color: #fff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      width: 100%;
-      text-align: center;
-      line-height: 1.2;
-      margin-bottom: 2px;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      line-height: 1;
+      letter-spacing: 0.1px;
     }
 
-    /* Jersey */
-    .jersey-wrap {
-      width: 40px;
-      height: 40px;
+    /* ── Jersey area ── */
+    .pc-jersey {
+      position: relative;
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
-      filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4));
-      transition: transform var(--trans);
+      padding: 6px 4px 4px;
     }
 
-    .player-card:hover .jersey-wrap {
-      transform: scale(1.06) translateY(-1px);
-    }
-
-    .jersey-wrap img {
-      width: 38px;
+    .pc-jersey img {
+      width: 48px;
       height: auto;
-      object-fit: contain;
       display: block;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+      transition: transform 0.18s ease;
     }
 
-    /* Captain/VC badge — top-left circle like reference */
-    .captain-badge {
+    .player-card:hover .pc-jersey img { transform: scale(1.07) translateY(-2px); }
+
+    /* ── Captain / VC circle — top-left of jersey area ── */
+    .pc-cap {
       position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 13px;
-      height: 13px;
+      top: 4px;
+      left: 4px;
+      width: 15px;
+      height: 15px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.48rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.55rem;
       font-weight: 900;
-      color: #000;
-      z-index: 3;
-      font-family: 'Barlow Condensed', sans-serif;
+      line-height: 1;
+      z-index: 4;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
     }
+    .pc-cap.c  { background: #ffd32a; color: #000; }
+    .pc-cap.vc { background: #fff;    color: #000; }
 
-    .captain-badge.c  { background: var(--gold); }
-    .captain-badge.vc { background: #fff; }
-
-    /* Points bubble top-right */
-    .pts-bubble {
+    /* ── Info / points circle — top-right ── */
+    .pc-pts {
       position: absolute;
-      top: 3px;
-      right: 3px;
-      background: rgba(0,0,0,0.55);
-      border-radius: 4px;
-      padding: 1px 3px;
+      top: 4px;
+      right: 4px;
+      min-width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6);
+      border: 1.5px solid rgba(255,255,255,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       font-weight: 700;
       color: #fff;
       line-height: 1;
-      z-index: 3;
+      padding: 0 2px;
+      z-index: 4;
     }
+    .pc-pts.high { background: rgba(0,180,80,0.85);  border-color: #00e676; }
+    .pc-pts.low  { background: rgba(220,50,50,0.85); border-color: #ff6b6b; }
 
-    .pts-bubble.high { color: var(--accent); }
-    .pts-bubble.low  { color: #ffb3b3; }
-
-    /* Status dot */
-    .status-dot {
+    /* ── Injury dot overlays pts circle when injured ── */
+    .pc-injured {
       position: absolute;
-      top: 3px;
-      right: 3px;
-      width: 5px;
-      height: 5px;
+      top: 4px;
+      right: 4px;
+      width: 15px;
+      height: 15px;
       border-radius: 50%;
-      z-index: 3;
-    }
-
-    .status-dot.injured { background: var(--red); }
-    .status-dot.doubt   { background: var(--orange); }
-
-    /* Fixture pill — bottom of card, full-width */
-    .fix-pill {
-      width: 100%;
-      display: block;
-      text-align: center;
-      font-size: 0.5rem;
-      font-weight: 700;
-      padding: 2px 0;
-      font-family: 'Barlow Condensed', sans-serif;
-      letter-spacing: 0.3px;
-      line-height: 1.3;
-      margin-top: 2px;
-      border-radius: 0 0 6px 6px;
-    }
-
-    .fix-pill.easy   { background: #00c853; color: #003d1a; }
-    .fix-pill.medium { background: #ff9800; color: #3d1f00; }
-    .fix-pill.hard   { background: #e53935; color: #fff; }
-    .fix-pill.blank  { background: rgba(0,0,0,0.25); color: rgba(255,255,255,0.4); }
-
-    /* AI pred — small pill inside card below jersey */
-    .ai-pred {
+      background: #e53935;
+      border: 1.5px solid #fff;
       display: flex;
       align-items: center;
-      gap: 2px;
-      background: rgba(0,0,0,0.3);
-      border-radius: 3px;
-      padding: 1px 4px;
+      justify-content: center;
       font-size: 0.48rem;
-      font-weight: 700;
       color: #fff;
-      font-family: 'Barlow Condensed', sans-serif;
-      margin-bottom: 2px;
+      z-index: 4;
     }
 
-    .ai-pred i { font-size: 0.44rem; opacity: 0.8; }
+    /* ── Fixture pill — full-width bottom strip ── */
+    .pc-fix {
+      width: 100%;
+      text-align: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      padding: 3px 2px;
+      line-height: 1;
+      border-radius: 0 0 8px 8px;
+    }
+    .pc-fix.easy   { background: #00c853; color: #003314; }
+    .pc-fix.medium { background: #ff8f00; color: #2a1500; }
+    .pc-fix.hard   { background: #c62828; color: #fff; }
+    .pc-fix.blank  { background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.35); }
 
-    /* Bench cards — slightly muted */
-    .bench-row .player-card { opacity: 0.8; }
-    .bench-row .player-card:hover { opacity: 1; }
-    .bench-row .card-inner { background: #1e4d2d; }
-    .bench-row .jersey-wrap { width: 34px; height: 34px; }
-    .bench-row .jersey-wrap img { width: 32px; }
-    .bench-row .player-card { width: 48px; }
+    /* ── AI pred strip between jersey and fixture ── */
+    .pc-pred {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.52rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.75);
+      letter-spacing: 0.2px;
+      padding: 1px 0 2px;
+      text-align: center;
+      width: 100%;
+    }
 
     /* ===== BENCH ===== */
     .bench-wrap {
-      margin: 20px 16px 0;
+      margin: 16px 16px 0;
       background: var(--bg-2);
       border: 1px solid var(--border-2);
       border-radius: var(--radius);
-      padding: 14px;
+      padding: 12px 14px;
     }
 
     .bench-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .bench-label {
@@ -491,34 +459,19 @@
       color: var(--text-3);
     }
 
-    .bench-order-hint {
-      font-size: 0.7rem;
-      color: var(--text-3);
-    }
+    .bench-order-hint { font-size: 0.7rem; color: var(--text-3); }
 
     .bench-row {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       justify-content: center;
     }
 
-    /* Bench cards slightly smaller */
-    .bench-row .player-card {
-      width: 36px;
-      opacity: 0.75;
-      transition: opacity var(--trans);
-    }
-
+    /* Bench — same card, slightly smaller & muted */
+    .bench-row .player-card { width: 56px; opacity: 0.82; }
     .bench-row .player-card:hover { opacity: 1; }
-
-    .bench-row .jersey-wrap {
-      width: 22px;
-      height: 22px;
-    }
-
-    .bench-row .jersey-wrap img {
-      width: 21px;
-    }
+    .bench-row .card-inner { background: #2a5c32; }
+    .bench-row .pc-jersey img { width: 40px; }
 
     /* ===== AI PANEL ===== */
     .ai-panel {
@@ -942,11 +895,11 @@
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 400px) {
-      .player-card { width: 36px; }
-      .jersey-wrap { width: 22px; height: 22px; }
-      .jersey-wrap img { width: 21px; }
+      .player-card { width: 52px; }
+      .pc-jersey img { width: 38px; }
       .player-row { gap: 4px; }
       .pitch-container { padding: 10px 8px 0; }
+      .bench-row .player-card { width: 46px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1263,12 +1216,12 @@ async function initBootstrap() {
         if (hTeam) {
           if (!teamFixtures[hTeam.short]) teamFixtures[hTeam.short] = [];
           if (teamFixtures[hTeam.short].length < 2)
-            teamFixtures[hTeam.short].push({ opp: aTeam?.short || '?', d: f.team_h_difficulty });
+            teamFixtures[hTeam.short].push({ opp: aTeam?.short || '?', d: f.team_h_difficulty, home: true });
         }
         if (aTeam) {
           if (!teamFixtures[aTeam.short]) teamFixtures[aTeam.short] = [];
           if (teamFixtures[aTeam.short].length < 2)
-            teamFixtures[aTeam.short].push({ opp: hTeam?.short || '?', d: f.team_a_difficulty });
+            teamFixtures[aTeam.short].push({ opp: hTeam?.short || '?', d: f.team_a_difficulty, home: false });
         }
       });
       S.fixtureMap = teamFixtures;
@@ -1320,20 +1273,20 @@ function useDemoData() {
   S.allPlayers = Object.values(S.playerMap);
   S.currentGW = 12;
 
-  // Demo fixture data: teamShort → next 2 fixtures [{opp, difficulty}]
+  // Demo fixture data: teamShort → next 2 fixtures [{opp, difficulty, home}]
   S.fixtureMap = {
-    'Brentford':   [{opp:'SHU',d:1},{opp:'WOL',d:2}],
-    'Liverpool':   [{opp:'MCI',d:5},{opp:'ARS',d:4}],
-    'Tottenham':   [{opp:'BHA',d:2},{opp:'NEW',d:3}],
-    'Everton':     [{opp:'BUR',d:1},{opp:'LUT',d:2}],
-    'Chelsea':     [{opp:'NEW',d:3},{opp:'TOT',d:3}],
-    'Arsenal':     [{opp:'LIV',d:4},{opp:'MCI',d:5}],
-    'Man Utd':     [{opp:'WHU',d:2},{opp:'ARS',d:4}],
-    'Aston Villa': [{opp:'BRE',d:2},{opp:'FUL',d:2}],
-    'Man City':    [{opp:'LIV',d:4},{opp:'CHE',d:3}],
-    'ARS':         [{opp:'LIV',d:4},{opp:'MCI',d:5}],
-    'BRI':         [{opp:'EVE',d:2},{opp:'BRE',d:2}],
-    'FUL':         [{opp:'AVL',d:3},{opp:'BHA',d:2}],
+    'Brentford':   [{opp:'SHU',d:1,home:true}, {opp:'WOL',d:2,home:false}],
+    'Liverpool':   [{opp:'MCI',d:5,home:false},{opp:'ARS',d:4,home:true}],
+    'Tottenham':   [{opp:'BHA',d:2,home:true}, {opp:'NEW',d:3,home:false}],
+    'Everton':     [{opp:'BUR',d:1,home:false},{opp:'LUT',d:2,home:true}],
+    'Chelsea':     [{opp:'NEW',d:3,home:true}, {opp:'TOT',d:3,home:false}],
+    'Arsenal':     [{opp:'LIV',d:4,home:false},{opp:'MCI',d:5,home:true}],
+    'Man Utd':     [{opp:'WHU',d:2,home:true}, {opp:'ARS',d:4,home:false}],
+    'Aston Villa': [{opp:'BRE',d:2,home:false},{opp:'FUL',d:2,home:true}],
+    'Man City':    [{opp:'LIV',d:4,home:true}, {opp:'CHE',d:3,home:false}],
+    'ARS':         [{opp:'LIV',d:4,home:false},{opp:'MCI',d:5,home:true}],
+    'BRI':         [{opp:'EVE',d:2,home:true}, {opp:'BRE',d:2,home:false}],
+    'FUL':         [{opp:'AVL',d:3,home:false},{opp:'BHA',d:2,home:true}],
   };
 
   document.getElementById('disp-team').textContent = 'Demo United';
@@ -1551,42 +1504,48 @@ function renderPitchSection(label, players) {
 }
 
 function renderPlayerCard(p, forBench = false) {
-  const pred = AI.predictPoints(p);
+  const pred    = AI.predictPoints(p);
   const shirtSrc = getShirtSrc(p);
-  const pts = p.currentPts || 0;
+  const pts     = p.currentPts || 0;
   const ptsClass = pts >= 10 ? 'high' : pts <= 1 ? 'low' : '';
 
+  // Captain / VC badge (top-left circle)
   let capBadge = '';
-  if (p.is_captain)           capBadge = `<div class="captain-badge c">C</div>`;
-  else if (p.is_vice_captain) capBadge = `<div class="captain-badge vc">V</div>`;
+  if (p.is_captain)           capBadge = `<div class="pc-cap c">C</div>`;
+  else if (p.is_vice_captain) capBadge = `<div class="pc-cap vc">V</div>`;
 
-  const statusDot = p.status === 'i' || p.status === 'u'
-    ? `<div class="status-dot injured"></div>`
-    : p.status === 'd' ? `<div class="status-dot doubt"></div>` : '';
+  // Injury badge replaces pts circle when injured
+  const isInjured = p.status === 'i' || p.status === 'u';
+  const isDoubt   = p.status === 'd';
+  const topRight = isInjured
+    ? `<div class="pc-injured"><i class="fas fa-times" style="font-size:0.4rem"></i></div>`
+    : isDoubt
+    ? `<div class="pc-pts" style="background:rgba(255,143,0,0.85);border-color:#ff9800">?</div>`
+    : `<div class="pc-pts ${ptsClass}">${pts}</div>`;
 
-  // Truncate name to fit card
-  const shortName = p.name?.length > 8 ? p.name.slice(0, 7) + '.' : (p.name || '?');
+  // Name — truncate to ~9 chars
+  const shortName = p.name?.length > 9 ? p.name.slice(0, 8) + '.' : (p.name || '?');
 
-  // Next fixture pill — show first upcoming fixture full-width at bottom
+  // Fixture pill
   const teamKey = p.teamShort || p.teamName || '';
-  const fixes = S.fixtureMap[teamKey] || [];
-  const fix1 = fixes[0];
+  const fixes   = S.fixtureMap[teamKey] || [];
+  const fix1    = fixes[0];
   const diffClass = d => d <= 2 ? 'easy' : d === 3 ? 'medium' : 'hard';
   const fixPill = fix1
-    ? `<div class="fix-pill ${diffClass(fix1.d)}">${fix1.opp} (${fix1.home ? 'H' : 'A'})</div>`
-    : `<div class="fix-pill blank">—</div>`;
+    ? `<div class="pc-fix ${diffClass(fix1.d)}">${fix1.opp} (${fix1.home ? 'H' : 'A'})</div>`
+    : `<div class="pc-fix blank">—</div>`;
 
   return `
-    <div class="player-card${forBench ? ' bench-card' : ''}" onclick="selectCard(this, ${p.element || p.id})">
+    <div class="player-card" onclick="selectCard(this, ${p.element || p.id})">
       <div class="card-inner">
-        ${capBadge}
-        <div class="pts-bubble ${ptsClass}">${pts}</div>
-        <div class="player-name-card">${shortName}</div>
-        <div class="jersey-wrap">
+        <div class="pc-name">${shortName}</div>
+        <div class="pc-jersey">
+          ${capBadge}
+          ${topRight}
           <img src="${shirtSrc}" alt="${p.name}" loading="lazy" decoding="async"
             onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
         </div>
-        <div class="ai-pred"><i class="fas fa-wand-magic-sparkles"></i>${pred}</div>
+        <div class="pc-pred">⚡${pred}</div>
         ${fixPill}
       </div>
     </div>
