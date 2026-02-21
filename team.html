@@ -19,10 +19,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-  
+ 
   <link rel="stylesheet" href="nav.css">
   <link rel="stylesheet" href="footer.css">
-
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -301,6 +300,7 @@
       flex-shrink: 0;
       cursor: pointer;
       animation: cardIn 0.3s ease-out both;
+      margin-bottom: 40px; /* space for action buttons */
     }
 
     .player-card:nth-child(1) { animation-delay: 0.04s; }
@@ -475,6 +475,95 @@
     .bench-row .card-inner { background: #2d7d3d; }
     .bench-row .pc-jersey img { width: 44px; }
     .bench-row .pc-jersey { min-height: 54px; }
+
+    /* ===== CARD ACTION BUTTONS ===== */
+    /* Shown below card when selected — two pill buttons */
+    .pc-actions {
+      position: absolute;
+      bottom: -38px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      gap: 4px;
+      z-index: 20;
+      white-space: nowrap;
+    }
+
+    .player-card.selected .pc-actions { display: flex; }
+
+    .pc-btn {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 4px 7px;
+      border-radius: 20px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.55rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+      transition: transform 0.15s ease, filter 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .pc-btn:active { transform: scale(0.93); }
+
+    .pc-btn-swap {
+      background: #fff;
+      color: #1a6e30;
+      border: 1.5px solid #35944a;
+    }
+
+    .pc-btn-swap:hover { filter: brightness(0.95); }
+
+    .pc-btn-transfer {
+      background: #35944a;
+      color: #fff;
+    }
+
+    .pc-btn-transfer:hover { filter: brightness(1.1); }
+
+    .pc-btn i { font-size: 0.5rem; }
+
+    /* Bench swap mode — highlight eligible bench players */
+    .player-card.swap-target .card-inner {
+      box-shadow: 0 0 0 2.5px #ffd32a, 0 4px 14px rgba(0,0,0,0.4);
+      animation: pulseTarget 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulseTarget {
+      from { box-shadow: 0 0 0 2px #ffd32a, 0 4px 12px rgba(0,0,0,0.35); }
+      to   { box-shadow: 0 0 0 3.5px #ffd32a, 0 4px 18px rgba(255,211,42,0.4); }
+    }
+
+    /* Dimmed cards during swap mode */
+    .swap-mode .player-card:not(.selected):not(.swap-target) .card-inner {
+      opacity: 0.45;
+    }
+
+    /* Cancel swap banner */
+    .swap-banner {
+      display: none;
+      position: fixed;
+      bottom: calc(60px + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1d25;
+      border: 1px solid rgba(255,211,42,0.4);
+      color: #ffd32a;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 20px;
+      z-index: 200;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      white-space: nowrap;
+    }
+
+    .swap-banner.show { display: block; }
 
     /* ===== AI PANEL ===== */
     .ai-panel {
@@ -1126,6 +1215,9 @@
   </div>
 
   <div id="footer-placeholder"></div>
+  <div id="swap-banner" class="swap-banner" onclick="cancelSwap()">
+    <i class="fas fa-times" style="margin-right:6px"></i>Tap a sub to swap · Tap here to cancel
+  </div>
 
 </main>
 
@@ -1510,8 +1602,10 @@ function renderPitchSection(label, players) {
 function renderPlayerCard(p, forBench = false) {
   const shirtSrc  = getShirtSrc(p);
   const pred      = AI.predictPoints(p);
+  const pid       = p.element || p.id;
+  const isBench   = forBench;
 
-  // Status dot top-left — yellow ✓ available, orange ? doubt, red ✕ injured
+  // Status dot top-left
   const isInjured = p.status === 'i' || p.status === 'u';
   const isDoubt   = p.status === 'd';
   const statusIcon = isInjured ? '✕' : isDoubt ? '?' : '✓';
@@ -1523,10 +1617,10 @@ function renderPlayerCard(p, forBench = false) {
   if (p.is_captain)           capBadge = `<div class="pc-cap c">C</div>`;
   else if (p.is_vice_captain) capBadge = `<div class="pc-cap vc">V</div>`;
 
-  // Name — up to 10 chars
+  // Name
   const shortName = p.name?.length > 10 ? p.name.slice(0, 9) + '.' : (p.name || '?');
 
-  // Fixture text in white box — coloured by difficulty
+  // Fixture
   const teamKey   = p.teamShort || p.teamName || '';
   const fixes     = S.fixtureMap[teamKey] || [];
   const fix1      = fixes[0];
@@ -1535,8 +1629,22 @@ function renderPlayerCard(p, forBench = false) {
     ? `<div class="pc-fix ${diffClass(fix1.d)}">${fix1.opp} (${fix1.home ? 'H' : 'A'})</div>`
     : `<div class="pc-fix blank">No fixture</div>`;
 
+  // Action buttons — shown when card is selected
+  // Bench players: only show "Swap" to move them into XI
+  // Starting XI players: show both "Swap" (bench swap) and "Transfer" (go to transfers tab)
+  const actions = `
+    <div class="pc-actions" onclick="event.stopPropagation()">
+      <button class="pc-btn pc-btn-swap" onclick="initiateSwap(${pid}, ${isBench})">
+        <i class="fas fa-arrows-up-down"></i> Swap
+      </button>
+      ${!isBench ? `<button class="pc-btn pc-btn-transfer" onclick="initiateTransfer(${pid})">
+        <i class="fas fa-right-left"></i> Transfer
+      </button>` : ''}
+    </div>
+  `;
+
   return `
-    <div class="player-card" onclick="selectCard(this, ${p.element || p.id})">
+    <div class="player-card" data-pid="${pid}" data-bench="${isBench}" onclick="selectCard(this, ${pid})">
       <div class="card-inner">
         <div class="pc-jersey">
           ${statusBadge}
@@ -1549,6 +1657,7 @@ function renderPlayerCard(p, forBench = false) {
           ${fixText}
         </div>
       </div>
+      ${actions}
     </div>
   `;
 }
@@ -1762,10 +1871,104 @@ function prefillTransfer(outId, inId) {
   }, 100);
 }
 
-// ===== CARD SELECTION =====
+// ===== CARD SELECTION & SWAP STATE =====
+const SwapState = { active: false, fromId: null, fromIsBench: false };
+
 function selectCard(el, playerId) {
+  const alreadySelected = el.classList.contains('selected');
+
+  // If in swap mode and we click a valid target — do the swap
+  if (SwapState.active && !alreadySelected) {
+    const targetIsBench = el.dataset.bench === 'true';
+    // Must be swapping between bench and XI (not same zone)
+    if (targetIsBench !== SwapState.fromIsBench) {
+      executeSwap(SwapState.fromId, playerId);
+      return;
+    }
+    // Same zone: re-select as new source
+  }
+
+  // Deselect all, select this one
   document.querySelectorAll('.player-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
+  if (!alreadySelected) el.classList.add('selected');
+
+  // If we were in swap mode but clicked own zone — cancel
+  if (SwapState.active) cancelSwap();
+}
+
+// ===== INITIATE BENCH SWAP =====
+function initiateSwap(fromId, fromIsBench) {
+  SwapState.active      = true;
+  SwapState.fromId      = fromId;
+  SwapState.fromIsBench = fromIsBench;
+
+  // Add swap-mode class to pitch container
+  document.getElementById('pitch-container').classList.add('swap-mode');
+  document.getElementById('bench-wrap').classList.add('swap-mode');
+
+  // Highlight eligible swap targets (opposite zone, same or compatible pos)
+  const fromPlayer = S.currentTeam.find(p => (p.element || p.id) === fromId);
+  document.querySelectorAll('.player-card').forEach(card => {
+    const cardId    = parseInt(card.dataset.pid);
+    const cardBench = card.dataset.bench === 'true';
+    if (cardId === fromId) return; // skip self
+
+    if (cardBench !== fromIsBench) {
+      // Valid swap target — highlight
+      const targetP = S.currentTeam.find(p => (p.element || p.id) === cardId);
+      if (canSwap(fromPlayer, targetP)) {
+        card.classList.add('swap-target');
+      }
+    }
+  });
+
+  // Show cancel banner
+  document.getElementById('swap-banner').classList.add('show');
+}
+
+// Position compatibility check for swaps
+function canSwap(a, b) {
+  if (!a || !b) return false;
+  const aInBench = S.currentTeam.indexOf(a) >= 11;
+  const bInBench = S.currentTeam.indexOf(b) >= 11;
+  // GK can only swap with GK
+  if (a.pos === 1 || b.pos === 1) return a.pos === b.pos;
+  return true;
+}
+
+// ===== EXECUTE SWAP =====
+function executeSwap(fromId, toId) {
+  const fromIdx = S.currentTeam.findIndex(p => (p.element || p.id) === fromId);
+  const toIdx   = S.currentTeam.findIndex(p => (p.element || p.id) === toId);
+  if (fromIdx === -1 || toIdx === -1) { cancelSwap(); return; }
+
+  // Swap in array
+  [S.currentTeam[fromIdx], S.currentTeam[toIdx]] = [S.currentTeam[toIdx], S.currentTeam[fromIdx]];
+
+  cancelSwap();
+  renderAll();
+}
+
+// ===== CANCEL SWAP =====
+function cancelSwap() {
+  SwapState.active = false; SwapState.fromId = null; SwapState.fromIsBench = false;
+  document.getElementById('pitch-container').classList.remove('swap-mode');
+  document.getElementById('bench-wrap').classList.remove('swap-mode');
+  document.getElementById('swap-banner').classList.remove('show');
+  document.querySelectorAll('.player-card').forEach(c => {
+    c.classList.remove('selected', 'swap-target');
+  });
+}
+
+// ===== INITIATE TRANSFER (from card button) =====
+function initiateTransfer(playerId) {
+  cancelSwap();
+  // Pre-fill the transfer out dropdown and switch to transfers tab
+  switchTab('transfers', document.querySelectorAll('.tab-btn')[1]);
+  setTimeout(() => {
+    const sel = document.getElementById('player-out');
+    if (sel) { sel.value = playerId; updateTransferInfo(); }
+  }, 80);
 }
 
 // ===== CAPTAIN ASSIGNMENT =====
@@ -1859,6 +2062,13 @@ if (document.readyState === 'loading') {
 } else {
   boot();
 }
+
+// Click outside any card = deselect + cancel swap
+document.addEventListener('click', e => {
+  if (!e.target.closest('.player-card') && !e.target.closest('#swap-banner')) {
+    cancelSwap();
+  }
+});
 </script>
 </body>
 </html>
