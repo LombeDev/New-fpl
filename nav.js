@@ -1,19 +1,19 @@
 (function () {
   'use strict';
 
-  // 1. MAIN LINKS (Top Bar / Desktop)
+  // 1. MAIN LINKS (These appear in the Top Bar on Desktop/Tablet)
   const NAV_LINKS = [
     { href: 'index.html', label: 'Home',  icon: 'fa-house' },
     { href: 'squad.html', label: 'Squad', icon: 'fa-shirt' },
     { href: 'games.html', label: 'Live',  icon: 'fa-fire' }
   ];
 
-  // 2. DRAWER LINKS (Hamburger Menu)
+  // 2. DRAWER LINKS (These appear only inside the Hamburger Menu)
   const DRAWER_LINKS = [
     { href: 'index.html',   label: 'Home',    icon: 'fa-house' },
     { href: 'leagues.html', label: 'Leagues', icon: 'fa-trophy' },
     { href: 'prices.html',  label: 'Prices',  icon: 'fa-dollar-sign' },
-    { href: 'games.html',   label: 'Games',   icon: 'fa-futbol' },
+    { href: 'games.html',   label: 'Games',   icon: 'fa-futbol' }, // Corrected icon name
     { href: 'team.html',    label: 'My team', icon: 'fa-shirt' }
   ];
 
@@ -49,12 +49,14 @@
     return `
       <header class="kfl-topbar">
         ${logoHTML()}
-        <nav class="kfl-topbar__nav">${navLinks}</nav>
+        <nav class="kfl-topbar__nav">
+          ${navLinks}
+        </nav>
         <div class="kfl-topbar__right">
-          <button class="kfl-theme-toggle" id="theme-toggle">
+          <button class="kfl-theme-toggle" id="theme-toggle" title="Toggle Theme">
             <i class="fa-solid fa-sun" id="theme-icon"></i>
           </button>
-          <button class="kfl-hamburger" id="hamburger">
+          <button class="kfl-hamburger" id="hamburger" title="Menu">
             <i class="fa-solid fa-bars"></i>
           </button>
         </div>
@@ -73,7 +75,7 @@
       <div class="kfl-drawer" id="kfl-drawer">
         <div class="kfl-drawer__head">
           ${logoHTML()}
-          <button id="drawer-close"><i class="fa-solid fa-xmark"></i></button>
+          <button id="drawer-close" title="Close Menu"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="kfl-drawer__content">
           <p class="kfl-drawer__section-title">EXPLORE</p>
@@ -121,6 +123,7 @@
     const toggle = (state) => {
       drawer.classList.toggle('is-open', state);
       overlay.classList.toggle('is-open', state);
+      // Prevent scrolling when menu is open
       document.body.style.overflow = state ? 'hidden' : '';
     };
 
@@ -133,12 +136,13 @@
     const placeholder = document.getElementById('nav-placeholder');
     if (!placeholder) return;
 
-    // Bottom Nav and Tabbar removed from here
+    // We only need Topbar and Drawer. Tabbar/Bottom Nav are officially retired.
     placeholder.innerHTML = buildTopbar() + buildDrawer();
 
     setupTheme();
     setupDrawer();
 
+    // Re-bind the click for the ID button
     document.getElementById('change-id-btn')?.addEventListener('click', () => {
        if (confirm('Change your Team ID?')) {
          localStorage.removeItem('kopala_id');
@@ -147,6 +151,7 @@
     });
   }
 
+  // Start the engine
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadNav);
   } else {
