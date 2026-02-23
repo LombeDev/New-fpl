@@ -451,3 +451,7 @@
   window.addEventListener('pagehide', () => clearInterval(tickInterval));
 
 })();
+
+
+(function(){var t=localStorage.getItem('kopala_theme');if(t)document.documentElement.setAttribute('data-theme',t);})();
+
