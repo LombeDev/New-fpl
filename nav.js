@@ -1,22 +1,21 @@
 (function () {
   'use strict';
 
-  // 1. MAIN LINKS (Top Bar, Tab Bar, Bottom Nav)
-  const NAV_LINKS = [
-    { href: 'index.html',     label: 'Home',      icon: 'fa-house' },
-    { href: 'squad.html',     label: 'Squad',     icon: 'fa-shirt' },
-    { href: 'games.html',     label: 'Live',      icon: 'fa-fire' }
-  ];
+  // 1. MAIN LINKS
+const NAV_LINKS = [
+  { href: 'index.html', label: 'Home',  icon: 'fa-house' },
+  { href: 'squad.html', label: 'Squad', icon: 'fa-shirt' },
+  { href: 'games.html', label: 'Live',  icon: 'fa-fire' } // Changed to fa-fire for consistency
+];
 
-  // 2. DRAWER-ONLY LINKS (Hamburger Menu Only)
-  const DRAWER_LINKS = [
-    { href: 'index.html',      label: 'Home',           icon: 'fa-house' },
-    { href: 'leagues.html',   label: 'Leagues',    icon: 'fa-trophy' },
-    { href: 'prices.html',    label: 'Prices',   icon: 'fa-usd' },
-    { href: 'games.html',      label: 'Games',      icon: 'fa fa-futbol-o' },
-    { href: 'team.html',      label: 'My team',      icon: 'fa-line-chart' }
-    
-  ];
+// 2. DRAWER-ONLY LINKS
+const DRAWER_LINKS = [
+  { href: 'index.html',  label: 'Home',    icon: 'fa-house' },
+  { href: 'leagues.html', label: 'Leagues', icon: 'fa-trophy' },
+  { href: 'prices.html',  label: 'Prices',  icon: 'fa-dollar-sign' }, // Use fa-dollar-sign for v5/v6
+  { href: 'games.html',   label: 'Games',   icon: 'fa-futbol' },      // FIXED: Just 'fa-futbol'
+  { href: 'team.html',    label: 'My team', icon: 'fa-chart-line' }   // Use fa-chart-line for v5/v6
+];
 
   function currentPage() {
     return window.location.pathname.split('/').pop() || 'index.html';
