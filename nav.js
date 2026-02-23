@@ -51,11 +51,7 @@
         ${logoHTML()}
         <nav class="kfl-topbar__nav" aria-label="Main navigation">${navLinks}</nav>
         <div class="kfl-topbar__right">
-          <button class="kfl-btn-ads"><i class="fa-solid fa-heart"></i> Remove Ads</button>
-          <button class="kfl-btn-country">
-            <span>ZM</span>
-            <i class="fa-solid fa-chevron-down chevron"></i>
-          </button>
+       
           <button class="kfl-theme-toggle" id="theme-toggle" aria-label="Toggle theme">
             <i class="fa-solid fa-sun" id="theme-icon"></i>
           </button>
