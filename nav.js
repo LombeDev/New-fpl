@@ -11,10 +11,11 @@
   // 2. DRAWER-ONLY LINKS (Hamburger Menu Only)
   const DRAWER_LINKS = [
     { href: 'index.html',      label: 'Home',           icon: 'fa-house' },
-    { href: 'rankings.html',   label: 'Global Rank',    icon: 'fa-trophy' },
-    { href: 'leagues.html',    label: 'Mini-Leagues',   icon: 'fa-users' },
-    { href: 'tools.html',      label: 'FPL Tools',      icon: 'fa-screwdriver-wrench' },
-    { href: 'https://fpl.com', label: 'Official Site',  icon: 'fa-arrow-up-right-from-square' }
+    { href: 'leagues.html',   label: 'Leagues',    icon: 'fa-trophy' },
+    { href: 'prices.html',    label: 'Prices',   icon: 'fa-usd' },
+    { href: 'games.html',      label: 'Games',      icon: 'fa-ball' },
+    { href: 'team.html',      label: 'My team',      icon: 'fa-line-chart' }
+    
   ];
 
   function currentPage() {
