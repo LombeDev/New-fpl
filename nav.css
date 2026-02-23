@@ -1,11 +1,9 @@
 /* ============================================================
    KOPALA FPL — NAVIGATION STYLES
    LiveFPL-style: top bar + secondary tab strip
-   Light theme: clean white
-   Dark theme: Telegram-accurate charcoal palette
+   Dark = Telegram Night Mode (blue-tinted dark, NOT grey/black)
    ============================================================ */
 
-/* ── LAYOUT TOKENS ─────────────────────────────────────────── */
 :root {
   --kfl-topbar-h: 56px;
   --kfl-tabbar-h: 52px;
@@ -15,14 +13,13 @@
 /* ══════════════════════════════════════════════════════════
    LIGHT THEME
 ══════════════════════════════════════════════════════════ */
-[data-theme="light"],
-:root:not([data-theme]) {
+[data-theme="light"], :root:not([data-theme]) {
   --kfl-bg:           #f0f2f5;
   --kfl-surface:      #ffffff;
-  --kfl-surface-2:    #f0f0f1;
-  --kfl-surface-3:    #e4e4e7;
-  --kfl-border:       #e2e2e5;
-  --kfl-border-mid:   #c4c4c8;
+  --kfl-surface-2:    #f0f0f2;
+  --kfl-surface-3:    #e4e4e8;
+  --kfl-border:       #e2e2e6;
+  --kfl-border-mid:   #c4c4ca;
   --kfl-text-1:       #0f0f10;
   --kfl-text-2:       #52525b;
   --kfl-text-3:       #a1a1aa;
@@ -39,36 +36,38 @@
 }
 
 /* ══════════════════════════════════════════════════════════
-   DARK THEME  — Telegram palette
-   bg:      #212121  (main background, Telegram's exact base)
-   surface: #2b2b2b  (cards, nav bars)
-   surface2:#333333  (buttons, inputs, hover)
-   surface3:#3a3a3a  (active/pressed)
-   border:  rgba(255,255,255,0.06)
+   DARK THEME — Telegram Night Mode
+   Exact palette from Telegram's official night theme:
+     bg:        #17212b  (deep navy-dark, Telegram's base)
+     surface:   #232e3c  (panels, nav bars)
+     surface-2: #2b3f52  (buttons, inputs)
+     surface-3: #344a5e  (hover, active states)
+     border:    rgba(255,255,255,0.06)
+     accent:    #5288c1  (Telegram blue) — we keep kopala green
 ══════════════════════════════════════════════════════════ */
 [data-theme="dark"] {
-  --kfl-bg:           #212121;
-  --kfl-surface:      #2b2b2b;
-  --kfl-surface-2:    #333333;
-  --kfl-surface-3:    #3a3a3a;
-  --kfl-border:       rgba(255,255,255,0.06);
-  --kfl-border-mid:   rgba(255,255,255,0.12);
+  --kfl-bg:           #17212b;
+  --kfl-surface:      #232e3c;
+  --kfl-surface-2:    #2b3f52;
+  --kfl-surface-3:    #344a5e;
+  --kfl-border:       rgba(255,255,255,0.07);
+  --kfl-border-mid:   rgba(255,255,255,0.14);
   --kfl-text-1:       #ffffff;
-  --kfl-text-2:       #aaaaaa;
-  --kfl-text-3:       #606060;
+  --kfl-text-2:       #b8c5d3;
+  --kfl-text-3:       #5a7a96;
   --kfl-shadow:       0 1px 4px rgba(0,0,0,0.5);
   --kfl-shadow-md:    0 6px 24px rgba(0,0,0,0.6);
-  --kfl-green:        #4dcd91;       /* Telegram-toned: softer green, not neon */
-  --kfl-pill-bg:      #4dcd91;
-  --kfl-pill-fg:      #1a1a1a;
-  --kfl-hover-bg:     rgba(255,255,255,0.06);
+  --kfl-green:        #4fcd87;
+  --kfl-pill-bg:      #4fcd87;
+  --kfl-pill-fg:      #0d1a12;
+  --kfl-hover-bg:     rgba(255,255,255,0.07);
   --kfl-ads-color:    #e07a86;
   --kfl-ads-hover:    rgba(224,122,134,0.10);
-  --kfl-logo-box:     #333333;
+  --kfl-logo-box:     #2b3f52;
   --kfl-logo-border:  rgba(255,255,255,0.10);
 }
 
-/* ── BODY BASE ──────────────────────────────────────────────── */
+/* ── BODY ──────────────────────────────────────────────────── */
 body {
   background: var(--kfl-bg);
   color: var(--kfl-text-1);
@@ -77,9 +76,7 @@ body {
 }
 
 @media (max-width: 899px) {
-  body {
-    padding-bottom: calc(var(--kfl-bottom-h) + env(safe-area-inset-bottom));
-  }
+  body { padding-bottom: calc(var(--kfl-bottom-h) + env(safe-area-inset-bottom)); }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -100,7 +97,7 @@ body {
   transition: background 0.22s, border-color 0.22s, box-shadow 0.22s;
 }
 
-/* ── Logo ────────────────────────────────────────────────── */
+/* ── Logo ──────────────────────────────────────────────────── */
 .kfl-logo {
   display: inline-flex;
   align-items: center;
@@ -121,6 +118,12 @@ body {
   transition: background 0.22s, border-color 0.22s;
 }
 
+[data-theme="light"] .kfl-logo__box,
+:root:not([data-theme]) .kfl-logo__box {
+  background: #18181b;
+  border-color: transparent;
+}
+
 .kfl-logo__text {
   font-size: 0.92rem;
   font-weight: 900;
@@ -139,7 +142,7 @@ body {
   transition: border-color 0.22s;
 }
 
-/* ── Desktop top nav links ──────────────────────────────── */
+/* ── Desktop nav links ─────────────────────────────────────── */
 .kfl-topbar__nav {
   display: none;
   align-items: center;
@@ -163,17 +166,10 @@ body {
 
 .kfl-topbar__link i { font-size: 0.72rem; opacity: 0.7; }
 
-.kfl-topbar__link:hover {
-  color: var(--kfl-text-1);
-  background: var(--kfl-hover-bg);
-}
+.kfl-topbar__link:hover { color: var(--kfl-text-1); background: var(--kfl-hover-bg); }
+.kfl-topbar__link.is-active { color: var(--kfl-text-1); background: var(--kfl-hover-bg); }
 
-.kfl-topbar__link.is-active {
-  color: var(--kfl-text-1);
-  background: var(--kfl-hover-bg);
-}
-
-/* ── Right utilities ────────────────────────────────────── */
+/* ── Right utilities ───────────────────────────────────────── */
 .kfl-topbar__right {
   margin-left: auto;
   display: flex;
@@ -194,11 +190,10 @@ body {
   border: none;
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.14s, color 0.14s;
+  transition: background 0.14s;
   white-space: nowrap;
 }
 .kfl-btn-ads:hover { background: var(--kfl-ads-hover); }
-.kfl-btn-ads i { font-size: 0.78rem; }
 
 .kfl-btn-country {
   display: flex;
@@ -235,10 +230,8 @@ body {
   flex-shrink: 0;
   font-family: inherit;
 }
-
 .kfl-theme-toggle { font-size: 0.82rem; }
 .kfl-hamburger    { font-size: 0.88rem; }
-
 .kfl-theme-toggle:hover,
 .kfl-hamburger:hover {
   background: var(--kfl-surface-3);
@@ -289,17 +282,10 @@ body {
   background: transparent;
   font-family: inherit;
 }
-
 .kfl-tab i { font-size: 0.75rem; opacity: 0.60; transition: opacity 0.14s; }
-
 .kfl-tab:hover { color: var(--kfl-text-1); background: var(--kfl-hover-bg); }
 .kfl-tab:hover i { opacity: 1; }
-
-.kfl-tab.is-active {
-  color: var(--kfl-pill-fg);
-  background: var(--kfl-pill-bg);
-  font-weight: 700;
-}
+.kfl-tab.is-active { color: var(--kfl-pill-fg); background: var(--kfl-pill-bg); font-weight: 700; }
 .kfl-tab.is-active i { opacity: 0.85; }
 
 /* ══════════════════════════════════════════════════════════
@@ -331,9 +317,7 @@ body {
   -webkit-tap-highlight-color: transparent;
   padding: 6px 2px;
 }
-
 .kfl-bottom-nav__item.is-active { color: var(--kfl-green); }
-
 .kfl-bottom-nav__item.is-active::after {
   content: '';
   position: absolute;
@@ -343,7 +327,6 @@ body {
   background: var(--kfl-green);
   border-radius: 3px 3px 0 0;
 }
-
 .kfl-bottom-nav__icon { font-size: 1.05rem; }
 .kfl-bottom-nav__label {
   font-size: 0.565rem;
@@ -359,7 +342,7 @@ body {
 .kfl-overlay {
   display: none;
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.50);
+  background: rgba(0,0,0,0.55);
   z-index: 1100;
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
@@ -391,7 +374,6 @@ body {
   flex-shrink: 0;
   transition: border-color 0.22s;
 }
-
 .kfl-drawer__close {
   width: 32px; height: 32px;
   border-radius: 8px;
@@ -399,8 +381,7 @@ body {
   border: 1px solid var(--kfl-border);
   color: var(--kfl-text-2);
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 0.85rem;
-  font-family: inherit;
+  cursor: pointer; font-size: 0.85rem; font-family: inherit;
   transition: background 0.14s, color 0.14s;
 }
 .kfl-drawer__close:hover { background: var(--kfl-surface-3); color: var(--kfl-text-1); }
@@ -413,7 +394,6 @@ body {
   color: var(--kfl-text-3);
   padding: 16px 16px 6px;
 }
-
 .kfl-drawer__link {
   display: flex;
   align-items: center;
@@ -425,25 +405,14 @@ body {
   text-decoration: none;
   transition: color 0.14s, background 0.14s;
   cursor: pointer;
-  border: none;
-  width: 100%;
-  text-align: left;
-  background: transparent;
-  font-family: inherit;
+  border: none; width: 100%; text-align: left;
+  background: transparent; font-family: inherit;
 }
-.kfl-drawer__link i {
-  width: 18px; text-align: center;
-  font-size: 0.82rem; opacity: 0.65;
-}
+.kfl-drawer__link i { width: 18px; text-align: center; font-size: 0.82rem; opacity: 0.65; }
 .kfl-drawer__link:hover { color: var(--kfl-text-1); background: var(--kfl-hover-bg); }
 .kfl-drawer__link.is-active { color: var(--kfl-green); }
 .kfl-drawer__link.is-active i { opacity: 1; }
-
-.kfl-drawer__divider {
-  height: 1px;
-  background: var(--kfl-border);
-  margin: 8px 16px;
-}
+.kfl-drawer__divider { height: 1px; background: var(--kfl-border); margin: 8px 16px; }
 
 /* ══════════════════════════════════════════════════════════
    DESKTOP ≥900px
