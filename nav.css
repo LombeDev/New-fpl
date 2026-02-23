@@ -1,6 +1,6 @@
 /* ============================================================
    KOPALA FPL — NAVIGATION STYLES
-   LiveFPL-style: top bar + secondary tab strip
+   Inspired by LiveFPL: Top Bar + Pill Sub-Nav
    ============================================================ */
 
 :root {
@@ -8,18 +8,53 @@
   --kfl-tabbar-h: 52px;
 }
 
-/* ── BODY ADJUSTMENT ───────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════
+   THEME PALETTE (Telegram Night Mode for Dark)
+══════════════════════════════════════════════════════════ */
+[data-theme="light"], :root:not([data-theme]) {
+  --kfl-bg:          #f0f2f5;
+  --kfl-surface:      #ffffff;
+  --kfl-surface-2:    #f0f0f2;
+  --kfl-surface-3:    #e4e4e8;
+  --kfl-border:       #e2e2e6;
+  --kfl-text-1:       #0f0f10;
+  --kfl-text-2:       #52525b;
+  --kfl-text-3:       #a1a1aa;
+  --kfl-shadow:       0 1px 2px rgba(0,0,0,0.06);
+  --kfl-shadow-md:    0 4px 20px rgba(0,0,0,0.10);
+  --kfl-green:        #00b956;
+  --kfl-pill-fg:      #ffffff;
+  --kfl-hover-bg:     rgba(0,0,0,0.04);
+}
+
+[data-theme="dark"] {
+  --kfl-bg:           #17212b;
+  --kfl-surface:      #232e3c;
+  --kfl-surface-2:    #2b3f52;
+  --kfl-surface-3:    #344a5e;
+  --kfl-border:       rgba(255,255,255,0.08);
+  --kfl-text-1:       #ffffff;
+  --kfl-text-2:       #b8c5d3;
+  --kfl-text-3:       #5a7a96;
+  --kfl-shadow:       0 1px 4px rgba(0,0,0,0.5);
+  --kfl-shadow-md:    0 6px 24px rgba(0,0,0,0.6);
+  --kfl-green:        #4fcd87;
+  --kfl-pill-fg:      #0d1a12;
+  --kfl-hover-bg:     rgba(255,255,255,0.06);
+}
+
+/* ── BODY ──────────────────────────────────────────────────── */
 body {
   background: var(--kfl-bg);
   color: var(--kfl-text-1);
-  /* Ensures content starts below BOTH nav bars */
-  padding-top: calc(var(--kfl-topbar-h) + var(--kfl-tabbar-h));
-  transition: background 0.22s ease, color 0.22s ease;
   margin: 0;
+  padding-top: calc(var(--kfl-topbar-h) + var(--kfl-tabbar-h));
+  font-family: 'Inter', -apple-system, sans-serif;
+  transition: background 0.22s, color 0.22s;
 }
 
 /* ══════════════════════════════════════════════════════════
-   TOP BAR (Row 1)
+   TOP BAR (ROW 1)
 ══════════════════════════════════════════════════════════ */
 .kfl-topbar {
   position: fixed;
@@ -34,106 +69,59 @@ body {
   box-shadow: var(--kfl-shadow);
 }
 
+/* ── Logo ── */
+.kfl-logo {
+  text-decoration: none;
+}
+
+.kfl-logo__box {
+  background: #1e293b; 
+  border-radius: 6px;
+  padding: 5px 12px;
+  display: flex;
+  align-items: center;
+}
+
+.kfl-logo__text {
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+}
+
+.kfl-logo__text span {
+  color: var(--kfl-green);
+}
+
+/* ── Right Icons ── */
 .kfl-topbar__right {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 }
 
-/* ══════════════════════════════════════════════════════════
-   SUB-NAV / PILL BAR (Row 2)
-══════════════════════════════════════════════════════════ */
-.kfl-subnav {
-  position: fixed;
-  top: var(--kfl-topbar-h);
-  left: 0; right: 0;
-  height: var(--kfl-tabbar-h);
-  background: var(--kfl-surface);
-  border-bottom: 1px solid var(--kfl-border);
-  z-index: 990;
-  overflow-x: auto;
-  scrollbar-width: none; /* Hide scrollbar Firefox */
-  -ms-overflow-style: none; /* Hide scrollbar IE/Edge */
-}
-
-.kfl-subnav::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome/Safari */
-
-.kfl-subnav__inner {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  padding: 0 12px;
-  gap: 8px;
-  min-width: max-content;
-}
-
-/* The "Pill" Buttons matching your image */
-.kfl-subnav__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 6px 16px;
-  border-radius: 100px; /* Perfect pill shape */
-  font-size: 0.85rem;
-  font-weight: 600;
+.kfl-theme-toggle,
+.kfl-hamburger {
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
   color: var(--kfl-text-2);
-  text-decoration: none;
-  white-space: nowrap;
-  background: var(--kfl-surface-2); /* Subtle grey/blue background */
-  transition: all 0.2s ease;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s;
 }
 
-.kfl-subnav__link i { 
-  font-size: 0.9rem; 
-}
-
-/* Specific styling for the LIVE icon circle */
-.icon-live {
-  color: #e5475a; /* Red circle color from your image */
-}
-
-/* Hover State */
-.kfl-subnav__link:hover {
-  background: var(--kfl-surface-3);
+.kfl-theme-toggle:hover,
+.kfl-hamburger:hover {
+  background: var(--kfl-hover-bg);
   color: var(--kfl-text-1);
 }
 
-/* Active State (The Green Pill) */
-.kfl-subnav__link.is-active {
-  background: var(--kfl-green);
-  color: var(--kfl-pill-fg);
-  box-shadow: 0 2px 8px rgba(0, 185, 86, 0.25);
-}
-
 /* ══════════════════════════════════════════════════════════
-   DRAWER / MOBILE MENU
-══════════════════════════════════════════════════════════ */
-.kfl-drawer {
-  position: fixed;
-  top: 0; right: 0;
-  width: 280px; height: 100%;
-  background: var(--kfl-surface);
-  z-index: 1200;
-  transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--kfl-shadow-md);
-}
-
-.kfl-drawer.is-open { transform: translateX(0); }
-
-.kfl-drawer__icon-box {
-  width: 32px;
-  display: flex;
-  justify-content: center;
-  font-size: 1.1rem;
-}
-
-/* ... keep the rest of your Logo and Theme toggle styles as they were ... */
-
-
-/* ══════════════════════════════════════════════════════════
-   SECONDARY SUB-NAV (The Pill Bar)
+   SUB-NAV PILL BAR (ROW 2)
 ══════════════════════════════════════════════════════════ */
 .kfl-subnav {
   position: fixed;
@@ -145,7 +133,6 @@ body {
   z-index: 990;
   overflow-x: auto;
   scrollbar-width: none;
-  transition: background 0.22s;
 }
 .kfl-subnav::-webkit-scrollbar { display: none; }
 
@@ -154,7 +141,7 @@ body {
   align-items: center;
   height: 100%;
   padding: 0 12px;
-  gap: 10px; /* Space between pills */
+  gap: 10px;
   min-width: max-content;
 }
 
@@ -163,63 +150,110 @@ body {
   align-items: center;
   gap: 8px;
   padding: 6px 14px;
-  border-radius: 8px; /* Matching the slightly rounded boxes in your image */
+  border-radius: 8px;
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--kfl-text-2);
   text-decoration: none;
-  white-space: nowrap;
-  background: var(--kfl-surface-2); /* The light grey/blue background */
-  transition: all 0.15s ease;
-  border: 1px solid transparent;
+  background: var(--kfl-surface-2);
+  transition: all 0.15s;
 }
 
-.kfl-subnav__link i {
-  font-size: 0.95rem;
-  /* Icon centering */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Hover State */
-.kfl-subnav__link:hover {
-  background: var(--kfl-surface-3);
-  color: var(--kfl-text-1);
-}
-
-/* Active State (The Green Summary Pill) */
 .kfl-subnav__link.is-active {
   background: var(--kfl-green);
   color: var(--kfl-pill-fg);
-  font-weight: 700;
 }
 
-/* Specific Icon Colors from Screenshot */
-.kfl-subnav__link .fa-circle {
-  color: #e5475a; /* Red Live dot */
-}
+.kfl-subnav__link i { font-size: 0.95rem; }
+.kfl-subnav__link .fa-circle { color: #e5475a; } /* Red Live dot */
 
 /* ══════════════════════════════════════════════════════════
-   REFINED LOGO (LiveFPL Style)
+   DRAWER NAVIGATION
 ══════════════════════════════════════════════════════════ */
-.kfl-logo__box {
-  background: #1e293b; /* Dark navy for the logo box */
-  border-radius: 6px;
-  padding: 4px 10px;
+.kfl-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1100;
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.kfl-overlay.is-open { display: block; opacity: 1; }
+
+.kfl-drawer {
+  position: fixed;
+  top: 0; right: 0;
+  width: 290px; height: 100%;
+  background: var(--kfl-surface);
+  z-index: 1200;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; flex-direction: column;
+  box-shadow: var(--kfl-shadow-md);
+}
+.kfl-drawer.is-open { transform: translateX(0); }
+
+.kfl-drawer__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  height: var(--kfl-topbar-h);
+  border-bottom: 1px solid var(--kfl-border);
+}
+
+.kfl-drawer__content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.kfl-drawer__link {
   display: flex;
   align-items: center;
-  gap: 2px;
+  padding: 14px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--kfl-text-2);
+  text-decoration: none;
+  border-bottom: 1px solid var(--kfl-border);
+  transition: background 0.2s;
 }
 
-.kfl-logo__text {
-  font-family: 'Inter', sans-serif;
-  font-weight: 800;
+.kfl-drawer__link:hover {
+  background: var(--kfl-hover-bg);
+}
+
+.kfl-drawer__icon-box {
+  width: 32px;
+  display: flex; align-items: center;
   font-size: 1.1rem;
-  letter-spacing: -0.5px;
-  color: #ffffff;
+  color: var(--kfl-text-3);
 }
 
-.kfl-logo__text:nth-child(2) {
-  color: var(--kfl-green); /* The "FPL" part green */
+/* Arrow on the right as seen in c2.PNG */
+.kfl-drawer__link::after {
+  content: '\f105'; 
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  margin-left: auto;
+  font-size: 0.85rem;
+  opacity: 0.4;
+}
+
+/* Exceptions for title and logout button */
+.kfl-drawer__section-title {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--kfl-text-3);
+  padding: 20px 20px 8px;
+}
+
+#change-id-btn::after { display: none; }
+#drawer-close { background: transparent; border: none; font-size: 1.2rem; color: var(--kfl-text-2); cursor: pointer; }
+
+/* ── DESKTOP ADJUSTMENTS ────────────────────────────────────── */
+@media (min-width: 900px) {
+  .kfl-subnav__inner { padding: 0 24px; }
+  .kfl-topbar { padding: 0 24px; }
 }
