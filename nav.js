@@ -1,31 +1,32 @@
 (function () {
   'use strict';
 
-  // 1. MAIN LINKS (These appear in the Top Bar on Desktop/Tablet)
-  const NAV_LINKS = [
+  // 1. TOP BAR LINKS (The very top row)
+  const TOP_LINKS = [
     { href: 'index.html', label: 'Home',  icon: 'fa-house' },
-    { href: 'squad.html', label: 'Squad', icon: 'fa-shirt' },
-    { href: 'games.html', label: 'Live',  icon: 'fa-fire' }
+    { href: 'squad.html', label: 'Squad', icon: 'fa-shirt' }
   ];
 
-  // 2. DRAWER LINKS (These appear only inside the Hamburger Menu)
+  // 2. SUB-NAV LINKS (The secondary row with pills, matching your image)
+  const SUB_NAV_LINKS = [
+    { href: 'index.html', label: 'Summary', icon: 'fa-chart-simple' },
+    { href: 'squad.html',   label: 'Squad',   icon: 'fa-futbol' },
+    { href: 'captains.html', label: 'Captains', icon: 'fa-star' },
+    { href: 'games.html',   label: 'Live',    icon: 'fa-circle' } // Red circle vibe
+  ];
+
+  // 3. DRAWER LINKS (Hamburger Menu)
   const DRAWER_LINKS = [
-    { href: 'index.html',   label: 'Home',    icon: 'fa-house' },
+    ...SUB_NAV_LINKS,
     { href: 'leagues.html', label: 'Leagues', icon: 'fa-trophy' },
-    { href: 'prices.html',  label: 'Prices',  icon: 'fa-dollar-sign' },
-    { href: 'games.html',   label: 'Games',   icon: 'fa-futbol' }, // Corrected icon name
-    { href: 'team.html',    label: 'My team', icon: 'fa-shirt' }
+    { href: 'prices.html',  label: 'Prices',  icon: 'fa-dollar-sign' }
   ];
 
   // --- HELPERS ---
-
   function currentPage() {
     return window.location.pathname.split('/').pop() || 'index.html';
   }
-
-  function isActive(href) { 
-    return href === currentPage(); 
-  }
+  function isActive(href) { return href === currentPage(); }
 
   function logoHTML() {
     return `
@@ -41,26 +42,24 @@
   // --- BUILDERS ---
 
   function buildTopbar() {
-    const navLinks = NAV_LINKS.map(l => `
-      <a href="${l.href}" class="kfl-topbar__link ${isActive(l.href) ? 'is-active' : ''}">
-        <i class="fa-solid ${l.icon}"></i><span>${l.label}</span>
-      </a>`).join('');
-    
     return `
       <header class="kfl-topbar">
         ${logoHTML()}
-        <nav class="kfl-topbar__nav">
-          ${navLinks}
-        </nav>
         <div class="kfl-topbar__right">
-          <button class="kfl-theme-toggle" id="theme-toggle" title="Toggle Theme">
-            <i class="fa-solid fa-sun" id="theme-icon"></i>
-          </button>
-          <button class="kfl-hamburger" id="hamburger" title="Menu">
-            <i class="fa-solid fa-bars"></i>
-          </button>
+          <button class="kfl-theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
+          <button class="kfl-hamburger" id="hamburger"><i class="fa-solid fa-bars"></i></button>
         </div>
       </header>`;
+  }
+
+  function buildSubNav() {
+    const links = SUB_NAV_LINKS.map(l => `
+      <a href="${l.href}" class="kfl-subnav__link ${isActive(l.href) ? 'is-active' : ''}">
+        <i class="fa-solid ${l.icon} ${l.label === 'Live' ? 'icon-live' : ''}"></i>
+        <span>${l.label}</span>
+      </a>`).join('');
+    
+    return `<nav class="kfl-subnav"><div class="kfl-subnav__inner">${links}</div></nav>`;
   }
 
   function buildDrawer() {
@@ -75,13 +74,11 @@
       <div class="kfl-drawer" id="kfl-drawer">
         <div class="kfl-drawer__head">
           ${logoHTML()}
-          <button id="drawer-close" title="Close Menu"><i class="fa-solid fa-xmark"></i></button>
+          <button id="drawer-close"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="kfl-drawer__content">
-          <p class="kfl-drawer__section-title">EXPLORE</p>
           ${drawerItems}
           <div class="kfl-drawer__divider"></div>
-          <p class="kfl-drawer__section-title">ACCOUNT</p>
           <button class="kfl-drawer__link" id="change-id-btn">
             <div class="kfl-drawer__icon-box"><i class="fa-solid fa-right-from-bracket"></i></div>
             <span>Change Team ID</span>
@@ -91,24 +88,18 @@
   }
 
   // --- LOGIC ---
-
   function setupTheme() {
     const htmlEl = document.documentElement;
     const btn = document.getElementById('theme-toggle');
     const icon = document.getElementById('theme-icon');
     if (!btn) return;
-
     const apply = (t) => {
       htmlEl.setAttribute('data-theme', t);
-      if (icon) {
-        icon.className = t === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-      }
+      if (icon) icon.className = t === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
       localStorage.setItem('kopala_theme', t);
     };
-
     const current = localStorage.getItem('kopala_theme') || 'light';
     apply(current);
-
     btn.onclick = () => apply(htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
   }
 
@@ -117,16 +108,12 @@
     const overlay = document.getElementById('kfl-overlay');
     const openBtn = document.getElementById('hamburger');
     const closeBtn = document.getElementById('drawer-close');
-
     if (!drawer || !openBtn) return;
-
     const toggle = (state) => {
       drawer.classList.toggle('is-open', state);
       overlay.classList.toggle('is-open', state);
-      // Prevent scrolling when menu is open
       document.body.style.overflow = state ? 'hidden' : '';
     };
-
     openBtn.onclick = () => toggle(true);
     if (closeBtn) closeBtn.onclick = () => toggle(false);
     if (overlay) overlay.onclick = () => toggle(false);
@@ -136,13 +123,11 @@
     const placeholder = document.getElementById('nav-placeholder');
     if (!placeholder) return;
 
-    // We only need Topbar and Drawer. Tabbar/Bottom Nav are officially retired.
-    placeholder.innerHTML = buildTopbar() + buildDrawer();
+    // Combine Topbar + SubNav + Drawer
+    placeholder.innerHTML = buildTopbar() + buildSubNav() + buildDrawer();
 
     setupTheme();
     setupDrawer();
-
-    // Re-bind the click for the ID button
     document.getElementById('change-id-btn')?.addEventListener('click', () => {
        if (confirm('Change your Team ID?')) {
          localStorage.removeItem('kopala_id');
@@ -151,11 +136,9 @@
     });
   }
 
-  // Start the engine
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadNav);
   } else {
     loadNav();
   }
-
 })();
