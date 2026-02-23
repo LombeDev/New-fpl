@@ -13,7 +13,7 @@
     { href: 'index.html',      label: 'Home',           icon: 'fa-house' },
     { href: 'leagues.html',   label: 'Leagues',    icon: 'fa-trophy' },
     { href: 'prices.html',    label: 'Prices',   icon: 'fa-usd' },
-    { href: 'games.html',      label: 'Games',      icon: 'fa-ball' },
+    { href: 'games.html',      label: 'Games',      icon: 'fa-futbol-o' },
     { href: 'team.html',      label: 'My team',      icon: 'fa-line-chart' }
     
   ];
