@@ -35,7 +35,7 @@
     return `
       <a href="index.html" class="kfl-logo">
         <div class="kfl-logo__box">
-          <span class="kfl-logo__text">KOPALA<span>FPL</span></span>
+          <img src="logo.png" alt="Kopala FPL" class="kfl-logo__img">
         </div>
       </a>`;
   }
