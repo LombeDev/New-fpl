@@ -19,7 +19,7 @@
 
   const NAV_LINKS = [
     { href: 'index.html',   label: 'Home',          icon: 'fa-house' },
-    { href: '', label: 'Squad',        icon: 'fa-trophy' },
+    { href: '', label: 'Squad',        icon: 'fa-shirt' },
     { href: 'games.html',  label: 'Live games',  icon: 'fa-tags' },
     { href: 'threats',   label: 'Threats',          icon: 'fa-gamepad' },
     { href: 'transfers.html',    label: 'transfers',        icon: 'fa-shirt' },
