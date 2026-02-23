@@ -12,7 +12,7 @@
     { href: 'index.html', label: 'Summary', icon: 'fa-chart-simple' },
     { href: 'squad.html',   label: 'Squad',   icon: 'fa-futbol' },
     { href: 'captains.html', label: 'Captains', icon: 'fa-star' },
-    { href: 'games.html',   label: 'Live',    icon: 'fa-circle' } // Red circle vibe
+    
   ];
 
   // 3. DRAWER LINKS (Hamburger Menu)
@@ -20,6 +20,8 @@
     ...SUB_NAV_LINKS,
     { href: 'leagues.html', label: 'Leagues', icon: 'fa-trophy' },
     { href: 'prices.html',  label: 'Prices',  icon: 'fa-dollar-sign' }
+    { href: 'games.html',   label: 'Games',    icon: 'fa-futbol-o' }
+    { href: 'team.html',   label: 'My team',    icon: 'fa-shirt' } 
   ];
 
   // --- HELPERS ---
