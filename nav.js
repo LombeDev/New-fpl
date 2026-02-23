@@ -14,7 +14,7 @@ const DRAWER_LINKS = [
   { href: 'leagues.html', label: 'Leagues', icon: 'fa-trophy' },
   { href: 'prices.html',  label: 'Prices',  icon: 'fa-dollar-sign' }, // Use fa-dollar-sign for v5/v6
   { href: 'games.html',   label: 'Games',   icon: 'fa-futbol' },      // FIXED: Just 'fa-futbol'
-  { href: 'team.html',    label: 'My team', icon: 'fa-chart-line' }   // Use fa-chart-line for v5/v6
+  { href: 'team.html',    label: 'My team', icon: 'fa-shirt' }   // Use fa-chart-line for v5/v6
 ];
 
   function currentPage() {
