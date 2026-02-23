@@ -19,10 +19,10 @@
 
   const NAV_LINKS = [
     { href: 'index.html',   label: 'Home',          icon: 'fa-house' },
-    { href: 'leagues.html', label: 'Leagues',        icon: 'fa-trophy' },
-    { href: 'prices.html',  label: 'Price Changes',  icon: 'fa-tags' },
-    { href: 'games.html',   label: 'Games',          icon: 'fa-gamepad' },
-    { href: 'team.html',    label: 'My Team',        icon: 'fa-shirt' },
+    { href: '', label: 'Squad',        icon: 'fa-trophy' },
+    { href: 'games.html',  label: 'Live games',  icon: 'fa-tags' },
+    { href: 'threats',   label: 'Threats',          icon: 'fa-gamepad' },
+    { href: 'transfers.html',    label: 'transfers',        icon: 'fa-shirt' },
   ];
 
   function currentPage() {
