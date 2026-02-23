@@ -1,27 +1,27 @@
 (function () {
   'use strict';
 
-  // 1. TOP BAR LINKS (The very top row)
+  // 1. TOP BAR LINKS (Row 1 - Used for Desktop/Logic)
   const TOP_LINKS = [
     { href: 'index.html', label: 'Home',  icon: 'fa-house' },
     { href: 'squad.html', label: 'Squad', icon: 'fa-shirt' }
   ];
 
-  // 2. SUB-NAV LINKS (The secondary row with pills, matching your image)
+  // 2. SUB-NAV LINKS (Row 2 - The Pills seen in Capture2.PNG)
   const SUB_NAV_LINKS = [
-    { href: 'index.html', label: 'Summary', icon: 'fa-chart-simple' },
-    { href: 'squad.html',   label: 'Squad',   icon: 'fa-futbol' },
-    { href: 'captains.html', label: 'Captains', icon: 'fa-star' },
-    
+    { href: 'index.html',   label: 'Summary',  icon: 'fa-chart-simple' },
+    { href: 'squad.html',     label: 'Squad',    icon: 'fa-futbol' },
+    { href: 'captains.html',  label: 'Captains', icon: 'fa-star' },
+    { href: 'games.html',     label: 'Live',     icon: 'fa-circle' } // Icon for the red dot
   ];
 
-  // 3. DRAWER LINKS (Hamburger Menu)
+  // 3. DRAWER LINKS (Hamburger Menu - Capture.PNG & c2.PNG)
   const DRAWER_LINKS = [
-    ...SUB_NAV_LINKS,
-    { href: 'leagues.html', label: 'Leagues', icon: 'fa-trophy' },
-    { href: 'prices.html',  label: 'Prices',  icon: 'fa-dollar-sign' }
-    { href: 'games.html',   label: 'Games',    icon: 'fa-futbol-o' }
-    { href: 'team.html',   label: 'My team',    icon: 'fa-shirt' } 
+    { href: 'index.html',   label: 'Home',     icon: 'fa-house' },
+    { href: 'leagues.html', label: 'Leagues',  icon: 'fa-trophy' },
+    { href: 'prices.html',  label: 'Prices',   icon: 'fa-dollar-sign' },
+    { href: 'games.html',   label: 'Games',    icon: 'fa-futbol' },
+    { href: 'team.html',    label: 'My team',  icon: 'fa-shirt' }
   ];
 
   // --- HELPERS ---
@@ -30,13 +30,12 @@
   }
   function isActive(href) { return href === currentPage(); }
 
+  // Matches the refined Logo CSS
   function logoHTML() {
     return `
       <a href="index.html" class="kfl-logo">
         <div class="kfl-logo__box">
-          <span class="kfl-logo__text">KOPALA</span>
-          <span class="kfl-logo__arrow"></span>
-          <span class="kfl-logo__text">FPL</span>
+          <span class="kfl-logo__text">KOPALA<span>FPL</span></span>
         </div>
       </a>`;
   }
@@ -48,8 +47,12 @@
       <header class="kfl-topbar">
         ${logoHTML()}
         <div class="kfl-topbar__right">
-          <button class="kfl-theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
-          <button class="kfl-hamburger" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+          <button class="kfl-theme-toggle" id="theme-toggle" title="Toggle Theme">
+            <i class="fa-solid fa-sun" id="theme-icon"></i>
+          </button>
+          <button class="kfl-hamburger" id="hamburger" title="Open Menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
         </div>
       </header>`;
   }
@@ -57,7 +60,7 @@
   function buildSubNav() {
     const links = SUB_NAV_LINKS.map(l => `
       <a href="${l.href}" class="kfl-subnav__link ${isActive(l.href) ? 'is-active' : ''}">
-        <i class="fa-solid ${l.icon} ${l.label === 'Live' ? 'icon-live' : ''}"></i>
+        <i class="fa-solid ${l.icon}"></i>
         <span>${l.label}</span>
       </a>`).join('');
     
@@ -76,9 +79,10 @@
       <div class="kfl-drawer" id="kfl-drawer">
         <div class="kfl-drawer__head">
           ${logoHTML()}
-          <button id="drawer-close"><i class="fa-solid fa-xmark"></i></button>
+          <button id="drawer-close" title="Close Menu"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="kfl-drawer__content">
+          <p class="kfl-drawer__section-title">EXPLORE</p>
           ${drawerItems}
           <div class="kfl-drawer__divider"></div>
           <button class="kfl-drawer__link" id="change-id-btn">
@@ -125,11 +129,12 @@
     const placeholder = document.getElementById('nav-placeholder');
     if (!placeholder) return;
 
-    // Combine Topbar + SubNav + Drawer
     placeholder.innerHTML = buildTopbar() + buildSubNav() + buildDrawer();
 
     setupTheme();
     setupDrawer();
+    
+    // Re-bind click for ID button
     document.getElementById('change-id-btn')?.addEventListener('click', () => {
        if (confirm('Change your Team ID?')) {
          localStorage.removeItem('kopala_id');
