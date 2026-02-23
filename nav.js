@@ -1,8 +1,8 @@
 /**
  * nav.js — Kopala FPL Navigation
- * LiveFPL-style: single top bar + secondary tab strip
+ * LiveFPL-style: top bar + secondary tab strip
+ * Dark theme: Telegram charcoal palette (#212121 / #2b2b2b / #333333)
  * Mobile: top bar + bottom tab bar + slide-in drawer
- * Desktop: top bar (with inline links) + tab strip below
  */
 
 (function () {
@@ -24,7 +24,6 @@
     return href === currentPage();
   }
 
-  /* ── Logo HTML ──────────────────────────────────────────── */
   function logoHTML() {
     return `
       <a href="index.html" class="kfl-logo">
@@ -36,7 +35,7 @@
       </a>`;
   }
 
-  /* ── Top bar ────────────────────────────────────────────── */
+  /* ── Top bar ─────────────────────────────────────────────── */
   function buildTopbar() {
     const navLinks = NAV_LINKS.slice(1).map(l => `
       <a href="${l.href}" class="kfl-topbar__link ${isActive(l.href) ? 'is-active' : ''}">
@@ -51,7 +50,7 @@
           <button class="kfl-btn-ads">
             <i class="fa-solid fa-heart"></i> Remove Ads
           </button>
-          <button class="kfl-btn-country" id="country-btn">
+          <button class="kfl-btn-country">
             <span>ZM</span>
             <i class="fa-solid fa-chevron-down chevron"></i>
           </button>
@@ -109,7 +108,7 @@
         ${links}
         <div class="kfl-drawer__divider"></div>
         <p class="kfl-drawer__section-title">Account</p>
-        <button class="kfl-drawer__link" id="change-id-btn" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;font-family:inherit;">
+        <button class="kfl-drawer__link" id="change-id-btn">
           <i class="fa-solid fa-right-from-bracket"></i>Change Team ID
         </button>
       </div>`;
@@ -117,13 +116,13 @@
 
   /* ── Theme logic ─────────────────────────────────────────── */
   function setupTheme() {
-    const html = document.documentElement;
-    const btn  = document.getElementById('theme-toggle');
-    const icon = document.getElementById('theme-icon');
+    const htmlEl = document.documentElement;
+    const btn    = document.getElementById('theme-toggle');
+    const icon   = document.getElementById('theme-icon');
     if (!btn) return;
 
     function apply(t) {
-      html.setAttribute('data-theme', t);
+      htmlEl.setAttribute('data-theme', t);
       icon.className = t === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
       localStorage.setItem('kopala_theme', t);
     }
@@ -132,20 +131,20 @@
     if (saved) apply(saved);
 
     btn.addEventListener('click', () => {
-      apply(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+      apply(htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
   }
 
   /* ── Drawer logic ────────────────────────────────────────── */
   function setupDrawer() {
-    const drawer   = document.getElementById('kfl-drawer');
-    const overlay  = document.getElementById('kfl-overlay');
+    const drawer    = document.getElementById('kfl-drawer');
+    const overlay   = document.getElementById('kfl-overlay');
     const hamburger = document.getElementById('hamburger');
     const closeBtn  = document.getElementById('drawer-close');
     if (!drawer) return;
 
-    function open()  { drawer.classList.add('is-open'); overlay.classList.add('is-open'); document.body.style.overflow = 'hidden'; }
-    function close() { drawer.classList.remove('is-open'); overlay.classList.remove('is-open'); document.body.style.overflow = ''; }
+    const open  = () => { drawer.classList.add('is-open'); overlay.classList.add('is-open'); document.body.style.overflow = 'hidden'; };
+    const close = () => { drawer.classList.remove('is-open'); overlay.classList.remove('is-open'); document.body.style.overflow = ''; };
 
     hamburger?.addEventListener('click', open);
     closeBtn?.addEventListener('click', close);
@@ -167,6 +166,12 @@
     const placeholder = document.getElementById('nav-placeholder');
     if (!placeholder) return;
 
+    // Apply saved theme BEFORE injecting HTML to avoid flash
+    const savedTheme = localStorage.getItem('kopala_theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+
     placeholder.innerHTML =
       buildTopbar() +
       buildTabbar() +
@@ -184,7 +189,6 @@
     loadNav();
   }
 
-  // Legacy global
   window.resetTeamID = function () {
     if (confirm('Change your Team ID?')) {
       localStorage.removeItem('kopala_id');
