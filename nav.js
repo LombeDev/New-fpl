@@ -17,51 +17,57 @@
 (function () {
   'use strict';
 
+  // 1. MAIN LINKS (Visible in Top/Bottom/Tab bars)
   const NAV_LINKS = [
-    { href: 'index.html',   label: 'Home',          icon: 'fa-house' },
-    { href: '', label: 'Squad',        icon: 'fa-shirt' },
-    { href: 'games.html',  label: 'Live games',  icon: 'fa-tags' },
-    { href: 'threats',   label: 'Threats',          icon: 'fa-gamepad' },
-    { href: 'transfers.html',    label: 'transfers',        icon: 'fa-shirt' },
+    { href: 'index.html',     label: 'Home',      icon: 'fa-house' },
+    { href: 'squad.html',     label: 'Squad',     icon: 'fa-shirt' },
+    { href: 'games.html',     label: 'Live',      icon: 'fa-fire' }
   ];
 
-  function currentPage() {
-    return window.location.pathname.split('/').pop() || 'index.html';
-  }
-  function isActive(href) { return href === currentPage(); }
+  // 2. DRAWER-ONLY LINKS (Visible only in Hamburger menu)
+  const DRAWER_LINKS = [
+    { href: 'index.html',      label: 'Home',           icon: 'fa-house' },
+    { href: 'rankings.html',   label: 'Global Rank',    icon: 'fa-trophy' },
+    { href: 'leagues.html',    label: 'Mini-Leagues',   icon: 'fa-users' },
+    { href: 'tools.html',      label: 'FPL Tools',      icon: 'fa-screwdriver-wrench' },
+    { href: 'https://fpl.com', label: 'Official Site',  icon: 'fa-arrow-up-right-from-square' }
+  ];
 
-  function logoHTML() {
-    return `
-      <a href="index.html" class="kfl-logo">
-        <div class="kfl-logo__box">
-          <span class="kfl-logo__text">KOPALA</span>
-          <span class="kfl-logo__arrow"></span>
-          <span class="kfl-logo__text">FPL</span>
-        </div>
-      </a>`;
-  }
+  // ... [Keep your existing isActive() and logoHTML() functions] ...
 
-  function buildTopbar() {
-    const navLinks = NAV_LINKS.slice(1).map(l => `
-      <a href="${l.href}" class="kfl-topbar__link ${isActive(l.href) ? 'is-active' : ''}">
-        <i class="fa-solid ${l.icon}"></i><span>${l.label}</span>
+  function buildDrawer() {
+    // We use DRAWER_LINKS here instead of NAV_LINKS
+    const drawerItems = DRAWER_LINKS.map(l => `
+      <a href="${l.href}" class="kfl-drawer__link ${isActive(l.href) ? 'is-active' : ''}">
+        <div class="kfl-drawer__icon-box"><i class="fa-solid ${l.icon}"></i></div>
+        <span>${l.label}</span>
       </a>`).join('');
+
     return `
-      <header class="kfl-topbar">
-        ${logoHTML()}
-        <nav class="kfl-topbar__nav" aria-label="Main navigation">${navLinks}</nav>
-        <div class="kfl-topbar__right">
-       
-          <button class="kfl-theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-            <i class="fa-solid fa-sun" id="theme-icon"></i>
-          </button>
-          <button class="kfl-hamburger" id="hamburger" aria-label="Menu">
-            <i class="fa-solid fa-bars"></i>
+      <div class="kfl-overlay" id="kfl-overlay"></div>
+      <div class="kfl-drawer" id="kfl-drawer">
+        <div class="kfl-drawer__header">
+          ${logoHTML()}
+          <button id="drawer-close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="kfl-drawer__scroll-area">
+          <p class="kfl-drawer__label-tiny">BROWSE KOPALA</p>
+          ${drawerItems}
+          
+          <div class="kfl-drawer__divider"></div>
+          
+          <p class="kfl-drawer__label-tiny">ACCOUNT</p>
+          <button class="kfl-drawer__link" id="change-id-btn">
+            <div class="kfl-drawer__icon-box"><i class="fa-solid fa-id-card"></i></div>
+            <span>Switch Team ID</span>
           </button>
         </div>
-      </header>`;
+      </div>`;
   }
 
+  // ... [Keep the rest of your setup and loading logic] ...
+})();
   function buildTabbar() {
     const tabs = NAV_LINKS.map(l => `
       <a href="${l.href}" class="kfl-tab ${isActive(l.href) ? 'is-active' : ''}">
