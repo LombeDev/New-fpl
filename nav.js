@@ -1,8 +1,17 @@
 /**
  * nav.js — Kopala FPL Navigation
  * LiveFPL-style: top bar + secondary tab strip
- * Dark theme: Telegram charcoal palette (#212121 / #2b2b2b / #333333)
- * Mobile: top bar + bottom tab bar + slide-in drawer
+ * Dark = Telegram Night Mode (#17212b / #232e3c / #2b3f52 — blue-navy, NOT grey)
+ *
+ * IMPORTANT: To prevent theme flash on page load, add this to your <head>
+ * BEFORE your stylesheet link:
+ *
+ *   <script>
+ *     (function(){
+ *       var t = localStorage.getItem('kopala_theme');
+ *       if(t) document.documentElement.setAttribute('data-theme', t);
+ *     })();
+ *   </script>
  */
 
 (function () {
@@ -19,10 +28,7 @@
   function currentPage() {
     return window.location.pathname.split('/').pop() || 'index.html';
   }
-
-  function isActive(href) {
-    return href === currentPage();
-  }
+  function isActive(href) { return href === currentPage(); }
 
   function logoHTML() {
     return `
@@ -35,21 +41,17 @@
       </a>`;
   }
 
-  /* ── Top bar ─────────────────────────────────────────────── */
   function buildTopbar() {
     const navLinks = NAV_LINKS.slice(1).map(l => `
       <a href="${l.href}" class="kfl-topbar__link ${isActive(l.href) ? 'is-active' : ''}">
         <i class="fa-solid ${l.icon}"></i><span>${l.label}</span>
       </a>`).join('');
-
     return `
       <header class="kfl-topbar">
         ${logoHTML()}
         <nav class="kfl-topbar__nav" aria-label="Main navigation">${navLinks}</nav>
         <div class="kfl-topbar__right">
-          <button class="kfl-btn-ads">
-            <i class="fa-solid fa-heart"></i> Remove Ads
-          </button>
+          <button class="kfl-btn-ads"><i class="fa-solid fa-heart"></i> Remove Ads</button>
           <button class="kfl-btn-country">
             <span>ZM</span>
             <i class="fa-solid fa-chevron-down chevron"></i>
@@ -64,37 +66,28 @@
       </header>`;
   }
 
-  /* ── Tab bar ─────────────────────────────────────────────── */
   function buildTabbar() {
     const tabs = NAV_LINKS.map(l => `
       <a href="${l.href}" class="kfl-tab ${isActive(l.href) ? 'is-active' : ''}">
         <i class="fa-solid ${l.icon}"></i><span>${l.label}</span>
       </a>`).join('');
-
-    return `
-      <nav class="kfl-tabbar" aria-label="Page tabs">
-        <div class="kfl-tabbar__inner">${tabs}</div>
-      </nav>`;
+    return `<nav class="kfl-tabbar" aria-label="Page tabs"><div class="kfl-tabbar__inner">${tabs}</div></nav>`;
   }
 
-  /* ── Mobile bottom nav ───────────────────────────────────── */
   function buildBottomNav() {
     const items = NAV_LINKS.map(l => `
       <a href="${l.href}" class="kfl-bottom-nav__item ${isActive(l.href) ? 'is-active' : ''}">
         <i class="fa-solid ${l.icon} kfl-bottom-nav__icon"></i>
         <span class="kfl-bottom-nav__label">${l.label}</span>
       </a>`).join('');
-
     return `<nav class="kfl-bottom-nav" aria-label="Navigation">${items}</nav>`;
   }
 
-  /* ── Drawer ──────────────────────────────────────────────── */
   function buildDrawer() {
     const links = NAV_LINKS.map(l => `
       <a href="${l.href}" class="kfl-drawer__link ${isActive(l.href) ? 'is-active' : ''}">
         <i class="fa-solid ${l.icon}"></i>${l.label}
       </a>`).join('');
-
     return `
       <div class="kfl-overlay" id="kfl-overlay"></div>
       <div class="kfl-drawer" id="kfl-drawer" role="dialog" aria-label="Menu">
@@ -114,11 +107,10 @@
       </div>`;
   }
 
-  /* ── Theme logic ─────────────────────────────────────────── */
   function setupTheme() {
-    const htmlEl = document.documentElement;
-    const btn    = document.getElementById('theme-toggle');
-    const icon   = document.getElementById('theme-icon');
+    const htmlEl    = document.documentElement;
+    const btn       = document.getElementById('theme-toggle');
+    const icon      = document.getElementById('theme-icon');
     if (!btn) return;
 
     function apply(t) {
@@ -127,15 +119,15 @@
       localStorage.setItem('kopala_theme', t);
     }
 
-    const saved = localStorage.getItem('kopala_theme');
-    if (saved) apply(saved);
+    // Sync icon with whatever theme is currently set (may have been set by inline script)
+    const current = htmlEl.getAttribute('data-theme') || localStorage.getItem('kopala_theme') || 'light';
+    apply(current);
 
     btn.addEventListener('click', () => {
       apply(htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
   }
 
-  /* ── Drawer logic ────────────────────────────────────────── */
   function setupDrawer() {
     const drawer    = document.getElementById('kfl-drawer');
     const overlay   = document.getElementById('kfl-overlay');
@@ -151,7 +143,6 @@
     overlay?.addEventListener('click', close);
   }
 
-  /* ── Change ID ───────────────────────────────────────────── */
   function setupChangeId() {
     document.getElementById('change-id-btn')?.addEventListener('click', () => {
       if (confirm('Change your Team ID?')) {
@@ -161,16 +152,9 @@
     });
   }
 
-  /* ── Inject ──────────────────────────────────────────────── */
   function loadNav() {
     const placeholder = document.getElementById('nav-placeholder');
     if (!placeholder) return;
-
-    // Apply saved theme BEFORE injecting HTML to avoid flash
-    const savedTheme = localStorage.getItem('kopala_theme');
-    if (savedTheme) {
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    }
 
     placeholder.innerHTML =
       buildTopbar() +
@@ -195,5 +179,4 @@
       window.location.href = 'index.html';
     }
   };
-
 })();
