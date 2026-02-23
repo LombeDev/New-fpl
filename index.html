@@ -1,12 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
+ <!DOCTYPE html>
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Kopala FPL — Live Rank</title>
 
+  <!-- ✅ Theme flash prevention — MUST be first script in <head> -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('kopala_theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0d0d0d">
+  <meta name="theme-color" content="#232e3c">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -22,54 +30,10 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="nav.css">
   <link rel="stylesheet" href="footer.css">
-
-  <style>
-    /* ---- Compact 6-column player grid for index page ---- */
-    #starting-grid,
-    #bench-grid {
-      grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
-      padding: 12px;
-    }
-
-    /* Smaller cards to fit 6 across */
-    #starting-grid .player-card,
-    #bench-grid .player-card {
-      padding: 7px 3px 6px;
-      border-radius: 10px;
-      gap: 4px;
-    }
-
-    #starting-grid .player-card__shirt,
-    #bench-grid .player-card__shirt {
-      width: 28px;
-    }
-
-    #starting-grid .player-card__name,
-    #bench-grid .player-card__name {
-      font-size: 0.52rem;
-      padding: 0 2px;
-    }
-
-    #starting-grid .player-card__pts,
-    #bench-grid .player-card__pts {
-      font-size: 0.9rem;
-    }
-
-    /* Captain/VC badge smaller too */
-    #starting-grid .player-badge,
-    #bench-grid .player-badge {
-      width: 14px;
-      height: 14px;
-      font-size: 0.55rem;
-      top: 4px;
-      right: 4px;
-    }
-  </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- ── LOGIN SCREEN ─────────────────────────────────────────── -->
 <div id="login-screen">
   <div class="login-hero">
     <div class="login-hero__wordmark">KOPALA <span>FPL</span></div>
@@ -91,10 +55,10 @@
   </div>
 </div>
 
-<!-- NAV -->
+<!-- ── NAV ──────────────────────────────────────────────────── -->
 <div id="nav-placeholder"></div>
 
-<!-- MAIN -->
+<!-- ── MAIN ─────────────────────────────────────────────────── -->
 <main class="page-content" id="main-content">
 
   <div id="deadline-container"></div>
@@ -133,19 +97,19 @@
 
   <div id="squad-bar-container" class="squad-bar"></div>
 
-  <!-- My GW transfers (from fetchAndRender) -->
+  <!-- My GW transfers -->
   <div id="my-transfers-container"></div>
 
   <!-- Starting XI -->
   <div class="section">
     <div class="section-header">
       <span class="section-title">Starting XI</span>
-      <span id="gw-label" class="t-label" style="color:var(--text-3)">GW —</span>
+      <span id="gw-label" class="t-label">GW —</span>
     </div>
     <div id="starting-grid" class="player-grid"></div>
   </div>
 
-  <!-- Bench -->
+  <!-- Bench divider -->
   <div class="bench-divider">
     <div class="bench-divider__line"></div>
     <div class="bench-divider__label">Bench</div>
@@ -156,7 +120,7 @@
     <div id="bench-grid" class="player-grid"></div>
   </div>
 
-  <!-- Top GW transfers in/out (from transfers.js) -->
+  <!-- Top GW transfers (from transfers.js) -->
   <div id="transfers-container"></div>
 
   <div id="footer-placeholder"></div>
@@ -175,7 +139,7 @@ const state = {
 
 const PROXY = '/.netlify/functions/fpl-proxy?endpoint=';
 
-/* LOGIN */
+/* ── LOGIN ──────────────────────────────────────────────────── */
 async function handleLogin() {
   const input   = document.getElementById('team-id-input');
   const errorEl = document.getElementById('error-message');
@@ -215,7 +179,7 @@ document.getElementById('team-id-input')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') handleLogin();
 });
 
-/* SKELETONS */
+/* ── SKELETONS ───────────────────────────────────────────────── */
 function showSkeletons() {
   ['disp-name', 'disp-team'].forEach(id => {
     document.getElementById(id)?.classList.add('skeleton');
@@ -244,7 +208,7 @@ function removeSkeletons() {
   document.querySelectorAll('.skeleton').forEach(el => el.classList.remove('skeleton'));
 }
 
-/* BOOTSTRAP */
+/* ── BOOTSTRAP ───────────────────────────────────────────────── */
 async function initBootstrap() {
   const res  = await fetch(`${PROXY}bootstrap-static/`);
   const data = await res.json();
@@ -265,7 +229,7 @@ async function initBootstrap() {
   state.gwHigh    = live.highest_score || 0;
 }
 
-/* FETCH & RENDER */
+/* ── FETCH & RENDER ──────────────────────────────────────────── */
 async function fetchAndRender() {
   const [entryRes, picksRes, liveRes, transRes] = await Promise.all([
     fetch(`${PROXY}entry/${state.fplId}/`),
@@ -324,7 +288,7 @@ async function fetchAndRender() {
   renderPlayerGrid('bench-grid',    picks.picks.slice(11),    ptsMap, true);
 }
 
-/* MY GW TRANSFERS (user's own transfers, not top transfers) */
+/* ── MY GW TRANSFERS ──────────────────────────────────────────── */
 function renderMyTransfers(allTransfers, cost) {
   const container = document.getElementById('my-transfers-container');
   if (!container) return;
@@ -334,7 +298,7 @@ function renderMyTransfers(allTransfers, cost) {
 
   const costBadge = cost > 0
     ? `<span class="transfer-card__cost">-${cost}pts</span>`
-    : '<span style="font-size:0.7rem;color:var(--text-3)">Free</span>';
+    : '<span class="t-label">Free</span>';
 
   const cards = gwTransfers.map((t, i) => {
     const pIn  = state.playerMap[t.element_in]?.name  || '?';
@@ -361,7 +325,7 @@ function renderMyTransfers(allTransfers, cost) {
   `;
 }
 
-/* PLAYER GRID */
+/* ── PLAYER GRID ─────────────────────────────────────────────── */
 function renderPlayerGrid(gridId, picks, ptsMap, isBench) {
   const grid = document.getElementById(gridId);
   if (!grid) return;
@@ -396,13 +360,13 @@ function renderPlayerGrid(gridId, picks, ptsMap, isBench) {
   }).join('');
 }
 
-/* UTILS */
+/* ── UTILS ───────────────────────────────────────────────────── */
 function setText(id, val) {
   const el = document.getElementById(id);
   if (el) el.textContent = val;
 }
 
-/* BOOT */
+/* ── BOOT ────────────────────────────────────────────────────── */
 async function startApp() {
   if (!state.fplId) {
     const ls = document.getElementById('login-screen');
@@ -416,7 +380,7 @@ async function startApp() {
   } catch (err) {
     console.error('App error:', err);
     const nameEl = document.getElementById('disp-name');
-    if (nameEl) { nameEl.textContent = 'Failed to load'; nameEl.style.color = 'var(--red)'; }
+    if (nameEl) { nameEl.textContent = 'Failed to load'; nameEl.classList.add('text-red'); }
     const teamEl = document.getElementById('disp-team');
     if (teamEl) teamEl.textContent = 'Check your connection and refresh';
     removeSkeletons();
@@ -432,4 +396,4 @@ document.addEventListener('DOMContentLoaded', startApp);
 <script src="footer.js"></script>
 
 </body>
-      </html>
+</html>
