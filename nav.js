@@ -1,31 +1,26 @@
 (function () {
   'use strict';
 
-  // 1. MAIN LINKS (Used only for Top Bar / Desktop)
-  const NAV_LINKS = [
-    { href: 'index.html', label: 'Home',  icon: 'fa-house' },
-    { href: 'squad.html', label: 'Squad', icon: 'fa-shirt' },
-    { href: 'games.html', label: 'Live',  icon: 'fa-fire' }
-  ];
+  // 1. MAIN LINKS
+const NAV_LINKS = [
+  { href: 'index.html', label: 'Home',  icon: 'fa-house' },
+  { href: 'squad.html', label: 'Squad', icon: 'fa-shirt' },
+  { href: 'games.html', label: 'Live',  icon: 'fa-fire' } // Changed to fa-fire for consistency
+];
 
-  // 2. EXTENDED LINKS (Used for Hamburger Drawer AND Bottom Nav)
-  const DRAWER_LINKS = [
-    { href: 'index.html',   label: 'Home',    icon: 'fa-house' },
-    { href: 'leagues.html', label: 'Leagues', icon: 'fa-trophy' },
-    { href: 'prices.html',  label: 'Prices',  icon: 'fa-dollar-sign' },
-    { href: 'games.html',   label: 'Games',   icon: 'fa-futbol' },
-    { href: 'team.html',    label: 'My team', icon: 'fa-shirt' }
-  ];
-
-  // --- HELPERS ---
+// 2. DRAWER-ONLY LINKS
+const DRAWER_LINKS = [
+  { href: 'index.html',  label: 'Home',    icon: 'fa-house' },
+  { href: 'leagues.html', label: 'Leagues', icon: 'fa-trophy' },
+  { href: 'prices.html',  label: 'Prices',  icon: 'fa-dollar-sign' }, // Use fa-dollar-sign for v5/v6
+  { href: 'games.html',   label: 'Games',   icon: 'fa-futbol' },      // FIXED: Just 'fa-futbol'
+  { href: 'team.html',    label: 'My team', icon: 'fa-shirt' }   // Use fa-chart-line for v5/v6
+];
 
   function currentPage() {
     return window.location.pathname.split('/').pop() || 'index.html';
   }
-
-  function isActive(href) { 
-    return href === currentPage(); 
-  }
+  function isActive(href) { return href === currentPage(); }
 
   function logoHTML() {
     return `
@@ -45,25 +40,19 @@
       <a href="${l.href}" class="kfl-topbar__link ${isActive(l.href) ? 'is-active' : ''}">
         <i class="fa-solid ${l.icon}"></i><span>${l.label}</span>
       </a>`).join('');
-    
     return `
       <header class="kfl-topbar">
         ${logoHTML()}
         <nav class="kfl-topbar__nav">${navLinks}</nav>
         <div class="kfl-topbar__right">
-          <button class="kfl-theme-toggle" id="theme-toggle">
-            <i class="fa-solid fa-sun" id="theme-icon"></i>
-          </button>
-          <button class="kfl-hamburger" id="hamburger">
-            <i class="fa-solid fa-bars"></i>
-          </button>
+          <button class="kfl-theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
+          <button class="kfl-hamburger" id="hamburger"><i class="fa-solid fa-bars"></i></button>
         </div>
       </header>`;
   }
 
   function buildTabbar() {
-    // Synchronized with Drawer Links
-    const tabs = DRAWER_LINKS.map(l => `
+    const tabs = NAV_LINKS.map(l => `
       <a href="${l.href}" class="kfl-tab ${isActive(l.href) ? 'is-active' : ''}">
         <i class="fa-solid ${l.icon}"></i><span>${l.label}</span>
       </a>`).join('');
@@ -71,14 +60,14 @@
   }
 
   function buildBottomNav() {
-    // Synchronized with Drawer Links
-    const items = DRAWER_LINKS.map(l => `
+    const items = NAV_LINKS.map(l => `
       <a href="${l.href}" class="kfl-bottom-nav__item ${isActive(l.href) ? 'is-active' : ''}">
         <i class="fa-solid ${l.icon}"></i><span class="kfl-bottom-nav__label">${l.label}</span>
       </a>`).join('');
     return `<nav class="kfl-bottom-nav">${items}</nav>`;
   }
 
+  // This is the version that uses DRAWER_LINKS
   function buildDrawer() {
     const drawerItems = DRAWER_LINKS.map(l => `
       <a href="${l.href}" class="kfl-drawer__link ${isActive(l.href) ? 'is-active' : ''}">
@@ -116,9 +105,7 @@
 
     const apply = (t) => {
       htmlEl.setAttribute('data-theme', t);
-      if (icon) {
-        icon.className = t === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-      }
+      icon.className = t === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
       localStorage.setItem('kopala_theme', t);
     };
 
@@ -134,8 +121,7 @@
     const openBtn = document.getElementById('hamburger');
     const closeBtn = document.getElementById('drawer-close');
 
-    if (!drawer || !openBtn) return;
-
+    if (!drawer) return;
     const toggle = (state) => {
       drawer.classList.toggle('is-open', state);
       overlay.classList.toggle('is-open', state);
@@ -143,21 +129,19 @@
     };
 
     openBtn.onclick = () => toggle(true);
-    if (closeBtn) closeBtn.onclick = () => toggle(false);
-    if (overlay) overlay.onclick = () => toggle(false);
+    closeBtn.onclick = () => toggle(false);
+    overlay.onclick = () => toggle(false);
   }
 
   function loadNav() {
     const placeholder = document.getElementById('nav-placeholder');
     if (!placeholder) return;
 
-    // Build all components
     placeholder.innerHTML = buildTopbar() + buildTabbar() + buildBottomNav() + buildDrawer();
 
     setupTheme();
     setupDrawer();
-
-    // ID Change Logic
+    // Re-bind the click for the ID button since it's now in the drawer
     document.getElementById('change-id-btn')?.addEventListener('click', () => {
        if (confirm('Change your Team ID?')) {
          localStorage.removeItem('kopala_id');
@@ -166,7 +150,6 @@
     });
   }
 
-  // Initialize
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadNav);
   } else {
