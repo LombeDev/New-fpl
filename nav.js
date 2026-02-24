@@ -21,7 +21,7 @@
     { href: 'leagues.html', label: 'Leagues',  icon: 'fa-trophy' },
     { href: 'prices.html',  label: 'Prices',   icon: 'fa-dollar-sign' },
     { href: 'games.html',   label: 'Games',    icon: 'fa-futbol' },
-    { href: 'team.html',    label: 'My team',  icon: 'fa-shirt' }
+    
   ];
 
   // --- HELPERS ---
