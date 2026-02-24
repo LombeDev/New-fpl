@@ -18,11 +18,62 @@
 <link rel="stylesheet" href="nav.css">
 <link rel="stylesheet" href="footer.css">
 <style>
-/* LOADING */
-#lo{position:fixed;inset:0;background:var(--kfl-bg);z-index:800;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .4s}
+/* ── SHIMMER SKELETON LOADING ── */
+#lo{position:fixed;inset:0;background:var(--kfl-bg);z-index:800;overflow-y:auto;transition:opacity .35s}
 #lo.hidden{opacity:0;pointer-events:none}
-.ll{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--kfl-text-1)}.ll span{color:var(--kfl-green)}
-.ls{font-size:.75rem;color:var(--kfl-text-3);min-height:1.1em;text-align:center}
+@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+.sk{border-radius:6px;background:linear-gradient(90deg,var(--kfl-surface-2) 25%,var(--kfl-surface-3) 50%,var(--kfl-surface-2) 75%);background-size:1200px 100%;animation:shimmer 1.6s ease-in-out infinite}
+[data-theme="dark"] .sk{background:linear-gradient(90deg,#1e2a38 25%,#263241 50%,#1e2a38 75%);background-size:1200px 100%;animation:shimmer 1.6s ease-in-out infinite}
+.sk-hdr{padding:18px 16px 14px;border-bottom:1px solid var(--kfl-border)}
+.sk-hdr-name{height:32px;width:65%;border-radius:6px;margin-bottom:8px}
+.sk-hdr-sub{height:12px;width:40%;border-radius:4px;margin-bottom:12px}
+.sk-hdr-btns{display:flex;gap:8px}
+.sk-btn{height:28px;width:90px;border-radius:100px}
+.sk-rbar{height:32px;background:var(--kfl-surface-2);border-bottom:1px solid var(--kfl-border)}
+.sk-chips{display:flex;gap:8px;padding:12px 16px;overflow:hidden}
+.sk-chip{flex:0 0 80px;height:52px;border-radius:10px}
+.sk-squad{display:flex;gap:8px;padding:0 16px 12px}
+.sk-sqpill{height:28px;width:72px;border-radius:100px}
+.sk-sec{padding:16px}.sk-sec+.sk-sec{padding-top:0}
+.sk-sec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sk-num{width:24px;height:24px;border-radius:50%}
+.sk-sec-title{height:14px;width:160px;border-radius:4px}
+.sk-sec-sub{height:9px;width:200px;border-radius:3px;margin-top:4px}
+.sk-card{background:var(--kfl-surface);border:1px solid var(--kfl-border);border-radius:12px;overflow:hidden;padding:16px}
+.sk-bl-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sk-box{background:var(--kfl-surface-2);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;min-height:110px}
+.sk-icon{width:40px;height:40px;border-radius:50%;align-self:center}
+.sk-line-sm{height:10px;border-radius:4px}
+.sk-line-lg{height:28px;border-radius:6px}
+.sk-pills{display:flex;gap:8px;margin-bottom:12px}
+.sk-pill{height:30px;border-radius:100px;flex:1}
+.sk-ms{height:42px;border-radius:10px}
+.sk-quad{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sk-qcard{background:var(--kfl-surface);border:1px solid var(--kfl-border);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:7px}
+.sk-qmain{height:26px;width:60%;border-radius:6px}
+.sk-qsub{height:9px;width:80%;border-radius:3px}
+.sk-qbar{height:5px;border-radius:100px}
+.sk-eo-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--kfl-border)}
+.sk-eo-row:last-child{border-bottom:none}
+.sk-eo-sh{width:26px;height:26px;border-radius:50%}
+.sk-eo-nm{flex:1;height:11px;border-radius:4px}
+.sk-eo-bar{width:60px;height:4px;border-radius:100px}
+.sk-eo-pct{width:36px;height:14px;border-radius:4px}
+.sk-pg{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:14px}
+@media(min-width:400px){.sk-pg{grid-template-columns:repeat(4,1fr)}}
+.sk-pc{background:var(--kfl-surface);border:1px solid var(--kfl-border);border-radius:10px;padding:9px 5px 7px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.sk-pc-shirt{width:36px;height:44px;border-radius:6px}
+.sk-pc-nm{height:8px;width:80%;border-radius:3px}
+.sk-pc-pt{height:14px;width:40%;border-radius:4px}
+.sk-bdiv{display:flex;align-items:center;gap:10px;padding:6px 16px;margin:2px 0}
+.sk-bdiv-l{flex:1;height:1px;background:var(--kfl-border)}
+.sk-bdiv-t{font-size:.62rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--kfl-text-3)}
+.sk-list-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--kfl-border)}
+.sk-list-row:last-child{border-bottom:none}
+.sk-list-sh{width:26px;height:26px;border-radius:50%}
+.sk-list-nm{flex:1;height:11px;border-radius:4px}
+.sk-list-val{width:40px;height:14px;border-radius:4px}
+.sk-list-chg{width:44px;height:14px;border-radius:4px}
 .spin{width:34px;height:34px;border:3px solid var(--kfl-border);border-top-color:var(--kfl-green);border-radius:50%;animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 /* LOGIN */
@@ -305,8 +356,176 @@
   </div>
 </div>
 
-<!-- LOADING -->
-<div id="lo"><div class="ll">KOPALA <span>FPL</span></div><div class="spin"></div><div class="ls" id="ls">Connecting to FPL API…</div></div>
+<!-- LOADING SKELETON -->
+<div id="lo">
+
+  <!-- Skeleton Manager Header -->
+  <div class="sk-hdr">
+    <div class="sk sk-hdr-name"></div>
+    <div class="sk sk-hdr-sub"></div>
+    <div class="sk-hdr-btns">
+      <div class="sk sk-btn"></div>
+      <div class="sk sk-btn"></div>
+      <div class="sk sk-btn" style="width:70px"></div>
+    </div>
+  </div>
+
+  <!-- Skeleton Refresh Bar -->
+  <div class="sk-rbar sk" style="border-radius:0"></div>
+
+  <!-- Skeleton Stat Chips -->
+  <div class="sk-chips">
+    <div class="sk sk-chip"></div>
+    <div class="sk sk-chip"></div>
+    <div class="sk sk-chip"></div>
+    <div class="sk sk-chip"></div>
+    <div class="sk sk-chip"></div>
+    <div class="sk sk-chip"></div>
+  </div>
+
+  <!-- Skeleton Squad Bar -->
+  <div class="sk-squad" style="padding-bottom:14px">
+    <div class="sk sk-sqpill"></div>
+    <div class="sk sk-sqpill"></div>
+    <div class="sk sk-sqpill" style="width:100px"></div>
+    <div class="sk sk-sqpill" style="width:88px"></div>
+  </div>
+
+  <!-- §1 Bottom Line skeleton -->
+  <div class="sk-sec">
+    <div class="sk-sec-hdr">
+      <div class="sk sk-num"></div>
+      <div><div class="sk sk-sec-title"></div><div class="sk sk-sec-sub" style="margin-top:5px"></div></div>
+    </div>
+    <div class="sk-card">
+      <div class="sk-bl-row">
+        <div class="sk-box">
+          <div class="sk sk-icon"></div>
+          <div class="sk sk-line-sm" style="width:60%;align-self:center"></div>
+          <div class="sk sk-line-sm" style="width:80%;align-self:center"></div>
+          <div class="sk sk-line-sm" style="width:50%;align-self:center"></div>
+        </div>
+        <div class="sk-box">
+          <div class="sk sk-line-sm" style="width:40%"></div>
+          <div class="sk sk-line-sm" style="width:70%"></div>
+          <div class="sk sk-line-lg"></div>
+          <div class="sk sk-line-sm" style="width:90%"></div>
+        </div>
+      </div>
+      <div class="sk-pills">
+        <div class="sk sk-pill"></div>
+        <div class="sk sk-pill"></div>
+        <div class="sk sk-pill" style="flex:.6"></div>
+      </div>
+      <div class="sk sk-ms"></div>
+    </div>
+  </div>
+
+  <!-- §2 Stats Quad skeleton -->
+  <div class="sk-sec" style="padding-top:0">
+    <div class="sk-quad">
+      <div class="sk-qcard">
+        <div class="sk sk-line-sm" style="width:50%"></div>
+        <div class="sk sk-qmain"></div>
+        <div class="sk sk-qsub"></div>
+        <div class="sk sk-qbar"></div>
+        <div class="sk sk-qbar" style="width:75%"></div>
+        <div class="sk sk-qbar" style="width:55%"></div>
+      </div>
+      <div class="sk-qcard">
+        <div class="sk sk-line-sm" style="width:50%"></div>
+        <div class="sk sk-qmain"></div>
+        <div class="sk sk-qsub"></div>
+        <div class="sk sk-qbar"></div>
+        <div class="sk sk-qbar" style="width:60%"></div>
+        <div class="sk sk-qbar" style="width:40%"></div>
+      </div>
+      <div class="sk-qcard">
+        <div class="sk sk-line-sm" style="width:50%"></div>
+        <div class="sk sk-qmain"></div>
+        <div class="sk sk-qsub"></div>
+        <div class="sk sk-line-sm" style="width:90%;margin-top:4px"></div>
+        <div class="sk sk-line-sm" style="width:70%"></div>
+      </div>
+      <div class="sk-qcard">
+        <div class="sk sk-line-sm" style="width:50%"></div>
+        <div class="sk sk-qmain"></div>
+        <div class="sk sk-qsub"></div>
+        <div class="sk sk-qbar" style="margin-top:4px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- §3 EO skeleton -->
+  <div class="sk-sec" style="padding-top:0">
+    <div class="sk-sec-hdr">
+      <div class="sk sk-num"></div>
+      <div><div class="sk sk-sec-title"></div><div class="sk sk-sec-sub"></div></div>
+    </div>
+    <div class="sk-card" style="padding:0 14px">
+      <div class="sk-eo-row"><div class="sk sk-eo-sh"></div><div class="sk sk-eo-nm"></div><div class="sk sk-eo-bar"></div><div class="sk sk-eo-pct"></div></div>
+      <div class="sk-eo-row"><div class="sk sk-eo-sh"></div><div class="sk sk-eo-nm" style="width:50%"></div><div class="sk sk-eo-bar"></div><div class="sk sk-eo-pct"></div></div>
+      <div class="sk-eo-row"><div class="sk sk-eo-sh"></div><div class="sk sk-eo-nm" style="width:65%"></div><div class="sk sk-eo-bar"></div><div class="sk sk-eo-pct"></div></div>
+      <div class="sk-eo-row"><div class="sk sk-eo-sh"></div><div class="sk sk-eo-nm" style="width:45%"></div><div class="sk sk-eo-bar"></div><div class="sk sk-eo-pct"></div></div>
+      <div class="sk-eo-row"><div class="sk sk-eo-sh"></div><div class="sk sk-eo-nm" style="width:70%"></div><div class="sk sk-eo-bar"></div><div class="sk sk-eo-pct"></div></div>
+      <div class="sk-eo-row"><div class="sk sk-eo-sh"></div><div class="sk sk-eo-nm" style="width:55%"></div><div class="sk sk-eo-bar"></div><div class="sk sk-eo-pct"></div></div>
+    </div>
+  </div>
+
+  <!-- Starting XI skeleton -->
+  <div class="sk-sec" style="padding-top:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 2px">
+      <div class="sk" style="height:16px;width:100px;border-radius:4px"></div>
+      <div class="sk" style="height:12px;width:50px;border-radius:4px"></div>
+    </div>
+    <div class="sk-pg">
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm"></div><div class="sk sk-pc-pt"></div></div>
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm" style="width:60%"></div><div class="sk sk-pc-pt"></div></div>
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm" style="width:70%"></div><div class="sk sk-pc-pt"></div></div>
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm" style="width:55%"></div><div class="sk sk-pc-pt"></div></div>
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm"></div><div class="sk sk-pc-pt"></div></div>
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm" style="width:65%"></div><div class="sk sk-pc-pt"></div></div>
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm" style="width:50%"></div><div class="sk sk-pc-pt"></div></div>
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm"></div><div class="sk sk-pc-pt"></div></div>
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm" style="width:75%"></div><div class="sk sk-pc-pt"></div></div>
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm" style="width:60%"></div><div class="sk sk-pc-pt"></div></div>
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm" style="width:45%"></div><div class="sk sk-pc-pt"></div></div>
+    </div>
+  </div>
+
+  <!-- Bench divider skeleton -->
+  <div class="sk-bdiv"><div class="sk-bdiv-l"></div><div class="sk-bdiv-t">Bench</div><div class="sk-bdiv-l"></div></div>
+  <div class="sk-sec" style="padding-top:0">
+    <div class="sk-pg">
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm"></div><div class="sk sk-pc-pt"></div></div>
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm" style="width:65%"></div><div class="sk sk-pc-pt"></div></div>
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm" style="width:55%"></div><div class="sk sk-pc-pt"></div></div>
+      <div class="sk-pc"><div class="sk sk-pc-shirt"></div><div class="sk sk-pc-nm" style="width:70%"></div><div class="sk sk-pc-pt"></div></div>
+    </div>
+  </div>
+
+  <!-- Price Changes skeleton -->
+  <div class="sk-sec" style="padding-top:0">
+    <div class="sk-sec-hdr">
+      <div class="sk sk-num"></div>
+      <div><div class="sk sk-sec-title" style="width:130px"></div><div class="sk sk-sec-sub" style="width:180px"></div></div>
+    </div>
+    <div class="sk-card" style="padding:0 14px">
+      <div class="sk-list-row"><div class="sk sk-list-sh"></div><div class="sk sk-list-nm"></div><div class="sk sk-list-val"></div><div class="sk sk-list-chg"></div></div>
+      <div class="sk-list-row"><div class="sk sk-list-sh"></div><div class="sk sk-list-nm" style="width:40%"></div><div class="sk sk-list-val"></div><div class="sk sk-list-chg"></div></div>
+      <div class="sk-list-row"><div class="sk sk-list-sh"></div><div class="sk sk-list-nm" style="width:60%"></div><div class="sk sk-list-val"></div><div class="sk sk-list-chg"></div></div>
+      <div class="sk-list-row"><div class="sk sk-list-sh"></div><div class="sk sk-list-nm" style="width:50%"></div><div class="sk sk-list-val"></div><div class="sk sk-list-chg"></div></div>
+      <div class="sk-list-row"><div class="sk sk-list-sh"></div><div class="sk sk-list-nm" style="width:35%"></div><div class="sk sk-list-val"></div><div class="sk sk-list-chg"></div></div>
+    </div>
+  </div>
+
+  <!-- Loading label at bottom -->
+  <div style="text-align:center;padding:24px 16px 40px;font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;font-weight:700;color:var(--kfl-text-3);display:flex;align-items:center;justify-content:center;gap:10px">
+    <div class="spin"></div>
+    <span id="ls">Connecting to FPL API…</span>
+  </div>
+
+</div>
 
 <!-- LEAGUES MODAL -->
 <div id="lmod" class="mov" onclick="if(event.target===this)closeModal()">
@@ -340,16 +559,7 @@
   <button class="rbtn" onclick="refreshAll()"><i class="fa-solid fa-rotate-right"></i> Refresh now</button>
 </div>
 
-<!-- STAT CHIPS -->
-<div class="stat-chips-row fi">
-  <div class="stat-chip stat-chip--highlight"><div class="stat-chip__label">GW Points</div><div class="stat-chip__value t-number" id="c-total">—</div></div>
-  <div class="stat-chip"><div class="stat-chip__label">GW Rank</div><div class="stat-chip__value t-number" id="c-gwrank">—</div></div>
-  <div class="stat-chip"><div class="stat-chip__label">Overall</div><div class="stat-chip__value t-number" id="c-rank">—</div></div>
-  <div class="stat-chip"><div class="stat-chip__label">Total Pts</div><div class="stat-chip__value t-number" id="c-total-pts">—</div></div>
-  <div class="stat-chip"><div class="stat-chip__label">GW Avg</div><div class="stat-chip__value t-number" id="c-avg">—</div></div>
-  <div class="stat-chip"><div class="stat-chip__label">Highest</div><div class="stat-chip__value t-number" id="c-high">—</div></div>
-</div>
-<div class="squad-bar fi" id="squad-bar"></div>
+
 
 <!-- §1 BOTTOM LINE -->
 <div class="ks fi">
@@ -940,11 +1150,77 @@ function setSubsMode(mode,btn){
   btn.classList.add('active');showToast(mode==='post'?'Showing post auto-sub points':'Showing pre auto-sub points');
 }
 
-/* REFRESH */
-async function refreshAll(){
-  showToast('Refreshing…');
+/* ── LIVE MATCH DETECTION ── */
+function hasLiveMatch(){
+  // A match is "live" when it has started but not yet finished
+  return (S.fixtures||[]).some(f=>f.started&&!f.finished);
+}
+function nextKickoff(){
+  // Returns ms until the next unstarted fixture, or null if none
+  const upcoming=(S.fixtures||[]).filter(f=>!f.started&&!f.finished&&f.kickoff_time);
+  if(!upcoming.length)return null;
+  upcoming.sort((a,b)=>new Date(a.kickoff_time)-new Date(b.kickoff_time));
+  const diff=new Date(upcoming[0].kickoff_time)-Date.now();
+  return diff>0?diff:null;
+}
+
+/* ── AUTO-REFRESH SCHEDULER ── */
+let _autoTimer=null;
+let _visHidden=false;
+
+function scheduleAutoRefresh(){
+  clearTimeout(_autoTimer);
+  // Don't schedule if tab is hidden
+  if(_visHidden)return;
+
+  if(hasLiveMatch()){
+    // Live match active → refresh every 15 minutes
+    _autoTimer=setTimeout(async()=>{
+      await refreshAll(true); // silent=true (no toast)
+      scheduleAutoRefresh();   // reschedule after each run
+    }, 15*60*1000);
+    updateLiveDot(true);
+  } else {
+    // No live match — check if there's an upcoming one today
+    const msToKO=nextKickoff();
+    if(msToKO!==null && msToKO<8*60*60*1000){
+      // Kick-off within 8 hours → wake up 1 min after it starts and check again
+      _autoTimer=setTimeout(()=>scheduleAutoRefresh(), msToKO+60*1000);
+    }
+    updateLiveDot(false);
+  }
+}
+
+function updateLiveDot(isLive){
+  const dot=document.querySelector('.ldot');
+  if(!dot)return;
+  dot.style.background=isLive?'var(--kfl-green)':'var(--kfl-text-3)';
+  dot.style.animation=isLive?'ld 2s ease-in-out infinite':'none';
+}
+
+// Pause when tab is hidden, resume when visible
+document.addEventListener('visibilitychange',()=>{
+  _visHidden=document.hidden;
+  if(!_visHidden){
+    // Tab just became visible again — refresh immediately if a live match is on
+    if(S.id&&S.fixtures.length){
+      if(hasLiveMatch()){refreshAll(true);}
+      scheduleAutoRefresh();
+    }
+  } else {
+    clearTimeout(_autoTimer);
+  }
+});
+
+/* ── REFRESH ── */
+async function refreshAll(silent=false){
+  if(!silent)showToast('Refreshing…');
   try{
-    const [pR,lR,fR]=await Promise.all([fetch(`${PROXY}entry/${S.id}/event/${S.currentGW}/picks/`),fetch(`${PROXY}event/${S.currentGW}/live/`),fetch(`${PROXY}fixtures/?event=${S.currentGW}`)]);
+    const [pR,lR,fR]=await Promise.all([
+      fetch(`${PROXY}entry/${S.id}/event/${S.currentGW}/picks/`),
+      fetch(`${PROXY}event/${S.currentGW}/live/`),
+      fetch(`${PROXY}fixtures/?event=${S.currentGW}`),
+    ]);
     const [picks,live,fixtures]=await Promise.all([pR.json(),lR.json(),fR.json()]);
     S.picks=picks;S.live=live;S.fixtures=fixtures;
     live.elements.forEach(el=>{S.ptsMap[el.id]={pts:el.stats.total_points,mins:el.stats.minutes,bps:el.stats.bps||0};});
@@ -953,11 +1229,22 @@ async function refreshAll(){
     renderEO(picks);renderBonus(fixtures);renderDiffs(picks);renderGrids(picks);
     renderWhatIf(picks);renderRankDetails(picks,S.entry);renderLiveAction(fixtures);
     renderTransferDecisions(S.transfers,picks.entry_history.event_transfers_cost||0);
-    setUpdated();showToast('Updated ✓');
-  }catch{showToast('Refresh failed');}
+    setUpdated();
+    if(!silent)showToast('Updated ✓');
+    // Update dot state after each refresh (match may have started/ended)
+    scheduleAutoRefresh();
+  }catch{if(!silent)showToast('Refresh failed');}
 }
+
 function changeId(){if(confirm('Change your FPL ID? You will be logged out.')){localStorage.removeItem('kopala_id');location.reload();}}
-function setUpdated(){const e=document.getElementById('last-upd');if(e)e.textContent=`Updated ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;}
+
+function setUpdated(){
+  const e=document.getElementById('last-upd');
+  if(!e)return;
+  const live=hasLiveMatch();
+  e.textContent=`Updated ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}${live?' · Live — next refresh in 15 min':''}`;
+}
+
 function showToast(msg){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 /* BOOT */
@@ -966,7 +1253,8 @@ async function startApp(){
   try{
     await initBootstrap();await fetchAndRender();
     buildPriceData(S.picks);renderPrices();
-    setInterval(()=>refreshAll(),60000);
+    // Start smart scheduler after initial load
+    scheduleAutoRefresh();
   }catch(err){
     console.error(err);
     document.getElementById('lo').classList.add('hidden');
