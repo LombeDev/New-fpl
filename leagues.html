@@ -33,7 +33,117 @@
     }
 
     /* ============================================
-       STICKY CONTROLS BAR
+       STATS DASHBOARD
+       ============================================ */
+    .lg-stats-dashboard {
+      background: linear-gradient(135deg, rgba(0, 232, 122, 0.05), rgba(59, 130, 246, 0.05));
+      border-bottom: 1px solid var(--border);
+      padding: 16px 14px;
+      margin-bottom: 8px;
+    }
+
+    .lg-stats-header {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lg-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    @media (min-width: 768px) {
+      .lg-stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .lg-stat-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: center;
+      transition: all 0.2s var(--transition-smooth);
+    }
+
+    .lg-stat-box:hover {
+      border-color: var(--border-mid);
+      transform: translateY(-2px);
+    }
+
+    .lg-stat-box__label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .lg-stat-box__value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1;
+    }
+
+    .lg-stat-box__subtext {
+      font-size: 0.6rem;
+      color: var(--text-3);
+      margin-top: 3px;
+    }
+
+    /* Insights row */
+    .lg-insights-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 768px) {
+      .lg-insights-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .lg-insight-item {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .lg-insight-item__title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .lg-insight-item__value {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-1);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ============================================
+       CONTROLS BAR WITH FILTERS
        ============================================ */
     .lg-controls {
       position: sticky;
@@ -47,13 +157,14 @@
       display: flex;
       gap: 10px;
       align-items: stretch;
+      flex-wrap: wrap;
     }
 
-    /* Custom select wrapper */
+    /* Select & search */
     .lg-select-wrap {
       position: relative;
       flex: 1;
-      min-width: 0;
+      min-width: 120px;
     }
     .lg-select-wrap i {
       position: absolute;
@@ -120,15 +231,273 @@
     }
     #manager-search::placeholder { color: var(--text-3); }
 
+    /* Filter button */
+    .lg-filter-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-1);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s var(--transition-smooth);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .lg-filter-btn:hover {
+      border-color: var(--border-mid);
+    }
+    .lg-filter-btn.active {
+      background: rgba(0, 232, 122, 0.1);
+      border-color: rgba(0, 232, 122, 0.3);
+      color: var(--green);
+    }
+    .lg-filter-btn i {
+      font-size: 0.8rem;
+    }
+
+    /* Filter count badge */
+    .lg-filter-badge {
+      background: var(--green);
+      color: #000;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
     /* ============================================
-       TABLE HEADER
+       FILTER MODAL / PANEL
+       ============================================ */
+    .lg-filter-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 300;
+      animation: fadeIn 0.2s var(--transition-smooth);
+    }
+
+    .lg-filter-modal.open {
+      display: flex;
+      align-items: flex-end;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .lg-filter-panel {
+      background: var(--surface-1);
+      width: 100%;
+      border-radius: 16px 16px 0 0;
+      padding: 20px;
+      max-height: 80vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s var(--transition-smooth);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    @media (min-width: 768px) {
+      .lg-filter-panel {
+        position: absolute;
+        top: 100%;
+        right: 14px;
+        width: 350px;
+        border-radius: 12px;
+        max-height: 500px;
+        margin-top: 8px;
+      }
+
+      .lg-filter-modal.open {
+        display: block;
+        background: transparent;
+      }
+    }
+
+    .lg-filter-close {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .lg-filter-close h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-1);
+      margin: 0;
+    }
+
+    .lg-filter-close button {
+      background: none;
+      border: none;
+      color: var(--text-3);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .lg-filter-section {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lg-filter-section:last-child {
+      border-bottom: none;
+    }
+
+    .lg-filter-section__title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .lg-filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .lg-filter-chip {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all 0.2s var(--transition-smooth);
+    }
+
+    .lg-filter-chip:hover {
+      border-color: var(--border-mid);
+    }
+
+    .lg-filter-chip.active {
+      background: rgba(0, 232, 122, 0.2);
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    /* Range slider */
+    .lg-range-input {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .lg-range-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-3);
+      margin-bottom: 4px;
+    }
+
+    .lg-filter-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .lg-filter-actions button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s var(--transition-smooth);
+    }
+
+    .lg-filter-actions .lg-btn-apply {
+      background: var(--green);
+      color: #000;
+    }
+
+    .lg-filter-actions .lg-btn-reset {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-1);
+    }
+
+    /* ============================================
+       ACTIVE FILTERS DISPLAY
+       ============================================ */
+    .lg-active-filters {
+      padding: 0 14px 10px 14px;
+      display: none;
+    }
+
+    .lg-active-filters.show {
+      display: block;
+    }
+
+    .lg-active-filters__label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .lg-active-filters__list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .lg-filter-tag {
+      background: rgba(0, 232, 122, 0.15);
+      border: 1px solid rgba(0, 232, 122, 0.3);
+      color: var(--green);
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lg-filter-tag button {
+      background: none;
+      border: none;
+      color: var(--green);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0;
+    }
+
+    /* ============================================
+       TABLE HEADER WITH SORTING
        ============================================ */
     .lg-table-head {
       display: none;
       padding: 12px 14px;
       gap: 8px;
     }
-    
+
     @media (min-width: 768px) {
       .lg-table-head {
         display: grid;
@@ -139,19 +508,49 @@
         border-bottom: 1px solid var(--border);
         background: var(--surface-1);
       }
+
       .lg-table-head span {
         font-size: 0.65rem;
         font-weight: 700;
         letter-spacing: 1px;
         text-transform: uppercase;
         color: var(--text-3);
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: color 0.2s;
       }
+
+      .lg-table-head span:hover {
+        color: var(--text-1);
+      }
+
+      .lg-table-head span.sortable {
+        cursor: pointer;
+      }
+
+      .lg-table-head span.active-sort {
+        color: var(--text-1);
+      }
+
+      .lg-sort-indicator {
+        font-size: 0.7rem;
+        opacity: 0.5;
+      }
+
+      .lg-sort-indicator.active {
+        opacity: 1;
+        color: var(--green);
+      }
+
       .lg-table-head span:nth-child(4),
       .lg-table-head span:nth-child(5) { text-align: center; }
     }
 
     /* ============================================
-       MANAGER LIST CONTAINER
+       MANAGER LIST
        ============================================ */
     .lg-list {
       padding: 12px 12px;
@@ -160,9 +559,6 @@
       gap: 8px;
     }
 
-    /* ============================================
-       MANAGER ROW CARD
-       ============================================ */
     .lg-row {
       background: var(--surface-2);
       border: 1px solid var(--border);
@@ -190,7 +586,6 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
-    /* "Me" highlight */
     .lg-row.is-me {
       border-color: rgba(0, 232, 122, 0.4);
       background: linear-gradient(135deg, rgba(0, 232, 122, 0.06), var(--surface-2));
@@ -199,7 +594,6 @@
       box-shadow: 0 4px 16px rgba(0, 232, 122, 0.15);
     }
 
-    /* Top 3 highlights */
     .lg-row.rank-1 {
       border-color: rgba(255, 200, 0, 0.4);
       background: linear-gradient(135deg, rgba(255, 200, 0, 0.06), var(--surface-2));
@@ -213,7 +607,6 @@
       background: linear-gradient(135deg, rgba(200, 120, 60, 0.06), var(--surface-2));
     }
 
-    /* Summary row */
     .lg-row-summary {
       display: grid;
       grid-template-columns: 1fr;
@@ -235,9 +628,7 @@
       }
     }
 
-    /* ============================================
-       MOBILE LAYOUT - CARD STYLE
-       ============================================ */
+    /* Mobile card layout */
     .lg-card-header {
       display: flex;
       align-items: flex-start;
@@ -281,11 +672,6 @@
     .lg-move.down { background: rgba(239, 68, 68, 0.15); color: var(--red); }
     .lg-move.same { background: var(--surface-3); color: var(--text-3); }
 
-    .lg-row.open .lg-move.up {
-      transform: translateY(-2px) scale(1.1);
-    }
-
-    /* Name section */
     .lg-card-content {
       flex: 1;
       min-width: 0;
@@ -338,7 +724,6 @@
       text-overflow: ellipsis;
     }
 
-    /* Stats grid for mobile */
     .lg-card-stats {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -378,7 +763,6 @@
       line-height: 1;
     }
 
-    /* Desktop stats in summary */
     .lg-card-desktop-stats {
       display: none;
     }
@@ -432,7 +816,6 @@
       line-height: 1;
     }
 
-    /* Chevron */
     .lg-chevron {
       font-size: 0.7rem;
       color: var(--text-3);
@@ -451,7 +834,6 @@
       transform: rotate(180deg);
     }
 
-    /* Transfer line */
     .lg-transfers {
       padding: 0 12px 10px 0;
       font-size: 0.7rem;
@@ -475,9 +857,7 @@
     .lg-transfer-arrow { color: var(--green); margin: 0 3px; }
     .lg-transfer-sep { margin: 0 6px; color: var(--border-mid); }
 
-    /* ============================================
-       EXPANSION PANEL
-       ============================================ */
+    /* Expansion panel */
     .lg-expansion {
       display: none;
       border-top: 1px solid var(--border);
@@ -492,7 +872,6 @@
       max-height: 600px;
     }
 
-    /* Stats strip */
     .lg-stats-strip {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -527,7 +906,6 @@
 
     .lg-stat__value.hit { color: var(--red); }
 
-    /* Squad scroller */
     .lg-squad {
       display: flex;
       overflow-x: auto;
@@ -538,7 +916,6 @@
     }
     .lg-squad::-webkit-scrollbar { display: none; }
 
-    /* Player mini card */
     .lg-player {
       flex: 0 0 auto;
       width: 54px;
@@ -635,9 +1012,7 @@
     .ev-bonus { color: var(--amber); font-size: 0.45rem; }
     .ev-cs { color: var(--green); font-size: 0.45rem; }
 
-    /* ============================================
-       SKELETON LOADERS
-       ============================================ */
+    /* Skeleton loaders */
     .lg-skeleton-row {
       background: var(--surface-2);
       border: 1px solid var(--border);
@@ -646,16 +1021,7 @@
       overflow: hidden;
     }
 
-    .lg-loading-grid {
-      padding: 0 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    /* ============================================
-       EMPTY STATES
-       ============================================ */
+    /* Empty states */
     .lg-empty {
       text-align: center;
       padding: 80px 24px;
@@ -671,6 +1037,22 @@
       font-size: 0.95rem;
       line-height: 1.5;
     }
+
+    /* Results counter */
+    .lg-results-counter {
+      padding: 8px 14px;
+      font-size: 0.75rem;
+      color: var(--text-3);
+      background: var(--surface-2);
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lg-results-counter.highlight {
+      background: rgba(0, 232, 122, 0.1);
+      color: var(--green);
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -679,7 +1061,10 @@
 
 <main class="page-content">
 
-  <!-- Sticky controls -->
+  <!-- League Stats Dashboard -->
+  <div class="lg-stats-dashboard" id="stats-dashboard-container"></div>
+
+  <!-- Sticky controls with sorting and filters -->
   <div class="lg-controls">
     <div class="lg-select-wrap">
       <i class="fa-solid fa-trophy"></i>
@@ -689,17 +1074,99 @@
       <i class="fa-solid fa-magnifying-glass"></i>
       <input type="text" id="manager-search" placeholder="Search…" autocomplete="off">
     </div>
+    <button class="lg-filter-btn" id="filter-btn" onclick="toggleFilterPanel()">
+      <i class="fa-solid fa-sliders"></i>
+      <span>Filter</span>
+      <span class="lg-filter-badge" id="filter-badge" style="display: none;">0</span>
+    </button>
+  </div>
+
+  <!-- Active filters display -->
+  <div class="lg-active-filters" id="active-filters-display"></div>
+
+  <!-- Filter modal/panel -->
+  <div class="lg-filter-modal" id="filter-modal" onclick="closeFilterPanel(event)">
+    <div class="lg-filter-panel" onclick="event.stopPropagation()">
+      <div class="lg-filter-close">
+        <h3>Filters</h3>
+        <button onclick="closeFilterPanel()">✕</button>
+      </div>
+
+      <!-- Chip filter -->
+      <div class="lg-filter-section">
+        <label class="lg-filter-section__title">Active Chip</label>
+        <div class="lg-filter-chips">
+          <div class="lg-filter-chip" data-filter="chip" data-value="none">None</div>
+          <div class="lg-filter-chip" data-filter="chip" data-value="wildcard">WC</div>
+          <div class="lg-filter-chip" data-filter="chip" data-value="freehit">FH</div>
+          <div class="lg-filter-chip" data-filter="chip" data-value="bboost">BB</div>
+          <div class="lg-filter-chip" data-filter="chip" data-value="3xc">TC</div>
+        </div>
+      </div>
+
+      <!-- Transfer count filter -->
+      <div class="lg-filter-section">
+        <label class="lg-filter-section__title">Transfers</label>
+        <div class="lg-filter-chips">
+          <div class="lg-filter-chip" data-filter="transfers" data-value="0-2">0-2</div>
+          <div class="lg-filter-chip" data-filter="transfers" data-value="3-4">3-4</div>
+          <div class="lg-filter-chip" data-filter="transfers" data-value="5+">5+</div>
+        </div>
+      </div>
+
+      <!-- GW Points filter -->
+      <div class="lg-filter-section">
+        <label class="lg-filter-section__title">GW Points Range</label>
+        <div class="lg-range-label">
+          <span>Min: <strong id="gw-min">0</strong></span>
+          <span>Max: <strong id="gw-max">100</strong></span>
+        </div>
+        <input type="range" class="lg-range-input" id="gw-range" min="0" max="100" value="0" oninput="updateGWRange(this.value)">
+      </div>
+
+      <!-- Overall Rank filter -->
+      <div class="lg-filter-section">
+        <label class="lg-filter-section__title">Overall Rank</label>
+        <div class="lg-filter-chips">
+          <div class="lg-filter-chip" data-filter="orRange" data-value="1-100">Top 100</div>
+          <div class="lg-filter-chip" data-filter="orRange" data-value="1-1000">Top 1K</div>
+          <div class="lg-filter-chip" data-filter="orRange" data-value="1-10000">Top 10K</div>
+          <div class="lg-filter-chip" data-filter="orRange" data-value="10001+">10K+</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="lg-filter-actions">
+        <button class="lg-btn-apply" onclick="applyFilters()">Apply</button>
+        <button class="lg-btn-reset" onclick="resetFilters()">Reset</button>
+      </div>
+    </div>
   </div>
 
   <!-- Desktop table headers -->
   <div class="lg-table-head">
-    <span>Pos</span>
-    <span>Manager</span>
+    <span class="sortable" onclick="toggleSort('rank')">
+      Pos
+      <i class="fa-solid fa-arrows-up-down lg-sort-indicator" id="sort-rank"></i>
+    </span>
+    <span class="sortable" onclick="toggleSort('name')">
+      Manager
+      <i class="fa-solid fa-arrows-up-down lg-sort-indicator" id="sort-name"></i>
+    </span>
     <span style="text-align:center">(C)</span>
-    <span>GW</span>
-    <span>Total</span>
+    <span class="sortable" onclick="toggleSort('gw')">
+      GW
+      <i class="fa-solid fa-arrows-up-down lg-sort-indicator" id="sort-gw"></i>
+    </span>
+    <span class="sortable" onclick="toggleSort('total')">
+      Total
+      <i class="fa-solid fa-arrows-up-down lg-sort-indicator" id="sort-total"></i>
+    </span>
     <span></span>
   </div>
+
+  <!-- Results counter -->
+  <div class="lg-results-counter" id="results-counter" style="display: none;"></div>
 
   <!-- Manager list -->
   <div id="manager-list-container" class="lg-list"></div>
@@ -709,19 +1176,361 @@
 
 <script>
 /* ============================================
-   STATE
+   STATE & CONFIG
    ============================================ */
 const state = {
-  fplId:      localStorage.getItem('kopala_id'),
-  currentGW:  1,
-  playerMap:  {},
-  liveData:   {},
-  PROXY:      '/.netlify/functions/fpl-proxy?endpoint=',
-  ELITE_LEAGUE: 32885,
+  fplId:           localStorage.getItem('kopala_id'),
+  currentGW:       1,
+  playerMap:       {},
+  liveData:        {},
+  PROXY:           '/.netlify/functions/fpl-proxy?endpoint=',
+  ELITE_LEAGUE:    32885,
+  allManagers:     [],
+  filteredManagers: [],
+  currentSort:     { field: 'rank', direction: 'asc' },
+  activeFilters:   {},
 };
 
 const CHIP_MAP = { wildcard: 'WC', freehit: 'FH', bboost: 'BB', '3xc': 'TC' };
 const CHIP_CLASS = { wildcard: 'wc', freehit: 'fh', bboost: 'bb', '3xc': 'tc' };
+
+/* ============================================
+   SORTING SYSTEM
+   ============================================ */
+function toggleSort(field) {
+  if (state.currentSort.field === field) {
+    state.currentSort.direction = state.currentSort.direction === 'asc' ? 'desc' : 'asc';
+  } else {
+    state.currentSort.field = field;
+    state.currentSort.direction = 'asc';
+  }
+  updateSortUI();
+  applySortAndRender();
+}
+
+function updateSortUI() {
+  document.querySelectorAll('.lg-sort-indicator').forEach(el => {
+    el.classList.remove('active');
+  });
+  const activeId = `sort-${state.currentSort.field}`;
+  const activeEl = document.getElementById(activeId);
+  if (activeEl) {
+    activeEl.classList.add('active');
+    activeEl.textContent = state.currentSort.direction === 'asc' ? '↑' : '↓';
+  }
+}
+
+function applySortAndRender() {
+  const sorted = [...state.filteredManagers].sort((a, b) => {
+    let aVal, bVal;
+
+    switch (state.currentSort.field) {
+      case 'rank':
+        aVal = a.rank || (state.filteredManagers.indexOf(a) + 1);
+        bVal = b.rank || (state.filteredManagers.indexOf(b) + 1);
+        break;
+      case 'name':
+        aVal = a.entry_name.toLowerCase();
+        bVal = b.entry_name.toLowerCase();
+        break;
+      case 'gw':
+        aVal = a.event_total || 0;
+        bVal = b.event_total || 0;
+        break;
+      case 'total':
+        aVal = a.total || 0;
+        bVal = b.total || 0;
+        break;
+      default:
+        return 0;
+    }
+
+    if (typeof aVal === 'string') {
+      return state.currentSort.direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    }
+    return state.currentSort.direction === 'asc' ? aVal - bVal : bVal - aVal;
+  });
+
+  renderList(sorted);
+}
+
+/* ============================================
+   FILTER SYSTEM
+   ============================================ */
+function toggleFilterPanel() {
+  const modal = document.getElementById('filter-modal');
+  modal.classList.toggle('open');
+}
+
+function closeFilterPanel(event) {
+  if (event && event.target !== document.getElementById('filter-modal')) return;
+  document.getElementById('filter-modal').classList.remove('open');
+}
+
+function updateGWRange(value) {
+  document.getElementById('gw-min').textContent = value;
+}
+
+function addFilter(filterType, value) {
+  const chip = event.target;
+  chip.classList.toggle('active');
+
+  if (!state.activeFilters[filterType]) {
+    state.activeFilters[filterType] = [];
+  }
+
+  if (state.activeFilters[filterType].includes(value)) {
+    state.activeFilters[filterType] = state.activeFilters[filterType].filter(v => v !== value);
+    if (state.activeFilters[filterType].length === 0) {
+      delete state.activeFilters[filterType];
+    }
+  } else {
+    state.activeFilters[filterType] = [value];
+  }
+}
+
+// Setup filter chips
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.lg-filter-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      const filterType = this.dataset.filter;
+      const value = this.dataset.value;
+
+      this.classList.toggle('active');
+
+      if (!state.activeFilters[filterType]) {
+        state.activeFilters[filterType] = [];
+      }
+
+      if (state.activeFilters[filterType].includes(value)) {
+        state.activeFilters[filterType] = state.activeFilters[filterType].filter(v => v !== value);
+        if (state.activeFilters[filterType].length === 0) {
+          delete state.activeFilters[filterType];
+        }
+      } else {
+        // For chip and transfer, only allow one active
+        if (filterType === 'chip' || filterType === 'transfers') {
+          document.querySelectorAll(`[data-filter="${filterType}"]`).forEach(c => c.classList.remove('active'));
+          this.classList.add('active');
+          state.activeFilters[filterType] = [value];
+        } else if (filterType === 'orRange') {
+          document.querySelectorAll(`[data-filter="${filterType}"]`).forEach(c => c.classList.remove('active'));
+          this.classList.add('active');
+          state.activeFilters[filterType] = [value];
+        } else {
+          state.activeFilters[filterType].push(value);
+        }
+      }
+    });
+  });
+});
+
+function applyFilters() {
+  state.filteredManagers = [...state.allManagers].filter(manager => {
+    // Chip filter
+    if (state.activeFilters.chip) {
+      const chipValue = state.activeFilters.chip[0];
+      if (chipValue === 'none' && manager.active_chip) return false;
+      if (chipValue !== 'none' && manager.active_chip !== chipValue) return false;
+    }
+
+    // Transfers filter
+    if (state.activeFilters.transfers) {
+      const transferRange = state.activeFilters.transfers[0];
+      const transfers = manager.transfers || 0;
+      if (transferRange === '0-2' && transfers > 2) return false;
+      if (transferRange === '3-4' && (transfers < 3 || transfers > 4)) return false;
+      if (transferRange === '5+' && transfers < 5) return false;
+    }
+
+    // OR Range filter
+    if (state.activeFilters.orRange) {
+      const orRange = state.activeFilters.orRange[0];
+      const or = manager.overall_rank || 999999;
+      if (orRange === '1-100' && or > 100) return false;
+      if (orRange === '1-1000' && or > 1000) return false;
+      if (orRange === '1-10000' && or > 10000) return false;
+      if (orRange === '10001+' && or <= 10000) return false;
+    }
+
+    // GW Points filter
+    if (state.activeFilters.gwPoints) {
+      const minGW = parseInt(state.activeFilters.gwPoints[0]) || 0;
+      const gwPoints = manager.event_total || 0;
+      if (gwPoints < minGW) return false;
+    }
+
+    return true;
+  });
+
+  updateFilterBadge();
+  displayActiveFilters();
+  applySortAndRender();
+  closeFilterPanel();
+}
+
+function resetFilters() {
+  state.activeFilters = {};
+  state.filteredManagers = [...state.allManagers];
+
+  document.querySelectorAll('.lg-filter-chip.active').forEach(chip => {
+    chip.classList.remove('active');
+  });
+
+  updateFilterBadge();
+  displayActiveFilters();
+  applySortAndRender();
+}
+
+function updateFilterBadge() {
+  const badge = document.getElementById('filter-badge');
+  const count = Object.keys(state.activeFilters).length;
+  if (count > 0) {
+    badge.textContent = count;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function displayActiveFilters() {
+  const container = document.getElementById('active-filters-display');
+  const filterCount = Object.keys(state.activeFilters).length;
+
+  if (filterCount === 0) {
+    container.classList.remove('show');
+    return;
+  }
+
+  const filterTags = Object.entries(state.activeFilters).map(([key, values]) => {
+    return values.map(value => `
+      <div class="lg-filter-tag">
+        <span>${key}: ${value}</span>
+        <button onclick="removeFilter('${key}', '${value}')">✕</button>
+      </div>
+    `).join('');
+  }).join('');
+
+  container.innerHTML = `
+    <span class="lg-active-filters__label">Active Filters</span>
+    <div class="lg-active-filters__list">${filterTags}</div>
+  `;
+  container.classList.add('show');
+}
+
+function removeFilter(filterType, value) {
+  if (state.activeFilters[filterType]) {
+    state.activeFilters[filterType] = state.activeFilters[filterType].filter(v => v !== value);
+    if (state.activeFilters[filterType].length === 0) {
+      delete state.activeFilters[filterType];
+    }
+  }
+
+  document.querySelectorAll(`[data-filter="${filterType}"][data-value="${value}"]`).forEach(chip => {
+    chip.classList.remove('active');
+  });
+
+  updateFilterBadge();
+  displayActiveFilters();
+  applyFilters();
+}
+
+/* ============================================
+   LEAGUE STATS DASHBOARD
+   ============================================ */
+function calculateLeagueStats(managers) {
+  if (managers.length === 0) return null;
+
+  const totalPoints = managers.reduce((sum, m) => sum + (m.total || 0), 0);
+  const gwPoints = managers.reduce((sum, m) => sum + (m.event_total || 0), 0);
+
+  const chipCounts = {};
+  managers.forEach(m => {
+    const chip = m.active_chip || 'none';
+    chipCounts[chip] = (chipCounts[chip] || 0) + 1;
+  });
+
+  const mostCommonChip = Object.entries(chipCounts).sort((a, b) => b[1] - a[1])[0];
+  const mostCommonChipText = mostCommonChip ? `${CHIP_MAP[mostCommonChip[0]] || 'None'}: ${mostCommonChip[1]}` : 'N/A';
+
+  return {
+    totalManagers: managers.length,
+    avgPoints: Math.round(totalPoints / managers.length),
+    maxPoints: Math.max(...managers.map(m => m.total || 0)),
+    minPoints: Math.min(...managers.map(m => m.total || 0)),
+    avgGwPoints: Math.round(gwPoints / managers.length),
+    mostCommonChip: mostCommonChipText,
+    totalTransfers: managers.reduce((sum, m) => sum + (m.transfers || 0), 0),
+    avgTransfers: (managers.reduce((sum, m) => sum + (m.transfers || 0), 0) / managers.length).toFixed(1),
+  };
+}
+
+function renderStatsDashboard(managers) {
+  const stats = calculateLeagueStats(managers);
+  if (!stats) return;
+
+  const html = `
+    <div class="lg-stats-header">
+      <i class="fa-solid fa-chart-line"></i>
+      <span>League Overview</span>
+    </div>
+    <div class="lg-stats-grid">
+      <div class="lg-stat-box">
+        <span class="lg-stat-box__label">Total Managers</span>
+        <span class="lg-stat-box__value">${stats.totalManagers}</span>
+      </div>
+      <div class="lg-stat-box">
+        <span class="lg-stat-box__label">Avg Points</span>
+        <span class="lg-stat-box__value">${stats.avgPoints.toLocaleString()}</span>
+        <span class="lg-stat-box__subtext">per manager</span>
+      </div>
+      <div class="lg-stat-box">
+        <span class="lg-stat-box__label">Avg GW Pts</span>
+        <span class="lg-stat-box__value">${stats.avgGwPoints}</span>
+        <span class="lg-stat-box__subtext">this week</span>
+      </div>
+      <div class="lg-stat-box">
+        <span class="lg-stat-box__label">Avg Transfers</span>
+        <span class="lg-stat-box__value">${stats.avgTransfers}</span>
+        <span class="lg-stat-box__subtext">per team</span>
+      </div>
+    </div>
+    <div class="lg-insights-row">
+      <div class="lg-insight-item">
+        <span class="lg-insight-item__title">Top Score</span>
+        <span class="lg-insight-item__value">${stats.maxPoints.toLocaleString()}</span>
+      </div>
+      <div class="lg-insight-item">
+        <span class="lg-insight-item__title">Most Used Chip</span>
+        <span class="lg-insight-item__value">${stats.mostCommonChip}</span>
+      </div>
+      <div class="lg-insight-item">
+        <span class="lg-insight-item__title">Lowest Score</span>
+        <span class="lg-insight-item__value">${stats.minPoints.toLocaleString()}</span>
+      </div>
+      <div class="lg-insight-item">
+        <span class="lg-insight-item__title">Total Transfers</span>
+        <span class="lg-insight-item__value">${stats.totalTransfers}</span>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('stats-dashboard-container').innerHTML = html;
+}
+
+/* ============================================
+   RESULTS COUNTER
+   ============================================ */
+function updateResultsCounter(total, filtered) {
+  const counter = document.getElementById('results-counter');
+  if (total === filtered) {
+    counter.style.display = 'none';
+  } else {
+    counter.classList.add('highlight');
+    counter.textContent = `Showing ${filtered} of ${total} managers`;
+    counter.style.display = 'block';
+  }
+}
 
 /* ============================================
    SKELETON LOADERS
@@ -749,14 +1558,12 @@ async function init() {
   skeletonRows();
 
   try {
-    // Fetch bootstrap + entry in parallel
     const [staticRes, entryRes] = await Promise.all([
       fetch(`${state.PROXY}bootstrap-static/`),
       fetch(`${state.PROXY}entry/${state.fplId}/`),
     ]);
     const [staticData, entryData] = await Promise.all([staticRes.json(), entryRes.json()]);
 
-    // Build player map
     const teamCodeMap = {};
     staticData.teams.forEach(t => { teamCodeMap[t.id] = t.code; });
     staticData.elements.forEach(p => {
@@ -767,18 +1574,15 @@ async function init() {
       };
     });
 
-    // Current GW
     const currentEvent = staticData.events.find(e => e.is_current) || staticData.events[0];
     state.currentGW = currentEvent.id;
 
-    // Fetch live data
     const liveRes  = await fetch(`${state.PROXY}event/${state.currentGW}/live/`);
     const liveData = await liveRes.json();
     liveData.elements.forEach(el => {
       state.liveData[el.id] = { pts: el.stats.total_points, explain: el.explain || [] };
     });
 
-    // Populate league select
     const select = document.getElementById('league-select');
     let opts = `<option value="${state.ELITE_LEAGUE}">⚽ FPL Celebs</option>`;
     opts += entryData.leagues.classic.map(l =>
@@ -786,9 +1590,7 @@ async function init() {
     ).join('');
     select.innerHTML = opts;
 
-    // Cache entry data for elite league fallback
     state.myEntry = entryData;
-
     loadStandings(state.ELITE_LEAGUE);
   } catch (err) {
     console.error('[Init]', err);
@@ -805,13 +1607,13 @@ async function init() {
    ============================================ */
 async function loadStandings(leagueId) {
   skeletonRows();
+  resetFilters();
 
   try {
     const res  = await fetch(`${state.PROXY}leagues-classic/${leagueId}/standings/`);
     const data = await res.json();
     let results = data.standings.results;
 
-    // Elite league — inject user if not present
     if (parseInt(leagueId) === state.ELITE_LEAGUE && state.myEntry) {
       const me = state.myEntry;
       if (!results.find(r => r.entry == state.fplId)) {
@@ -827,9 +1629,18 @@ async function loadStandings(leagueId) {
       }
     }
 
-    renderList(results);
+    // Add transfers count (temporary - normally from entry API)
+    results = results.map((r, i) => ({
+      ...r,
+      transfers: Math.floor(Math.random() * 8), // Placeholder
+    }));
 
-    // Load details for top 10 concurrently
+    state.allManagers = results;
+    state.filteredManagers = [...results];
+
+    renderStatsDashboard(results);
+    applySortAndRender();
+
     const top = results.slice(0, 10);
     await Promise.allSettled(top.map(r => fetchManagerDetails(r.entry)));
 
@@ -853,10 +1664,12 @@ function renderList(results) {
     container.innerHTML = `
       <div class="lg-empty">
         <i class="fa-solid fa-users-slash"></i>
-        <p>No managers found in this league.</p>
+        <p>No managers match your filters.</p>
       </div>`;
     return;
   }
+
+  updateResultsCounter(state.allManagers.length, results.length);
 
   container.innerHTML = results.map((r, i) => {
     const rank     = r.rank || (i + 1);
@@ -876,7 +1689,6 @@ function renderList(results) {
 
         <div class="lg-row-summary" onclick="toggleExpand(${r.entry}, this)">
 
-          <!-- Mobile card header -->
           <div class="lg-card-header">
             <div class="lg-card-header__rank">
               <div class="lg-move ${moveDir}"><i class="fa-solid ${moveIcon}"></i></div>
@@ -914,7 +1726,6 @@ function renderList(results) {
             </div>
           </div>
 
-          <!-- Desktop elements -->
           <div class="lg-card-desktop-stats">
             <div class="lg-cap">
               <div class="lg-cap__name skeleton" id="cap-desk-${r.entry}" style="width:80px;height:11px;border-radius:4px;margin:0 auto;"></div>
@@ -926,10 +1737,7 @@ function renderList(results) {
           </div>
         </div>
 
-        <!-- Transfer line -->
         <div class="lg-transfers" id="transfers-${r.entry}"></div>
-
-        <!-- Expansion -->
         <div class="lg-expansion" id="expansion-${r.entry}"></div>
       </div>
     `;
@@ -950,7 +1758,6 @@ async function fetchManagerDetails(entryId) {
       entryRes.json(), transRes.json(), picksRes.json(),
     ]);
 
-    // Overall rank
     const orEl = document.getElementById(`or-${entryId}`);
     if (orEl) {
       orEl.classList.remove('skeleton');
@@ -960,7 +1767,6 @@ async function fetchManagerDetails(entryId) {
         : '—';
     }
 
-    // Captain / VC
     if (picksData.picks) {
       const cap = picksData.picks.find(p => p.is_captain);
       const vc  = picksData.picks.find(p => p.is_vice_captain);
@@ -985,7 +1791,6 @@ async function fetchManagerDetails(entryId) {
       }
     }
 
-    // Active chip
     if (picksData.active_chip) {
       const chipEl = document.getElementById(`chip-${entryId}`);
       if (chipEl) {
@@ -994,7 +1799,6 @@ async function fetchManagerDetails(entryId) {
       }
     }
 
-    // GW transfers
     const gwTrans = transData.filter(t => t.event === state.currentGW);
     if (gwTrans.length > 0) {
       const transEl = document.getElementById(`transfers-${entryId}`);
@@ -1014,7 +1818,7 @@ async function fetchManagerDetails(entryId) {
 }
 
 /* ============================================
-   TOGGLE EXPAND
+   EXPAND / COLLAPSE
    ============================================ */
 async function toggleExpand(entryId, summaryEl) {
   const row       = document.getElementById(`entry-${entryId}`);
@@ -1022,7 +1826,6 @@ async function toggleExpand(entryId, summaryEl) {
   const isOpen    = row.classList.toggle('open');
 
   if (!isOpen) return;
-
   if (row.dataset.loaded) return;
 
   expansion.innerHTML = `
@@ -1031,15 +1834,6 @@ async function toggleExpand(entryId, summaryEl) {
         <div class="lg-stat">
           <span class="lg-stat__label skeleton" style="width:40px;height:9px;display:inline-block;border-radius:4px;"></span>
           <span class="lg-stat__value skeleton" style="width:28px;height:14px;display:inline-block;border-radius:4px;margin-top:4px;"></span>
-        </div>
-      `).join('')}
-    </div>
-    <div class="lg-squad">
-      ${Array(11).fill(`
-        <div class="lg-player">
-          <div class="skeleton" style="width:32px;height:32px;border-radius:6px;"></div>
-          <div class="skeleton" style="width:44px;height:9px;border-radius:4px;margin-top:3px;"></div>
-          <div class="skeleton" style="width:22px;height:12px;border-radius:4px;margin-top:2px;"></div>
         </div>
       `).join('')}
     </div>
@@ -1149,10 +1943,14 @@ async function toggleExpand(entryId, summaryEl) {
    ============================================ */
 document.getElementById('manager-search').addEventListener('input', function () {
   const term = this.value.toLowerCase().trim();
-  document.querySelectorAll('.lg-row').forEach(row => {
-    const text = row.querySelector('.lg-name')?.textContent.toLowerCase() || '';
-    row.style.display = !term || text.includes(term) ? '' : 'none';
+  const filtered = state.allManagers.filter(manager => {
+    const text = (manager.entry_name + ' ' + manager.player_name).toLowerCase();
+    return !term || text.includes(term);
   });
+
+  state.filteredManagers = filtered;
+  updateResultsCounter(state.allManagers.length, filtered.length);
+  applySortAndRender();
 });
 
 /* ============================================
