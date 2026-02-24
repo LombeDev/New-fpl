@@ -6,7 +6,6 @@
   <title>Leagues | Kopala FPL</title>
   <script>(function(){var t=localStorage.getItem('kopala_theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
 
-
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0d0d0d">
   <meta name="mobile-web-app-capable" content="yes">
@@ -17,44 +16,51 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="nav.css">
   <link rel="stylesheet" href="footer.css">
 
-  
   <style>
     /* ============================================
-       LEAGUES PAGE — LOCAL STYLES
+       ROOT DESIGN TOKENS
        ============================================ */
+    :root {
+      --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
 
-    /* ---- Sticky controls bar ---- */
+    /* ============================================
+       STICKY CONTROLS BAR
+       ============================================ */
     .lg-controls {
       position: sticky;
       top: 0;
       z-index: 200;
-      background: rgba(13, 13, 13, 0.92);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      background: rgba(13, 13, 13, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
+      padding: 12px 14px;
       display: flex;
-      gap: 8px;
+      gap: 10px;
+      align-items: stretch;
     }
 
     /* Custom select wrapper */
     .lg-select-wrap {
       position: relative;
       flex: 1;
+      min-width: 0;
     }
     .lg-select-wrap i {
       position: absolute;
       left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       color: var(--text-3);
       pointer-events: none;
     }
@@ -62,31 +68,35 @@
       width: 100%;
       background: var(--surface-2);
       border: 1px solid var(--border);
-      border-radius: var(--r-md);
-      padding: 10px 12px 10px 32px;
+      border-radius: 8px;
+      padding: 10px 12px 10px 36px;
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: var(--text-1);
       outline: none;
       appearance: none;
       -webkit-appearance: none;
       cursor: pointer;
-      transition: border-color 0.2s;
+      transition: all 0.2s var(--transition-smooth);
     }
-    #league-select:focus { border-color: var(--border-mid); }
+    #league-select:hover { border-color: var(--border-mid); }
+    #league-select:focus {
+      border-color: var(--text-1);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+    }
 
     /* Search input */
     .lg-search-wrap {
       position: relative;
-      flex: 0 0 120px;
+      flex: 0 0 110px;
     }
     .lg-search-wrap i {
       position: absolute;
       left: 10px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       color: var(--text-3);
       pointer-events: none;
     }
@@ -94,125 +104,200 @@
       width: 100%;
       background: var(--surface-2);
       border: 1px solid var(--border);
-      border-radius: var(--r-md);
+      border-radius: 8px;
       padding: 10px 10px 10px 30px;
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       color: var(--text-1);
       outline: none;
-      transition: border-color 0.2s;
+      transition: all 0.2s var(--transition-smooth);
       box-sizing: border-box;
     }
-    #manager-search:focus { border-color: var(--border-mid); }
+    #manager-search:hover { border-color: var(--border-mid); }
+    #manager-search:focus {
+      border-color: var(--text-1);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+    }
     #manager-search::placeholder { color: var(--text-3); }
 
-    /* ---- Table column header ---- */
+    /* ============================================
+       TABLE HEADER
+       ============================================ */
     .lg-table-head {
-      display: grid;
-      grid-template-columns: 44px 1fr 72px 44px 60px 24px;
-      align-items: center;
-      padding: 8px 16px;
-      gap: 6px;
+      display: none;
+      padding: 12px 14px;
+      gap: 8px;
     }
-    .lg-table-head span {
-      font-size: 0.58rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--text-3);
+    
+    @media (min-width: 768px) {
+      .lg-table-head {
+        display: grid;
+        grid-template-columns: 50px 1.5fr 100px 70px 80px 32px;
+        align-items: center;
+        padding: 14px 16px;
+        gap: 12px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface-1);
+      }
+      .lg-table-head span {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--text-3);
+      }
+      .lg-table-head span:nth-child(4),
+      .lg-table-head span:nth-child(5) { text-align: center; }
     }
-    .lg-table-head span:nth-child(4),
-    .lg-table-head span:nth-child(5) { text-align: center; }
 
-    /* ---- Manager rows ---- */
+    /* ============================================
+       MANAGER LIST CONTAINER
+       ============================================ */
     .lg-list {
-      padding: 0 12px;
+      padding: 12px 12px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
+    /* ============================================
+       MANAGER ROW CARD
+       ============================================ */
     .lg-row {
       background: var(--surface-2);
       border: 1px solid var(--border);
-      border-radius: var(--r-lg);
+      border-radius: 12px;
       overflow: hidden;
-      transition: border-color 0.2s;
-      /* Staggered fade-in */
+      transition: all 0.25s var(--transition-smooth);
       opacity: 0;
-      animation: lg-row-in 0.3s var(--ease) forwards;
+      animation: lg-row-in 0.4s var(--transition-smooth) forwards;
+      cursor: pointer;
     }
 
     @keyframes lg-row-in {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .lg-row:hover {
+      border-color: var(--border-mid);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
     /* "Me" highlight */
     .lg-row.is-me {
-      border-color: rgba(0, 232, 122, 0.3);
-      background: linear-gradient(135deg, rgba(0,232,122,0.04), var(--surface-2));
+      border-color: rgba(0, 232, 122, 0.4);
+      background: linear-gradient(135deg, rgba(0, 232, 122, 0.06), var(--surface-2));
+    }
+    .lg-row.is-me:hover {
+      box-shadow: 0 4px 16px rgba(0, 232, 122, 0.15);
     }
 
     /* Top 3 highlights */
-    .lg-row.rank-1 { border-color: rgba(255, 200, 0, 0.35); }
-    .lg-row.rank-2 { border-color: rgba(180, 180, 180, 0.35); }
-    .lg-row.rank-3 { border-color: rgba(200, 120, 60, 0.35); }
+    .lg-row.rank-1 {
+      border-color: rgba(255, 200, 0, 0.4);
+      background: linear-gradient(135deg, rgba(255, 200, 0, 0.06), var(--surface-2));
+    }
+    .lg-row.rank-2 {
+      border-color: rgba(180, 180, 180, 0.4);
+      background: linear-gradient(135deg, rgba(180, 180, 180, 0.06), var(--surface-2));
+    }
+    .lg-row.rank-3 {
+      border-color: rgba(200, 120, 60, 0.4);
+      background: linear-gradient(135deg, rgba(200, 120, 60, 0.06), var(--surface-2));
+    }
 
-    /* Summary row (always visible) */
+    /* Summary row */
     .lg-row-summary {
       display: grid;
-      grid-template-columns: 44px 1fr 72px 44px 60px 24px;
-      align-items: center;
-      padding: 12px 16px;
-      gap: 6px;
-      cursor: pointer;
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 12px;
       -webkit-tap-highlight-color: transparent;
-      transition: background 0.15s;
+      transition: background 0.15s var(--transition-smooth);
     }
-    .lg-row-summary:active { background: var(--surface-3); }
 
-    /* Position + movement */
-    .lg-pos {
+    .lg-row-summary:active {
+      background: var(--surface-3);
+    }
+
+    @media (min-width: 768px) {
+      .lg-row-summary {
+        grid-template-columns: 50px 1.5fr 100px 70px 80px 32px;
+        padding: 14px 16px;
+        gap: 12px;
+      }
+    }
+
+    /* ============================================
+       MOBILE LAYOUT - CARD STYLE
+       ============================================ */
+    .lg-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .lg-card-header__rank {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2px;
+      gap: 3px;
+      flex-shrink: 0;
     }
 
     .lg-rank {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 900;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
       color: var(--text-1);
       line-height: 1;
+      min-width: 32px;
+      text-align: center;
     }
 
-    .lg-rank.gold   { color: #ffc800; }
+    .lg-rank.gold { color: #ffc800; text-shadow: 0 0 8px rgba(255, 200, 0, 0.3); }
     .lg-rank.silver { color: #b0b0b0; }
     .lg-rank.bronze { color: #cd7c3c; }
 
     .lg-move {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.4rem;
+      font-size: 0.45rem;
+      transition: transform 0.2s var(--transition-bounce);
     }
-    .lg-move.up   { background: rgba(0,232,122,0.15); color: var(--green); }
-    .lg-move.down { background: rgba(239,68,68,0.15);  color: var(--red); }
-    .lg-move.same { background: var(--surface-3);       color: var(--text-3); }
+    .lg-move.up { background: rgba(0, 232, 122, 0.15); color: var(--green); }
+    .lg-move.down { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+    .lg-move.same { background: var(--surface-3); color: var(--text-3); }
 
-    /* Name cell */
+    .lg-row.open .lg-move.up {
+      transform: translateY(-2px) scale(1.1);
+    }
+
+    /* Name section */
+    .lg-card-content {
+      flex: 1;
+      min-width: 0;
+    }
+
     .lg-name {
       min-width: 0;
       overflow: hidden;
     }
 
     .lg-name__team {
-      font-size: 0.82rem;
+      font-size: 0.9rem;
       font-weight: 700;
       color: var(--text-1);
       white-space: nowrap;
@@ -220,42 +305,90 @@
       text-overflow: ellipsis;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       line-height: 1.2;
+      margin-bottom: 2px;
+    }
+
+    .lg-name__team span:first-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .lg-chip {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.58rem;
+      font-size: 0.6rem;
       font-weight: 900;
-      padding: 1px 4px;
+      padding: 2px 6px;
       border-radius: 4px;
       flex-shrink: 0;
     }
-    .lg-chip.wc { background: rgba(59,130,246,0.2); color: #3b82f6; }
-    .lg-chip.fh { background: rgba(245,158,11,0.2); color: #f59e0b; }
-    .lg-chip.bb { background: rgba(0,232,122,0.2);  color: #00e87a; }
-    .lg-chip.tc { background: rgba(239,68,68,0.2);   color: #ef4444; }
+    .lg-chip.wc { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+    .lg-chip.fh { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .lg-chip.bb { background: rgba(0, 232, 122, 0.2); color: #00e87a; }
+    .lg-chip.tc { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
 
     .lg-name__manager {
-      font-size: 0.68rem;
+      font-size: 0.72rem;
       font-weight: 500;
       color: var(--text-3);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-top: 1px;
     }
 
-    .lg-or {
-      display: inline-block;
-      font-size: 0.58rem;
+    /* Stats grid for mobile */
+    .lg-card-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    @media (min-width: 768px) {
+      .lg-card-stats {
+        display: none;
+      }
+    }
+
+    .lg-stat-item {
+      background: var(--surface-1);
+      padding: 8px 6px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .lg-stat-item__label {
+      font-size: 0.6rem;
       font-weight: 700;
       color: var(--text-3);
-      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+      display: block;
     }
 
-    /* Captain column */
+    .lg-stat-item__value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1;
+    }
+
+    /* Desktop stats in summary */
+    .lg-card-desktop-stats {
+      display: none;
+    }
+
+    @media (min-width: 768px) {
+      .lg-card-desktop-stats {
+        display: contents;
+      }
+    }
+
     .lg-cap {
       text-align: center;
       min-width: 0;
@@ -263,7 +396,7 @@
     }
 
     .lg-cap__name {
-      font-size: 0.68rem;
+      font-size: 0.7rem;
       font-weight: 700;
       color: var(--green);
       white-space: nowrap;
@@ -272,29 +405,28 @@
     }
 
     .lg-cap__vc {
-      font-size: 0.58rem;
+      font-size: 0.6rem;
       font-weight: 500;
       color: var(--text-3);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-top: 1px;
+      margin-top: 2px;
     }
 
-    /* Points cells */
     .lg-gw-pts {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.2rem;
-      font-weight: 900;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
       text-align: center;
       color: var(--text-1);
       line-height: 1;
     }
 
     .lg-total-pts {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1rem;
-      font-weight: 800;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
       text-align: center;
       color: var(--text-2);
       line-height: 1;
@@ -302,109 +434,138 @@
 
     /* Chevron */
     .lg-chevron {
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       color: var(--text-3);
-      transition: transform 0.25s var(--ease);
+      transition: transform 0.3s var(--transition-bounce);
       justify-self: center;
-    }
-    .lg-row.open .lg-chevron { transform: rotate(180deg); }
-
-    /* Transfer line */
-    .lg-transfers {
-      padding: 0 16px 10px 60px;
-      font-size: 0.68rem;
-      font-weight: 600;
-      color: var(--text-3);
       display: none;
     }
 
-    .lg-transfers.visible { display: block; }
+    @media (min-width: 768px) {
+      .lg-chevron {
+        display: block;
+      }
+    }
+
+    .lg-row.open .lg-chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Transfer line */
+    .lg-transfers {
+      padding: 0 12px 10px 0;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-3);
+      display: none;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .lg-transfers.visible {
+      display: block;
+    }
+
+    @media (min-width: 768px) {
+      .lg-transfers {
+        padding: 0 16px 10px 60px;
+      }
+    }
 
     .lg-transfer-arrow { color: var(--green); margin: 0 3px; }
-    .lg-transfer-sep   { margin: 0 6px; color: var(--border-mid); }
+    .lg-transfer-sep { margin: 0 6px; color: var(--border-mid); }
 
-    /* ---- Expansion panel ---- */
+    /* ============================================
+       EXPANSION PANEL
+       ============================================ */
     .lg-expansion {
       display: none;
       border-top: 1px solid var(--border);
       background: var(--surface-1);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s var(--transition-smooth);
     }
-    .lg-row.open .lg-expansion { display: block; }
+
+    .lg-row.open .lg-expansion {
+      display: block;
+      max-height: 600px;
+    }
 
     /* Stats strip */
     .lg-stats-strip {
-      display: flex;
-      gap: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       border-bottom: 1px solid var(--border);
     }
 
     .lg-stat {
       flex: 1;
       text-align: center;
-      padding: 10px 6px;
+      padding: 12px 8px;
       border-right: 1px solid var(--border);
     }
     .lg-stat:last-child { border-right: none; }
 
     .lg-stat__label {
-      font-size: 0.55rem;
+      font-size: 0.6rem;
       font-weight: 700;
       letter-spacing: 1px;
       text-transform: uppercase;
       color: var(--text-3);
       display: block;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
     }
 
     .lg-stat__value {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1rem;
-      font-weight: 900;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
       color: var(--text-1);
       line-height: 1;
     }
 
     .lg-stat__value.hit { color: var(--red); }
 
-    /* Squad horizontal scroller */
+    /* Squad scroller */
     .lg-squad {
       display: flex;
       overflow-x: auto;
       gap: 6px;
-      padding: 12px 16px;
+      padding: 12px;
       scrollbar-width: none;
+      overscroll-behavior: contain;
     }
     .lg-squad::-webkit-scrollbar { display: none; }
 
-    /* Individual player mini-card */
+    /* Player mini card */
     .lg-player {
       flex: 0 0 auto;
-      width: 52px;
+      width: 54px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
       position: relative;
     }
 
-    .lg-player.is-bench { opacity: 0.4; }
+    .lg-player.is-bench { opacity: 0.45; }
 
     .lg-player__shirt-wrap {
       position: relative;
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* Position strip above shirt */
     .lg-player__pos-strip {
       position: absolute;
       top: 0;
       left: 50%;
       transform: translateX(-50%);
-      width: 24px;
+      width: 26px;
       height: 2px;
       border-radius: 100px;
     }
@@ -414,31 +575,32 @@
     .pos-4 { background: var(--pos-fwd); }
 
     .lg-player__shirt {
-      width: 30px;
+      width: 32px;
       height: auto;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
     }
 
     .lg-player__badge {
       position: absolute;
-      top: 0;
-      right: 0;
-      width: 13px;
-      height: 13px;
+      top: -2px;
+      right: -2px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Barlow Condensed', sans-serif;
+      font-family: 'Space Grotesk', sans-serif;
       font-size: 0.5rem;
-      font-weight: 900;
+      font-weight: 700;
       line-height: 1;
+      border: 2px solid var(--surface-1);
     }
-    .lg-player__badge.cap  { background: var(--green); color: #000; }
-    .lg-player__badge.vice { background: var(--surface-3); color: var(--text-2); border: 1px solid var(--border-mid); }
+    .lg-player__badge.cap { background: var(--green); color: #000; }
+    .lg-player__badge.vice { background: var(--surface-3); color: var(--text-2); }
 
     .lg-player__name {
-      font-size: 0.55rem;
+      font-size: 0.58rem;
       font-weight: 700;
       color: var(--text-2);
       text-align: center;
@@ -446,17 +608,17 @@
       overflow: hidden;
       text-overflow: ellipsis;
       width: 100%;
+      line-height: 1.1;
     }
 
     .lg-player__pts {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 900;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
       color: var(--text-1);
       line-height: 1;
     }
 
-    /* Events icons (goal, assist, card, bonus) */
     .lg-player__events {
       display: flex;
       align-items: center;
@@ -466,19 +628,21 @@
       flex-wrap: wrap;
     }
 
-    .ev-goal   { color: var(--text-1); font-size: 0.45rem; }
-    .ev-assist { color: #3b82f6; font-size: 0.5rem; font-weight: 900; font-style: normal; line-height: 1; }
-    .ev-yellow { color: #ffd600; font-size: 0.42rem; }
-    .ev-red    { color: #ef4444; font-size: 0.42rem; }
-    .ev-bonus  { color: var(--amber); font-size: 0.42rem; }
-    .ev-cs     { color: var(--green); font-size: 0.42rem; }
+    .ev-goal { color: var(--text-1); font-size: 0.48rem; }
+    .ev-assist { color: #3b82f6; font-size: 0.52rem; font-weight: 700; }
+    .ev-yellow { color: #ffd600; font-size: 0.45rem; }
+    .ev-red { color: #ef4444; font-size: 0.45rem; }
+    .ev-bonus { color: var(--amber); font-size: 0.45rem; }
+    .ev-cs { color: var(--green); font-size: 0.45rem; }
 
-    /* ---- Shimmer skeletons ---- */
+    /* ============================================
+       SKELETON LOADERS
+       ============================================ */
     .lg-skeleton-row {
       background: var(--surface-2);
       border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      height: 68px;
+      border-radius: 12px;
+      height: 100px;
       overflow: hidden;
     }
 
@@ -486,17 +650,27 @@
       padding: 0 12px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
-    /* ---- No results / error ---- */
+    /* ============================================
+       EMPTY STATES
+       ============================================ */
     .lg-empty {
       text-align: center;
-      padding: 60px 24px;
+      padding: 80px 24px;
       color: var(--text-3);
     }
-    .lg-empty i { font-size: 2rem; margin-bottom: 12px; opacity: 0.3; display: block; }
-    .lg-empty p { font-size: 0.9rem; }
+    .lg-empty i {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      opacity: 0.2;
+      display: block;
+    }
+    .lg-empty p {
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
@@ -517,13 +691,13 @@
     </div>
   </div>
 
-  <!-- Table column headers -->
+  <!-- Desktop table headers -->
   <div class="lg-table-head">
     <span>Pos</span>
     <span>Manager</span>
     <span style="text-align:center">(C)</span>
-    <span style="text-align:center">GW</span>
-    <span style="text-align:center">Total</span>
+    <span>GW</span>
+    <span>Total</span>
     <span></span>
   </div>
 
@@ -555,7 +729,7 @@ const CHIP_CLASS = { wildcard: 'wc', freehit: 'fh', bboost: 'bb', '3xc': 'tc' };
 function skeletonRows(count = 10) {
   const container = document.getElementById('manager-list-container');
   container.innerHTML = Array.from({ length: count }, (_, i) => `
-    <div class="lg-skeleton-row skeleton" style="animation-delay:${i * 0.04}s"></div>
+    <div class="lg-skeleton-row skeleton" style="animation-delay:${i * 0.05}s"></div>
   `).join('');
 }
 
@@ -655,7 +829,7 @@ async function loadStandings(leagueId) {
 
     renderList(results);
 
-    // Load details for top 10 concurrently (batched to avoid 429s)
+    // Load details for top 10 concurrently
     const top = results.slice(0, 10);
     await Promise.allSettled(top.map(r => fetchManagerDetails(r.entry)));
 
@@ -698,43 +872,61 @@ function renderList(results) {
     return `
       <div class="lg-row ${isMe ? 'is-me' : ''} ${rowClass}"
            id="entry-${r.entry}"
-           style="animation-delay:${i * 0.03}s">
+           style="animation-delay:${i * 0.04}s">
 
         <div class="lg-row-summary" onclick="toggleExpand(${r.entry}, this)">
 
-          <!-- Position -->
-          <div class="lg-pos">
-            <div class="lg-move ${moveDir}"><i class="fa-solid ${moveIcon}"></i></div>
-            <div class="lg-rank ${rankClass}">${rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}</div>
-          </div>
-
-          <!-- Name -->
-          <div class="lg-name">
-            <div class="lg-name__team">
-              <span>${r.entry_name}</span>
-              <span id="chip-${r.entry}"></span>
+          <!-- Mobile card header -->
+          <div class="lg-card-header">
+            <div class="lg-card-header__rank">
+              <div class="lg-move ${moveDir}"><i class="fa-solid ${moveIcon}"></i></div>
+              <div class="lg-rank ${rankClass}">${rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}</div>
             </div>
-            <div class="lg-name__manager">${r.player_name}</div>
-            <span class="lg-or skeleton" id="or-${r.entry}" style="width:60px;height:11px;display:inline-block;border-radius:4px;"></span>
+
+            <div class="lg-card-content">
+              <div class="lg-name">
+                <div class="lg-name__team">
+                  <span>${r.entry_name}</span>
+                  <span id="chip-${r.entry}"></span>
+                </div>
+                <div class="lg-name__manager">${r.player_name}</div>
+              </div>
+            </div>
+
+            <div style="text-align: right; flex-shrink: 0;">
+              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--text-1); line-height: 1; margin-bottom: 2px;">${r.event_total}</div>
+              <div style="font-size: 0.65rem; color: var(--text-3); font-weight: 600;">GW</div>
+            </div>
           </div>
 
-          <!-- Captain -->
-          <div class="lg-cap">
-            <div class="lg-cap__name skeleton" id="cap-${r.entry}" style="width:52px;height:11px;border-radius:4px;margin:0 auto;"></div>
-            <div class="lg-cap__vc" id="vc-${r.entry}"></div>
+          <div class="lg-card-stats">
+            <div class="lg-stat-item">
+              <span class="lg-stat-item__label">Total</span>
+              <span class="lg-stat-item__value">${r.total.toLocaleString()}</span>
+            </div>
+            <div class="lg-stat-item">
+              <span class="lg-stat-item__label">Cap</span>
+              <span class="lg-stat-item__value skeleton" id="cap-${r.entry}" style="width:100%;height:16px;border-radius:4px;display:inline-block;"></span>
+            </div>
+            <div class="lg-stat-item">
+              <span class="lg-stat-item__label">OR</span>
+              <span class="lg-stat-item__value skeleton" id="or-${r.entry}" style="width:100%;height:16px;border-radius:4px;display:inline-block;"></span>
+            </div>
           </div>
 
-          <!-- GW Points -->
-          <div class="lg-gw-pts">${r.event_total}</div>
-
-          <!-- Total -->
-          <div class="lg-total-pts">${r.total.toLocaleString()}</div>
-
-          <!-- Chevron -->
-          <i class="fa-solid fa-chevron-down lg-chevron"></i>
+          <!-- Desktop elements -->
+          <div class="lg-card-desktop-stats">
+            <div class="lg-cap">
+              <div class="lg-cap__name skeleton" id="cap-desk-${r.entry}" style="width:80px;height:11px;border-radius:4px;margin:0 auto;"></div>
+              <div class="lg-cap__vc" id="vc-${r.entry}"></div>
+            </div>
+            <div class="lg-gw-pts">${r.event_total}</div>
+            <div class="lg-total-pts">${r.total.toLocaleString()}</div>
+            <i class="fa-solid fa-chevron-down lg-chevron"></i>
+          </div>
         </div>
 
-        <!-- Transfer line (hidden until populated) -->
+        <!-- Transfer line -->
         <div class="lg-transfers" id="transfers-${r.entry}"></div>
 
         <!-- Expansion -->
@@ -745,7 +937,7 @@ function renderList(results) {
 }
 
 /* ============================================
-   FETCH MANAGER DETAILS (summary row data)
+   FETCH MANAGER DETAILS
    ============================================ */
 async function fetchManagerDetails(entryId) {
   try {
@@ -764,8 +956,8 @@ async function fetchManagerDetails(entryId) {
       orEl.classList.remove('skeleton');
       orEl.style.cssText = '';
       orEl.textContent = entryData.summary_overall_rank
-        ? `OR ${entryData.summary_overall_rank.toLocaleString()}`
-        : '';
+        ? `${entryData.summary_overall_rank.toLocaleString()}`
+        : '—';
     }
 
     // Captain / VC
@@ -780,13 +972,20 @@ async function fetchManagerDetails(entryId) {
         capEl.textContent = state.playerMap[cap.element]?.name || '—';
       }
 
+      const capDeskEl = document.getElementById(`cap-desk-${entryId}`);
+      if (capDeskEl && cap) {
+        capDeskEl.classList.remove('skeleton');
+        capDeskEl.style.cssText = '';
+        capDeskEl.textContent = state.playerMap[cap.element]?.name || '—';
+      }
+
       const vcEl = document.getElementById(`vc-${entryId}`);
       if (vcEl && vc) {
         vcEl.textContent = state.playerMap[vc.element]?.name || '';
       }
     }
 
-    // Active chip badge
+    // Active chip
     if (picksData.active_chip) {
       const chipEl = document.getElementById(`chip-${entryId}`);
       if (chipEl) {
@@ -815,19 +1014,17 @@ async function fetchManagerDetails(entryId) {
 }
 
 /* ============================================
-   EXPAND / COLLAPSE ROW
+   TOGGLE EXPAND
    ============================================ */
 async function toggleExpand(entryId, summaryEl) {
   const row       = document.getElementById(`entry-${entryId}`);
   const expansion = document.getElementById(`expansion-${entryId}`);
   const isOpen    = row.classList.toggle('open');
 
-  if (!isOpen) return; // Collapsed — nothing to do
+  if (!isOpen) return;
 
-  // Already loaded
   if (row.dataset.loaded) return;
 
-  // Show squad shimmer
   expansion.innerHTML = `
     <div class="lg-stats-strip">
       ${Array(3).fill(`
@@ -840,7 +1037,7 @@ async function toggleExpand(entryId, summaryEl) {
     <div class="lg-squad">
       ${Array(11).fill(`
         <div class="lg-player">
-          <div class="skeleton" style="width:30px;height:30px;border-radius:6px;"></div>
+          <div class="skeleton" style="width:32px;height:32px;border-radius:6px;"></div>
           <div class="skeleton" style="width:44px;height:9px;border-radius:4px;margin-top:3px;"></div>
           <div class="skeleton" style="width:22px;height:12px;border-radius:4px;margin-top:2px;"></div>
         </div>
@@ -862,7 +1059,6 @@ async function toggleExpand(entryId, summaryEl) {
     const playedCount   = starters.filter(p => (state.liveData[p.element]?.pts ?? 0) > 0).length;
     const gwTrans       = picksData.entry_history.event_transfers;
 
-    // Stats strip
     const statsHtml = `
       <div class="lg-stats-strip">
         <div class="lg-stat">
@@ -882,7 +1078,6 @@ async function toggleExpand(entryId, summaryEl) {
       </div>
     `;
 
-    // Build all players
     const buildPlayers = (picks, isBench) => picks.map(p => {
       const player  = state.playerMap[p.element];
       if (!player) return '';
@@ -896,7 +1091,6 @@ async function toggleExpand(entryId, summaryEl) {
           ? '<div class="lg-player__badge vice">V</div>'
           : '';
 
-      // Event icons
       const allStats = live.explain.flatMap(e => e.stats || []);
       let icons = '';
       allStats.forEach(s => {
@@ -924,7 +1118,6 @@ async function toggleExpand(entryId, summaryEl) {
       `;
     }).join('');
 
-    // Bench divider
     const benchDivider = `
       <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 4px;gap:4px;">
         <div style="width:1px;flex:1;background:var(--border);"></div>
