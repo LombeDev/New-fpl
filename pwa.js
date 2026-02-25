@@ -12,12 +12,10 @@
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .then(reg => {
-          // Check for updates silently in background
           reg.addEventListener('updatefound', () => {
             const worker = reg.installing;
             worker?.addEventListener('statechange', () => {
               if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New version available — show a subtle in-app nudge (not a progress bar)
                 showUpdateNudge();
               }
             });
@@ -25,7 +23,6 @@
         })
         .catch(err => console.warn('[SW] Registration failed:', err));
 
-      // When a new SW takes over, reload for fresh assets
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         window.location.reload();
       });
@@ -38,8 +35,6 @@
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     _deferredPrompt = e;
-
-    // Show our own install button after a short delay if not already installed
     setTimeout(() => {
       if (!isInstalled()) showInstallToast();
     }, 4000);
@@ -56,7 +51,7 @@
            document.referrer.includes('android-app://');
   }
 
-  /* ── 3. INSTALL TOAST (bottom-of-screen, dismissible) ── */
+  /* ── 3. INSTALL TOAST ───────────────────────────────── */
   function showInstallToast() {
     if (document.getElementById('kfl-install-toast')) return;
     if (isInstalled()) return;
@@ -78,7 +73,6 @@
     `;
     document.body.appendChild(toast);
 
-    // Animate in
     requestAnimationFrame(() => toast.classList.add('kfl-install-toast--visible'));
 
     document.getElementById('kfl-install-btn')?.addEventListener('click', async () => {
@@ -91,7 +85,6 @@
 
     document.getElementById('kfl-install-close')?.addEventListener('click', () => {
       hideInstallToast();
-      // Don't show again for 7 days
       localStorage.setItem('kfl_install_dismissed', Date.now().toString());
     });
   }
@@ -103,7 +96,7 @@
     setTimeout(() => toast.remove(), 350);
   }
 
-  /* ── 4. UPDATE NUDGE (subtle top banner) ─────────────── */
+  /* ── 4. UPDATE NUDGE ────────────────────────────────── */
   function showUpdateNudge() {
     if (document.getElementById('kfl-update-nudge')) return;
     const bar = document.createElement('div');
@@ -117,10 +110,8 @@
   }
 
   /* ── 5. NATIVE-FEEL: Instant tap response ───────────── */
-  // Removes the 300ms click delay on all touch devices without FastClick overhead
   document.addEventListener('touchstart', function () {}, { passive: true });
 
-  // Remove highlight flash on tap for nav elements
   const tapStyle = document.createElement('style');
   tapStyle.textContent = `
     a, button, [role="button"], .kfl-subnav__link, .kfl-drawer__link {
@@ -131,17 +122,15 @@
   document.head.appendChild(tapStyle);
 
   /* ── 6. NATIVE-FEEL: Overscroll & pull-to-refresh ───── */
-  // Prevent the browser's pull-to-refresh from triggering while scrolling content
   document.body.style.overscrollBehaviorY = 'contain';
-
-  // Allow momentum scrolling on iOS
   document.documentElement.style.webkitOverflowScrolling = 'touch';
 
-  /* ── 7. NATIVE-FEEL: SPA navigation — kills the progress bar ── */
-  // Strategy: fetch the new page HTML, then use document.open/write to
-  // replace the entire document. This runs ALL scripts exactly as a real
-  // page load would — DOMContentLoaded fires, <head> scripts load, data
-  // fetches run — but the browser never navigates so no progress bar appears.
+  /* ── 7. NATIVE-FEEL: SPA navigation ─────────────────── */
+  // Uses DOMParser + script re-execution instead of document.open/write.
+  // document.write() causes "identifier already declared" crashes because
+  // it injects HTML into the *existing* JS scope, so any const/let in the
+  // fetched page collides with variables already declared in this session.
+  // DOMParser parses into a detached document — no scope collision at all.
 
   const _pageCache = new Map();
   let   _navigating = false;
@@ -150,7 +139,6 @@
     if (_navigating) return;
     _navigating = true;
 
-    // Subtle dim to signal something is happening
     const main = document.querySelector('.page-content') || document.body;
     main.style.transition = 'opacity 0.1s ease';
     main.style.opacity    = '0.55';
@@ -164,15 +152,64 @@
         _pageCache.set(href, html);
       }
 
-      // Push URL BEFORE the document replace so history is correct
       history.pushState({ href }, '', href);
 
-      // document.open/write completely replaces the document — every script
-      // in <head> and <body> runs fresh, DOMContentLoaded fires, exactly
-      // like a real page load. No manual script re-execution needed.
-      document.open();
-      document.write(html);
-      document.close();
+      // Parse fetched HTML in a sandboxed document — zero scope collision
+      const parser = new DOMParser();
+      const newDoc = parser.parseFromString(html, 'text/html');
+
+      // Update <title>
+      document.title = newDoc.title;
+
+      // Sync theme-color meta
+      const newThemeMeta = newDoc.querySelector('meta[name="theme-color"]');
+      if (newThemeMeta) {
+        let existing = document.querySelector('meta[name="theme-color"]');
+        if (!existing) {
+          existing = document.createElement('meta');
+          existing.name = 'theme-color';
+          document.head.appendChild(existing);
+        }
+        existing.content = newThemeMeta.content;
+      }
+
+      // Replace <body> content
+      document.body.innerHTML = newDoc.body.innerHTML;
+
+      // Copy body attributes (class, data-theme, etc.)
+      Array.from(newDoc.body.attributes).forEach(attr => {
+        document.body.setAttribute(attr.name, attr.value);
+      });
+
+      // Re-execute all <script> tags — DOMParser does NOT run scripts,
+      // so we clone each into a fresh <script> element for the browser to execute.
+      const scripts = Array.from(document.body.querySelectorAll('script'));
+      for (const oldScript of scripts) {
+        const newScript = document.createElement('script');
+        Array.from(oldScript.attributes).forEach(attr => {
+          newScript.setAttribute(attr.name, attr.value);
+        });
+        if (!oldScript.src) {
+          newScript.textContent = oldScript.textContent;
+        }
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+
+        // Wait for external scripts to load before continuing
+        if (newScript.src) {
+          await new Promise(resolve => {
+            newScript.onload  = resolve;
+            newScript.onerror = resolve;
+          });
+        }
+      }
+
+      // Scroll to top, restore opacity
+      window.scrollTo(0, 0);
+      document.body.style.opacity    = '1';
+      document.body.style.transition = 'opacity 0.15s ease';
+
+      // Fire event so page-specific init code can hook in
+      window.dispatchEvent(new CustomEvent('kfl:navigate', { detail: { href } }));
 
     } catch (err) {
       console.warn('[KFL] Navigate failed, falling back:', err);
@@ -182,7 +219,7 @@
     }
   }
 
-  // Intercept all local link clicks (capture phase catches nav.js links too)
+  // Intercept all local link clicks
   document.addEventListener('click', e => {
     const link = e.target.closest('a[href]');
     if (!link) return;
@@ -195,19 +232,26 @@
     kflNavigate(href);
   }, true);
 
-  // Browser back/forward — no page load
+  // Browser back/forward
   window.addEventListener('popstate', e => {
-    const href = e.state?.href || window.location.pathname + window.location.search;
-    // Only intercept if it's a state we pushed (avoid double-firing on first load)
-    if (e.state?.href) kflNavigate(href);
+    if (e.state?.href) kflNavigate(e.state.href);
   });
 
-  // Prefetch on hover/touchstart so the fetch is already done by tap time
+  /* ── 8. PREFETCH on hover/touchstart ────────────────── */
+  // HEAD check first — silently skips 404s without spamming the console
   function _prefetch(href) {
-    if (!href || _pageCache.has(href) || href.startsWith('http') ||
-        href.startsWith('#') || href.startsWith('mailto') || href.startsWith('tel')) return;
-    fetch(href).then(r => r.text()).then(h => _pageCache.set(href, h)).catch(() => {});
+    if (!href || _pageCache.has(href)) return;
+    if (href.startsWith('http') || href.startsWith('#') ||
+        href.startsWith('mailto') || href.startsWith('tel')) return;
+
+    fetch(href, { method: 'HEAD' })
+      .then(r => {
+        if (!r.ok) return; // 404/5xx → skip silently
+        return fetch(href).then(r2 => r2.text()).then(h => _pageCache.set(href, h));
+      })
+      .catch(() => {});
   }
+
   document.addEventListener('mouseover', e => {
     const a = e.target.closest('a[href]');
     if (a) _prefetch(a.getAttribute('href'));
@@ -217,13 +261,7 @@
     if (a) _prefetch(a.getAttribute('href'));
   }, { passive: true });
 
-  // Fade in on first cold load
-  window.addEventListener('pageshow', () => {
-    document.body.style.opacity    = '1';
-    document.body.style.transition = 'opacity 0.15s ease';
-  });
-
-  /* ── 8. NATIVE-FEEL: Status bar color sync ──────────── */
+  /* ── 9. NATIVE-FEEL: Status bar color sync ──────────── */
   function syncStatusBar() {
     const theme = document.documentElement.getAttribute('data-theme') || 'light';
     const color = theme === 'dark' ? '#0d1520' : '#ffffff';
@@ -236,21 +274,24 @@
     meta.content = color;
   }
 
-  // Sync on load and on theme toggle
   document.addEventListener('DOMContentLoaded', syncStatusBar);
   const observer = new MutationObserver(syncStatusBar);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-  /* ── 9. NATIVE-FEEL: Back gesture support ───────────── */
-  // Tracks history so Android back button works naturally inside the SPA
+  /* ── 10. NATIVE-FEEL: Fade in on cold load ───────────── */
+  window.addEventListener('pageshow', () => {
+    document.body.style.opacity    = '1';
+    document.body.style.transition = 'opacity 0.15s ease';
+  });
+
+  /* ── 11. NATIVE-FEEL: Back gesture support ───────────── */
   if (isInstalled()) {
-    // Pre-populate history on first load so back button has somewhere to go
     if (window.history.length <= 1) {
-      history.replaceState({ page: 'home' }, '', window.location.href);
+      history.replaceState({ href: window.location.pathname }, '', window.location.href);
     }
   }
 
-  /* ── 10. STYLES injected for install toast & nudge ──── */
+  /* ── 12. STYLES: install toast & nudge ──────────────── */
   const pwaStyles = document.createElement('style');
   pwaStyles.textContent = `
     /* Install Toast */
@@ -357,7 +398,6 @@
       padding-bottom: env(safe-area-inset-bottom, 0px);
     }
 
-    /* iOS home-indicator clearance for bottom-fixed elements */
     .toast {
       bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
     }
