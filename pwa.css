@@ -1,0 +1,184 @@
+/* ============================================================
+   KOPALA FPL — PWA NATIVE FEEL CSS
+   Add @import or <link> this AFTER style.css on every page.
+   Removes browser UI-isms, adds native-app feel.
+   ============================================================ */
+
+/* ── 1. VIEWPORT & SAFE AREAS ───────────────────────────── */
+html {
+  /* Fills notch/Dynamic Island area on iOS */
+  height: -webkit-fill-available;
+  /* Smooth scroll everywhere */
+  scroll-behavior: smooth;
+  /* Prevents double-tap zoom without disabling pinch */
+  touch-action: manipulation;
+}
+
+body {
+  /* Respect notch/home indicator */
+  padding-top:    env(safe-area-inset-top,    0px);
+  padding-left:   env(safe-area-inset-left,   0px);
+  padding-right:  env(safe-area-inset-right,  0px);
+
+  /* Native scroll feel */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+
+  /* Remove text size adjustment on orientation change */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
+  /* Minimum full-height on iOS */
+  min-height: -webkit-fill-available;
+
+  /* No grey flash on link tap */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── 2. FIXED ELEMENTS — account for notch/home indicator ── */
+.kfl-topbar {
+  /* Top safe area (notch / Dynamic Island) */
+  padding-top: env(safe-area-inset-top, 0px);
+  height: calc(var(--kfl-topbar-h) + env(safe-area-inset-top, 0px));
+}
+
+.kfl-subnav {
+  top: calc(var(--kfl-topbar-h) + env(safe-area-inset-top, 0px));
+}
+
+body {
+  /* Push content below both fixed bars + safe area */
+  padding-top: calc(
+    var(--kfl-topbar-h)  +
+    var(--kfl-tabbar-h)  +
+    env(safe-area-inset-top, 0px)
+  ) !important;
+}
+
+/* ── 3. BOTTOM SAFE AREA for toast / FABs ───────────────── */
+.toast,
+#kfl-install-toast {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  margin-bottom:  env(safe-area-inset-bottom, 0px);
+}
+
+/* Footer above home indicator */
+footer, .kfl-footer, #footer-placeholder {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── 4. SCROLLBARS — hide on mobile, thin on desktop ───── */
+* {
+  scrollbar-width: none;            /* Firefox */
+  -ms-overflow-style: none;         /* IE/Edge legacy */
+}
+*::-webkit-scrollbar { display: none; }   /* Chrome/Safari */
+
+/* Re-enable thin scrollbar only on desktop */
+@media (min-width: 900px) {
+  .kfl-drawer__content {
+    scrollbar-width: thin;
+    scrollbar-color: var(--kfl-surface-3) transparent;
+  }
+  .kfl-drawer__content::-webkit-scrollbar        { display: block; width: 4px; }
+  .kfl-drawer__content::-webkit-scrollbar-track  { background: transparent; }
+  .kfl-drawer__content::-webkit-scrollbar-thumb  { background: var(--kfl-surface-3); border-radius: 2px; }
+}
+
+/* ── 5. TAP TARGETS — native minimum 44×44pt ───────────── */
+.kfl-subnav__link,
+.kfl-drawer__link,
+.kfl-theme-toggle,
+.kfl-hamburger,
+button,
+[role="button"] {
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+/* ── 6. INPUT STYLING — native iOS forms ───────────────── */
+input,
+select,
+textarea {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0; /* prevents iOS default rounded corners */
+}
+
+input[type="range"] {
+  -webkit-appearance: auto;
+  appearance: auto;
+}
+
+/* Prevent iOS zoom on focus (font-size must be ≥ 16px on inputs) */
+input[type="text"],
+input[type="number"],
+input[type="search"],
+select {
+  font-size: 16px !important;
+}
+
+/* ── 7. SELECTION COLOR ─────────────────────────────────── */
+::selection {
+  background: var(--kfl-green-glow, rgba(0,200,90,0.25));
+  color: var(--kfl-text-1);
+}
+
+/* ── 8. FOCUS RINGS — accessible but not intrusive ──────── */
+:focus-visible {
+  outline: 2px solid var(--kfl-green, #00c85a);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+:focus:not(:focus-visible) { outline: none; }
+
+/* ── 9. IMAGE RENDERING ─────────────────────────────────── */
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-user-select: none;
+  user-select: none;
+  /* Prevent images from looking blurry on high-DPI screens */
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* ── 10. ANIMATION: respect reduced motion ──────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1      !important;
+    transition-duration:       0.01ms !important;
+    scroll-behavior:           auto   !important;
+  }
+}
+
+/* ── 11. STANDALONE MODE TWEAKS ─────────────────────────── */
+@media (display-mode: standalone) {
+  /* Hide any "open in browser" or browser chrome hints */
+  .browser-only { display: none !important; }
+
+  /* In standalone, the top status bar is transparent so 
+     we need to ensure content sits below it */
+  .kfl-topbar {
+    background: var(--kfl-surface);
+  }
+}
+
+/* ── 12. PAGE TRANSITION FADE ───────────────────────────── */
+/* pwa.js handles the JS side; this is the CSS receiver */
+body {
+  transition: opacity 0.15s ease;
+}
+
+/* ── 13. OVERSCROLL GLOW — matches app color ────────────── */
+html {
+  background: var(--kfl-bg, #0d1520);
+  /* This color shows when you overscroll past the page edges */
+}
+
+/* ── 14. BOTTOM NAV BAR CLEARANCE (if you add one later) ── */
+/* .page-content { padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)); } */
