@@ -137,30 +137,114 @@
   // Allow momentum scrolling on iOS
   document.documentElement.style.webkitOverflowScrolling = 'touch';
 
-  /* ── 7. NATIVE-FEEL: Page transitions ───────────────── */
-  // Instant page switch with a subtle fade — no progress bar, no jank
+  /* ── 7. NATIVE-FEEL: SPA navigation — kills the progress bar ── */
+  // Intercept all local link clicks, fetch the new page silently,
+  // swap the content and push to History API. The browser never
+  // triggers a real navigation, so the loading progress bar never appears.
+
+  const _pageCache = new Map();
+  let   _navigating = false;
+
+  async function kflNavigate(href) {
+    if (_navigating) return;
+    _navigating = true;
+
+    const main = document.querySelector('.page-content') || document.body;
+    main.style.transition = 'opacity 0.1s ease';
+    main.style.opacity    = '0.55';
+
+    try {
+      let html = _pageCache.get(href);
+      if (!html) {
+        const res = await fetch(href);
+        if (!res.ok) throw new Error('fetch failed');
+        html = await res.text();
+        _pageCache.set(href, html);
+      }
+
+      const parser = new DOMParser();
+      const newDoc = parser.parseFromString(html, 'text/html');
+
+      // Update title
+      document.title = newDoc.title;
+
+      // Swap page-specific <style> blocks
+      document.querySelectorAll('head style[data-page]').forEach(s => s.remove());
+      newDoc.querySelectorAll('head style').forEach(s => {
+        const clone = s.cloneNode(true);
+        clone.setAttribute('data-page', '1');
+        document.head.appendChild(clone);
+      });
+
+      // Swap main content
+      const newMain = newDoc.querySelector('.page-content');
+      const curMain = document.querySelector('.page-content');
+      if (newMain && curMain) {
+        curMain.innerHTML = newMain.innerHTML;
+      } else {
+        // Fallback: full body swap except nav
+        const newBody = newDoc.body.innerHTML;
+        document.body.innerHTML = newBody;
+      }
+
+      // Push URL
+      history.pushState({ href }, document.title, href);
+
+      // Re-execute inline scripts in the new content
+      const scripts = (curMain || document.body).querySelectorAll('script');
+      scripts.forEach(old => {
+        const s = document.createElement('script');
+        if (old.src) { s.src = old.src; s.defer = true; }
+        else s.textContent = old.textContent;
+        old.replaceWith(s);
+      });
+
+      // Re-init nav active pills
+      if (typeof loadNav === 'function') loadNav();
+
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      (curMain || document.body).style.opacity = '1';
+
+    } catch {
+      // Hard fallback — real navigation, progress bar shows once but page loads
+      window.location.href = href;
+    } finally {
+      _navigating = false;
+    }
+  }
+
+  // Capture all local link clicks (capture:true catches nav.js links too)
   document.addEventListener('click', e => {
     const link = e.target.closest('a[href]');
     if (!link) return;
-
     const href = link.getAttribute('href');
-    // Only local nav links
-    if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('mailto')) return;
+    if (!href || href.startsWith('http') || href.startsWith('#') ||
+        href.startsWith('mailto') || href.startsWith('tel')) return;
     if (link.target === '_blank') return;
-    if (e.metaKey || e.ctrlKey || e.shiftKey) return;
-
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
+    kflNavigate(href);
+  }, true);
 
-    // Subtle fade-out on exit
-    document.body.style.transition = 'opacity 0.12s ease';
-    document.body.style.opacity    = '0.85';
-
-    setTimeout(() => {
-      window.location.href = href;
-    }, 80);
+  // Browser back/forward — no page load
+  window.addEventListener('popstate', e => {
+    kflNavigate(e.state?.href || window.location.pathname + window.location.search);
   });
 
-  // Fade back in on page load
+  // Prefetch on hover/touch so navigation feels instant
+  function _prefetch(href) {
+    if (!href || _pageCache.has(href) || href.startsWith('http') ||
+        href.startsWith('#') || href.startsWith('mailto')) return;
+    fetch(href).then(r => r.text()).then(h => _pageCache.set(href, h)).catch(() => {});
+  }
+  document.addEventListener('mouseover', e => {
+    const a = e.target.closest('a[href]'); if (a) _prefetch(a.getAttribute('href'));
+  });
+  document.addEventListener('touchstart', e => {
+    const a = e.target.closest('a[href]'); if (a) _prefetch(a.getAttribute('href'));
+  }, { passive: true });
+
+  // Fade in on first cold load
   window.addEventListener('pageshow', () => {
     document.body.style.opacity    = '1';
     document.body.style.transition = 'opacity 0.15s ease';
