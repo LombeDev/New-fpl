@@ -1,57 +1,55 @@
 (function () {
   'use strict';
 
-  // 1. TOP BAR LINKS (Row 1 - Used for Desktop/Logic)
-  const TOP_LINKS = [
-    { href: 'index.html', label: 'Home',  icon: 'fa-house' },
-    { href: 'squad.html', label: 'Squad', icon: 'fa-shirt' }
-  ];
-
-  // 2. SUB-NAV LINKS (Row 2 - The Pills seen in Capture2.PNG)
+  // 1. SUB-NAV LINKS (Row 2 — The Pills)
   const SUB_NAV_LINKS = [
-    { href: 'index.html',   label: 'Summary',  icon: 'fa-chart-simple' },
-    { href: 'squad.html',     label: 'Squad',    icon: 'fa-futbol' },
-    { href: 'captains.html',  label: 'Captains', icon: 'fa-star' },
-    { href: 'games.html',     label: 'Live',     icon: 'fa-circle' } // Icon for the red dot
+    { href: 'index.html',    label: 'Summary',  icon: 'fa-chart-simple' },
+    { href: 'squad.html',    label: 'Squad',    icon: 'fa-futbol' },
+    { href: 'captains.html', label: 'Captains', icon: 'fa-star' },
+    { href: 'games.html',    label: 'Live',     icon: 'fa-circle' }
   ];
 
-  // 3. DRAWER LINKS (Hamburger Menu - Capture.PNG & c2.PNG)
+  // 2. DRAWER LINKS (Hamburger Menu)
   const DRAWER_LINKS = [
     { href: 'index.html',   label: 'Home',     icon: 'fa-house' },
     { href: 'leagues.html', label: 'Leagues',  icon: 'fa-trophy' },
     { href: 'prices.html',  label: 'Prices',   icon: 'fa-dollar-sign' },
     { href: 'games.html',   label: 'Games',    icon: 'fa-futbol' },
-    
   ];
 
-  // --- HELPERS ---
+  // ── HELPERS ──────────────────────────────────────────────
   function currentPage() {
     return window.location.pathname.split('/').pop() || 'index.html';
   }
-  function isActive(href) { return href === currentPage(); }
 
-  // Matches the refined Logo CSS
+  function isActive(href) {
+    return href === currentPage();
+  }
+
   function logoHTML() {
     return `
-      <a href="index.html" class="kfl-logo">
+      <a href="index.html" class="kfl-logo" aria-label="Kopala FPL Home">
         <div class="kfl-logo__box">
-          <img src="logo.png" alt="Kopala FPL" class="kfl-logo__img">
+          <img src="logo.png" alt="Kopala FPL" class="kfl-logo__img"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+          <span class="kfl-logo__text" style="display:none">Kopala <span>FPL</span></span>
         </div>
       </a>`;
   }
 
-  // --- BUILDERS ---
+  // ── BUILDERS ─────────────────────────────────────────────
 
   function buildTopbar() {
     return `
-      <header class="kfl-topbar">
+      <header class="kfl-topbar" role="banner">
         ${logoHTML()}
         <div class="kfl-topbar__right">
-          <button class="kfl-theme-toggle" id="theme-toggle" title="Toggle Theme">
-            <i class="fa-solid fa-sun" id="theme-icon"></i>
+          <button class="kfl-theme-toggle" id="theme-toggle" title="Toggle Theme" aria-label="Toggle dark/light mode">
+            <i class="fa-solid fa-sun" id="theme-icon" aria-hidden="true"></i>
           </button>
-          <button class="kfl-hamburger" id="hamburger" title="Open Menu">
-            <i class="fa-solid fa-bars"></i>
+          <button class="kfl-hamburger" id="hamburger" title="Open Menu"
+                  aria-label="Open navigation menu" aria-expanded="false" aria-controls="kfl-drawer">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
           </button>
         </div>
       </header>`;
@@ -59,72 +57,143 @@
 
   function buildSubNav() {
     const links = SUB_NAV_LINKS.map(l => `
-      <a href="${l.href}" class="kfl-subnav__link ${isActive(l.href) ? 'is-active' : ''}">
-        <i class="fa-solid ${l.icon}"></i>
-        <span>${l.label}</span>
-      </a>`).join('');
-    
-    return `<nav class="kfl-subnav"><div class="kfl-subnav__inner">${links}</div></nav>`;
-  }
-
-  function buildDrawer() {
-    const drawerItems = DRAWER_LINKS.map(l => `
-      <a href="${l.href}" class="kfl-drawer__link ${isActive(l.href) ? 'is-active' : ''}">
-        <div class="kfl-drawer__icon-box"><i class="fa-solid ${l.icon}"></i></div>
+      <a href="${l.href}"
+         class="kfl-subnav__link${isActive(l.href) ? ' is-active' : ''}"
+         ${isActive(l.href) ? 'aria-current="page"' : ''}>
+        <i class="fa-solid ${l.icon}" aria-hidden="true"></i>
         <span>${l.label}</span>
       </a>`).join('');
 
     return `
-      <div class="kfl-overlay" id="kfl-overlay"></div>
-      <div class="kfl-drawer" id="kfl-drawer">
+      <nav class="kfl-subnav" aria-label="Primary navigation">
+        <div class="kfl-subnav__inner">${links}</div>
+      </nav>`;
+  }
+
+  function buildDrawer() {
+    const drawerItems = DRAWER_LINKS.map(l => `
+      <a href="${l.href}"
+         class="kfl-drawer__link${isActive(l.href) ? ' is-active' : ''}"
+         ${isActive(l.href) ? 'aria-current="page"' : ''}>
+        <div class="kfl-drawer__icon-box" aria-hidden="true">
+          <i class="fa-solid ${l.icon}"></i>
+        </div>
+        <span>${l.label}</span>
+      </a>`).join('');
+
+    return `
+      <div class="kfl-overlay" id="kfl-overlay" role="presentation"></div>
+      <nav class="kfl-drawer" id="kfl-drawer" aria-label="Drawer navigation" aria-hidden="true">
         <div class="kfl-drawer__head">
           ${logoHTML()}
-          <button id="drawer-close" title="Close Menu"><i class="fa-solid fa-xmark"></i></button>
+          <button id="drawer-close" title="Close Menu" aria-label="Close navigation menu">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
         </div>
         <div class="kfl-drawer__content">
-          <p class="kfl-drawer__section-title">EXPLORE</p>
+          <p class="kfl-drawer__section-title" aria-hidden="true">Explore</p>
           ${drawerItems}
-          <div class="kfl-drawer__divider"></div>
-          <button class="kfl-drawer__link" id="change-id-btn">
-            <div class="kfl-drawer__icon-box"><i class="fa-solid fa-right-from-bracket"></i></div>
+          <button class="kfl-drawer__link" id="change-id-btn" type="button">
+            <div class="kfl-drawer__icon-box" aria-hidden="true">
+              <i class="fa-solid fa-right-from-bracket"></i>
+            </div>
             <span>Change Team ID</span>
           </button>
         </div>
-      </div>`;
+      </nav>`;
   }
 
-  // --- LOGIC ---
+  // ── THEME ─────────────────────────────────────────────────
   function setupTheme() {
     const htmlEl = document.documentElement;
-    const btn = document.getElementById('theme-toggle');
-    const icon = document.getElementById('theme-icon');
+    const btn    = document.getElementById('theme-toggle');
+    const icon   = document.getElementById('theme-icon');
     if (!btn) return;
-    const apply = (t) => {
+
+    function applyTheme(t) {
       htmlEl.setAttribute('data-theme', t);
-      if (icon) icon.className = t === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+      if (icon) {
+        // swap icon with a little spin
+        icon.style.transform = 'rotate(360deg) scale(0.5)';
+        icon.style.opacity   = '0';
+        setTimeout(() => {
+          icon.className = t === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+          icon.style.transform = '';
+          icon.style.opacity   = '';
+        }, 180);
+      }
       localStorage.setItem('kopala_theme', t);
+    }
+
+    // Smooth icon transition
+    if (icon) {
+      icon.style.transition = 'transform 0.18s ease, opacity 0.18s ease';
+    }
+
+    const saved = localStorage.getItem('kopala_theme') ||
+                  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    applyTheme(saved);
+
+    btn.onclick = () => {
+      const next = htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
     };
-    const current = localStorage.getItem('kopala_theme') || 'light';
-    apply(current);
-    btn.onclick = () => apply(htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
   }
 
+  // ── DRAWER ───────────────────────────────────────────────
   function setupDrawer() {
-    const drawer = document.getElementById('kfl-drawer');
+    const drawer  = document.getElementById('kfl-drawer');
     const overlay = document.getElementById('kfl-overlay');
     const openBtn = document.getElementById('hamburger');
     const closeBtn = document.getElementById('drawer-close');
     if (!drawer || !openBtn) return;
-    const toggle = (state) => {
+
+    function toggle(state) {
       drawer.classList.toggle('is-open', state);
       overlay.classList.toggle('is-open', state);
+      drawer.setAttribute('aria-hidden', String(!state));
+      openBtn.setAttribute('aria-expanded', String(state));
       document.body.style.overflow = state ? 'hidden' : '';
-    };
-    openBtn.onclick = () => toggle(true);
-    if (closeBtn) closeBtn.onclick = () => toggle(false);
-    if (overlay) overlay.onclick = () => toggle(false);
+
+      // Trap focus when open
+      if (state && closeBtn) {
+        setTimeout(() => closeBtn.focus(), 320);
+      }
+    }
+
+    openBtn.onclick  = () => toggle(true);
+    closeBtn?.addEventListener('click', () => toggle(false));
+    overlay?.addEventListener('click', () => toggle(false));
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && drawer.classList.contains('is-open')) {
+        toggle(false);
+        openBtn.focus();
+      }
+    });
   }
 
+  // ── SUBNAV: scroll active pill into view ────────────────
+  function scrollActiveIntoView() {
+    const active = document.querySelector('.kfl-subnav__link.is-active');
+    if (active) {
+      active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    }
+  }
+
+  // ── RIPPLE on pill tap (mobile feel) ────────────────────
+  function setupRipples() {
+    document.querySelectorAll('.kfl-subnav__link').forEach(link => {
+      link.addEventListener('click', function (e) {
+        // Instant visual feedback
+        this.style.transform = 'scale(0.96)';
+        setTimeout(() => { this.style.transform = ''; }, 150);
+      });
+    });
+  }
+
+  // ── INIT ─────────────────────────────────────────────────
   function loadNav() {
     const placeholder = document.getElementById('nav-placeholder');
     if (!placeholder) return;
@@ -133,13 +202,15 @@
 
     setupTheme();
     setupDrawer();
-    
-    // Re-bind click for ID button
+    scrollActiveIntoView();
+    setupRipples();
+
+    // Change team ID
     document.getElementById('change-id-btn')?.addEventListener('click', () => {
-       if (confirm('Change your Team ID?')) {
-         localStorage.removeItem('kopala_id');
-         window.location.href = 'index.html';
-       }
+      if (confirm('Are you sure you want to change your Team ID?')) {
+        localStorage.removeItem('kopala_id');
+        window.location.href = 'index.html';
+      }
     });
   }
 
@@ -148,4 +219,5 @@
   } else {
     loadNav();
   }
+
 })();
