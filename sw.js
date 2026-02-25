@@ -3,16 +3,14 @@
    Strategy: Network-first for HTML, cache-first for assets
    ============================================================ */
 
-const CACHE_NAME    = 'kopala-fpl-v2';
-const RUNTIME_CACHE = 'kopala-runtime-v2';
+const CACHE_NAME    = 'kopala-fpl-v3';
+const RUNTIME_CACHE = 'kopala-runtime-v3';
 
-// App shell — everything needed to render offline
+// Static assets only — HTML pages are intentionally excluded.
+// pwa.js owns all HTML fetching (network-first + in-memory cache).
+// Including HTML here caused the SW to serve stale markup even
+// when the network was available — that was the stale-page bug.
 const PRECACHE_URLS = [
-  '/',
-  '/index.html',
-  '/leagues.html',
-  '/prices.html',
-  '/games.html',
   '/style.css',
   '/nav.css',
   '/nav.js',
@@ -92,12 +90,13 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // HTML documents → network-first (matches pwa.js intent)
-  // Falls back to cache when offline so the app still works.
-  if (request.destination === 'document') {
-    event.respondWith(networkFirst(request, CACHE_NAME, 300));
-    return;
-  }
+  // ── BYPASS: HTML documents are owned entirely by pwa.js ──
+  // pwa.js fetches HTML with cache:'no-store' (already bypassed above
+  // by the request.cache check), but direct browser navigations
+  // (cold loads, refreshes) have destination:'document' and no
+  // cache override. Let those pass through to the network normally
+  // so the browser always gets fresh HTML on a hard load.
+  if (request.destination === 'document') return;
 
   // CSS / JS / images / other same-origin assets → cache-first
   // These are versioned/hashed by Netlify, so stale = correct.
@@ -149,10 +148,6 @@ async function networkFirst(request, cacheName, ttlSeconds = 60) {
   } catch {
     const cached = await caches.match(request);
     if (cached) return cached; // serve stale when offline
-    // Offline fallback for navigation
-    if (request.destination === 'document') {
-      return caches.match('/index.html');
-    }
     return new Response(JSON.stringify({ error: 'offline' }), {
       status:  503,
       headers: { 'Content-Type': 'application/json' },
