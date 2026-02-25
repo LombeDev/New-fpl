@@ -138,9 +138,10 @@
   document.documentElement.style.webkitOverflowScrolling = 'touch';
 
   /* ── 7. NATIVE-FEEL: SPA navigation — kills the progress bar ── */
-  // Intercept all local link clicks, fetch the new page silently,
-  // swap the content and push to History API. The browser never
-  // triggers a real navigation, so the loading progress bar never appears.
+  // Strategy: fetch the new page HTML, then use document.open/write to
+  // replace the entire document. This runs ALL scripts exactly as a real
+  // page load would — DOMContentLoaded fires, <head> scripts load, data
+  // fetches run — but the browser never navigates so no progress bar appears.
 
   const _pageCache = new Map();
   let   _navigating = false;
@@ -149,6 +150,7 @@
     if (_navigating) return;
     _navigating = true;
 
+    // Subtle dim to signal something is happening
     const main = document.querySelector('.page-content') || document.body;
     main.style.transition = 'opacity 0.1s ease';
     main.style.opacity    = '0.55';
@@ -157,63 +159,30 @@
       let html = _pageCache.get(href);
       if (!html) {
         const res = await fetch(href);
-        if (!res.ok) throw new Error('fetch failed');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         html = await res.text();
         _pageCache.set(href, html);
       }
 
-      const parser = new DOMParser();
-      const newDoc = parser.parseFromString(html, 'text/html');
+      // Push URL BEFORE the document replace so history is correct
+      history.pushState({ href }, '', href);
 
-      // Update title
-      document.title = newDoc.title;
+      // document.open/write completely replaces the document — every script
+      // in <head> and <body> runs fresh, DOMContentLoaded fires, exactly
+      // like a real page load. No manual script re-execution needed.
+      document.open();
+      document.write(html);
+      document.close();
 
-      // Swap page-specific <style> blocks
-      document.querySelectorAll('head style[data-page]').forEach(s => s.remove());
-      newDoc.querySelectorAll('head style').forEach(s => {
-        const clone = s.cloneNode(true);
-        clone.setAttribute('data-page', '1');
-        document.head.appendChild(clone);
-      });
-
-      // Swap main content
-      const newMain = newDoc.querySelector('.page-content');
-      const curMain = document.querySelector('.page-content');
-      if (newMain && curMain) {
-        curMain.innerHTML = newMain.innerHTML;
-      } else {
-        // Fallback: full body swap except nav
-        const newBody = newDoc.body.innerHTML;
-        document.body.innerHTML = newBody;
-      }
-
-      // Push URL
-      history.pushState({ href }, document.title, href);
-
-      // Re-execute inline scripts in the new content
-      const scripts = (curMain || document.body).querySelectorAll('script');
-      scripts.forEach(old => {
-        const s = document.createElement('script');
-        if (old.src) { s.src = old.src; s.defer = true; }
-        else s.textContent = old.textContent;
-        old.replaceWith(s);
-      });
-
-      // Re-init nav active pills
-      if (typeof loadNav === 'function') loadNav();
-
-      window.scrollTo({ top: 0, behavior: 'instant' });
-      (curMain || document.body).style.opacity = '1';
-
-    } catch {
-      // Hard fallback — real navigation, progress bar shows once but page loads
+    } catch (err) {
+      console.warn('[KFL] Navigate failed, falling back:', err);
       window.location.href = href;
     } finally {
       _navigating = false;
     }
   }
 
-  // Capture all local link clicks (capture:true catches nav.js links too)
+  // Intercept all local link clicks (capture phase catches nav.js links too)
   document.addEventListener('click', e => {
     const link = e.target.closest('a[href]');
     if (!link) return;
@@ -228,20 +197,24 @@
 
   // Browser back/forward — no page load
   window.addEventListener('popstate', e => {
-    kflNavigate(e.state?.href || window.location.pathname + window.location.search);
+    const href = e.state?.href || window.location.pathname + window.location.search;
+    // Only intercept if it's a state we pushed (avoid double-firing on first load)
+    if (e.state?.href) kflNavigate(href);
   });
 
-  // Prefetch on hover/touch so navigation feels instant
+  // Prefetch on hover/touchstart so the fetch is already done by tap time
   function _prefetch(href) {
     if (!href || _pageCache.has(href) || href.startsWith('http') ||
-        href.startsWith('#') || href.startsWith('mailto')) return;
+        href.startsWith('#') || href.startsWith('mailto') || href.startsWith('tel')) return;
     fetch(href).then(r => r.text()).then(h => _pageCache.set(href, h)).catch(() => {});
   }
   document.addEventListener('mouseover', e => {
-    const a = e.target.closest('a[href]'); if (a) _prefetch(a.getAttribute('href'));
+    const a = e.target.closest('a[href]');
+    if (a) _prefetch(a.getAttribute('href'));
   });
   document.addEventListener('touchstart', e => {
-    const a = e.target.closest('a[href]'); if (a) _prefetch(a.getAttribute('href'));
+    const a = e.target.closest('a[href]');
+    if (a) _prefetch(a.getAttribute('href'));
   }, { passive: true });
 
   // Fade in on first cold load
