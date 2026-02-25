@@ -131,6 +131,10 @@
   // it injects HTML into the *existing* JS scope, so any const/let in the
   // fetched page collides with variables already declared in this session.
   // DOMParser parses into a detached document — no scope collision at all.
+  //
+  // Strategy: NETWORK-FIRST — always attempt a fresh fetch. Only fall back
+  // to the in-memory cache when the network request fails (offline / timeout).
+  // This ensures users always get the latest HTML while still working offline.
 
   const _pageCache = new Map();
   let   _navigating = false;
@@ -144,12 +148,18 @@
     main.style.opacity    = '0.55';
 
     try {
-      let html = _pageCache.get(href);
-      if (!html) {
-        const res = await fetch(href);
+      // Network-first: always try to fetch fresh HTML
+      let html = null;
+      try {
+        const res = await fetch(href, { cache: 'no-store' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         html = await res.text();
-        _pageCache.set(href, html);
+        _pageCache.set(href, html); // update cache with fresh copy
+      } catch (netErr) {
+        // Network failed — fall back to cached version if we have one
+        html = _pageCache.get(href);
+        if (!html) throw netErr; // nothing cached either → hard fallback
+        console.info('[KFL] Offline — serving cached:', href);
       }
 
       history.pushState({ href }, '', href);
@@ -301,7 +311,43 @@
     }
   }
 
-  /* ── 12. STYLES: install toast & nudge ──────────────── */
+  /* ── 12. WARM CACHE on login ────────────────────────── */
+  // Pre-fetch the four core app pages in the background immediately after
+  // the current page loads. Uses requestIdleCallback so it never competes
+  // with the initial render or any data fetches on the landing page.
+  // cache:'no-store' keeps the SW out of the loop — we manage this cache.
+  const WARM_PAGES = [
+    '/index.html',
+    '/leagues.html',
+    '/games.html',
+    '/prices.html',
+  ];
+
+  function _warmCache() {
+    WARM_PAGES.forEach(href => {
+      if (_pageCache.has(href) || _deadLinks.has(href)) return;
+      _deadLinks.add(href); // in-flight guard
+      fetch(href, { cache: 'no-store' })
+        .then(r => {
+          if (!r.ok) return; // page doesn't exist — stay in deadLinks
+          _deadLinks.delete(href);
+          return r.text().then(h => {
+            _pageCache.set(href, h);
+            console.info('[KFL] Warmed:', href);
+          });
+        })
+        .catch(() => {}); // network error — stays in deadLinks this session
+    });
+  }
+
+  // Fire after the page is interactive and idle — don't block anything
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(_warmCache, { timeout: 3000 });
+  } else {
+    setTimeout(_warmCache, 1500);
+  }
+
+  /* ── 13. STYLES: install toast & nudge ──────────────── */
   const pwaStyles = document.createElement('style');
   pwaStyles.textContent = `
     /* Install Toast */
