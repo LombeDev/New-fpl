@@ -10,11 +10,9 @@ const RUNTIME_CACHE = 'kopala-runtime-v1';
 const PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/squad.html',
   '/leagues.html',
   '/prices.html',
   '/games.html',
-  '/captains.html',
   '/style.css',
   '/nav.css',
   '/nav.js',
