@@ -34,9 +34,16 @@ const PRECACHE_URLS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(
-        PRECACHE_URLS.filter(url => !url.startsWith('https://fonts.gstatic'))
+      // Cache each URL individually so one 404 never aborts the whole install
+      const attempts = PRECACHE_URLS.map(url =>
+        fetch(url, { cache: 'reload' })
+          .then(res => {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return cache.put(url, res);
+          })
+          .catch(err => console.warn('[SW] Skipped:', url, '-', err.message))
       );
+      return Promise.allSettled(attempts);
     }).then(() => self.skipWaiting())
   );
 });
