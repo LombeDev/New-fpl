@@ -238,18 +238,28 @@
   });
 
   /* ── 8. PREFETCH on hover/touchstart ────────────────── */
-  // HEAD check first — silently skips 404s without spamming the console
+  // Uses a single GET with cache:'no-store' so the service worker never
+  // intercepts it (avoids the Cache.put-HEAD crash in sw.js).
+  // Dead links are remembered in _deadLinks so each bad URL is only
+  // attempted once — no repeated 404 console noise on re-hover.
+  const _deadLinks = new Set();
+
   function _prefetch(href) {
-    if (!href || _pageCache.has(href)) return;
+    if (!href || _pageCache.has(href) || _deadLinks.has(href)) return;
     if (href.startsWith('http') || href.startsWith('#') ||
         href.startsWith('mailto') || href.startsWith('tel')) return;
 
-    fetch(href, { method: 'HEAD' })
+    // Mark as in-flight immediately so concurrent hover/touchstart events
+    // don't fire duplicate requests for the same URL
+    _deadLinks.add(href); // tentatively dead until proven otherwise
+
+    fetch(href, { cache: 'no-store' }) // 'no-store' bypasses SW interception
       .then(r => {
-        if (!r.ok) return; // 404/5xx → skip silently
-        return fetch(href).then(r2 => r2.text()).then(h => _pageCache.set(href, h));
+        if (!r.ok) return; // 404/5xx → stays in _deadLinks, never retried
+        _deadLinks.delete(href); // it's alive — remove from dead set
+        return r.text().then(h => _pageCache.set(href, h));
       })
-      .catch(() => {});
+      .catch(() => {}); // network error → stays in _deadLinks this session
   }
 
   document.addEventListener('mouseover', e => {
