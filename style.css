@@ -1,8 +1,7 @@
 /* ============================================================
    KOPALA FPL — GLOBAL DESIGN SYSTEM
-   Font: Barlow Condensed (headings/numbers)
-         DM Sans (body)
-   All colors use --kfl-* variables for light/dark theme support
+   Merged from style.css + pwa.css (conflicts resolved)
+   Font: Barlow Condensed (headings/numbers) · DM Sans (body)
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap');
@@ -11,7 +10,7 @@
    1. THEME TOKENS
    ============================================================ */
 
-/* ── LIGHT THEME ──────────────────────────────────────────── */
+/* ── LIGHT ───────────────────────────────────────────────── */
 [data-theme="light"], :root:not([data-theme]) {
   --kfl-bg:           #f0f2f5;
   --kfl-surface:      #ffffff;
@@ -31,14 +30,13 @@
   --kfl-hover-bg:     rgba(0,0,0,0.04);
   --kfl-logo-box:     #18181b;
   --kfl-logo-border:  transparent;
-
-  /* Manager header gradient — light uses subtle grey */
-  --kfl-manager-grad:  linear-gradient(180deg, #e6eaef 0%, #f0f2f5 100%);
-  /* Deadline banner — keep the purple on light, looks great */
-  --kfl-deadline-grad: linear-gradient(90deg, #37003c, #6b0075);
+  --kfl-manager-grad: linear-gradient(180deg, #e6eaef 0%, #f0f2f5 100%);
+  --kfl-deadline-grad:linear-gradient(90deg, #37003c, #6b0075);
+  /* theme-color for PWA status bar */
+  --kfl-status-bar:   #ffffff;
 }
 
-/* ── DARK THEME — Telegram Night Mode ────────────────────── */
+/* ── DARK — Telegram Night Mode ──────────────────────────── */
 [data-theme="dark"] {
   --kfl-bg:           #17212b;
   --kfl-surface:      #232e3c;
@@ -58,38 +56,31 @@
   --kfl-hover-bg:     rgba(255,255,255,0.07);
   --kfl-logo-box:     #2b3a4a;
   --kfl-logo-border:  rgba(255,255,255,0.10);
-
-  /* Manager header gradient — dark uses navy tones */
-  --kfl-manager-grad:  linear-gradient(180deg, #1e2d3e 0%, #17212b 100%);
-  /* Deadline banner — same purple works in dark too */
-  --kfl-deadline-grad: linear-gradient(90deg, #37003c, #6b0075);
+  --kfl-manager-grad: linear-gradient(180deg, #1e2d3e 0%, #17212b 100%);
+  --kfl-deadline-grad:linear-gradient(90deg, #37003c, #6b0075);
+  --kfl-status-bar:   #17212b;
 }
 
-/* ── STATIC TOKENS (identical in both themes) ─────────────── */
+/* ── STATIC TOKENS ───────────────────────────────────────── */
 :root {
-  /* Position colors */
   --pos-gk:   #f59e0b;
   --pos-def:  #22c55e;
   --pos-mid:  #3b82f6;
   --pos-fwd:  #ef4444;
 
-  /* Semantic accents */
   --red:   #ef4444;
   --amber: #f59e0b;
 
-  /* Layout */
   --kfl-topbar-h: 56px;
   --kfl-tabbar-h: 52px;
   --kfl-bottom-h: 62px;
   --sidebar-w:    240px;
 
-  /* Radius */
   --r-sm: 8px;
   --r-md: 12px;
   --r-lg: 16px;
   --r-xl: 20px;
 
-  /* Motion */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -98,7 +89,17 @@
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+html {
+  /* Fills notch/Dynamic Island on iOS */
+  height: -webkit-fill-available;
+  scroll-behavior: smooth;
+  /* Prevents double-tap zoom without disabling pinch-zoom */
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Overscroll glow colour matches app bg */
+  background: var(--kfl-bg);
+}
 
 body {
   font-family: 'DM Sans', system-ui, sans-serif;
@@ -107,10 +108,30 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  /* Offset for fixed top bars */
-  padding-top: calc(var(--kfl-topbar-h) + var(--kfl-tabbar-h));
-  /* Offset for mobile bottom nav */
-  padding-bottom: calc(var(--kfl-bottom-h) + env(safe-area-inset-bottom));
+
+  /* Safe-area-aware top padding: fixed topbar + tabbar + notch */
+  padding-top: calc(
+    var(--kfl-topbar-h) +
+    var(--kfl-tabbar-h) +
+    env(safe-area-inset-top, 0px)
+  );
+  /* Safe-area-aware bottom padding: home indicator */
+  padding-bottom: calc(var(--kfl-bottom-h) + env(safe-area-inset-bottom, 0px));
+
+  /* Left/right safe areas (landscape notch) */
+  padding-left:  env(safe-area-inset-left,  0px);
+  padding-right: env(safe-area-inset-right, 0px);
+
+  /* Native scroll feel */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+
+  /* Minimum full-height on iOS */
+  min-height: -webkit-fill-available;
+
+  /* No grey flash on tap */
+  -webkit-tap-highlight-color: transparent;
+
   transition: background-color 0.22s ease, color 0.22s ease;
 }
 
@@ -119,7 +140,14 @@ body {
 }
 
 a      { text-decoration: none; color: inherit; }
-img    { display: block; max-width: 100%; }
+img    {
+  display: block;
+  max-width: 100%;
+  -webkit-user-drag: none;
+  user-select: none;
+  /* Sharp rendering on high-DPI screens */
+  image-rendering: -webkit-optimize-contrast;
+}
 button { font-family: inherit; cursor: pointer; }
 
 /* ============================================================
@@ -220,7 +248,6 @@ button { font-family: inherit; cursor: pointer; }
   overflow-x: auto;
   padding: 16px 16px 0;
   scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 .stat-chips-row::-webkit-scrollbar { display: none; }
 
@@ -254,7 +281,6 @@ button { font-family: inherit; cursor: pointer; }
   transition: color 0.22s;
 }
 
-/* Highlighted chip — solid green pill */
 .stat-chip--highlight {
   background: var(--kfl-green);
   border-color: transparent;
@@ -348,12 +374,8 @@ button { font-family: inherit; cursor: pointer; }
   padding: 16px;
 }
 
-@media (min-width: 480px) {
-  .player-grid { grid-template-columns: repeat(4, 1fr); }
-}
-@media (min-width: 680px) {
-  .player-grid { grid-template-columns: repeat(5, 1fr); }
-}
+@media (min-width: 480px) { .player-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 680px) { .player-grid { grid-template-columns: repeat(5, 1fr); } }
 
 .player-card {
   background: var(--kfl-surface);
@@ -371,7 +393,6 @@ button { font-family: inherit; cursor: pointer; }
   cursor: pointer;
 }
 
-/* Position colour strip */
 .player-card::before {
   content: '';
   position: absolute;
@@ -389,13 +410,9 @@ button { font-family: inherit; cursor: pointer; }
   background: var(--kfl-surface-3);
 }
 
-.player-card.is-bench {
-  opacity: 0.45;
-  border-style: dashed;
-}
+.player-card.is-bench { opacity: 0.45; border-style: dashed; }
 .player-card.is-bench::before { opacity: 0.4; }
 
-/* Captain / VC badge */
 .player-badge {
   position: absolute;
   top: 6px; right: 6px;
@@ -409,13 +426,11 @@ button { font-family: inherit; cursor: pointer; }
   font-weight: 900;
   line-height: 1;
 }
-
 .player-badge--captain {
   background: var(--kfl-green);
   color: var(--kfl-pill-fg);
   transition: background 0.22s, color 0.22s;
 }
-
 .player-badge--vice {
   background: var(--kfl-surface-3);
   color: var(--kfl-text-1);
@@ -423,19 +438,16 @@ button { font-family: inherit; cursor: pointer; }
   transition: background 0.22s, color 0.22s, border-color 0.22s;
 }
 
-/* Shirt */
 .player-card__shirt {
   width: 38px;
   height: auto;
   filter: drop-shadow(0 3px 6px rgba(0,0,0,0.25));
   margin-top: 4px;
 }
-
 [data-theme="dark"] .player-card__shirt {
   filter: drop-shadow(0 3px 8px rgba(0,0,0,0.55));
 }
 
-/* Name */
 .player-card__name {
   font-size: 0.6rem;
   font-weight: 700;
@@ -450,7 +462,6 @@ button { font-family: inherit; cursor: pointer; }
   transition: color 0.22s;
 }
 
-/* Points */
 .player-card__pts {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 1.1rem;
@@ -459,10 +470,8 @@ button { font-family: inherit; cursor: pointer; }
   line-height: 1;
   transition: color 0.22s;
 }
-
 .player-card__pts--zero { color: var(--kfl-text-3); }
 
-/* Ownership bar */
 .player-card__ownership {
   width: calc(100% - 8px);
   height: 3px;
@@ -471,7 +480,6 @@ button { font-family: inherit; cursor: pointer; }
   overflow: hidden;
   transition: background 0.22s;
 }
-
 .player-card__ownership-fill {
   height: 100%;
   background: var(--kfl-text-3);
@@ -489,14 +497,12 @@ button { font-family: inherit; cursor: pointer; }
   padding: 8px 16px;
   margin: 4px 0;
 }
-
 .bench-divider__line {
   flex: 1;
   height: 1px;
   background: var(--kfl-border);
   transition: background 0.22s;
 }
-
 .bench-divider__label {
   font-size: 0.65rem;
   font-weight: 700;
@@ -518,7 +524,6 @@ button { font-family: inherit; cursor: pointer; }
   justify-content: space-between;
   gap: 12px;
 }
-
 .deadline-banner__label {
   font-size: 0.65rem;
   font-weight: 700;
@@ -526,14 +531,12 @@ button { font-family: inherit; cursor: pointer; }
   text-transform: uppercase;
   color: rgba(255,255,255,0.6);
 }
-
 .deadline-banner__time {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 1rem;
   font-weight: 800;
   color: #ffffff;
 }
-
 .deadline-banner__gw {
   font-size: 0.7rem;
   font-weight: 600;
@@ -560,14 +563,12 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 .login-hero {
-  /* Purple gradient — same in both themes, looks intentional on dark */
   background: linear-gradient(135deg, #37003c 0%, #0d0d0d 100%);
   padding: 60px 24px 40px;
   text-align: center;
   position: relative;
   overflow: hidden;
 }
-
 .login-hero::before {
   content: '';
   position: absolute;
@@ -583,7 +584,6 @@ button { font-family: inherit; cursor: pointer; }
   color: #ffffff;
   position: relative;
 }
-
 .login-hero__wordmark span { color: var(--kfl-green); }
 
 .login-hero__sub {
@@ -599,7 +599,6 @@ button { font-family: inherit; cursor: pointer; }
   background: var(--kfl-bg);
   transition: background 0.22s;
 }
-
 .login-card h2 {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 1.6rem;
@@ -608,7 +607,6 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--kfl-text-1);
   transition: color 0.22s;
 }
-
 .login-card p {
   font-size: 0.85rem;
   color: var(--kfl-text-2);
@@ -624,15 +622,16 @@ button { font-family: inherit; cursor: pointer; }
   border-radius: var(--r-md);
   padding: 14px 16px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 1rem;
+  font-size: 16px; /* ≥16px prevents iOS zoom on focus */
   color: var(--kfl-text-1);
   outline: none;
+  -webkit-appearance: none;
+  appearance: none;
   transition: border-color 0.2s var(--ease), background 0.22s, color 0.22s;
 }
-
-.fpl-input:focus         { border-color: var(--kfl-green); }
-.fpl-input.error         { border-color: var(--red); background: rgba(239,68,68,0.06); }
-.fpl-input::placeholder  { color: var(--kfl-text-3); }
+.fpl-input:focus        { border-color: var(--kfl-green); }
+.fpl-input.error        { border-color: var(--red); background: rgba(239,68,68,0.06); }
+.fpl-input::placeholder { color: var(--kfl-text-3); }
 
 .error-msg {
   display: none;
@@ -655,7 +654,6 @@ button { font-family: inherit; cursor: pointer; }
   margin-top: 16px;
   transition: opacity 0.2s, transform 0.15s var(--ease), background 0.22s, color 0.22s;
 }
-
 .continue-btn:active   { transform: scale(0.98); opacity: 0.9; }
 .continue-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -676,9 +674,7 @@ button { font-family: inherit; cursor: pointer; }
 /* ============================================================
    13. TRANSFER CARDS
    ============================================================ */
-.transfers-section {
-  padding: 0 16px 16px;
-}
+.transfers-section { padding: 0 16px 16px; }
 
 .transfer-card {
   background: var(--kfl-surface);
@@ -691,42 +687,18 @@ button { font-family: inherit; cursor: pointer; }
   margin-bottom: 8px;
   transition: background 0.22s, border-color 0.22s;
 }
-
-.transfer-card__player-out {
-  flex: 1;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--red);
-  text-align: right;
-}
-
-.transfer-card__arrow {
-  color: var(--kfl-text-3);
-  font-size: 1rem;
-  transition: color 0.22s;
-}
-
-.transfer-card__player-in {
-  flex: 1;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--kfl-green);
-  transition: color 0.22s;
-}
-
+.transfer-card__player-out { flex: 1; font-size: 0.85rem; font-weight: 600; color: var(--red); text-align: right; }
+.transfer-card__arrow      { color: var(--kfl-text-3); font-size: 1rem; transition: color 0.22s; }
+.transfer-card__player-in  { flex: 1; font-size: 0.85rem; font-weight: 600; color: var(--kfl-green); transition: color 0.22s; }
 .transfer-card__cost {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 800;
+  font-size: 0.9rem; font-weight: 800;
   color: var(--red);
   background: rgba(239,68,68,0.10);
   border-radius: 100px;
   padding: 2px 8px;
 }
-
-[data-theme="dark"] .transfer-card__cost {
-  background: rgba(239,68,68,0.18);
-}
+[data-theme="dark"] .transfer-card__cost { background: rgba(239,68,68,0.18); }
 
 /* ============================================================
    14. GENERIC CARD
@@ -749,25 +721,16 @@ button { font-family: inherit; cursor: pointer; }
 /* ============================================================
    16. TABLE STYLES
    ============================================================ */
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-}
-
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 .data-table th {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
   color: var(--kfl-text-3);
-  padding: 10px 12px;
-  text-align: left;
+  padding: 10px 12px; text-align: left;
   border-bottom: 1px solid var(--kfl-border);
   transition: color 0.22s, border-color 0.22s;
 }
-
 .data-table td {
   padding: 12px;
   border-bottom: 1px solid var(--kfl-border);
@@ -775,7 +738,6 @@ button { font-family: inherit; cursor: pointer; }
   vertical-align: middle;
   transition: color 0.22s, border-color 0.22s;
 }
-
 .data-table tr:last-child td { border-bottom: none; }
 .data-table tr:hover td      { background: var(--kfl-hover-bg); }
 
@@ -788,20 +750,206 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--kfl-text-3);
   transition: color 0.22s;
 }
+.empty-state__icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4; }
+.empty-state__msg  { font-size: 0.9rem; line-height: 1.5; }
 
-.empty-state__icon {
-  font-size: 2.5rem;
-  margin-bottom: 12px;
-  opacity: 0.4;
-}
-
-.empty-state__msg {
-  font-size: 0.9rem;
-  line-height: 1.5;
+/* ============================================================
+   18. TAP TARGETS — native 44pt minimum
+   ============================================================ */
+.kfl-subnav__link,
+.kfl-drawer__link,
+.kfl-theme-toggle,
+.kfl-hamburger,
+button,
+[role="button"] {
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 /* ============================================================
-   18. DESKTOP ADJUSTMENTS
+   19. INPUTS — native iOS feel
+   ============================================================ */
+input, select, textarea {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
+}
+input[type="range"] {
+  -webkit-appearance: auto;
+  appearance: auto;
+}
+/* Prevent iOS zoom on focus — all text inputs must be ≥16px */
+input[type="text"],
+input[type="number"],
+input[type="search"],
+select {
+  font-size: 16px !important;
+}
+
+/* ============================================================
+   20. FOCUS RINGS
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--kfl-green);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+:focus:not(:focus-visible) { outline: none; }
+
+/* ============================================================
+   21. SELECTION COLOR
+   ============================================================ */
+::selection {
+  background: var(--kfl-green-dim);
+  color: var(--kfl-text-1);
+}
+
+/* ============================================================
+   22. FIXED ELEMENTS — safe area offsets
+   ============================================================ */
+.kfl-topbar {
+  padding-top: env(safe-area-inset-top, 0px);
+  height: calc(var(--kfl-topbar-h) + env(safe-area-inset-top, 0px));
+}
+
+.kfl-subnav {
+  top: calc(var(--kfl-topbar-h) + env(safe-area-inset-top, 0px));
+}
+
+footer, .kfl-footer, #footer-placeholder {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ============================================================
+   23. PWA INSTALL TOAST
+   ============================================================ */
+#kfl-install-toast {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+  left: 12px; right: 12px;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--kfl-surface);
+  border: 1px solid var(--kfl-border);
+  border-radius: 16px;
+  padding: 14px 14px 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 9999;
+  box-shadow: var(--kfl-shadow-md);
+  transform: translateY(120%);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease;
+}
+#kfl-install-toast.kfl-install-toast--visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+.kfl-install-toast__icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: var(--kfl-green-dim);
+  color: var(--kfl-green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+.kfl-install-toast__text { flex: 1; min-width: 0; }
+.kfl-install-toast__text strong {
+  display: block; font-size: 0.88rem; font-weight: 700;
+  color: var(--kfl-text-1); margin-bottom: 2px;
+}
+.kfl-install-toast__text span { font-size: 0.72rem; color: var(--kfl-text-3); }
+.kfl-install-toast__btn {
+  background: var(--kfl-green);
+  color: var(--kfl-pill-fg);
+  border: none; border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.8rem; font-weight: 700;
+  flex-shrink: 0; font-family: inherit;
+  transition: opacity 0.15s;
+}
+.kfl-install-toast__btn:hover { opacity: 0.85; }
+.kfl-install-toast__close {
+  background: none; border: none;
+  color: var(--kfl-text-3);
+  padding: 4px; font-size: 0.9rem;
+  flex-shrink: 0; transition: color 0.15s;
+}
+.kfl-install-toast__close:hover { color: var(--kfl-text-1); }
+
+/* ============================================================
+   24. PWA UPDATE NUDGE
+   ============================================================ */
+#kfl-update-nudge {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9998;
+  background: var(--kfl-green);
+  color: var(--kfl-pill-fg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  font-size: 0.8rem; font-weight: 600;
+}
+#kfl-update-btn {
+  background: rgba(0,0,0,0.15);
+  border: 1px solid rgba(0,0,0,0.2);
+  color: inherit;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.78rem; font-weight: 700;
+  font-family: inherit;
+}
+
+/* ============================================================
+   25. STANDALONE MODE TWEAKS
+   ============================================================ */
+@media (display-mode: standalone) {
+  .browser-only { display: none !important; }
+  .kfl-topbar   { background: var(--kfl-surface); }
+}
+
+/* ============================================================
+   26. SCROLLBARS — hidden on mobile, thin on desktop
+   ============================================================ */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar { display: none; }
+
+@media (min-width: 900px) {
+  .kfl-drawer__content {
+    scrollbar-width: thin;
+    scrollbar-color: var(--kfl-surface-3) transparent;
+  }
+  .kfl-drawer__content::-webkit-scrollbar       { display: block; width: 4px; }
+  .kfl-drawer__content::-webkit-scrollbar-track { background: transparent; }
+  .kfl-drawer__content::-webkit-scrollbar-thumb { background: var(--kfl-surface-3); border-radius: 2px; }
+}
+
+/* ============================================================
+   27. PAGE TRANSITION
+   ============================================================ */
+body { transition: background-color 0.22s ease, color 0.22s ease, opacity 0.15s ease; }
+
+/* ============================================================
+   28. REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1      !important;
+    transition-duration:       0.01ms !important;
+    scroll-behavior:           auto   !important;
+  }
+}
+
+/* ============================================================
+   29. DESKTOP ADJUSTMENTS
    ============================================================ */
 @media (min-width: 900px) {
   .page-content { padding-bottom: 40px; }
@@ -809,7 +957,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 /* ============================================================
-   19. UTILITY CLASSES
+   30. UTILITY CLASSES
    ============================================================ */
 .sr-only {
   position: absolute;
@@ -833,12 +981,3 @@ button { font-family: inherit; cursor: pointer; }
 .text-red    { color: var(--red)        !important; }
 .text-dim    { color: var(--kfl-text-2) !important; }
 .text-muted  { color: var(--kfl-text-3) !important; }
-
-/* ============================================================
-   20. SCROLLBARS
-   ============================================================ */
-::-webkit-scrollbar        { width: 6px; height: 6px; }
-::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: var(--kfl-border-mid); border-radius: 100px; }
-::-webkit-scrollbar-thumb:hover { background: var(--kfl-text-3); }
-* { scrollbar-width: thin; scrollbar-color: var(--kfl-border-mid) transparent; }
