@@ -83,7 +83,10 @@
 
     return `
       <div class="kfl-overlay" id="kfl-overlay" role="presentation"></div>
-      <nav class="kfl-drawer" id="kfl-drawer" aria-label="Drawer navigation" aria-hidden="true">
+      <nav class="kfl-drawer" id="kfl-drawer"
+           aria-label="Drawer navigation"
+           aria-hidden="true"
+           inert>
         <div class="kfl-drawer__head">
           ${logoHTML()}
           <button id="drawer-close" title="Close Menu" aria-label="Close navigation menu">
@@ -113,7 +116,6 @@
     function applyTheme(t) {
       htmlEl.setAttribute('data-theme', t);
       if (icon) {
-        // swap icon with a little spin
         icon.style.transform = 'rotate(360deg) scale(0.5)';
         icon.style.opacity   = '0';
         setTimeout(() => {
@@ -125,7 +127,6 @@
       localStorage.setItem('kopala_theme', t);
     }
 
-    // Smooth icon transition
     if (icon) {
       icon.style.transition = 'transform 0.18s ease, opacity 0.18s ease';
     }
@@ -142,35 +143,43 @@
 
   // ── DRAWER ───────────────────────────────────────────────
   function setupDrawer() {
-    const drawer  = document.getElementById('kfl-drawer');
-    const overlay = document.getElementById('kfl-overlay');
-    const openBtn = document.getElementById('hamburger');
+    const drawer   = document.getElementById('kfl-drawer');
+    const overlay  = document.getElementById('kfl-overlay');
+    const openBtn  = document.getElementById('hamburger');
     const closeBtn = document.getElementById('drawer-close');
     if (!drawer || !openBtn) return;
 
-    function toggle(state) {
-      drawer.classList.toggle('is-open', state);
-      overlay.classList.toggle('is-open', state);
-      drawer.setAttribute('aria-hidden', String(!state));
-      openBtn.setAttribute('aria-expanded', String(state));
-      document.body.style.overflow = state ? 'hidden' : '';
-
-      // Trap focus when open
-      if (state && closeBtn) {
-        setTimeout(() => closeBtn.focus(), 320);
-      }
+    function open() {
+      drawer.classList.add('is-open');
+      overlay.classList.add('is-open');
+      // Remove inert BEFORE aria update so AT picks up the change correctly
+      drawer.removeAttribute('inert');
+      drawer.setAttribute('aria-hidden', 'false');
+      openBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+      // Move focus into the drawer after the CSS transition starts
+      setTimeout(() => closeBtn?.focus(), 50);
     }
 
-    openBtn.onclick  = () => toggle(true);
-    closeBtn?.addEventListener('click', () => toggle(false));
-    overlay?.addEventListener('click', () => toggle(false));
+    function close() {
+      drawer.classList.remove('is-open');
+      overlay.classList.remove('is-open');
+      drawer.setAttribute('aria-hidden', 'true');
+      openBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      // Re-apply inert AFTER transition so the closing animation still plays
+      // (inert during transition would freeze it in some browsers)
+      setTimeout(() => drawer.setAttribute('inert', ''), 320);
+      // Return focus to the trigger
+      openBtn.focus();
+    }
 
-    // Close on Escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && drawer.classList.contains('is-open')) {
-        toggle(false);
-        openBtn.focus();
-      }
+    openBtn.addEventListener('click', open);
+    closeBtn?.addEventListener('click', close);
+    overlay?.addEventListener('click', close);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && drawer.classList.contains('is-open')) close();
     });
   }
 
@@ -182,11 +191,10 @@
     }
   }
 
-  // ── RIPPLE on pill tap (mobile feel) ────────────────────
+  // ── RIPPLE on pill tap ───────────────────────────────────
   function setupRipples() {
     document.querySelectorAll('.kfl-subnav__link').forEach(link => {
-      link.addEventListener('click', function (e) {
-        // Instant visual feedback
+      link.addEventListener('click', function () {
         this.style.transform = 'scale(0.96)';
         setTimeout(() => { this.style.transform = ''; }, 150);
       });
@@ -205,7 +213,6 @@
     scrollActiveIntoView();
     setupRipples();
 
-    // Change team ID
     document.getElementById('change-id-btn')?.addEventListener('click', () => {
       if (confirm('Are you sure you want to change your Team ID?')) {
         localStorage.removeItem('kopala_id');
