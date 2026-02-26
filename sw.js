@@ -72,13 +72,16 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const { request } = event;
 
+  // Never cache sw.js or pwa.js — must always be fetched fresh
+  // so updates deploy instantly without users getting stale script logic
+  const url = new URL(request.url);
+  if (url.pathname === '/sw.js' || url.pathname === '/pwa.js') return;
+
   // Let pwa.js manage its own no-store requests
   if (request.cache === 'no-store') return;
 
   // Cache API only supports GET
   if (request.method !== 'GET') return;
-
-  const url = new URL(request.url);
 
   // HTML documents — NEVER intercept, always go straight to network
   if (request.destination === 'document' ||
