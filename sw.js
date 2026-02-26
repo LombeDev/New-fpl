@@ -1,15 +1,13 @@
 /* ============================================================
    KOPALA FPL — SERVICE WORKER
-   Strategy: Network-first for HTML, cache-first for assets
+   Strategy: Cache-first for static assets ONLY.
+   HTML is never cached — always fetched fresh from network.
    ============================================================ */
 
-const CACHE_NAME    = 'kopala-fpl-v3';
-const RUNTIME_CACHE = 'kopala-runtime-v3';
+const CACHE_NAME    = 'kopala-fpl-v5';
+const RUNTIME_CACHE = 'kopala-runtime-v5';
 
-// Static assets only — HTML pages are intentionally excluded.
-// pwa.js owns all HTML fetching (network-first + in-memory cache).
-// Including HTML here caused the SW to serve stale markup even
-// when the network was available — that was the stale-page bug.
+// Static assets only — NO HTML files.
 const PRECACHE_URLS = [
   '/style.css',
   '/nav.css',
@@ -26,11 +24,10 @@ const PRECACHE_URLS = [
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css',
 ];
 
-/* ── INSTALL: precache app shell ─────────────────────────── */
+/* ── INSTALL ─────────────────────────────────────────────── */
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      // Cache each URL individually so one 404 never aborts the whole install
       const attempts = PRECACHE_URLS.map(url =>
         fetch(url, { cache: 'reload' })
           .then(res => {
@@ -44,62 +41,67 @@ self.addEventListener('install', event => {
   );
 });
 
-/* ── ACTIVATE: clean old caches ──────────────────────────── */
+/* ── ACTIVATE: delete old caches + purge any stale HTML ──── */
 self.addEventListener('activate', event => {
   const CURRENT = [CACHE_NAME, RUNTIME_CACHE];
   event.waitUntil(
-    caches.keys().then(names =>
-      Promise.all(names.filter(n => !CURRENT.includes(n)).map(n => caches.delete(n)))
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then(names =>
+        Promise.all(names.filter(n => !CURRENT.includes(n)).map(n => caches.delete(n)))
+      )
+      .then(async () => {
+        // Purge any HTML that snuck in from previous SW versions
+        for (const name of [CACHE_NAME, RUNTIME_CACHE]) {
+          const cache = await caches.open(name);
+          const keys  = await cache.keys();
+          await Promise.all(
+            keys
+              .filter(req => {
+                const p = new URL(req.url).pathname;
+                return p === '/' || p.endsWith('.html') || p.endsWith('/');
+              })
+              .map(req => cache.delete(req))
+          );
+        }
+      })
+      .then(() => self.clients.claim())
   );
 });
 
-/* ── FETCH: tiered caching strategy ─────────────────────── */
+/* ── FETCH ───────────────────────────────────────────────── */
 self.addEventListener('fetch', event => {
   const { request } = event;
 
-  // ── BYPASS: let pwa.js manage its own requests ──────────
-  // Requests with cache:'no-store' come from pwa.js's prefetch
-  // and kflNavigate. Don't intercept — let them go straight to
-  // the network so we don't interfere or cause Cache.put errors.
+  // Let pwa.js manage its own no-store requests
   if (request.cache === 'no-store') return;
 
-  // ── BYPASS: only handle GET — Cache API rejects everything else ──
+  // Cache API only supports GET
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
 
-  // FPL API / Netlify functions → network-first, short cache
+  // HTML documents — NEVER intercept, always go straight to network
+  if (request.destination === 'document' ||
+      url.pathname === '/' ||
+      url.pathname.endsWith('.html')) return;
+
+  // Netlify functions / FPL API → network-first
   if (url.pathname.includes('/.netlify/functions/') ||
       url.hostname.includes('fantasy.premierleague.com')) {
     event.respondWith(networkFirst(request, RUNTIME_CACHE, 90));
     return;
   }
 
-  // Google Fonts / FA CDN → cache-first (long lived)
-  if (url.hostname.includes('fonts.gstatic') ||
-      url.hostname.includes('cdnjs.cloudflare')) {
-    event.respondWith(cacheFirst(request, RUNTIME_CACHE));
-    return;
-  }
-
-  // FPL shirt images → cache-first
-  if (url.hostname.includes('premierleague.com') ||
+  // Google Fonts / FA CDN / jerseys → cache-first (immutable)
+  if (url.hostname.includes('fonts.gstatic')     ||
+      url.hostname.includes('cdnjs.cloudflare')  ||
+      url.hostname.includes('premierleague.com') ||
       url.pathname.includes('/img/shirts/')) {
     event.respondWith(cacheFirst(request, RUNTIME_CACHE));
     return;
   }
 
-  // ── BYPASS: HTML documents are owned entirely by pwa.js ──
-  // pwa.js fetches HTML with cache:'no-store' (already bypassed above
-  // by the request.cache check), but direct browser navigations
-  // (cold loads, refreshes) have destination:'document' and no
-  // cache override. Let those pass through to the network normally
-  // so the browser always gets fresh HTML on a hard load.
-  if (request.destination === 'document') return;
-
-  // CSS / JS / images / other same-origin assets → cache-first
-  // These are versioned/hashed by Netlify, so stale = correct.
+  // CSS / JS / images / same-origin assets → cache-first
   if (request.destination === 'script' ||
       request.destination === 'style'  ||
       request.destination === 'image'  ||
@@ -133,55 +135,45 @@ async function networkFirst(request, cacheName, ttlSeconds = 60) {
   try {
     const response = await fetch(request);
     if (response.ok) {
-      const cache = await caches.open(cacheName);
-      // Tag with timestamp for TTL checks
+      const cache   = await caches.open(cacheName);
       const headers = new Headers(response.headers);
       headers.set('sw-cached-at', Date.now().toString());
-      const tagged = new Response(await response.clone().arrayBuffer(), {
-        status:     response.status,
-        statusText: response.statusText,
-        headers,
+      const tagged  = new Response(await response.clone().arrayBuffer(), {
+        status: response.status, statusText: response.statusText, headers,
       });
       cache.put(request, tagged);
     }
     return response;
   } catch {
     const cached = await caches.match(request);
-    if (cached) return cached; // serve stale when offline
+    if (cached) return cached;
     return new Response(JSON.stringify({ error: 'offline' }), {
-      status:  503,
-      headers: { 'Content-Type': 'application/json' },
+      status: 503, headers: { 'Content-Type': 'application/json' },
     });
   }
 }
 
-/* ── BACKGROUND SYNC for live data ───────────────────────── */
+/* ── BACKGROUND SYNC ─────────────────────────────────────── */
 self.addEventListener('sync', event => {
-  if (event.tag === 'sync-live') {
-    event.waitUntil(doBackgroundSync());
-  }
+  if (event.tag === 'sync-live') event.waitUntil(doBackgroundSync());
 });
 
 async function doBackgroundSync() {
   const cache    = await caches.open(RUNTIME_CACHE);
   const keys     = await cache.keys();
-  const liveKeys = keys.filter(k =>
-    k.url.includes('event/') && k.url.includes('/live/')
-  );
+  const liveKeys = keys.filter(k => k.url.includes('event/') && k.url.includes('/live/'));
   await Promise.all(liveKeys.map(k => cache.delete(k)));
 }
 
-/* ── PUSH NOTIFICATIONS (future-ready) ───────────────────── */
+/* ── PUSH NOTIFICATIONS ──────────────────────────────────── */
 self.addEventListener('push', event => {
   if (!event.data) return;
   const data = event.data.json();
   event.waitUntil(
     self.registration.showNotification(data.title || 'Kopala FPL', {
-      body:    data.body    || '',
-      icon:    '/android-chrome-192x192.png',
-      badge:   '/android-chrome-192x192.png',
-      vibrate: [200, 100, 200],
-      data:    { url: data.url || '/' },
+      body: data.body || '', icon: '/android-chrome-192x192.png',
+      badge: '/android-chrome-192x192.png', vibrate: [200, 100, 200],
+      data: { url: data.url || '/' },
     })
   );
 });
