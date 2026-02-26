@@ -201,28 +201,7 @@
     if (e.state?.href) kflNavigate(e.state.href);
   });
 
-  /* ── 7. PREFETCH on hover/touchstart ────────────────── */
-  // Only prefetch pages we know exist — prevents 404 console noise
-  // from links like captains.html / squad.html that aren't live yet.
-  const KNOWN_PAGES = new Set([
-    '/index.html', '/leagues.html', '/games.html', '/prices.html',
-    'index.html',  'leagues.html',  'games.html',  'prices.html',
-  ]);
 
-  function _prefetch(href) {
-    if (!href || !KNOWN_PAGES.has(href) || _pageCache.has(href)) return;
-    fetch(href, { cache: 'no-store' })
-      .then(r => r.ok ? r.text() : null)
-      .then(h => { if (h) _pageCache.set(href, h); })
-      .catch(() => {});
-  }
-
-  document.addEventListener('mouseover', e => {
-    const a = e.target.closest('a[href]'); if (a) _prefetch(a.getAttribute('href'));
-  });
-  document.addEventListener('touchstart', e => {
-    const a = e.target.closest('a[href]'); if (a) _prefetch(a.getAttribute('href'));
-  }, { passive: true });
 
   /* ── 8. STATUS BAR SYNC ─────────────────────────────── */
   function syncStatusBar() {
