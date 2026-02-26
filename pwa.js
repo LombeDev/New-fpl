@@ -202,21 +202,18 @@
   });
 
   /* ── 7. PREFETCH on hover/touchstart ────────────────── */
-  // Prefetch builds the offline fallback cache only — it does not
-  // affect what is shown on navigation (that always hits the network).
-  const _deadLinks = new Set();
+  // Only prefetch pages we know exist — prevents 404 console noise
+  // from links like captains.html / squad.html that aren't live yet.
+  const KNOWN_PAGES = new Set([
+    '/index.html', '/leagues.html', '/games.html', '/prices.html',
+    'index.html',  'leagues.html',  'games.html',  'prices.html',
+  ]);
 
   function _prefetch(href) {
-    if (!href || _pageCache.has(href) || _deadLinks.has(href)) return;
-    if (href.startsWith('http') || href.startsWith('#') ||
-        href.startsWith('mailto') || href.startsWith('tel')) return;
-    _deadLinks.add(href);
+    if (!href || !KNOWN_PAGES.has(href) || _pageCache.has(href)) return;
     fetch(href, { cache: 'no-store' })
-      .then(r => {
-        if (!r.ok) return;
-        _deadLinks.delete(href);
-        return r.text().then(h => _pageCache.set(href, h));
-      })
+      .then(r => r.ok ? r.text() : null)
+      .then(h => { if (h) _pageCache.set(href, h); })
       .catch(() => {});
   }
 
