@@ -130,6 +130,7 @@
 
     document.title = newDoc.title;
 
+    // Sync theme-color meta
     const newThemeMeta = newDoc.querySelector('meta[name="theme-color"]');
     if (newThemeMeta) {
       let m = document.querySelector('meta[name="theme-color"]');
@@ -137,18 +138,67 @@
       m.content = newThemeMeta.content;
     }
 
+    // Swap body content + attributes
     document.body.innerHTML = newDoc.body.innerHTML;
     Array.from(newDoc.body.attributes).forEach(attr => document.body.setAttribute(attr.name, attr.value));
 
-    // Re-execute scripts (DOMParser doesn't run them)
-    const scripts = Array.from(document.body.querySelectorAll('script'));
-    for (const old of scripts) {
+    // ── Script re-execution strategy ────────────────────────
+    // DOMParser never runs scripts. We must manually re-execute them.
+    //
+    // The core problem: pages call `document.addEventListener('DOMContentLoaded', init)`
+    // but DOMContentLoaded fired once on the original page load and NEVER fires again.
+    // External scripts (nav.js, footer.js, etc.) also run their own DOMContentLoaded
+    // listeners, and patching document.addEventListener only covers the window during
+    // which inline scripts execute — external scripts load asynchronously after
+    // the patch has already been removed.
+    //
+    // Solution: patch document.addEventListener to intercept DOMContentLoaded calls,
+    // keep the patch active across ALL script execution (inline + external),
+    // then restore and fire the queue only after every script has finished.
+
+    const _dclQueue = [];
+    const _origAEL = document.addEventListener.bind(document);
+    document.addEventListener = function(type, fn, opts) {
+      if (type === 'DOMContentLoaded') {
+        _dclQueue.push(fn);
+      } else {
+        _origAEL(type, fn, opts);
+      }
+    };
+
+    // Separate inline and external scripts — run inline first (they register listeners),
+    // then await external scripts in order (they may also register listeners while patched).
+    const allScripts = Array.from(document.body.querySelectorAll('script'));
+    const inlineScripts = allScripts.filter(s => !s.src);
+    const externalScripts = allScripts.filter(s => s.src);
+
+    // Execute inline scripts first
+    for (const old of inlineScripts) {
       const s = document.createElement('script');
       Array.from(old.attributes).forEach(attr => s.setAttribute(attr.name, attr.value));
-      if (!old.src) s.textContent = old.textContent;
+      s.textContent = old.textContent;
       old.parentNode.replaceChild(s, old);
-      if (s.src) await new Promise(r => { s.onload = r; s.onerror = r; });
     }
+
+    // Then execute external scripts in order, awaiting each
+    for (const old of externalScripts) {
+      await new Promise(resolve => {
+        const s = document.createElement('script');
+        Array.from(old.attributes).forEach(attr => s.setAttribute(attr.name, attr.value));
+        // Remove async/defer so scripts execute in order and synchronously register listeners
+        s.removeAttribute('async');
+        s.removeAttribute('defer');
+        s.onload  = resolve;
+        s.onerror = resolve;
+        old.parentNode.replaceChild(s, old);
+      });
+    }
+
+    // All scripts done — restore addEventListener and fire every DOMContentLoaded callback
+    document.addEventListener = _origAEL;
+    _dclQueue.forEach(fn => {
+      try { fn(new Event('DOMContentLoaded')); } catch (e) { console.warn('[KFL] init error:', e); }
+    });
 
     window.scrollTo(0, 0);
     window.dispatchEvent(new CustomEvent('kfl:navigate', { detail: { href } }));
