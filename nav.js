@@ -12,7 +12,6 @@
     { href: 'leagues.html',     label: 'Leagues',        icon: 'fa-trophy' },
     { href: 'prices.html',      label: 'Prices',         icon: 'fa-dollar-sign' },
     { href: 'games.html',       label: 'Games',          icon: 'fa-futbol' },
-    { href: 'my-team.html',     label: 'My Team',        icon: 'fa-users' },
     { href: 'transfers.html',   label: 'Transfers',      icon: 'fa-arrows-rotate' },
     { href: 'fixtures.html',    label: 'Fixtures',       icon: 'fa-calendar' },
     { href: 'statistics.html',  label: 'Statistics',     icon: 'fa-chart-line' },
@@ -22,8 +21,8 @@
   // Customize this for bottom nav-specific pages
   const BOTTOM_NAV_LINKS = [
     { href: 'index.html',      label: 'Home',      icon: 'fa-house',          emotion: '🏠' },
-    { href: 'squad.html',      label: 'Squad',     icon: 'fa-futbol',         emotion: '⚽' },
-    { href: 'captains.html',   label: 'Captains',  icon: 'fa-star',           emotion: '⭐' },
+    { href: 'leagues.html',      label: 'Leagues',     icon: 'fa-futbol',         emotion: '⚽' },
+    { href: 'prices.html',   label: 'Prices',  icon: 'fa-star',           emotion: '⭐' },
     { href: 'games.html',      label: 'Games',     icon: 'fa-circle-play',    emotion: '▶️' },
   ];
 
