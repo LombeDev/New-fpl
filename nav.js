@@ -11,11 +11,17 @@
 
   // 2. DRAWER LINKS (Hamburger Menu)
   const DRAWER_LINKS = [
-    { href: 'index.html',   label: 'Home',     icon: 'fa-house' },
-    { href: 'leagues.html', label: 'Leagues',  icon: 'fa-trophy' },
-    { href: 'prices.html',  label: 'Prices',   icon: 'fa-dollar-sign' },
-    { href: 'games.html',   label: 'Games',    icon: 'fa-futbol' },
+    { href: 'index.html',   label: 'Home',     icon: 'fa-house', emotion: '🏠' },
+    { href: 'leagues.html', label: 'Leagues',  icon: 'fa-trophy', emotion: '👑' },
+    { href: 'prices.html',  label: 'Prices',   icon: 'fa-dollar-sign', emotion: '💰' },
+    { href: 'games.html',   label: 'Games',    icon: 'fa-futbol', emotion: '⚽' },
   ];
+
+  // 3. BOTTOM NAV (New Premium Component)
+  const BOTTOM_NAV_LINKS = DRAWER_LINKS.map(link => ({
+    ...link,
+    emotion: link.emotion || '✨'
+  }));
 
   // ── HELPERS ──────────────────────────────────────────────
   function currentPage() {
@@ -106,6 +112,32 @@
       </nav>`;
   }
 
+  // ── BOTTOM NAV (New Premium Component) ───────────────────
+  function buildBottomNav() {
+    const navItems = BOTTOM_NAV_LINKS.map(l => `
+      <a href="${l.href}"
+         class="kfl-bottom-nav__item${isActive(l.href) ? ' is-active' : ''}"
+         data-emotion="${l.emotion}"
+         ${isActive(l.href) ? 'aria-current="page"' : ''}
+         aria-label="${l.label}">
+        <div class="kfl-bottom-nav__icon-wrapper">
+          <div class="kfl-bottom-nav__icon-bg"></div>
+          <i class="fa-solid ${l.icon}" aria-hidden="true"></i>
+          <div class="kfl-bottom-nav__glow"></div>
+        </div>
+        <span class="kfl-bottom-nav__label">${l.label}</span>
+        <div class="kfl-bottom-nav__emoji" aria-hidden="true">${l.emotion}</div>
+      </a>`).join('');
+
+    return `
+      <nav class="kfl-bottom-nav" aria-label="Main navigation" role="navigation">
+        <div class="kfl-bottom-nav__inner">
+          ${navItems}
+        </div>
+        <div class="kfl-bottom-nav__exit-prompt" id="exit-prompt" aria-live="polite" aria-atomic="true"></div>
+      </nav>`;
+  }
+
   // ── THEME ─────────────────────────────────────────────────
   function setupTheme() {
     const htmlEl = document.documentElement;
@@ -152,12 +184,10 @@
     function open() {
       drawer.classList.add('is-open');
       overlay.classList.add('is-open');
-      // Remove inert BEFORE aria update so AT picks up the change correctly
       drawer.removeAttribute('inert');
       drawer.setAttribute('aria-hidden', 'false');
       openBtn.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
-      // Move focus into the drawer after the CSS transition starts
       setTimeout(() => closeBtn?.focus(), 50);
     }
 
@@ -167,10 +197,7 @@
       drawer.setAttribute('aria-hidden', 'true');
       openBtn.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = '';
-      // Re-apply inert AFTER transition so the closing animation still plays
-      // (inert during transition would freeze it in some browsers)
       setTimeout(() => drawer.setAttribute('inert', ''), 320);
-      // Return focus to the trigger
       openBtn.focus();
     }
 
@@ -181,6 +208,72 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && drawer.classList.contains('is-open')) close();
     });
+  }
+
+  // ── BOTTOM NAV SETUP ─────────────────────────────────────
+  function setupBottomNav() {
+    const items = document.querySelectorAll('.kfl-bottom-nav__item');
+    const exitPrompt = document.getElementById('exit-prompt');
+
+    items.forEach((item, index) => {
+      // Ripple & scale interaction
+      item.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        ripple.className = 'kfl-bottom-nav__ripple';
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+        ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+        this.appendChild(ripple);
+        
+        setTimeout(() => ripple.remove(), 600);
+
+        // Scale animation
+        this.style.transform = 'scale(0.92)';
+        setTimeout(() => { this.style.transform = ''; }, 120);
+      });
+
+      // Hover glow effect
+      item.addEventListener('mouseenter', function() {
+        this.classList.add('is-hovered');
+      });
+
+      item.addEventListener('mouseleave', function() {
+        this.classList.remove('is-hovered');
+      });
+
+      // Emoji popup on active
+      if (item.classList.contains('is-active')) {
+        setTimeout(() => {
+          item.classList.add('is-celebrating');
+          setTimeout(() => item.classList.remove('is-celebrating'), 600);
+        }, 100);
+      }
+    });
+
+    // Exit app detection (on unload)
+    window.addEventListener('beforeunload', function() {
+      const activeItem = document.querySelector('.kfl-bottom-nav__item.is-active');
+      if (activeItem) {
+        const emotion = activeItem.dataset.emotion;
+        const message = emotion + ' Come back soon!';
+        if (exitPrompt) {
+          exitPrompt.textContent = message;
+          exitPrompt.classList.add('is-visible');
+        }
+      }
+    });
+
+    // Mood reflection on page load
+    const activeItem = document.querySelector('.kfl-bottom-nav__item.is-active');
+    if (activeItem) {
+      activeItem.classList.add('is-celebrating');
+      const emoji = activeItem.querySelector('.kfl-bottom-nav__emoji');
+      if (emoji) {
+        emoji.style.animation = 'float 2s ease-in-out';
+      }
+    }
   }
 
   // ── SUBNAV: scroll active pill into view ────────────────
@@ -206,10 +299,11 @@
     const placeholder = document.getElementById('nav-placeholder');
     if (!placeholder) return;
 
-    placeholder.innerHTML = buildTopbar() + buildSubNav() + buildDrawer();
+    placeholder.innerHTML = buildTopbar() + buildSubNav() + buildDrawer() + buildBottomNav();
 
     setupTheme();
     setupDrawer();
+    setupBottomNav();
     scrollActiveIntoView();
     setupRipples();
 
