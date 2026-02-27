@@ -1,27 +1,31 @@
 (function () {
   'use strict';
 
-  // 1. SUB-NAV LINKS (Row 2 — The Pills)
-  const SUB_NAV_LINKS = [
-    { href: 'index.html',    label: 'Summary',  icon: 'fa-chart-simple' },
-    { href: 'squad.html',    label: 'Squad',    icon: 'fa-futbol' },
-    { href: 'captains.html', label: 'Captains', icon: 'fa-star' },
-    { href: 'games.html',    label: 'Live',     icon: 'fa-circle' }
-  ];
+  // ─────────────────────────────────────────────────────────────
+  // NAVIGATION LINKS — Fully Independent Configuration
+  // ─────────────────────────────────────────────────────────────
 
-  // 2. DRAWER LINKS (Hamburger Menu)
+  // 1. HAMBURGER MENU LINKS (Drawer Navigation)
+  // Customize this for drawer-specific pages
   const DRAWER_LINKS = [
-    { href: 'index.html',   label: 'Home',     icon: 'fa-house', emotion: '🏠' },
-    { href: 'leagues.html', label: 'Leagues',  icon: 'fa-trophy', emotion: '👑' },
-    { href: 'prices.html',  label: 'Prices',   icon: 'fa-dollar-sign', emotion: '💰' },
-    { href: 'games.html',   label: 'Games',    icon: 'fa-futbol', emotion: '⚽' },
+    { href: 'index.html',       label: 'Home',           icon: 'fa-house' },
+    { href: 'leagues.html',     label: 'Leagues',        icon: 'fa-trophy' },
+    { href: 'prices.html',      label: 'Prices',         icon: 'fa-dollar-sign' },
+    { href: 'games.html',       label: 'Games',          icon: 'fa-futbol' },
+    { href: 'my-team.html',     label: 'My Team',        icon: 'fa-users' },
+    { href: 'transfers.html',   label: 'Transfers',      icon: 'fa-arrows-rotate' },
+    { href: 'fixtures.html',    label: 'Fixtures',       icon: 'fa-calendar' },
+    { href: 'statistics.html',  label: 'Statistics',     icon: 'fa-chart-line' },
   ];
 
-  // 3. BOTTOM NAV (New Premium Component)
-  const BOTTOM_NAV_LINKS = DRAWER_LINKS.map(link => ({
-    ...link,
-    emotion: link.emotion || '✨'
-  }));
+  // 2. BOTTOM NAV LINKS (Bottom Navigation Bar)
+  // Customize this for bottom nav-specific pages
+  const BOTTOM_NAV_LINKS = [
+    { href: 'index.html',      label: 'Home',      icon: 'fa-house',          emotion: '🏠' },
+    { href: 'squad.html',      label: 'Squad',     icon: 'fa-futbol',         emotion: '⚽' },
+    { href: 'captains.html',   label: 'Captains',  icon: 'fa-star',           emotion: '⭐' },
+    { href: 'games.html',      label: 'Games',     icon: 'fa-circle-play',    emotion: '▶️' },
+  ];
 
   // ── HELPERS ──────────────────────────────────────────────
   function currentPage() {
@@ -61,20 +65,7 @@
       </header>`;
   }
 
-  function buildSubNav() {
-    const links = SUB_NAV_LINKS.map(l => `
-      <a href="${l.href}"
-         class="kfl-subnav__link${isActive(l.href) ? ' is-active' : ''}"
-         ${isActive(l.href) ? 'aria-current="page"' : ''}>
-        <i class="fa-solid ${l.icon}" aria-hidden="true"></i>
-        <span>${l.label}</span>
-      </a>`).join('');
 
-    return `
-      <nav class="kfl-subnav" aria-label="Primary navigation">
-        <div class="kfl-subnav__inner">${links}</div>
-      </nav>`;
-  }
 
   function buildDrawer() {
     const drawerItems = DRAWER_LINKS.map(l => `
@@ -276,36 +267,19 @@
     }
   }
 
-  // ── SUBNAV: scroll active pill into view ────────────────
-  function scrollActiveIntoView() {
-    const active = document.querySelector('.kfl-subnav__link.is-active');
-    if (active) {
-      active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
-    }
-  }
 
-  // ── RIPPLE on pill tap ───────────────────────────────────
-  function setupRipples() {
-    document.querySelectorAll('.kfl-subnav__link').forEach(link => {
-      link.addEventListener('click', function () {
-        this.style.transform = 'scale(0.96)';
-        setTimeout(() => { this.style.transform = ''; }, 150);
-      });
-    });
-  }
 
   // ── INIT ─────────────────────────────────────────────────
   function loadNav() {
     const placeholder = document.getElementById('nav-placeholder');
     if (!placeholder) return;
 
-    placeholder.innerHTML = buildTopbar() + buildSubNav() + buildDrawer() + buildBottomNav();
+    // Build: Top Bar + Drawer + Bottom Nav (NO SUB-NAV)
+    placeholder.innerHTML = buildTopbar() + buildDrawer() + buildBottomNav();
 
     setupTheme();
     setupDrawer();
     setupBottomNav();
-    scrollActiveIntoView();
-    setupRipples();
 
     document.getElementById('change-id-btn')?.addEventListener('click', () => {
       if (confirm('Are you sure you want to change your Team ID?')) {
