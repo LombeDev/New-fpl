@@ -20,10 +20,12 @@
   // 2. BOTTOM NAV LINKS (Bottom Navigation Bar)
   // Customize this for bottom nav-specific pages
   const BOTTOM_NAV_LINKS = [
-    { href: 'index.html',      label: 'Home',      icon: 'fa-house',          emotion: '🏠' },
-    { href: 'leagues.html',      label: 'Leagues',     icon: 'fa-futbol',         emotion: '⚽' },
-    { href: 'prices.html',   label: 'Prices',  icon: 'fa-star',           emotion: '⭐' },
-    { href: 'games.html',      label: 'Games',     icon: 'fa-circle-play',    emotion: '▶️' },
+ [
+  { href: 'index.html',   label: 'Home',    icon: 'fa-house',       emotion: '🏠' },
+  { href: 'leagues.html', label: 'Leagues', icon: 'fa-futbol',      emotion: '🏆' },
+  { href: 'prices.html',  label: 'Prices',  icon: 'fa-star',        emotion: '📈' },
+  { href: 'games.html',   label: 'Games',   icon: 'fa-futbol',      emotion: '⚽' },
+]
   ];
 
   // ── HELPERS ──────────────────────────────────────────────
