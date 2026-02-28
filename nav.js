@@ -1,11 +1,6 @@
 (function () {
   'use strict';
 
-  // ─────────────────────────────────────────────────────────────
-  // NAVIGATION LINKS — Fully Independent Configuration
-  // ─────────────────────────────────────────────────────────────
-
-  // 1. HAMBURGER MENU LINKS (Drawer Navigation)
   const DRAWER_LINKS = [
     { href: 'index.html',       label: 'Home',       icon: 'fa-house' },
     { href: 'leagues.html',     label: 'Leagues',    icon: 'fa-trophy' },
@@ -14,15 +9,13 @@
     { href: 'statistics.html',  label: 'Statistics', icon: 'fa-chart-line' },
   ];
 
-  // 2. BOTTOM NAV LINKS (Bottom Navigation Bar)
   const BOTTOM_NAV_LINKS = [
-    { href: 'index.html',   label: 'Home',    icon: 'fa-house',  emotion: '🏠' },
-    { href: 'leagues.html', label: 'Leagues', icon: 'fa-futbol', emotion: '🏆' },
-    { href: 'prices.html',  label: 'Prices',  icon: 'fa-star',   emotion: '📈' },
-    { href: 'games.html',   label: 'Games',   icon: 'fa-futbol', emotion: '⚽' },
+    { href: 'index.html',   label: 'Home',    icon: 'fa-house'  },
+    { href: 'leagues.html', label: 'Leagues', icon: 'fa-trophy' },
+    { href: 'prices.html',  label: 'Prices',  icon: 'fa-star'   },
+    { href: 'games.html',   label: 'Games',   icon: 'fa-futbol' },
   ];
 
-  // ── HELPERS ──────────────────────────────────────────────
   function currentPage() {
     return window.location.pathname.split('/').pop() || 'index.html';
   }
@@ -41,8 +34,6 @@
         </div>
       </a>`;
   }
-
-  // ── BUILDERS ─────────────────────────────────────────────
 
   function buildTopbar() {
     return `
@@ -86,20 +77,16 @@
         <div class="kfl-drawer__content">
           <p class="kfl-drawer__section-title" aria-hidden="true">Explore</p>
           ${drawerItems}
-
           <p class="kfl-drawer__section-title" aria-hidden="true">Support</p>
-
           <a href="https://wa.me/260978263899"
              class="kfl-drawer__link kfl-drawer__whatsapp"
-             target="_blank"
-             rel="noopener noreferrer"
+             target="_blank" rel="noopener noreferrer"
              aria-label="Contact us on WhatsApp">
             <div class="kfl-drawer__icon-box" aria-hidden="true">
               <i class="fa-brands fa-whatsapp"></i>
             </div>
             <span>Contact Us</span>
           </a>
-
           <button class="kfl-drawer__link" id="change-id-btn" type="button">
             <div class="kfl-drawer__icon-box" aria-hidden="true">
               <i class="fa-solid fa-right-from-bracket"></i>
@@ -110,12 +97,10 @@
       </nav>`;
   }
 
-  // ── BOTTOM NAV ───────────────────────────────────────────
   function buildBottomNav() {
     const navItems = BOTTOM_NAV_LINKS.map(l => `
       <a href="${l.href}"
          class="kfl-bottom-nav__item${isActive(l.href) ? ' is-active' : ''}"
-         data-emotion="${l.emotion}"
          ${isActive(l.href) ? 'aria-current="page"' : ''}
          aria-label="${l.label}">
         <div class="kfl-bottom-nav__icon-wrapper">
@@ -124,7 +109,6 @@
           <div class="kfl-bottom-nav__glow"></div>
         </div>
         <span class="kfl-bottom-nav__label">${l.label}</span>
-        <div class="kfl-bottom-nav__emoji" aria-hidden="true">${l.emotion}</div>
       </a>`).join('');
 
     return `
@@ -132,11 +116,9 @@
         <div class="kfl-bottom-nav__inner">
           ${navItems}
         </div>
-        <div class="kfl-bottom-nav__exit-prompt" id="exit-prompt" aria-live="polite" aria-atomic="true"></div>
       </nav>`;
   }
 
-  // ── THEME ─────────────────────────────────────────────────
   function setupTheme() {
     const htmlEl = document.documentElement;
     const btn    = document.getElementById('theme-toggle');
@@ -157,9 +139,7 @@
       localStorage.setItem('kopala_theme', t);
     }
 
-    if (icon) {
-      icon.style.transition = 'transform 0.18s ease, opacity 0.18s ease';
-    }
+    if (icon) icon.style.transition = 'transform 0.18s ease, opacity 0.18s ease';
 
     const saved = localStorage.getItem('kopala_theme') ||
                   (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -171,7 +151,6 @@
     };
   }
 
-  // ── DRAWER ───────────────────────────────────────────────
   function setupDrawer() {
     const drawer   = document.getElementById('kfl-drawer');
     const overlay  = document.getElementById('kfl-overlay');
@@ -202,16 +181,13 @@
     openBtn.addEventListener('click', open);
     closeBtn?.addEventListener('click', close);
     overlay?.addEventListener('click', close);
-
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && drawer.classList.contains('is-open')) close();
     });
   }
 
-  // ── BOTTOM NAV SETUP ─────────────────────────────────────
   function setupBottomNav() {
-    const items      = document.querySelectorAll('.kfl-bottom-nav__item');
-    const exitPrompt = document.getElementById('exit-prompt');
+    const items = document.querySelectorAll('.kfl-bottom-nav__item');
 
     items.forEach((item) => {
       item.addEventListener('click', function (e) {
@@ -223,45 +199,24 @@
         ripple.style.left   = (e.clientX - rect.left - size / 2) + 'px';
         ripple.style.top    = (e.clientY - rect.top  - size / 2) + 'px';
         this.appendChild(ripple);
-        setTimeout(() => ripple.remove(), 600);
-
-        this.style.transform = 'scale(0.92)';
-        setTimeout(() => { this.style.transform = ''; }, 120);
+        setTimeout(() => ripple.remove(), 500);
+        this.style.transform = 'scale(0.93)';
+        setTimeout(() => { this.style.transform = ''; }, 110);
       });
 
-      item.addEventListener('mouseenter', function () {
-        this.classList.add('is-hovered');
-      });
-
-      item.addEventListener('mouseleave', function () {
-        this.classList.remove('is-hovered');
-      });
-
-      if (item.classList.contains('is-active')) {
-        setTimeout(() => {
-          item.classList.add('is-celebrating');
-          setTimeout(() => item.classList.remove('is-celebrating'), 600);
-        }, 100);
-      }
-    });
-
-    window.addEventListener('beforeunload', function () {
-      const activeItem = document.querySelector('.kfl-bottom-nav__item.is-active');
-      if (activeItem && exitPrompt) {
-        exitPrompt.textContent = activeItem.dataset.emotion + ' Come back soon!';
-        exitPrompt.classList.add('is-visible');
-      }
+      item.addEventListener('mouseenter', function () { this.classList.add('is-hovered'); });
+      item.addEventListener('mouseleave', function () { this.classList.remove('is-hovered'); });
     });
 
     const activeItem = document.querySelector('.kfl-bottom-nav__item.is-active');
     if (activeItem) {
-      activeItem.classList.add('is-celebrating');
-      const emoji = activeItem.querySelector('.kfl-bottom-nav__emoji');
-      if (emoji) emoji.style.animation = 'float 2s ease-in-out';
+      setTimeout(() => {
+        activeItem.classList.add('is-celebrating');
+        setTimeout(() => activeItem.classList.remove('is-celebrating'), 500);
+      }, 120);
     }
   }
 
-  // ── INIT ─────────────────────────────────────────────────
   function loadNav() {
     const placeholder = document.getElementById('nav-placeholder');
     if (!placeholder) return;
