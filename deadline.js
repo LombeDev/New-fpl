@@ -20,14 +20,15 @@
   let tickInterval = null;
 
   /* ============================================
-     INJECT STYLES
+     INJECT STYLES — uses site CSS custom properties
+     so dark/light theme is automatic
      ============================================ */
   const style = document.createElement('style');
   style.textContent = `
     /* ---- Shimmer ---- */
     .dl-shimmer {
       height: 52px;
-      background: linear-gradient(90deg, #1a1a1a 25%, #242424 50%, #1a1a1a 75%);
+      background: linear-gradient(90deg, var(--c-s2) 25%, var(--c-s3) 50%, var(--c-s2) 75%);
       background-size: 400% 100%;
       animation: dl-shimmer 1.6s ease infinite;
     }
@@ -38,7 +39,7 @@
 
     /* ---- Outer wrapper ---- */
     .dl-wrap {
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid var(--c-border);
       overflow: hidden;
     }
 
@@ -49,7 +50,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 10px 16px;
-      background: linear-gradient(90deg, #1a0d1c 0%, #111 100%);
+      background: var(--c-surface);
       min-height: 52px;
       gap: 12px;
       overflow: hidden;
@@ -57,6 +58,7 @@
       -webkit-tap-highlight-color: transparent;
       transition: background 0.4s ease;
       user-select: none;
+      border-bottom: none;
     }
 
     /* Ambient sweep */
@@ -74,11 +76,27 @@
       to   { background-position:  200% 0; }
     }
 
+    /* Accent stripe along left edge */
+    .dl-banner::after {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--c-green);
+      border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 8px var(--c-green);
+      pointer-events: none;
+    }
+
     .dl-banner.imminent {
-      background: linear-gradient(90deg, #3b0000 0%, #1a0000 100%);
+      background: linear-gradient(90deg, rgba(255,61,90,0.08) 0%, var(--c-surface) 100%);
+    }
+    .dl-banner.imminent::after {
+      background: var(--c-red);
+      box-shadow: 0 0 8px var(--c-red);
     }
     .dl-banner.passed {
-      background: linear-gradient(90deg, #001a0d 0%, #111 100%);
+      background: linear-gradient(90deg, rgba(0,232,122,0.06) 0%, var(--c-surface) 100%);
     }
 
     /* ---- Left ---- */
@@ -96,24 +114,24 @@
       font-weight: 700;
       letter-spacing: 1.4px;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.38);
+      color: var(--c-t3);
       line-height: 1;
       transition: color 0.3s;
     }
-    .dl-banner.imminent .dl-eyebrow { color: rgba(239,68,68,0.65); }
-    .dl-banner.passed   .dl-eyebrow { color: rgba(0,232,122,0.5); }
+    .dl-banner.imminent .dl-eyebrow { color: var(--c-red); opacity: 0.8; }
+    .dl-banner.passed   .dl-eyebrow { color: var(--c-green); opacity: 0.8; }
 
     .dl-gw-name {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 0.9rem;
       font-weight: 800;
-      color: rgba(255,255,255,0.8);
+      color: var(--c-t1);
       line-height: 1;
       display: flex;
       align-items: center;
       gap: 5px;
     }
-    .dl-gw-name i { color: #00e87a; font-size: 0.65rem; }
+    .dl-gw-name i { color: var(--c-green); font-size: 0.65rem; }
 
     /* ---- Right ---- */
     .dl-right {
@@ -142,7 +160,7 @@
       font-size: 1.45rem;
       font-weight: 900;
       line-height: 1;
-      color: #fff;
+      color: var(--c-t1);
       font-variant-numeric: tabular-nums;
       letter-spacing: -0.5px;
       transition: color 0.3s;
@@ -153,7 +171,7 @@
       font-weight: 700;
       letter-spacing: 0.8px;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.28);
+      color: var(--c-t3);
       line-height: 1;
       margin-top: 2px;
     }
@@ -162,7 +180,7 @@
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 1.2rem;
       font-weight: 900;
-      color: rgba(255,255,255,0.2);
+      color: var(--c-border2);
       line-height: 1;
       margin-bottom: 8px;
       padding: 0 1px;
@@ -176,10 +194,10 @@
 
     /* Imminent: pulse red */
     .dl-banner.imminent .dl-unit__val {
-      color: #ef4444;
+      color: var(--c-red);
       animation: dl-pulse 0.9s ease-in-out infinite;
     }
-    .dl-banner.imminent .dl-sep { color: rgba(239,68,68,0.3); }
+    .dl-banner.imminent .dl-sep { color: rgba(255,61,90,0.3); }
 
     @keyframes dl-pulse {
       0%, 100% { opacity: 1; }
@@ -192,7 +210,7 @@
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 1rem;
       font-weight: 800;
-      color: #00e87a;
+      color: var(--c-green);
       align-items: center;
       gap: 6px;
     }
@@ -202,13 +220,13 @@
     /* Expand chevron */
     .dl-chevron {
       font-size: 0.7rem;
-      color: rgba(255,255,255,0.22);
+      color: var(--c-t3);
       transition: transform 0.25s ease, color 0.2s;
       flex-shrink: 0;
     }
     .dl-wrap.open .dl-chevron {
       transform: rotate(180deg);
-      color: rgba(255,255,255,0.5);
+      color: var(--c-t2);
     }
 
     /* ---- Collapsible upcoming table ---- */
@@ -216,7 +234,7 @@
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
-      background: #0d0d0d;
+      background: var(--c-s2);
     }
     .dl-wrap.open .dl-upcoming {
       max-height: 320px;
@@ -230,13 +248,13 @@
       display: flex;
       justify-content: space-between;
       padding: 11px 0 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid var(--c-border);
       margin-bottom: 2px;
       font-size: 0.56rem;
       font-weight: 700;
       letter-spacing: 1.3px;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.28);
+      color: var(--c-t3);
     }
 
     .dl-row {
@@ -244,7 +262,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 9px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
+      border-bottom: 1px solid var(--c-border);
     }
     .dl-row:last-child { border-bottom: none; }
 
@@ -252,13 +270,13 @@
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 0.88rem;
       font-weight: 800;
-      color: rgba(255,255,255,0.72);
+      color: var(--c-t1);
     }
 
     .dl-row__date {
       font-size: 0.73rem;
       font-weight: 500;
-      color: rgba(255,255,255,0.38);
+      color: var(--c-t2);
     }
 
     /* Error */
@@ -269,9 +287,9 @@
       justify-content: center;
       gap: 7px;
       font-size: 0.72rem;
-      color: rgba(255,255,255,0.25);
-      background: #111;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: var(--c-t3);
+      background: var(--c-surface);
+      border-bottom: 1px solid var(--c-border);
     }
   `;
   document.head.appendChild(style);
@@ -451,7 +469,3 @@
   window.addEventListener('pagehide', () => clearInterval(tickInterval));
 
 })();
-
-
-
-
