@@ -1,17 +1,19 @@
 /* ============================================================
    KOPALA FPL — SERVICE WORKER
-   Strategy: Cache-first for static assets ONLY.
-   HTML is never cached — always fetched fresh from network.
+   Strategy: Network-first for everything.
+   Falls back to cache when offline.
    ============================================================ */
 
-const CACHE_NAME    = 'kopala-fpl-v5';
-const RUNTIME_CACHE = 'kopala-runtime-v5';
+const CACHE_NAME    = 'kopala-fpl-v6';
+const RUNTIME_CACHE = 'kopala-runtime-v6';
 
 // Static assets only — NO HTML files.
 const PRECACHE_URLS = [
   '/style.css',
   '/nav.css',
   '/nav.js',
+  '/nav-bottom.css',
+  '/nav-bottom.js',
   '/footer.css',
   '/footer.js',
   '/deadline.js',
@@ -72,8 +74,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const { request } = event;
 
-  // Never cache sw.js or pwa.js — must always be fetched fresh
-  // so updates deploy instantly without users getting stale script logic
+  // Never intercept sw.js or pwa.js — always fresh
   const url = new URL(request.url);
   if (url.pathname === '/sw.js' || url.pathname === '/pwa.js') return;
 
@@ -88,32 +89,7 @@ self.addEventListener('fetch', event => {
       url.pathname === '/' ||
       url.pathname.endsWith('.html')) return;
 
-  // Netlify functions / FPL API → network-first
-  if (url.pathname.includes('/.netlify/functions/') ||
-      url.hostname.includes('fantasy.premierleague.com')) {
-    event.respondWith(networkFirst(request, RUNTIME_CACHE, 90));
-    return;
-  }
-
-  // Google Fonts / FA CDN / jerseys → cache-first (immutable)
-  if (url.hostname.includes('fonts.gstatic')     ||
-      url.hostname.includes('cdnjs.cloudflare')  ||
-      url.hostname.includes('premierleague.com') ||
-      url.pathname.includes('/img/shirts/')) {
-    event.respondWith(cacheFirst(request, RUNTIME_CACHE));
-    return;
-  }
-
-  // CSS / JS / images / same-origin assets → cache-first
-  if (request.destination === 'script' ||
-      request.destination === 'style'  ||
-      request.destination === 'image'  ||
-      url.origin === self.location.origin) {
-    event.respondWith(cacheFirst(request, CACHE_NAME));
-    return;
-  }
-
-  // Everything else → network with cache fallback
+  // Everything goes network-first, falls back to cache when offline
   event.respondWith(networkFirst(request, RUNTIME_CACHE, 60));
 });
 
