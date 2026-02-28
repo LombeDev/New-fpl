@@ -1,136 +1,297 @@
-/**
- * KOPALA FPL — BOTTOM NAV
- * Emotional, premium, playful mobile navigation.
- * Drop this <script src="nav-bottom.js"></script> AFTER nav.js in your HTML.
- */
 (function () {
   'use strict';
 
-  /* ── SAME links as the drawer ─────────────────────────── */
-  const BOTTOM_NAV_LINKS = [
-    { href: 'index.html',   label: 'Home',    icon: 'fa-house'      },
-    { href: 'leagues.html', label: 'Leagues', icon: 'fa-trophy'     },
-    { href: 'prices.html',  label: 'Prices',  icon: 'fa-dollar-sign'},
-    { href: 'games.html',   label: 'Games',   icon: 'fa-futbol'     },
+  // ─────────────────────────────────────────────────────────────
+  // NAVIGATION LINKS — Fully Independent Configuration
+  // ─────────────────────────────────────────────────────────────
+
+  // 1. HAMBURGER MENU LINKS (Drawer Navigation)
+  // Customize this for drawer-specific pages
+  const DRAWER_LINKS = [
+    { href: 'index.html',       label: 'Home',           icon: 'fa-house' },
+    { href: 'leagues.html',     label: 'Leagues',        icon: 'fa-trophy' },
+    { href: 'prices.html',      label: 'Prices',         icon: 'fa-dollar-sign' },
+    { href: 'games.html',       label: 'Games',          icon: 'fa-futbol' },
+    { href: 'transfers.html',   label: 'Transfers',      icon: 'fa-arrows-rotate' },
+    { href: 'fixtures.html',    label: 'Fixtures',       icon: 'fa-calendar' },
+    { href: 'statistics.html',  label: 'Statistics',     icon: 'fa-chart-line' },
   ];
 
+  // 2. BOTTOM NAV LINKS (Bottom Navigation Bar)
+  // Customize this for bottom nav-specific pages
+  const BOTTOM_NAV_LINKS = [
+    { href: 'index.html',      label: 'Home',      icon: 'fa-house',          emotion: '🏠' },
+    { href: 'leagues.html',      label: 'Leagues',     icon: 'fa-futbol',         emotion: '⚽' },
+    { href: 'prices.html',   label: 'Prices',  icon: 'fa-star',           emotion: '⭐' },
+    { href: 'games.html',      label: 'Games',     icon: 'fa-circle-play',    emotion: '▶️' },
+  ];
+
+  // ── HELPERS ──────────────────────────────────────────────
   function currentPage() {
     return window.location.pathname.split('/').pop() || 'index.html';
   }
 
+  function isActive(href) {
+    return href === currentPage();
+  }
+
+  function logoHTML() {
+    return `
+      <a href="index.html" class="kfl-logo" aria-label="Kopala FPL Home">
+        <div class="kfl-logo__box">
+          <img src="logo.png" alt="Kopala FPL" class="kfl-logo__img"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+          <span class="kfl-logo__text" style="display:none">Kopala <span>FPL</span></span>
+        </div>
+      </a>`;
+  }
+
+  // ── BUILDERS ─────────────────────────────────────────────
+
+  function buildTopbar() {
+    return `
+      <header class="kfl-topbar" role="banner">
+        ${logoHTML()}
+        <div class="kfl-topbar__right">
+          <button class="kfl-theme-toggle" id="theme-toggle" title="Toggle Theme" aria-label="Toggle dark/light mode">
+            <i class="fa-solid fa-sun" id="theme-icon" aria-hidden="true"></i>
+          </button>
+          <button class="kfl-hamburger" id="hamburger" title="Open Menu"
+                  aria-label="Open navigation menu" aria-expanded="false" aria-controls="kfl-drawer">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+          </button>
+        </div>
+      </header>`;
+  }
+
+
+
+  function buildDrawer() {
+    const drawerItems = DRAWER_LINKS.map(l => `
+      <a href="${l.href}"
+         class="kfl-drawer__link${isActive(l.href) ? ' is-active' : ''}"
+         ${isActive(l.href) ? 'aria-current="page"' : ''}>
+        <div class="kfl-drawer__icon-box" aria-hidden="true">
+          <i class="fa-solid ${l.icon}"></i>
+        </div>
+        <span>${l.label}</span>
+      </a>`).join('');
+
+    return `
+      <div class="kfl-overlay" id="kfl-overlay" role="presentation"></div>
+      <nav class="kfl-drawer" id="kfl-drawer"
+           aria-label="Drawer navigation"
+           aria-hidden="true"
+           inert>
+        <div class="kfl-drawer__head">
+          ${logoHTML()}
+          <button id="drawer-close" title="Close Menu" aria-label="Close navigation menu">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="kfl-drawer__content">
+          <p class="kfl-drawer__section-title" aria-hidden="true">Explore</p>
+          ${drawerItems}
+          <button class="kfl-drawer__link" id="change-id-btn" type="button">
+            <div class="kfl-drawer__icon-box" aria-hidden="true">
+              <i class="fa-solid fa-right-from-bracket"></i>
+            </div>
+            <span>Change Team ID</span>
+          </button>
+        </div>
+      </nav>`;
+  }
+
+  // ── BOTTOM NAV (New Premium Component) ───────────────────
   function buildBottomNav() {
-    const activeIndex = BOTTOM_NAV_LINKS.findIndex(l => l.href === currentPage());
+    const navItems = BOTTOM_NAV_LINKS.map(l => `
+      <a href="${l.href}"
+         class="kfl-bottom-nav__item${isActive(l.href) ? ' is-active' : ''}"
+         data-emotion="${l.emotion}"
+         ${isActive(l.href) ? 'aria-current="page"' : ''}
+         aria-label="${l.label}">
+        <div class="kfl-bottom-nav__icon-wrapper">
+          <div class="kfl-bottom-nav__icon-bg"></div>
+          <i class="fa-solid ${l.icon}" aria-hidden="true"></i>
+          <div class="kfl-bottom-nav__glow"></div>
+        </div>
+        <span class="kfl-bottom-nav__label">${l.label}</span>
+        <div class="kfl-bottom-nav__emoji" aria-hidden="true">${l.emotion}</div>
+      </a>`).join('');
 
-    const items = BOTTOM_NAV_LINKS.map((l, i) => {
-      const active = i === activeIndex;
-      return `
-        <a href="${l.href}"
-           class="kfl-bnav__item${active ? ' is-active' : ''}"
-           data-index="${i}"
-           ${active ? 'aria-current="page"' : ''}
-           aria-label="${l.label}">
-          <span class="kfl-bnav__blob" aria-hidden="true"></span>
-          <span class="kfl-bnav__icon-wrap" aria-hidden="true">
-            <i class="fa-solid ${l.icon}"></i>
-          </span>
-          <span class="kfl-bnav__label">${l.label}</span>
-        </a>`;
-    }).join('');
-
-    /* Sliding pill indicator — absolutely positioned */
-    const indicatorHtml = `<span class="kfl-bnav__indicator" id="kfl-bnav-indicator" aria-hidden="true"></span>`;
-
-    const nav = document.createElement('nav');
-    nav.className = 'kfl-bnav';
-    nav.id        = 'kfl-bnav';
-    nav.setAttribute('aria-label', 'Mobile bottom navigation');
-    nav.innerHTML = indicatorHtml + items;
-    document.body.appendChild(nav);
-
-    /* Position the indicator on load */
-    requestAnimationFrame(() => positionIndicator(activeIndex, false));
+    return `
+      <nav class="kfl-bottom-nav" aria-label="Main navigation" role="navigation">
+        <div class="kfl-bottom-nav__inner">
+          ${navItems}
+        </div>
+        <div class="kfl-bottom-nav__exit-prompt" id="exit-prompt" aria-live="polite" aria-atomic="true"></div>
+      </nav>`;
   }
 
-  function positionIndicator(index, animate = true) {
-    const nav       = document.getElementById('kfl-bnav');
-    const indicator = document.getElementById('kfl-bnav-indicator');
-    if (!nav || !indicator) return;
+  // ── THEME ─────────────────────────────────────────────────
+  function setupTheme() {
+    const htmlEl = document.documentElement;
+    const btn    = document.getElementById('theme-toggle');
+    const icon   = document.getElementById('theme-icon');
+    if (!btn) return;
 
-    const items = nav.querySelectorAll('.kfl-bnav__item');
-    if (!items[index]) return;
+    function applyTheme(t) {
+      htmlEl.setAttribute('data-theme', t);
+      if (icon) {
+        icon.style.transform = 'rotate(360deg) scale(0.5)';
+        icon.style.opacity   = '0';
+        setTimeout(() => {
+          icon.className = t === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+          icon.style.transform = '';
+          icon.style.opacity   = '';
+        }, 180);
+      }
+      localStorage.setItem('kopala_theme', t);
+    }
 
-    const item    = items[index];
-    const navRect = nav.getBoundingClientRect();
-    const itemRect = item.getBoundingClientRect();
+    if (icon) {
+      icon.style.transition = 'transform 0.18s ease, opacity 0.18s ease';
+    }
 
-    const left  = itemRect.left - navRect.left + itemRect.width / 2;
+    const saved = localStorage.getItem('kopala_theme') ||
+                  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    applyTheme(saved);
 
-    indicator.style.transition = animate
-      ? 'left 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s'
-      : 'none';
-    indicator.style.left    = left + 'px';
-    indicator.style.opacity = '1';
+    btn.onclick = () => {
+      const next = htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+    };
   }
 
-  function setupInteractions() {
-    const nav   = document.getElementById('kfl-bnav');
-    if (!nav) return;
+  // ── DRAWER ───────────────────────────────────────────────
+  function setupDrawer() {
+    const drawer   = document.getElementById('kfl-drawer');
+    const overlay  = document.getElementById('kfl-overlay');
+    const openBtn  = document.getElementById('hamburger');
+    const closeBtn = document.getElementById('drawer-close');
+    if (!drawer || !openBtn) return;
 
-    nav.querySelectorAll('.kfl-bnav__item').forEach((item, i) => {
-      /* Tap: slide indicator + springy icon */
-      item.addEventListener('click', function (e) {
-        const alreadyActive = this.classList.contains('is-active');
+    function open() {
+      drawer.classList.add('is-open');
+      overlay.classList.add('is-open');
+      drawer.removeAttribute('inert');
+      drawer.setAttribute('aria-hidden', 'false');
+      openBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => closeBtn?.focus(), 50);
+    }
 
-        /* Slide indicator */
-        positionIndicator(i, true);
+    function close() {
+      drawer.classList.remove('is-open');
+      overlay.classList.remove('is-open');
+      drawer.setAttribute('aria-hidden', 'true');
+      openBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      setTimeout(() => drawer.setAttribute('inert', ''), 320);
+      openBtn.focus();
+    }
 
-        /* Spring pop on icon */
-        const wrap = this.querySelector('.kfl-bnav__icon-wrap');
-        if (wrap) {
-          wrap.style.transform = 'scale(0.72) translateY(4px)';
-          wrap.style.transition = 'transform 0.08s ease';
-          setTimeout(() => {
-            wrap.style.transition = 'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)';
-            wrap.style.transform  = alreadyActive ? 'scale(1.25) translateY(-4px)' : 'scale(1.15) translateY(-3px)';
-          }, 80);
-          setTimeout(() => {
-            wrap.style.transform = '';
-          }, 500);
-        }
+    openBtn.addEventListener('click', open);
+    closeBtn?.addEventListener('click', close);
+    overlay?.addEventListener('click', close);
 
-        /* Blob burst */
-        const blob = this.querySelector('.kfl-bnav__blob');
-        if (blob) {
-          blob.classList.remove('burst');
-          void blob.offsetWidth; /* reflow to restart */
-          blob.classList.add('burst');
-        }
-      });
-
-      /* Long-press: wobble Easter egg */
-      let pressTimer;
-      item.addEventListener('pointerdown', () => {
-        pressTimer = setTimeout(() => {
-          const wrap = item.querySelector('.kfl-bnav__icon-wrap');
-          if (wrap) {
-            wrap.style.animation = 'kfl-bnav-wobble 0.5s ease';
-            setTimeout(() => { wrap.style.animation = ''; }, 500);
-          }
-        }, 500);
-      });
-      item.addEventListener('pointerup',    () => clearTimeout(pressTimer));
-      item.addEventListener('pointerleave', () => clearTimeout(pressTimer));
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && drawer.classList.contains('is-open')) close();
     });
   }
 
-  function init() {
-    buildBottomNav();
-    setupInteractions();
+  // ── BOTTOM NAV SETUP ─────────────────────────────────────
+  function setupBottomNav() {
+    const items = document.querySelectorAll('.kfl-bottom-nav__item');
+    const exitPrompt = document.getElementById('exit-prompt');
+
+    items.forEach((item, index) => {
+      // Ripple & scale interaction
+      item.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        ripple.className = 'kfl-bottom-nav__ripple';
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+        ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+        this.appendChild(ripple);
+        
+        setTimeout(() => ripple.remove(), 600);
+
+        // Scale animation
+        this.style.transform = 'scale(0.92)';
+        setTimeout(() => { this.style.transform = ''; }, 120);
+      });
+
+      // Hover glow effect
+      item.addEventListener('mouseenter', function() {
+        this.classList.add('is-hovered');
+      });
+
+      item.addEventListener('mouseleave', function() {
+        this.classList.remove('is-hovered');
+      });
+
+      // Emoji popup on active
+      if (item.classList.contains('is-active')) {
+        setTimeout(() => {
+          item.classList.add('is-celebrating');
+          setTimeout(() => item.classList.remove('is-celebrating'), 600);
+        }, 100);
+      }
+    });
+
+    // Exit app detection (on unload)
+    window.addEventListener('beforeunload', function() {
+      const activeItem = document.querySelector('.kfl-bottom-nav__item.is-active');
+      if (activeItem) {
+        const emotion = activeItem.dataset.emotion;
+        const message = emotion + ' Come back soon!';
+        if (exitPrompt) {
+          exitPrompt.textContent = message;
+          exitPrompt.classList.add('is-visible');
+        }
+      }
+    });
+
+    // Mood reflection on page load
+    const activeItem = document.querySelector('.kfl-bottom-nav__item.is-active');
+    if (activeItem) {
+      activeItem.classList.add('is-celebrating');
+      const emoji = activeItem.querySelector('.kfl-bottom-nav__emoji');
+      if (emoji) {
+        emoji.style.animation = 'float 2s ease-in-out';
+      }
+    }
+  }
+
+
+
+  // ── INIT ─────────────────────────────────────────────────
+  function loadNav() {
+    const placeholder = document.getElementById('nav-placeholder');
+    if (!placeholder) return;
+
+    // Build: Top Bar + Drawer + Bottom Nav (NO SUB-NAV)
+    placeholder.innerHTML = buildTopbar() + buildDrawer() + buildBottomNav();
+
+    setupTheme();
+    setupDrawer();
+    setupBottomNav();
+
+    document.getElementById('change-id-btn')?.addEventListener('click', () => {
+      if (confirm('Are you sure you want to change your Team ID?')) {
+        localStorage.removeItem('kopala_id');
+        window.location.href = 'index.html';
+      }
+    });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', loadNav);
   } else {
-    init();
+    loadNav();
   }
+
 })();
