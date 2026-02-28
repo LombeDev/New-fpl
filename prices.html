@@ -407,15 +407,16 @@ input[type=range]#ownSlider:active::-webkit-slider-thumb{box-shadow:0 0 0 8px va
     <i class="achev fa-solid fa-chevron-down" aria-hidden="true"></i>
   </button>
   <div class="algo-body" id="algo-body">
-    <span> <b> 
-                                                                                                                                                                                                                                                                                                               </b> of FPL data (FPL Core). Not net transfers alone — it's cumulative pressure against a <b>fixed threshold</b>.</span>
+   
     <div class="rules">
-      <div class="rule"><i class="fa-solid fa-circle-check ri" aria-hidden="true"></i><span><b>Fixed threshold ~220k</b> cumulative net transfers — same for every player, not scaled by price or ownership.</span></div>
+      <div class="rule"><i class="fa-solid fa-circle-check ri" aria-hidden="true"></i><span><b>Predicting Live Wildcard Usage</b> The live data from FPL shows total transfers in/out for players which includes wildcard/freehit transfers. However, those chip transfers don't affect price changes. Predictors have to decide on a predicted probability for each published transfer to count or not count towards price changes.</span></div>
       <div class="rule"><i class="fa-solid fa-circle-check ri" aria-hidden="true"></i><span><b>Two conditions required:</b> cumulative ≥ 220k AND today's net ≥ 30k. Either alone won't trigger a change.</span></div>
       <div class="rule"><i class="fa-solid fa-ban rx" aria-hidden="true"></i><span><b>Below ~1.7% ownership = zero rises ever.</b> Proven across 532,000 player-days. The algorithm has a hard floor.</span></div>
-      <div class="rule"><i class="fa-solid fa-rotate ra" aria-hidden="true"></i><span><b>Counter resets</b> after each price change — the player needs to rebuild pressure from zero again.</span></div>
+      <div class="rule"><i class="fa-solid fa-rotate ra" aria-hidden="true"></i><span><b> Impact of Flag Changes</b> Player flag changes (e.g., red to yellow, yellow to no flag) significantly affect how price changes operate. Historically, it was understood that when a player moves from a red flag to no flag immediately, they are locked for eight days, during which their transfers don’t count. However, recent evidence suggests this is more complex.</span></div>
       <div class="rule"><i class="fa-solid fa-arrow-down rx" aria-hidden="true"></i><span><b>Falls are 6× easier</b> — only ~37k cumulative needed, not 220k. Prices deflate faster than they rise.</span></div>
-      <div class="rule"><i class="fa-solid fa-info-circle rb" aria-hidden="true"></i><span><b>Wildcard transfers barely count</b> — algorithm counts unique managers, not total moves. Wildcards ≈ 1.4% of pressure.</span></div>
+      <div class="rule"><i class="fa-solid fa-info-circle rb" aria-hidden="true"></i><span><b>Transfers Across Game Weeks</b> After a game week deadline, FPL appears to discard a percentage of valid transfers made before the deadline. Without this exclusion, a larger number of price changes would occur post-deadline. This issue seems to mainly affect players who have already risen or fallen during the week but was observed occasionally with other players too. Some of their transfer volume does not carry over into the next game week and is seemingly discarded.
+
+Using trial and error, we’ve attempted to estimate the percentage of transfers excluded, but the exact figure remains uncertain.</span></div>
     </div>
   </div>
 </div>
