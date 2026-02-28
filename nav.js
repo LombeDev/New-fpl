@@ -18,10 +18,10 @@
 
   // 2. BOTTOM NAV LINKS (Bottom Navigation Bar)
   const BOTTOM_NAV_LINKS = [
-    { href: 'index.html',   label: 'Home',    icon: 'fa-house',       emotion: '🏠' },
-    { href: 'leagues.html', label: 'Leagues', icon: 'fa-futbol',      emotion: '🏆' },
-    { href: 'prices.html',  label: 'Prices',  icon: 'fa-star',        emotion: '📈' },
-    { href: 'games.html',   label: 'Games',   icon: 'fa-futbol',      emotion: '⚽' },
+    { href: 'index.html',   label: 'Home',    icon: 'fa-house',  emotion: '🏠' },
+    { href: 'leagues.html', label: 'Leagues', icon: 'fa-futbol', emotion: '🏆' },
+    { href: 'prices.html',  label: 'Prices',  icon: 'fa-star',   emotion: '📈' },
+    { href: 'games.html',   label: 'Games',   icon: 'fa-futbol', emotion: '⚽' },
   ];
 
   // ── HELPERS ──────────────────────────────────────────────
@@ -88,6 +88,20 @@
         <div class="kfl-drawer__content">
           <p class="kfl-drawer__section-title" aria-hidden="true">Explore</p>
           ${drawerItems}
+
+          <p class="kfl-drawer__section-title" aria-hidden="true">Support</p>
+
+          <a href="https://wa.me/260978263899"
+             class="kfl-drawer__link kfl-drawer__whatsapp"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Contact us on WhatsApp">
+            <div class="kfl-drawer__icon-box" aria-hidden="true">
+              <i class="fa-brands fa-whatsapp"></i>
+            </div>
+            <span>Contact Us</span>
+          </a>
+
           <button class="kfl-drawer__link" id="change-id-btn" type="button">
             <div class="kfl-drawer__icon-box" aria-hidden="true">
               <i class="fa-solid fa-right-from-bracket"></i>
@@ -202,7 +216,6 @@
     const exitPrompt = document.getElementById('exit-prompt');
 
     items.forEach((item) => {
-      // Ripple & scale interaction
       item.addEventListener('click', function (e) {
         const ripple = document.createElement('span');
         ripple.className = 'kfl-bottom-nav__ripple';
