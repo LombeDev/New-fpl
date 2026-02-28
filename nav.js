@@ -25,7 +25,6 @@
   { href: 'leagues.html', label: 'Leagues', icon: 'fa-futbol',      emotion: '🏆' },
   { href: 'prices.html',  label: 'Prices',  icon: 'fa-star',        emotion: '📈' },
   { href: 'games.html',   label: 'Games',   icon: 'fa-futbol',      emotion: '⚽' },
-]
   ];
 
   // ── HELPERS ──────────────────────────────────────────────
