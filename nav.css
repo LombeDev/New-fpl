@@ -81,19 +81,15 @@ body {
   background: var(--kfl-bg);
   color: var(--kfl-text-1);
   margin: 0;
+  padding-top: var(--kfl-topbar-h); /* exactly one topbar height — no gap */
   padding-bottom: 84px;
   font-family: 'DM Sans', -apple-system, sans-serif;
   transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Content padding managed per-page, not body-wide */
+/* main gets NO extra top padding — body already handles it */
 main {
-  /* Page-specific padding handled in your page CSS */
-}
-
-/* Add padding only to main content, not body */
-main {
-  padding-top: var(--kfl-topbar-h);
+  /* page-specific styles only */
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -111,7 +107,6 @@ main {
   z-index: 1000;
   box-shadow: var(--kfl-shadow);
 
-  /* Subtle glass shimmer line at top */
   background-image: linear-gradient(
     180deg,
     rgba(255,255,255,0.04) 0%,
@@ -137,7 +132,6 @@ main {
   transition: transform var(--kfl-transition), box-shadow var(--kfl-transition-fast);
 }
 
-/* Show gradient box styling only when falling back to text */
 .kfl-logo__box:has(.kfl-logo__text[style*="block"]) {
   background: var(--kfl-logo-grad);
   padding: 6px 14px;
@@ -238,7 +232,6 @@ main {
   transform: scale(0.95);
 }
 
-/* Spinning theme icon */
 #theme-icon {
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -247,7 +240,6 @@ main {
   transform: rotate(30deg);
 }
 
-/* Hamburger bounce */
 .kfl-hamburger:hover i {
   animation: hamburger-bounce 0.4s ease;
 }
@@ -297,7 +289,6 @@ main {
   transform: translateX(0);
 }
 
-/* Decorative accent line at top of drawer */
 .kfl-drawer::before {
   content: '';
   position: absolute;
@@ -321,8 +312,6 @@ main {
   flex: 1;
   overflow-y: auto;
   padding-bottom: 24px;
-
-  /* Custom scrollbar */
   scrollbar-width: thin;
   scrollbar-color: var(--kfl-surface-3) transparent;
 }
@@ -369,7 +358,6 @@ main {
   position: relative;
 }
 
-/* Left accent bar on active */
 .kfl-drawer__link.is-active {
   color: var(--kfl-green);
   background: var(--kfl-green-dim);
@@ -414,7 +402,6 @@ main {
   transform: scale(1.08) rotate(-3deg);
 }
 
-/* Arrow chevron */
 .kfl-drawer__link::after {
   content: '\f054';
   font-family: "Font Awesome 6 Free";
@@ -430,10 +417,7 @@ main {
   transform: translateX(3px);
 }
 
-/* Exception: no arrow for buttons */
-#change-id-btn::after,
-.kfl-drawer__section-title::after { /* section title override handled above */ }
-#change-id-btn::after { display: none; }
+#change-id-btn::after { display: none !important; }
 
 /* Close button */
 #drawer-close {
@@ -458,7 +442,7 @@ main {
   transform: rotate(90deg) scale(1.05);
 }
 
-/* Change ID button — styled as a soft danger CTA */
+/* Change ID button */
 #change-id-btn {
   margin: 16px;
   width: calc(100% - 32px);
@@ -487,9 +471,29 @@ main {
   transform: scale(1.08) rotate(0deg);
 }
 
-#change-id-btn::after { display: none !important; }
+/* WhatsApp Contact Button */
+.kfl-drawer__whatsapp .kfl-drawer__icon-box {
+  background: rgba(37, 211, 102, 0.12);
+  color: #25d366;
+}
 
-/* ── Stagger in drawer links on open ────────────────────────── */
+.kfl-drawer__whatsapp {
+  color: #25d366 !important;
+}
+
+.kfl-drawer__whatsapp:hover .kfl-drawer__icon-box {
+  background: rgba(37, 211, 102, 0.22);
+  color: #25d366 !important;
+  transform: scale(1.08) rotate(-3deg);
+}
+
+.kfl-drawer__whatsapp:hover {
+  background: rgba(37, 211, 102, 0.08);
+  color: #25d366 !important;
+  padding-left: 26px;
+}
+
+/* Stagger in drawer links on open */
 .kfl-drawer.is-open .kfl-drawer__link {
   animation: slide-in-right 0.3s ease both;
 }
@@ -512,7 +516,6 @@ main {
    BOTTOM NAVIGATION — Emotional Premium Design
 ══════════════════════════════════════════════════════════ */
 
-/* ── BOTTOM NAV VARIABLES (inherits from :root) ───────────────── */
 :root {
   --bottom-nav-height: 76px;
   --bottom-nav-padding: 8px 14px;
@@ -657,8 +660,8 @@ main {
 .kfl-bottom-nav__icon-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, 
-    var(--kfl-green) 0%, 
+  background: linear-gradient(135deg,
+    var(--kfl-green) 0%,
     rgba(0, 200, 90, 0.8) 100%);
   opacity: 0;
   border-radius: 10px;
@@ -705,8 +708,8 @@ main {
 .kfl-bottom-nav__glow {
   position: absolute;
   inset: -6px;
-  background: radial-gradient(circle, 
-    var(--kfl-green-glow) 0%, 
+  background: radial-gradient(circle,
+    var(--kfl-green-glow) 0%,
     transparent 65%);
   opacity: 0;
   border-radius: 50%;
@@ -748,21 +751,12 @@ main {
 }
 
 @keyframes emojiPop {
-  0% {
-    opacity: 0;
-    transform: scale(0) translateY(0);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.1) translateY(-18px);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.7) translateY(-36px);
-  }
+  0%   { opacity: 0; transform: scale(0) translateY(0); }
+  50%  { opacity: 1; transform: scale(1.1) translateY(-18px); }
+  100% { opacity: 0; transform: scale(0.7) translateY(-36px); }
 }
 
-/* ── LABEL ────────────────────────────────────────────────────– */
+/* ── LABEL ────────────────────────────────────────────────────── */
 
 .kfl-bottom-nav__label {
   transition: all 0.28s ease;
@@ -773,13 +767,13 @@ main {
   font-weight: 700;
 }
 
-/* ── RIPPLE EFFECT ────────────────────────────────────────────– */
+/* ── RIPPLE EFFECT ────────────────────────────────────────────── */
 
 .kfl-bottom-nav__ripple {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(circle, 
-    var(--kfl-green-glow) 0%, 
+  background: radial-gradient(circle,
+    var(--kfl-green-glow) 0%,
     transparent 65%);
   pointer-events: none;
   animation: rippleOut 0.55s ease-out;
@@ -787,17 +781,11 @@ main {
 }
 
 @keyframes rippleOut {
-  from {
-    opacity: 1;
-    transform: scale(0);
-  }
-  to {
-    opacity: 0;
-    transform: scale(3.8);
-  }
+  from { opacity: 1; transform: scale(0); }
+  to   { opacity: 0; transform: scale(3.8); }
 }
 
-/* ── EXIT PROMPT ────────────────────────────────────────────– */
+/* ── EXIT PROMPT ────────────────────────────────────────────── */
 
 .kfl-bottom-nav__exit-prompt {
   position: fixed;
@@ -827,59 +815,28 @@ main {
 ════════════════════════════════════════════════════════════ */
 
 @keyframes slideUpIn {
-  from {
-    opacity: 0;
-    transform: translateY(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes activeGlowPulse {
-  0% {
-    filter: drop-shadow(0 0 0 rgba(0, 200, 90, 0));
-  }
-  50% {
-    filter: drop-shadow(0 0 10px var(--kfl-green-glow));
-  }
-  100% {
-    filter: drop-shadow(0 0 0 rgba(0, 200, 90, 0));
-  }
+  0%   { filter: drop-shadow(0 0 0 rgba(0, 200, 90, 0)); }
+  50%  { filter: drop-shadow(0 0 10px var(--kfl-green-glow)); }
+  100% { filter: drop-shadow(0 0 0 rgba(0, 200, 90, 0)); }
 }
 
 @keyframes celebrateBounce {
-  0% {
-    transform: scale(1) rotate(0deg);
-  }
-  25% {
-    transform: scale(1.15) rotate(-10deg);
-  }
-  50% {
-    transform: scale(0.95) rotate(6deg);
-  }
-  75% {
-    transform: scale(1.08) rotate(-3deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
+  0%   { transform: scale(1) rotate(0deg); }
+  25%  { transform: scale(1.15) rotate(-10deg); }
+  50%  { transform: scale(0.95) rotate(6deg); }
+  75%  { transform: scale(1.08) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); }
 }
 
 @keyframes floatUp {
-  0% {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-  90% {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-60px);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-80px);
-  }
+  0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  90%  { opacity: 1; transform: translateX(-50%) translateY(-60px); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-80px); }
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -986,19 +943,14 @@ main {
 
 /* ── DESKTOP ADJUSTMENTS ────────────────────────────────────── */
 @media (min-width: 900px) {
-  .kfl-topbar {
-    padding: 0 28px;
-  }
+  .kfl-topbar { padding: 0 28px; }
 }
 
 @media (min-width: 1280px) {
-  .kfl-topbar {
-    padding: 0 40px;
-  }
+  .kfl-topbar { padding: 0 40px; }
 }
 
 /* ── SMOOTH TRANSITIONS ────────────────────────────────────── */
-
 @media (prefers-reduced-motion: no-preference) {
   .kfl-bottom-nav__item,
   .kfl-bottom-nav__icon-wrapper,
