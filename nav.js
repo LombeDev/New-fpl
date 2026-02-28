@@ -6,25 +6,22 @@
   // ─────────────────────────────────────────────────────────────
 
   // 1. HAMBURGER MENU LINKS (Drawer Navigation)
-  // Customize this for drawer-specific pages
   const DRAWER_LINKS = [
-    { href: 'index.html',       label: 'Home',           icon: 'fa-house' },
-    { href: 'leagues.html',     label: 'Leagues',        icon: 'fa-trophy' },
-    { href: 'prices.html',      label: 'Prices',         icon: 'fa-dollar-sign' },
-    { href: 'games.html',       label: 'Games',          icon: 'fa-futbol' },
-    { href: 'transfers.html',   label: 'Transfers',      icon: 'fa-arrows-rotate' },
-    { href: 'fixtures.html',    label: 'Fixtures',       icon: 'fa-calendar' },
-    { href: 'statistics.html',  label: 'Statistics',     icon: 'fa-chart-line' },
+    { href: 'index.html',       label: 'Home',       icon: 'fa-house' },
+    { href: 'leagues.html',     label: 'Leagues',    icon: 'fa-trophy' },
+    { href: 'prices.html',      label: 'Prices',     icon: 'fa-dollar-sign' },
+    { href: 'games.html',       label: 'Games',      icon: 'fa-futbol' },
+    { href: 'transfers.html',   label: 'Transfers',  icon: 'fa-arrows-rotate' },
+    { href: 'fixtures.html',    label: 'Fixtures',   icon: 'fa-calendar' },
+    { href: 'statistics.html',  label: 'Statistics', icon: 'fa-chart-line' },
   ];
 
   // 2. BOTTOM NAV LINKS (Bottom Navigation Bar)
-  // Customize this for bottom nav-specific pages
   const BOTTOM_NAV_LINKS = [
- [
-  { href: 'index.html',   label: 'Home',    icon: 'fa-house',       emotion: '🏠' },
-  { href: 'leagues.html', label: 'Leagues', icon: 'fa-futbol',      emotion: '🏆' },
-  { href: 'prices.html',  label: 'Prices',  icon: 'fa-star',        emotion: '📈' },
-  { href: 'games.html',   label: 'Games',   icon: 'fa-futbol',      emotion: '⚽' },
+    { href: 'index.html',   label: 'Home',    icon: 'fa-house',       emotion: '🏠' },
+    { href: 'leagues.html', label: 'Leagues', icon: 'fa-futbol',      emotion: '🏆' },
+    { href: 'prices.html',  label: 'Prices',  icon: 'fa-star',        emotion: '📈' },
+    { href: 'games.html',   label: 'Games',   icon: 'fa-futbol',      emotion: '⚽' },
   ];
 
   // ── HELPERS ──────────────────────────────────────────────
@@ -65,8 +62,6 @@
       </header>`;
   }
 
-
-
   function buildDrawer() {
     const drawerItems = DRAWER_LINKS.map(l => `
       <a href="${l.href}"
@@ -103,7 +98,7 @@
       </nav>`;
   }
 
-  // ── BOTTOM NAV (New Premium Component) ───────────────────
+  // ── BOTTOM NAV ───────────────────────────────────────────
   function buildBottomNav() {
     const navItems = BOTTOM_NAV_LINKS.map(l => `
       <a href="${l.href}"
@@ -203,38 +198,34 @@
 
   // ── BOTTOM NAV SETUP ─────────────────────────────────────
   function setupBottomNav() {
-    const items = document.querySelectorAll('.kfl-bottom-nav__item');
+    const items      = document.querySelectorAll('.kfl-bottom-nav__item');
     const exitPrompt = document.getElementById('exit-prompt');
 
-    items.forEach((item, index) => {
+    items.forEach((item) => {
       // Ripple & scale interaction
-      item.addEventListener('click', function(e) {
+      item.addEventListener('click', function (e) {
         const ripple = document.createElement('span');
         ripple.className = 'kfl-bottom-nav__ripple';
         const rect = this.getBoundingClientRect();
         const size = Math.max(rect.width, rect.height);
-        ripple.style.width = ripple.style.height = size + 'px';
-        ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
-        ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+        ripple.style.width  = ripple.style.height = size + 'px';
+        ripple.style.left   = (e.clientX - rect.left - size / 2) + 'px';
+        ripple.style.top    = (e.clientY - rect.top  - size / 2) + 'px';
         this.appendChild(ripple);
-        
         setTimeout(() => ripple.remove(), 600);
 
-        // Scale animation
         this.style.transform = 'scale(0.92)';
         setTimeout(() => { this.style.transform = ''; }, 120);
       });
 
-      // Hover glow effect
-      item.addEventListener('mouseenter', function() {
+      item.addEventListener('mouseenter', function () {
         this.classList.add('is-hovered');
       });
 
-      item.addEventListener('mouseleave', function() {
+      item.addEventListener('mouseleave', function () {
         this.classList.remove('is-hovered');
       });
 
-      // Emoji popup on active
       if (item.classList.contains('is-active')) {
         setTimeout(() => {
           item.classList.add('is-celebrating');
@@ -243,38 +234,27 @@
       }
     });
 
-    // Exit app detection (on unload)
-    window.addEventListener('beforeunload', function() {
+    window.addEventListener('beforeunload', function () {
       const activeItem = document.querySelector('.kfl-bottom-nav__item.is-active');
-      if (activeItem) {
-        const emotion = activeItem.dataset.emotion;
-        const message = emotion + ' Come back soon!';
-        if (exitPrompt) {
-          exitPrompt.textContent = message;
-          exitPrompt.classList.add('is-visible');
-        }
+      if (activeItem && exitPrompt) {
+        exitPrompt.textContent = activeItem.dataset.emotion + ' Come back soon!';
+        exitPrompt.classList.add('is-visible');
       }
     });
 
-    // Mood reflection on page load
     const activeItem = document.querySelector('.kfl-bottom-nav__item.is-active');
     if (activeItem) {
       activeItem.classList.add('is-celebrating');
       const emoji = activeItem.querySelector('.kfl-bottom-nav__emoji');
-      if (emoji) {
-        emoji.style.animation = 'float 2s ease-in-out';
-      }
+      if (emoji) emoji.style.animation = 'float 2s ease-in-out';
     }
   }
-
-
 
   // ── INIT ─────────────────────────────────────────────────
   function loadNav() {
     const placeholder = document.getElementById('nav-placeholder');
     if (!placeholder) return;
 
-    // Build: Top Bar + Drawer + Bottom Nav (NO SUB-NAV)
     placeholder.innerHTML = buildTopbar() + buildDrawer() + buildBottomNav();
 
     setupTheme();
