@@ -11,8 +11,6 @@
     { href: 'leagues.html',     label: 'Leagues',    icon: 'fa-trophy' },
     { href: 'prices.html',      label: 'Prices',     icon: 'fa-dollar-sign' },
     { href: 'games.html',       label: 'Games',      icon: 'fa-futbol' },
-    { href: 'transfers.html',   label: 'Transfers',  icon: 'fa-arrows-rotate' },
-    { href: 'fixtures.html',    label: 'Fixtures',   icon: 'fa-calendar' },
     { href: 'statistics.html',  label: 'Statistics', icon: 'fa-chart-line' },
   ];
 
