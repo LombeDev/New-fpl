@@ -1,644 +1,860 @@
 /**
  * live-widget.js — Kopala FPL
  * ─────────────────────────────────────────────────────────────
- * Floating live score pill that sits above the bottom nav
- * during an active gameweek. Shows live points, rank arrow,
- * and players still to play. Tapping expands to full team view.
+ * Floating live score pill + expanded panel, LiveFPL style.
  *
- * - Auto-refreshes every 60s via the live/ endpoint
- * - Haptic feedback on every interaction (via haptic.js)
- * - Collapses when navigating, expands on tap
- * - Only renders during an active gameweek
+ * ONLY appears when at least one fixture in the current GW
+ * is actively in progress (started + not finished).
+ * Hides automatically when the last game goes to FT.
  *
- * Dependencies: haptic.js (optional — degrades gracefully)
- * Usage: <script src="live-widget.js"></script>
+ * Expanded panel shows:
+ *  • Summary strip  — live pts / rank change / players to play
+ *  • Live Fixtures  — kit colours, score, minute, goal/card/bonus events,
+ *                     your FPL players in that game + their live points
+ *  • My Squad grid  — shirt emoji + name + coloured points badge per player
+ *
+ * Refreshes every 60s. Pauses when tab hidden.
+ * Haptic via window.Haptic (haptic.js) — degrades gracefully.
+ *
+ * Usage: <script src="haptic.js"></script>
+ *        <script src="live-widget.js"></script>
  */
 
 (function () {
   'use strict';
 
+  /* ── Config ── */
   const PROXY      = '/.netlify/functions/fpl-proxy?endpoint=';
   const STORAGE_ID = 'kopala_id';
-  const REFRESH_MS = 60 * 1000;        // 60 seconds
-  const NAV_H      = 60;               // bottom nav height px — adjust to match your nav
+  const REFRESH_MS = 60_000;
+  const NAV_H      = 62;   // match your bottom nav height
 
+  /* ── State ── */
   let _timer      = null;
-  let _lastPts    = null;
   let _isExpanded = false;
-  let _data       = null;
+  let _lastPts    = null;
+  let _rendered   = false;
 
-  /* ── Haptic helper — safe if haptic.js not loaded ── */
+  /* ── Haptic shim ── */
   const H = {
-    tap:     () => window.Haptic?.tap(),
-    score:   () => window.Haptic?.score(),
-    expand:  () => window.Haptic?.expand(),
-    dismiss: () => window.Haptic?.dismiss(),
-    warning: () => window.Haptic?.warning(),
+    tap:    () => window.Haptic?.tap(),
+    score:  () => window.Haptic?.score(),
+    expand: () => window.Haptic?.expand(),
+    close:  () => window.Haptic?.dismiss(),
   };
 
-  /* ── Position constants ── */
-  function pillBottom() {
-    return NAV_H + 10; // 10px gap above nav
-  }
+  /* ── FPL team colour map (primary kit hex) ── */
+  const TEAM_COLOURS = {
+    1: '#ef0107',  // Arsenal
+    2: '#95bfe5',  // Aston Villa
+    3: '#e30613',  // Brentford
+    4: '#0057b8',  // Brighton
+    5: '#034694',  // Chelsea
+    6: '#1b458f',  // Crystal Palace
+    7: '#003399',  // Everton
+    8: '#003090',  // Fulham
+    9: '#0d6efd',  // Ipswich
+    10:'#ffffff',  // Leicester
+    11:'#c8102e',  // Liverpool
+    12:'#6cabdd',  // Man City
+    13:'#d00027',  // Man Utd
+    14:'#231f20',  // Newcastle
+    15:'#d71920',  // Nottm Forest
+    16:'#d71920',  // Southampton
+    17:'#132257',  // Spurs
+    18:'#7a263a',  // West Ham
+    19:'#fdbe11',  // Wolves
+    20:'#1b458f',  // Bournemouth
+  };
+  const TEAM_SHORT = {
+    1:'ARS',2:'AVL',3:'BRE',4:'BHA',5:'CHE',6:'CRY',7:'EVE',8:'FUL',
+    9:'IPS',10:'LEI',11:'LIV',12:'MCI',13:'MUN',14:'NEW',15:'NFO',
+    16:'SOU',17:'TOT',18:'WHU',19:'WOL',20:'BOU',
+  };
 
   /* ── Inject styles ── */
-  (function injectStyles() {
+  (function injectCSS() {
     const s = document.createElement('style');
     s.textContent = `
-      /* ── Pill ── */
-      .kfl-lw-pill {
-        position: fixed;
-        bottom: ${pillBottom()}px;
-        left: 50%;
-        transform: translateX(-50%) translateY(0);
-        z-index: 950;
+      :root {
+        --kfl-lw-g:    var(--kfl-green, #00e868);
+        --kfl-lw-gd:   var(--kfl-green-dim, rgba(0,232,104,.12));
+        --kfl-lw-r:    #ef4444;
+        --kfl-lw-a:    #f59e0b;
+        --kfl-lw-s:    var(--kfl-surface, #0f1923);
+        --kfl-lw-s2:   var(--kfl-surface-2, #162030);
+        --kfl-lw-s3:   var(--kfl-surface-3, #1e2d40);
+        --kfl-lw-bdr:  var(--kfl-border, rgba(255,255,255,.07));
+        --kfl-lw-t1:   var(--kfl-text-1, #eef2ff);
+        --kfl-lw-t2:   var(--kfl-text-2, #7a90b0);
+        --kfl-lw-t3:   var(--kfl-text-3, #3a5070);
+      }
 
+      /* ─── PILL ─── */
+      #kfl-lw-pill {
+        position: fixed;
+        bottom: ${NAV_H + 10}px;
+        left: 50%;
+        transform: translateX(-50%) translateY(0) scale(1);
+        z-index: 960;
         display: flex;
         align-items: center;
-        gap: 7px;
-
-        padding: 0 14px 0 10px;
-        height: 36px;
+        gap: 8px;
+        height: 38px;
+        padding: 0 14px 0 11px;
         border-radius: 100px;
-
-        background: var(--kfl-surface, #141e2d);
-        border: 1px solid rgba(255,255,255,0.10);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
-
+        background: var(--kfl-lw-s2);
+        border: 1px solid var(--kfl-lw-bdr);
+        box-shadow: 0 4px 24px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.03);
         cursor: pointer;
         user-select: none;
         -webkit-tap-highlight-color: transparent;
-
-        transition: transform 0.32s cubic-bezier(0.34,1.3,0.64,1),
-                    box-shadow 0.2s ease,
-                    opacity 0.25s ease;
-        will-change: transform;
+        transition: transform .32s cubic-bezier(.34,1.3,.64,1),
+                    opacity .25s ease,
+                    box-shadow .2s ease;
+        will-change: transform, opacity;
       }
-
-      .kfl-lw-pill.is-hidden {
-        transform: translateX(-50%) translateY(120%);
+      #kfl-lw-pill.hidden {
+        transform: translateX(-50%) translateY(140%);
         opacity: 0;
         pointer-events: none;
       }
-
-      .kfl-lw-pill:active {
-        transform: translateX(-50%) scale(0.95);
-        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      #kfl-lw-pill:active {
+        transform: translateX(-50%) scale(.95);
+        box-shadow: 0 2px 10px rgba(0,0,0,.35);
       }
 
-      /* live dot */
       .kfl-lw-dot {
         width: 7px; height: 7px;
         border-radius: 50%;
-        background: var(--kfl-green, #00e868);
-        box-shadow: 0 0 6px var(--kfl-green, #00e868);
+        background: var(--kfl-lw-g);
+        box-shadow: 0 0 7px var(--kfl-lw-g);
         flex-shrink: 0;
-        animation: kfl-lw-pulse 2s ease-in-out infinite;
+        animation: kflLwPulse 2s ease-in-out infinite;
+      }
+      @keyframes kflLwPulse {
+        0%,100% { opacity:1; transform:scale(1); }
+        50%      { opacity:.5; transform:scale(.7); }
+      }
+      #kfl-lw-pill.loading .kfl-lw-dot {
+        background: var(--kfl-lw-t3);
+        box-shadow: none; animation: none;
       }
 
-      @keyframes kfl-lw-pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50%       { opacity: 0.5; transform: scale(0.7); }
-      }
-
-      .kfl-lw-pill.is-loading .kfl-lw-dot {
-        background: rgba(255,255,255,0.2);
-        box-shadow: none;
-        animation: none;
-      }
-
-      /* score */
-      .kfl-lw-score {
+      #kfl-lw-score {
         font-family: 'Barlow Condensed', sans-serif;
-        font-size: 1rem;
-        font-weight: 900;
-        color: var(--kfl-text-1, #fff);
-        letter-spacing: -0.5px;
-        line-height: 1;
-        min-width: 24px;
-        text-align: center;
-        transition: color 0.3s ease;
+        font-size: 1.05rem; font-weight: 900;
+        color: var(--kfl-lw-t1); letter-spacing: -.5px; line-height: 1;
+        min-width: 22px; text-align: center;
+        transition: color .25s ease;
+      }
+      #kfl-lw-score.flash {
+        animation: kflLwFlash .5s ease;
+      }
+      @keyframes kflLwFlash {
+        0%   { color: var(--kfl-lw-g); transform: scale(1.15); }
+        100% { color: var(--kfl-lw-t1); transform: scale(1); }
       }
 
-      .kfl-lw-score.updated {
-        animation: kfl-lw-score-flash 0.5s ease;
-      }
-
-      @keyframes kfl-lw-score-flash {
-        0%   { color: var(--kfl-green, #00e868); transform: scale(1.15); }
-        100% { color: var(--kfl-text-1, #fff);  transform: scale(1); }
-      }
-
-      /* divider */
       .kfl-lw-sep {
         width: 1px; height: 16px;
-        background: rgba(255,255,255,0.10);
-        flex-shrink: 0;
+        background: rgba(255,255,255,.1); flex-shrink: 0;
       }
 
-      /* rank arrow */
-      .kfl-lw-arrow {
+      #kfl-lw-arrow {
         font-family: 'DM Sans', sans-serif;
-        font-size: 0.62rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 2px;
+        font-size: .62rem; font-weight: 700;
+        display: flex; align-items: center; gap: 2px;
         white-space: nowrap;
       }
-      .kfl-lw-arrow.up   { color: var(--kfl-green, #00e868); }
-      .kfl-lw-arrow.down { color: #ef4444; }
-      .kfl-lw-arrow.same { color: rgba(255,255,255,0.35); }
+      #kfl-lw-arrow.up   { color: var(--kfl-lw-g); }
+      #kfl-lw-arrow.down { color: var(--kfl-lw-r); }
+      #kfl-lw-arrow.same { color: var(--kfl-lw-t3); }
 
-      /* players to play */
-      .kfl-lw-ttp {
+      #kfl-lw-ttp {
         font-family: 'DM Sans', sans-serif;
-        font-size: 0.58rem;
-        font-weight: 600;
-        color: rgba(255,255,255,0.38);
-        white-space: nowrap;
+        font-size: .58rem; font-weight: 600;
+        color: var(--kfl-lw-t2); white-space: nowrap;
       }
-      .kfl-lw-ttp strong {
-        color: rgba(255,255,255,0.7);
-        font-weight: 700;
-      }
+      #kfl-lw-ttp strong { color: var(--kfl-lw-t1); font-weight: 700; }
 
-      /* expand icon */
-      .kfl-lw-expand-icon {
-        font-size: 0.5rem;
-        color: rgba(255,255,255,0.25);
-        margin-left: 2px;
+      .kfl-lw-chev {
+        font-size: .5rem; color: var(--kfl-lw-t3);
+        transition: transform .2s ease;
       }
+      #kfl-lw-pill.expanded .kfl-lw-chev { transform: rotate(180deg); }
 
-      /* ── Expanded panel ── */
-      .kfl-lw-panel {
+      /* ─── BACKDROP ─── */
+      #kfl-lw-backdrop {
+        position: fixed; inset: 0;
+        z-index: 958; display: none;
+      }
+      #kfl-lw-backdrop.open { display: block; }
+
+      /* ─── PANEL ─── */
+      #kfl-lw-panel {
         position: fixed;
-        bottom: ${pillBottom() + 44}px;
+        bottom: ${NAV_H + 56}px;
         left: 50%;
-        transform: translateX(-50%) translateY(10px) scale(0.96);
-        z-index: 949;
-
-        width: calc(100vw - 24px);
-        max-width: 360px;
-        max-height: 70vh;
+        transform: translateX(-50%) translateY(12px) scale(.96);
+        z-index: 959;
+        width: calc(100vw - 20px);
+        max-width: 420px;
+        max-height: 78vh;
         overflow-y: auto;
         scrollbar-width: none;
-
-        background: var(--kfl-surface, #141e2d);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 16px;
-        box-shadow: 0 16px 48px rgba(0,0,0,0.55);
-
+        border-radius: 18px;
+        background: var(--kfl-lw-s);
+        border: 1px solid var(--kfl-lw-bdr);
+        box-shadow: 0 20px 64px rgba(0,0,0,.7);
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.34,1.2,0.64,1);
+        transition: opacity .22s ease, transform .28s cubic-bezier(.34,1.2,.64,1);
         will-change: transform, opacity;
       }
-
-      .kfl-lw-panel::-webkit-scrollbar { display: none; }
-
-      .kfl-lw-panel.is-open {
+      #kfl-lw-panel::-webkit-scrollbar { display: none; }
+      #kfl-lw-panel.open {
         opacity: 1;
         pointer-events: auto;
         transform: translateX(-50%) translateY(0) scale(1);
       }
 
       /* panel header */
-      .kfl-lw-panel-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 14px 10px;
-        border-bottom: 1px solid rgba(255,255,255,0.06);
-        position: sticky;
-        top: 0;
-        background: var(--kfl-surface, #141e2d);
-        z-index: 1;
-        border-radius: 16px 16px 0 0;
+      .kfl-lw-ph {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 11px 14px 9px;
+        border-bottom: 1px solid var(--kfl-lw-bdr);
+        background: var(--kfl-lw-s2);
+        border-radius: 18px 18px 0 0;
+        position: sticky; top: 0; z-index: 2;
       }
-
-      .kfl-lw-panel-title {
+      .kfl-lw-ph-left { display: flex; align-items: center; gap: 7px; }
+      .kfl-lw-live-lbl {
         font-family: 'Barlow Condensed', sans-serif;
-        font-size: 0.6rem;
-        font-weight: 800;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: var(--kfl-green, #00e868);
-        display: flex;
-        align-items: center;
-        gap: 6px;
+        font-size: .58rem; font-weight: 800;
+        letter-spacing: 2px; text-transform: uppercase;
+        color: var(--kfl-lw-g);
       }
-
-      .kfl-lw-panel-pts {
+      .kfl-lw-ph-pts {
         font-family: 'Barlow Condensed', sans-serif;
-        font-size: 1.3rem;
-        font-weight: 900;
-        color: var(--kfl-text-1, #fff);
-        letter-spacing: -0.5px;
-        line-height: 1;
+        font-size: 1.4rem; font-weight: 900;
+        color: var(--kfl-lw-t1); letter-spacing: -.5px; line-height: 1;
       }
-
-      .kfl-lw-panel-close {
-        width: 24px; height: 24px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.08);
-        color: rgba(255,255,255,0.3);
+      .kfl-lw-ph-pts span {
+        font-size: .68rem; font-weight: 600;
+        color: var(--kfl-lw-t2); margin-left: 2px;
+      }
+      .kfl-lw-ph-close {
+        width: 24px; height: 24px; border-radius: 50%;
+        background: rgba(255,255,255,.06);
+        border: 1px solid var(--kfl-lw-bdr);
+        color: var(--kfl-lw-t3);
         display: flex; align-items: center; justify-content: center;
-        cursor: pointer;
-        font-size: 0.6rem;
-        transition: background 0.15s;
-        flex-shrink: 0;
+        cursor: pointer; font-size: .58rem;
+        transition: background .15s, color .15s;
       }
-      .kfl-lw-panel-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
+      .kfl-lw-ph-close:hover { background: rgba(255,255,255,.12); color: var(--kfl-lw-t1); }
 
-      /* panel summary strip */
-      .kfl-lw-summary {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
+      /* summary strip */
+      .kfl-lw-summ {
+        display: grid; grid-template-columns: repeat(3,1fr);
+        border-bottom: 1px solid var(--kfl-lw-bdr);
       }
-
-      .kfl-lw-summary-item {
-        padding: 8px 12px;
-        text-align: center;
-      }
-      .kfl-lw-summary-item + .kfl-lw-summary-item {
-        border-left: 1px solid rgba(255,255,255,0.05);
-      }
-      .kfl-lw-summary-label {
+      .kfl-lw-si { padding: 7px 10px; text-align: center; }
+      .kfl-lw-si + .kfl-lw-si { border-left: 1px solid var(--kfl-lw-bdr); }
+      .kfl-lw-sl {
         font-family: 'DM Sans', sans-serif;
-        font-size: 0.5rem;
-        font-weight: 700;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.28);
-        margin-bottom: 3px;
+        font-size: .44rem; font-weight: 700;
+        letter-spacing: 1.1px; text-transform: uppercase;
+        color: var(--kfl-lw-t3); margin-bottom: 3px;
       }
-      .kfl-lw-summary-value {
+      .kfl-lw-sv {
         font-family: 'Barlow Condensed', sans-serif;
-        font-size: 0.9rem;
-        font-weight: 800;
-        color: var(--kfl-text-1, #fff);
-        line-height: 1;
+        font-size: .9rem; font-weight: 800;
+        color: var(--kfl-lw-t1); line-height: 1;
       }
-      .kfl-lw-summary-value.up   { color: var(--kfl-green, #00e868); }
-      .kfl-lw-summary-value.down { color: #ef4444; }
+      .kfl-lw-sv.up   { color: var(--kfl-lw-g); }
+      .kfl-lw-sv.down { color: var(--kfl-lw-r); }
 
-      /* player rows */
-      .kfl-lw-players {
-        padding: 6px 0 4px;
+      /* section label */
+      .kfl-lw-sec {
+        font-family: 'DM Sans', sans-serif;
+        font-size: .44rem; font-weight: 800;
+        letter-spacing: 1.5px; text-transform: uppercase;
+        color: var(--kfl-lw-t3); padding: 8px 14px 4px;
       }
 
-      .kfl-lw-player-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 6px 14px;
-        transition: background 0.1s;
+      /* ─── FIXTURE CARD ─── */
+      .kfl-lw-fx {
+        margin: 0 10px 8px;
+        border-radius: 12px;
+        background: var(--kfl-lw-s2);
+        border: 1px solid var(--kfl-lw-bdr);
+        overflow: hidden;
       }
-      .kfl-lw-player-row:hover { background: rgba(255,255,255,0.02); }
+      .kfl-lw-fx.is-live { border-color: rgba(0,232,104,.22); }
 
-      .kfl-lw-pos-badge {
-        width: 20px; height: 20px;
-        border-radius: 4px;
-        display: flex; align-items: center; justify-content: center;
-        font-family: 'Barlow Condensed', sans-serif;
-        font-size: 0.55rem; font-weight: 800;
-        flex-shrink: 0;
-        letter-spacing: 0.3px;
+      .kfl-lw-fx-head {
+        display: flex; align-items: center;
+        padding: 9px 12px; gap: 4px;
       }
-      .kfl-lw-pos-badge.gkp { background: rgba(234,179,8,0.15);  color: #eab308; }
-      .kfl-lw-pos-badge.def { background: rgba(59,130,246,0.15); color: #60a5fa; }
-      .kfl-lw-pos-badge.mid { background: rgba(34,197,94,0.15);  color: #4ade80; }
-      .kfl-lw-pos-badge.fwd { background: rgba(239,68,68,0.15);  color: #f87171; }
-
-      .kfl-lw-player-name {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-size: 0.82rem; font-weight: 700;
-        color: var(--kfl-text-1, #fff);
+      .kfl-lw-fx-team {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 3px;
         flex: 1; min-width: 0;
+      }
+
+      /* shirt SVG placeholder */
+      .kfl-lw-kit {
+        width: 34px; height: 34px;
+        flex-shrink: 0;
+      }
+      .kfl-lw-kit svg { width: 100%; height: 100%; }
+
+      .kfl-lw-tname {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: .72rem; font-weight: 800;
+        color: var(--kfl-lw-t1); text-align: center;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        line-height: 1;
+        width: 100%;
       }
-      .kfl-lw-player-name.is-playing { color: var(--kfl-green, #00e868); }
-      .kfl-lw-player-name.not-played { color: rgba(255,255,255,0.4); }
-      .kfl-lw-player-name.benched    { color: rgba(255,255,255,0.22); }
-
-      .kfl-lw-player-status {
-        font-size: 0.5rem;
-        flex-shrink: 0;
-        display: flex; align-items: center; gap: 3px;
-      }
-
-      .kfl-lw-player-pts {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-size: 0.9rem; font-weight: 800;
-        color: var(--kfl-text-1, #fff);
-        min-width: 22px; text-align: right; line-height: 1;
-        flex-shrink: 0;
-      }
-      .kfl-lw-player-pts.captain { color: #f59e0b; }
-      .kfl-lw-player-pts.vice    { color: rgba(245,158,11,0.55); }
-      .kfl-lw-player-pts.benched { color: rgba(255,255,255,0.22); }
-
-      .kfl-lw-captain-badge {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-size: 0.5rem; font-weight: 900;
-        background: #f59e0b; color: #fff;
-        width: 13px; height: 13px;
-        border-radius: 50%;
-        display: inline-flex; align-items: center; justify-content: center;
-        flex-shrink: 0;
-      }
-      .kfl-lw-captain-badge.vc {
-        background: rgba(245,158,11,0.25); color: #f59e0b;
-      }
-
-      /* bench divider */
-      .kfl-lw-bench-label {
+      .kfl-lw-teo {
         font-family: 'DM Sans', sans-serif;
-        font-size: 0.5rem; font-weight: 700;
-        letter-spacing: 1.2px; text-transform: uppercase;
-        color: rgba(255,255,255,0.2);
-        padding: 6px 14px 3px;
-        border-top: 1px solid rgba(255,255,255,0.05);
+        font-size: .42rem; font-weight: 600;
+        color: var(--kfl-lw-t3); text-align: center;
+      }
+
+      .kfl-lw-fx-score {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 3px; flex-shrink: 0;
+        padding: 0 6px;
+      }
+      .kfl-lw-snum {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 1.7rem; font-weight: 900;
+        color: var(--kfl-lw-t1); letter-spacing: -2px; line-height: 1;
+      }
+      .kfl-lw-fstat {
+        font-family: 'DM Sans', sans-serif;
+        font-size: .44rem; font-weight: 800;
+        letter-spacing: 1px; text-transform: uppercase;
+        padding: 1px 7px; border-radius: 100px;
+      }
+      .kfl-lw-fstat.live { background: rgba(0,232,104,.12); color: var(--kfl-lw-g); }
+      .kfl-lw-fstat.ft   { background: rgba(255,255,255,.06); color: var(--kfl-lw-t3); }
+      .kfl-lw-fstat.ns   { background: rgba(255,255,255,.04); color: var(--kfl-lw-t3); }
+
+      /* events */
+      .kfl-lw-evts {
+        padding: 0 12px 7px;
+        display: flex; flex-wrap: wrap; gap: 3px;
+      }
+      .kfl-lw-ec {
+        font-family: 'DM Sans', sans-serif;
+        font-size: .46rem; font-weight: 700;
+        padding: 2px 7px; border-radius: 100px;
+        background: rgba(255,255,255,.05); color: var(--kfl-lw-t2);
+        display: flex; align-items: center; gap: 2px;
+      }
+      .kfl-lw-ec.goal  { background: rgba(0,232,104,.1);   color: var(--kfl-lw-g); }
+      .kfl-lw-ec.ast   { background: rgba(99,179,237,.1);  color: #63b3ed; }
+      .kfl-lw-ec.card  { background: rgba(239,68,68,.1);   color: var(--kfl-lw-r); }
+      .kfl-lw-ec.bon   { background: rgba(245,158,11,.1);  color: var(--kfl-lw-a); }
+      .kfl-lw-ec.owngl { background: rgba(239,68,68,.08);  color: #f87171; }
+
+      /* my players chips in fixture */
+      .kfl-lw-fxp {
+        padding: 0 10px 9px;
+        display: flex; gap: 5px; overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .kfl-lw-fxp::-webkit-scrollbar { display: none; }
+      .kfl-lw-mpc {
+        display: flex; align-items: center; gap: 4px;
+        padding: 4px 9px 4px 6px;
+        border-radius: 8px;
+        background: var(--kfl-lw-s3);
+        border: 1px solid var(--kfl-lw-bdr);
+        flex-shrink: 0;
+      }
+      .kfl-lw-mpc.cap { border-color: rgba(245,158,11,.3); background: rgba(245,158,11,.07); }
+      .kfl-lw-mpp {
+        width: 16px; height: 16px; border-radius: 3px;
+        display: flex; align-items: center; justify-content: center;
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: .44rem; font-weight: 800; flex-shrink: 0;
+      }
+      .kfl-lw-mpp.g { background: rgba(234,179,8,.18);  color: #fde047; }
+      .kfl-lw-mpp.d { background: rgba(59,130,246,.18); color: #60a5fa; }
+      .kfl-lw-mpp.m { background: rgba(34,197,94,.18);  color: #4ade80; }
+      .kfl-lw-mpp.f { background: rgba(239,68,68,.18);  color: #f87171; }
+      .kfl-lw-mpn {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: .76rem; font-weight: 700;
+        color: var(--kfl-lw-t1); white-space: nowrap; line-height: 1;
+      }
+      .kfl-lw-mppts {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: .78rem; font-weight: 900;
+        color: var(--kfl-lw-g); margin-left: 2px; line-height: 1;
+      }
+      .kfl-lw-mppts.cap { color: var(--kfl-lw-a); }
+      .kfl-lw-cb {
+        width: 13px; height: 13px; border-radius: 50%;
+        background: var(--kfl-lw-a); color: #1a0a00;
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: .44rem; font-weight: 900;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+      }
+
+      /* ─── SQUAD GRID ─── */
+      .kfl-lw-sgrid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 4px;
+        padding: 4px 10px;
+      }
+      .kfl-lw-sgrid.r4 { grid-template-columns: repeat(4,1fr); }
+      .kfl-lw-sgrid.r2 {
+        grid-template-columns: repeat(2,1fr);
+        max-width: 136px; margin: 0 auto;
+      }
+
+      .kfl-lw-pc {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 2px;
+        padding: 5px 3px;
+        border-radius: 9px;
+        background: var(--kfl-lw-s2);
+        border: 1px solid var(--kfl-lw-bdr);
+        position: relative; overflow: hidden;
+        transition: border-color .15s;
+      }
+      .kfl-lw-pc.on  { border-color: rgba(0,232,104,.28); }
+      .kfl-lw-pc.cap { border-color: rgba(245,158,11,.32); }
+      .kfl-lw-pc.bch { opacity: .42; }
+
+      /* tiny kit SVG inside player card */
+      .kfl-lw-pc-kit {
+        width: 26px; height: 26px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+      }
+      .kfl-lw-pc-kit svg { width: 100%; height: 100%; }
+
+      .kfl-lw-pcn {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: .58rem; font-weight: 700;
+        color: var(--kfl-lw-t1); text-align: center;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        width: 100%; padding: 0 2px; line-height: 1;
+      }
+      .kfl-lw-pb {
+        padding: 1px 5px; border-radius: 100px;
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: .57rem; font-weight: 800; line-height: 1.4;
+        min-width: 22px; text-align: center;
+      }
+      .kfl-lw-pb.played  { background: var(--kfl-lw-gd);          color: var(--kfl-lw-g); }
+      .kfl-lw-pb.playing { background: rgba(0,232,104,.22);        color: var(--kfl-lw-g);
+                            animation: kflLwGlow 1.5s ease-in-out infinite; }
+      .kfl-lw-pb.tbp     { background: rgba(255,255,255,.05);      color: var(--kfl-lw-t3); }
+      .kfl-lw-pb.captbp  { background: rgba(245,158,11,.12);       color: var(--kfl-lw-a); }
+      .kfl-lw-pb.captpl  { background: rgba(245,158,11,.22);       color: var(--kfl-lw-a);
+                            animation: kflLwGlow 1.5s ease-in-out infinite; }
+      .kfl-lw-pb.captd   { background: rgba(245,158,11,.14);       color: var(--kfl-lw-a); }
+      @keyframes kflLwGlow {
+        0%,100% { box-shadow: none; }
+        50%     { box-shadow: 0 0 6px var(--kfl-lw-g); }
+      }
+
+      .kfl-lw-cbdg {
+        position: absolute; top: 2px; right: 2px;
+        width: 12px; height: 12px; border-radius: 50%;
+        background: var(--kfl-lw-a); color: #1a0a00;
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: .42rem; font-weight: 900;
+        display: flex; align-items: center; justify-content: center;
+      }
+
+      /* bench divider label */
+      .kfl-lw-blbl {
+        font-family: 'DM Sans', sans-serif;
+        font-size: .42rem; font-weight: 800;
+        letter-spacing: 1.3px; text-transform: uppercase;
+        color: var(--kfl-lw-t3);
+        padding: 6px 14px 2px;
+        border-top: 1px solid var(--kfl-lw-bdr);
         margin-top: 2px;
       }
 
-      /* still to play chip */
-      .kfl-lw-ttp-chip {
-        font-size: 0.48rem; font-weight: 700;
-        padding: 1px 5px; border-radius: 4px;
-        background: rgba(255,255,255,0.07);
-        color: rgba(255,255,255,0.4);
-        white-space: nowrap;
-      }
-      .kfl-lw-ttp-chip.playing {
-        background: rgba(0,232,104,0.12);
-        color: var(--kfl-green, #00e868);
+      /* refresh bar */
+      .kfl-lw-rbar { height: 2px; background: rgba(255,255,255,.04); margin-top: 6px; }
+      .kfl-lw-rfill {
+        height: 100%; width: 0;
+        background: var(--kfl-lw-g); opacity: .4;
+        border-radius: 0 100px 100px 0;
       }
 
-      /* refresh indicator */
-      .kfl-lw-refresh-bar {
-        height: 2px;
-        background: rgba(255,255,255,0.04);
-        border-radius: 0 0 16px 16px;
-        overflow: hidden;
+      /* ─── Light theme overrides ─── */
+      [data-theme="light"] #kfl-lw-pill {
+        background: #fff;
+        border-color: rgba(0,0,0,.08);
+        box-shadow: 0 4px 20px rgba(0,0,0,.12);
       }
-      .kfl-lw-refresh-bar-fill {
-        height: 100%;
-        background: var(--kfl-green, #00e868);
-        opacity: 0.5;
-        border-radius: 100px;
-        width: 0%;
-        transition: width linear;
-      }
-
-      /* panel dismiss backdrop */
-      .kfl-lw-backdrop {
-        position: fixed;
-        inset: 0;
-        z-index: 948;
-        display: none;
-      }
-      .kfl-lw-backdrop.is-open { display: block; }
-
-      /* light theme */
-      [data-theme="light"] .kfl-lw-pill {
-        background: #ffffff;
-        border-color: rgba(0,0,0,0.08);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-      }
-      [data-theme="light"] .kfl-lw-score         { color: #0a0e1a; }
-      [data-theme="light"] .kfl-lw-sep           { background: rgba(0,0,0,0.08); }
-      [data-theme="light"] .kfl-lw-ttp           { color: rgba(0,0,0,0.4); }
-      [data-theme="light"] .kfl-lw-ttp strong    { color: rgba(0,0,0,0.7); }
-      [data-theme="light"] .kfl-lw-expand-icon   { color: rgba(0,0,0,0.2); }
-      [data-theme="light"] .kfl-lw-panel         { background: #ffffff; border-color: rgba(0,0,0,0.07); }
-      [data-theme="light"] .kfl-lw-panel-header  { background: #ffffff; border-bottom-color: rgba(0,0,0,0.06); }
-      [data-theme="light"] .kfl-lw-panel-pts     { color: #0a0e1a; }
-      [data-theme="light"] .kfl-lw-panel-close   { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.07); color: rgba(0,0,0,0.35); }
-      [data-theme="light"] .kfl-lw-summary       { border-bottom-color: rgba(0,0,0,0.05); }
-      [data-theme="light"] .kfl-lw-summary-item + .kfl-lw-summary-item { border-left-color: rgba(0,0,0,0.05); }
-      [data-theme="light"] .kfl-lw-summary-label { color: rgba(0,0,0,0.3); }
-      [data-theme="light"] .kfl-lw-summary-value { color: #0a0e1a; }
-      [data-theme="light"] .kfl-lw-player-name   { color: #0a0e1a; }
-      [data-theme="light"] .kfl-lw-player-pts    { color: #0a0e1a; }
-      [data-theme="light"] .kfl-lw-bench-label   { color: rgba(0,0,0,0.22); border-top-color: rgba(0,0,0,0.06); }
-      [data-theme="light"] .kfl-lw-refresh-bar   { background: rgba(0,0,0,0.04); }
+      [data-theme="light"] #kfl-lw-score       { color: #0a0e1a; }
+      [data-theme="light"] .kfl-lw-sep         { background: rgba(0,0,0,.1); }
+      [data-theme="light"] #kfl-lw-ttp         { color: rgba(0,0,0,.45); }
+      [data-theme="light"] #kfl-lw-ttp strong  { color: #0a0e1a; }
+      [data-theme="light"] #kfl-lw-panel       { background: #f4f7fb; border-color: rgba(0,0,0,.07); }
+      [data-theme="light"] .kfl-lw-ph          { background: #fff; border-bottom-color: rgba(0,0,0,.06); }
+      [data-theme="light"] .kfl-lw-ph-pts      { color: #0a0e1a; }
+      [data-theme="light"] .kfl-lw-ph-close    { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.07); }
+      [data-theme="light"] .kfl-lw-summ        { border-bottom-color: rgba(0,0,0,.06); }
+      [data-theme="light"] .kfl-lw-si + .kfl-lw-si { border-left-color: rgba(0,0,0,.06); }
+      [data-theme="light"] .kfl-lw-sv          { color: #0a0e1a; }
+      [data-theme="light"] .kfl-lw-fx          { background: #fff; border-color: rgba(0,0,0,.07); }
+      [data-theme="light"] .kfl-lw-tname       { color: #0a0e1a; }
+      [data-theme="light"] .kfl-lw-snum        { color: #0a0e1a; }
+      [data-theme="light"] .kfl-lw-pc          { background: #fff; border-color: rgba(0,0,0,.07); }
+      [data-theme="light"] .kfl-lw-pcn         { color: #0a0e1a; }
+      [data-theme="light"] .kfl-lw-mpc         { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.07); }
+      [data-theme="light"] .kfl-lw-mpn         { color: #0a0e1a; }
+      [data-theme="light"] .kfl-lw-blbl        { border-top-color: rgba(0,0,0,.06); }
     `;
     document.head.appendChild(s);
   })();
 
-  /* ── DOM refs ── */
-  let pill, panel, backdrop, scoreEl, arrowEl, ttpEl, fillEl;
+  /* ── SVG shirt generator ── */
+  function kitSVG(color, size = 34) {
+    // A simple stylised football shirt silhouette
+    const c = color || '#555';
+    return `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 4 L8 10 L4 8 L2 18 L10 19 L10 36 L30 36 L30 19 L38 18 L36 8 L32 10 L26 4 Q23 7 20 7 Q17 7 14 4Z"
+        fill="${c}" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+    </svg>`;
+  }
+
+  /* ── Stat helpers ── */
+  function fmtRank(n) {
+    if (!n) return '—';
+    return n >= 1_000_000 ? (n / 1_000_000).toFixed(1) + 'M'
+         : n >= 1_000     ? Math.round(n / 1_000) + 'k'
+         : String(n);
+  }
+
+  function posClass(type) { return ['g','d','m','f'][type - 1] || 'm'; }
+  function posLabel(type) { return ['GKP','DEF','MID','FWD'][type - 1] || '?'; }
+
+  /* ── Build fixture event chips ── */
+  function buildEvents(fixture, playerMap) {
+    if (!fixture.stats) return '';
+    const chips = [];
+
+    const goals = fixture.stats.find(s => s.identifier === 'goals_scored');
+    const assists = fixture.stats.find(s => s.identifier === 'assists');
+    const ownGoals = fixture.stats.find(s => s.identifier === 'own_goals');
+    const redCards = fixture.stats.find(s => s.identifier === 'red_cards');
+    const bonus = fixture.stats.find(s => s.identifier === 'bonus');
+
+    const addChips = (stat, cls, icon) => {
+      if (!stat) return;
+      [...(stat.h || []), ...(stat.a || [])].forEach(e => {
+        const name = playerMap[e.element]?.web_name || '?';
+        chips.push(`<span class="kfl-lw-ec ${cls}">${icon} ${name}</span>`);
+      });
+    };
+
+    addChips(goals,    'goal',  '⚽');
+    addChips(assists,  'ast',   '🅰️');
+    addChips(ownGoals, 'owngl', '😬');
+    addChips(redCards, 'card',  '🟥');
+
+    // Bonus chips — max top 3
+    if (bonus) {
+      const all = [...(bonus.h || []), ...(bonus.a || [])]
+        .sort((a, b) => b.value - a.value).slice(0, 3);
+      if (all.length) {
+        const bonusText = all.map(e => `${playerMap[e.element]?.web_name || '?'} ${e.value}`).join(' · ');
+        chips.push(`<span class="kfl-lw-ec bon">★ ${bonusText}</span>`);
+      }
+    }
+
+    return chips.join('');
+  }
+
+  /* ── Build "my players in fixture" chips ── */
+  function buildMyPlayersInFixture(fixture, myPicksMap, playerMap, liveMap) {
+    const fxTeams = new Set([fixture.team_h, fixture.team_a]);
+    const chips = [];
+
+    myPicksMap.forEach((pick, elementId) => {
+      const player = playerMap[elementId];
+      if (!player || !fxTeams.has(player.team)) return;
+      if (pick.position > 11) return; // bench only if needed
+
+      const rawPts = liveMap[elementId] ?? 0;
+      const pts    = pick.multiplier > 1 ? rawPts * 2 : rawPts;
+      const isCap  = pick.is_captain;
+      const pos    = posClass(player.element_type);
+
+      chips.push(`
+        <div class="kfl-lw-mpc${isCap ? ' cap' : ''}">
+          <div class="kfl-lw-mpp ${pos}">${posLabel(player.element_type)}</div>
+          <span class="kfl-lw-mpn">${player.web_name}</span>
+          <span class="kfl-lw-mppts${isCap ? ' cap' : ''}">${pts}</span>
+          ${isCap ? '<div class="kfl-lw-cb">C</div>' : ''}
+        </div>
+      `);
+    });
+
+    return chips.join('');
+  }
+
+  /* ── Build fixture card HTML ── */
+  function buildFixtureCard(fixture, playerMap, myPicksMap, liveMap, teamMap) {
+    const isLive = fixture.started && !fixture.finished_provisional;
+    const isFT   = fixture.finished_provisional;
+    const hTeam  = teamMap[fixture.team_h];
+    const aTeam  = teamMap[fixture.team_a];
+    const hCol   = TEAM_COLOURS[fixture.team_h] || '#555';
+    const aCol   = TEAM_COLOURS[fixture.team_a] || '#555';
+
+    const statusClass = isLive ? 'live' : isFT ? 'ft' : 'ns';
+    const statusText  = isLive ? (fixture.minutes + "'")
+                      : isFT   ? 'FT'
+                      :          'NS';
+
+    const hScore = fixture.team_h_score ?? 0;
+    const aScore = fixture.team_a_score ?? 0;
+
+    // Top10k EO: approximate from team ownership in bootstrap (display team name as fallback)
+    const hEO = hTeam?.top10k_eo ? `Top10k EO: ${hTeam.top10k_eo}%` : '';
+    const aEO = aTeam?.top10k_eo ? `Top10k EO: ${aTeam.top10k_eo}%` : '';
+
+    const eventsHTML   = buildEvents(fixture, playerMap);
+    const myPlayersHTML = buildMyPlayersInFixture(fixture, myPicksMap, playerMap, liveMap);
+
+    return `
+      <div class="kfl-lw-fx${isLive ? ' is-live' : ''}">
+        <div class="kfl-lw-fx-head">
+          <div class="kfl-lw-fx-team">
+            <div class="kfl-lw-kit">${kitSVG(hCol)}</div>
+            <div class="kfl-lw-tname">${hTeam?.short_name || TEAM_SHORT[fixture.team_h] || '?'}</div>
+            ${hEO ? `<div class="kfl-lw-teo">${hEO}</div>` : ''}
+          </div>
+          <div class="kfl-lw-fx-score">
+            <div class="kfl-lw-snum">${hScore}&thinsp;:&thinsp;${aScore}</div>
+            <div class="kfl-lw-fstat ${statusClass}">${statusText}</div>
+          </div>
+          <div class="kfl-lw-fx-team">
+            <div class="kfl-lw-kit">${kitSVG(aCol)}</div>
+            <div class="kfl-lw-tname">${aTeam?.short_name || TEAM_SHORT[fixture.team_a] || '?'}</div>
+            ${aEO ? `<div class="kfl-lw-teo">${aEO}</div>` : ''}
+          </div>
+        </div>
+        ${eventsHTML ? `<div class="kfl-lw-evts">${eventsHTML}</div>` : ''}
+        ${myPlayersHTML ? `<div class="kfl-lw-fxp">${myPlayersHTML}</div>` : ''}
+      </div>
+    `;
+  }
+
+  /* ── Build squad grid ── */
+  function buildSquadGrid(picks, playerMap, liveMap, playingSet) {
+    const GKP = picks.filter(p => playerMap[p.element]?.element_type === 1);
+    const DEF = picks.filter(p => playerMap[p.element]?.element_type === 2 && p.position <= 11);
+    const MID = picks.filter(p => playerMap[p.element]?.element_type === 3 && p.position <= 11);
+    const FWD = picks.filter(p => playerMap[p.element]?.element_type === 4 && p.position <= 11);
+    const BCH = picks.filter(p => p.position > 11);
+
+    function playerCard(pick, isBench = false) {
+      const player = playerMap[pick.element];
+      if (!player) return '';
+      const rawPts    = liveMap[pick.element] ?? 0;
+      const pts       = pick.multiplier > 1 ? rawPts * 2 : rawPts;
+      const isPlaying = playingSet.has(pick.element);
+      const hasPlayed = (liveMap[pick.element] !== undefined) && !playingSet.has(pick.element);
+      const isCap     = pick.is_captain;
+      const col       = TEAM_COLOURS[player.team] || '#444';
+
+      let pbClass;
+      if (isCap) {
+        pbClass = isPlaying ? 'captpl' : hasPlayed ? 'captd' : 'captbp';
+      } else {
+        pbClass = isPlaying ? 'playing' : hasPlayed ? 'played' : 'tbp';
+      }
+
+      const ptsLabel = (pbClass === 'tbp' || pbClass === 'captbp') ? '—' : String(pts);
+      const cardClass = `kfl-lw-pc${isPlaying ? ' on' : ''}${isCap ? ' cap' : ''}${isBench ? ' bch' : ''}`;
+
+      return `
+        <div class="${cardClass}">
+          <div class="kfl-lw-pc-kit">${kitSVG(col, 26)}</div>
+          <div class="kfl-lw-pcn">${player.web_name}</div>
+          <div class="kfl-lw-pb ${pbClass}">${ptsLabel}</div>
+          ${isCap ? '<div class="kfl-lw-cbdg">C</div>' : ''}
+        </div>
+      `;
+    }
+
+    const gkpOnly = GKP.filter(p => p.position <= 11);
+
+    return `
+      <div class="kfl-lw-sgrid r2">${gkpOnly.map(p => playerCard(p)).join('')}</div>
+      <div class="kfl-lw-sgrid">${DEF.map(p => playerCard(p)).join('')}</div>
+      <div class="kfl-lw-sgrid">${MID.map(p => playerCard(p)).join('')}</div>
+      <div class="kfl-lw-sgrid r4">${FWD.map(p => playerCard(p)).join('')}</div>
+      <div class="kfl-lw-blbl">Bench</div>
+      <div class="kfl-lw-sgrid r4" style="padding-top:4px;padding-bottom:8px">${BCH.map(p => playerCard(p, true)).join('')}</div>
+    `;
+  }
+
+  /* ── DOM elements ── */
+  let pill, panel, backdrop;
+  let scoreEl, arrowEl, ttpEl, fillEl;
+  let _fillStart = null;
 
   function buildDOM() {
-    // Backdrop
-    backdrop = document.createElement('div');
-    backdrop.className = 'kfl-lw-backdrop';
+    backdrop = Object.assign(document.createElement('div'), { id: 'kfl-lw-backdrop' });
     backdrop.addEventListener('click', collapse);
 
-    // Panel
-    panel = document.createElement('div');
-    panel.className = 'kfl-lw-panel';
-    panel.id = 'kfl-lw-panel';
+    panel = Object.assign(document.createElement('div'), { id: 'kfl-lw-panel' });
     panel.innerHTML = `
-      <div class="kfl-lw-panel-header">
-        <div class="kfl-lw-panel-title">
-          <span class="kfl-lw-dot" style="width:6px;height:6px;border-radius:50%;background:var(--kfl-green,#00e868);box-shadow:0 0 5px var(--kfl-green,#00e868);animation:kfl-lw-pulse 2s ease-in-out infinite;display:inline-block"></span>
-          Live GW
+      <div class="kfl-lw-ph">
+        <div class="kfl-lw-ph-left">
+          <span class="kfl-lw-dot"></span>
+          <span class="kfl-lw-live-lbl" id="kfl-lw-gw-lbl">Live</span>
         </div>
-        <div class="kfl-lw-panel-pts" id="kfl-lw-panel-pts">—</div>
-        <button class="kfl-lw-panel-close" id="kfl-lw-panel-close" aria-label="Close">
+        <div class="kfl-lw-ph-pts" id="kfl-lw-ph-pts">—<span>pts</span></div>
+        <button class="kfl-lw-ph-close" id="kfl-lw-ph-close" aria-label="Close">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-      <div class="kfl-lw-summary" id="kfl-lw-summary">
-        <div class="kfl-lw-summary-item">
-          <div class="kfl-lw-summary-label">Rank</div>
-          <div class="kfl-lw-summary-value" id="kfl-lw-s-rank">—</div>
-        </div>
-        <div class="kfl-lw-summary-item">
-          <div class="kfl-lw-summary-label">Change</div>
-          <div class="kfl-lw-summary-value" id="kfl-lw-s-change">—</div>
-        </div>
-        <div class="kfl-lw-summary-item">
-          <div class="kfl-lw-summary-label">To Play</div>
-          <div class="kfl-lw-summary-value" id="kfl-lw-s-ttp">—</div>
-        </div>
+      <div class="kfl-lw-summ">
+        <div class="kfl-lw-si"><div class="kfl-lw-sl">Rank</div><div class="kfl-lw-sv" id="kfl-lw-s-rank">—</div></div>
+        <div class="kfl-lw-si"><div class="kfl-lw-sl">Change</div><div class="kfl-lw-sv" id="kfl-lw-s-chg">—</div></div>
+        <div class="kfl-lw-si"><div class="kfl-lw-sl">To Play</div><div class="kfl-lw-sv" id="kfl-lw-s-ttp">—</div></div>
       </div>
-      <div class="kfl-lw-players" id="kfl-lw-players"></div>
-      <div class="kfl-lw-refresh-bar">
-        <div class="kfl-lw-refresh-bar-fill" id="kfl-lw-fill"></div>
-      </div>
+      <div id="kfl-lw-fx-area"></div>
+      <div id="kfl-lw-squad-area"></div>
+      <div class="kfl-lw-rbar"><div class="kfl-lw-rfill" id="kfl-lw-fill"></div></div>
     `;
 
-    // Pill
-    pill = document.createElement('div');
-    pill.className = 'kfl-lw-pill is-hidden';
-    pill.id = 'kfl-lw-pill';
+    pill = Object.assign(document.createElement('div'), {
+      id: 'kfl-lw-pill',
+      className: 'hidden loading',
+    });
     pill.setAttribute('role', 'button');
     pill.setAttribute('aria-label', 'Live gameweek score');
     pill.innerHTML = `
       <span class="kfl-lw-dot"></span>
-      <span class="kfl-lw-score" id="kfl-lw-score">—</span>
+      <span id="kfl-lw-score">—</span>
       <span class="kfl-lw-sep"></span>
-      <span class="kfl-lw-arrow same" id="kfl-lw-arrow">—</span>
+      <span id="kfl-lw-arrow" class="same">—</span>
       <span class="kfl-lw-sep"></span>
-      <span class="kfl-lw-ttp" id="kfl-lw-ttp"><strong>?</strong> to play</span>
-      <i class="fa-solid fa-chevron-up kfl-lw-expand-icon"></i>
+      <span id="kfl-lw-ttp"><strong>?</strong> to play</span>
+      <i class="fa-solid fa-chevron-up kfl-lw-chev"></i>
     `;
 
-    document.body.appendChild(backdrop);
-    document.body.appendChild(panel);
-    document.body.appendChild(pill);
+    document.body.append(backdrop, panel, pill);
 
     scoreEl = document.getElementById('kfl-lw-score');
     arrowEl = document.getElementById('kfl-lw-arrow');
     ttpEl   = document.getElementById('kfl-lw-ttp');
     fillEl  = document.getElementById('kfl-lw-fill');
 
-    pill.addEventListener('click', toggleExpand);
-    document.getElementById('kfl-lw-panel-close').addEventListener('click', collapse);
+    pill.addEventListener('click', () => {
+      H.tap();
+      toggleExpand();
+    });
+    document.getElementById('kfl-lw-ph-close').addEventListener('click', () => {
+      H.close();
+      collapse();
+    });
   }
 
   /* ── Expand / Collapse ── */
   function toggleExpand() {
-    if (_isExpanded) { collapse(); return; }
+    _isExpanded ? collapse() : expand();
+  }
+  function expand() {
     H.expand();
     _isExpanded = true;
-    panel.classList.add('is-open');
-    backdrop.classList.add('is-open');
-    pill.querySelector('.kfl-lw-expand-icon').style.transform = 'rotate(180deg)';
-    pill.querySelector('.kfl-lw-expand-icon').style.transition = 'transform 0.2s ease';
+    panel.classList.add('open');
+    backdrop.classList.add('open');
+    pill.classList.add('expanded');
   }
-
   function collapse() {
     if (!_isExpanded) return;
-    H.dismiss();
     _isExpanded = false;
-    panel.classList.remove('is-open');
-    backdrop.classList.remove('is-open');
-    pill.querySelector('.kfl-lw-expand-icon').style.transform = 'rotate(0deg)';
-  }
-
-  /* ── Format helpers ── */
-  function fmtRank(n) {
-    if (!n) return '—';
-    return n >= 1000000 ? (n / 1000000).toFixed(1) + 'M'
-         : n >= 1000    ? (n / 1000).toFixed(0) + 'k'
-         : String(n);
-  }
-
-  function posLabel(type) {
-    return ['GKP', 'DEF', 'MID', 'FWD'][type - 1] || '?';
-  }
-  function posClass(type) {
-    return ['gkp', 'def', 'mid', 'fwd'][type - 1] || 'mid';
+    panel.classList.remove('open');
+    backdrop.classList.remove('open');
+    pill.classList.remove('expanded');
   }
 
   /* ── Refresh countdown bar ── */
-  let _fillTimer = null;
   function startFill() {
     if (!fillEl) return;
-    clearTimeout(_fillTimer);
     fillEl.style.transition = 'none';
     fillEl.style.width = '0%';
-    requestAnimationFrame(() => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
       fillEl.style.transition = `width ${REFRESH_MS}ms linear`;
       fillEl.style.width = '100%';
-    });
+    }));
   }
 
-  /* ── Render pill ── */
-  function renderPill(pts, rankDir, rankDiff, ttpCount) {
-    const prevPts = _lastPts;
-
+  /* ── Main render ── */
+  function renderPill(pts, rankDir, rankDiffAbs, ttpCount, prevPts) {
     scoreEl.textContent = pts;
     if (prevPts !== null && pts !== prevPts) {
-      scoreEl.classList.remove('updated');
-      void scoreEl.offsetWidth; // reflow
-      scoreEl.classList.add('updated');
+      scoreEl.classList.remove('flash');
+      void scoreEl.offsetWidth;
+      scoreEl.classList.add('flash');
       H.score();
     }
-    _lastPts = pts;
 
-    // Arrow
-    arrowEl.className = 'kfl-lw-arrow ' + rankDir;
-    if (rankDir === 'up')   arrowEl.innerHTML = `<i class="fa-solid fa-arrow-up" style="font-size:0.5rem"></i> ${fmtRank(rankDiff)}`;
-    else if (rankDir === 'down') arrowEl.innerHTML = `<i class="fa-solid fa-arrow-down" style="font-size:0.5rem"></i> ${fmtRank(rankDiff)}`;
-    else arrowEl.innerHTML = `<i class="fa-solid fa-minus" style="font-size:0.5rem"></i>`;
+    arrowEl.className = rankDir;
+    if (rankDir === 'up')
+      arrowEl.innerHTML = `<i class="fa-solid fa-arrow-up" style="font-size:.5rem"></i> ${fmtRank(rankDiffAbs)}`;
+    else if (rankDir === 'down')
+      arrowEl.innerHTML = `<i class="fa-solid fa-arrow-down" style="font-size:.5rem"></i> ${fmtRank(rankDiffAbs)}`;
+    else
+      arrowEl.innerHTML = `<i class="fa-solid fa-minus" style="font-size:.5rem"></i>`;
 
-    // To play
     ttpEl.innerHTML = `<strong>${ttpCount}</strong> to play`;
 
-    // Show pill
-    pill.classList.remove('is-hidden');
-    pill.classList.remove('is-loading');
+    pill.classList.remove('hidden', 'loading');
   }
 
-  /* ── Render panel player list ── */
   function renderPanel(data) {
-    const { pts, overallRank, prevRank, players, ttpCount } = data;
+    const { gwName, pts, overallRank, prevRank, ttpCount,
+            fixtures, picks, playerMap, liveMap, playingSet, teamMap, myPicksMap } = data;
 
-    document.getElementById('kfl-lw-panel-pts').textContent = pts + ' pts';
+    document.getElementById('kfl-lw-gw-lbl').textContent = `Live · ${gwName}`;
+    document.getElementById('kfl-lw-ph-pts').innerHTML = `${pts}<span>pts</span>`;
 
-    // Summary
-    const rankDiffVal = prevRank && overallRank ? prevRank - overallRank : 0;
-    const rankDir = rankDiffVal > 0 ? 'up' : rankDiffVal < 0 ? 'down' : 'same';
+    const diff = prevRank && overallRank ? prevRank - overallRank : 0;
+    const dir  = diff > 0 ? 'up' : diff < 0 ? 'down' : 'same';
     document.getElementById('kfl-lw-s-rank').textContent = fmtRank(overallRank);
-    const changeEl = document.getElementById('kfl-lw-s-change');
-    changeEl.className = 'kfl-lw-summary-value ' + rankDir;
-    changeEl.textContent = rankDiffVal > 0 ? '+' + fmtRank(rankDiffVal)
-                         : rankDiffVal < 0 ? '-' + fmtRank(Math.abs(rankDiffVal))
-                         : '→';
+    const chgEl = document.getElementById('kfl-lw-s-chg');
+    chgEl.className = `kfl-lw-sv ${dir}`;
+    chgEl.textContent = diff > 0 ? `↑ ${fmtRank(diff)}`
+                      : diff < 0 ? `↓ ${fmtRank(Math.abs(diff))}` : '→';
     document.getElementById('kfl-lw-s-ttp').textContent = ttpCount;
 
-    // Player rows
-    const container = document.getElementById('kfl-lw-players');
-    let html = '';
-    let benchStarted = false;
+    // Fixtures: only those that have started or are live
+    const activeFx = fixtures.filter(f => f.started);
+    const fxHTML = activeFx.length
+      ? `<div class="kfl-lw-sec">Live Fixtures</div>`
+        + activeFx.map(f => buildFixtureCard(f, playerMap, myPicksMap, liveMap, teamMap)).join('')
+      : '';
+    document.getElementById('kfl-lw-fx-area').innerHTML = fxHTML;
 
-    players.forEach((p, i) => {
-      if (i === 11 && !benchStarted) {
-        html += `<div class="kfl-lw-bench-label">Bench</div>`;
-        benchStarted = true;
-      }
-
-      const isBench   = i >= 11;
-      const ptsClass  = p.isCaptain ? 'captain' : p.isVice ? 'vice' : isBench ? 'benched' : '';
-      const nameClass = p.isPlaying ? 'is-playing' : p.hasPlayed ? '' : isBench ? 'benched' : 'not-played';
-      const pos       = posLabel(p.posType);
-      const posC      = posClass(p.posType);
-
-      const captainBadge = p.isCaptain
-        ? `<span class="kfl-lw-captain-badge">C</span>`
-        : p.isVice
-        ? `<span class="kfl-lw-captain-badge vc">V</span>`
-        : '';
-
-      const statusChip = p.isPlaying
-        ? `<span class="kfl-lw-ttp-chip playing">LIVE</span>`
-        : !p.hasPlayed
-        ? `<span class="kfl-lw-ttp-chip">TBP</span>`
-        : '';
-
-      const displayPts = p.isCaptain ? p.pts * 2 : p.pts;
-
-      html += `
-        <div class="kfl-lw-player-row">
-          <span class="kfl-lw-pos-badge ${posC}">${pos}</span>
-          ${captainBadge}
-          <span class="kfl-lw-player-name ${nameClass}">${p.name}</span>
-          <span class="kfl-lw-player-status">${statusChip}</span>
-          <span class="kfl-lw-player-pts ${ptsClass}">${displayPts}</span>
-        </div>
-      `;
-    });
-
-    container.innerHTML = html;
+    // Squad
+    document.getElementById('kfl-lw-squad-area').innerHTML =
+      `<div class="kfl-lw-sec" style="padding-top:10px">My Squad</div>`
+      + buildSquadGrid(picks, playerMap, liveMap, playingSet);
   }
 
   /* ── Fetch & compute ── */
@@ -647,14 +863,21 @@
     if (!teamId) return;
 
     try {
-      // Bootstrap to get current GW + player data
-      const bsRes     = await fetch(PROXY + 'bootstrap-static/');
+      const [bsRes, fxRes] = await Promise.all([
+        fetch(PROXY + 'bootstrap-static/'),
+        fetch(PROXY + 'fixtures/?event=' + await getCurrentGwId()),
+      ]);
       const bootstrap = await bsRes.json();
+      const gwFixtures = await fxRes.json();
 
+      // Find current event
       const currentEvent = bootstrap.events.find(e => e.is_current);
       if (!currentEvent) { hidePill(); return; }
 
-      // Only show during active gameweek (has started but not all finished)
+      // ── KEY CONDITION: only show when at least one game is LIVE ──
+      const hasLiveGame = gwFixtures.some(f => f.started && !f.finished_provisional);
+      if (!hasLiveGame) { hidePill(); return; }
+
       const gwId = currentEvent.id;
 
       // Fetch picks + live in parallel
@@ -665,74 +888,125 @@
       const picksData = await picksRes.json();
       const liveData  = await liveRes.json();
 
-      const picks   = picksData.picks || [];
+      const picks   = picksData.picks   || [];
       const history = picksData.entry_history;
       if (!picks.length) return;
 
-      // Build live points map
-      const liveMap = {};
-      const playingMap = {};  // currently in a live game
-      const playedMap  = {};  // game finished
-      (liveData.elements || []).forEach(e => {
-        liveMap[e.id]    = e.stats?.total_points ?? 0;
-        playingMap[e.id] = e.explain?.some(ex => ex.stats?.some(s => s.identifier === 'minutes' && s.value > 0)) ?? false;
-        playedMap[e.id]  = (e.stats?.minutes ?? 0) > 0;
-      });
-
-      // Build player lookup
+      // Build lookups
       const playerMap = {};
       bootstrap.elements.forEach(p => { playerMap[p.id] = p; });
 
-      // Compute total live points
-      let totalPts = 0;
-      let ttpCount = 0;
-      const players = [];
+      const teamMap = {};
+      bootstrap.teams.forEach(t => { teamMap[t.id] = t; });
 
-      picks.forEach((pick, i) => {
-        const player    = playerMap[pick.element];
-        if (!player) return;
-        const rawPts    = liveMap[pick.element] ?? 0;
-        const pts       = pick.multiplier > 1 ? rawPts * pick.multiplier : rawPts;
-        const isPlaying = playingMap[pick.element] ?? false;
-        const hasPlayed = playedMap[pick.element] ?? false;
-
-        if (i < 11) totalPts += pts;
-        if (!hasPlayed && !isPlaying && i < 11) ttpCount++;
-
-        players.push({
-          name:      player.web_name,
-          posType:   player.element_type,
-          pts:       rawPts,
-          isCaptain: pick.is_captain,
-          isVice:    pick.is_vice_captain,
-          multiplier: pick.multiplier,
-          isPlaying,
-          hasPlayed,
-        });
+      const liveMap  = {};
+      const playingSet = new Set();
+      (liveData.elements || []).forEach(e => {
+        liveMap[e.id] = e.stats?.total_points ?? 0;
+        // "playing" = fixture started but not all explained minutes == 90
+        const mins = e.stats?.minutes ?? 0;
+        if (mins > 0 && mins < 90) playingSet.add(e.id);
+        // Also check if fixture is currently live for this player
+        const player = playerMap[e.id];
+        if (player) {
+          const inLiveFx = gwFixtures.some(f =>
+            f.started && !f.finished_provisional &&
+            (f.team_h === player.team || f.team_a === player.team)
+          );
+          if (inLiveFx) playingSet.add(e.id);
+        }
       });
 
-      // Rank direction
+      // Build myPicksMap (element -> pick) for fixture overlay
+      const myPicksMap = new Map();
+      picks.forEach(p => myPicksMap.set(p.element, p));
+
+      // Compute total live points (starting XI only)
+      let totalPts = 0;
+      let ttpCount = 0;
+      picks.forEach((pick, i) => {
+        if (i >= 11) return; // skip bench
+        const rawPts = liveMap[pick.element] ?? 0;
+        const pts    = pick.multiplier > 1 ? rawPts * 2 : rawPts;
+        totalPts += pts;
+        const player   = playerMap[pick.element];
+        const inFuture = player && gwFixtures.some(f =>
+          !f.started &&
+          (f.team_h === player.team || f.team_a === player.team)
+        );
+        if (inFuture) ttpCount++;
+      });
+
       const prevRank    = history?.rank_sort ?? null;
       const overallRank = history?.overall_rank ?? null;
       const rankDiffVal = prevRank && overallRank ? prevRank - overallRank : 0;
       const rankDir     = rankDiffVal > 0 ? 'up' : rankDiffVal < 0 ? 'down' : 'same';
+      const prevPts     = _lastPts;
+      _lastPts          = totalPts;
 
-      _data = { pts: totalPts, overallRank, prevRank, players, ttpCount, rankDir, rankDiffVal };
+      renderPill(totalPts, rankDir, Math.abs(rankDiffVal), ttpCount, prevPts);
 
-      renderPill(totalPts, rankDir, Math.abs(rankDiffVal), ttpCount);
-      if (_isExpanded) renderPanel(_data);
+      if (_isExpanded) {
+        renderPanel({
+          gwName: currentEvent.name,
+          pts: totalPts,
+          overallRank, prevRank,
+          ttpCount,
+          fixtures: gwFixtures,
+          picks, playerMap, liveMap,
+          playingSet, teamMap, myPicksMap,
+        });
+      }
+
+      // Store for on-demand panel render
+      window._kflLwData = {
+        gwName: currentEvent.name,
+        pts: totalPts,
+        overallRank, prevRank,
+        ttpCount,
+        fixtures: gwFixtures,
+        picks, playerMap, liveMap,
+        playingSet, teamMap, myPicksMap,
+      };
 
       startFill();
 
     } catch (err) {
-      console.warn('[LiveWidget] Refresh failed:', err.message);
+      console.warn('[KopalaLW] refresh error:', err.message);
     }
   }
 
+  // Cache GW id to avoid re-fetching bootstrap just for it
+  let _gwId = null;
+  async function getCurrentGwId() {
+    if (_gwId) return _gwId;
+    const res = await fetch(PROXY + 'bootstrap-static/');
+    const bs  = await res.json();
+    const ev  = bs.events.find(e => e.is_current);
+    _gwId = ev?.id ?? 1;
+    return _gwId;
+  }
+
   function hidePill() {
-    if (pill) pill.classList.add('is-hidden');
+    if (!pill) return;
+    pill.classList.add('hidden');
     collapse();
-    clearInterval(_timer);
+  }
+
+  /* ── Wire panel open to render ── */
+  function onExpand() {
+    if (window._kflLwData) renderPanel(window._kflLwData);
+  }
+
+  /* ── Override expand to trigger render ── */
+  const _origExpand = expand;
+  function expand() {
+    H.expand();
+    _isExpanded = true;
+    panel.classList.add('open');
+    backdrop.classList.add('open');
+    pill.classList.add('expanded');
+    onExpand();
   }
 
   /* ── Boot ── */
@@ -741,43 +1015,27 @@
     if (!teamId) return;
 
     buildDOM();
-
-    // Show loading state immediately
-    pill.classList.remove('is-hidden');
-    pill.classList.add('is-loading');
-
     await refresh();
 
-    // Panel render wired to expand click — render on first open
-    pill.addEventListener('click', () => {
-      if (_isExpanded && _data) renderPanel(_data);
-    });
-
-    // Auto-refresh every 60s
     _timer = setInterval(refresh, REFRESH_MS);
   }
 
-  // Stop refreshing when tab hidden, resume on focus
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
       clearInterval(_timer);
     } else {
+      _gwId = null; // reset gw cache
       refresh();
       _timer = setInterval(refresh, REFRESH_MS);
     }
   });
-
-  window.KopalaLiveWidget = {
-    refresh,
-    hide: hidePill,
-    expand: toggleExpand,
-    collapse,
-  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
   }
+
+  window.KopalaLiveWidget = { refresh, hide: hidePill, expand, collapse };
 
 })();
