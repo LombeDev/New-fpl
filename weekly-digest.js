@@ -39,445 +39,364 @@
   /* ── Inject styles ───────────────────────────────────────── */
   const style = document.createElement('style');
   style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
-
     .kfl-digest-overlay {
       position: fixed;
       inset: 0;
       z-index: 10000;
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: center;
-      background: rgba(0, 0, 0, 0);
-      transition: background 0.4s ease;
-      font-family: 'DM Sans', sans-serif;
+      padding: 16px;
+      background: rgba(0,0,0,0);
+      transition: background 0.35s ease;
+      font-family: 'DM Sans', var(--kfl-font, sans-serif);
       -webkit-tap-highlight-color: transparent;
     }
-
     .kfl-digest-overlay.is-ready {
-      background: rgba(0, 0, 0, 0.72);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
-    /* ── Card ── */
+    /* Compact floating card */
     .kfl-digest-card {
       width: 100%;
-      max-width: 480px;
-      max-height: 92vh;
-      overflow-y: auto;
-      scrollbar-width: none;
-      border-radius: 28px 28px 0 0;
+      max-width: 360px;
+      border-radius: 22px;
       background: var(--kfl-surface, #141e2d);
-      transform: translateY(100%);
-      transition: transform 0.5s cubic-bezier(0.34, 1.20, 0.64, 1);
-      will-change: transform;
-      position: relative;
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.03);
       overflow: hidden;
+      position: relative;
+      transform: scale(0.88) translateY(20px);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.34,1.3,0.64,1), opacity 0.3s ease;
+      will-change: transform, opacity;
     }
-
-    .kfl-digest-card::-webkit-scrollbar { display: none; }
-
     .kfl-digest-overlay.is-ready .kfl-digest-card {
-      transform: translateY(0);
+      transform: scale(1) translateY(0);
+      opacity: 1;
     }
+    .kfl-digest-card.is-dragging { transition: none; }
 
-    .kfl-digest-card.is-dragging {
-      transition: none;
-    }
-
-    /* ── Noise texture overlay ── */
+    /* Green top accent */
     .kfl-digest-card::before {
       content: '';
       position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.6;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--kfl-green, #00e868) 0%, transparent 80%);
+      z-index: 2;
     }
 
-    /* ── Drag handle ── */
-    .kfl-digest-handle {
-      width: 40px;
-      height: 4px;
-      border-radius: 100px;
-      background: rgba(255,255,255,0.15);
-      margin: 14px auto 0;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* ── Inner content ── */
-    .kfl-digest-inner {
-      padding: 20px 24px 40px;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* ── Header ── */
+    /* Header */
     .kfl-digest-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 22px;
+      padding: 14px 16px 0;
     }
-
     .kfl-digest-gw-label {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.62rem;
+      font-size: 0.58rem;
       font-weight: 800;
-      letter-spacing: 2px;
+      letter-spacing: 1.8px;
       text-transform: uppercase;
       color: var(--kfl-green, #00e868);
-    }
-
-    .kfl-digest-close {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.07);
-      border: none;
-      color: rgba(255,255,255,0.4);
       display: flex;
       align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 0.75rem;
-      transition: background 0.15s, color 0.15s;
+      gap: 6px;
     }
-    .kfl-digest-close:hover { background: rgba(255,255,255,0.13); color: #fff; }
+    .kfl-digest-chip-badge {
+      background: rgba(245,158,11,0.15);
+      color: #f59e0b;
+      padding: 2px 7px;
+      border-radius: 100px;
+      font-size: 0.52rem;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+    .kfl-digest-close {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      border: none;
+      color: rgba(255,255,255,0.35);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 0.68rem;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .kfl-digest-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
 
-    /* ── Score hero ── */
+    /* Score hero */
     .kfl-digest-hero {
       text-align: center;
-      padding: 10px 0 28px;
+      padding: 10px 16px 12px;
       position: relative;
     }
-
     .kfl-digest-hero__glow {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 220px;
-      height: 220px;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 150px; height: 150px;
       border-radius: 50%;
-      background: radial-gradient(circle, var(--digest-glow, rgba(0,232,104,0.12)) 0%, transparent 70%);
+      background: radial-gradient(circle, var(--digest-glow, rgba(0,232,104,0.1)) 0%, transparent 70%);
       pointer-events: none;
     }
-
     .kfl-digest-score {
-      font-family: 'Syne', sans-serif;
-      font-size: 5.5rem;
+      font-family: 'Syne', 'Barlow Condensed', sans-serif;
+      font-size: 3.6rem;
       font-weight: 800;
       line-height: 1;
       color: #fff;
-      letter-spacing: -4px;
+      letter-spacing: -2px;
       position: relative;
     }
-
     .kfl-digest-score__pts {
-      font-size: 1.4rem;
+      font-size: 0.95rem;
       font-weight: 700;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.28);
       letter-spacing: 0;
       vertical-align: super;
-      margin-left: 4px;
+      margin-left: 3px;
     }
-
     .kfl-digest-one-liner {
-      font-size: 0.82rem;
-      color: rgba(255,255,255,0.45);
-      margin-top: 8px;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.35);
+      margin-top: 4px;
       font-style: italic;
     }
-
-    /* ── Rank row ── */
     .kfl-digest-rank-row {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      margin-top: 14px;
+      gap: 6px;
+      margin-top: 8px;
     }
-
     .kfl-digest-rank-badge {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.78rem;
+      font-size: 0.68rem;
       font-weight: 700;
-      padding: 4px 12px;
+      padding: 3px 10px;
       border-radius: 100px;
-      background: rgba(255,255,255,0.06);
-      color: rgba(255,255,255,0.6);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.5);
+      border: 1px solid rgba(255,255,255,0.07);
     }
-
     .kfl-digest-rank-arrow {
-      font-size: 0.85rem;
+      font-size: 0.7rem;
       font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 12px;
+      padding: 3px 10px;
       border-radius: 100px;
     }
-
     .kfl-digest-rank-arrow.up   { background: rgba(0,232,104,0.12); color: #00e868; }
     .kfl-digest-rank-arrow.down { background: rgba(239,68,68,0.12);  color: #ef4444; }
-    .kfl-digest-rank-arrow.same { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); }
+    .kfl-digest-rank-arrow.same { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.35); }
 
-    /* ── Divider ── */
+    /* Divider */
     .kfl-digest-divider {
       height: 1px;
-      background: rgba(255,255,255,0.06);
-      margin: 4px 0 20px;
+      background: rgba(255,255,255,0.05);
+      margin: 0 16px;
     }
 
-    /* ── Stat grid ── */
+    /* Stat rows — slim inline layout */
     .kfl-digest-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 20px;
+      padding: 8px 16px;
     }
-
-    .kfl-digest-stat {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 14px;
-      padding: 14px 16px;
-      transition: background 0.15s;
+    .kfl-digest-stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
     }
-
-    .kfl-digest-stat__label {
-      font-size: 0.58rem;
-      font-weight: 700;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.28);
-      margin-bottom: 6px;
+    .kfl-digest-stat-row:last-child { border-bottom: none; }
+    .kfl-digest-stat-row__label {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.36);
+      font-weight: 500;
     }
-
-    .kfl-digest-stat__value {
+    .kfl-digest-stat-row__value {
       font-family: 'Syne', sans-serif;
-      font-size: 1.3rem;
+      font-size: 0.78rem;
       font-weight: 800;
       color: #fff;
-      line-height: 1;
+    }
+    .kfl-digest-stat-row__value.positive { color: #00e868; }
+    .kfl-digest-stat-row__value.negative { color: #ef4444; }
+    .kfl-digest-stat-row__value.amber    { color: #f59e0b; }
+
+    /* Best / Worst players */
+    .kfl-digest-players {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      padding: 8px 16px;
+    }
+    .kfl-digest-player {
+      border-radius: 11px;
+      padding: 9px 11px;
+      border: 1px solid transparent;
+    }
+    .kfl-digest-player--best  { background: rgba(0,232,104,0.06); border-color: rgba(0,232,104,0.12); }
+    .kfl-digest-player--worst { background: rgba(239,68,68,0.06);  border-color: rgba(239,68,68,0.10); }
+    .kfl-digest-player__tag {
+      font-size: 0.48rem;
+      font-weight: 800;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .kfl-digest-player--best  .kfl-digest-player__tag { color: rgba(0,232,104,0.55); }
+    .kfl-digest-player--worst .kfl-digest-player__tag { color: rgba(239,68,68,0.55); }
+    .kfl-digest-player__name {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 3px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
-    .kfl-digest-stat__sub {
-      font-size: 0.68rem;
-      color: rgba(255,255,255,0.28);
-      margin-top: 3px;
-    }
-
-    /* Best / worst player cards */
-    .kfl-digest-player-cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .kfl-digest-player {
-      border-radius: 14px;
-      padding: 14px 16px;
-      border: 1px solid transparent;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .kfl-digest-player--best {
-      background: rgba(0,232,104,0.07);
-      border-color: rgba(0,232,104,0.15);
-    }
-
-    .kfl-digest-player--worst {
-      background: rgba(239,68,68,0.07);
-      border-color: rgba(239,68,68,0.12);
-    }
-
-    .kfl-digest-player__tag {
-      font-size: 0.55rem;
-      font-weight: 800;
-      letter-spacing: 1.4px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .kfl-digest-player--best  .kfl-digest-player__tag { color: rgba(0,232,104,0.6); }
-    .kfl-digest-player--worst .kfl-digest-player__tag { color: rgba(239,68,68,0.6); }
-
-    .kfl-digest-player__name {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.88rem;
-      font-weight: 800;
-      color: #fff;
-      line-height: 1.2;
-      margin-bottom: 4px;
-    }
-
     .kfl-digest-player__pts {
-      font-size: 1.1rem;
+      font-size: 0.9rem;
       font-weight: 700;
       line-height: 1;
     }
-
     .kfl-digest-player--best  .kfl-digest-player__pts { color: #00e868; }
     .kfl-digest-player--worst .kfl-digest-player__pts { color: #ef4444; }
-
     .kfl-digest-player__pts-label {
-      font-size: 0.6rem;
-      color: rgba(255,255,255,0.25);
-      margin-left: 2px;
+      font-size: 0.52rem;
+      color: rgba(255,255,255,0.22);
+      margin-left: 1px;
     }
 
-    /* ── Captain row ── */
+    /* Captain row */
     .kfl-digest-captain {
       display: flex;
       align-items: center;
-      gap: 12px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 14px;
-      padding: 14px 16px;
-      margin-bottom: 20px;
+      gap: 9px;
+      margin: 0 16px 10px;
+      background: rgba(245,158,11,0.06);
+      border: 1px solid rgba(245,158,11,0.12);
+      border-radius: 11px;
+      padding: 9px 11px;
     }
-
     .kfl-digest-captain__armband {
-      width: 36px;
-      height: 36px;
+      width: 28px; height: 28px;
       border-radius: 50%;
       background: linear-gradient(135deg, #f59e0b, #d97706);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       font-family: 'Syne', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 800;
+      font-size: 0.7rem; font-weight: 800;
       color: #fff;
       flex-shrink: 0;
-      box-shadow: 0 0 16px rgba(245,158,11,0.3);
+      box-shadow: 0 0 10px rgba(245,158,11,0.2);
     }
-
     .kfl-digest-captain__info { flex: 1; min-width: 0; }
-
     .kfl-digest-captain__label {
-      font-size: 0.57rem;
-      font-weight: 700;
+      font-size: 0.48rem;
+      font-weight: 800;
       letter-spacing: 1.2px;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.28);
-      margin-bottom: 3px;
+      color: rgba(245,158,11,0.5);
+      margin-bottom: 2px;
     }
-
     .kfl-digest-captain__name {
       font-family: 'Syne', sans-serif;
-      font-size: 0.92rem;
-      font-weight: 800;
+      font-size: 0.78rem; font-weight: 800;
       color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-
     .kfl-digest-captain__pts {
       font-family: 'Syne', sans-serif;
-      font-size: 1.4rem;
-      font-weight: 800;
+      font-size: 1.05rem; font-weight: 800;
       color: #f59e0b;
       flex-shrink: 0;
+      text-align: right;
     }
-
     .kfl-digest-captain__pts-label {
-      font-size: 0.6rem;
-      color: rgba(255,255,255,0.25);
+      font-size: 0.5rem;
+      color: rgba(255,255,255,0.22);
+      display: block;
+      text-align: right;
     }
 
-    /* ── CTA ── */
+    /* CTA button */
     .kfl-digest-cta {
-      width: 100%;
-      padding: 15px;
-      border-radius: 14px;
+      display: block;
+      width: calc(100% - 32px);
+      margin: 0 16px 10px;
+      padding: 11px;
+      border-radius: 11px;
       background: var(--kfl-green, #00e868);
       color: #021409;
       border: none;
       font-family: 'Syne', sans-serif;
-      font-size: 0.88rem;
+      font-size: 0.8rem;
       font-weight: 800;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       cursor: pointer;
       transition: opacity 0.15s, transform 0.15s;
+      text-align: center;
     }
-    .kfl-digest-cta:hover  { opacity: 0.9; }
+    .kfl-digest-cta:hover  { opacity: 0.88; }
     .kfl-digest-cta:active { transform: scale(0.98); }
 
-    /* ── Swipe hint ── */
+    /* Swipe hint */
     .kfl-digest-swipe-hint {
       text-align: center;
-      font-size: 0.62rem;
-      color: rgba(255,255,255,0.18);
-      margin-top: 12px;
-      letter-spacing: 0.5px;
+      font-size: 0.56rem;
+      color: rgba(255,255,255,0.13);
+      padding-bottom: 12px;
+      letter-spacing: 0.4px;
     }
 
-    /* ── Shimmer loading state ── */
-    .kfl-digest-shimmer {
-      background: linear-gradient(90deg,
-        rgba(255,255,255,0.04) 25%,
-        rgba(255,255,255,0.08) 50%,
-        rgba(255,255,255,0.04) 75%);
-      background-size: 400% 100%;
-      animation: digest-shimmer 1.6s ease infinite;
-      border-radius: 8px;
-    }
-
-    @keyframes digest-shimmer {
-      from { background-position: -200% 0; }
-      to   { background-position:  200% 0; }
-    }
-
-    /* ── Staggered entry animations ── */
-    .kfl-digest-inner > * {
+    /* Staggered entry animations */
+    .kfl-digest-card .kfl-digest-header,
+    .kfl-digest-card .kfl-digest-hero,
+    .kfl-digest-card .kfl-digest-divider,
+    .kfl-digest-card .kfl-digest-stats,
+    .kfl-digest-card .kfl-digest-players,
+    .kfl-digest-card .kfl-digest-captain,
+    .kfl-digest-card .kfl-digest-cta,
+    .kfl-digest-card .kfl-digest-swipe-hint {
       opacity: 0;
-      transform: translateY(12px);
-      animation: digest-fade-up 0.4s ease forwards;
+      transform: translateY(8px);
+      animation: kfl-digest-up 0.32s ease forwards;
     }
-    .kfl-digest-inner > *:nth-child(1) { animation-delay: 0.15s; }
-    .kfl-digest-inner > *:nth-child(2) { animation-delay: 0.22s; }
-    .kfl-digest-inner > *:nth-child(3) { animation-delay: 0.28s; }
-    .kfl-digest-inner > *:nth-child(4) { animation-delay: 0.34s; }
-    .kfl-digest-inner > *:nth-child(5) { animation-delay: 0.40s; }
-    .kfl-digest-inner > *:nth-child(6) { animation-delay: 0.46s; }
-    .kfl-digest-inner > *:nth-child(7) { animation-delay: 0.52s; }
+    .kfl-digest-card .kfl-digest-header     { animation-delay: 0.18s; }
+    .kfl-digest-card .kfl-digest-hero       { animation-delay: 0.23s; }
+    .kfl-digest-card .kfl-digest-divider    { animation-delay: 0.27s; }
+    .kfl-digest-card .kfl-digest-stats      { animation-delay: 0.30s; }
+    .kfl-digest-card .kfl-digest-players    { animation-delay: 0.34s; }
+    .kfl-digest-card .kfl-digest-captain    { animation-delay: 0.37s; }
+    .kfl-digest-card .kfl-digest-cta        { animation-delay: 0.40s; }
+    .kfl-digest-card .kfl-digest-swipe-hint { animation-delay: 0.43s; }
 
-    @keyframes digest-fade-up {
+    @keyframes kfl-digest-up {
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Light theme overrides */
-    [data-theme="light"] .kfl-digest-card {
-      background: #ffffff;
-    }
-    [data-theme="light"] .kfl-digest-score        { color: #0a0e1a; }
-    [data-theme="light"] .kfl-digest-player__name { color: #0a0e1a; }
-    [data-theme="light"] .kfl-digest-captain__name { color: #0a0e1a; }
-    [data-theme="light"] .kfl-digest-stat__value  { color: #0a0e1a; }
-    [data-theme="light"] .kfl-digest-handle       { background: rgba(0,0,0,0.12); }
-    [data-theme="light"] .kfl-digest-one-liner     { color: rgba(0,0,0,0.4); }
-    [data-theme="light"] .kfl-digest-swipe-hint   { color: rgba(0,0,0,0.2); }
-    [data-theme="light"] .kfl-digest-stat         { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.06); }
-    [data-theme="light"] .kfl-digest-player--best  { background: rgba(0,200,90,0.06); }
-    [data-theme="light"] .kfl-digest-player--worst { background: rgba(239,68,68,0.06); }
-    [data-theme="light"] .kfl-digest-captain      { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.06); }
-    [data-theme="light"] .kfl-digest-close        { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.4); }
-    [data-theme="light"] .kfl-digest-rank-badge   { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.08); color: rgba(0,0,0,0.5); }
-    [data-theme="light"] .kfl-digest-cta          { color: #fff; }
+    /* Light theme */
+    [data-theme="light"] .kfl-digest-card           { background: #ffffff; border-color: rgba(0,0,0,0.07); }
+    [data-theme="light"] .kfl-digest-card::before   { background: linear-gradient(90deg, var(--kfl-green,#00c85a) 0%, transparent 80%); }
+    [data-theme="light"] .kfl-digest-score          { color: #0a0e1a; }
+    [data-theme="light"] .kfl-digest-one-liner       { color: rgba(0,0,0,0.32); }
+    [data-theme="light"] .kfl-digest-rank-badge     { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.07); color: rgba(0,0,0,0.42); }
+    [data-theme="light"] .kfl-digest-divider        { background: rgba(0,0,0,0.05); }
+    [data-theme="light"] .kfl-digest-stat-row__label{ color: rgba(0,0,0,0.38); }
+    [data-theme="light"] .kfl-digest-stat-row__value{ color: #0a0e1a; }
+    [data-theme="light"] .kfl-digest-stat-row       { border-bottom-color: rgba(0,0,0,0.05); }
+    [data-theme="light"] .kfl-digest-player__name   { color: #0a0e1a; }
+    [data-theme="light"] .kfl-digest-captain__name  { color: #0a0e1a; }
+    [data-theme="light"] .kfl-digest-close          { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.35); }
+    [data-theme="light"] .kfl-digest-swipe-hint     { color: rgba(0,0,0,0.16); }
+    [data-theme="light"] .kfl-digest-cta            { color: #fff; }
   `;
   document.head.appendChild(style);
 
@@ -499,7 +418,7 @@
 
   /* ── Format helpers ──────────────────────────────────────── */
   function fmtRank(n) {
-    if (!n) return '—';
+    if (!n) return '\u2014';
     return n >= 1000000
       ? (n / 1000000).toFixed(1) + 'M'
       : n >= 1000
@@ -508,14 +427,14 @@
   }
 
   function rankDiff(current, previous) {
-    if (!current || !previous) return { dir: 'same', text: '—' };
-    const diff = previous - current; // positive = moved up
-    if (diff > 0) return { dir: 'up',   text: `↑ ${fmtRank(diff)}` };
-    if (diff < 0) return { dir: 'down', text: `↓ ${fmtRank(Math.abs(diff))}` };
-    return { dir: 'same', text: '→' };
+    if (!current || !previous) return { dir: 'same', text: '\u2014' };
+    const diff = previous - current;
+    if (diff > 0) return { dir: 'up',   text: '\u2191 ' + fmtRank(diff) };
+    if (diff < 0) return { dir: 'down', text: '\u2193 ' + fmtRank(Math.abs(diff)) };
+    return { dir: 'same', text: '\u2192' };
   }
 
-  /* ── Build card HTML ─────────────────────────────────────── */
+  /* ── Build compact card HTML ─────────────────────────────── */
   function buildCard(data) {
     const {
       gwName, gwPoints, totalPoints, overallRank, prevRank,
@@ -523,115 +442,93 @@
       transfers, transferCost, chip,
     } = data;
 
-    const arrow   = rankDiff(overallRank, prevRank);
+    const arrow    = rankDiff(overallRank, prevRank);
     const oneLiner = getOneLiner(gwPoints, avgPoints);
-
-    // Glow colour based on performance
-    const diff = gwPoints - avgPoints;
-    const glowColor = diff >= 15 ? 'rgba(0,232,104,0.15)'
+    const diff     = gwPoints - avgPoints;
+    const glowColor = diff >= 15 ? 'rgba(0,232,104,0.14)'
                     : diff >= 0  ? 'rgba(0,232,104,0.08)'
-                    :              'rgba(239,68,68,0.1)';
+                    :               'rgba(239,68,68,0.10)';
 
     const chipBadge = chip && chip !== 'n/a'
-      ? `<span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:3px 10px;border-radius:100px;font-size:0.62rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-left:8px;">${chip.replace('_',' ')}</span>`
+      ? '<span class="kfl-digest-chip-badge">' + chip.replace(/_/g,' ') + '</span>'
       : '';
 
+    const vsAvg    = gwPoints - avgPoints;
+    const vsClass  = vsAvg >= 0 ? 'positive' : 'negative';
+    const vsText   = (vsAvg >= 0 ? '+' : '') + vsAvg + ' vs avg';
+    const hitClass = transferCost > 0 ? 'negative' : '';
+    const hitText  = transferCost > 0 ? '-' + transferCost + ' pt hit' : 'No hit';
+
     return `
-      <div class="kfl-digest-handle"></div>
-      <div class="kfl-digest-inner">
-
-        <!-- Header -->
-        <div class="kfl-digest-header">
-          <div>
-            <span class="kfl-digest-gw-label">${gwName} · Recap ${chipBadge}</span>
-          </div>
-          <button class="kfl-digest-close" id="kfl-digest-close" aria-label="Close recap">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        </div>
-
-        <!-- Score hero -->
-        <div class="kfl-digest-hero">
-          <div class="kfl-digest-hero__glow" style="--digest-glow:${glowColor}"></div>
-          <div class="kfl-digest-score">
-            ${gwPoints}<span class="kfl-digest-score__pts">pts</span>
-          </div>
-          <div class="kfl-digest-one-liner">${oneLiner}</div>
-          <div class="kfl-digest-rank-row">
-            <div class="kfl-digest-rank-badge">
-              <i class="fa-solid fa-earth-africa" style="margin-right:5px;opacity:0.5;font-size:0.7rem"></i>
-              ${fmtRank(overallRank)}
-            </div>
-            <div class="kfl-digest-rank-arrow ${arrow.dir}">
-              ${arrow.text}
-            </div>
-          </div>
-        </div>
-
-        <div class="kfl-digest-divider"></div>
-
-        <!-- Stat grid -->
-        <div class="kfl-digest-stats">
-          <div class="kfl-digest-stat">
-            <div class="kfl-digest-stat__label">GW Average</div>
-            <div class="kfl-digest-stat__value">${avgPoints}<span style="font-size:0.7rem;opacity:0.4;font-family:'DM Sans',sans-serif;font-weight:500"> pts</span></div>
-            <div class="kfl-digest-stat__sub">${gwPoints >= avgPoints ? '+' : ''}${gwPoints - avgPoints} vs avg</div>
-          </div>
-          <div class="kfl-digest-stat">
-            <div class="kfl-digest-stat__label">Total Points</div>
-            <div class="kfl-digest-stat__value">${totalPoints}<span style="font-size:0.7rem;opacity:0.4;font-family:'DM Sans',sans-serif;font-weight:500"> pts</span></div>
-            <div class="kfl-digest-stat__sub">Overall</div>
-          </div>
-          <div class="kfl-digest-stat">
-            <div class="kfl-digest-stat__label">Transfers</div>
-            <div class="kfl-digest-stat__value">${transfers}</div>
-            <div class="kfl-digest-stat__sub">${transferCost > 0 ? `-${transferCost} pt hit` : 'No hit'}</div>
-          </div>
-          <div class="kfl-digest-stat">
-            <div class="kfl-digest-stat__label">Net Points</div>
-            <div class="kfl-digest-stat__value">${gwPoints - transferCost}</div>
-            <div class="kfl-digest-stat__sub">After hit</div>
-          </div>
-        </div>
-
-        <!-- Best / Worst players -->
-        <div class="kfl-digest-player-cards">
-          <div class="kfl-digest-player kfl-digest-player--best">
-            <div class="kfl-digest-player__tag">⚡ Best Player</div>
-            <div class="kfl-digest-player__name">${bestPlayer.name}</div>
-            <div class="kfl-digest-player__pts">
-              ${bestPlayer.pts}<span class="kfl-digest-player__pts-label">pts</span>
-            </div>
-          </div>
-          <div class="kfl-digest-player kfl-digest-player--worst">
-            <div class="kfl-digest-player__tag">😬 Worst Player</div>
-            <div class="kfl-digest-player__name">${worstPlayer.name}</div>
-            <div class="kfl-digest-player__pts">
-              ${worstPlayer.pts}<span class="kfl-digest-player__pts-label">pts</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Captain -->
-        <div class="kfl-digest-captain">
-          <div class="kfl-digest-captain__armband">C</div>
-          <div class="kfl-digest-captain__info">
-            <div class="kfl-digest-captain__label">Captain Pick</div>
-            <div class="kfl-digest-captain__name">${captain}</div>
-          </div>
-          <div style="text-align:right;flex-shrink:0">
-            <div class="kfl-digest-captain__pts">${captainPts}</div>
-            <div class="kfl-digest-captain__pts-label">pts (×2)</div>
-          </div>
-        </div>
-
-        <!-- CTA -->
-        <button class="kfl-digest-cta" id="kfl-digest-cta">
-          View My Team →
+      <div class="kfl-digest-header">
+        <span class="kfl-digest-gw-label">${gwName} Recap ${chipBadge}</span>
+        <button class="kfl-digest-close" id="kfl-digest-close" aria-label="Close">
+          <i class="fa-solid fa-xmark"></i>
         </button>
-        <div class="kfl-digest-swipe-hint">Swipe down to dismiss</div>
-
       </div>
+
+      <div class="kfl-digest-hero">
+        <div class="kfl-digest-hero__glow" style="--digest-glow:${glowColor}"></div>
+        <div class="kfl-digest-score">${gwPoints}<span class="kfl-digest-score__pts">pts</span></div>
+        <div class="kfl-digest-one-liner">${oneLiner}</div>
+        <div class="kfl-digest-rank-row">
+          <div class="kfl-digest-rank-badge">
+            <i class="fa-solid fa-earth-africa" style="margin-right:4px;font-size:0.62rem;opacity:0.5"></i>${fmtRank(overallRank)}
+          </div>
+          <div class="kfl-digest-rank-arrow ${arrow.dir}">${arrow.text}</div>
+        </div>
+      </div>
+
+      <div class="kfl-digest-divider"></div>
+
+      <div class="kfl-digest-stats">
+        <div class="kfl-digest-stat-row">
+          <span class="kfl-digest-stat-row__label">GW Average</span>
+          <span class="kfl-digest-stat-row__value">${avgPoints} pts</span>
+        </div>
+        <div class="kfl-digest-stat-row">
+          <span class="kfl-digest-stat-row__label">vs Average</span>
+          <span class="kfl-digest-stat-row__value ${vsClass}">${vsText}</span>
+        </div>
+        <div class="kfl-digest-stat-row">
+          <span class="kfl-digest-stat-row__label">Total Points</span>
+          <span class="kfl-digest-stat-row__value">${totalPoints} pts</span>
+        </div>
+        <div class="kfl-digest-stat-row">
+          <span class="kfl-digest-stat-row__label">Transfers · Hit</span>
+          <span class="kfl-digest-stat-row__value ${hitClass}">${transfers} · ${hitText}</span>
+        </div>
+      </div>
+
+      <div class="kfl-digest-divider"></div>
+
+      <div class="kfl-digest-players">
+        <div class="kfl-digest-player kfl-digest-player--best">
+          <div class="kfl-digest-player__tag">\u26A1 Best</div>
+          <div class="kfl-digest-player__name">${bestPlayer.name}</div>
+          <div class="kfl-digest-player__pts">${bestPlayer.pts}<span class="kfl-digest-player__pts-label">pts</span></div>
+        </div>
+        <div class="kfl-digest-player kfl-digest-player--worst">
+          <div class="kfl-digest-player__tag">\uD83D\uDE2C Worst</div>
+          <div class="kfl-digest-player__name">${worstPlayer.name}</div>
+          <div class="kfl-digest-player__pts">${worstPlayer.pts}<span class="kfl-digest-player__pts-label">pts</span></div>
+        </div>
+      </div>
+
+      <div class="kfl-digest-captain">
+        <div class="kfl-digest-captain__armband">C</div>
+        <div class="kfl-digest-captain__info">
+          <div class="kfl-digest-captain__label">Captain</div>
+          <div class="kfl-digest-captain__name">${captain}</div>
+        </div>
+        <div>
+          <div class="kfl-digest-captain__pts">${captainPts}</div>
+          <span class="kfl-digest-captain__pts-label">pts (\xD72)</span>
+        </div>
+      </div>
+
+      <button class="kfl-digest-cta" id="kfl-digest-cta">View My Team \u2192</button>
+      <div class="kfl-digest-swipe-hint">Tap outside or swipe to dismiss</div>
     `;
   }
 
