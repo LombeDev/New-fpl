@@ -36,369 +36,292 @@
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
-  /* ── Inject styles ───────────────────────────────────────── */
   const style = document.createElement('style');
   style.textContent = `
-    /* Use site fonts already loaded on page */
     .kfl-digest-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 10000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: fixed; inset: 0; z-index: 10000;
+      display: flex; align-items: center; justify-content: center;
       padding: 20px;
       background: rgba(0,0,0,0);
       transition: background 0.3s ease;
       -webkit-tap-highlight-color: transparent;
     }
     .kfl-digest-overlay.is-ready {
-      background: rgba(0,0,0,0.55);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
     }
 
-    /* ── Card ── */
     .kfl-digest-card {
-      width: 100%;
-      max-width: 300px;
-      border-radius: 20px;
-      background: var(--kfl-surface, #141e2d);
-      border: 1px solid var(--kfl-border, rgba(255,255,255,0.07));
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      width: 100%; max-width: 300px;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35);
       overflow: hidden;
-      position: relative;
-      transform: scale(0.9) translateY(16px);
+      transform: scale(0.88) translateY(14px);
       opacity: 0;
       transition: transform 0.38s cubic-bezier(0.34,1.4,0.64,1), opacity 0.28s ease;
       will-change: transform, opacity;
       cursor: grab;
     }
     .kfl-digest-overlay.is-ready .kfl-digest-card {
-      transform: scale(1) translateY(0);
-      opacity: 1;
+      transform: scale(1) translateY(0); opacity: 1;
     }
     .kfl-digest-card.is-dragging { transition: none; cursor: grabbing; }
 
-    /* green left border accent */
-    .kfl-digest-card::after {
-      content: '';
-      position: absolute;
-      top: 16px; bottom: 16px; left: 0;
-      width: 3px;
-      background: var(--kfl-green, #00e868);
-      border-radius: 0 3px 3px 0;
-      box-shadow: 0 0 8px var(--kfl-green-glow, rgba(0,232,104,0.3));
+    /* Top bar */
+    .kfl-d-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 14px 9px;
+      border-bottom: 1px solid #eef0f4;
     }
-
-    /* ── Top row: label + close ── */
-    .kfl-digest-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 14px 0 18px;
+    .kfl-d-gw-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.6rem; font-weight: 800;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: #00b84a;
+      display: flex; align-items: center; gap: 5px;
     }
-    .kfl-digest-gw-label {
-      font-family: 'Barlow Condensed', 'Syne', sans-serif;
-      font-size: 0.6rem;
-      font-weight: 800;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--kfl-green, #00e868);
-      display: flex;
-      align-items: center;
-      gap: 5px;
+    .kfl-d-chip {
+      background: rgba(245,158,11,0.14); color: #f59e0b;
+      padding: 1px 6px; border-radius: 100px;
+      font-size: 0.48rem; font-weight: 800; letter-spacing: 1px;
     }
-    .kfl-digest-chip-badge {
-      background: rgba(245,158,11,0.14);
-      color: #f59e0b;
-      padding: 1px 6px;
-      border-radius: 100px;
-      font-size: 0.5rem;
-      font-weight: 800;
-      letter-spacing: 1px;
-    }
-    .kfl-digest-close {
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      background: var(--kfl-surface-2, rgba(255,255,255,0.06));
-      border: 1px solid var(--kfl-border, rgba(255,255,255,0.07));
-      color: var(--kfl-text-3, rgba(255,255,255,0.3));
+    .kfl-d-close {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #f0f2f5; border: none; color: #9aa5b8;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      font-size: 0.6rem;
-      transition: background 0.15s, color 0.15s;
-      flex-shrink: 0;
+      cursor: pointer; font-size: 0.58rem;
+      transition: background 0.15s; flex-shrink: 0;
     }
-    .kfl-digest-close:hover {
-      background: rgba(255,255,255,0.12);
-      color: var(--kfl-text-1, #fff);
+    .kfl-d-close:hover { background: #e2e5ea; }
+
+    /* Hero two-col */
+    .kfl-d-hero {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid #eef0f4;
+    }
+    .kfl-d-hero-left {
+      padding: 14px 10px 14px 14px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 5px; text-align: center;
+      border-right: 1px solid #eef0f4;
+    }
+    .kfl-d-arrow-circle {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.05rem;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    }
+    .kfl-d-arrow-circle.up   { background: #00b84a; color: #fff; box-shadow: 0 4px 14px rgba(0,184,74,0.3); }
+    .kfl-d-arrow-circle.down { background: #ef4444; color: #fff; box-shadow: 0 4px 14px rgba(239,68,68,0.3); }
+    .kfl-d-arrow-circle.same { background: #e8eaf0; color: #9aa5b8; }
+    .kfl-d-you-on-a {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.57rem; color: #8899b0; font-weight: 500; line-height: 1;
+    }
+    .kfl-d-direction {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.95rem; font-weight: 800;
+      letter-spacing: 0.5px; text-transform: uppercase; line-height: 1;
+    }
+    .kfl-d-direction.up   { color: #00b84a; }
+    .kfl-d-direction.down { color: #ef4444; }
+    .kfl-d-direction.same { color: #9aa5b8; }
+    .kfl-d-by-pts {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.58rem; color: #8899b0; font-weight: 500;
+    }
+    .kfl-d-by-pts strong { color: #2d3748; font-weight: 700; }
+    .kfl-d-hero-right {
+      padding: 14px 14px 14px 12px;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .kfl-d-gw-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.5rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: #9aa5b8; margin-bottom: 0;
+    }
+    .kfl-d-pts-lbl {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.48rem; font-weight: 700;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      color: #b0baca; margin-bottom: 2px;
+    }
+    .kfl-d-score {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 3.2rem; font-weight: 900;
+      line-height: 0.88; color: #0d1520; letter-spacing: -1px;
+    }
+    .kfl-d-vs-avg {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.58rem; color: #8899b0; font-weight: 500;
+      margin-top: 4px;
+    }
+    .kfl-d-vs-avg strong { font-weight: 700; }
+    .kfl-d-vs-avg strong.pos { color: #00913a; }
+    .kfl-d-vs-avg strong.neg { color: #dc2626; }
+    .kfl-d-one-liner {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.56rem; color: #9aa5b8;
+      font-style: italic; margin-top: 3px; line-height: 1.3;
     }
 
-    /* ── Score block ── */
-    .kfl-digest-hero {
-      text-align: center;
-      padding: 8px 14px 10px;
-      position: relative;
+    /* Stat pill rows */
+    .kfl-d-stats {
+      padding: 8px 14px 6px;
+      display: flex; flex-direction: column; gap: 5px;
     }
-    .kfl-digest-hero__glow {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%,-50%);
-      width: 130px; height: 130px;
-      border-radius: 50%;
-      background: radial-gradient(circle, var(--digest-glow, rgba(0,232,104,0.08)) 0%, transparent 70%);
-      pointer-events: none;
+    .kfl-d-stat-row {
+      display: flex; align-items: center; gap: 6px;
     }
-    .kfl-digest-score {
-      font-family: 'Barlow Condensed', 'Syne', sans-serif;
-      font-size: 3rem;
-      font-weight: 900;
-      line-height: 1;
-      color: var(--kfl-text-1, #fff);
-      letter-spacing: -1px;
-      position: relative;
-    }
-    .kfl-digest-score__pts {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--kfl-text-3, rgba(255,255,255,0.28));
-      letter-spacing: 0;
-      vertical-align: super;
-      margin-left: 2px;
-    }
-    .kfl-digest-one-liner {
+    .kfl-d-stat-lbl {
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.65rem;
-      color: var(--kfl-text-3, rgba(255,255,255,0.35));
-      margin-top: 3px;
-      font-style: italic;
+      font-size: 0.6rem; font-weight: 600;
+      color: #9aa5b8; min-width: 58px; flex-shrink: 0;
     }
-
-    /* ── Rank pills ── */
-    .kfl-digest-rank-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      margin-top: 7px;
-    }
-    .kfl-digest-rank-badge {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.62rem;
-      font-weight: 600;
-      padding: 2px 9px;
-      border-radius: 100px;
-      background: var(--kfl-surface-2, rgba(255,255,255,0.05));
-      color: var(--kfl-text-2, rgba(255,255,255,0.5));
-      border: 1px solid var(--kfl-border, rgba(255,255,255,0.07));
-    }
-    .kfl-digest-rank-arrow {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.62rem;
-      font-weight: 700;
-      padding: 2px 9px;
-      border-radius: 100px;
-    }
-    .kfl-digest-rank-arrow.up   { background: rgba(0,232,104,0.12); color: var(--kfl-green, #00e868); }
-    .kfl-digest-rank-arrow.down { background: rgba(239,68,68,0.12);  color: #ef4444; }
-    .kfl-digest-rank-arrow.same { background: var(--kfl-surface-2, rgba(255,255,255,0.05)); color: var(--kfl-text-3, rgba(255,255,255,0.35)); }
-
-    /* ── Divider ── */
-    .kfl-digest-divider {
-      height: 1px;
-      background: var(--kfl-border, rgba(255,255,255,0.05));
-      margin: 6px 14px;
-    }
-
-    /* ── Stat rows ── */
-    .kfl-digest-stats {
-      padding: 2px 18px 6px;
-    }
-    .kfl-digest-stat-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 5px 0;
-      border-bottom: 1px solid var(--kfl-border, rgba(255,255,255,0.04));
-    }
-    .kfl-digest-stat-row:last-child { border-bottom: none; }
-    .kfl-digest-stat-row__label {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.68rem;
-      color: var(--kfl-text-2, rgba(255,255,255,0.38));
-      font-weight: 500;
-    }
-    .kfl-digest-stat-row__value {
-      font-family: 'Barlow Condensed', 'Syne', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--kfl-text-1, #fff);
+    .kfl-d-pill {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px; border-radius: 100px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.76rem; font-weight: 700;
       letter-spacing: 0.2px;
-    }
-    .kfl-digest-stat-row__value.positive { color: var(--kfl-green, #00e868); }
-    .kfl-digest-stat-row__value.negative { color: #ef4444; }
-
-    /* ── Best / Worst players ── */
-    .kfl-digest-players {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      padding: 0 14px 6px;
-    }
-    .kfl-digest-player {
-      border-radius: 10px;
-      padding: 8px 10px;
-      border: 1px solid transparent;
-    }
-    .kfl-digest-player--best  {
-      background: rgba(0,232,104,0.06);
-      border-color: rgba(0,232,104,0.12);
-    }
-    .kfl-digest-player--worst {
-      background: rgba(239,68,68,0.06);
-      border-color: rgba(239,68,68,0.10);
-    }
-    .kfl-digest-player__tag {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.46rem;
-      font-weight: 800;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      margin-bottom: 3px;
-    }
-    .kfl-digest-player--best  .kfl-digest-player__tag { color: rgba(0,232,104,0.5); }
-    .kfl-digest-player--worst .kfl-digest-player__tag { color: rgba(239,68,68,0.5); }
-    .kfl-digest-player__name {
-      font-family: 'Barlow Condensed', 'Syne', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--kfl-text-1, #fff);
-      line-height: 1.1;
-      margin-bottom: 2px;
+      background: #f0f2f5; color: #2d3748; border: 1px solid #e2e5ea;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
-    .kfl-digest-player__pts {
-      font-family: 'Barlow Condensed', 'Syne', sans-serif;
-      font-size: 1rem;
-      font-weight: 800;
-      line-height: 1;
-    }
-    .kfl-digest-player--best  .kfl-digest-player__pts { color: var(--kfl-green, #00e868); }
-    .kfl-digest-player--worst .kfl-digest-player__pts { color: #ef4444; }
-    .kfl-digest-player__pts-label {
-      font-size: 0.5rem;
-      color: var(--kfl-text-3, rgba(255,255,255,0.22));
-      margin-left: 1px;
-    }
+    .kfl-d-pill.green { background: rgba(0,184,74,0.1); color: #00913a; border-color: rgba(0,184,74,0.2); }
+    .kfl-d-pill.red   { background: rgba(239,68,68,0.1); color: #dc2626; border-color: rgba(239,68,68,0.18); }
+    .kfl-d-pill.amber { background: rgba(245,158,11,0.1); color: #b45309; border-color: rgba(245,158,11,0.2); }
 
-    /* ── Captain row ── */
-    .kfl-digest-captain {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0 14px 12px;
-      background: rgba(245,158,11,0.06);
-      border: 1px solid rgba(245,158,11,0.12);
-      border-radius: 10px;
-      padding: 8px 10px;
+    /* Bottom: best/worst/captain */
+    .kfl-d-bottom {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-top: 1px solid #eef0f4;
     }
-    .kfl-digest-captain__armband {
-      width: 26px; height: 26px;
-      border-radius: 50%;
+    .kfl-d-mini {
+      padding: 9px 12px;
+    }
+    .kfl-d-mini:first-child { border-right: 1px solid #eef0f4; }
+    .kfl-d-mini-tag {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.43rem; font-weight: 800;
+      letter-spacing: 1.1px; text-transform: uppercase; margin-bottom: 2px;
+    }
+    .kfl-d-mini-tag.best  { color: rgba(0,184,74,0.55); }
+    .kfl-d-mini-tag.worst { color: rgba(239,68,68,0.55); }
+    .kfl-d-mini-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.84rem; font-weight: 700; color: #0d1520;
+      line-height: 1.1; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .kfl-d-mini-pts {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem; font-weight: 800; line-height: 1;
+    }
+    .kfl-d-mini-pts.best  { color: #00b84a; }
+    .kfl-d-mini-pts.worst { color: #ef4444; }
+    .kfl-d-mini-pts-lbl { font-size: 0.46rem; color: #b0baca; margin-left: 1px; }
+
+    /* Captain row */
+    .kfl-d-captain {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 12px 9px;
+      border-top: 1px solid #eef0f4;
+    }
+    .kfl-d-c-ball {
+      width: 24px; height: 24px; border-radius: 50%;
       background: linear-gradient(135deg, #f59e0b, #d97706);
       display: flex; align-items: center; justify-content: center;
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.7rem; font-weight: 900;
-      color: #fff;
-      flex-shrink: 0;
-      box-shadow: 0 0 8px rgba(245,158,11,0.22);
+      font-size: 0.66rem; font-weight: 900; color: #fff;
+      flex-shrink: 0; box-shadow: 0 2px 8px rgba(245,158,11,0.25);
     }
-    .kfl-digest-captain__info { flex: 1; min-width: 0; }
-    .kfl-digest-captain__label {
+    .kfl-d-c-info { flex: 1; min-width: 0; }
+    .kfl-d-c-lbl {
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.46rem;
-      font-weight: 800;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      color: rgba(245,158,11,0.5);
-      margin-bottom: 1px;
+      font-size: 0.42rem; font-weight: 800;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      color: rgba(245,158,11,0.55); line-height: 1; margin-bottom: 1px;
     }
-    .kfl-digest-captain__name {
-      font-family: 'Barlow Condensed', 'Syne', sans-serif;
-      font-size: 0.85rem; font-weight: 700;
-      color: var(--kfl-text-1, #fff);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    .kfl-d-c-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.84rem; font-weight: 700; color: #0d1520;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1;
     }
-    .kfl-digest-captain__pts {
-      font-family: 'Barlow Condensed', 'Syne', sans-serif;
-      font-size: 1.05rem; font-weight: 800;
-      color: #f59e0b;
-      flex-shrink: 0;
-      text-align: right;
-      line-height: 1;
+    .kfl-d-c-pts {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem; font-weight: 800; color: #f59e0b;
+      text-align: right; line-height: 1;
     }
-    .kfl-digest-captain__pts-label {
+    .kfl-d-c-pts-lbl {
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.48rem;
-      color: var(--kfl-text-3, rgba(255,255,255,0.22));
-      display: block;
-      text-align: right;
+      font-size: 0.42rem; color: #b0baca;
+      display: block; text-align: right; line-height: 1;
     }
 
-    /* ── Swipe hint ── */
-    .kfl-digest-swipe-hint {
+    /* Hint */
+    .kfl-d-hint {
       text-align: center;
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.52rem;
-      color: var(--kfl-text-3, rgba(255,255,255,0.13));
-      padding-bottom: 10px;
-      letter-spacing: 0.3px;
+      font-size: 0.5rem; color: #c8d0dc;
+      padding: 5px 0 8px; letter-spacing: 0.3px;
     }
 
-    /* ── Stagger animations ── */
-    .kfl-digest-card .kfl-digest-header,
-    .kfl-digest-card .kfl-digest-hero,
-    .kfl-digest-card .kfl-digest-divider,
-    .kfl-digest-card .kfl-digest-stats,
-    .kfl-digest-card .kfl-digest-players,
-    .kfl-digest-card .kfl-digest-captain,
-    .kfl-digest-card .kfl-digest-swipe-hint {
-      opacity: 0;
-      transform: translateY(6px);
-      animation: kfl-d-up 0.3s ease forwards;
+    /* Stagger */
+    .kfl-digest-card .kfl-d-topbar,
+    .kfl-digest-card .kfl-d-hero,
+    .kfl-digest-card .kfl-d-stats,
+    .kfl-digest-card .kfl-d-bottom,
+    .kfl-digest-card .kfl-d-hint {
+      opacity: 0; transform: translateY(5px);
+      animation: kfl-d-up 0.28s ease forwards;
     }
-    .kfl-digest-card .kfl-digest-header     { animation-delay: 0.16s; }
-    .kfl-digest-card .kfl-digest-hero       { animation-delay: 0.21s; }
-    .kfl-digest-card .kfl-digest-divider    { animation-delay: 0.25s; }
-    .kfl-digest-card .kfl-digest-stats      { animation-delay: 0.28s; }
-    .kfl-digest-card .kfl-digest-players    { animation-delay: 0.32s; }
-    .kfl-digest-card .kfl-digest-captain    { animation-delay: 0.35s; }
-    .kfl-digest-card .kfl-digest-swipe-hint { animation-delay: 0.38s; }
+    .kfl-digest-card .kfl-d-topbar { animation-delay: 0.14s; }
+    .kfl-digest-card .kfl-d-hero   { animation-delay: 0.19s; }
+    .kfl-digest-card .kfl-d-stats  { animation-delay: 0.25s; }
+    .kfl-digest-card .kfl-d-bottom { animation-delay: 0.30s; }
+    .kfl-digest-card .kfl-d-hint   { animation-delay: 0.34s; }
+    @keyframes kfl-d-up { to { opacity:1; transform:translateY(0); } }
 
-    @keyframes kfl-d-up {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── Light theme ── */
-    [data-theme="light"] .kfl-digest-card            { background: #ffffff; }
-    [data-theme="light"] .kfl-digest-score           { color: #0a0e1a; }
-    [data-theme="light"] .kfl-digest-one-liner        { color: rgba(0,0,0,0.32); }
-    [data-theme="light"] .kfl-digest-rank-badge      { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.07); color: rgba(0,0,0,0.42); }
-    [data-theme="light"] .kfl-digest-divider         { background: rgba(0,0,0,0.05); }
-    [data-theme="light"] .kfl-digest-stat-row__label { color: rgba(0,0,0,0.4); }
-    [data-theme="light"] .kfl-digest-stat-row__value { color: #0a0e1a; }
-    [data-theme="light"] .kfl-digest-stat-row        { border-bottom-color: rgba(0,0,0,0.05); }
-    [data-theme="light"] .kfl-digest-player__name    { color: #0a0e1a; }
-    [data-theme="light"] .kfl-digest-captain__name   { color: #0a0e1a; }
-    [data-theme="light"] .kfl-digest-close           { background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.35); }
-    [data-theme="light"] .kfl-digest-swipe-hint      { color: rgba(0,0,0,0.16); }
+    /* Dark theme */
+    [data-theme="dark"] .kfl-digest-card       { background: var(--kfl-surface, #141e2d); }
+    [data-theme="dark"] .kfl-d-topbar          { border-bottom-color: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .kfl-d-hero            { border-bottom-color: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .kfl-d-hero-left       { border-right-color: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .kfl-d-close           { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.35); }
+    [data-theme="dark"] .kfl-d-close:hover     { background: rgba(255,255,255,0.13); color: #fff; }
+    [data-theme="dark"] .kfl-d-gw-sub         { color: rgba(255,255,255,0.3); }
+    [data-theme="dark"] .kfl-d-pts-lbl        { color: rgba(255,255,255,0.25); }
+    [data-theme="dark"] .kfl-d-score          { color: #ffffff; }
+    [data-theme="dark"] .kfl-d-vs-avg         { color: rgba(255,255,255,0.4); }
+    [data-theme="dark"] .kfl-d-vs-avg strong  { color: rgba(255,255,255,0.4); }
+    [data-theme="dark"] .kfl-d-vs-avg strong.pos { color: #00e868; }
+    [data-theme="dark"] .kfl-d-vs-avg strong.neg { color: #ef4444; }
+    [data-theme="dark"] .kfl-d-you-on-a       { color: rgba(255,255,255,0.38); }
+    [data-theme="dark"] .kfl-d-by-pts         { color: rgba(255,255,255,0.38); }
+    [data-theme="dark"] .kfl-d-by-pts strong  { color: rgba(255,255,255,0.75); }
+    [data-theme="dark"] .kfl-d-direction.up   { color: #00e868; }
+    [data-theme="dark"] .kfl-d-arrow-circle.up{ background: #00e868; color: #021409; }
+    [data-theme="dark"] .kfl-d-arrow-circle.same { background: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .kfl-d-stat-lbl       { color: rgba(255,255,255,0.35); }
+    [data-theme="dark"] .kfl-d-pill           { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.75); border-color: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .kfl-d-pill.green     { background: rgba(0,232,104,0.1); color: #00e868; border-color: rgba(0,232,104,0.18); }
+    [data-theme="dark"] .kfl-d-pill.red       { background: rgba(239,68,68,0.1); color: #ef4444; border-color: rgba(239,68,68,0.18); }
+    [data-theme="dark"] .kfl-d-bottom        { border-top-color: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .kfl-d-mini:first-child{ border-right-color: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .kfl-d-mini-name     { color: #fff; }
+    [data-theme="dark"] .kfl-d-captain       { border-top-color: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .kfl-d-c-name        { color: #fff; }
+    [data-theme="dark"] .kfl-d-hint          { color: rgba(255,255,255,0.12); }
+    [data-theme="dark"] .kfl-d-one-liner      { color: rgba(255,255,255,0.3); }
   `;
   document.head.appendChild(style);
 
-  /* ── Fetch helpers ───────────────────────────────────────── */
+  /* ── Fetch helpers ── */
   async function fetchBootstrap() {
     const res = await fetch(PROXY + 'bootstrap-static/');
     return res.json();
@@ -412,22 +335,22 @@
     return res.json();
   }
 
-  /* ── Helpers ─────────────────────────────────────────────── */
+  /* ── Helpers ── */
   function fmtRank(n) {
     if (!n) return '\u2014';
     return n >= 1000000 ? (n/1000000).toFixed(1)+'M'
-         : n >= 1000    ? (n/1000).toFixed(0)+'k'
-         : String(n);
+         : n >= 1000    ? Number((n/1000).toFixed(0)).toLocaleString()+'k'
+         : n.toLocaleString();
   }
   function rankDiff(cur, prev) {
-    if (!cur || !prev) return { dir: 'same', text: '\u2014' };
+    if (!cur || !prev) return { dir: 'same', diff: 0 };
     const d = prev - cur;
-    if (d > 0) return { dir: 'up',   text: '\u2191 ' + fmtRank(d) };
-    if (d < 0) return { dir: 'down', text: '\u2193 ' + fmtRank(Math.abs(d)) };
-    return { dir: 'same', text: '\u2192' };
+    if (d > 0) return { dir: 'up',   diff: d };
+    if (d < 0) return { dir: 'down', diff: Math.abs(d) };
+    return { dir: 'same', diff: 0 };
   }
 
-  /* ── Build compact card HTML ─────────────────────────────── */
+  /* ── Build card HTML ── */
   function buildCard(data) {
     const {
       gwName, gwPoints, totalPoints, overallRank, prevRank,
@@ -437,90 +360,97 @@
 
     const arrow    = rankDiff(overallRank, prevRank);
     const oneLiner = getOneLiner(gwPoints, avgPoints);
-    const diff     = gwPoints - avgPoints;
-    const glowColor = diff >= 15 ? 'rgba(0,232,104,0.13)'
-                    : diff >= 0  ? 'rgba(0,232,104,0.07)'
-                    :               'rgba(239,68,68,0.09)';
+    const vsAvg    = gwPoints - avgPoints;
+    const vsClass  = vsAvg >= 0 ? 'pos' : 'neg';
+    const vsSign   = vsAvg >= 0 ? '+' : '';
+
+    const arrowIcon = arrow.dir === 'up'   ? 'fa-arrow-up'
+                    : arrow.dir === 'down' ? 'fa-arrow-down'
+                    :                        'fa-minus';
+    const dirLabel  = arrow.dir === 'up'   ? 'Green Arrow'
+                    : arrow.dir === 'down' ? 'Red Arrow'
+                    :                        'No Change';
 
     const chipBadge = chip && chip !== 'n/a'
-      ? '<span class="kfl-digest-chip-badge">' + chip.replace(/_/g,' ') + '</span>'
+      ? '<span class="kfl-d-chip">' + chip.replace(/_/g,' ') + '</span>'
       : '';
 
-    const vsAvg   = gwPoints - avgPoints;
-    const vsClass = vsAvg >= 0 ? 'positive' : 'negative';
-    const vsText  = (vsAvg >= 0 ? '+' : '') + vsAvg + ' vs avg';
-    const hitText = transferCost > 0 ? transfers + ' · -' + transferCost + ' hit' : transfers + ' · no hit';
-    const hitClass = transferCost > 0 ? 'negative' : '';
+    const transferText = transferCost > 0
+      ? transfers + ' · -' + transferCost + ' hit'
+      : transfers + ' · no hit';
+    const transferPillClass = transferCost > 0 ? 'red' : '';
+
+    const rankChangeText = arrow.diff > 0
+      ? (arrow.dir === 'up' ? '+' : '-') + fmtRank(arrow.diff)
+      : '\u2014';
+    const rankPillClass = arrow.dir === 'up' ? 'green' : arrow.dir === 'down' ? 'red' : '';
 
     return `
-      <div class="kfl-digest-header">
-        <span class="kfl-digest-gw-label">${gwName} Recap ${chipBadge}</span>
-        <button class="kfl-digest-close" id="kfl-digest-close" aria-label="Close">
+      <div class="kfl-d-topbar">
+        <span class="kfl-d-gw-label">${gwName} \xB7 Recap ${chipBadge}</span>
+        <button class="kfl-d-close" id="kfl-digest-close" aria-label="Close">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <div class="kfl-digest-hero">
-        <div class="kfl-digest-hero__glow" style="--digest-glow:${glowColor}"></div>
-        <div class="kfl-digest-score">${gwPoints}<span class="kfl-digest-score__pts">pts</span></div>
-        <div class="kfl-digest-one-liner">${oneLiner}</div>
-        <div class="kfl-digest-rank-row">
-          <span class="kfl-digest-rank-badge">
-            <i class="fa-solid fa-earth-africa" style="margin-right:3px;font-size:0.58rem;opacity:0.45"></i>${fmtRank(overallRank)}
-          </span>
-          <span class="kfl-digest-rank-arrow ${arrow.dir}">${arrow.text}</span>
+      <div class="kfl-d-hero">
+        <div class="kfl-d-hero-left">
+          <div class="kfl-d-arrow-circle ${arrow.dir}">
+            <i class="fa-solid ${arrowIcon}"></i>
+          </div>
+          <span class="kfl-d-you-on-a">You're on a</span>
+          <span class="kfl-d-direction ${arrow.dir}">${dirLabel}</span>
+          <span class="kfl-d-by-pts">by <strong>${vsSign}${vsAvg} pts</strong></span>
+        </div>
+        <div class="kfl-d-hero-right">
+          <span class="kfl-d-gw-sub">${gwName}</span>
+          <span class="kfl-d-pts-lbl">Gameweek Points</span>
+          <div class="kfl-d-score">${gwPoints}</div>
+          <div class="kfl-d-vs-avg">vs avg <strong class="${vsClass}">${vsSign}${vsAvg} pts</strong></div>
+          <div class="kfl-d-one-liner">${oneLiner}</div>
         </div>
       </div>
 
-      <div class="kfl-digest-divider"></div>
-
-      <div class="kfl-digest-stats">
-        <div class="kfl-digest-stat-row">
-          <span class="kfl-digest-stat-row__label">GW Average</span>
-          <span class="kfl-digest-stat-row__value">${avgPoints} pts</span>
+      <div class="kfl-d-stats">
+        <div class="kfl-d-stat-row">
+          <span class="kfl-d-stat-lbl">Live Rank</span>
+          <span class="kfl-d-pill">${fmtRank(overallRank)}</span>
         </div>
-        <div class="kfl-digest-stat-row">
-          <span class="kfl-digest-stat-row__label">vs Average</span>
-          <span class="kfl-digest-stat-row__value ${vsClass}">${vsText}</span>
+        <div class="kfl-d-stat-row">
+          <span class="kfl-d-stat-lbl">Change</span>
+          <span class="kfl-d-pill ${rankPillClass}">${rankChangeText}</span>
         </div>
-        <div class="kfl-digest-stat-row">
-          <span class="kfl-digest-stat-row__label">Total</span>
-          <span class="kfl-digest-stat-row__value">${totalPoints} pts</span>
-        </div>
-        <div class="kfl-digest-stat-row">
-          <span class="kfl-digest-stat-row__label">Transfers</span>
-          <span class="kfl-digest-stat-row__value ${hitClass}">${hitText}</span>
+        <div class="kfl-d-stat-row">
+          <span class="kfl-d-stat-lbl">Transfers</span>
+          <span class="kfl-d-pill ${transferPillClass}">${transferText}</span>
         </div>
       </div>
 
-      <div class="kfl-digest-divider"></div>
-
-      <div class="kfl-digest-players">
-        <div class="kfl-digest-player kfl-digest-player--best">
-          <div class="kfl-digest-player__tag">\u26A1 Best</div>
-          <div class="kfl-digest-player__name">${bestPlayer.name}</div>
-          <div class="kfl-digest-player__pts">${bestPlayer.pts}<span class="kfl-digest-player__pts-label">pts</span></div>
+      <div class="kfl-d-bottom">
+        <div class="kfl-d-mini">
+          <div class="kfl-d-mini-tag best">\u26A1 Best</div>
+          <div class="kfl-d-mini-name">${bestPlayer.name}</div>
+          <div class="kfl-d-mini-pts best">${bestPlayer.pts}<span class="kfl-d-mini-pts-lbl">pts</span></div>
         </div>
-        <div class="kfl-digest-player kfl-digest-player--worst">
-          <div class="kfl-digest-player__tag">\uD83D\uDE2C Worst</div>
-          <div class="kfl-digest-player__name">${worstPlayer.name}</div>
-          <div class="kfl-digest-player__pts">${worstPlayer.pts}<span class="kfl-digest-player__pts-label">pts</span></div>
+        <div class="kfl-d-mini">
+          <div class="kfl-d-mini-tag worst">\uD83D\uDE2C Worst</div>
+          <div class="kfl-d-mini-name">${worstPlayer.name}</div>
+          <div class="kfl-d-mini-pts worst">${worstPlayer.pts}<span class="kfl-d-mini-pts-lbl">pts</span></div>
         </div>
-      </div>
-
-      <div class="kfl-digest-captain">
-        <div class="kfl-digest-captain__armband">C</div>
-        <div class="kfl-digest-captain__info">
-          <div class="kfl-digest-captain__label">Captain</div>
-          <div class="kfl-digest-captain__name">${captain}</div>
-        </div>
-        <div>
-          <div class="kfl-digest-captain__pts">${captainPts}</div>
-          <span class="kfl-digest-captain__pts-label">pts (\xD72)</span>
+        <div class="kfl-d-captain">
+          <div class="kfl-d-c-ball">C</div>
+          <div class="kfl-d-c-info">
+            <div class="kfl-d-c-lbl">Captain</div>
+            <div class="kfl-d-c-name">${captain}</div>
+          </div>
+          <div>
+            <div class="kfl-d-c-pts">${captainPts}</div>
+            <span class="kfl-d-c-pts-lbl">pts (\xD72)</span>
+          </div>
         </div>
       </div>
 
-      <div class="kfl-digest-swipe-hint">Tap outside or swipe to dismiss</div>
+      <div class="kfl-d-hint">Tap outside or swipe to dismiss</div>
     `;
   }
 
