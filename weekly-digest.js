@@ -39,6 +39,7 @@
   /* ── Inject styles ───────────────────────────────────────── */
   const style = document.createElement('style');
   style.textContent = `
+    /* Use site fonts already loaded on page */
     .kfl-digest-overlay {
       position: fixed;
       inset: 0;
@@ -46,357 +47,354 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 20px;
       background: rgba(0,0,0,0);
-      transition: background 0.35s ease;
-      font-family: 'DM Sans', var(--kfl-font, sans-serif);
+      transition: background 0.3s ease;
       -webkit-tap-highlight-color: transparent;
     }
     .kfl-digest-overlay.is-ready {
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
-    /* Compact floating card */
+    /* ── Card ── */
     .kfl-digest-card {
       width: 100%;
-      max-width: 360px;
-      border-radius: 22px;
+      max-width: 300px;
+      border-radius: 20px;
       background: var(--kfl-surface, #141e2d);
-      border: 1px solid rgba(255,255,255,0.07);
-      box-shadow: 0 24px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.03);
+      border: 1px solid var(--kfl-border, rgba(255,255,255,0.07));
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
       overflow: hidden;
       position: relative;
-      transform: scale(0.88) translateY(20px);
+      transform: scale(0.9) translateY(16px);
       opacity: 0;
-      transition: transform 0.4s cubic-bezier(0.34,1.3,0.64,1), opacity 0.3s ease;
+      transition: transform 0.38s cubic-bezier(0.34,1.4,0.64,1), opacity 0.28s ease;
       will-change: transform, opacity;
+      cursor: grab;
     }
     .kfl-digest-overlay.is-ready .kfl-digest-card {
       transform: scale(1) translateY(0);
       opacity: 1;
     }
-    .kfl-digest-card.is-dragging { transition: none; }
+    .kfl-digest-card.is-dragging { transition: none; cursor: grabbing; }
 
-    /* Green top accent */
-    .kfl-digest-card::before {
+    /* green left border accent */
+    .kfl-digest-card::after {
       content: '';
       position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--kfl-green, #00e868) 0%, transparent 80%);
-      z-index: 2;
+      top: 16px; bottom: 16px; left: 0;
+      width: 3px;
+      background: var(--kfl-green, #00e868);
+      border-radius: 0 3px 3px 0;
+      box-shadow: 0 0 8px var(--kfl-green-glow, rgba(0,232,104,0.3));
     }
 
-    /* Header */
+    /* ── Top row: label + close ── */
     .kfl-digest-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 16px 0;
+      padding: 14px 14px 0 18px;
     }
     .kfl-digest-gw-label {
-      font-size: 0.58rem;
+      font-family: 'Barlow Condensed', 'Syne', sans-serif;
+      font-size: 0.6rem;
       font-weight: 800;
-      letter-spacing: 1.8px;
+      letter-spacing: 2px;
       text-transform: uppercase;
       color: var(--kfl-green, #00e868);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
     .kfl-digest-chip-badge {
-      background: rgba(245,158,11,0.15);
+      background: rgba(245,158,11,0.14);
       color: #f59e0b;
-      padding: 2px 7px;
+      padding: 1px 6px;
       border-radius: 100px;
-      font-size: 0.52rem;
+      font-size: 0.5rem;
       font-weight: 800;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
+      letter-spacing: 1px;
     }
     .kfl-digest-close {
-      width: 26px; height: 26px;
+      width: 24px; height: 24px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.06);
-      border: none;
-      color: rgba(255,255,255,0.35);
+      background: var(--kfl-surface-2, rgba(255,255,255,0.06));
+      border: 1px solid var(--kfl-border, rgba(255,255,255,0.07));
+      color: var(--kfl-text-3, rgba(255,255,255,0.3));
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      font-size: 0.68rem;
+      font-size: 0.6rem;
       transition: background 0.15s, color 0.15s;
       flex-shrink: 0;
     }
-    .kfl-digest-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .kfl-digest-close:hover {
+      background: rgba(255,255,255,0.12);
+      color: var(--kfl-text-1, #fff);
+    }
 
-    /* Score hero */
+    /* ── Score block ── */
     .kfl-digest-hero {
       text-align: center;
-      padding: 10px 16px 12px;
+      padding: 8px 14px 10px;
       position: relative;
     }
     .kfl-digest-hero__glow {
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%,-50%);
-      width: 150px; height: 150px;
+      width: 130px; height: 130px;
       border-radius: 50%;
-      background: radial-gradient(circle, var(--digest-glow, rgba(0,232,104,0.1)) 0%, transparent 70%);
+      background: radial-gradient(circle, var(--digest-glow, rgba(0,232,104,0.08)) 0%, transparent 70%);
       pointer-events: none;
     }
     .kfl-digest-score {
-      font-family: 'Syne', 'Barlow Condensed', sans-serif;
-      font-size: 3.6rem;
-      font-weight: 800;
+      font-family: 'Barlow Condensed', 'Syne', sans-serif;
+      font-size: 3rem;
+      font-weight: 900;
       line-height: 1;
-      color: #fff;
-      letter-spacing: -2px;
+      color: var(--kfl-text-1, #fff);
+      letter-spacing: -1px;
       position: relative;
     }
     .kfl-digest-score__pts {
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       font-weight: 700;
-      color: rgba(255,255,255,0.28);
+      color: var(--kfl-text-3, rgba(255,255,255,0.28));
       letter-spacing: 0;
       vertical-align: super;
-      margin-left: 3px;
+      margin-left: 2px;
     }
     .kfl-digest-one-liner {
-      font-size: 0.7rem;
-      color: rgba(255,255,255,0.35);
-      margin-top: 4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.65rem;
+      color: var(--kfl-text-3, rgba(255,255,255,0.35));
+      margin-top: 3px;
       font-style: italic;
     }
+
+    /* ── Rank pills ── */
     .kfl-digest-rank-row {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      margin-top: 8px;
+      gap: 5px;
+      margin-top: 7px;
     }
     .kfl-digest-rank-badge {
-      font-size: 0.68rem;
-      font-weight: 700;
-      padding: 3px 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 600;
+      padding: 2px 9px;
       border-radius: 100px;
-      background: rgba(255,255,255,0.05);
-      color: rgba(255,255,255,0.5);
-      border: 1px solid rgba(255,255,255,0.07);
+      background: var(--kfl-surface-2, rgba(255,255,255,0.05));
+      color: var(--kfl-text-2, rgba(255,255,255,0.5));
+      border: 1px solid var(--kfl-border, rgba(255,255,255,0.07));
     }
     .kfl-digest-rank-arrow {
-      font-size: 0.7rem;
-      font-weight: 800;
-      padding: 3px 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 2px 9px;
       border-radius: 100px;
     }
-    .kfl-digest-rank-arrow.up   { background: rgba(0,232,104,0.12); color: #00e868; }
+    .kfl-digest-rank-arrow.up   { background: rgba(0,232,104,0.12); color: var(--kfl-green, #00e868); }
     .kfl-digest-rank-arrow.down { background: rgba(239,68,68,0.12);  color: #ef4444; }
-    .kfl-digest-rank-arrow.same { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.35); }
+    .kfl-digest-rank-arrow.same { background: var(--kfl-surface-2, rgba(255,255,255,0.05)); color: var(--kfl-text-3, rgba(255,255,255,0.35)); }
 
-    /* Divider */
+    /* ── Divider ── */
     .kfl-digest-divider {
       height: 1px;
-      background: rgba(255,255,255,0.05);
-      margin: 0 16px;
+      background: var(--kfl-border, rgba(255,255,255,0.05));
+      margin: 6px 14px;
     }
 
-    /* Stat rows — slim inline layout */
+    /* ── Stat rows ── */
     .kfl-digest-stats {
-      padding: 8px 16px;
+      padding: 2px 18px 6px;
     }
     .kfl-digest-stat-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
+      padding: 5px 0;
+      border-bottom: 1px solid var(--kfl-border, rgba(255,255,255,0.04));
     }
     .kfl-digest-stat-row:last-child { border-bottom: none; }
     .kfl-digest-stat-row__label {
-      font-size: 0.7rem;
-      color: rgba(255,255,255,0.36);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.68rem;
+      color: var(--kfl-text-2, rgba(255,255,255,0.38));
       font-weight: 500;
     }
     .kfl-digest-stat-row__value {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.78rem;
-      font-weight: 800;
-      color: #fff;
+      font-family: 'Barlow Condensed', 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--kfl-text-1, #fff);
+      letter-spacing: 0.2px;
     }
-    .kfl-digest-stat-row__value.positive { color: #00e868; }
+    .kfl-digest-stat-row__value.positive { color: var(--kfl-green, #00e868); }
     .kfl-digest-stat-row__value.negative { color: #ef4444; }
-    .kfl-digest-stat-row__value.amber    { color: #f59e0b; }
 
-    /* Best / Worst players */
+    /* ── Best / Worst players ── */
     .kfl-digest-players {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 7px;
-      padding: 8px 16px;
+      gap: 6px;
+      padding: 0 14px 6px;
     }
     .kfl-digest-player {
-      border-radius: 11px;
-      padding: 9px 11px;
+      border-radius: 10px;
+      padding: 8px 10px;
       border: 1px solid transparent;
     }
-    .kfl-digest-player--best  { background: rgba(0,232,104,0.06); border-color: rgba(0,232,104,0.12); }
-    .kfl-digest-player--worst { background: rgba(239,68,68,0.06);  border-color: rgba(239,68,68,0.10); }
+    .kfl-digest-player--best  {
+      background: rgba(0,232,104,0.06);
+      border-color: rgba(0,232,104,0.12);
+    }
+    .kfl-digest-player--worst {
+      background: rgba(239,68,68,0.06);
+      border-color: rgba(239,68,68,0.10);
+    }
     .kfl-digest-player__tag {
-      font-size: 0.48rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.46rem;
       font-weight: 800;
-      letter-spacing: 1.1px;
+      letter-spacing: 1.2px;
       text-transform: uppercase;
       margin-bottom: 3px;
     }
-    .kfl-digest-player--best  .kfl-digest-player__tag { color: rgba(0,232,104,0.55); }
-    .kfl-digest-player--worst .kfl-digest-player__tag { color: rgba(239,68,68,0.55); }
+    .kfl-digest-player--best  .kfl-digest-player__tag { color: rgba(0,232,104,0.5); }
+    .kfl-digest-player--worst .kfl-digest-player__tag { color: rgba(239,68,68,0.5); }
     .kfl-digest-player__name {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.76rem;
-      font-weight: 800;
-      color: #fff;
-      line-height: 1.15;
-      margin-bottom: 3px;
+      font-family: 'Barlow Condensed', 'Syne', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--kfl-text-1, #fff);
+      line-height: 1.1;
+      margin-bottom: 2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .kfl-digest-player__pts {
-      font-size: 0.9rem;
-      font-weight: 700;
+      font-family: 'Barlow Condensed', 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
       line-height: 1;
     }
-    .kfl-digest-player--best  .kfl-digest-player__pts { color: #00e868; }
+    .kfl-digest-player--best  .kfl-digest-player__pts { color: var(--kfl-green, #00e868); }
     .kfl-digest-player--worst .kfl-digest-player__pts { color: #ef4444; }
     .kfl-digest-player__pts-label {
-      font-size: 0.52rem;
-      color: rgba(255,255,255,0.22);
+      font-size: 0.5rem;
+      color: var(--kfl-text-3, rgba(255,255,255,0.22));
       margin-left: 1px;
     }
 
-    /* Captain row */
+    /* ── Captain row ── */
     .kfl-digest-captain {
       display: flex;
       align-items: center;
-      gap: 9px;
-      margin: 0 16px 10px;
+      gap: 8px;
+      margin: 0 14px 12px;
       background: rgba(245,158,11,0.06);
       border: 1px solid rgba(245,158,11,0.12);
-      border-radius: 11px;
-      padding: 9px 11px;
+      border-radius: 10px;
+      padding: 8px 10px;
     }
     .kfl-digest-captain__armband {
-      width: 28px; height: 28px;
+      width: 26px; height: 26px;
       border-radius: 50%;
       background: linear-gradient(135deg, #f59e0b, #d97706);
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif;
-      font-size: 0.7rem; font-weight: 800;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.7rem; font-weight: 900;
       color: #fff;
       flex-shrink: 0;
-      box-shadow: 0 0 10px rgba(245,158,11,0.2);
+      box-shadow: 0 0 8px rgba(245,158,11,0.22);
     }
     .kfl-digest-captain__info { flex: 1; min-width: 0; }
     .kfl-digest-captain__label {
-      font-size: 0.48rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.46rem;
       font-weight: 800;
       letter-spacing: 1.2px;
       text-transform: uppercase;
       color: rgba(245,158,11,0.5);
-      margin-bottom: 2px;
+      margin-bottom: 1px;
     }
     .kfl-digest-captain__name {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.78rem; font-weight: 800;
-      color: #fff;
+      font-family: 'Barlow Condensed', 'Syne', sans-serif;
+      font-size: 0.85rem; font-weight: 700;
+      color: var(--kfl-text-1, #fff);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .kfl-digest-captain__pts {
-      font-family: 'Syne', sans-serif;
+      font-family: 'Barlow Condensed', 'Syne', sans-serif;
       font-size: 1.05rem; font-weight: 800;
       color: #f59e0b;
       flex-shrink: 0;
       text-align: right;
+      line-height: 1;
     }
     .kfl-digest-captain__pts-label {
-      font-size: 0.5rem;
-      color: rgba(255,255,255,0.22);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.48rem;
+      color: var(--kfl-text-3, rgba(255,255,255,0.22));
       display: block;
       text-align: right;
     }
 
-    /* CTA button */
-    .kfl-digest-cta {
-      display: block;
-      width: calc(100% - 32px);
-      margin: 0 16px 10px;
-      padding: 11px;
-      border-radius: 11px;
-      background: var(--kfl-green, #00e868);
-      color: #021409;
-      border: none;
-      font-family: 'Syne', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 800;
-      letter-spacing: 0.3px;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.15s;
-      text-align: center;
-    }
-    .kfl-digest-cta:hover  { opacity: 0.88; }
-    .kfl-digest-cta:active { transform: scale(0.98); }
-
-    /* Swipe hint */
+    /* ── Swipe hint ── */
     .kfl-digest-swipe-hint {
       text-align: center;
-      font-size: 0.56rem;
-      color: rgba(255,255,255,0.13);
-      padding-bottom: 12px;
-      letter-spacing: 0.4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.52rem;
+      color: var(--kfl-text-3, rgba(255,255,255,0.13));
+      padding-bottom: 10px;
+      letter-spacing: 0.3px;
     }
 
-    /* Staggered entry animations */
+    /* ── Stagger animations ── */
     .kfl-digest-card .kfl-digest-header,
     .kfl-digest-card .kfl-digest-hero,
     .kfl-digest-card .kfl-digest-divider,
     .kfl-digest-card .kfl-digest-stats,
     .kfl-digest-card .kfl-digest-players,
     .kfl-digest-card .kfl-digest-captain,
-    .kfl-digest-card .kfl-digest-cta,
     .kfl-digest-card .kfl-digest-swipe-hint {
       opacity: 0;
-      transform: translateY(8px);
-      animation: kfl-digest-up 0.32s ease forwards;
+      transform: translateY(6px);
+      animation: kfl-d-up 0.3s ease forwards;
     }
-    .kfl-digest-card .kfl-digest-header     { animation-delay: 0.18s; }
-    .kfl-digest-card .kfl-digest-hero       { animation-delay: 0.23s; }
-    .kfl-digest-card .kfl-digest-divider    { animation-delay: 0.27s; }
-    .kfl-digest-card .kfl-digest-stats      { animation-delay: 0.30s; }
-    .kfl-digest-card .kfl-digest-players    { animation-delay: 0.34s; }
-    .kfl-digest-card .kfl-digest-captain    { animation-delay: 0.37s; }
-    .kfl-digest-card .kfl-digest-cta        { animation-delay: 0.40s; }
-    .kfl-digest-card .kfl-digest-swipe-hint { animation-delay: 0.43s; }
+    .kfl-digest-card .kfl-digest-header     { animation-delay: 0.16s; }
+    .kfl-digest-card .kfl-digest-hero       { animation-delay: 0.21s; }
+    .kfl-digest-card .kfl-digest-divider    { animation-delay: 0.25s; }
+    .kfl-digest-card .kfl-digest-stats      { animation-delay: 0.28s; }
+    .kfl-digest-card .kfl-digest-players    { animation-delay: 0.32s; }
+    .kfl-digest-card .kfl-digest-captain    { animation-delay: 0.35s; }
+    .kfl-digest-card .kfl-digest-swipe-hint { animation-delay: 0.38s; }
 
-    @keyframes kfl-digest-up {
+    @keyframes kfl-d-up {
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Light theme */
-    [data-theme="light"] .kfl-digest-card           { background: #ffffff; border-color: rgba(0,0,0,0.07); }
-    [data-theme="light"] .kfl-digest-card::before   { background: linear-gradient(90deg, var(--kfl-green,#00c85a) 0%, transparent 80%); }
-    [data-theme="light"] .kfl-digest-score          { color: #0a0e1a; }
-    [data-theme="light"] .kfl-digest-one-liner       { color: rgba(0,0,0,0.32); }
-    [data-theme="light"] .kfl-digest-rank-badge     { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.07); color: rgba(0,0,0,0.42); }
-    [data-theme="light"] .kfl-digest-divider        { background: rgba(0,0,0,0.05); }
-    [data-theme="light"] .kfl-digest-stat-row__label{ color: rgba(0,0,0,0.38); }
-    [data-theme="light"] .kfl-digest-stat-row__value{ color: #0a0e1a; }
-    [data-theme="light"] .kfl-digest-stat-row       { border-bottom-color: rgba(0,0,0,0.05); }
-    [data-theme="light"] .kfl-digest-player__name   { color: #0a0e1a; }
-    [data-theme="light"] .kfl-digest-captain__name  { color: #0a0e1a; }
-    [data-theme="light"] .kfl-digest-close          { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.35); }
-    [data-theme="light"] .kfl-digest-swipe-hint     { color: rgba(0,0,0,0.16); }
-    [data-theme="light"] .kfl-digest-cta            { color: #fff; }
+    /* ── Light theme ── */
+    [data-theme="light"] .kfl-digest-card            { background: #ffffff; }
+    [data-theme="light"] .kfl-digest-score           { color: #0a0e1a; }
+    [data-theme="light"] .kfl-digest-one-liner        { color: rgba(0,0,0,0.32); }
+    [data-theme="light"] .kfl-digest-rank-badge      { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.07); color: rgba(0,0,0,0.42); }
+    [data-theme="light"] .kfl-digest-divider         { background: rgba(0,0,0,0.05); }
+    [data-theme="light"] .kfl-digest-stat-row__label { color: rgba(0,0,0,0.4); }
+    [data-theme="light"] .kfl-digest-stat-row__value { color: #0a0e1a; }
+    [data-theme="light"] .kfl-digest-stat-row        { border-bottom-color: rgba(0,0,0,0.05); }
+    [data-theme="light"] .kfl-digest-player__name    { color: #0a0e1a; }
+    [data-theme="light"] .kfl-digest-captain__name   { color: #0a0e1a; }
+    [data-theme="light"] .kfl-digest-close           { background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.35); }
+    [data-theme="light"] .kfl-digest-swipe-hint      { color: rgba(0,0,0,0.16); }
   `;
   document.head.appendChild(style);
 
@@ -405,32 +403,27 @@
     const res = await fetch(PROXY + 'bootstrap-static/');
     return res.json();
   }
-
   async function fetchPicks(teamId, gw) {
     const res = await fetch(PROXY + `entry/${teamId}/event/${gw}/picks/`);
     return res.json();
   }
-
   async function fetchLive(gw) {
     const res = await fetch(PROXY + `event/${gw}/live/`);
     return res.json();
   }
 
-  /* ── Format helpers ──────────────────────────────────────── */
+  /* ── Helpers ─────────────────────────────────────────────── */
   function fmtRank(n) {
     if (!n) return '\u2014';
-    return n >= 1000000
-      ? (n / 1000000).toFixed(1) + 'M'
-      : n >= 1000
-      ? (n / 1000).toFixed(0) + 'k'
-      : String(n);
+    return n >= 1000000 ? (n/1000000).toFixed(1)+'M'
+         : n >= 1000    ? (n/1000).toFixed(0)+'k'
+         : String(n);
   }
-
-  function rankDiff(current, previous) {
-    if (!current || !previous) return { dir: 'same', text: '\u2014' };
-    const diff = previous - current;
-    if (diff > 0) return { dir: 'up',   text: '\u2191 ' + fmtRank(diff) };
-    if (diff < 0) return { dir: 'down', text: '\u2193 ' + fmtRank(Math.abs(diff)) };
+  function rankDiff(cur, prev) {
+    if (!cur || !prev) return { dir: 'same', text: '\u2014' };
+    const d = prev - cur;
+    if (d > 0) return { dir: 'up',   text: '\u2191 ' + fmtRank(d) };
+    if (d < 0) return { dir: 'down', text: '\u2193 ' + fmtRank(Math.abs(d)) };
     return { dir: 'same', text: '\u2192' };
   }
 
@@ -445,19 +438,19 @@
     const arrow    = rankDiff(overallRank, prevRank);
     const oneLiner = getOneLiner(gwPoints, avgPoints);
     const diff     = gwPoints - avgPoints;
-    const glowColor = diff >= 15 ? 'rgba(0,232,104,0.14)'
-                    : diff >= 0  ? 'rgba(0,232,104,0.08)'
-                    :               'rgba(239,68,68,0.10)';
+    const glowColor = diff >= 15 ? 'rgba(0,232,104,0.13)'
+                    : diff >= 0  ? 'rgba(0,232,104,0.07)'
+                    :               'rgba(239,68,68,0.09)';
 
     const chipBadge = chip && chip !== 'n/a'
       ? '<span class="kfl-digest-chip-badge">' + chip.replace(/_/g,' ') + '</span>'
       : '';
 
-    const vsAvg    = gwPoints - avgPoints;
-    const vsClass  = vsAvg >= 0 ? 'positive' : 'negative';
-    const vsText   = (vsAvg >= 0 ? '+' : '') + vsAvg + ' vs avg';
+    const vsAvg   = gwPoints - avgPoints;
+    const vsClass = vsAvg >= 0 ? 'positive' : 'negative';
+    const vsText  = (vsAvg >= 0 ? '+' : '') + vsAvg + ' vs avg';
+    const hitText = transferCost > 0 ? transfers + ' · -' + transferCost + ' hit' : transfers + ' · no hit';
     const hitClass = transferCost > 0 ? 'negative' : '';
-    const hitText  = transferCost > 0 ? '-' + transferCost + ' pt hit' : 'No hit';
 
     return `
       <div class="kfl-digest-header">
@@ -472,10 +465,10 @@
         <div class="kfl-digest-score">${gwPoints}<span class="kfl-digest-score__pts">pts</span></div>
         <div class="kfl-digest-one-liner">${oneLiner}</div>
         <div class="kfl-digest-rank-row">
-          <div class="kfl-digest-rank-badge">
-            <i class="fa-solid fa-earth-africa" style="margin-right:4px;font-size:0.62rem;opacity:0.5"></i>${fmtRank(overallRank)}
-          </div>
-          <div class="kfl-digest-rank-arrow ${arrow.dir}">${arrow.text}</div>
+          <span class="kfl-digest-rank-badge">
+            <i class="fa-solid fa-earth-africa" style="margin-right:3px;font-size:0.58rem;opacity:0.45"></i>${fmtRank(overallRank)}
+          </span>
+          <span class="kfl-digest-rank-arrow ${arrow.dir}">${arrow.text}</span>
         </div>
       </div>
 
@@ -491,12 +484,12 @@
           <span class="kfl-digest-stat-row__value ${vsClass}">${vsText}</span>
         </div>
         <div class="kfl-digest-stat-row">
-          <span class="kfl-digest-stat-row__label">Total Points</span>
+          <span class="kfl-digest-stat-row__label">Total</span>
           <span class="kfl-digest-stat-row__value">${totalPoints} pts</span>
         </div>
         <div class="kfl-digest-stat-row">
-          <span class="kfl-digest-stat-row__label">Transfers · Hit</span>
-          <span class="kfl-digest-stat-row__value ${hitClass}">${transfers} · ${hitText}</span>
+          <span class="kfl-digest-stat-row__label">Transfers</span>
+          <span class="kfl-digest-stat-row__value ${hitClass}">${hitText}</span>
         </div>
       </div>
 
@@ -527,7 +520,6 @@
         </div>
       </div>
 
-      <button class="kfl-digest-cta" id="kfl-digest-cta">View My Team \u2192</button>
       <div class="kfl-digest-swipe-hint">Tap outside or swipe to dismiss</div>
     `;
   }
@@ -554,8 +546,8 @@
     // Close handlers
     function dismiss() {
       overlay.classList.remove('is-ready');
-      card.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1)';
-      card.style.transform  = 'translateY(100%)';
+      card.style.transition = 'transform 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.22s ease';
+      card.style.transform = 'scale(0.9) translateY(10px)'; card.style.opacity = '0';
       setTimeout(() => overlay.remove(), 380);
     }
 
@@ -595,7 +587,7 @@
         dismiss();
       } else {
         // Snap back
-        card.style.transition = 'transform 0.3s cubic-bezier(0.34,1.2,0.64,1)';
+        card.style.transition = 'transform 0.3s cubic-bezier(0.34,1.2,0.64,1), opacity 0.25s ease';
         card.style.transform  = 'translateY(0)';
         overlay.style.background = 'rgba(0,0,0,0.72)';
       }
