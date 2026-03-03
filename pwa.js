@@ -7,21 +7,27 @@
 (function () {
   'use strict';
 
+  const PBS_TAG             = 'fpl-bootstrap-sync';
+  const PBS_MIN_INTERVAL_MS = 3 * 60 * 60 * 1000; // 3 hours
+
   /* ── 1. REGISTER SERVICE WORKER ──────────────────────── */
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        .then(reg => {
+        .then(async reg => {
           // Check for updates silently in background
           reg.addEventListener('updatefound', () => {
             const worker = reg.installing;
             worker?.addEventListener('statechange', () => {
               if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New version available — show a subtle in-app nudge (not a progress bar)
                 showUpdateNudge();
               }
             });
           });
+
+          // Register Periodic Background Sync once SW is active
+          await waitForActive(reg);
+          registerPeriodicSync(reg);
         })
         .catch(err => console.warn('[SW] Registration failed:', err));
 
@@ -29,17 +35,70 @@
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         window.location.reload();
       });
+
+      // Listen for messages from SW (e.g. fresh bootstrap data available)
+      navigator.serviceWorker.addEventListener('message', event => {
+        const { type, ts } = event.data || {};
+        if (type === 'BOOTSTRAP_UPDATED') {
+          console.log('[PWA] Fresh bootstrap-static in cache', ts ? new Date(ts).toLocaleTimeString() : '');
+          // Let deadline.js / badge.js react without a full reload
+          window.dispatchEvent(new CustomEvent('kopala:bootstrap-updated', { detail: { ts } }));
+        }
+      });
     });
   }
 
-  /* ── 2. INSTALL PROMPT (Add to Home Screen) ─────────── */
+  /* ── 2. PERIODIC BACKGROUND SYNC ─────────────────────── */
+  async function registerPeriodicSync(reg) {
+    if (!('periodicSync' in reg)) {
+      console.log('[PWA] Periodic Background Sync not supported');
+      return;
+    }
+
+    try {
+      const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+      if (status.state !== 'granted') {
+        // Normal on first visit — granted automatically once PWA is installed
+        console.log('[PWA] Periodic sync permission:', status.state);
+        return;
+      }
+
+      const tags = await reg.periodicSync.getTags();
+      if (tags.includes(PBS_TAG)) {
+        console.log('[PWA] Periodic sync already registered');
+        return;
+      }
+
+      await reg.periodicSync.register(PBS_TAG, { minInterval: PBS_MIN_INTERVAL_MS });
+      console.log('[PWA] Periodic Background Sync registered — min interval: 3h');
+
+    } catch (err) {
+      // Silently fails in non-installed PWA contexts — expected
+      console.log('[PWA] Periodic sync skipped:', err.message);
+    }
+  }
+
+  function waitForActive(reg) {
+    return new Promise(resolve => {
+      if (reg.active) { resolve(reg); return; }
+      const sw = reg.installing || reg.waiting;
+      if (!sw)  { resolve(reg); return; }
+      sw.addEventListener('statechange', function handler() {
+        if (this.state === 'activated') {
+          sw.removeEventListener('statechange', handler);
+          resolve(reg);
+        }
+      });
+    });
+  }
+
+  /* ── 3. INSTALL PROMPT (Add to Home Screen) ─────────── */
   let _deferredPrompt = null;
 
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     _deferredPrompt = e;
 
-    // Show our own install button after a short delay if not already installed
     setTimeout(() => {
       if (!isInstalled()) showInstallToast();
     }, 4000);
@@ -56,7 +115,7 @@
            document.referrer.includes('android-app://');
   }
 
-  /* ── 3. INSTALL TOAST (bottom-of-screen, dismissible) ── */
+  /* ── 4. INSTALL TOAST ────────────────────────────────── */
   function showInstallToast() {
     if (document.getElementById('kfl-install-toast')) return;
     if (isInstalled()) return;
@@ -78,7 +137,6 @@
     `;
     document.body.appendChild(toast);
 
-    // Animate in
     requestAnimationFrame(() => toast.classList.add('kfl-install-toast--visible'));
 
     document.getElementById('kfl-install-btn')?.addEventListener('click', async () => {
@@ -91,7 +149,6 @@
 
     document.getElementById('kfl-install-close')?.addEventListener('click', () => {
       hideInstallToast();
-      // Don't show again for 7 days
       localStorage.setItem('kfl_install_dismissed', Date.now().toString());
     });
   }
@@ -103,7 +160,7 @@
     setTimeout(() => toast.remove(), 350);
   }
 
-  /* ── 4. UPDATE NUDGE (subtle top banner) ─────────────── */
+  /* ── 5. UPDATE NUDGE ─────────────────────────────────── */
   function showUpdateNudge() {
     if (document.getElementById('kfl-update-nudge')) return;
     const bar = document.createElement('div');
@@ -116,11 +173,9 @@
     document.getElementById('kfl-update-btn')?.addEventListener('click', () => window.location.reload());
   }
 
-  /* ── 5. NATIVE-FEEL: Instant tap response ───────────── */
-  // Removes the 300ms click delay on all touch devices without FastClick overhead
+  /* ── 6. NATIVE-FEEL: Instant tap response ───────────── */
   document.addEventListener('touchstart', function () {}, { passive: true });
 
-  // Remove highlight flash on tap for nav elements
   const tapStyle = document.createElement('style');
   tapStyle.textContent = `
     a, button, [role="button"], .kfl-subnav__link, .kfl-drawer__link {
@@ -130,43 +185,34 @@
   `;
   document.head.appendChild(tapStyle);
 
-  /* ── 6. NATIVE-FEEL: Overscroll & pull-to-refresh ───── */
-  // Prevent the browser's pull-to-refresh from triggering while scrolling content
+  /* ── 7. NATIVE-FEEL: Overscroll & pull-to-refresh ───── */
   document.body.style.overscrollBehaviorY = 'contain';
-
-  // Allow momentum scrolling on iOS
   document.documentElement.style.webkitOverflowScrolling = 'touch';
 
-  /* ── 7. NATIVE-FEEL: Page transitions ───────────────── */
-  // Instant page switch with a subtle fade — no progress bar, no jank
+  /* ── 8. NATIVE-FEEL: Page transitions ───────────────── */
   document.addEventListener('click', e => {
     const link = e.target.closest('a[href]');
     if (!link) return;
 
     const href = link.getAttribute('href');
-    // Only local nav links
     if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('mailto')) return;
     if (link.target === '_blank') return;
     if (e.metaKey || e.ctrlKey || e.shiftKey) return;
 
     e.preventDefault();
 
-    // Subtle fade-out on exit
     document.body.style.transition = 'opacity 0.12s ease';
     document.body.style.opacity    = '0.85';
 
-    setTimeout(() => {
-      window.location.href = href;
-    }, 80);
+    setTimeout(() => { window.location.href = href; }, 80);
   });
 
-  // Fade back in on page load
   window.addEventListener('pageshow', () => {
     document.body.style.opacity    = '1';
     document.body.style.transition = 'opacity 0.15s ease';
   });
 
-  /* ── 8. NATIVE-FEEL: Status bar color sync ──────────── */
+  /* ── 9. NATIVE-FEEL: Status bar color sync ──────────── */
   function syncStatusBar() {
     const theme = document.documentElement.getAttribute('data-theme') || 'light';
     const color = theme === 'dark' ? '#0d1520' : '#ffffff';
@@ -179,21 +225,18 @@
     meta.content = color;
   }
 
-  // Sync on load and on theme toggle
   document.addEventListener('DOMContentLoaded', syncStatusBar);
   const observer = new MutationObserver(syncStatusBar);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-  /* ── 9. NATIVE-FEEL: Back gesture support ───────────── */
-  // Tracks history so Android back button works naturally inside the SPA
+  /* ── 10. NATIVE-FEEL: Back gesture support ──────────── */
   if (isInstalled()) {
-    // Pre-populate history on first load so back button has somewhere to go
     if (window.history.length <= 1) {
       history.replaceState({ page: 'home' }, '', window.location.href);
     }
   }
 
-  /* ── 10. STYLES injected for install toast & nudge ──── */
+  /* ── 11. STYLES ──────────────────────────────────────── */
   const pwaStyles = document.createElement('style');
   pwaStyles.textContent = `
     /* Install Toast */
@@ -295,12 +338,10 @@
       font-family: inherit;
     }
 
-    /* Safe area bottom padding for fixed navs */
+    /* Safe area clearance */
     .kfl-subnav {
       padding-bottom: env(safe-area-inset-bottom, 0px);
     }
-
-    /* iOS home-indicator clearance for bottom-fixed elements */
     .toast {
       bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
     }
