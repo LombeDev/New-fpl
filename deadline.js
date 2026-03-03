@@ -469,3 +469,5 @@
   window.addEventListener('pagehide', () => clearInterval(tickInterval));
 
 })();
+
+window.Haptic?.warning();
