@@ -21,10 +21,10 @@
 
   /* ── One-liner pool ──────────────────────────────────────── */
   const ONE_LINERS = {
-    great:   ['Absolutely balling. 🔥', 'Top red arrow energy.', 'The algorithm fears you.', 'Touch grass, you've peaked.', 'FPL gods are watching over you.'],
+    great:   ['Absolutely balling. \uD83D\uDD25', 'Top red arrow energy.', 'The algorithm fears you.', 'Touch grass. You peaked.', 'FPL gods are watching over you.'],
     good:    ['Solid week. Keep building.', 'Green arrow secured. Respectable.', 'Not bad at all, manager.', 'The plan is coming together.', 'Quietly impressive.'],
     average: ['Mid. But we move.', 'The template betrayed us again.', 'Horizontal arrow haver.', 'Points on the board. Barely.', 'It is what it is, chief.'],
-    bad:     ['This is fine. 🔥🔥🔥', 'Wildcard szn incoming?', 'The captain pick… said what it said.', 'We go again. Unfortunately.', 'Genuinely impressive how wrong that was.'],
+    bad:     ['This is fine. \uD83D\uDD25\uD83D\uDD25\uD83D\uDD25', 'Wildcard szn incoming?', 'The captain pick said what it said.', 'We go again. Unfortunately.', 'Genuinely impressive how wrong that was.'],
   };
 
   function getOneLiner(pts, avgPts) {
