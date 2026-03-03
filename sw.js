@@ -242,13 +242,16 @@ self.addEventListener('push', event => {
 
 self.addEventListener('notificationclick', event => {
   event.notification.close();
+  if (event.action === 'dismiss') return;  // dismiss button → just close
+
+  const url = event.notification.data?.url || '/transfers.html';
   event.waitUntil(
-    clients.matchAll({ type: 'window' }).then(clientList => {
-      const url = event.notification.data?.url || '/';
-      for (const client of clientList) {
-        if (client.url === url && 'focus' in client) return client.focus();
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const c of list) {
+        if (new URL(c.url).pathname === new URL(url, location.origin).pathname)
+          return c.focus();
       }
-      if (clients.openWindow) return clients.openWindow(url);
+      return clients.openWindow(url);
     })
   );
 });
