@@ -1,18 +1,87 @@
-/* ════════════════════════════════════════════════════════════════════
-   KOPALA FPL — DESKTOP ALIGNMENT INTEGRATION PATCHES
-   
-   Apply these patches to your existing style.css and nav.css
-   All changes are additive or replace specific sections
-   ════════════════════════════════════════════════════════════════════ */
+/* ============================================================
+   KOPALA FPL — GLOBAL DESIGN SYSTEM (WITH DESKTOP ALIGNMENT)
+   Merged from style.css + pwa.css (conflicts resolved)
+   Font: Barlow Condensed (headings/numbers) · DM Sans (body)
+   ============================================================ */
 
-/* ──────────────────────────────────────────────────────────────────
-   PATCH 1: style.css — Section 1 (THEME TOKENS)
-   
-   Find the :root block and add these variables at the end
-   ────────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap');
 
+/* ============================================================
+   1. THEME TOKENS
+   ============================================================ */
+
+/* ── LIGHT ───────────────────────────────────────────────── */
+[data-theme="light"], :root:not([data-theme]) {
+  --kfl-bg:           #f0f2f5;
+  --kfl-surface:      #ffffff;
+  --kfl-surface-2:    #f5f5f7;
+  --kfl-surface-3:    #eaeaed;
+  --kfl-border:       #e2e2e6;
+  --kfl-border-mid:   #c8c8ce;
+  --kfl-text-1:       #0f0f10;
+  --kfl-text-2:       #52525b;
+  --kfl-text-3:       #a1a1aa;
+  --kfl-shadow:       0 1px 2px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --kfl-shadow-md:    0 4px 20px rgba(0,0,0,0.10);
+  --kfl-green:        #00b956;
+  --kfl-green-dim:    rgba(0,185,86,0.10);
+  --kfl-pill-bg:      #00b956;
+  --kfl-pill-fg:      #ffffff;
+  --kfl-hover-bg:     rgba(0,0,0,0.04);
+  --kfl-logo-box:     #18181b;
+  --kfl-logo-border:  transparent;
+  --kfl-manager-grad: linear-gradient(180deg, #e6eaef 0%, #f0f2f5 100%);
+  --kfl-deadline-grad:linear-gradient(90deg, #37003c, #6b0075);
+  /* theme-color for PWA status bar */
+  --kfl-status-bar:   #ffffff;
+}
+
+/* ── DARK — Telegram Night Mode ──────────────────────────── */
+[data-theme="dark"] {
+  --kfl-bg:           #17212b;
+  --kfl-surface:      #232e3c;
+  --kfl-surface-2:    #2b3a4a;
+  --kfl-surface-3:    #344a5e;
+  --kfl-border:       rgba(255,255,255,0.07);
+  --kfl-border-mid:   rgba(255,255,255,0.14);
+  --kfl-text-1:       #ffffff;
+  --kfl-text-2:       #b8c5d3;
+  --kfl-text-3:       #5a7a96;
+  --kfl-shadow:       0 1px 4px rgba(0,0,0,0.5);
+  --kfl-shadow-md:    0 6px 24px rgba(0,0,0,0.6);
+  --kfl-green:        #4fcd87;
+  --kfl-green-dim:    rgba(79,205,135,0.12);
+  --kfl-pill-bg:      #4fcd87;
+  --kfl-pill-fg:      #0d1a12;
+  --kfl-hover-bg:     rgba(255,255,255,0.07);
+  --kfl-logo-box:     #2b3a4a;
+  --kfl-logo-border:  rgba(255,255,255,0.10);
+  --kfl-manager-grad: linear-gradient(180deg, #1e2d3e 0%, #17212b 100%);
+  --kfl-deadline-grad:linear-gradient(90deg, #37003c, #6b0075);
+  --kfl-status-bar:   #17212b;
+}
+
+/* ── STATIC TOKENS ───────────────────────────────────────── */
 :root {
-  /* ... existing variables ... */
+  --pos-gk:   #f59e0b;
+  --pos-def:  #22c55e;
+  --pos-mid:  #3b82f6;
+  --pos-fwd:  #ef4444;
+
+  --red:   #ef4444;
+  --amber: #f59e0b;
+
+  --kfl-topbar-h: 56px;
+  --kfl-tabbar-h: 52px;
+  --kfl-bottom-h: 62px;
+  --sidebar-w:    240px;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* ── CONTENT CONTAINER SIZING FOR DESKTOP ALIGNMENT ── */
   --content-max-w: 1200px;
@@ -22,12 +91,134 @@
   --content-pad-wide:    32px;
 }
 
-/* ──────────────────────────────────────────────────────────────────
-   PATCH 2: style.css — Section 4 (PAGE LAYOUT)
-   
-   ADD this new rule after .page-content
-   Keep .page-content as-is, add .wrap rule
-   ────────────────────────────────────────────────────────────────── */
+/* ============================================================
+   2. BASE RESET
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  /* Fills notch/Dynamic Island on iOS */
+  height: -webkit-fill-available;
+  scroll-behavior: smooth;
+  /* Prevents double-tap zoom without disabling pinch-zoom */
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Overscroll glow colour matches app bg */
+  background: var(--kfl-bg);
+}
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background-color: var(--kfl-bg);
+  color: var(--kfl-text-1);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+
+  /* Safe-area-aware top padding: fixed topbar + tabbar + notch */
+  padding-top: calc(
+    var(--kfl-topbar-h) +
+    var(--kfl-tabbar-h) +
+    env(safe-area-inset-top, 0px)
+  );
+  /* Safe-area-aware bottom padding: home indicator */
+  padding-bottom: calc(var(--kfl-bottom-h) + env(safe-area-inset-bottom, 0px));
+
+  /* Left/right safe areas (landscape notch) */
+  padding-left:  env(safe-area-inset-left,  0px);
+  padding-right: env(safe-area-inset-right, 0px);
+
+  /* Native scroll feel */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+
+  /* Minimum full-height on iOS */
+  min-height: -webkit-fill-available;
+
+  /* No grey flash on tap */
+  -webkit-tap-highlight-color: transparent;
+
+  transition: background-color 0.22s ease, color 0.22s ease;
+}
+
+@media (min-width: 900px) {
+  body { padding-bottom: 0; }
+}
+
+a      { text-decoration: none; color: inherit; }
+img    {
+  display: block;
+  max-width: 100%;
+  -webkit-user-drag: none;
+  user-select: none;
+  /* Sharp rendering on high-DPI screens */
+  image-rendering: -webkit-optimize-contrast;
+}
+button { font-family: inherit; cursor: pointer; }
+
+/* ============================================================
+   3. TYPOGRAPHY SCALE
+   ============================================================ */
+.t-display {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.t-heading {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.2rem, 4vw, 1.8rem);
+  line-height: 1.1;
+}
+
+.t-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--kfl-text-3);
+  transition: color 0.22s;
+}
+
+.t-number {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   4. PAGE LAYOUT
+   ============================================================ */
+.page-content {
+  min-height: 100vh;
+  max-width: 700px;
+  margin: 0 auto;
+  padding-bottom: 20px;
+}
+
+.section { padding: 20px 16px; }
+.section + .section { padding-top: 0; }
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--kfl-text-2);
+  transition: color 0.22s;
+}
 
 /* ── MASTER CONTAINER FOR ALL PAGES ──
    This handles horizontal centering and responsive padding.
@@ -62,256 +253,771 @@
   }
 }
 
-/* ──────────────────────────────────────────────────────────────────
-   PATCH 3: style.css — Section 6 (STAT CHIPS)
-   
-   REPLACE the current .stat-chips-row with this:
-   ────────────────────────────────────────────────────────────────── */
+/* ============================================================
+   5. SKELETON / SHIMMER
+   ============================================================ */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
 
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--kfl-surface-2) 25%,
+    var(--kfl-surface-3) 50%,
+    var(--kfl-surface-2) 75%
+  ) !important;
+  background-size: 400% 100% !important;
+  animation: shimmer 1.6s ease infinite;
+  border-radius: var(--r-sm);
+  color: transparent !important;
+  border-color: transparent !important;
+  pointer-events: none;
+  user-select: none;
+}
+
+.skeleton * { visibility: hidden; }
+
+/* ============================================================
+   6. STAT CHIPS
+   ============================================================ */
 .stat-chips-row {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding: 16px 0 0;  /* ← Changed: only vertical padding */
+  padding: 16px 0 0;
   scrollbar-width: none;
-  /* Horizontal padding now inherited from .wrap container */
+}
+.stat-chips-row::-webkit-scrollbar { display: none; }
+
+.stat-chip {
+  flex: 0 0 auto;
+  background: var(--kfl-surface);
+  border: 1px solid var(--kfl-border);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  min-width: 90px;
+  text-align: center;
+  transition: background 0.22s, border-color 0.22s;
 }
 
-/* ──────────────────────────────────────────────────────────────────
-   PATCH 4: style.css — Section 7 (MANAGER HEADER)
-   
-   REPLACE the current .manager-header with this:
-   ────────────────────────────────────────────────────────────────── */
+.stat-chip__label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--kfl-text-3);
+  margin-bottom: 4px;
+  transition: color 0.22s;
+}
 
+.stat-chip__value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--kfl-text-1);
+  line-height: 1;
+  transition: color 0.22s;
+}
+
+.stat-chip--highlight {
+  background: var(--kfl-green);
+  border-color: transparent;
+}
+.stat-chip--highlight .stat-chip__label,
+.stat-chip--highlight .stat-chip__value {
+  color: var(--kfl-pill-fg);
+}
+
+/* ============================================================
+   7. MANAGER HEADER
+   ============================================================ */
 .manager-header {
-  padding: 20px 0 16px;  /* ← Changed: only vertical padding */
+  padding: 20px 0 16px;
   background: var(--kfl-manager-grad);
   border-bottom: 1px solid var(--kfl-border);
   transition: border-color 0.22s;
-  /* Horizontal padding inherited from .wrap */
 }
 
-/* ──────────────────────────────────────────────────────────────────
-   PATCH 5: style.css — Section 8 (SQUAD INFO BAR)
-   
-   REPLACE the current .squad-bar with this:
-   ────────────────────────────────────────────────────────────────── */
+.manager-header__name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.3px;
+  color: var(--kfl-text-1);
+  transition: color 0.22s;
+}
 
+.manager-header__team {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--kfl-green);
+  margin-top: 4px;
+  transition: color 0.22s;
+}
+
+/* ============================================================
+   8. SQUAD INFO BAR
+   ============================================================ */
 .squad-bar {
   display: flex;
   gap: 8px;
-  padding: 16px 0 0;  /* ← Changed: only vertical padding */
+  padding: 16px 0 0;
   flex-wrap: wrap;
-  /* Horizontal padding inherited from .wrap */
 }
 
-/* ──────────────────────────────────────────────────────────────────
-   PATCH 6: style.css — Section 9 (PLAYER CARDS)
-   
-   REPLACE the current .player-grid with this:
-   ────────────────────────────────────────────────────────────────── */
+.squad-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--kfl-surface);
+  border: 1px solid var(--kfl-border);
+  border-radius: 100px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--kfl-text-2);
+  transition: background 0.22s, border-color 0.22s, color 0.22s;
+}
 
+.squad-pill__value {
+  color: var(--kfl-text-1);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  transition: color 0.22s;
+}
+
+.squad-pill--cost {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.20);
+}
+.squad-pill--cost,
+.squad-pill--cost .squad-pill__value { color: var(--red); }
+
+[data-theme="dark"] .squad-pill--cost {
+  background: rgba(239,68,68,0.15);
+  border-color: rgba(239,68,68,0.28);
+}
+
+/* ============================================================
+   9. PLAYER CARDS
+   ============================================================ */
 .player-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  padding: 16px 0;  /* ← Changed: only vertical padding */
-  /* Horizontal padding inherited from .wrap */
+  padding: 16px 0;
 }
 
 @media (min-width: 480px) { .player-grid { grid-template-columns: repeat(4, 1fr); } }
 @media (min-width: 680px) { .player-grid { grid-template-columns: repeat(5, 1fr); } }
 
-/* ──────────────────────────────────────────────────────────────────
-   PATCH 7: style.css — Section 11 (DEADLINE BANNER)
-   
-   REPLACE with this (no horizontal padding):
-   ────────────────────────────────────────────────────────────────── */
+.player-card {
+  background: var(--kfl-surface);
+  border: 1px solid var(--kfl-border);
+  border-radius: var(--r-md);
+  padding: 10px 6px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s var(--ease), background 0.15s var(--ease), border-color 0.22s;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
 
+.player-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--r-md) var(--r-md) 0 0;
+}
+.player-card[data-pos="1"]::before { background: var(--pos-gk); }
+.player-card[data-pos="2"]::before { background: var(--pos-def); }
+.player-card[data-pos="3"]::before { background: var(--pos-mid); }
+.player-card[data-pos="4"]::before { background: var(--pos-fwd); }
+
+.player-card:active {
+  transform: scale(0.94);
+  background: var(--kfl-surface-3);
+}
+
+.player-card.is-bench { opacity: 0.45; border-style: dashed; }
+.player-card.is-bench::before { opacity: 0.4; }
+
+.player-badge {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 900;
+  line-height: 1;
+}
+.player-badge--captain {
+  background: var(--kfl-green);
+  color: var(--kfl-pill-fg);
+  transition: background 0.22s, color 0.22s;
+}
+.player-badge--vice {
+  background: var(--kfl-surface-3);
+  color: var(--kfl-text-1);
+  border: 1px solid var(--kfl-border-mid);
+  transition: background 0.22s, color 0.22s, border-color 0.22s;
+}
+
+.player-card__shirt {
+  width: 38px;
+  height: auto;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.25));
+  margin-top: 4px;
+}
+[data-theme="dark"] .player-card__shirt {
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.55));
+}
+
+.player-card__name {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--kfl-text-1);
+  text-align: center;
+  line-height: 1.2;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 4px;
+  transition: color 0.22s;
+}
+
+.player-card__pts {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--kfl-green);
+  line-height: 1;
+  transition: color 0.22s;
+}
+.player-card__pts--zero { color: var(--kfl-text-3); }
+
+.player-card__ownership {
+  width: calc(100% - 8px);
+  height: 3px;
+  background: var(--kfl-surface-3);
+  border-radius: 100px;
+  overflow: hidden;
+  transition: background 0.22s;
+}
+.player-card__ownership-fill {
+  height: 100%;
+  background: var(--kfl-text-3);
+  border-radius: 100px;
+  transition: width 0.6s var(--ease), background 0.22s;
+}
+
+/* ============================================================
+   10. BENCH DIVIDER
+   ============================================================ */
+.bench-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  margin: 4px 0;
+}
+.bench-divider__line {
+  flex: 1;
+  height: 1px;
+  background: var(--kfl-border);
+  transition: background 0.22s;
+}
+.bench-divider__label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--kfl-text-3);
+  transition: color 0.22s;
+}
+
+/* ============================================================
+   11. DEADLINE BANNER
+   ============================================================ */
 .deadline-banner {
   background: var(--kfl-deadline-grad);
   border-bottom: 1px solid var(--kfl-border);
-  padding: 10px 0;  /* ← Changed: only vertical padding */
+  padding: 10px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
-
-/* ──────────────────────────────────────────────────────────────────
-   PATCH 8: style.css — Section 13 (TRANSFER CARDS)
-   
-   REPLACE with this (no horizontal padding on container):
-   ────────────────────────────────────────────────────────────────── */
-
-.transfers-section { 
-  padding: 0 0 16px;  /* ← Changed: no left/right padding */
+.deadline-banner__label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
 }
+.deadline-banner__time {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+.deadline-banner__gw {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--kfl-green);
+  background: var(--kfl-green-dim);
+  border: 1px solid rgba(79,205,135,0.25);
+  padding: 3px 10px;
+  border-radius: 100px;
+  transition: color 0.22s, background 0.22s;
+}
+
+/* ============================================================
+   12. LOGIN SCREEN
+   ============================================================ */
+#login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--kfl-bg);
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+  transition: background 0.22s;
+}
+
+.login-hero {
+  background: linear-gradient(135deg, #37003c 0%, #0d0d0d 100%);
+  padding: 60px 24px 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.login-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, var(--kfl-green-dim) 0%, transparent 70%);
+}
+
+.login-hero__wordmark {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: #ffffff;
+  position: relative;
+}
+.login-hero__wordmark span { color: var(--kfl-green); }
+
+.login-hero__sub {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+  margin-top: 6px;
+  position: relative;
+}
+
+.login-card {
+  padding: 32px 24px 40px;
+  flex: 1;
+  background: var(--kfl-bg);
+  transition: background 0.22s;
+}
+.login-card h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  color: var(--kfl-text-1);
+  transition: color 0.22s;
+}
+.login-card p {
+  font-size: 0.85rem;
+  color: var(--kfl-text-2);
+  margin-bottom: 24px;
+  line-height: 1.5;
+  transition: color 0.22s;
+}
+
+.fpl-input {
+  width: 100%;
+  background: var(--kfl-surface);
+  border: 1.5px solid var(--kfl-border-mid);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; /* ≥16px prevents iOS zoom on focus */
+  color: var(--kfl-text-1);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.2s var(--ease), background 0.22s, color 0.22s;
+}
+.fpl-input:focus        { border-color: var(--kfl-green); }
+.fpl-input.error        { border-color: var(--red); background: rgba(239,68,68,0.06); }
+.fpl-input::placeholder { color: var(--kfl-text-3); }
+
+.error-msg {
+  display: none;
+  font-size: 0.8rem;
+  color: var(--red);
+  margin-top: 6px;
+}
+
+.continue-btn {
+  width: 100%;
+  background: var(--kfl-green);
+  color: var(--kfl-pill-fg);
+  border: none;
+  border-radius: var(--r-md);
+  padding: 15px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-top: 16px;
+  transition: opacity 0.2s, transform 0.15s var(--ease), background 0.22s, color 0.22s;
+}
+.continue-btn:active   { transform: scale(0.98); opacity: 0.9; }
+.continue-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.find-id-link {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: var(--kfl-text-3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+.find-id-link:hover { color: var(--kfl-text-2); }
+
+/* ============================================================
+   13. TRANSFER CARDS
+   ============================================================ */
+.transfers-section { padding: 0 0 16px; }
 
 .transfer-card {
   background: var(--kfl-surface);
   border: 1px solid var(--kfl-border);
   border-radius: var(--r-md);
-  padding: 12px 16px;  /* ← Keep this, it's internal spacing */
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 8px;
   transition: background 0.22s, border-color 0.22s;
 }
+.transfer-card__player-out { flex: 1; font-size: 0.85rem; font-weight: 600; color: var(--red); text-align: right; }
+.transfer-card__arrow      { color: var(--kfl-text-3); font-size: 1rem; transition: color 0.22s; }
+.transfer-card__player-in  { flex: 1; font-size: 0.85rem; font-weight: 600; color: var(--kfl-green); transition: color 0.22s; }
+.transfer-card__cost {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.9rem; font-weight: 800;
+  color: var(--red);
+  background: rgba(239,68,68,0.10);
+  border-radius: 100px;
+  padding: 2px 8px;
+}
+[data-theme="dark"] .transfer-card__cost { background: rgba(239,68,68,0.18); }
 
-/* ──────────────────────────────────────────────────────────────────
-   PATCH 9: nav.css — Top Navigation
-   
-   FIND AND REPLACE the entire .kfl-topbar block with this:
-   ────────────────────────────────────────────────────────────────── */
-
-.kfl-topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  
-  /* ── FLEX CONTAINER FOR CENTERING ── */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  
-  /* ── SAFE AREA HANDLING ── */
-  padding-top: env(safe-area-inset-top, 0px);
-  height: calc(var(--kfl-topbar-h) + env(safe-area-inset-top, 0px));
-  
-  /* ── NO HORIZONTAL PADDING HERE ── */
-  padding-left: 0;
-  padding-right: 0;
-  
-  /* ── KEEP EXISTING STYLES ── */
+/* ============================================================
+   14. GENERIC CARD
+   ============================================================ */
+.card {
   background: var(--kfl-surface);
-  border-bottom: 1px solid var(--kfl-border);
-  box-shadow: var(--kfl-shadow);
-  background-image: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
-  
-  /* Keep any other existing styles from nav.css */
+  border: 1px solid var(--kfl-border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: background 0.22s, border-color 0.22s;
 }
 
-/* ── NEW: INNER WRAPPER FOR CONTENT ── */
-.kfl-topbar__inner {
-  max-width: var(--content-max-w);
-  width: 100%;
+/* ============================================================
+   15. PRICE CHANGE BADGES
+   ============================================================ */
+.price-rise { color: var(--kfl-green); }
+.price-fall { color: var(--red); }
+.price-same { color: var(--kfl-text-3); }
+
+/* ============================================================
+   16. TABLE STYLES
+   ============================================================ */
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.data-table th {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--kfl-text-3);
+  padding: 10px 12px; text-align: left;
+  border-bottom: 1px solid var(--kfl-border);
+  transition: color 0.22s, border-color 0.22s;
+}
+.data-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--kfl-border);
+  color: var(--kfl-text-2);
+  vertical-align: middle;
+  transition: color 0.22s, border-color 0.22s;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td      { background: var(--kfl-hover-bg); }
+
+/* ============================================================
+   17. EMPTY / ERROR STATES
+   ============================================================ */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--kfl-text-3);
+  transition: color 0.22s;
+}
+.empty-state__icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4; }
+.empty-state__msg  { font-size: 0.9rem; line-height: 1.5; }
+
+/* ============================================================
+   18. TAP TARGETS — native 44pt minimum
+   ============================================================ */
+.kfl-subnav__link,
+.kfl-drawer__link,
+.kfl-theme-toggle,
+.kfl-hamburger,
+button,
+[role="button"] {
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* ============================================================
+   19. INPUTS — native iOS feel
+   ============================================================ */
+input, select, textarea {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
+}
+input[type="range"] {
+  -webkit-appearance: auto;
+  appearance: auto;
+}
+/* Prevent iOS zoom on focus — all text inputs must be ≥16px */
+input[type="text"],
+input[type="number"],
+input[type="search"],
+select {
+  font-size: 16px !important;
+}
+
+/* ============================================================
+   20. FOCUS RINGS
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--kfl-green);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+:focus:not(:focus-visible) { outline: none; }
+
+/* ============================================================
+   21. SELECTION COLOR
+   ============================================================ */
+::selection {
+  background: var(--kfl-green-dim);
+  color: var(--kfl-text-1);
+}
+
+/* ============================================================
+   22. FIXED ELEMENTS — safe area offsets
+   ============================================================ */
+.kfl-topbar {
+  padding-top: env(safe-area-inset-top, 0px);
+  height: calc(var(--kfl-topbar-h) + env(safe-area-inset-top, 0px));
+}
+
+.kfl-subnav {
+  top: calc(var(--kfl-topbar-h) + env(safe-area-inset-top, 0px));
+}
+
+footer, .kfl-footer, #footer-placeholder {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ============================================================
+   23. PWA INSTALL TOAST
+   ============================================================ */
+#kfl-install-toast {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+  left: 12px; right: 12px;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--kfl-surface);
+  border: 1px solid var(--kfl-border);
+  border-radius: 16px;
+  padding: 14px 14px 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 9999;
+  box-shadow: var(--kfl-shadow-md);
+  transform: translateY(120%);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease;
+}
+#kfl-install-toast.kfl-install-toast--visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+.kfl-install-toast__icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: var(--kfl-green-dim);
+  color: var(--kfl-green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+.kfl-install-toast__text { flex: 1; min-width: 0; }
+.kfl-install-toast__text strong {
+  display: block; font-size: 0.88rem; font-weight: 700;
+  color: var(--kfl-text-1); margin-bottom: 2px;
+}
+.kfl-install-toast__text span { font-size: 0.72rem; color: var(--kfl-text-3); }
+.kfl-install-toast__btn {
+  background: var(--kfl-green);
+  color: var(--kfl-pill-fg);
+  border: none; border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.8rem; font-weight: 700;
+  flex-shrink: 0; font-family: inherit;
+  transition: opacity 0.15s;
+}
+.kfl-install-toast__btn:hover { opacity: 0.85; }
+.kfl-install-toast__close {
+  background: none; border: none;
+  color: var(--kfl-text-3);
+  padding: 4px; font-size: 0.9rem;
+  flex-shrink: 0; transition: color 0.15s;
+}
+.kfl-install-toast__close:hover { color: var(--kfl-text-1); }
+
+/* ============================================================
+   24. PWA UPDATE NUDGE
+   ============================================================ */
+#kfl-update-nudge {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9998;
+  background: var(--kfl-green);
+  color: var(--kfl-pill-fg);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--content-pad-mobile);
-  gap: 0;
-  height: 100%;
+  padding: 10px 16px;
+  font-size: 0.8rem; font-weight: 600;
+}
+#kfl-update-btn {
+  background: rgba(0,0,0,0.15);
+  border: 1px solid rgba(0,0,0,0.2);
+  color: inherit;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.78rem; font-weight: 700;
+  font-family: inherit;
 }
 
-@media (min-width: 768px) {
-  .kfl-topbar__inner {
-    padding: 0 var(--content-pad-tablet);
+/* ============================================================
+   25. STANDALONE MODE TWEAKS
+   ============================================================ */
+@media (display-mode: standalone) {
+  .browser-only { display: none !important; }
+  .kfl-topbar   { background: var(--kfl-surface); }
+}
+
+/* ============================================================
+   26. SCROLLBARS — hidden on mobile, thin on desktop
+   ============================================================ */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar { display: none; }
+
+@media (min-width: 900px) {
+  .kfl-drawer__content {
+    scrollbar-width: thin;
+    scrollbar-color: var(--kfl-surface-3) transparent;
+  }
+  .kfl-drawer__content::-webkit-scrollbar       { display: block; width: 4px; }
+  .kfl-drawer__content::-webkit-scrollbar-track { background: transparent; }
+  .kfl-drawer__content::-webkit-scrollbar-thumb { background: var(--kfl-surface-3); border-radius: 2px; }
+}
+
+/* ============================================================
+   27. PAGE TRANSITION
+   ============================================================ */
+body { transition: background-color 0.22s ease, color 0.22s ease, opacity 0.15s ease; }
+
+/* ============================================================
+   28. REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1      !important;
+    transition-duration:       0.01ms !important;
+    scroll-behavior:           auto   !important;
   }
 }
 
-@media (min-width: 1024px) {
-  .kfl-topbar__inner {
-    padding: 0 var(--content-pad-desktop);
-  }
+/* ============================================================
+   29. DESKTOP ADJUSTMENTS
+   ============================================================ */
+@media (min-width: 900px) {
+  .page-content { padding-bottom: 40px; }
+  .player-grid  { grid-template-columns: repeat(5, 1fr); }
 }
 
-@media (min-width: 1400px) {
-  .kfl-topbar__inner {
-    padding: 0 var(--content-pad-wide);
-  }
+/* ============================================================
+   30. UTILITY CLASSES
+   ============================================================ */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
-/* ──────────────────────────────────────────────────────────────────
-   PATCH 10: nav.css — Bottom Navigation
-   
-   FIND AND REPLACE the .kfl-bottom-nav block AND update __inner:
-   ────────────────────────────────────────────────────────────────── */
+.flex            { display: flex; }
+.flex-col        { flex-direction: column; }
+.items-center    { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2           { gap: 8px; }
+.gap-3           { gap: 12px; }
+.w-full          { width: 100%; }
 
-.kfl-bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 985;
-  
-  /* ── FLEX CONTAINER FOR CENTERING ── */
-  display: flex;
-  justify-content: center;
-  
-  /* ── SAFE AREA HANDLING ── */
-  padding: 0;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  
-  /* ── KEEP EXISTING STYLES ── */
-  background: var(--kfl-surface);
-  border-top: 1px solid var(--kfl-border);
-  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.06);
-  animation: slideUpIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-  
-  /* Keep any other existing styles */
-}
-
-/* ── UPDATE INNER WRAPPER ── */
-.kfl-bottom-nav__inner {
-  max-width: var(--content-max-w);
-  width: 100%;
-  padding: 5px var(--content-pad-mobile);
-  padding-bottom: max(5px, env(safe-area-inset-bottom));
-  
-  /* Keep existing grid layout */
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-  place-items: center;
-}
-
-@media (min-width: 768px) {
-  .kfl-bottom-nav__inner {
-    padding: 5px var(--content-pad-tablet);
-    padding-bottom: max(5px, env(safe-area-inset-bottom));
-  }
-}
-
-@media (min-width: 1024px) {
-  .kfl-bottom-nav__inner {
-    padding: 5px var(--content-pad-desktop);
-    padding-bottom: max(5px, env(safe-area-inset-bottom));
-  }
-}
-
-@media (min-width: 1400px) {
-  .kfl-bottom-nav__inner {
-    padding: 5px var(--content-pad-wide);
-    padding-bottom: max(5px, env(safe-area-inset-bottom));
-  }
-}
-
-/* ════════════════════════════════════════════════════════════════════
-   SUMMARY OF CHANGES
-   
-   ✅ style.css:
-      • Add container sizing variables
-      • Add .wrap rule with responsive padding
-      • Remove horizontal padding from sections:
-        - .stat-chips-row → padding: 16px 0 0
-        - .manager-header → padding: 20px 0 16px
-        - .squad-bar → padding: 16px 0 0
-        - .player-grid → padding: 16px 0
-        - .deadline-banner → padding: 10px 0
-        - .transfers-section → padding: 0 0 16px
-   
-   ✅ nav.css:
-      • Update .kfl-topbar with flex layout
-      • Add .kfl-topbar__inner wrapper with responsive padding
-      • Update .kfl-bottom-nav with flex layout
-      • Update .kfl-bottom-nav__inner with responsive padding
-   
-   ✅ HTML (all page files):
-      • Wrap nav items in <div class="kfl-topbar__inner">
-      • Verify <div class="kfl-bottom-nav__inner"> exists
-      • Ensure .wrap is parent container for page content
-   
-   ════════════════════════════════════════════════════════════════════ */
+.text-green  { color: var(--kfl-green)  !important; }
+.text-red    { color: var(--red)        !important; }
+.text-dim    { color: var(--kfl-text-2) !important; }
+.text-muted  { color: var(--kfl-text-3) !important; }
