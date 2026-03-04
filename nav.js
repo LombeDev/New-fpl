@@ -5,15 +5,15 @@
     { href: 'index.html',       label: 'Home',       icon: 'fa-house' },
     { href: 'leagues.html',     label: 'Leagues',    icon: 'fa-trophy' },
     { href: 'prices.html',      label: 'Prices',     icon: 'fa-dollar-sign' },
-    { href: 'games.html',       label: 'Games',      icon: 'fa-futbol' },
+    { href: 'games.html',       label: 'Live Action',      icon: 'fa-futbol' },
     { href: 'statistics.html',  label: 'Statistics', icon: 'fa-chart-line' },
   ];
 
   const BOTTOM_NAV_LINKS = [
     { href: 'index.html',   label: 'Home',    icon: 'fa-house'  },
     { href: 'leagues.html', label: 'Leagues', icon: 'fa-trophy' },
-    { href: 'prices.html',  label: 'Prices',  icon: 'fa-star'   },
-    { href: 'games.html',   label: 'Games',   icon: 'fa-futbol' },
+    { href: 'prices.html',  label: 'Prices',  icon: 'fa-dollar-sign'   },
+    { href: 'games.html',   label: 'Live Action',   icon: 'fa-futbol' },
   ];
 
   function currentPage() {
