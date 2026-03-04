@@ -43,29 +43,7 @@
     close:  () => window.Haptic?.dismiss(),
   };
 
-  /* ── FPL team colour map (primary kit hex) ── */
-  const TEAM_COLOURS = {
-    1: '#ef0107',  // Arsenal
-    2: '#95bfe5',  // Aston Villa
-    3: '#e30613',  // Brentford
-    4: '#0057b8',  // Brighton
-    5: '#034694',  // Chelsea
-    6: '#1b458f',  // Crystal Palace
-    7: '#003399',  // Everton
-    8: '#003090',  // Fulham
-    9: '#0d6efd',  // Ipswich
-    10:'#ffffff',  // Leicester
-    11:'#c8102e',  // Liverpool
-    12:'#6cabdd',  // Man City
-    13:'#d00027',  // Man Utd
-    14:'#231f20',  // Newcastle
-    15:'#d71920',  // Nottm Forest
-    16:'#d71920',  // Southampton
-    17:'#132257',  // Spurs
-    18:'#7a263a',  // West Ham
-    19:'#fdbe11',  // Wolves
-    20:'#1b458f',  // Bournemouth
-  };
+
   const TEAM_SHORT = {
     1:'ARS',2:'AVL',3:'BRE',4:'BHA',5:'CHE',6:'CRY',7:'EVE',8:'FUL',
     9:'IPS',10:'LEI',11:'LIV',12:'MCI',13:'MUN',14:'NEW',15:'NFO',
@@ -304,12 +282,22 @@
         flex: 1; min-width: 0;
       }
 
-      /* shirt SVG placeholder */
+      /* real kit image — fixture header */
       .kfl-lw-kit {
-        width: 34px; height: 34px;
+        width: 36px; height: 36px;
         flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
       }
-      .kfl-lw-kit svg { width: 100%; height: 100%; }
+      .kfl-lw-kit-real {
+        width: 36px; height: 36px;
+        object-fit: contain;
+        display: block;
+        filter: drop-shadow(0 2px 5px rgba(0,0,0,0.35));
+      }
+      .kfl-lw-kit-fb {
+        display: flex; align-items: center; justify-content: center;
+        color: var(--kfl-lw-t3); font-size: 1.2rem;
+      }
 
       .kfl-lw-tname {
         font-family: 'Barlow Condensed', sans-serif;
@@ -435,13 +423,19 @@
       .kfl-lw-pc.cap { border-color: rgba(245,158,11,.32); }
       .kfl-lw-pc.bch { opacity: .42; }
 
-      /* tiny kit SVG inside player card */
+      /* real kit image — squad player card */
       .kfl-lw-pc-kit {
-        width: 26px; height: 26px;
+        width: 28px; height: 28px;
         display: flex; align-items: center; justify-content: center;
         flex-shrink: 0;
       }
-      .kfl-lw-pc-kit svg { width: 100%; height: 100%; }
+      .kfl-lw-pc-kit .kfl-lw-kit-real {
+        width: 28px; height: 28px;
+        filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
+      }
+      .kfl-lw-pc-kit .kfl-lw-kit-fb {
+        width: 28px; height: 28px; font-size: .9rem;
+      }
 
       .kfl-lw-pcn {
         font-family: 'Barlow Condensed', sans-serif;
@@ -526,14 +520,21 @@
     document.head.appendChild(s);
   })();
 
-  /* ── SVG shirt generator ── */
-  function kitSVG(color, size = 34) {
-    // A simple stylised football shirt silhouette
-    const c = color || '#555';
-    return `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M14 4 L8 10 L4 8 L2 18 L10 19 L10 36 L30 36 L30 19 L38 18 L36 8 L32 10 L26 4 Q23 7 20 7 Q17 7 14 4Z"
-        fill="${c}" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-    </svg>`;
+  /* ── Real FPL kit image ── */
+  const KIT_BASE = 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_';
+
+  function kitImg(teamCode, size) {
+    size = size || 34;
+    if (!teamCode) {
+      return `<span class="kfl-lw-kit-fb" style="width:${size}px;height:${size}px"><i class="fa-solid fa-shirt"></i></span>`;
+    }
+    return `<img
+      src="${KIT_BASE}${teamCode}-66.png"
+      class="kfl-lw-kit-real"
+      width="${size}" height="${size}"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+      alt="" loading="lazy"
+    ><span class="kfl-lw-kit-fb" style="display:none;width:${size}px;height:${size}px"><i class="fa-solid fa-shirt"></i></span>`;
   }
 
   /* ── Stat helpers ── */
@@ -618,8 +619,10 @@
     const isFT   = fixture.finished_provisional;
     const hTeam  = teamMap[fixture.team_h];
     const aTeam  = teamMap[fixture.team_a];
-    const hCol   = TEAM_COLOURS[fixture.team_h] || '#555';
-    const aCol   = TEAM_COLOURS[fixture.team_a] || '#555';
+
+    // Use real FPL team code for kit URL (bootstrap.teams[].code)
+    const hCode = hTeam?.code ?? null;
+    const aCode = aTeam?.code ?? null;
 
     const statusClass = isLive ? 'live' : isFT ? 'ft' : 'ns';
     const statusText  = isLive ? (fixture.minutes + "'")
@@ -629,18 +632,17 @@
     const hScore = fixture.team_h_score ?? 0;
     const aScore = fixture.team_a_score ?? 0;
 
-    // Top10k EO: approximate from team ownership in bootstrap (display team name as fallback)
     const hEO = hTeam?.top10k_eo ? `Top10k EO: ${hTeam.top10k_eo}%` : '';
     const aEO = aTeam?.top10k_eo ? `Top10k EO: ${aTeam.top10k_eo}%` : '';
 
-    const eventsHTML   = buildEvents(fixture, playerMap);
+    const eventsHTML    = buildEvents(fixture, playerMap);
     const myPlayersHTML = buildMyPlayersInFixture(fixture, myPicksMap, playerMap, liveMap);
 
     return `
       <div class="kfl-lw-fx${isLive ? ' is-live' : ''}">
         <div class="kfl-lw-fx-head">
           <div class="kfl-lw-fx-team">
-            <div class="kfl-lw-kit">${kitSVG(hCol)}</div>
+            <div class="kfl-lw-kit">${kitImg(hCode, 36)}</div>
             <div class="kfl-lw-tname">${hTeam?.short_name || TEAM_SHORT[fixture.team_h] || '?'}</div>
             ${hEO ? `<div class="kfl-lw-teo">${hEO}</div>` : ''}
           </div>
@@ -649,7 +651,7 @@
             <div class="kfl-lw-fstat ${statusClass}">${statusText}</div>
           </div>
           <div class="kfl-lw-fx-team">
-            <div class="kfl-lw-kit">${kitSVG(aCol)}</div>
+            <div class="kfl-lw-kit">${kitImg(aCode, 36)}</div>
             <div class="kfl-lw-tname">${aTeam?.short_name || TEAM_SHORT[fixture.team_a] || '?'}</div>
             ${aEO ? `<div class="kfl-lw-teo">${aEO}</div>` : ''}
           </div>
@@ -676,7 +678,8 @@
       const isPlaying = playingSet.has(pick.element);
       const hasPlayed = (liveMap[pick.element] !== undefined) && !playingSet.has(pick.element);
       const isCap     = pick.is_captain;
-      const col       = TEAM_COLOURS[player.team] || '#444';
+      // Use real FPL team code from teamMap for kit URL
+      const teamCode  = teamMap[player.team]?.code ?? null;
 
       let pbClass;
       if (isCap) {
@@ -685,12 +688,12 @@
         pbClass = isPlaying ? 'playing' : hasPlayed ? 'played' : 'tbp';
       }
 
-      const ptsLabel = (pbClass === 'tbp' || pbClass === 'captbp') ? '—' : String(pts);
+      const ptsLabel  = (pbClass === 'tbp' || pbClass === 'captbp') ? '—' : String(pts);
       const cardClass = `kfl-lw-pc${isPlaying ? ' on' : ''}${isCap ? ' cap' : ''}${isBench ? ' bch' : ''}`;
 
       return `
         <div class="${cardClass}">
-          <div class="kfl-lw-pc-kit">${kitSVG(col, 26)}</div>
+          <div class="kfl-lw-pc-kit">${kitImg(teamCode, 28)}</div>
           <div class="kfl-lw-pcn">${player.web_name}</div>
           <div class="kfl-lw-pb ${pbClass}">${ptsLabel}</div>
           ${isCap ? '<div class="kfl-lw-cbdg">C</div>' : ''}
