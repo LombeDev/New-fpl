@@ -4,8 +4,8 @@
    Falls back to cache when offline.
    ============================================================ */
 
-const CACHE_NAME    = 'kopala-fpl-v7';
-const RUNTIME_CACHE = 'kopala-runtime-v7';
+const CACHE_NAME    = 'kopala-fpl-v8';
+const RUNTIME_CACHE = 'kopala-runtime-v8';
 
 // Static assets only — NO HTML files.
 const PRECACHE_URLS = [
@@ -16,7 +16,7 @@ const PRECACHE_URLS = [
   '/nav-bottom.js',
   '/footer.css',
   '/footer.js',
-  '/deadline.js',
+  '/kopala-notify.js',   // ← replaces haptic.js + deadline-notify.js
   '/transfers.js',
   '/badge.js',
   '/logo.png',
@@ -30,8 +30,9 @@ const PRECACHE_URLS = [
 // The FPL endpoint we want to keep warm in the background
 const BOOTSTRAP_URL = '/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/';
 
-// Periodic sync tag — must match what pwa.js registers
-const PBS_TAG = 'fpl-bootstrap-sync';
+// Periodic sync tags
+const PBS_BOOTSTRAP = 'fpl-bootstrap-sync';  // existing — keeps bootstrap warm
+const PBS_PRICE     = 'fpl-price-sync';       // new — wakes client for morning price check
 
 // How long a cached bootstrap response is considered fresh (1 hour)
 const BOOTSTRAP_TTL_MS = 60 * 60 * 1000;
@@ -174,26 +175,21 @@ async function notifyClients(message) {
 
 /* ── PERIODIC BACKGROUND SYNC ────────────────────────────── */
 /**
- * The browser fires this automatically in the background
- * (typically every few hours on Wi-Fi + charging, per browser policy).
+ * PBS_BOOTSTRAP — keeps bootstrap-static warm. Fires every ~3h.
+ *   Registered by pwa.js on SW activation.
  *
- * It prefetches bootstrap-static so that when the user opens the app
- * next morning, prices + player stats are already in cache — zero wait.
- *
- * Registration happens in pwa.js after SW is ready.
- * Min interval we request: 3 hours (browser may enforce longer).
+ * PBS_PRICE — wakes the client for the morning price digest.
+ *   Registered by kopala-notify.js. Min interval: 12h.
+ *   The SW just wakes the client; kopala-notify.js has the full logic.
  */
 self.addEventListener('periodicsync', event => {
-  if (event.tag !== PBS_TAG) return;
 
-  console.log('[SW] Periodic background sync fired — prefetching bootstrap-static');
-
-  event.waitUntil(
-    (async () => {
+  if (event.tag === PBS_BOOTSTRAP) {
+    console.log('[SW] Bootstrap sync fired');
+    event.waitUntil((async () => {
       try {
         const res = await fetch(BOOTSTRAP_URL);
         if (!res.ok) throw new Error('HTTP ' + res.status);
-
         const cache   = await caches.open(RUNTIME_CACHE);
         const headers = new Headers(res.headers);
         headers.set('sw-cached-at', Date.now().toString());
@@ -201,16 +197,35 @@ self.addEventListener('periodicsync', event => {
           status: res.status, statusText: res.statusText, headers,
         });
         await cache.put(BOOTSTRAP_URL, tagged);
-
         console.log('[SW] bootstrap-static prefetched at', new Date().toISOString());
         notifyClients({ type: 'BOOTSTRAP_UPDATED', ts: Date.now() });
-
       } catch (err) {
-        console.warn('[SW] Periodic sync failed:', err.message);
-        // Browser will retry automatically on next opportunity
+        console.warn('[SW] Bootstrap sync failed:', err.message);
       }
-    })()
-  );
+    })());
+    return;
+  }
+
+  if (event.tag === PBS_PRICE) {
+    console.log('[SW] Price sync fired — waking client');
+    event.waitUntil((async () => {
+      // Refresh bootstrap cache first so the client has fresh price data
+      try {
+        const res = await fetch(BOOTSTRAP_URL);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const cache   = await caches.open(RUNTIME_CACHE);
+        const headers = new Headers(res.headers);
+        headers.set('sw-cached-at', Date.now().toString());
+        const tagged  = new Response(await res.arrayBuffer(), {
+          status: res.status, statusText: res.statusText, headers,
+        });
+        await cache.put(BOOTSTRAP_URL, tagged);
+      } catch (_) { /* carry on regardless */ }
+      // Tell kopala-notify.js to run the price check
+      notifyClients({ type: 'RUN_PRICE_CHECK', ts: Date.now() });
+    })());
+    return;
+  }
 });
 
 /* ── BACKGROUND SYNC (one-off, for live data) ────────────── */
@@ -228,28 +243,50 @@ async function doBackgroundSync() {
 /* ── PUSH NOTIFICATIONS ──────────────────────────────────── */
 self.addEventListener('push', event => {
   if (!event.data) return;
-  const data = event.data.json();
+  let data;
+  try { data = event.data.json(); } catch (_) { return; }
+
   event.waitUntil(
     self.registration.showNotification(data.title || 'Kopala FPL', {
-      body:     data.body || '',
+      body:     data.body    || '',
       icon:     '/android-chrome-192x192.png',
       badge:    '/android-chrome-192x192.png',
-      vibrate:  [200, 100, 200],
+      vibrate:  data.vibrate || [200, 100, 200],
+      tag:      data.tag     || 'kfl-push',
+      renotify: true,
       data:     { url: data.url || '/' },
+      actions:  data.actions || [],
     })
   );
 });
 
+/* ── NOTIFICATION CLICK ──────────────────────────────────── */
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  if (event.action === 'dismiss') return;  // dismiss button → just close
 
-  const url = event.notification.data?.url || '/transfers.html';
+  // 'dismiss' action — close only, navigate nowhere
+  if (event.action === 'dismiss') return;
+
+  // Resolve URL: prefer explicit data.url, then fall back by tag
+  const tag = event.notification.tag || '';
+  let url   = event.notification.data?.url;
+
+  if (!url) {
+    if (tag.startsWith('kfl-deadline')) url = '/transfers.html';
+    else if (tag.startsWith('kfl-price')) url = '/squad.html';
+    else if (tag.startsWith('kfl-goal'))  url = '/games.html';
+    else                                  url = '/';
+  }
+
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      // Focus an existing tab at the same path
       for (const c of list) {
-        if (new URL(c.url).pathname === new URL(url, location.origin).pathname)
-          return c.focus();
+        try {
+          if (new URL(c.url).pathname === new URL(url, self.location.origin).pathname) {
+            return c.focus();
+          }
+        } catch (_) {}
       }
       return clients.openWindow(url);
     })
