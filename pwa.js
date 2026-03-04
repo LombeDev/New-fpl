@@ -8,7 +8,9 @@
   'use strict';
 
   const PBS_TAG             = 'fpl-bootstrap-sync';
-  const PBS_MIN_INTERVAL_MS = 3 * 60 * 60 * 1000; // 3 hours
+  const PBS_MIN_INTERVAL_MS = 3  * 60 * 60 * 1000; // 3 hours
+  const PBS_PRICE_TAG       = 'fpl-price-sync';
+  const PBS_PRICE_INTERVAL  = 12 * 60 * 60 * 1000; // 12 hours
 
   /* ── 1. REGISTER SERVICE WORKER ──────────────────────── */
   if ('serviceWorker' in navigator) {
@@ -41,8 +43,13 @@
         const { type, ts } = event.data || {};
         if (type === 'BOOTSTRAP_UPDATED') {
           console.log('[PWA] Fresh bootstrap-static in cache', ts ? new Date(ts).toLocaleTimeString() : '');
-          // Let deadline.js / badge.js react without a full reload
+          // Let kopala-notify.js / badge.js react without a full reload
           window.dispatchEvent(new CustomEvent('kopala:bootstrap-updated', { detail: { ts } }));
+        }
+        if (type === 'RUN_PRICE_CHECK') {
+          console.log('[PWA] SW requested price check');
+          // kopala-notify.js listens for this event and runs checkPriceChanges()
+          window.dispatchEvent(new CustomEvent('kopala:run-price-check', { detail: { ts } }));
         }
       });
     });
@@ -64,13 +71,22 @@
       }
 
       const tags = await reg.periodicSync.getTags();
-      if (tags.includes(PBS_TAG)) {
-        console.log('[PWA] Periodic sync already registered');
-        return;
+
+      // Bootstrap warm-up — every 3h
+      if (!tags.includes(PBS_TAG)) {
+        await reg.periodicSync.register(PBS_TAG, { minInterval: PBS_MIN_INTERVAL_MS });
+        console.log('[PWA] Bootstrap sync registered — min interval: 3h');
+      } else {
+        console.log('[PWA] Bootstrap sync already registered');
       }
 
-      await reg.periodicSync.register(PBS_TAG, { minInterval: PBS_MIN_INTERVAL_MS });
-      console.log('[PWA] Periodic Background Sync registered — min interval: 3h');
+      // Morning price digest — every 12h
+      if (!tags.includes(PBS_PRICE_TAG)) {
+        await reg.periodicSync.register(PBS_PRICE_TAG, { minInterval: PBS_PRICE_INTERVAL });
+        console.log('[PWA] Price sync registered — min interval: 12h');
+      } else {
+        console.log('[PWA] Price sync already registered');
+      }
 
     } catch (err) {
       // Silently fails in non-installed PWA contexts — expected
