@@ -661,6 +661,12 @@
     schedulePriceCheck();
   });
 
+  /* SW woke us up specifically for a price check (periodic sync) */
+  window.addEventListener('kopala:run-price-check', function () {
+    if (Notification.permission !== 'granted') return;
+    console.log('[KopalaNotify] Price check triggered by SW periodic sync');
+    checkPriceChanges();
+  });
 
   /* ═══════════════════════════════════════════════════════════
      8. PUBLIC API
