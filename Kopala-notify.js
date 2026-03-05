@@ -88,10 +88,90 @@
   var PROXY      = '/.netlify/functions/fpl-proxy?endpoint=';
   var STORE_ID   = 'kopala_id';
   var PERM_KEY   = 'kfl_notify_perm_asked';
+  var SUB_KEY    = 'kfl_push_subscribed';
 
   /* LocalStorage helpers */
   function lsGet(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (_) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} }
+
+  /**
+   * Register this device for push notifications via Firebase FCM.
+   * Requires firebase-init.js to be loaded first (window.KopalaFirebase).
+   * Works even if the user hasn't entered their FPL team ID yet.
+   */
+  async function registerPushSubscription() {
+    if (!window.KopalaFirebase) {
+      console.warn('[KopalaNotify] firebase-init.js not loaded');
+      return;
+    }
+
+    try {
+      var fcmToken = await window.KopalaFirebase.getFCMToken();
+      if (!fcmToken) { console.warn('[KopalaNotify] No FCM token returned'); return; }
+
+      var teamId = localStorage.getItem(STORE_ID); // may be null — that's fine
+
+      var res = await fetch('/.netlify/functions/push-subscribe', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ fcmToken, teamId }),
+      });
+
+      if (res.ok) {
+        lsSet(SUB_KEY, { teamId, fcmToken: fcmToken.slice(0, 16) + '…', savedAt: Date.now() });
+        console.log('[KopalaNotify] FCM subscription registered');
+      } else {
+        console.warn('[KopalaNotify] Subscription save failed:', res.status);
+      }
+    } catch (err) {
+      console.warn('[KopalaNotify] registerPushSubscription error:', err.message);
+    }
+  }
+
+  /**
+   * Update server record when user sets/changes their FPL team ID.
+   * Call this from your settings page when teamId changes:
+   *   KopalaNotify.updateTeamId('12345678')
+   */
+  async function updateTeamId(newTeamId) {
+    if (!window.KopalaFirebase) return;
+    try {
+      var fcmToken = await window.KopalaFirebase.getFCMToken();
+      if (!fcmToken) return;
+      await fetch('/.netlify/functions/push-subscribe', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ fcmToken, teamId: newTeamId, action: 'update-team' }),
+      });
+      var stored = lsGet(SUB_KEY) || {};
+      stored.teamId = newTeamId;
+      lsSet(SUB_KEY, stored);
+      console.log('[KopalaNotify] teamId updated on server:', newTeamId);
+    } catch (err) {
+      console.warn('[KopalaNotify] updateTeamId error:', err.message);
+    }
+  }
+
+  /**
+   * Unsubscribe this device from all push notifications.
+   */
+  async function unregisterPushSubscription() {
+    if (!window.KopalaFirebase) return;
+    try {
+      var fcmToken = await window.KopalaFirebase.getFCMToken();
+      if (fcmToken) {
+        await fetch('/.netlify/functions/push-subscribe', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ fcmToken, action: 'unsubscribe' }),
+        });
+      }
+      localStorage.removeItem(SUB_KEY);
+      console.log('[KopalaNotify] Unsubscribed');
+    } catch (err) {
+      console.warn('[KopalaNotify] unregisterPushSubscription error:', err.message);
+    }
+  }
 
   /* Fire a system notification via SW (preferred) or basic Notification API */
   function pushNotify(title, body, opts) {
@@ -590,11 +670,17 @@
   async function initPermissionFlow() {
     if (!window.Notification) return;
 
-    /* Already granted → boot all features */
+    /* Already granted → boot all features + ensure subscription is registered */
     if (Notification.permission === 'granted') {
       await initDeadline();
       schedulePriceCheck();
       maybeStartGoalWatcher();
+      /* Re-register subscription in case it expired or teamId changed */
+      var stored = lsGet(SUB_KEY);
+      var teamId = localStorage.getItem(STORE_ID);
+      if (!stored || stored.teamId !== teamId) {
+        registerPushSubscription();
+      }
       return;
     }
 
@@ -626,6 +712,7 @@
           localStorage.setItem(PERM_KEY, Date.now().toString());
           var result = await requestPermission();
           if (result === 'granted') {
+            await registerPushSubscription(); // ← register with server first
             await initDeadline();
             schedulePriceCheck();
             maybeStartGoalWatcher();
@@ -689,7 +776,7 @@
         highlight: dlInfo ? dlInfo.gwName + ' \u2014 ' + dlInfo.deadlineStr : '',
         onYes: async function () {
           var r = await requestPermission();
-          if (r === 'granted') { await initDeadline(); schedulePriceCheck(); maybeStartGoalWatcher(); }
+          if (r === 'granted') { await registerPushSubscription(); await initDeadline(); schedulePriceCheck(); maybeStartGoalWatcher(); }
         },
         onNo: function () {},
       });
@@ -727,6 +814,12 @@
 
     /** Manually trigger a price check right now */
     checkPrices: checkPriceChanges,
+
+    /** Update FPL team ID on the server (call when user sets their team ID) */
+    updateTeamId: updateTeamId,
+
+    /** Unsubscribe this device from all push notifications */
+    unsubscribe: unregisterPushSubscription,
 
     /** Start/stop goal watcher manually */
     startGoals: startGoalWatcher,
