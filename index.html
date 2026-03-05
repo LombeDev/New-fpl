@@ -1176,7 +1176,9 @@ async function handleLogin(){
   try{
     btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Checking…';
     const r=await fetch(`${PROXY}entry/${id}/`);if(!r.ok)throw 0;
-    localStorage.setItem('kopala_id',id);location.reload();
+    localStorage.setItem('kopala_id',id);
+    if(window.KopalaNotify) KopalaNotify.updateTeamId(String(id));
+    location.reload();
   }catch{showErr('Team ID not found — check and try again.');btn.disabled=false;btn.textContent='Continue';}
   function showErr(m){inp.classList.add('error');err.textContent=m;err.style.display='flex';}
 }
