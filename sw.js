@@ -241,46 +241,97 @@ async function doBackgroundSync() {
 }
 
 /* ── PUSH NOTIFICATIONS ──────────────────────────────────── */
+/*
+ * Receives payloads from the Netlify push functions.
+ * Supports Android notification grouping via the 'group' field.
+ * Notifications with the same 'tag' replace each other (goal updates).
+ */
 self.addEventListener('push', event => {
   if (!event.data) return;
   let data;
   try { data = event.data.json(); } catch (_) { return; }
 
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'Kopala FPL', {
-      body:     data.body    || '',
-      icon:     '/android-chrome-192x192.png',
-      badge:    '/android-chrome-192x192.png',
-      vibrate:  data.vibrate || [200, 100, 200],
-      tag:      data.tag     || 'kfl-push',
-      renotify: true,
-      data:     { url: data.url || '/' },
-      actions:  data.actions || [],
-    })
-  );
+  const tag   = data.tag   || 'kfl-push';
+  const group = data.group || null;
+
+  const options = {
+    body:     data.body    || '',
+    icon:     data.icon    || '/android-chrome-192x192.png',
+    badge:    data.badge   || '/android-chrome-96x96.png',
+    vibrate:  data.vibrate || [200, 100, 200],
+    tag:      tag,
+    renotify: true,
+    silent:   false,
+    data:     { url: data.url || '/', group },
+    actions:  data.actions || [],
+  };
+
+  if (group) options.group = group;
+
+  event.waitUntil((async () => {
+    await self.registration.showNotification(data.title || 'Kopala FPL', options);
+
+    /* Android group summary — collapses stacked notifications */
+    if (group) {
+      const existing = await self.registration.getNotifications({ tag: group + '-summary' });
+      const count = existing.length > 0
+        ? parseInt(existing[0].data?.count || '1', 10) + 1
+        : 1;
+
+      const summaryText = {
+        'kfl-goals':    `${count} goal alert${count > 1 ? 's' : ''}`,
+        'kfl-prices':   `${count} price change${count > 1 ? 's' : ''} in your squad`,
+        'kfl-deadline': 'Deadline reminder',
+      };
+
+      await self.registration.showNotification(
+        summaryText[group] || `${count} Kopala FPL notification${count > 1 ? 's' : ''}`,
+        {
+          body:     'Tap to open Kopala FPL',
+          icon:     '/android-chrome-192x192.png',
+          badge:    '/android-chrome-96x96.png',
+          tag:      group + '-summary',
+          group:    group,
+          silent:   true,
+          renotify: false,
+          data:     { url: '/', group, isSummary: true, count },
+        }
+      );
+    }
+  })());
 });
 
 /* ── NOTIFICATION CLICK ──────────────────────────────────── */
 self.addEventListener('notificationclick', event => {
   event.notification.close();
 
-  // 'dismiss' action — close only, navigate nowhere
+  // 'dismiss' action — close only
   if (event.action === 'dismiss') return;
 
-  // Resolve URL: prefer explicit data.url, then fall back by tag
-  const tag = event.notification.tag || '';
-  let url   = event.notification.data?.url;
+  const notifData = event.notification.data || {};
+  const tag       = event.notification.tag  || '';
+  const group     = notifData.group         || null;
+  const isSummary = notifData.isSummary     || false;
 
+  // Tapping a group summary → close all notifications in the group, open app
+  if (isSummary && group) {
+    event.waitUntil((async () => {
+      const grouped = await self.registration.getNotifications({ tag: group });
+      grouped.forEach(n => n.close());
+    })());
+  }
+
+  // Resolve destination URL
+  let url = notifData.url;
   if (!url) {
-    if (tag.startsWith('kfl-deadline')) url = '/transfers.html';
-    else if (tag.startsWith('kfl-price')) url = '/squad.html';
-    else if (tag.startsWith('kfl-goal'))  url = '/games.html';
-    else                                  url = '/';
+    if (tag.startsWith('kfl-deadline') || group === 'kfl-deadline') url = '/transfers.html';
+    else if (tag.startsWith('kfl-price') || group === 'kfl-prices') url = '/squad.html';
+    else if (tag.startsWith('kfl-goal')  || group === 'kfl-goals')  url = '/games.html';
+    else url = '/';
   }
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-      // Focus an existing tab at the same path
       for (const c of list) {
         try {
           if (new URL(c.url).pathname === new URL(url, self.location.origin).pathname) {
