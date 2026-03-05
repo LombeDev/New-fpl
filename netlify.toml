@@ -61,3 +61,23 @@
   force = true
   headers = {X-From = "Netlify"}
  
+
+
+
+[build]
+  functions = "netlify/functions"
+
+# ── Scheduled Functions ────────────────────────────────────────
+# push-price-cron: runs at 07:00 UTC daily (FPL updates prices ~06:30 UTC)
+[functions."push-price-cron"]
+  schedule = "0 7 * * *"
+
+# push-goal-cron: runs every 2 minutes (only does work when fixtures are live)
+[functions."push-goal-cron"]
+  schedule = "*/2 * * * *"
+
+# ── Redirect: fpl-proxy ────────────────────────────────────────
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
