@@ -4,7 +4,7 @@
    Falls back to cache when offline.
    ============================================================ */
 
-const CACHE_NAME    = 'kopala-fpl-v8';
+const CACHE_NAME    = 'kopala-fpl-v9';
 const RUNTIME_CACHE = 'kopala-runtime-v8';
 
 // Static assets only — NO HTML files.
