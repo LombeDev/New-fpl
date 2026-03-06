@@ -9,7 +9,7 @@
   /* ── NAV LINK DEFINITIONS ────────────────────────────── */
 
   const DRAWER_LINKS = [
-    { href: 'index.html',      label: 'Home',        icon: 'home' },
+    { href: 'rank.html',      label: 'Rank',        icon: 'home' },
     { href: 'leagues.html',    label: 'Leagues',     icon: 'leaderboard' },
     { href: 'prices.html',     label: 'Prices',      icon: 'sell' },
     { href: 'games.html',      label: 'Live Action', icon: 'sports_soccer' },
@@ -17,14 +17,14 @@
   ];
 
   const BOTTOM_NAV_LINKS = [
-    { href: 'index.html',   label: 'Home',    icon: 'home' },
+    { href: 'rank.html',   label: 'Rank',    icon: 'home' },
     { href: 'leagues.html', label: 'Leagues', icon: 'leaderboard' },
     { href: 'prices.html',  label: 'Prices',  icon: 'sell' },
     { href: 'games.html',   label: 'Live',    icon: 'sports_soccer' },
   ];
 
   const DESKTOP_NAV_LINKS = [
-    { href: 'index.html',      label: 'Home',    icon: 'home' },
+    { href: 'rank.html',      label: 'Rank',    icon: 'home' },
     { href: 'leagues.html',    label: 'Leagues', icon: 'leaderboard' },
     { href: 'prices.html',     label: 'Prices',  icon: 'sell' },
     { href: 'games.html',      label: 'Live',    icon: 'sports_soccer' },
