@@ -48,18 +48,7 @@
     return `
       <a href="index.html" class="kfl-logo" aria-label="Kopala FPL — Home">
         <div class="kfl-logo__box">
-          <div class="kfl-logo__mark" aria-hidden="true">
-            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 2.5L9 1L15 2.5V9.5C15 12.8 12.3 15.6 9 17C5.7 15.6 3 12.8 3 9.5V2.5Z"
-                    fill="currentColor" fill-opacity="0.9"/>
-              <path d="M7 8.5L8.5 10L11 7" stroke="var(--kfl-accent-text,#0e0d1a)"
-                    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="kfl-logo__wordmark">
-            <span class="kfl-logo__name">Kopala</span>
-            <span class="kfl-logo__sub">FPL</span>
-          </div>
+          <img src="/logo.png" alt="Kopala FPL" class="kfl-logo__img">
         </div>
       </a>`;
   }
