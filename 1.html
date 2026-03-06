@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kopala FPL — Your FPL Edge, Every Gameweek</title>
+<meta name="description" content="Live scores, price predictions, squad insights and deadline alerts. The FPL companion built for serious managers.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700;1,900&family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080b14;
+  --bg2: #0d1120;
+  --surf: #111827;
+  --surf2: #151c2e;
+  --surf3: #1a2236;
+  --border: rgba(255,255,255,.06);
+  --border2: rgba(255,255,255,.11);
+  --t1: #f0f4ff;
+  --t2: #8b93b8;
+  --t3: #434d6e;
+  --green: #00e87a;
+  --green2: #00c060;
+  --green-dim: rgba(0,232,122,.08);
+  --green-glow: rgba(0,232,122,.25);
+  --amber: #ffb020;
+  --red: #ff3d5a;
+  --blue: #4d8cff;
+  --purple: #a855f7;
+  --r: 16px;
+  --ease: cubic-bezier(.4,0,.2,1);
+  --spring: cubic-bezier(.34,1.56,.64,1);
+}
+
+html { background: var(--bg); scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--t1);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── KEYFRAMES ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+@keyframes pulseGreen {
+  0%,100% { box-shadow: 0 0 0 0 var(--green-glow); }
+  70%     { box-shadow: 0 0 0 14px transparent; }
+}
+@keyframes shimmerMove {
+  0% { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+@keyframes liveDot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%     { opacity: .4; transform: scale(.7); }
+}
+@keyframes scrollTicker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes gradientShift {
+  0%,100% { background-position: 0% 50%; }
+  50%     { background-position: 100% 50%; }
+}
+@keyframes borderGlow {
+  0%,100% { border-color: rgba(0,232,122,.2); }
+  50%     { border-color: rgba(0,232,122,.6); }
+}
+
+/* ── GRAIN OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: .4;
+}
+
+/* ── LAYOUT ── */
+section { position: relative; z-index: 1; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.container--sm { max-width: 780px; margin: 0 auto; padding: 0 24px; }
+
+/* ── NAV ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+  background: rgba(8,11,20,.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: background .3s;
+}
+.nav-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.5rem; font-weight: 900; letter-spacing: .5px;
+  color: var(--t1); text-decoration: none;
+  display: flex; align-items: center; gap: 9px;
+}
+.nav-logo-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--green), #00a855);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; color: #000; font-weight: 900;
+}
+.nav-links {
+  display: flex; align-items: center; gap: 28px; list-style: none;
+}
+.nav-links a {
+  font-size: .82rem; font-weight: 600; color: var(--t2);
+  text-decoration: none; letter-spacing: .3px;
+  transition: color .18s;
+}
+.nav-links a:hover { color: var(--t1); }
+.nav-cta {
+  display: flex; align-items: center; gap: 10px;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 22px; border-radius: 100px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .9rem; font-weight: 800; letter-spacing: .4px;
+  text-decoration: none; cursor: pointer; border: none;
+  transition: all .2s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-ghost {
+  background: transparent; color: var(--t2);
+  border: 1px solid var(--border2);
+}
+.btn-ghost:hover { background: var(--surf); color: var(--t1); }
+.btn-primary {
+  background: var(--green); color: #000;
+  box-shadow: 0 4px 20px var(--green-glow);
+}
+.btn-primary:hover {
+  background: #00ff8a;
+  box-shadow: 0 6px 28px rgba(0,232,122,.4);
+  transform: translateY(-1px);
+}
+.btn-primary:active { transform: scale(.97); }
+.btn-lg {
+  padding: 15px 36px;
+  font-size: 1.05rem;
+}
+.btn-outline {
+  background: transparent; color: var(--green);
+  border: 1.5px solid var(--green);
+}
+.btn-outline:hover {
+  background: var(--green-dim);
+  transform: translateY(-1px);
+}
+
+/* ── TICKER ── */
+.ticker-wrap {
+  position: relative; z-index: 1;
+  background: var(--green);
+  overflow: hidden;
+  padding: 9px 0;
+  margin-top: 64px;
+}
+.ticker-track {
+  display: flex; gap: 0;
+  animation: scrollTicker 28s linear infinite;
+  width: max-content;
+}
+.ticker-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 28px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .82rem; font-weight: 900; letter-spacing: .8px;
+  color: #000; white-space: nowrap; text-transform: uppercase;
+}
+.ticker-dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,.3); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 88vh;
+  display: flex; align-items: center;
+  padding: 60px 0 80px;
+  position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 65% 40%, rgba(0,232,122,.07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 10% 80%, rgba(77,140,255,.05) 0%, transparent 60%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 60% 40%, black 20%, transparent 70%);
+}
+.hero-container {
+  max-width: 1100px; margin: 0 auto; padding: 0 24px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-items: center; gap: 64px;
+  position: relative; z-index: 1;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--green-dim); border: 1px solid rgba(0,232,122,.2);
+  border-radius: 100px; padding: 5px 13px 5px 8px;
+  font-size: .72rem; font-weight: 700; letter-spacing: .8px;
+  color: var(--green); text-transform: uppercase;
+  margin-bottom: 22px;
+  animation: fadeUp .6s var(--ease) both;
+}
+.eyebrow-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+  animation: liveDot 1.4s ease-in-out infinite;
+}
+.hero-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(2.8rem, 6vw, 4.4rem);
+  font-weight: 900; line-height: 1.0; letter-spacing: -.5px;
+  color: var(--t1);
+  margin-bottom: 20px;
+  animation: fadeUp .6s .1s var(--ease) both;
+}
+.hero-title em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--green), #00d4ff);
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-sub {
+  font-size: 1.05rem; line-height: 1.65; color: var(--t2);
+  max-width: 460px; margin-bottom: 36px;
+  animation: fadeUp .6s .2s var(--ease) both;
+}
+.hero-actions {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  animation: fadeUp .6s .3s var(--ease) both;
+}
+.hero-proof {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 28px;
+  font-size: .74rem; color: var(--t3); font-weight: 600;
+  animation: fadeUp .6s .4s var(--ease) both;
+}
+.hero-proof-avatars {
+  display: flex;
+}
+.hero-proof-avatars span {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid var(--bg);
+  background: linear-gradient(135deg, var(--surf3), var(--surf2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: .56rem; font-weight: 800; color: var(--green);
+  margin-left: -7px;
+}
+.hero-proof-avatars span:first-child { margin-left: 0; }
+
+/* ── HERO CARD MOCKUP ── */
+.hero-visual {
+  position: relative;
+  animation: fadeUp .7s .15s var(--ease) both;
+}
+.hero-card {
+  background: var(--surf);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(0,232,122,.08);
+  position: relative;
+}
+.hero-card-header {
+  background: var(--surf2);
+  border-bottom: 1px solid var(--border);
+  padding: 13px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.hero-card-gw {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .8rem; font-weight: 900; color: var(--t2); letter-spacing: .5px;
+}
+.hero-card-live {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .72rem; font-weight: 900; color: var(--red);
+  background: rgba(255,61,90,.1); border-radius: 100px;
+  padding: 3px 9px; letter-spacing: .5px;
+}
+.hero-card-live-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--red);
+  animation: liveDot 1.3s ease-in-out infinite;
+}
+.hero-fixture {
+  padding: 20px 18px;
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: 10px;
+}
+.hf-team { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.hf-shirt {
+  font-size: 2.6rem; line-height: 1;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,.4));
+  animation: float 3.5s ease-in-out infinite;
+}
+.hf-shirt:last-of-type { animation-delay: .8s; }
+.hf-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .88rem; font-weight: 900; color: var(--t1);
+}
+.hf-score {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.2rem; font-weight: 800;
+  color: var(--t1); text-align: center; letter-spacing: 2px;
+}
+.hf-score-sep { color: var(--t3); margin: 0 2px; }
+.hero-events {
+  border-top: 1px solid var(--border);
+  padding: 10px 18px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+.hf-event {
+  font-size: .66rem; font-weight: 600; color: var(--t2);
+  display: flex; align-items: center; gap: 5px;
+}
+.hf-event.away { justify-content: flex-end; }
+.hf-ev-icon { font-size: .5rem; }
+.hf-ev-icon.goal { color: var(--t1); }
+.hf-ev-icon.assist { color: var(--blue); }
+.hero-bonus {
+  border-top: 1px solid var(--border);
+  padding: 10px 18px;
+  display: flex; align-items: center; gap: 8px;
+}
+.hb-lbl {
+  font-size: .58rem; font-weight: 800; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--t3);
+}
+.hb-item {
+  font-size: .7rem; font-weight: 700; color: var(--t2);
+  display: flex; align-items: center; gap: 4px;
+}
+.hb-pts {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .76rem; font-weight: 800;
+  background: var(--green); color: #000;
+  padding: 1px 5px; border-radius: 4px;
+}
+
+/* Floating badges on hero card */
+.hero-badge {
+  position: absolute;
+  background: var(--surf3); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 9px 13px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  backdrop-filter: blur(10px);
+  font-size: .7rem; font-weight: 700; color: var(--t2);
+  animation: float 4s ease-in-out infinite;
+}
+.hero-badge strong { display: block; color: var(--t1); font-size: .82rem; }
+.hero-badge.badge-1 { top: -18px; right: -20px; animation-delay: .3s; }
+.hero-badge.badge-2 { bottom: -16px; left: -18px; animation-delay: .9s; }
+.hero-badge .badge-green { color: var(--green); }
+.hero-badge .badge-red { color: var(--red); }
+
+/* ── STATS BAR ── */
+.stats-bar {
+  padding: 56px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 0; align-items: center;
+}
+.stat-item {
+  padding: 0 32px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2.6rem; font-weight: 900; letter-spacing: -.5px;
+  color: var(--t1); line-height: 1;
+  background: linear-gradient(135deg, var(--green), #00d4ff);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 4px;
+}
+.stat-lbl {
+  font-size: .74rem; font-weight: 600; color: var(--t3); letter-spacing: .3px;
+}
+
+/* ── SECTION COMMON ── */
+.section { padding: 100px 0; }
+.section-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .78rem; font-weight: 900; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--green);
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900; line-height: 1.05; letter-spacing: -.3px;
+  color: var(--t1); margin-bottom: 16px;
+}
+.section-sub {
+  font-size: .95rem; line-height: 1.7; color: var(--t2);
+  max-width: 520px;
+}
+.section-sub.center { margin: 0 auto; text-align: center; }
+
+/* ── FEATURES GRID ── */
+.features-section { background: var(--bg); }
+.features-intro { text-align: center; margin-bottom: 64px; }
+.features-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 20px;
+}
+.feat-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px;
+  transition: all .3s var(--ease);
+  position: relative; overflow: hidden;
+}
+.feat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent, var(--green)), transparent);
+  opacity: 0; transition: opacity .3s;
+}
+.feat-card:hover {
+  border-color: var(--border2);
+  background: var(--surf2);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0,0,0,.3);
+}
+.feat-card:hover::before { opacity: 1; }
+.feat-card.accent-amber { --accent: var(--amber); }
+.feat-card.accent-blue { --accent: var(--blue); }
+.feat-card.accent-red { --accent: var(--red); }
+.feat-card.accent-purple { --accent: var(--purple); }
+.feat-card.feat-large {
+  grid-column: span 2;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; align-items: center;
+}
+.feat-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; margin-bottom: 18px;
+  background: var(--icon-bg, var(--green-dim));
+  color: var(--icon-color, var(--green));
+}
+.feat-card.accent-amber .feat-icon { background: rgba(255,176,32,.1); color: var(--amber); }
+.feat-card.accent-blue .feat-icon { background: rgba(77,140,255,.1); color: var(--blue); }
+.feat-card.accent-red .feat-icon { background: rgba(255,61,90,.1); color: var(--red); }
+.feat-card.accent-purple .feat-icon { background: rgba(168,85,247,.1); color: var(--purple); }
+.feat-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.15rem; font-weight: 900; letter-spacing: .2px;
+  color: var(--t1); margin-bottom: 9px;
+}
+.feat-desc { font-size: .8rem; line-height: 1.65; color: var(--t2); }
+.feat-tag {
+  display: inline-flex; align-items: center;
+  margin-top: 14px; padding: 3px 10px; border-radius: 100px;
+  font-size: .62rem; font-weight: 800; letter-spacing: .6px;
+  text-transform: uppercase;
+  background: var(--green-dim); color: var(--green);
+  border: 1px solid rgba(0,232,122,.15);
+}
+.feat-tag.amber { background: rgba(255,176,32,.08); color: var(--amber); border-color: rgba(255,176,32,.15); }
+.feat-tag.blue { background: rgba(77,140,255,.08); color: var(--blue); border-color: rgba(77,140,255,.15); }
+
+/* Fake mini price chart in feature card */
+.mini-chart {
+  display: flex; align-items: flex-end; gap: 3px; height: 48px;
+  margin-top: 16px;
+}
+.mini-bar {
+  flex: 1; border-radius: 3px 3px 0 0;
+  background: var(--surf3);
+  transition: height .3s;
+}
+.mini-bar.up { background: linear-gradient(180deg, var(--green), rgba(0,232,122,.3)); }
+.mini-bar.dn { background: linear-gradient(180deg, var(--red), rgba(255,61,90,.3)); }
+
+/* ── LIVE FEATURE (2-col) ── */
+.live-section {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.live-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-items: center; gap: 72px;
+}
+.live-mockup {
+  background: var(--surf);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,.5);
+}
+.lm-header {
+  background: var(--surf2); border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.lm-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .78rem; font-weight: 900; color: var(--t2); letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.lm-live-pill {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(255,61,90,.12); border: 1px solid rgba(255,61,90,.2);
+  border-radius: 100px; padding: 3px 9px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .66rem; font-weight: 900; color: var(--red); letter-spacing: .6px;
+}
+.lm-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); animation: liveDot 1.3s ease-in-out infinite; }
+.lm-row {
+  padding: 11px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+.lm-row:last-child { border-bottom: none; }
+.lm-row:hover { background: var(--surf2); }
+.lm-player { display: flex; align-items: center; gap: 9px; }
+.lm-player-shirt { font-size: 1.1rem; }
+.lm-player-name { font-size: .78rem; font-weight: 700; color: var(--t1); }
+.lm-player-club { font-size: .62rem; color: var(--t3); margin-top: 1px; }
+.lm-pts {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .9rem; font-weight: 800; color: var(--t1);
+}
+.lm-pts.live { color: var(--green); }
+.lm-pts.zero { color: var(--t3); }
+.lm-change {
+  font-size: .66rem; font-weight: 700; padding: 2px 6px; border-radius: 5px;
+}
+.lm-change.up { background: rgba(0,232,122,.12); color: var(--green); }
+.lm-change.dn { background: rgba(255,61,90,.1); color: var(--red); }
+
+/* ── NOTIFICATIONS SECTION ── */
+.notif-section { background: var(--bg); }
+.notif-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 72px; }
+.notif-phones {
+  display: flex; flex-direction: column; gap: 12px;
+  position: relative;
+}
+.notif-card {
+  background: var(--surf);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 13px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.35);
+  transition: transform .3s var(--spring), box-shadow .3s;
+  animation: fadeUp .5s var(--ease) both;
+}
+.notif-card:nth-child(2) { animation-delay: .1s; margin-left: 20px; }
+.notif-card:nth-child(3) { animation-delay: .2s; margin-left: 8px; }
+.notif-card:hover { transform: translateX(4px); box-shadow: 0 12px 36px rgba(0,0,0,.4); }
+.notif-icon {
+  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+.notif-icon.goal { background: rgba(0,232,122,.1); }
+.notif-icon.price { background: rgba(255,176,32,.1); }
+.notif-icon.deadline { background: rgba(255,61,90,.1); }
+.notif-body { flex: 1; }
+.notif-title-text { font-size: .8rem; font-weight: 700; color: var(--t1); margin-bottom: 2px; }
+.notif-sub-text { font-size: .68rem; color: var(--t3); }
+.notif-time { font-size: .62rem; color: var(--t3); flex-shrink: 0; }
+.notif-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.notif-feat { display: flex; align-items: flex-start; gap: 13px; }
+.notif-feat-icon {
+  width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; background: var(--green-dim); color: var(--green);
+}
+.notif-feat-icon.amber { background: rgba(255,176,32,.08); color: var(--amber); }
+.notif-feat-icon.red { background: rgba(255,61,90,.08); color: var(--red); }
+.notif-feat-title { font-size: .85rem; font-weight: 700; color: var(--t1); margin-bottom: 3px; }
+.notif-feat-desc { font-size: .76rem; line-height: 1.5; color: var(--t2); }
+
+/* ── PRICE SECTION ── */
+.price-section { background: var(--bg2); border-top: 1px solid var(--border); }
+.price-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 72px; }
+.price-table {
+  background: var(--surf);
+  border: 1px solid var(--border2);
+  border-radius: 18px; overflow: hidden;
+  box-shadow: 0 24px 56px rgba(0,0,0,.4);
+}
+.pt-header {
+  background: var(--surf2); border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .78rem; font-weight: 900; color: var(--t2); letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.pt-row {
+  padding: 11px 16px;
+  display: grid; grid-template-columns: auto 1fr auto auto;
+  align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.pt-row:last-child { border-bottom: none; }
+.pt-shirt { font-size: .95rem; }
+.pt-name { font-size: .78rem; font-weight: 700; color: var(--t1); }
+.pt-club { font-size: .6rem; color: var(--t3); }
+.pt-price {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .84rem; font-weight: 700; color: var(--t2);
+}
+.pt-change {
+  display: flex; align-items: center; gap: 4px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .8rem; font-weight: 800; padding: 3px 8px; border-radius: 6px;
+  min-width: 50px; justify-content: center;
+}
+.pt-change.rise { background: rgba(0,232,122,.1); color: var(--green); }
+.pt-change.fall { background: rgba(255,61,90,.1); color: var(--red); }
+.pt-change.neutral { background: var(--surf3); color: var(--t3); }
+
+/* ── HOW IT WORKS ── */
+.how-section { background: var(--bg); }
+.how-intro { text-align: center; margin-bottom: 64px; }
+.how-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 32px; position: relative;
+}
+.how-grid::before {
+  content: '';
+  position: absolute; top: 28px; left: calc(16.67% + 20px); right: calc(16.67% + 20px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), var(--green-dim), var(--border2), transparent);
+}
+.how-step {
+  text-align: center; padding: 0 16px;
+}
+.how-num {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--surf2); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.3rem; font-weight: 900; color: var(--green);
+  position: relative; z-index: 1;
+  box-shadow: 0 0 0 6px var(--bg);
+}
+.how-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem; font-weight: 900; color: var(--t1);
+  margin-bottom: 8px;
+}
+.how-desc { font-size: .78rem; line-height: 1.6; color: var(--t2); }
+
+/* ── CTA BANNER ── */
+.cta-section {
+  padding: 100px 0;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.cta-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,232,122,.06), transparent);
+}
+.cta-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 900; line-height: 1.05; letter-spacing: -.3px;
+  color: var(--t1); margin-bottom: 14px;
+  position: relative; z-index: 1;
+}
+.cta-sub {
+  font-size: .95rem; color: var(--t2); margin-bottom: 36px;
+  position: relative; z-index: 1;
+}
+.cta-actions {
+  display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap;
+  position: relative; z-index: 1;
+}
+.cta-note {
+  margin-top: 14px; font-size: .72rem; color: var(--t3);
+  position: relative; z-index: 1;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 48px 0 32px;
+}
+.footer-inner {
+  max-width: 1100px; margin: 0 auto; padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 20px;
+}
+.footer-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.2rem; font-weight: 900; color: var(--t2);
+}
+.footer-links { display: flex; gap: 24px; list-style: none; }
+.footer-links a {
+  font-size: .76rem; font-weight: 600; color: var(--t3);
+  text-decoration: none; transition: color .15s;
+}
+.footer-links a:hover { color: var(--t2); }
+.footer-copy { font-size: .72rem; color: var(--t3); width: 100%; margin-top: 8px; }
+
+/* ── SCROLL REVEAL ── */
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .65s var(--ease), transform .65s var(--ease);
+}
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-d1 { transition-delay: .08s; }
+.reveal-d2 { transition-delay: .16s; }
+.reveal-d3 { transition-delay: .24s; }
+.reveal-d4 { transition-delay: .32s; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .hero-container, .live-grid, .notif-grid, .price-grid { grid-template-columns: 1fr; gap: 48px; }
+  .hero-visual { order: -1; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .feat-card.feat-large { grid-column: span 2; display: block; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); gap: 24px; }
+  .stat-item { border-right: none; border-bottom: 1px solid var(--border); padding: 16px; }
+  .how-grid { grid-template-columns: 1fr; }
+  .how-grid::before { display: none; }
+}
+@media (max-width: 600px) {
+  .nav-links { display: none; }
+  .features-grid { grid-template-columns: 1fr; }
+  .feat-card.feat-large { grid-column: span 1; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">K</div>
+    Kopala FPL
+  </a>
+  <ul class="nav-links">
+    <li><a href="#">Live Scores</a></li>
+    <li><a href="#">Prices</a></li>
+    <li><a href="#">My Team</a></li>
+    <li><a href="#">Leagues</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="#" class="btn btn-ghost">Sign in</a>
+    <a href="#" class="btn btn-primary">Open App</a>
+  </div>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker-wrap" aria-hidden="true">
+  <div class="ticker-track">
+    <!-- duplicated for seamless loop -->
+    <div class="ticker-item"><div class="ticker-dot"></div> Live Scores</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Price Predictions</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Deadline Alerts</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Squad Insights</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Fixture Difficulty</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Bonus Point Tracker</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Mini-League Rankings</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Price Risers & Fallers</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Live Scores</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Price Predictions</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Deadline Alerts</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Squad Insights</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Fixture Difficulty</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Bonus Point Tracker</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Mini-League Rankings</div>
+    <div class="ticker-item"><div class="ticker-dot"></div> Price Risers & Fallers</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-container">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <div class="eyebrow-dot"></div>
+        Live this Gameweek
+      </div>
+      <h1 class="hero-title">
+        Your FPL edge,<br><em>every gameweek.</em>
+      </h1>
+      <p class="hero-sub">
+        Live scores, price predictions, deadline alerts, and squad insights — everything a serious FPL manager needs, all in one place.
+      </p>
+      <div class="hero-actions">
+        <a href="rank.html" class="btn btn-primary btn-lg">
+          <i class="fa-solid fa-bolt"></i> Open App — It's Free
+        </a>
+        <a href="rank.html" class="btn btn-outline btn-lg">See Features</a>
+      </div>
+      <div class="hero-proof">
+        <div class="hero-proof-avatars">
+          <span>MK</span><span>JB</span><span>AL</span><span>RT</span><span>+</span>
+        </div>
+        <span>Trusted by FPL managers across Zambia & beyond</span>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-card">
+        <div class="hero-card-header">
+          <span class="hero-card-gw">GW 29 · Arsenal vs Chelsea</span>
+          <div class="hero-card-live"><div class="hero-card-live-dot"></div> LIVE 67'</div>
+        </div>
+        <div class="hero-fixture">
+          <div class="hf-team">
+            <div class="hf-shirt">🔴</div>
+            <div class="hf-name">Arsenal</div>
+          </div>
+          <div>
+            <div class="hf-score"><span>2</span><span class="hf-score-sep">:</span><span>1</span></div>
+          </div>
+          <div class="hf-team">
+            <div class="hf-shirt">🔵</div>
+            <div class="hf-name">Chelsea</div>
+          </div>
+        </div>
+        <div class="hero-events">
+          <div class="hf-event"><i class="fa-solid fa-futbol hf-ev-icon goal"></i> Saliba 23'</div>
+          <div class="hf-event away">James 45' <i class="fa-solid fa-square hf-ev-icon" style="color:var(--amber)"></i></div>
+          <div class="hf-event"><i class="fa-solid fa-futbol hf-ev-icon goal"></i> Saka 61'</div>
+          <div class="hf-event away">Palmer 38' <i class="fa-solid fa-futbol hf-ev-icon goal"></i></div>
+        </div>
+        <div class="hero-bonus">
+          <span class="hb-lbl">BPS</span>
+          <div class="hb-item">Saka <span class="hb-pts">3</span></div>
+          <div class="hb-item">Saliba <span class="hb-pts">2</span></div>
+          <div class="hb-item">Palmer <span class="hb-pts">2</span></div>
+        </div>
+      </div>
+
+      <div class="hero-badge badge-1">
+        <span style="font-size:.6rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--t3)">Price Rise</span>
+        <strong class="badge-green">↑ Saka +£0.1m</strong>
+        <span style="font-size:.62rem;color:var(--t3)">72% transfer pressure</span>
+      </div>
+      <div class="hero-badge badge-2">
+        <span style="font-size:.6rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--t3)">Deadline Alert</span>
+        <strong style="color:var(--amber)">⏰ GW30 in 2h 14m</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item reveal">
+        <div class="stat-num">10</div>
+        <div class="stat-lbl">Premier League fixtures tracked live</div>
+      </div>
+      <div class="stat-item reveal reveal-d1">
+        <div class="stat-num">780+</div>
+        <div class="stat-lbl">Players with price & ownership data</div>
+      </div>
+      <div class="stat-item reveal reveal-d2">
+        <div class="stat-num">38</div>
+        <div class="stat-lbl">Gameweeks of insights per season</div>
+      </div>
+      <div class="stat-item reveal reveal-d3">
+        <div class="stat-num">100%</div>
+        <div class="stat-lbl">Free. No subscriptions. No paywalls.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section features-section">
+  <div class="container">
+    <div class="features-intro reveal">
+      <div class="section-eyebrow">Everything you need</div>
+      <h2 class="section-title">Tools built for<br>serious managers</h2>
+      <p class="section-sub center">No fluff, no filler. Every feature in Kopala FPL is purpose-built to give you a genuine edge over your mini-league rivals.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feat-card feat-large reveal">
+        <div>
+          <div class="feat-icon"><i class="fa-solid fa-bolt"></i></div>
+          <div class="feat-title">Live Scores & Events</div>
+          <div class="feat-desc">Watch every goal, assist, card, and bonus point land in real time. Swipe through all 10 fixtures in a sleek card stack — see goalscorers, BPS leaders, and FDR ratings at a glance.</div>
+          <div class="feat-tag"><i class="fa-solid fa-circle" style="font-size:.4rem"></i> Updates every 60 seconds</div>
+        </div>
+        <div>
+          <div class="mini-chart">
+            <div class="mini-bar" style="height:30%"></div>
+            <div class="mini-bar up" style="height:55%"></div>
+            <div class="mini-bar up" style="height:70%"></div>
+            <div class="mini-bar" style="height:45%"></div>
+            <div class="mini-bar up" style="height:90%"></div>
+            <div class="mini-bar up" style="height:80%"></div>
+            <div class="mini-bar" style="height:60%"></div>
+            <div class="mini-bar up" style="height:100%"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px;margin-top:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:.72rem">
+              <span style="color:var(--t2);font-weight:600">Saliba</span>
+              <span style="color:var(--green);font-weight:800">14 pts</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:.72rem">
+              <span style="color:var(--t2);font-weight:600">Saka</span>
+              <span style="color:var(--green);font-weight:800">11 pts</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:.72rem">
+              <span style="color:var(--t2);font-weight:600">Palmer</span>
+              <span style="color:var(--amber);font-weight:800">8 pts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat-card accent-amber reveal reveal-d1">
+        <div class="feat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+        <div class="feat-title">Price Predictions</div>
+        <div class="feat-desc">Know which players will rise or fall before it happens — using the same reverse-engineered methodology as LiveFPL, with real transfer pressure data.</div>
+        <div class="feat-tag amber">Rise / Fall zones</div>
+      </div>
+
+      <div class="feat-card accent-blue reveal reveal-d2">
+        <div class="feat-icon"><i class="fa-solid fa-bell"></i></div>
+        <div class="feat-title">Smart Alerts</div>
+        <div class="feat-desc">Push notifications for goals, price changes, and GW deadlines — even when the app is closed. Never miss a late transfer window again.</div>
+        <div class="feat-tag blue">Goal · Price · Deadline</div>
+      </div>
+
+      <div class="feat-card accent-red reveal">
+        <div class="feat-icon"><i class="fa-solid fa-users"></i></div>
+        <div class="feat-title">Squad Ownership</div>
+        <div class="feat-desc">See top 10k ownership for every player in every fixture. Know exactly which differentials could make or break your rank.</div>
+        <div class="feat-tag" style="background:rgba(255,61,90,.08);color:var(--red);border-color:rgba(255,61,90,.15)">Per fixture</div>
+      </div>
+
+      <div class="feat-card reveal reveal-d1">
+        <div class="feat-icon"><i class="fa-solid fa-calendar-days"></i></div>
+        <div class="feat-title">Fixture Difficulty</div>
+        <div class="feat-desc">FDR ratings for both teams on every match card so you always know which fixtures to target — and which to avoid — for captaincy and transfers.</div>
+        <div class="feat-tag">Home &amp; Away FDR</div>
+      </div>
+
+      <div class="feat-card accent-purple reveal reveal-d2">
+        <div class="feat-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+        <div class="feat-title">Install as an App</div>
+        <div class="feat-desc">Add Kopala FPL to your home screen for a native app experience — works offline, opens instantly, and feels like a real mobile app.</div>
+        <div class="feat-tag" style="background:rgba(168,85,247,.08);color:var(--purple);border-color:rgba(168,85,247,.15)">PWA · Works offline</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE SCORES DETAIL -->
+<section class="section live-section">
+  <div class="container">
+    <div class="live-grid">
+      <div class="live-mockup reveal">
+        <div class="lm-header">
+          <span class="lm-title">My Squad · GW29</span>
+          <div class="lm-live-pill"><div class="lm-dot"></div> LIVE</div>
+        </div>
+        <div class="lm-row">
+          <div class="lm-player">
+            <span class="lm-player-shirt">🧤</span>
+            <div>
+              <div class="lm-player-name">Raya</div>
+              <div class="lm-player-club">Arsenal · GK</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="lm-change up">CS</span>
+            <span class="lm-pts live">6</span>
+          </div>
+        </div>
+        <div class="lm-row">
+          <div class="lm-player">
+            <span class="lm-player-shirt">🔴</span>
+            <div>
+              <div class="lm-player-name">Saliba</div>
+              <div class="lm-player-club">Arsenal · DEF</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="lm-change up">⚽</span>
+            <span class="lm-pts live">14</span>
+          </div>
+        </div>
+        <div class="lm-row">
+          <div class="lm-player">
+            <span class="lm-player-shirt">🔴</span>
+            <div>
+              <div class="lm-player-name">Saka ©</div>
+              <div class="lm-player-club">Arsenal · MID</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="lm-change up">⚽ 🅰</span>
+            <span class="lm-pts live">22</span>
+          </div>
+        </div>
+        <div class="lm-row">
+          <div class="lm-player">
+            <span class="lm-player-shirt">🔵</span>
+            <div>
+              <div class="lm-player-name">Palmer</div>
+              <div class="lm-player-club">Chelsea · MID</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="lm-change dn">⚽</span>
+            <span class="lm-pts live">8</span>
+          </div>
+        </div>
+        <div class="lm-row">
+          <div class="lm-player">
+            <span class="lm-player-shirt">⚫</span>
+            <div>
+              <div class="lm-player-name">Haaland</div>
+              <div class="lm-player-club">Man City · FWD</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="lm-change" style="background:var(--surf3);color:var(--t3)">FIN</span>
+            <span class="lm-pts">2</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal reveal-d1">
+        <div class="section-eyebrow">Live Gameweek</div>
+        <h2 class="section-title">Watch your rank<br>move in real time</h2>
+        <p class="section-sub" style="margin-bottom:28px">
+          See every goal, assist, and bonus point from your squad land live. Know exactly which of your players are scoring — and which rivals are profiting.
+        </p>
+        <ul class="notif-list">
+          <li class="notif-feat">
+            <div class="notif-feat-icon"><i class="fa-solid fa-futbol"></i></div>
+            <div>
+              <div class="notif-feat-title">Goal & event alerts</div>
+              <div class="notif-feat-desc">Goals, assists, cards, and saves tracked per player in your squad.</div>
+            </div>
+          </li>
+          <li class="notif-feat">
+            <div class="notif-feat-icon"><i class="fa-solid fa-star"></i></div>
+            <div>
+              <div class="notif-feat-title">Bonus point tracker</div>
+              <div class="notif-feat-desc">Live BPS leaders so you know who's taking the bonus before it's confirmed.</div>
+            </div>
+          </li>
+          <li class="notif-feat">
+            <div class="notif-feat-icon amber"><i class="fa-solid fa-chart-simple"></i></div>
+            <div>
+              <div class="notif-feat-title">Ownership per fixture</div>
+              <div class="notif-feat-desc">Top 10k ownership for every player, right inside each match card.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NOTIFICATIONS -->
+<section class="section notif-section">
+  <div class="container">
+    <div class="notif-grid">
+      <div class="reveal">
+        <div class="section-eyebrow">Push Notifications</div>
+        <h2 class="section-title">Never miss a<br>moment that matters</h2>
+        <p class="section-sub" style="margin-bottom:32px">
+          Kopala FPL sends smart push alerts straight to your phone — so you're always first to know.
+        </p>
+        <ul class="notif-list">
+          <li class="notif-feat">
+            <div class="notif-feat-icon"><i class="fa-solid fa-futbol"></i></div>
+            <div>
+              <div class="notif-feat-title">Live goal alerts</div>
+              <div class="notif-feat-desc">Instant notification when a player in your squad scores or assists.</div>
+            </div>
+          </li>
+          <li class="notif-feat">
+            <div class="notif-feat-icon amber"><i class="fa-solid fa-arrow-trend-up"></i></div>
+            <div>
+              <div class="notif-feat-title">Morning price digest</div>
+              <div class="notif-feat-desc">Daily 6am summary of which players in your squad rose or fell overnight.</div>
+            </div>
+          </li>
+          <li class="notif-feat">
+            <div class="notif-feat-icon red"><i class="fa-solid fa-clock"></i></div>
+            <div>
+              <div class="notif-feat-title">Deadline reminders</div>
+              <div class="notif-feat-desc">Alerts at 24h, 3h, and 1h before each gameweek deadline — no more missed transfers.</div>
+            </div>
+          </li>
+        </ul>
+        <a href="#" class="btn btn-primary" style="margin-top:28px">
+          <i class="fa-solid fa-bell"></i> Enable Notifications
+        </a>
+      </div>
+
+      <div class="notif-phones reveal reveal-d1">
+        <div class="notif-card">
+          <div class="notif-icon goal"><i class="fa-solid fa-futbol" style="color:var(--green)"></i></div>
+          <div class="notif-body">
+            <div class="notif-title-text">⚽ Saka scores! Arsenal 2–1 Chelsea</div>
+            <div class="notif-sub-text">Your captain lands a goal + assist — 22 pts live</div>
+          </div>
+          <span class="notif-time">67'</span>
+        </div>
+        <div class="notif-card">
+          <div class="notif-icon price"><i class="fa-solid fa-arrow-trend-up" style="color:var(--amber)"></i></div>
+          <div class="notif-body">
+            <div class="notif-title-text">Saliba price rise predicted</div>
+            <div class="notif-sub-text">£4.6m → £4.7m expected before GW30</div>
+          </div>
+          <span class="notif-time">6:00am</span>
+        </div>
+        <div class="notif-card">
+          <div class="notif-icon deadline"><i class="fa-solid fa-clock" style="color:var(--red)"></i></div>
+          <div class="notif-body">
+            <div class="notif-title-text">⏰ GW30 deadline in 1 hour</div>
+            <div class="notif-sub-text">You have 1 free transfer remaining</div>
+          </div>
+          <span class="notif-time">10:30am</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICE PREDICTIONS -->
+<section class="section price-section">
+  <div class="container">
+    <div class="price-grid">
+      <div class="reveal">
+        <div class="section-eyebrow">Price Predictions</div>
+        <h2 class="section-title">Buy before<br>the rise. Sell<br>before the fall.</h2>
+        <p class="section-sub" style="margin-bottom:32px">
+          Kopala FPL uses the same reverse-engineered algorithm as LiveFPL — tracking cumulative net transfers against the real threshold to predict price changes before they happen.
+        </p>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:11px">
+            <div style="width:36px;height:36px;border-radius:9px;background:var(--green-dim);display:flex;align-items:center;justify-content:center;color:var(--green);flex-shrink:0"><i class="fa-solid fa-check"></i></div>
+            <span style="font-size:.82rem;color:var(--t2)">Highlights players owned in <em style="color:var(--t1);font-style:normal;font-weight:700">your squad</em></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:11px">
+            <div style="width:36px;height:36px;border-radius:9px;background:var(--green-dim);display:flex;align-items:center;justify-content:center;color:var(--green);flex-shrink:0"><i class="fa-solid fa-check"></i></div>
+            <span style="font-size:.82rem;color:var(--t2)">Live progress bar showing how close each player is to rising or falling</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:11px">
+            <div style="width:36px;height:36px;border-radius:9px;background:var(--green-dim);display:flex;align-items:center;justify-content:center;color:var(--green);flex-shrink:0"><i class="fa-solid fa-check"></i></div>
+            <span style="font-size:.82rem;color:var(--t2)">Velocity tracking — see which players are trending fastest</span>
+          </div>
+        </div>
+        <a href="#" class="btn btn-primary" style="margin-top:32px">
+          <i class="fa-solid fa-chart-line"></i> Check Price Predictions
+        </a>
+      </div>
+
+      <div class="price-table reveal reveal-d1">
+        <div class="pt-header">
+          <i class="fa-solid fa-arrow-trend-up" style="color:var(--green)"></i>
+          Price Movers · Today
+        </div>
+        <div class="pt-row">
+          <span class="pt-shirt">🔴</span>
+          <div><div class="pt-name">Saka</div><div class="pt-club">Arsenal · MID</div></div>
+          <span class="pt-price">£9.8m</span>
+          <div class="pt-change rise"><i class="fa-solid fa-caret-up" style="font-size:.6rem"></i> Rise</div>
+        </div>
+        <div class="pt-row">
+          <span class="pt-shirt">🔴</span>
+          <div><div class="pt-name">Saliba</div><div class="pt-club">Arsenal · DEF</div></div>
+          <span class="pt-price">£4.6m</span>
+          <div class="pt-change rise"><i class="fa-solid fa-caret-up" style="font-size:.6rem"></i> Rise</div>
+        </div>
+        <div class="pt-row">
+          <span class="pt-shirt">🟡</span>
+          <div><div class="pt-name">Mbeumo</div><div class="pt-club">Brentford · FWD</div></div>
+          <span class="pt-price">£7.2m</span>
+          <div class="pt-change rise"><i class="fa-solid fa-caret-up" style="font-size:.6rem"></i> Rise</div>
+        </div>
+        <div class="pt-row">
+          <span class="pt-shirt">⚫</span>
+          <div><div class="pt-name">Haaland</div><div class="pt-club">Man City · FWD</div></div>
+          <span class="pt-price">£14.2m</span>
+          <div class="pt-change neutral">Stable</div>
+        </div>
+        <div class="pt-row">
+          <span class="pt-shirt">🟣</span>
+          <div><div class="pt-name">Andreas</div><div class="pt-club">Fulham · MID</div></div>
+          <span class="pt-price">£5.3m</span>
+          <div class="pt-change fall"><i class="fa-solid fa-caret-down" style="font-size:.6rem"></i> Fall</div>
+        </div>
+        <div class="pt-row">
+          <span class="pt-shirt">🔵</span>
+          <div><div class="pt-name">Gordon</div><div class="pt-club">Newcastle · MID</div></div>
+          <span class="pt-price">£6.1m</span>
+          <div class="pt-change fall"><i class="fa-solid fa-caret-down" style="font-size:.6rem"></i> Fall</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section how-section">
+  <div class="container">
+    <div class="how-intro reveal">
+      <div class="section-eyebrow">Getting started</div>
+      <h2 class="section-title">Up and running<br>in 30 seconds</h2>
+    </div>
+    <div class="how-grid">
+      <div class="how-step reveal">
+        <div class="how-num">1</div>
+        <div class="how-title">Enter your FPL Team ID</div>
+        <div class="how-desc">Find your ID in the FPL app under Points → the number in your URL. No account creation needed.</div>
+      </div>
+      <div class="how-step reveal reveal-d1">
+        <div class="how-num">2</div>
+        <div class="how-title">Install to your home screen</div>
+        <div class="how-desc">Tap "Add to Home Screen" from your browser for a full native app experience — instant opens, works offline.</div>
+      </div>
+      <div class="how-step reveal reveal-d2">
+        <div class="how-num">3</div>
+        <div class="how-title">Enable push notifications</div>
+        <div class="how-desc">Allow notifications and you'll get goal alerts, price movements, and deadline reminders automatically.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container--sm">
+    <h2 class="cta-title reveal">Stop guessing.<br>Start <em style="background:linear-gradient(135deg,var(--green),#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-style:normal">winning.</em></h2>
+    <p class="cta-sub reveal reveal-d1">Everything you need to dominate your mini-league — completely free, forever.</p>
+    <div class="cta-actions reveal reveal-d2">
+      <a href="#" class="btn btn-primary btn-lg">
+        <i class="fa-solid fa-bolt"></i> Open Kopala FPL
+      </a>
+      <a href="#" class="btn btn-outline btn-lg">
+        <i class="fa-solid fa-mobile-screen"></i> Install App
+      </a>
+    </div>
+    <p class="cta-note reveal reveal-d3">No account required · No ads · No paywall · Works on any device</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Kopala FPL</div>
+    <ul class="footer-links">
+      <li><a href="#">Live Scores</a></li>
+      <li><a href="#">Prices</a></li>
+      <li><a href="#">My Team</a></li>
+      <li><a href="#">Leagues</a></li>
+      <li><a href="#">Games</a></li>
+    </ul>
+    <div class="footer-copy">Not affiliated with Fantasy Premier League or the Premier League. Data sourced from the official FPL API.</div>
+  </div>
+</footer>
+
+<script>
+// Scroll reveal
+const ro = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); ro.unobserve(e.target); }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+</script>
+
+</body>
+</html>
