@@ -4,8 +4,8 @@
    Falls back to cache when offline.
    ============================================================ */
 
-const CACHE_NAME    = 'kopala-fpl-v9';
-const RUNTIME_CACHE = 'kopala-runtime-v8';
+const CACHE_NAME    = 'kopala-fpl-v10';   // ← bumped from v9
+const RUNTIME_CACHE = 'kopala-runtime-v9'; // ← bumped from v8
 
 // Static assets only — NO HTML files.
 const PRECACHE_URLS = [
@@ -16,7 +16,7 @@ const PRECACHE_URLS = [
   '/nav-bottom.js',
   '/footer.css',
   '/footer.js',
-  '/kopala-notify.js',   // ← replaces haptic.js + deadline-notify.js
+  '/kopala-notify.js',
   '/transfers.js',
   '/badge.js',
   '/logo.png',
@@ -27,17 +27,14 @@ const PRECACHE_URLS = [
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css',
 ];
 
-// The FPL endpoint we want to keep warm in the background
 const BOOTSTRAP_URL = '/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/';
 
-// Periodic sync tags
-const PBS_BOOTSTRAP = 'fpl-bootstrap-sync';  // existing — keeps bootstrap warm
-const PBS_PRICE     = 'fpl-price-sync';       // new — wakes client for morning price check
+const PBS_BOOTSTRAP = 'fpl-bootstrap-sync';
+const PBS_PRICE     = 'fpl-price-sync';
 
-// How long a cached bootstrap response is considered fresh (1 hour)
 const BOOTSTRAP_TTL_MS = 60 * 60 * 1000;
 
-/* ── INSTALL ─────────────────────────────────────────────── */
+/* ── INSTALL — skip waiting immediately so new SW activates fast ── */
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -50,17 +47,24 @@ self.addEventListener('install', event => {
           .catch(err => console.warn('[SW] Skipped:', url, '-', err.message))
       );
       return Promise.allSettled(attempts);
-    }).then(() => self.skipWaiting())
+    }).then(() => self.skipWaiting()) // ← forces immediate activation
   );
 });
 
-/* ── ACTIVATE: delete old caches + purge any stale HTML ──── */
+/* ── ACTIVATE — delete ALL old caches, claim clients immediately ── */
 self.addEventListener('activate', event => {
   const CURRENT = [CACHE_NAME, RUNTIME_CACHE];
   event.waitUntil(
     caches.keys()
       .then(names =>
-        Promise.all(names.filter(n => !CURRENT.includes(n)).map(n => caches.delete(n)))
+        Promise.all(
+          names
+            .filter(n => !CURRENT.includes(n))
+            .map(n => {
+              console.log('[SW] Deleting old cache:', n);
+              return caches.delete(n);
+            })
+        )
       )
       .then(async () => {
         // Purge any HTML that snuck in from previous SW versions
@@ -73,20 +77,25 @@ self.addEventListener('activate', event => {
                 const p = new URL(req.url).pathname;
                 return p === '/' || p.endsWith('.html') || p.endsWith('/');
               })
-              .map(req => cache.delete(req))
+              .map(req => {
+                console.log('[SW] Purging HTML from cache:', req.url);
+                return cache.delete(req);
+              })
           );
         }
       })
+      // ← claim all open tabs immediately — no reload needed
       .then(() => self.clients.claim())
+      .then(() => console.log('[SW] Active and controlling all clients'))
   );
 });
 
 /* ── FETCH ───────────────────────────────────────────────── */
 self.addEventListener('fetch', event => {
   const { request } = event;
+  const url = new URL(request.url);
 
   // Never intercept sw.js or pwa.js — always fresh
-  const url = new URL(request.url);
   if (url.pathname === '/sw.js' || url.pathname === '/pwa.js') return;
 
   // Let pwa.js manage its own no-store requests
@@ -95,24 +104,26 @@ self.addEventListener('fetch', event => {
   // Cache API only supports GET
   if (request.method !== 'GET') return;
 
-  // HTML documents — NEVER intercept, always go straight to network
-  if (request.destination === 'document' ||
-      url.pathname === '/' ||
-      url.pathname.endsWith('.html')) return;
+  // HTML documents — NEVER cache, always network
+  if (
+    request.destination === 'document' ||
+    url.pathname === '/' ||
+    url.pathname.endsWith('.html')
+  ) return;
 
-  // bootstrap-static: serve from cache instantly, revalidate in background
+  // bootstrap-static: stale-while-revalidate for instant loads
   if (request.url.includes('bootstrap-static')) {
     event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE, BOOTSTRAP_TTL_MS));
     return;
   }
 
-  // Everything else: network-first, falls back to cache when offline
-  event.respondWith(networkFirst(request, RUNTIME_CACHE, 60));
+  // Everything else: network-first, cache fallback when offline
+  event.respondWith(networkFirst(request, RUNTIME_CACHE));
 });
 
-/* ── STRATEGIES ───────────────────────────────────────────── */
+/* ── STRATEGIES ──────────────────────────────────────────── */
 
-async function networkFirst(request, cacheName, ttlSeconds = 60) {
+async function networkFirst(request, cacheName) {
   try {
     const response = await fetch(request);
     if (response.ok) {
@@ -122,31 +133,26 @@ async function networkFirst(request, cacheName, ttlSeconds = 60) {
       const tagged  = new Response(await response.clone().arrayBuffer(), {
         status: response.status, statusText: response.statusText, headers,
       });
-      cache.put(request, tagged);
+      cache.put(request, tagged); // fire and forget — don't block the response
     }
     return response;
   } catch {
     const cached = await caches.match(request);
-    if (cached) return cached;
+    if (cached) {
+      console.log('[SW] Offline fallback served:', request.url);
+      return cached;
+    }
     return new Response(JSON.stringify({ error: 'offline' }), {
-      status: 503, headers: { 'Content-Type': 'application/json' },
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 }
 
-/**
- * staleWhileRevalidate — used exclusively for bootstrap-static.
- *
- * 1. Returns the cached copy INSTANTLY (zero perceived load time).
- * 2. Always fires a background fetch to refresh the cache.
- * 3. If no cache exists yet, waits for the network (first visit).
- * 4. Notifies all open tabs when fresh data lands.
- */
 async function staleWhileRevalidate(request, cacheName, ttlMs) {
   const cache  = await caches.open(cacheName);
   const cached = await cache.match(request);
 
-  // Fire revalidation in background regardless of staleness
   const revalidate = fetch(request).then(async res => {
     if (!res.ok) return res;
     const headers = new Headers(res.headers);
@@ -159,11 +165,8 @@ async function staleWhileRevalidate(request, cacheName, ttlMs) {
     return res;
   }).catch(() => null);
 
-  // Serve cache immediately if available
-  if (cached) return cached;
-
-  // First visit — no cache yet, wait for network
-  return revalidate;
+  if (cached) return cached; // serve stale instantly, revalidate in background
+  return revalidate;         // first visit — wait for network
 }
 
 /* ── NOTIFY CLIENTS ──────────────────────────────────────── */
@@ -174,14 +177,7 @@ async function notifyClients(message) {
 }
 
 /* ── PERIODIC BACKGROUND SYNC ────────────────────────────── */
-/**
- * PBS_BOOTSTRAP — keeps bootstrap-static warm. Fires every ~3h.
- *   Registered by pwa.js on SW activation.
- *
- * PBS_PRICE — wakes the client for the morning price digest.
- *   Registered by kopala-notify.js. Min interval: 12h.
- *   The SW just wakes the client; kopala-notify.js has the full logic.
- */
+
 self.addEventListener('periodicsync', event => {
 
   if (event.tag === PBS_BOOTSTRAP) {
@@ -209,7 +205,6 @@ self.addEventListener('periodicsync', event => {
   if (event.tag === PBS_PRICE) {
     console.log('[SW] Price sync fired — waking client');
     event.waitUntil((async () => {
-      // Refresh bootstrap cache first so the client has fresh price data
       try {
         const res = await fetch(BOOTSTRAP_URL);
         if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -221,7 +216,6 @@ self.addEventListener('periodicsync', event => {
         });
         await cache.put(BOOTSTRAP_URL, tagged);
       } catch (_) { /* carry on regardless */ }
-      // Tell kopala-notify.js to run the price check
       notifyClients({ type: 'RUN_PRICE_CHECK', ts: Date.now() });
     })());
     return;
@@ -229,6 +223,7 @@ self.addEventListener('periodicsync', event => {
 });
 
 /* ── BACKGROUND SYNC (one-off, for live data) ────────────── */
+
 self.addEventListener('sync', event => {
   if (event.tag === 'sync-live') event.waitUntil(doBackgroundSync());
 });
@@ -241,11 +236,7 @@ async function doBackgroundSync() {
 }
 
 /* ── PUSH NOTIFICATIONS ──────────────────────────────────── */
-/*
- * Receives payloads from the Netlify push functions.
- * Supports Android notification grouping via the 'group' field.
- * Notifications with the same 'tag' replace each other (goal updates).
- */
+
 self.addEventListener('push', event => {
   if (!event.data) return;
   let data;
@@ -259,7 +250,7 @@ self.addEventListener('push', event => {
     icon:     data.icon    || '/android-chrome-192x192.png',
     badge:    data.badge   || '/android-chrome-96x96.png',
     vibrate:  data.vibrate || [200, 100, 200],
-    tag:      tag,
+    tag,
     renotify: true,
     silent:   false,
     data:     { url: data.url || '/', group },
@@ -271,7 +262,6 @@ self.addEventListener('push', event => {
   event.waitUntil((async () => {
     await self.registration.showNotification(data.title || 'Kopala FPL', options);
 
-    /* Android group summary — collapses stacked notifications */
     if (group) {
       const existing = await self.registration.getNotifications({ tag: group + '-summary' });
       const count = existing.length > 0
@@ -291,7 +281,7 @@ self.addEventListener('push', event => {
           icon:     '/android-chrome-192x192.png',
           badge:    '/android-chrome-96x96.png',
           tag:      group + '-summary',
-          group:    group,
+          group,
           silent:   true,
           renotify: false,
           data:     { url: '/', group, isSummary: true, count },
@@ -302,10 +292,10 @@ self.addEventListener('push', event => {
 });
 
 /* ── NOTIFICATION CLICK ──────────────────────────────────── */
+
 self.addEventListener('notificationclick', event => {
   event.notification.close();
 
-  // 'dismiss' action — close only
   if (event.action === 'dismiss') return;
 
   const notifData = event.notification.data || {};
@@ -313,7 +303,6 @@ self.addEventListener('notificationclick', event => {
   const group     = notifData.group         || null;
   const isSummary = notifData.isSummary     || false;
 
-  // Tapping a group summary → close all notifications in the group, open app
   if (isSummary && group) {
     event.waitUntil((async () => {
       const grouped = await self.registration.getNotifications({ tag: group });
@@ -321,7 +310,6 @@ self.addEventListener('notificationclick', event => {
     })());
   }
 
-  // Resolve destination URL
   let url = notifData.url;
   if (!url) {
     if (tag.startsWith('kfl-deadline') || group === 'kfl-deadline') url = '/transfers.html';
