@@ -17,19 +17,34 @@
   ];
 
   const BOTTOM_NAV_LINKS = [
-    { href: 'index.html',   label: 'Home',        icon: 'home' },
-    { href: 'leagues.html', label: 'Leagues',     icon: 'leaderboard' },
-    { href: 'prices.html',  label: 'Prices',      icon: 'sell' },
-    { href: 'games.html',   label: 'Live',        icon: 'sports_soccer' },
+    { href: 'index.html',   label: 'Home',    icon: 'home' },
+    { href: 'leagues.html', label: 'Leagues', icon: 'leaderboard' },
+    { href: 'prices.html',  label: 'Prices',  icon: 'sell' },
+    { href: 'games.html',   label: 'Live',    icon: 'sports_soccer' },
   ];
 
   const DESKTOP_NAV_LINKS = [
-    { href: 'index.html',      label: 'Home',       icon: 'home' },
-    { href: 'leagues.html',    label: 'Leagues',    icon: 'leaderboard' },
-    { href: 'prices.html',     label: 'Prices',     icon: 'sell' },
-    { href: 'games.html',      label: 'Live',       icon: 'sports_soccer' },
-    { href: 'statistics.html', label: 'Stats',      icon: 'monitoring' },
+    { href: 'index.html',      label: 'Home',    icon: 'home' },
+    { href: 'leagues.html',    label: 'Leagues', icon: 'leaderboard' },
+    { href: 'prices.html',     label: 'Prices',  icon: 'sell' },
+    { href: 'games.html',      label: 'Live',    icon: 'sports_soccer' },
+    { href: 'statistics.html', label: 'Stats',   icon: 'monitoring' },
   ];
+
+  /* ── THEME (runs immediately — before DOM inject) ────── */
+  // Apply theme from storage ASAP to avoid flash of wrong theme.
+  // This must run before buildTopbar() so the icon renders correctly.
+
+  const ICON_MAP = { dark: 'dark_mode', light: 'light_mode' };
+
+  function getInitialTheme() {
+    const stored = localStorage.getItem('kopala_theme');
+    if (stored === 'dark' || stored === 'light') return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  const _initialTheme = getInitialTheme();
+  document.documentElement.setAttribute('data-theme', _initialTheme);
 
   /* ── HELPERS ─────────────────────────────────────────── */
 
@@ -64,6 +79,9 @@
         ${l.label}
       </a>`).join('');
 
+    // Icon reflects actual theme — no flash
+    const themeIcon = ICON_MAP[_initialTheme];
+
     return `
       <header class="kfl-topbar" role="banner">
         <div class="kfl-topbar__inner">
@@ -78,7 +96,7 @@
                     id="theme-toggle"
                     title="Toggle theme"
                     aria-label="Toggle dark/light mode">
-              <span class="material-symbols-rounded" id="theme-icon">light_mode</span>
+              <span class="material-symbols-rounded" id="theme-icon">${themeIcon}</span>
             </button>
             <button class="kfl-topbar__btn kfl-hamburger"
                     id="hamburger"
@@ -181,28 +199,24 @@
       </nav>`;
   }
 
-  /* ── THEME ───────────────────────────────────────────── */
+  /* ── THEME TOGGLE ────────────────────────────────────── */
 
   function setupTheme() {
-    const root  = document.documentElement;
-    const btn   = document.getElementById('theme-toggle');
-    const icon  = document.getElementById('theme-icon');
+    const root = document.documentElement;
+    const btn  = document.getElementById('theme-toggle');
+    const icon = document.getElementById('theme-icon');
     if (!btn) return;
 
-    const ICON_MAP = { dark: 'dark_mode', light: 'light_mode' };
-
-    function applyTheme(theme, animate = false) {
+    function applyTheme(theme, animate) {
       root.setAttribute('data-theme', theme);
       localStorage.setItem('kopala_theme', theme);
-
       if (!icon) return;
-
       if (animate) {
-        icon.style.opacity  = '0';
+        icon.style.opacity   = '0';
         icon.style.transform = 'rotate(90deg) scale(0.7)';
         setTimeout(() => {
-          icon.textContent    = ICON_MAP[theme];
-          icon.style.opacity  = '1';
+          icon.textContent     = ICON_MAP[theme];
+          icon.style.opacity   = '1';
           icon.style.transform = 'rotate(0deg) scale(1)';
         }, 180);
       } else {
@@ -210,12 +224,7 @@
       }
     }
 
-    // Initialise from storage or system preference
-    const stored   = localStorage.getItem('kopala_theme');
-    const sysDark  = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initial  = stored || (sysDark ? 'dark' : 'light');
-    applyTheme(initial, false);
-
+    // Icon already set correctly in buildTopbar() — just wire the click
     btn.addEventListener('click', () => {
       const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       applyTheme(next, true);
@@ -225,10 +234,10 @@
   /* ── DRAWER CONTROLS ─────────────────────────────────── */
 
   function setupDrawer() {
-    const hamburger  = document.getElementById('hamburger');
-    const closeBtn   = document.getElementById('drawer-close');
-    const overlay    = document.getElementById('kfl-overlay');
-    const drawer     = document.getElementById('kfl-drawer');
+    const hamburger = document.getElementById('hamburger');
+    const closeBtn  = document.getElementById('drawer-close');
+    const overlay   = document.getElementById('kfl-overlay');
+    const drawer    = document.getElementById('kfl-drawer');
     if (!hamburger || !drawer) return;
 
     let isOpen = false;
@@ -241,8 +250,6 @@
       drawer.removeAttribute('aria-hidden');
       hamburger.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
-
-      // Trap focus — move focus to close button
       setTimeout(() => closeBtn?.focus(), 50);
     }
 
@@ -260,18 +267,31 @@
     hamburger.addEventListener('click', () => isOpen ? closeDrawer() : openDrawer());
     closeBtn?.addEventListener('click', closeDrawer);
     overlay.addEventListener('click', closeDrawer);
-
-    // Escape key
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && isOpen) closeDrawer();
+    });
+
+    // Change Team ID — show login screen
+    const changeIdBtn = document.getElementById('change-id-btn');
+    changeIdBtn?.addEventListener('click', () => {
+      closeDrawer();
+      const loginScreen = document.getElementById('login-screen');
+      if (loginScreen) {
+        loginScreen.style.display = 'flex';
+        // Clear previous input and errors
+        const inp = document.getElementById('fpl-id-inp');
+        const err = document.getElementById('err-msg');
+        if (inp) { inp.value = ''; inp.classList.remove('error'); }
+        if (err) { err.style.display = 'none'; err.textContent = ''; }
+        setTimeout(() => inp?.focus(), 100);
+      }
     });
   }
 
   /* ── BOTTOM NAV HAPTIC ───────────────────────────────── */
 
   function setupBottomNav() {
-    const items = document.querySelectorAll('.kfl-bottom-nav__item');
-    items.forEach(item => {
+    document.querySelectorAll('.kfl-bottom-nav__item').forEach(item => {
       item.addEventListener('click', () => {
         if (navigator.vibrate) navigator.vibrate(8);
       });
@@ -284,16 +304,11 @@
     const topbar = document.querySelector('.kfl-topbar');
     if (!topbar) return;
 
-    let lastY = 0;
     let ticking = false;
-
     window.addEventListener('scroll', () => {
       if (!ticking) {
         requestAnimationFrame(() => {
-          const y = window.scrollY;
-          // Add scrolled class for increased blur/opacity when scrolled
-          topbar.classList.toggle('is-scrolled', y > 8);
-          lastY = y;
+          topbar.classList.toggle('is-scrolled', window.scrollY > 8);
           ticking = false;
         });
         ticking = true;
@@ -304,7 +319,6 @@
   /* ── INIT ────────────────────────────────────────────── */
 
   function loadNav() {
-    // Inject HTML
     const topbarTarget = document.getElementById('kfl-topbar-mount');
     const drawerTarget = document.getElementById('kfl-drawer-mount');
     const bottomTarget = document.getElementById('kfl-bottom-nav-mount');
@@ -313,20 +327,18 @@
     if (drawerTarget) drawerTarget.outerHTML = buildDrawer();
     if (bottomTarget) bottomTarget.outerHTML = buildBottomNav();
 
-    // Fallback: inject before body content if no mount points found
+    // Fallback: no mount points
     if (!topbarTarget && !drawerTarget && !bottomTarget) {
       document.body.insertAdjacentHTML('afterbegin', buildTopbar() + buildDrawer());
       document.body.insertAdjacentHTML('beforeend', buildBottomNav());
     }
 
-    // Wire up
     setupTheme();
     setupDrawer();
     setupBottomNav();
     setupScrollBehavior();
   }
 
-  // Run after DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadNav);
   } else {
