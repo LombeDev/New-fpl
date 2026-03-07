@@ -1,18 +1,21 @@
 /* ============================================================
    KOPALA FPL — NAVIGATION MODULE
-   Layout: [LOGO left] [spacer] [⋮ dots right]
-   Theme toggle lives inside the dropdown menu
+   Layout: [logo LEFT] [active page name CENTER] [⋮ RIGHT]
+   Topbar: fully transparent, merges with page background
+   Bottom nav: WhatsApp pill highlight in FPL pink
+   Dropdown: body-level sibling (not inside header) to avoid
+             backdrop-filter stacking context issues
    ============================================================ */
 
 (function () {
   'use strict';
 
-  const BOTTOM_NAV_LINKS = [
-    { href: 'index.html',      label: 'Home',    icon: 'home' },
-    { href: 'leagues.html',    label: 'Leagues', icon: 'leaderboard' },
-    { href: 'prices.html',     label: 'Prices',  icon: 'sell' },
-    { href: 'games.html',      label: 'Live',    icon: 'sports_soccer', live: true },
-    { href: 'statistics.html', label: 'Stats',   icon: 'monitoring' },
+  const NAV_LINKS = [
+    { href: 'index.html',      label: 'Home',        icon: 'home' },
+    { href: 'leagues.html',    label: 'Leagues',     icon: 'leaderboard' },
+    { href: 'prices.html',     label: 'Prices',      icon: 'sell' },
+    { href: 'games.html',      label: 'Live',        icon: 'sports_soccer', live: true },
+    { href: 'statistics.html', label: 'Stats',       icon: 'monitoring' },
   ];
 
   const MENU_LINKS = [
@@ -24,26 +27,64 @@
   ];
 
   /* ── THEME ── */
-  const ICON_MAP = { dark: 'dark_mode', light: 'light_mode' };
-  const LABEL_MAP = { dark: 'Switch to Light', light: 'Switch to Dark' };
+  const ICON_MAP  = { dark: 'dark_mode',        light: 'light_mode' };
+  const LABEL_MAP = { dark: 'Switch to Light',  light: 'Switch to Dark' };
 
   function getInitialTheme() {
-    const stored = localStorage.getItem('kopala_theme');
-    if (stored === 'dark' || stored === 'light') return stored;
+    const s = localStorage.getItem('kopala_theme');
+    if (s === 'dark' || s === 'light') return s;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
+  const _theme = getInitialTheme();
+  document.documentElement.setAttribute('data-theme', _theme);
 
-  const _initialTheme = getInitialTheme();
-  document.documentElement.setAttribute('data-theme', _initialTheme);
-
+  /* ── HELPERS ── */
   function currentPage() {
     const p = window.location.pathname.split('/').pop() || 'index.html';
     return p === '' ? 'index.html' : p;
   }
   function isActive(href) { return href === currentPage(); }
 
+  function getActiveLabel() {
+    const active = NAV_LINKS.find(l => isActive(l.href));
+    return active ? active.label : '';
+  }
+
   /* ── TOP BAR ── */
   function buildTopbar() {
+    const activeLabel = getActiveLabel();
+
+    const topbar = `
+      <header class="kfl-topbar" role="banner">
+        <div class="kfl-topbar__inner">
+
+          <!-- LEFT: Logo -->
+          <a href="index.html" class="kfl-logo" aria-label="Kopala FPL — Home">
+            <img src="/logo.png" alt="Kopala FPL" class="kfl-logo__img">
+          </a>
+
+          <!-- CENTER: Active page name -->
+          <div class="kfl-topbar__title" aria-live="polite">
+            ${activeLabel ? `<span class="kfl-topbar__page-name">${activeLabel}</span>` : ''}
+          </div>
+
+          <!-- RIGHT: Three-dot menu -->
+          <button class="kfl-icon-btn kfl-dots-btn"
+                  id="dots-btn"
+                  aria-label="Open menu"
+                  aria-expanded="false"
+                  aria-haspopup="true">
+            <span class="kfl-dots" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </span>
+          </button>
+
+        </div>
+      </header>`;
+
+    /* Dropdown is a sibling of <header> — NOT inside it.
+       backdrop-filter on header would create a stacking context
+       that blurs and breaks pointer events on the dropdown. */
     const dropdown = `
       <div class="kfl-dropdown" id="kfl-dropdown" role="menu" aria-hidden="true" inert>
         <div class="kfl-dropdown__inner">
@@ -62,20 +103,19 @@
           <div class="kfl-dropdown__divider"></div>
           <p class="kfl-dropdown__label">Settings</p>
 
-          <button class="kfl-dropdown__item kfl-dropdown__item--theme"
+          <button class="kfl-dropdown__item"
                   id="theme-toggle"
                   role="menuitem"
                   type="button">
-            <span class="material-symbols-rounded" id="theme-icon">${ICON_MAP[_initialTheme]}</span>
-            <span id="theme-label">${LABEL_MAP[_initialTheme]}</span>
-            <span class="kfl-dropdown__theme-pill" id="theme-pill">${_initialTheme === 'dark' ? 'Dark' : 'Light'}</span>
+            <span class="material-symbols-rounded" id="theme-icon">${ICON_MAP[_theme]}</span>
+            <span id="theme-label">${LABEL_MAP[_theme]}</span>
+            <span class="kfl-dropdown__theme-pill" id="theme-pill">${_theme === 'dark' ? 'Dark' : 'Light'}</span>
           </button>
 
           <a href="https://wa.me/260978263899"
              class="kfl-dropdown__item"
              role="menuitem"
-             target="_blank"
-             rel="noopener noreferrer">
+             target="_blank" rel="noopener noreferrer">
             <span class="material-symbols-rounded">chat</span>
             <span>Contact Us</span>
           </a>
@@ -91,42 +131,18 @@
         </div>
       </div>`;
 
-    // Dropdown is a sibling of <header>, NOT a child — avoids backdrop-filter stacking context trap
-    return `
-      <header class="kfl-topbar" role="banner">
-        <div class="kfl-topbar__inner">
-
-          <a href="index.html" class="kfl-logo" aria-label="Kopala FPL — Home">
-            <img src="/logo.png" alt="Kopala FPL" class="kfl-logo__img">
-          </a>
-
-          <div class="kfl-topbar__spacer"></div>
-
-          <button class="kfl-icon-btn kfl-dots-btn"
-                  id="dots-btn"
-                  aria-label="Open menu"
-                  aria-expanded="false"
-                  aria-haspopup="true">
-            <span class="kfl-dots" aria-hidden="true">
-              <span></span><span></span><span></span>
-            </span>
-          </button>
-
-        </div>
-      </header>
-      ${dropdown}`;
+    return topbar + dropdown;
   }
 
   /* ── BOTTOM NAV ── */
   function buildBottomNav() {
-    const items = BOTTOM_NAV_LINKS.map(l => `
+    const items = NAV_LINKS.map(l => `
       <a href="${l.href}"
          class="kfl-tab${isActive(l.href) ? ' is-active' : ''}${l.live ? ' kfl-tab--live' : ''}"
          ${isActive(l.href) ? 'aria-current="page"' : ''}
          aria-label="${l.label}">
-        <div class="kfl-tab__icon">
+        <div class="kfl-tab__pill">
           <span class="material-symbols-rounded" aria-hidden="true">${l.icon}</span>
-          ${isActive(l.href) ? '<span class="kfl-tab__pip"></span>' : ''}
         </div>
         <span class="kfl-tab__label">${l.label}</span>
       </a>`).join('');
@@ -142,25 +158,30 @@
     return `<div class="kfl-overlay" id="kfl-overlay" aria-hidden="true"></div>`;
   }
 
-  /* ── THEME LOGIC ── */
+  /* ── THEME SETUP ── */
   function setupTheme() {
-    const root      = document.documentElement;
-    const btn       = document.getElementById('theme-toggle');
-    const icon      = document.getElementById('theme-icon');
-    const label     = document.getElementById('theme-label');
-    const pill      = document.getElementById('theme-pill');
+    const root  = document.documentElement;
+    const btn   = document.getElementById('theme-toggle');
+    const icon  = document.getElementById('theme-icon');
+    const label = document.getElementById('theme-label');
+    const pill  = document.getElementById('theme-pill');
     if (!btn) return;
 
     btn.addEventListener('click', () => {
       const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       root.setAttribute('data-theme', next);
       localStorage.setItem('kopala_theme', next);
-      if (icon)  { icon.style.opacity = '0'; icon.style.transform = 'rotate(180deg) scale(0.5)'; }
-      setTimeout(() => {
-        if (icon)  { icon.textContent = ICON_MAP[next]; icon.style.opacity = '1'; icon.style.transform = 'rotate(0) scale(1)'; }
-        if (label) label.textContent = LABEL_MAP[next];
-        if (pill)  pill.textContent  = next === 'dark' ? 'Dark' : 'Light';
-      }, 150);
+      if (icon) {
+        icon.style.opacity = '0';
+        icon.style.transform = 'rotate(180deg) scale(0.5)';
+        setTimeout(() => {
+          icon.textContent = ICON_MAP[next];
+          icon.style.opacity = '1';
+          icon.style.transform = 'rotate(0) scale(1)';
+        }, 150);
+      }
+      if (label) label.textContent = LABEL_MAP[next];
+      if (pill)  pill.textContent  = next === 'dark' ? 'Dark' : 'Light';
     });
   }
 
@@ -197,10 +218,9 @@
     overlay?.addEventListener('click', close);
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) close(); });
     document.addEventListener('click', e => {
-      if (isOpen && !dropdown.contains(e.target) && e.target !== dotsBtn) close();
+      if (isOpen && !dropdown.contains(e.target) && !dotsBtn.contains(e.target)) close();
     });
 
-    // Change Team ID
     document.getElementById('change-id-btn')?.addEventListener('click', () => {
       close();
       const loginScreen = document.getElementById('login-screen');
@@ -222,7 +242,7 @@
     });
   }
 
-  /* ── SCROLL TOPBAR ── */
+  /* ── SCROLL (subtle shadow on scroll only) ── */
   function setupScroll() {
     const topbar = document.querySelector('.kfl-topbar');
     if (!topbar) return;
@@ -230,7 +250,7 @@
     window.addEventListener('scroll', () => {
       if (!ticking) {
         requestAnimationFrame(() => {
-          topbar.classList.toggle('is-scrolled', window.scrollY > 8);
+          topbar.classList.toggle('is-scrolled', window.scrollY > 40);
           ticking = false;
         });
         ticking = true;
@@ -244,15 +264,13 @@
     const bottomTarget  = document.getElementById('kfl-bottom-nav-mount');
     const overlayTarget = document.getElementById('kfl-overlay-mount');
 
-    // buildTopbar() now returns <header>...</header> + <div.kfl-dropdown>
-    // so injecting via outerHTML replaces the mount with both elements
     if (topbarTarget)  topbarTarget.outerHTML  = buildTopbar();
     if (bottomTarget)  bottomTarget.outerHTML  = buildBottomNav();
     if (overlayTarget) overlayTarget.outerHTML = buildOverlay();
 
     if (!topbarTarget && !bottomTarget) {
       document.body.insertAdjacentHTML('afterbegin', buildOverlay() + buildTopbar());
-      document.body.insertAdjacentHTML('beforeend', buildBottomNav());
+      document.body.insertAdjacentHTML('beforeend',  buildBottomNav());
     }
 
     setupTheme();
