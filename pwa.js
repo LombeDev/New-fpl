@@ -7,10 +7,12 @@
 (function () {
   'use strict';
 
-  const PBS_TAG             = 'fpl-bootstrap-sync';
-  const PBS_MIN_INTERVAL_MS = 3  * 60 * 60 * 1000;
-  const PBS_PRICE_TAG       = 'fpl-price-sync';
-  const PBS_PRICE_INTERVAL  = 12 * 60 * 60 * 1000;
+  const PBS_TAG              = 'fpl-bootstrap-sync';
+  const PBS_MIN_INTERVAL_MS  = 3  * 60 * 60 * 1000;
+  const PBS_PRICE_TAG        = 'fpl-price-sync';
+  const PBS_PRICE_INTERVAL   = 12 * 60 * 60 * 1000;
+  const PBS_DEADLINE_TAG     = 'fpl-deadline-check';
+  const PBS_DEADLINE_INTERVAL = 60 * 60 * 1000; // check every hour
 
   /* ── 1. REGISTER SERVICE WORKER ──────────────────────── */
   if ('serviceWorker' in navigator) {
@@ -36,6 +38,14 @@
           console.log('[PWA] SW requested price check');
           window.dispatchEvent(new CustomEvent('kopala:run-price-check', { detail: { ts } }));
         }
+
+        // SW deadline check found a match — show in-app banner if app is open
+        if (type === 'DEADLINE_APPROACHING') {
+          const { gwName, dlStr } = event.data;
+          window.dispatchEvent(new CustomEvent('kopala:deadline-approaching', {
+            detail: { gwName, dlStr }
+          }));
+        }
       });
     });
   }
@@ -51,6 +61,8 @@
         await reg.periodicSync.register(PBS_TAG, { minInterval: PBS_MIN_INTERVAL_MS });
       if (!tags.includes(PBS_PRICE_TAG))
         await reg.periodicSync.register(PBS_PRICE_TAG, { minInterval: PBS_PRICE_INTERVAL });
+      if (!tags.includes(PBS_DEADLINE_TAG))
+        await reg.periodicSync.register(PBS_DEADLINE_TAG, { minInterval: PBS_DEADLINE_INTERVAL });
     } catch (err) {
       console.log('[PWA] Periodic sync skipped:', err.message);
     }
