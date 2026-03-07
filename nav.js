@@ -69,15 +69,17 @@
           </div>
 
           <!-- RIGHT: Three-dot menu -->
-          <button class="kfl-icon-btn kfl-dots-btn"
-                  id="dots-btn"
-                  aria-label="Open menu"
-                  aria-expanded="false"
-                  aria-haspopup="true">
-            <span class="kfl-dots" aria-hidden="true">
-              <span></span><span></span><span></span>
-            </span>
-          </button>
+          <div class="kfl-topbar__right">
+            <button class="kfl-icon-btn kfl-dots-btn"
+                    id="dots-btn"
+                    aria-label="Open menu"
+                    aria-expanded="false"
+                    aria-haspopup="true">
+              <span class="kfl-dots" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </span>
+            </button>
+          </div>
 
         </div>
       </header>`;
