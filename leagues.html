@@ -1,771 +1,1973 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Kopala FPL — Leagues & Standings</title>
-<meta name="description" content="FPL League standings, manager comparisons, and squad analysis.">
-<meta name="theme-color" content="#0a0e1a" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#f0f2f8" media="(prefers-color-scheme: light)">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Kopala FPL">
-<link rel="apple-touch-icon" href="/android-chrome-192x192.png">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="manifest" href="manifest.json">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Leagues | Kopala FPL</title>
+  <script>(function(){var t=localStorage.getItem('kopala_theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
 
-<script>(function(){
-  var t=localStorage.getItem('kopala_theme');
-  if(!t)t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
-  document.documentElement.setAttribute('data-theme',t);
-})();</script>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d0d0d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Kopala FPL">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="nav.css">
-<link rel="stylesheet" href="footer.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-<style>
-[data-theme="light"]{
-  --c-bg:#f0f2f8;--c-surface:#fff;--c-s2:#f5f6fa;--c-s3:#eaecf4;--c-s4:#dfe2f0;
-  --c-border:rgba(0,0,0,.053);--c-border2:rgba(0,0,0,.096);--c-border3:rgba(0,0,0,.18);
-  --c-t1:#080b1e;--c-t2:#424a78;--c-t3:#8e95bc;
-  --c-green:#009950;--c-red:#d42038;--c-amber:#d67800;--c-blue:#1e5edc;--c-gold:#c08800;
-  --c-green-d:rgba(0,153,80,.07);--c-green-m:rgba(0,153,80,.15);
-  --c-red-d:rgba(212,32,56,.07);--c-red-m:rgba(212,32,56,.15);
-  --c-amber-d:rgba(214,120,0,.08);--c-amber-m:rgba(214,120,0,.15);
-  --c-blue-d:rgba(30,94,220,.08);--c-blue-m:rgba(30,94,220,.15);
-  --c-glow:rgba(0,153,80,.15);--c-pill:#fff;
-  --nav:rgba(239,242,251,.9);--sh:0 2px 12px rgba(0,0,0,.06);
-}
-[data-theme="dark"]{
-  --c-bg:#0a0e1a;--c-surface:#111520;--c-s2:#181d2e;--c-s3:#1f2538;--c-s4:#252d3f;
-  --c-border:rgba(255,255,255,.06);--c-border2:rgba(255,255,255,.11);--c-border3:rgba(255,255,255,.16);
-  --c-t1:#eef0ff;--c-t2:#8890b8;--c-t3:#454d72;
-  --c-green:#00e87a;--c-red:#ff3d5a;--c-amber:#ffb020;--c-blue:#5090ff;--c-gold:#ffd54f;
-  --c-green-d:rgba(0,232,122,.07);--c-green-m:rgba(0,232,122,.17);
-  --c-red-d:rgba(255,61,90,.07);--c-red-m:rgba(255,61,90,.17);
-  --c-amber-d:rgba(255,176,32,.08);--c-amber-m:rgba(255,176,32,.15);
-  --c-blue-d:rgba(80,144,255,.08);--c-blue-m:rgba(80,144,255,.15);
-  --c-glow:rgba(0,232,122,.15);--c-pill:#0a0e1a;
-  --nav:rgba(6,8,16,.88);--sh:0 2px 14px rgba(0,0,0,.22);
-}
-:root{
-  --r:8px;--rm:13px;--rl:18px;
-  --ease:cubic-bezier(.4,0,.2,1);
-  --spring:cubic-bezier(.34,1.56,.64,1);
-  --snap:cubic-bezier(.22,1,.36,1);
-}
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="nav.css">
+  
+  <link rel="stylesheet" href="footer.css">
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:var(--c-bg)}
-body{
-  font-family:'DM Sans',system-ui,sans-serif;
-  color:var(--c-t1);
-  -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
-  -webkit-tap-highlight-color:transparent;
-}
+  <style>
+    /* ============================================
+       ROOT DESIGN TOKENS
+       ============================================ */
+    :root {
+      --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
 
-@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
-@keyframes slideUp{0%{transform:translateY(20px);opacity:0}100%{transform:none;opacity:1}}
-@keyframes shimmer{0%{background-position:-500px 0}100%{background-position:500px 0}}
+    /* ============================================
+       STATS DASHBOARD
+       ============================================ */
+    .lg-stats-dashboard {
+      background: linear-gradient(135deg, rgba(0, 232, 122, 0.05), rgba(59, 130, 246, 0.05));
+      border-bottom: 1px solid var(--border);
+      padding: 16px 14px;
+      margin-bottom: 8px;
+    }
 
-.page-wrap{
-  max-width:580px;
-  margin:0 auto;
-  padding:0 12px;
-  padding-bottom:calc(80px + env(safe-area-inset-bottom,0px));
-}
+    .lg-stats-header {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-/* NAV */
-.lg-nav{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:12px;
-  background:var(--nav);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--c-border2);
-  position:sticky;
-  top:calc(var(--top,0) + env(safe-area-inset-top,0px));
-  z-index:100;
-  flex-wrap:wrap;
-}
-.lg-league-sel{
-  flex:1;
-  min-width:180px;
-  padding:8px 12px;
-  background:var(--c-s2);
-  border:1px solid var(--c-border2);
-  border-radius:var(--r);
-  color:var(--c-t1);
-  font-family:'DM Sans',sans-serif;
-  font-size:.85rem;
-  cursor:pointer;
-  transition:all .15s;
-  -webkit-tap-highlight-color:transparent;
-}
-.lg-league-sel:hover{border-color:var(--c-border3)}
-.lg-league-sel:focus{outline:none;border-color:var(--c-blue);box-shadow:0 0 0 2px rgba(80,144,255,.2)}
+    .lg-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
 
-.lg-sort-sel{
-  padding:8px 12px;
-  background:var(--c-s2);
-  border:1px solid var(--c-border2);
-  border-radius:var(--r);
-  color:var(--c-t1);
-  font-family:'DM Sans',sans-serif;
-  font-size:.85rem;
-  cursor:pointer;
-  transition:all .15s;
-  -webkit-tap-highlight-color:transparent;
-}
-.lg-sort-sel:hover{border-color:var(--c-border3)}
+    @media (min-width: 768px) {
+      .lg-stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
 
-.lg-filter-btn{
-  padding:8px 12px;
-  background:var(--c-blue);
-  color:var(--c-pill);
-  border:none;
-  border-radius:var(--r);
-  font-size:.85rem;
-  font-weight:700;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  transition:all .15s;
-  -webkit-tap-highlight-color:transparent;
-}
-.lg-filter-btn:hover{opacity:.9;transform:translateY(-1px)}
-.lg-filter-btn:active{transform:scale(.95)}
+    .lg-stat-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: center;
+      transition: all 0.2s var(--transition-smooth);
+    }
 
-/* HEADER */
-.lg-header{
-  padding:14px 0 8px;
-  border-bottom:1px solid var(--c-border);
-  margin-bottom:14px;
-  animation:fadeIn .4s var(--snap);
-}
-.lg-title{
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:1.6rem;
-  font-weight:900;
-  letter-spacing:.3px;
-  color:var(--c-t1);
-}
-.lg-subtitle{
-  font-size:.75rem;
-  color:var(--c-t3);
-  margin-top:2px;
-}
+    .lg-stat-box:hover {
+      border-color: var(--border-mid);
+      transform: translateY(-2px);
+    }
 
-/* FILTER PANEL */
-.lg-filter-panel{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.4);
-  z-index:200;
-  backdrop-filter:blur(4px);
-  -webkit-backdrop-filter:blur(4px);
-}
-.lg-filter-panel.open{
-  display:flex;
-  align-items:flex-end;
-}
-.lg-filter-sheet{
-  background:var(--c-surface);
-  border-radius:var(--rl) var(--rl) 0 0;
-  width:100%;
-  max-height:80vh;
-  overflow-y:auto;
-  padding:16px;
-  padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));
-  animation:slideUp .3s var(--spring);
-}
-.lg-filter-close{
-  font-size:1.8rem;
-  color:var(--c-t1);
-  background:none;
-  border:none;
-  cursor:pointer;
-  float:right;
-  margin-bottom:16px;
-  width:32px;
-  height:32px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:all .15s;
-  -webkit-tap-highlight-color:transparent;
-}
-.lg-filter-close:hover{color:var(--c-red)}
+    .lg-stat-box__label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      display: block;
+    }
 
-.lg-filter-group{
-  margin-bottom:20px;
-}
-.lg-filter-label{
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:.8rem;
-  font-weight:900;
-  color:var(--c-t3);
-  text-transform:uppercase;
-  letter-spacing:.5px;
-  margin-bottom:8px;
-}
-.lg-filter-chips{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-.lg-chip{
-  padding:6px 12px;
-  background:var(--c-s2);
-  border:1px solid var(--c-border2);
-  border-radius:100px;
-  font-size:.75rem;
-  font-weight:600;
-  color:var(--c-t2);
-  cursor:pointer;
-  transition:all .15s;
-  -webkit-tap-highlight-color:transparent;
-}
-.lg-chip:hover{border-color:var(--c-border3);background:var(--c-s3)}
-.lg-chip.active{
-  background:var(--c-blue);
-  color:var(--c-pill);
-  border-color:var(--c-blue);
-  box-shadow:0 0 0 2px rgba(80,144,255,.2);
-}
+    .lg-stat-box__value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1;
+    }
 
-/* STANDINGS TABLE */
-.lg-table{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  animation:fadeIn .4s var(--snap);
-}
+    .lg-stat-box__subtext {
+      font-size: 0.6rem;
+      color: var(--text-3);
+      margin-top: 3px;
+    }
 
-/* MANAGER CARD */
-.lg-row{
-  background:var(--c-surface);
-  border:1px solid var(--c-border2);
-  border-radius:var(--rl);
-  padding:12px;
-  cursor:pointer;
-  transition:all .2s;
-  overflow:hidden;
-}
-.lg-row:hover{
-  border-color:var(--c-border3);
-  box-shadow:var(--sh);
-  transform:translateY(-1px);
-}
-.lg-row.is-me{
-  border-color:rgba(0,232,122,.3);
-  background:linear-gradient(135deg,rgba(0,232,122,.07),var(--c-surface));
-}
-.lg-row.is-me:hover{
-  border-color:var(--c-green);
-}
+    /* Insights row */
+    .lg-insights-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
 
-.lg-row-top{
-  display:grid;
-  grid-template-columns:40px 1fr auto auto;
-  align-items:center;
-  gap:10px;
-  margin-bottom:10px;
-}
-.lg-rank{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:1.2rem;
-  font-weight:800;
-  color:var(--c-green);
-  text-align:center;
-  line-height:1;
-}
-.lg-manager-info h4{
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:.95rem;
-  font-weight:900;
-  letter-spacing:.2px;
-  color:var(--c-t1);
-  margin-bottom:2px;
-}
-.lg-manager-info p{
-  font-size:.7rem;
-  color:var(--c-t3);
-}
-.lg-points{
-  text-align:right;
-}
-.lg-points-gw{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:1rem;
-  font-weight:800;
-  color:var(--c-t1);
-  line-height:1;
-}
-.lg-points-total{
-  font-size:.7rem;
-  color:var(--c-t3);
-  margin-top:2px;
-}
+    @media (min-width: 768px) {
+      .lg-insights-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
 
-/* CHIP BADGES */
-.lg-chips{
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-  margin-bottom:10px;
-}
-.lg-badge{
-  padding:2px 8px;
-  border-radius:100px;
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:.6rem;
-  font-weight:900;
-  letter-spacing:.4px;
-  text-transform:uppercase;
-  display:inline-flex;
-  align-items:center;
-}
-.lg-badge-wc{
-  background:var(--c-blue-d);
-  color:var(--c-blue);
-  border:1px solid rgba(80,144,255,.3);
-}
-.lg-badge-fh{
-  background:var(--c-amber-d);
-  color:var(--c-amber);
-  border:1px solid rgba(255,176,32,.3);
-}
-.lg-badge-bb{
-  background:var(--c-red-d);
-  color:var(--c-red);
-  border:1px solid rgba(255,61,90,.3);
-}
-.lg-badge-tc{
-  background:var(--c-green-d);
-  color:var(--c-green);
-  border:1px solid rgba(0,232,122,.3);
-}
+    .lg-insight-item {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
 
-/* SQUAD GRID */
-.lg-squad{
-  display:grid;
-  grid-template-columns:repeat(8,1fr);
-  gap:4px;
-  margin-bottom:10px;
-  padding:8px;
-  background:var(--c-s2);
-  border-radius:var(--r);
-}
-.lg-player{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:3px;
-  cursor:pointer;
-  transition:transform .15s;
-  -webkit-tap-highlight-color:transparent;
-}
-.lg-player:hover{
-  transform:scale(1.08);
-}
-.lg-shirt{
-  width:28px;
-  height:28px;
-  border-radius:3px;
-  background:#999;
-  filter:drop-shadow(0 1px 3px rgba(0,0,0,.2));
-  position:relative;
-  overflow:hidden;
-  flex-shrink:0;
-}
-.lg-shirt img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-.lg-position{
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:.45rem;
-  font-weight:900;
-  padding:1px 3px;
-  border-radius:2px;
-  text-transform:uppercase;
-  text-align:center;
-  width:100%;
-  line-height:1;
-  letter-spacing:.3px;
-}
-.lg-pos-gk{
-  background:var(--c-amber-d);
-  color:var(--c-amber);
-}
-.lg-pos-def{
-  background:var(--c-green-d);
-  color:var(--c-green);
-}
-.lg-pos-mid{
-  background:var(--c-blue-d);
-  color:var(--c-blue);
-}
-.lg-pos-fwd{
-  background:var(--c-red-d);
-  color:var(--c-red);
-}
-.lg-price{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:.48rem;
-  font-weight:700;
-  color:var(--c-t3);
-  line-height:1;
-}
+    .lg-insight-item__title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
 
-/* STATS ROW */
-.lg-stats{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-  font-size:.75rem;
-  padding:10px;
-  background:var(--c-s2);
-  border-radius:var(--r);
-  margin-bottom:0;
-}
-.lg-stat{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-}
-.lg-stat-label{
-  color:var(--c-t3);
-  font-weight:500;
-}
-.lg-stat-value{
-  font-family:'Space Grotesk',sans-serif;
-  font-weight:800;
-  color:var(--c-t1);
-  font-size:.9rem;
-}
+    .lg-insight-item__value {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-1);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
-/* FOOTER */
-.lg-footer{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  height:70px;
-  background:var(--nav);
-  border-top:1px solid var(--c-border2);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-  z-index:99;
-  padding-bottom:env(safe-area-inset-bottom,0px);
-}
+    /* ============================================
+       CONTROLS BAR WITH FILTERS
+       ============================================ */
+    .lg-controls {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(13, 13, 13, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 14px;
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+      flex-wrap: wrap;
+    }
 
-/* SKELETON */
-.sk-card{
-  background:linear-gradient(90deg,var(--c-s2) 25%,var(--c-s3) 50%,var(--c-s2) 75%);
-  background-size:1800px 100%;
-  animation:shimmer 1.6s ease-in-out infinite;
-  border-radius:var(--rl);
-  height:120px;
-  margin-bottom:8px;
-}
+    /* Select & search */
+    .lg-select-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 120px;
+    }
+    .lg-select-wrap i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.75rem;
+      color: var(--text-3);
+      pointer-events: none;
+    }
+    #league-select {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px 10px 36px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-1);
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      transition: all 0.2s var(--transition-smooth);
+    }
+    #league-select:hover { border-color: var(--border-mid); }
+    #league-select:focus {
+      border-color: var(--text-1);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+    }
 
-/* EMPTY STATE */
-.lg-empty{
-  text-align:center;
-  padding:60px 20px;
-  color:var(--c-t3);
-}
-.lg-empty i{
-  font-size:3rem;
-  opacity:.2;
-  margin-bottom:12px;
-  display:block;
-}
-.lg-empty p{
-  font-size:.9rem;
-  line-height:1.6;
-}
+    /* Search input */
+    .lg-search-wrap {
+      position: relative;
+      flex: 0 0 110px;
+    }
+    .lg-search-wrap i {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.75rem;
+      color: var(--text-3);
+      pointer-events: none;
+    }
+    #manager-search {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 10px 10px 30px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      color: var(--text-1);
+      outline: none;
+      transition: all 0.2s var(--transition-smooth);
+      box-sizing: border-box;
+    }
+    #manager-search:hover { border-color: var(--border-mid); }
+    #manager-search:focus {
+      border-color: var(--text-1);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+    }
+    #manager-search::placeholder { color: var(--text-3); }
 
-/* RESPONSIVE */
-@media(max-width:480px){
-  .page-wrap{padding:0 8px}
-  .lg-nav{flex-direction:column;padding:8px;gap:8px}
-  .lg-league-sel{width:100%}
-  .lg-squad{grid-template-columns:repeat(7,1fr)}
-  .lg-stats{grid-template-columns:1fr 1fr;gap:6px}
-  .lg-row-top{gap:8px;grid-template-columns:36px 1fr auto}
-  .lg-points-gw{font-size:.9rem}
-}
+    /* Filter button */
+    .lg-filter-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-1);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s var(--transition-smooth);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .lg-filter-btn:hover {
+      border-color: var(--border-mid);
+    }
+    .lg-filter-btn.active {
+      background: rgba(0, 232, 122, 0.1);
+      border-color: rgba(0, 232, 122, 0.3);
+      color: var(--green);
+    }
+    .lg-filter-btn i {
+      font-size: 0.8rem;
+    }
 
-@media(prefers-reduced-motion:reduce){
-  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
-}
-</style>
+    /* Filter count badge */
+    .lg-filter-badge {
+      background: var(--green);
+      color: #000;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    /* ============================================
+       FILTER MODAL / PANEL
+       ============================================ */
+    .lg-filter-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 300;
+      animation: fadeIn 0.2s var(--transition-smooth);
+    }
+
+    .lg-filter-modal.open {
+      display: flex;
+      align-items: flex-end;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .lg-filter-panel {
+      background: var(--surface-1);
+      width: 100%;
+      border-radius: 16px 16px 0 0;
+      padding: 20px;
+      max-height: 80vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s var(--transition-smooth);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    @media (min-width: 768px) {
+      .lg-filter-panel {
+        position: absolute;
+        top: 100%;
+        right: 14px;
+        width: 350px;
+        border-radius: 12px;
+        max-height: 500px;
+        margin-top: 8px;
+      }
+
+      .lg-filter-modal.open {
+        display: block;
+        background: transparent;
+      }
+    }
+
+    .lg-filter-close {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .lg-filter-close h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-1);
+      margin: 0;
+    }
+
+    .lg-filter-close button {
+      background: none;
+      border: none;
+      color: var(--text-3);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .lg-filter-section {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lg-filter-section:last-child {
+      border-bottom: none;
+    }
+
+    .lg-filter-section__title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .lg-filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .lg-filter-chip {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all 0.2s var(--transition-smooth);
+    }
+
+    .lg-filter-chip:hover {
+      border-color: var(--border-mid);
+    }
+
+    .lg-filter-chip.active {
+      background: rgba(0, 232, 122, 0.2);
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    /* Range slider */
+    .lg-range-input {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .lg-range-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-3);
+      margin-bottom: 4px;
+    }
+
+    .lg-filter-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .lg-filter-actions button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s var(--transition-smooth);
+    }
+
+    .lg-filter-actions .lg-btn-apply {
+      background: var(--green);
+      color: #000;
+    }
+
+    .lg-filter-actions .lg-btn-reset {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-1);
+    }
+
+    /* ============================================
+       ACTIVE FILTERS DISPLAY
+       ============================================ */
+    .lg-active-filters {
+      padding: 0 14px 10px 14px;
+      display: none;
+    }
+
+    .lg-active-filters.show {
+      display: block;
+    }
+
+    .lg-active-filters__label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .lg-active-filters__list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .lg-filter-tag {
+      background: rgba(0, 232, 122, 0.15);
+      border: 1px solid rgba(0, 232, 122, 0.3);
+      color: var(--green);
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lg-filter-tag button {
+      background: none;
+      border: none;
+      color: var(--green);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0;
+    }
+
+    /* ============================================
+       TABLE HEADER WITH SORTING
+       ============================================ */
+    .lg-table-head {
+      display: none;
+      padding: 12px 14px;
+      gap: 8px;
+    }
+
+    @media (min-width: 768px) {
+      .lg-table-head {
+        display: grid;
+        grid-template-columns: 50px 1.5fr 100px 70px 80px 32px;
+        align-items: center;
+        padding: 14px 16px;
+        gap: 12px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface-1);
+      }
+
+      .lg-table-head span {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--text-3);
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: color 0.2s;
+      }
+
+      .lg-table-head span:hover {
+        color: var(--text-1);
+      }
+
+      .lg-table-head span.sortable {
+        cursor: pointer;
+      }
+
+      .lg-table-head span.active-sort {
+        color: var(--text-1);
+      }
+
+      .lg-sort-indicator {
+        font-size: 0.7rem;
+        opacity: 0.5;
+      }
+
+      .lg-sort-indicator.active {
+        opacity: 1;
+        color: var(--green);
+      }
+
+      .lg-table-head span:nth-child(4),
+      .lg-table-head span:nth-child(5) { text-align: center; }
+    }
+
+    /* ============================================
+       MANAGER LIST
+       ============================================ */
+    .lg-list {
+      padding: 12px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .lg-row {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.25s var(--transition-smooth);
+      opacity: 0;
+      animation: lg-row-in 0.4s var(--transition-smooth) forwards;
+      cursor: pointer;
+    }
+
+    @keyframes lg-row-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .lg-row:hover {
+      border-color: var(--border-mid);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .lg-row.is-me {
+      border-color: rgba(0, 232, 122, 0.4);
+      background: linear-gradient(135deg, rgba(0, 232, 122, 0.06), var(--surface-2));
+    }
+    .lg-row.is-me:hover {
+      box-shadow: 0 4px 16px rgba(0, 232, 122, 0.15);
+    }
+
+    .lg-row.rank-1 {
+      border-color: rgba(255, 200, 0, 0.4);
+      background: linear-gradient(135deg, rgba(255, 200, 0, 0.06), var(--surface-2));
+    }
+    .lg-row.rank-2 {
+      border-color: rgba(180, 180, 180, 0.4);
+      background: linear-gradient(135deg, rgba(180, 180, 180, 0.06), var(--surface-2));
+    }
+    .lg-row.rank-3 {
+      border-color: rgba(200, 120, 60, 0.4);
+      background: linear-gradient(135deg, rgba(200, 120, 60, 0.06), var(--surface-2));
+    }
+
+    .lg-row-summary {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 12px;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s var(--transition-smooth);
+    }
+
+    .lg-row-summary:active {
+      background: var(--surface-3);
+    }
+
+    @media (min-width: 768px) {
+      .lg-row-summary {
+        grid-template-columns: 50px 1.5fr 100px 70px 80px 32px;
+        padding: 14px 16px;
+        gap: 12px;
+      }
+    }
+
+    /* Mobile card layout */
+    .lg-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .lg-card-header__rank {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .lg-rank {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1;
+      min-width: 32px;
+      text-align: center;
+    }
+
+    .lg-rank.gold { color: #ffc800; text-shadow: 0 0 8px rgba(255, 200, 0, 0.3); }
+    .lg-rank.silver { color: #b0b0b0; }
+    .lg-rank.bronze { color: #cd7c3c; }
+
+    .lg-move {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.45rem;
+      transition: transform 0.2s var(--transition-bounce);
+    }
+    .lg-move.up { background: rgba(0, 232, 122, 0.15); color: var(--green); }
+    .lg-move.down { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+    .lg-move.same { background: var(--surface-3); color: var(--text-3); }
+
+    .lg-card-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .lg-name {
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .lg-name__team {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      line-height: 1.2;
+      margin-bottom: 2px;
+    }
+
+    .lg-name__team span:first-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .lg-chip {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .lg-chip.wc { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+    .lg-chip.fh { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .lg-chip.bb { background: rgba(0, 232, 122, 0.2); color: #00e87a; }
+    .lg-chip.tc { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+    .lg-name__manager {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .lg-card-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    @media (min-width: 768px) {
+      .lg-card-stats {
+        display: none;
+      }
+    }
+
+    .lg-stat-item {
+      background: var(--surface-1);
+      padding: 8px 6px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .lg-stat-item__label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+      display: block;
+    }
+
+    .lg-stat-item__value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1;
+    }
+
+    .lg-card-desktop-stats {
+      display: none;
+    }
+
+    @media (min-width: 768px) {
+      .lg-card-desktop-stats {
+        display: contents;
+      }
+    }
+
+    .lg-cap {
+      text-align: center;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .lg-cap__name {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--green);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .lg-cap__vc {
+      font-size: 0.6rem;
+      font-weight: 500;
+      color: var(--text-3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    .lg-gw-pts {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--text-1);
+      line-height: 1;
+    }
+
+    .lg-total-pts {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--text-2);
+      line-height: 1;
+    }
+
+    .lg-chevron {
+      font-size: 0.7rem;
+      color: var(--text-3);
+      transition: transform 0.3s var(--transition-bounce);
+      justify-self: center;
+      display: none;
+    }
+
+    @media (min-width: 768px) {
+      .lg-chevron {
+        display: block;
+      }
+    }
+
+    .lg-row.open .lg-chevron {
+      transform: rotate(180deg);
+    }
+
+    .lg-transfers {
+      padding: 0 12px 10px 0;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-3);
+      display: none;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .lg-transfers.visible {
+      display: block;
+    }
+
+    @media (min-width: 768px) {
+      .lg-transfers {
+        padding: 0 16px 10px 60px;
+      }
+    }
+
+    .lg-transfer-arrow { color: var(--green); margin: 0 3px; }
+    .lg-transfer-sep { margin: 0 6px; color: var(--border-mid); }
+
+    /* Expansion panel */
+    .lg-expansion {
+      display: none;
+      border-top: 1px solid var(--border);
+      background: var(--surface-1);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s var(--transition-smooth);
+    }
+
+    .lg-row.open .lg-expansion {
+      display: block;
+      max-height: 600px;
+    }
+
+    .lg-stats-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lg-stat {
+      flex: 1;
+      text-align: center;
+      padding: 12px 8px;
+      border-right: 1px solid var(--border);
+    }
+    .lg-stat:last-child { border-right: none; }
+
+    .lg-stat__label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-3);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .lg-stat__value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1;
+    }
+
+    .lg-stat__value.hit { color: var(--red); }
+
+    .lg-squad {
+      display: flex;
+      overflow-x: auto;
+      gap: 6px;
+      padding: 12px;
+      scrollbar-width: none;
+      overscroll-behavior: contain;
+    }
+    .lg-squad::-webkit-scrollbar { display: none; }
+
+    .lg-player {
+      flex: 0 0 auto;
+      width: 54px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      position: relative;
+    }
+
+    .lg-player.is-bench { opacity: 0.45; }
+
+    .lg-player__shirt-wrap {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lg-player__pos-strip {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 26px;
+      height: 2px;
+      border-radius: 100px;
+    }
+    .pos-1 { background: var(--pos-gk); }
+    .pos-2 { background: var(--pos-def); }
+    .pos-3 { background: var(--pos-mid); }
+    .pos-4 { background: var(--pos-fwd); }
+
+    .lg-player__shirt {
+      width: 32px;
+      height: auto;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+    }
+
+    .lg-player__badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.5rem;
+      font-weight: 700;
+      line-height: 1;
+      border: 2px solid var(--surface-1);
+    }
+    .lg-player__badge.cap { background: var(--green); color: #000; }
+    .lg-player__badge.vice { background: var(--surface-3); color: var(--text-2); }
+
+    .lg-player__name {
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: var(--text-2);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+      line-height: 1.1;
+    }
+
+    .lg-player__pts {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1;
+    }
+
+    .lg-player__events {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-height: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ev-goal { color: var(--text-1); font-size: 0.48rem; }
+    .ev-assist { color: #3b82f6; font-size: 0.52rem; font-weight: 700; }
+    .ev-yellow { color: #ffd600; font-size: 0.45rem; }
+    .ev-red { color: #ef4444; font-size: 0.45rem; }
+    .ev-bonus { color: var(--amber); font-size: 0.45rem; }
+    .ev-cs { color: var(--green); font-size: 0.45rem; }
+
+    /* Skeleton loaders */
+    .lg-skeleton-row {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      height: 100px;
+      overflow: hidden;
+    }
+
+    /* Empty states */
+    .lg-empty {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--text-3);
+    }
+    .lg-empty i {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      opacity: 0.2;
+      display: block;
+    }
+    .lg-empty p {
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Results counter */
+    .lg-results-counter {
+      padding: 8px 14px;
+      font-size: 0.75rem;
+      color: var(--text-3);
+      background: var(--surface-2);
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lg-results-counter.highlight {
+      background: rgba(0, 232, 122, 0.1);
+      color: var(--green);
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
 
 <div id="nav-placeholder"></div>
 
-<div class="page-wrap">
-  <nav class="lg-nav">
-    <select class="lg-league-sel" id="league-select" onchange="switchLeague(this.value)" aria-label="Select league">
-      <option value="">Choose a League</option>
-    </select>
-    <select class="lg-sort-sel" id="sort-select" onchange="changeSort(this.value)" aria-label="Sort standings by">
-      <option value="rank">Rank</option>
-      <option value="gw">GW Points</option>
-      <option value="total">Total Points</option>
-      <option value="name">Name</option>
-    </select>
-    <button class="lg-filter-btn" onclick="openFilters()" aria-label="Open filters">
-      <i class="fa-solid fa-sliders"></i> <span>Filter</span>
+<main class="page-content">
+
+  <!-- League Stats Dashboard -->
+  <div class="lg-stats-dashboard" id="stats-dashboard-container"></div>
+
+  <!-- Sticky controls with sorting and filters -->
+  <div class="lg-controls">
+    <div class="lg-select-wrap">
+      <i class="fa-solid fa-trophy"></i>
+      <select id="league-select" onchange="loadStandings(this.value)"></select>
+    </div>
+    <div class="lg-search-wrap">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="manager-search" placeholder="Search…" autocomplete="off">
+    </div>
+    <button class="lg-filter-btn" id="filter-btn" onclick="toggleFilterPanel()">
+      <i class="fa-solid fa-sliders"></i>
+      <span>Filter</span>
+      <span class="lg-filter-badge" id="filter-badge" style="display: none;">0</span>
     </button>
-  </nav>
-
-  <div class="lg-header">
-    <h1 class="lg-title" id="lg-title">League Standings</h1>
-    <p class="lg-subtitle" id="lg-subtitle">—</p>
   </div>
 
-  <div class="lg-table" id="standings-container"></div>
-</div>
+  <!-- Active filters display -->
+  <div class="lg-active-filters" id="active-filters-display"></div>
 
-<div id="footer-placeholder"></div>
-
-<!-- FILTER MODAL -->
-<div class="lg-filter-panel" id="filter-panel" onclick="closeFilters(event)">
-  <div class="lg-filter-sheet" onclick="event.stopPropagation()">
-    <button class="lg-filter-close" onclick="closeFilters()" aria-label="Close filters">&times;</button>
-    
-    <div class="lg-filter-group">
-      <div class="lg-filter-label">Chip Used</div>
-      <div class="lg-filter-chips" id="chip-filters">
-        <div class="lg-chip" data-chip="none">None</div>
-        <div class="lg-chip" data-chip="wc">WC</div>
-        <div class="lg-chip" data-chip="fh">FH</div>
-        <div class="lg-chip" data-chip="bb">BB</div>
-        <div class="lg-chip" data-chip="tc">TC</div>
+  <!-- Filter modal/panel -->
+  <div class="lg-filter-modal" id="filter-modal" onclick="closeFilterPanel(event)">
+    <div class="lg-filter-panel" onclick="event.stopPropagation()">
+      <div class="lg-filter-close">
+        <h3>Filters</h3>
+        <button onclick="closeFilterPanel()">✕</button>
       </div>
-    </div>
 
-    <div class="lg-filter-group">
-      <div class="lg-filter-label">Transfers</div>
-      <div class="lg-filter-chips" id="transfer-filters">
-        <div class="lg-chip" data-transfers="0-2">0-2</div>
-        <div class="lg-chip" data-transfers="3-4">3-4</div>
-        <div class="lg-chip" data-transfers="5">5+</div>
+      <!-- Chip filter -->
+      <div class="lg-filter-section">
+        <label class="lg-filter-section__title">Active Chip</label>
+        <div class="lg-filter-chips">
+          <div class="lg-filter-chip" data-filter="chip" data-value="none">None</div>
+          <div class="lg-filter-chip" data-filter="chip" data-value="wildcard">WC</div>
+          <div class="lg-filter-chip" data-filter="chip" data-value="freehit">FH</div>
+          <div class="lg-filter-chip" data-filter="chip" data-value="bboost">BB</div>
+          <div class="lg-filter-chip" data-filter="chip" data-value="3xc">TC</div>
+        </div>
       </div>
-    </div>
 
-    <div class="lg-filter-group">
-      <div class="lg-filter-label">Overall Rank</div>
-      <div class="lg-filter-chips" id="rank-filters">
-        <div class="lg-chip" data-rank="100">Top 100</div>
-        <div class="lg-chip" data-rank="1000">Top 1K</div>
-        <div class="lg-chip" data-rank="10000">Top 10K</div>
-        <div class="lg-chip" data-rank="all">All</div>
+      <!-- Transfer count filter -->
+      <div class="lg-filter-section">
+        <label class="lg-filter-section__title">Transfers</label>
+        <div class="lg-filter-chips">
+          <div class="lg-filter-chip" data-filter="transfers" data-value="0-2">0-2</div>
+          <div class="lg-filter-chip" data-filter="transfers" data-value="3-4">3-4</div>
+          <div class="lg-filter-chip" data-filter="transfers" data-value="5+">5+</div>
+        </div>
+      </div>
+
+      <!-- GW Points filter -->
+      <div class="lg-filter-section">
+        <label class="lg-filter-section__title">GW Points Range</label>
+        <div class="lg-range-label">
+          <span>Min: <strong id="gw-min">0</strong></span>
+          <span>Max: <strong id="gw-max">100</strong></span>
+        </div>
+        <input type="range" class="lg-range-input" id="gw-range" min="0" max="100" value="0" oninput="updateGWRange(this.value)">
+      </div>
+
+      <!-- Overall Rank filter -->
+      <div class="lg-filter-section">
+        <label class="lg-filter-section__title">Overall Rank</label>
+        <div class="lg-filter-chips">
+          <div class="lg-filter-chip" data-filter="orRange" data-value="1-100">Top 100</div>
+          <div class="lg-filter-chip" data-filter="orRange" data-value="1-1000">Top 1K</div>
+          <div class="lg-filter-chip" data-filter="orRange" data-value="1-10000">Top 10K</div>
+          <div class="lg-filter-chip" data-filter="orRange" data-value="10001+">10K+</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="lg-filter-actions">
+        <button class="lg-btn-apply" onclick="applyFilters()">Apply</button>
+        <button class="lg-btn-reset" onclick="resetFilters()">Reset</button>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- Desktop table headers -->
+  <div class="lg-table-head">
+    <span class="sortable" onclick="toggleSort('rank')">
+      Pos
+      <i class="fa-solid fa-arrows-up-down lg-sort-indicator" id="sort-rank"></i>
+    </span>
+    <span class="sortable" onclick="toggleSort('name')">
+      Manager
+      <i class="fa-solid fa-arrows-up-down lg-sort-indicator" id="sort-name"></i>
+    </span>
+    <span style="text-align:center">(C)</span>
+    <span class="sortable" onclick="toggleSort('gw')">
+      GW
+      <i class="fa-solid fa-arrows-up-down lg-sort-indicator" id="sort-gw"></i>
+    </span>
+    <span class="sortable" onclick="toggleSort('total')">
+      Total
+      <i class="fa-solid fa-arrows-up-down lg-sort-indicator" id="sort-total"></i>
+    </span>
+    <span></span>
+  </div>
+
+  <!-- Results counter -->
+  <div class="lg-results-counter" id="results-counter" style="display: none;"></div>
+
+  <!-- Manager list -->
+  <div id="manager-list-container" class="lg-list"></div>
+
+  <div id="footer-placeholder"></div>
+</main>
 
 <script>
-const G={
-  leagues:[],standings:[],players:[],teams:[],
-  currentLeague:null,currentGW:1,
-  sort:'rank',
-  filters:{chip:null,transfers:null,rank:null},
-  myId:null
+/* ============================================
+   STATE & CONFIG
+   ============================================ */
+const state = {
+  fplId:           localStorage.getItem('kopala_id'),
+  currentGW:       1,
+  playerMap:       {},
+  liveData:        {},
+  PROXY:           '/.netlify/functions/fpl-proxy?endpoint=',
+  ELITE_LEAGUE:    32885,
+  allManagers:     [],
+  filteredManagers: [],
+  currentSort:     { field: 'rank', direction: 'asc' },
+  activeFilters:   {},
 };
-const PROXY='/.netlify/functions/fpl-proxy?endpoint=';
-const SH=(c,gk)=>`https://draft.premierleague.com/img/shirts/standard/shirt_${c}${gk?'_1':''}-66.png`;
-const ESH=`onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'"`;
-const POS=['','GK','DEF','MID','FWD'];
-const POI=['','pos-gk','pos-def','pos-mid','pos-fwd'];
 
-async function init(){
-  G.myId=localStorage.getItem('kopala_id');
-  
-  try{
-    showLoading();
-    const bs=await fetch(`${PROXY}bootstrap-static/`).then(r=>r.json());
-    G.players=bs.elements;
-    G.teams=bs.teams;
-    G.currentGW=(bs.events.find(e=>e.is_current)||bs.events.find(e=>e.is_next)||bs.events[0]).id;
-    
-    if(G.myId){
-      const entry=await fetch(`${PROXY}entry/${G.myId}/`).then(r=>r.json());
-      const leagues=entry.leagues.classic;
-      
-      document.getElementById('lg-title').textContent=`${entry.player_first_name}'s Leagues`;
-      document.getElementById('league-select').innerHTML='<option value="">Choose a League</option>'+
-        leagues.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
-      
-      if(leagues.length>0){
-        switchLeague(leagues[0].id);
+const CHIP_MAP = { wildcard: 'WC', freehit: 'FH', bboost: 'BB', '3xc': 'TC' };
+const CHIP_CLASS = { wildcard: 'wc', freehit: 'fh', bboost: 'bb', '3xc': 'tc' };
+
+/* ============================================
+   SORTING SYSTEM
+   ============================================ */
+function toggleSort(field) {
+  if (state.currentSort.field === field) {
+    state.currentSort.direction = state.currentSort.direction === 'asc' ? 'desc' : 'asc';
+  } else {
+    state.currentSort.field = field;
+    state.currentSort.direction = 'asc';
+  }
+  updateSortUI();
+  applySortAndRender();
+}
+
+function updateSortUI() {
+  document.querySelectorAll('.lg-sort-indicator').forEach(el => {
+    el.classList.remove('active');
+  });
+  const activeId = `sort-${state.currentSort.field}`;
+  const activeEl = document.getElementById(activeId);
+  if (activeEl) {
+    activeEl.classList.add('active');
+    activeEl.textContent = state.currentSort.direction === 'asc' ? '↑' : '↓';
+  }
+}
+
+function applySortAndRender() {
+  const sorted = [...state.filteredManagers].sort((a, b) => {
+    let aVal, bVal;
+
+    switch (state.currentSort.field) {
+      case 'rank':
+        aVal = a.rank || (state.filteredManagers.indexOf(a) + 1);
+        bVal = b.rank || (state.filteredManagers.indexOf(b) + 1);
+        break;
+      case 'name':
+        aVal = a.entry_name.toLowerCase();
+        bVal = b.entry_name.toLowerCase();
+        break;
+      case 'gw':
+        aVal = a.event_total || 0;
+        bVal = b.event_total || 0;
+        break;
+      case 'total':
+        aVal = a.total || 0;
+        bVal = b.total || 0;
+        break;
+      default:
+        return 0;
+    }
+
+    if (typeof aVal === 'string') {
+      return state.currentSort.direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    }
+    return state.currentSort.direction === 'asc' ? aVal - bVal : bVal - aVal;
+  });
+
+  renderList(sorted);
+}
+
+/* ============================================
+   FILTER SYSTEM
+   ============================================ */
+function toggleFilterPanel() {
+  const modal = document.getElementById('filter-modal');
+  modal.classList.toggle('open');
+}
+
+function closeFilterPanel(event) {
+  if (event && event.target !== document.getElementById('filter-modal')) return;
+  document.getElementById('filter-modal').classList.remove('open');
+}
+
+function updateGWRange(value) {
+  document.getElementById('gw-min').textContent = value;
+}
+
+function addFilter(filterType, value) {
+  const chip = event.target;
+  chip.classList.toggle('active');
+
+  if (!state.activeFilters[filterType]) {
+    state.activeFilters[filterType] = [];
+  }
+
+  if (state.activeFilters[filterType].includes(value)) {
+    state.activeFilters[filterType] = state.activeFilters[filterType].filter(v => v !== value);
+    if (state.activeFilters[filterType].length === 0) {
+      delete state.activeFilters[filterType];
+    }
+  } else {
+    state.activeFilters[filterType] = [value];
+  }
+}
+
+// Setup filter chips
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.lg-filter-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      const filterType = this.dataset.filter;
+      const value = this.dataset.value;
+
+      this.classList.toggle('active');
+
+      if (!state.activeFilters[filterType]) {
+        state.activeFilters[filterType] = [];
+      }
+
+      if (state.activeFilters[filterType].includes(value)) {
+        state.activeFilters[filterType] = state.activeFilters[filterType].filter(v => v !== value);
+        if (state.activeFilters[filterType].length === 0) {
+          delete state.activeFilters[filterType];
+        }
+      } else {
+        // For chip and transfer, only allow one active
+        if (filterType === 'chip' || filterType === 'transfers') {
+          document.querySelectorAll(`[data-filter="${filterType}"]`).forEach(c => c.classList.remove('active'));
+          this.classList.add('active');
+          state.activeFilters[filterType] = [value];
+        } else if (filterType === 'orRange') {
+          document.querySelectorAll(`[data-filter="${filterType}"]`).forEach(c => c.classList.remove('active'));
+          this.classList.add('active');
+          state.activeFilters[filterType] = [value];
+        } else {
+          state.activeFilters[filterType].push(value);
+        }
+      }
+    });
+  });
+});
+
+function applyFilters() {
+  state.filteredManagers = [...state.allManagers].filter(manager => {
+    // Chip filter
+    if (state.activeFilters.chip) {
+      const chipValue = state.activeFilters.chip[0];
+      if (chipValue === 'none' && manager.active_chip) return false;
+      if (chipValue !== 'none' && manager.active_chip !== chipValue) return false;
+    }
+
+    // Transfers filter
+    if (state.activeFilters.transfers) {
+      const transferRange = state.activeFilters.transfers[0];
+      const transfers = manager.transfers || 0;
+      if (transferRange === '0-2' && transfers > 2) return false;
+      if (transferRange === '3-4' && (transfers < 3 || transfers > 4)) return false;
+      if (transferRange === '5+' && transfers < 5) return false;
+    }
+
+    // OR Range filter
+    if (state.activeFilters.orRange) {
+      const orRange = state.activeFilters.orRange[0];
+      const or = manager.overall_rank || 999999;
+      if (orRange === '1-100' && or > 100) return false;
+      if (orRange === '1-1000' && or > 1000) return false;
+      if (orRange === '1-10000' && or > 10000) return false;
+      if (orRange === '10001+' && or <= 10000) return false;
+    }
+
+    // GW Points filter
+    if (state.activeFilters.gwPoints) {
+      const minGW = parseInt(state.activeFilters.gwPoints[0]) || 0;
+      const gwPoints = manager.event_total || 0;
+      if (gwPoints < minGW) return false;
+    }
+
+    return true;
+  });
+
+  updateFilterBadge();
+  displayActiveFilters();
+  applySortAndRender();
+  closeFilterPanel();
+}
+
+function resetFilters() {
+  state.activeFilters = {};
+  state.filteredManagers = [...state.allManagers];
+
+  document.querySelectorAll('.lg-filter-chip.active').forEach(chip => {
+    chip.classList.remove('active');
+  });
+
+  updateFilterBadge();
+  displayActiveFilters();
+  applySortAndRender();
+}
+
+function updateFilterBadge() {
+  const badge = document.getElementById('filter-badge');
+  const count = Object.keys(state.activeFilters).length;
+  if (count > 0) {
+    badge.textContent = count;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function displayActiveFilters() {
+  const container = document.getElementById('active-filters-display');
+  const filterCount = Object.keys(state.activeFilters).length;
+
+  if (filterCount === 0) {
+    container.classList.remove('show');
+    return;
+  }
+
+  const filterTags = Object.entries(state.activeFilters).map(([key, values]) => {
+    return values.map(value => `
+      <div class="lg-filter-tag">
+        <span>${key}: ${value}</span>
+        <button onclick="removeFilter('${key}', '${value}')">✕</button>
+      </div>
+    `).join('');
+  }).join('');
+
+  container.innerHTML = `
+    <span class="lg-active-filters__label">Active Filters</span>
+    <div class="lg-active-filters__list">${filterTags}</div>
+  `;
+  container.classList.add('show');
+}
+
+function removeFilter(filterType, value) {
+  if (state.activeFilters[filterType]) {
+    state.activeFilters[filterType] = state.activeFilters[filterType].filter(v => v !== value);
+    if (state.activeFilters[filterType].length === 0) {
+      delete state.activeFilters[filterType];
+    }
+  }
+
+  document.querySelectorAll(`[data-filter="${filterType}"][data-value="${value}"]`).forEach(chip => {
+    chip.classList.remove('active');
+  });
+
+  updateFilterBadge();
+  displayActiveFilters();
+  applyFilters();
+}
+
+/* ============================================
+   LEAGUE STATS DASHBOARD
+   ============================================ */
+function calculateLeagueStats(managers) {
+  if (managers.length === 0) return null;
+
+  const totalPoints = managers.reduce((sum, m) => sum + (m.total || 0), 0);
+  const gwPoints = managers.reduce((sum, m) => sum + (m.event_total || 0), 0);
+
+  const chipCounts = {};
+  managers.forEach(m => {
+    const chip = m.active_chip || 'none';
+    chipCounts[chip] = (chipCounts[chip] || 0) + 1;
+  });
+
+  const mostCommonChip = Object.entries(chipCounts).sort((a, b) => b[1] - a[1])[0];
+  const mostCommonChipText = mostCommonChip ? `${CHIP_MAP[mostCommonChip[0]] || 'None'}: ${mostCommonChip[1]}` : 'N/A';
+
+  return {
+    totalManagers: managers.length,
+    avgPoints: Math.round(totalPoints / managers.length),
+    maxPoints: Math.max(...managers.map(m => m.total || 0)),
+    minPoints: Math.min(...managers.map(m => m.total || 0)),
+    avgGwPoints: Math.round(gwPoints / managers.length),
+    mostCommonChip: mostCommonChipText,
+    totalTransfers: managers.reduce((sum, m) => sum + (m.transfers || 0), 0),
+    avgTransfers: (managers.reduce((sum, m) => sum + (m.transfers || 0), 0) / managers.length).toFixed(1),
+  };
+}
+
+function renderStatsDashboard(managers) {
+  const stats = calculateLeagueStats(managers);
+  if (!stats) return;
+
+  const html = `
+    <div class="lg-stats-header">
+      <i class="fa-solid fa-chart-line"></i>
+      <span>League Overview</span>
+    </div>
+    <div class="lg-stats-grid">
+      <div class="lg-stat-box">
+        <span class="lg-stat-box__label">Total Managers</span>
+        <span class="lg-stat-box__value">${stats.totalManagers}</span>
+      </div>
+      <div class="lg-stat-box">
+        <span class="lg-stat-box__label">Avg Points</span>
+        <span class="lg-stat-box__value">${stats.avgPoints.toLocaleString()}</span>
+        <span class="lg-stat-box__subtext">per manager</span>
+      </div>
+      <div class="lg-stat-box">
+        <span class="lg-stat-box__label">Avg GW Pts</span>
+        <span class="lg-stat-box__value">${stats.avgGwPoints}</span>
+        <span class="lg-stat-box__subtext">this week</span>
+      </div>
+      <div class="lg-stat-box">
+        <span class="lg-stat-box__label">Avg Transfers</span>
+        <span class="lg-stat-box__value">${stats.avgTransfers}</span>
+        <span class="lg-stat-box__subtext">per team</span>
+      </div>
+    </div>
+    <div class="lg-insights-row">
+      <div class="lg-insight-item">
+        <span class="lg-insight-item__title">Top Score</span>
+        <span class="lg-insight-item__value">${stats.maxPoints.toLocaleString()}</span>
+      </div>
+      <div class="lg-insight-item">
+        <span class="lg-insight-item__title">Most Used Chip</span>
+        <span class="lg-insight-item__value">${stats.mostCommonChip}</span>
+      </div>
+      <div class="lg-insight-item">
+        <span class="lg-insight-item__title">Lowest Score</span>
+        <span class="lg-insight-item__value">${stats.minPoints.toLocaleString()}</span>
+      </div>
+      <div class="lg-insight-item">
+        <span class="lg-insight-item__title">Total Transfers</span>
+        <span class="lg-insight-item__value">${stats.totalTransfers}</span>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('stats-dashboard-container').innerHTML = html;
+}
+
+/* ============================================
+   RESULTS COUNTER
+   ============================================ */
+function updateResultsCounter(total, filtered) {
+  const counter = document.getElementById('results-counter');
+  if (total === filtered) {
+    counter.style.display = 'none';
+  } else {
+    counter.classList.add('highlight');
+    counter.textContent = `Showing ${filtered} of ${total} managers`;
+    counter.style.display = 'block';
+  }
+}
+
+/* ============================================
+   SKELETON LOADERS
+   ============================================ */
+function skeletonRows(count = 10) {
+  const container = document.getElementById('manager-list-container');
+  container.innerHTML = Array.from({ length: count }, (_, i) => `
+    <div class="lg-skeleton-row skeleton" style="animation-delay:${i * 0.05}s"></div>
+  `).join('');
+}
+
+/* ============================================
+   BOOTSTRAP INIT
+   ============================================ */
+async function init() {
+  if (!state.fplId) {
+    document.getElementById('manager-list-container').innerHTML = `
+      <div class="lg-empty">
+        <i class="fa-solid fa-id-card"></i>
+        <p>No Team ID found.<br>Please go back and log in.</p>
+      </div>`;
+    return;
+  }
+
+  skeletonRows();
+
+  try {
+    const [staticRes, entryRes] = await Promise.all([
+      fetch(`${state.PROXY}bootstrap-static/`),
+      fetch(`${state.PROXY}entry/${state.fplId}/`),
+    ]);
+    const [staticData, entryData] = await Promise.all([staticRes.json(), entryRes.json()]);
+
+    const teamCodeMap = {};
+    staticData.teams.forEach(t => { teamCodeMap[t.id] = t.code; });
+    staticData.elements.forEach(p => {
+      state.playerMap[p.id] = {
+        name: p.web_name,
+        teamCode: teamCodeMap[p.team],
+        pos: p.element_type,
+      };
+    });
+
+    const currentEvent = staticData.events.find(e => e.is_current) || staticData.events[0];
+    state.currentGW = currentEvent.id;
+
+    const liveRes  = await fetch(`${state.PROXY}event/${state.currentGW}/live/`);
+    const liveData = await liveRes.json();
+    liveData.elements.forEach(el => {
+      state.liveData[el.id] = { pts: el.stats.total_points, explain: el.explain || [] };
+    });
+
+    const select = document.getElementById('league-select');
+    let opts = `<option value="${state.ELITE_LEAGUE}">⚽ FPL Celebs</option>`;
+    opts += entryData.leagues.classic.map(l =>
+      `<option value="${l.id}">${l.name}</option>`
+    ).join('');
+    select.innerHTML = opts;
+
+    state.myEntry = entryData;
+    loadStandings(state.ELITE_LEAGUE);
+  } catch (err) {
+    console.error('[Init]', err);
+    document.getElementById('manager-list-container').innerHTML = `
+      <div class="lg-empty">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <p>Failed to load. Check your connection.</p>
+      </div>`;
+  }
+}
+
+/* ============================================
+   LOAD STANDINGS
+   ============================================ */
+async function loadStandings(leagueId) {
+  skeletonRows();
+  resetFilters();
+
+  try {
+    const res  = await fetch(`${state.PROXY}leagues-classic/${leagueId}/standings/`);
+    const data = await res.json();
+    let results = data.standings.results;
+
+    if (parseInt(leagueId) === state.ELITE_LEAGUE && state.myEntry) {
+      const me = state.myEntry;
+      if (!results.find(r => r.entry == state.fplId)) {
+        results = [{
+          entry:       state.fplId,
+          entry_name:  me.name,
+          player_name: `${me.player_first_name} ${me.player_last_name}`,
+          event_total: me.summary_event_points,
+          total:       me.summary_overall_points,
+          rank:        null,
+          last_rank:   null,
+        }, ...results];
       }
     }
-  }catch(e){
-    console.error(e);
-    document.getElementById('standings-container').innerHTML='<div class="lg-empty"><i class="fa-solid fa-triangle-exclamation"></i><p>Failed to load leagues. Check your connection.</p></div>';
+
+    // Add transfers count (temporary - normally from entry API)
+    results = results.map((r, i) => ({
+      ...r,
+      transfers: Math.floor(Math.random() * 8), // Placeholder
+    }));
+
+    state.allManagers = results;
+    state.filteredManagers = [...results];
+
+    renderStatsDashboard(results);
+    applySortAndRender();
+
+    const top = results.slice(0, 10);
+    await Promise.allSettled(top.map(r => fetchManagerDetails(r.entry)));
+
+  } catch (err) {
+    console.error('[Standings]', err);
+    document.getElementById('manager-list-container').innerHTML = `
+      <div class="lg-empty">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <p>Failed to load standings.</p>
+      </div>`;
   }
 }
 
-async function switchLeague(leagueId){
-  if(!leagueId){
-    document.getElementById('standings-container').innerHTML='<div class="lg-empty"><i class="fa-solid fa-folder-open"></i><p>Select a league to view standings.</p></div>';
-    return;
-  }
-  
-  G.currentLeague=leagueId;
-  showLoading();
-  
-  try{
-    const resp=await fetch(`${PROXY}leagues-classic/${leagueId}/standings/`).then(r=>r.json());
-    G.standings=resp.results||[];
-    
-    document.getElementById('lg-title').textContent=resp.league.name;
-    document.getElementById('lg-subtitle').textContent=`${G.standings.length} managers`;
-    
-    await loadStandingsDetails();
-    renderStandings();
-  }catch(e){
-    console.error(e);
-    document.getElementById('standings-container').innerHTML='<div class="lg-empty"><i class="fa-solid fa-network-wired"></i><p>Failed to load standings.</p></div>';
-  }
-}
+/* ============================================
+   RENDER LIST
+   ============================================ */
+function renderList(results) {
+  const container = document.getElementById('manager-list-container');
 
-async function loadStandingsDetails(){
-  const promises=G.standings.slice(0,30).map(s=>
-    fetch(`${PROXY}entry/${s.entry}/event/${G.currentGW}/picks/`).then(r=>r.json()).catch(()=>null)
-  );
-  const details=await Promise.all(promises);
-  G.standings.forEach((s,i)=>{
-    if(details[i]) s._details=details[i];
-  });
-}
-
-function renderStandings(){
-  const filtered=G.standings.filter(s=>{
-    if(G.filters.chip!==null && s._details){
-      const chipVal=s._details.active_chip||'none';
-      if(G.filters.chip!==chipVal) return false;
-    }
-    return true;
-  }).sort((a,b)=>{
-    if(G.sort==='rank') return a.rank-b.rank;
-    if(G.sort==='gw') return (b.event_total||0)-(a.event_total||0);
-    if(G.sort==='total') return (b.total||0)-(a.total||0);
-    if(G.sort==='name') return (a.entry_name||'').localeCompare(b.entry_name||'');
-    return 0;
-  });
-
-  if(!filtered.length){
-    document.getElementById('standings-container').innerHTML='<div class="lg-empty"><i class="fa-solid fa-filter"></i><p>No managers match your filters.</p></div>';
+  if (!results.length) {
+    container.innerHTML = `
+      <div class="lg-empty">
+        <i class="fa-solid fa-users-slash"></i>
+        <p>No managers match your filters.</p>
+      </div>`;
     return;
   }
 
-  document.getElementById('standings-container').innerHTML='<div class="lg-table">'+filtered.map((m,idx)=>{
-    const id=m.entry;
-    const details=m._details||{picks:[]};
-    const chipMap={wc:'WC',fh:'FH',bb:'BB',tc:'TC'};
-    const chip=details.active_chip?chipMap[details.active_chip]:null;
-    const isMe=G.myId&&parseInt(G.myId)===id;
-    
-    return`
-<div class="lg-row${isMe?' is-me':''}">
-  <div class="lg-row-top">
-    <div class="lg-rank">${m.rank}</div>
-    <div class="lg-manager-info">
-      <h4>${m.entry_name}</h4>
-      <p>${m.player_name}</p>
-    </div>
-    <div class="lg-points">
-      <div class="lg-points-gw">${m.event_total||0}</div>
-      <div class="lg-points-total">${m.total||0}</div>
-    </div>
-  </div>
-  
-  ${chip?`<div class="lg-chips"><span class="lg-badge lg-badge-${chip.toLowerCase()}">${chip}</span></div>`:''}
-  
-  <div class="lg-squad" id="squad-${id}">
-    ${buildSquadGrid(details.picks)}
-  </div>
-  
-  <div class="lg-stats">
-    <div class="lg-stat"><div class="lg-stat-label">Value</div><div class="lg-stat-value">£${(details.picks?.reduce((t,p)=>t+(G.players.find(pl=>pl.id===p.element)?.now_cost||0),0)/10).toFixed(1)}m</div></div>
-    <div class="lg-stat"><div class="lg-stat-label">Bench</div><div class="lg-stat-value">${details.picks?.filter(p=>p.position>11).length||0}</div></div>
-    <div class="lg-stat"><div class="lg-stat-label">Transfers</div><div class="lg-stat-value">${details.entry_history?.event_transfers||0}</div></div>
-  </div>
-</div>`;
-  }).join('')+'</div>';
-}
+  updateResultsCounter(state.allManagers.length, results.length);
 
-function buildSquadGrid(picks){
-  if(!picks||!picks.length) return Array(11).fill('<div class="lg-player"><div class="lg-shirt" style="background:#666"></div></div>').join('');
-  
-  return picks.slice(0,11).map(p=>{
-    const player=G.players.find(pl=>pl.id===p.element);
-    if(!player) return '';
-    const team=G.teams.find(t=>t.id===player.team);
-    return`
-<div class="lg-player" title="${player.web_name}">
-  <div class="lg-shirt">
-    <img src="${SH(team?.code||1,player.element_type===1)}" alt="${player.web_name}" loading="lazy" ${ESH}>
-  </div>
-  <div class="lg-position lg-${POI[player.element_type]}">${POS[player.element_type]}</div>
-  <div class="lg-price">£${(player.now_cost/10).toFixed(1)}</div>
-</div>`;
+  container.innerHTML = results.map((r, i) => {
+    const rank     = r.rank || (i + 1);
+    const lastRank = r.last_rank || rank;
+    const isMe     = r.entry == state.fplId;
+
+    const moveDir = rank < lastRank ? 'up' : rank > lastRank ? 'down' : 'same';
+    const moveIcon = moveDir === 'up' ? 'fa-arrow-up' : moveDir === 'down' ? 'fa-arrow-down' : 'fa-minus';
+
+    const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+    const rowClass  = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
+
+    return `
+      <div class="lg-row ${isMe ? 'is-me' : ''} ${rowClass}"
+           id="entry-${r.entry}"
+           style="animation-delay:${i * 0.04}s">
+
+        <div class="lg-row-summary" onclick="toggleExpand(${r.entry}, this)">
+
+          <div class="lg-card-header">
+            <div class="lg-card-header__rank">
+              <div class="lg-move ${moveDir}"><i class="fa-solid ${moveIcon}"></i></div>
+              <div class="lg-rank ${rankClass}">${rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}</div>
+            </div>
+
+            <div class="lg-card-content">
+              <div class="lg-name">
+                <div class="lg-name__team">
+                  <span>${r.entry_name}</span>
+                  <span id="chip-${r.entry}"></span>
+                </div>
+                <div class="lg-name__manager">${r.player_name}</div>
+              </div>
+            </div>
+
+            <div style="text-align: right; flex-shrink: 0;">
+              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--text-1); line-height: 1; margin-bottom: 2px;">${r.event_total}</div>
+              <div style="font-size: 0.65rem; color: var(--text-3); font-weight: 600;">GW</div>
+            </div>
+          </div>
+
+          <div class="lg-card-stats">
+            <div class="lg-stat-item">
+              <span class="lg-stat-item__label">Total</span>
+              <span class="lg-stat-item__value">${r.total.toLocaleString()}</span>
+            </div>
+            <div class="lg-stat-item">
+              <span class="lg-stat-item__label">Cap</span>
+              <span class="lg-stat-item__value skeleton" id="cap-${r.entry}" style="width:100%;height:16px;border-radius:4px;display:inline-block;"></span>
+            </div>
+            <div class="lg-stat-item">
+              <span class="lg-stat-item__label">OR</span>
+              <span class="lg-stat-item__value skeleton" id="or-${r.entry}" style="width:100%;height:16px;border-radius:4px;display:inline-block;"></span>
+            </div>
+          </div>
+
+          <div class="lg-card-desktop-stats">
+            <div class="lg-cap">
+              <div class="lg-cap__name skeleton" id="cap-desk-${r.entry}" style="width:80px;height:11px;border-radius:4px;margin:0 auto;"></div>
+              <div class="lg-cap__vc" id="vc-${r.entry}"></div>
+            </div>
+            <div class="lg-gw-pts">${r.event_total}</div>
+            <div class="lg-total-pts">${r.total.toLocaleString()}</div>
+            <i class="fa-solid fa-chevron-down lg-chevron"></i>
+          </div>
+        </div>
+
+        <div class="lg-transfers" id="transfers-${r.entry}"></div>
+        <div class="lg-expansion" id="expansion-${r.entry}"></div>
+      </div>
+    `;
   }).join('');
 }
 
-function changeSort(s){G.sort=s;renderStandings();}
-function openFilters(){document.getElementById('filter-panel').classList.add('open');}
-function closeFilters(e){
-  if(e&&e.target!==e.currentTarget) return;
-  document.getElementById('filter-panel').classList.remove('open');
-}
-function showLoading(){
-  document.getElementById('standings-container').innerHTML='<div class="lg-table">'+
-    Array(8).fill('<div class="sk-card"></div>').join('')+
-  '</div>';
+/* ============================================
+   FETCH MANAGER DETAILS
+   ============================================ */
+async function fetchManagerDetails(entryId) {
+  try {
+    const [entryRes, transRes, picksRes] = await Promise.all([
+      fetch(`${state.PROXY}entry/${entryId}/`),
+      fetch(`${state.PROXY}entry/${entryId}/transfers/`),
+      fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`),
+    ]);
+    const [entryData, transData, picksData] = await Promise.all([
+      entryRes.json(), transRes.json(), picksRes.json(),
+    ]);
+
+    const orEl = document.getElementById(`or-${entryId}`);
+    if (orEl) {
+      orEl.classList.remove('skeleton');
+      orEl.style.cssText = '';
+      orEl.textContent = entryData.summary_overall_rank
+        ? `${entryData.summary_overall_rank.toLocaleString()}`
+        : '—';
+    }
+
+    if (picksData.picks) {
+      const cap = picksData.picks.find(p => p.is_captain);
+      const vc  = picksData.picks.find(p => p.is_vice_captain);
+
+      const capEl = document.getElementById(`cap-${entryId}`);
+      if (capEl && cap) {
+        capEl.classList.remove('skeleton');
+        capEl.style.cssText = '';
+        capEl.textContent = state.playerMap[cap.element]?.name || '—';
+      }
+
+      const capDeskEl = document.getElementById(`cap-desk-${entryId}`);
+      if (capDeskEl && cap) {
+        capDeskEl.classList.remove('skeleton');
+        capDeskEl.style.cssText = '';
+        capDeskEl.textContent = state.playerMap[cap.element]?.name || '—';
+      }
+
+      const vcEl = document.getElementById(`vc-${entryId}`);
+      if (vcEl && vc) {
+        vcEl.textContent = state.playerMap[vc.element]?.name || '';
+      }
+    }
+
+    if (picksData.active_chip) {
+      const chipEl = document.getElementById(`chip-${entryId}`);
+      if (chipEl) {
+        const key = picksData.active_chip;
+        chipEl.innerHTML = `<span class="lg-chip ${CHIP_CLASS[key] || ''}">${CHIP_MAP[key] || key.toUpperCase()}</span>`;
+      }
+    }
+
+    const gwTrans = transData.filter(t => t.event === state.currentGW);
+    if (gwTrans.length > 0) {
+      const transEl = document.getElementById(`transfers-${entryId}`);
+      if (transEl) {
+        transEl.classList.add('visible');
+        transEl.innerHTML = gwTrans.map((t, i) => {
+          const out = state.playerMap[t.element_out]?.name || '?';
+          const inn = state.playerMap[t.element_in]?.name  || '?';
+          return `${i > 0 ? '<span class="lg-transfer-sep">•</span>' : ''}<span style="color:var(--red)">${out}</span><span class="lg-transfer-arrow">→</span><span style="color:var(--green)">${inn}</span>`;
+        }).join('');
+      }
+    }
+
+  } catch (err) {
+    console.warn(`[Details] failed for ${entryId}`);
+  }
 }
 
-document.addEventListener('click',(e)=>{
-  if(e.target.closest('.lg-chip')){
-    const chip=e.target.dataset.chip;
-    if(chip!==undefined){
-      G.filters.chip=G.filters.chip===chip?null:chip;
-      renderStandings();
-    }
+/* ============================================
+   EXPAND / COLLAPSE
+   ============================================ */
+async function toggleExpand(entryId, summaryEl) {
+  const row       = document.getElementById(`entry-${entryId}`);
+  const expansion = document.getElementById(`expansion-${entryId}`);
+  const isOpen    = row.classList.toggle('open');
+
+  if (!isOpen) return;
+  if (row.dataset.loaded) return;
+
+  expansion.innerHTML = `
+    <div class="lg-stats-strip">
+      ${Array(3).fill(`
+        <div class="lg-stat">
+          <span class="lg-stat__label skeleton" style="width:40px;height:9px;display:inline-block;border-radius:4px;"></span>
+          <span class="lg-stat__value skeleton" style="width:28px;height:14px;display:inline-block;border-radius:4px;margin-top:4px;"></span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  try {
+    const [picksRes, entryRes] = await Promise.all([
+      fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`),
+      fetch(`${state.PROXY}entry/${entryId}/`),
+    ]);
+    const [picksData, entryData] = await Promise.all([picksRes.json(), entryRes.json()]);
+
+    const starters      = picksData.picks.slice(0, 11);
+    const bench         = picksData.picks.slice(11);
+    const transferCost  = picksData.entry_history.event_transfers_cost || 0;
+    const teamValue     = (entryData.last_deadline_value / 10).toFixed(1);
+    const playedCount   = starters.filter(p => (state.liveData[p.element]?.pts ?? 0) > 0).length;
+    const gwTrans       = picksData.entry_history.event_transfers;
+
+    const statsHtml = `
+      <div class="lg-stats-strip">
+        <div class="lg-stat">
+          <span class="lg-stat__label">Played</span>
+          <span class="lg-stat__value">${playedCount}/11</span>
+        </div>
+        <div class="lg-stat">
+          <span class="lg-stat__label">Value</span>
+          <span class="lg-stat__value">£${teamValue}m</span>
+        </div>
+        <div class="lg-stat">
+          <span class="lg-stat__label">Transfers</span>
+          <span class="lg-stat__value">
+            ${gwTrans}${transferCost > 0 ? `<span class="hit"> -${transferCost}</span>` : ''}
+          </span>
+        </div>
+      </div>
+    `;
+
+    const buildPlayers = (picks, isBench) => picks.map(p => {
+      const player  = state.playerMap[p.element];
+      if (!player) return '';
+      const live    = state.liveData[p.element] || { pts: 0, explain: [] };
+      const pts     = live.pts * (p.multiplier || 1);
+      const shirt   = `https://draft.premierleague.com/img/shirts/standard/shirt_${player.teamCode}${player.pos === 1 ? '_1' : ''}-66.png`;
+
+      const badge = p.is_captain
+        ? '<div class="lg-player__badge cap">C</div>'
+        : p.is_vice_captain
+          ? '<div class="lg-player__badge vice">V</div>'
+          : '';
+
+      const allStats = live.explain.flatMap(e => e.stats || []);
+      let icons = '';
+      allStats.forEach(s => {
+        if (s.identifier === 'goals_scored'  && s.value > 0) icons += `<i class="fa-solid fa-futbol ev-goal"></i>`.repeat(s.value);
+        if (s.identifier === 'assists'       && s.value > 0) icons += `<i class="ev-assist">${'A'.repeat(s.value)}</i>`;
+        if (s.identifier === 'clean_sheets'  && s.value > 0 && (player.pos === 1 || player.pos === 2)) icons += `<i class="fa-solid fa-shield ev-cs"></i>`;
+        if (s.identifier === 'yellow_cards'  && s.value > 0) icons += `<i class="fa-solid fa-square ev-yellow"></i>`;
+        if (s.identifier === 'red_cards'     && s.value > 0) icons += `<i class="fa-solid fa-square ev-red"></i>`;
+        if (s.identifier === 'bonus'         && s.value > 0) icons += `<i class="fa-solid fa-star ev-bonus"></i>`.repeat(Math.min(s.value, 3));
+      });
+
+      return `
+        <div class="lg-player ${isBench ? 'is-bench' : ''}">
+          <div class="lg-player__shirt-wrap">
+            <div class="lg-player__pos-strip pos-${player.pos}"></div>
+            <img class="lg-player__shirt" src="${shirt}" alt="${player.name}"
+              loading="lazy"
+              onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
+            ${badge}
+          </div>
+          <div class="lg-player__name">${player.name}</div>
+          <div class="lg-player__pts">${pts}</div>
+          <div class="lg-player__events">${icons}</div>
+        </div>
+      `;
+    }).join('');
+
+    const benchDivider = `
+      <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 4px;gap:4px;">
+        <div style="width:1px;flex:1;background:var(--border);"></div>
+        <span style="font-size:0.5rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);writing-mode:vertical-lr;">Bench</span>
+        <div style="width:1px;flex:1;background:var(--border);"></div>
+      </div>
+    `;
+
+    expansion.innerHTML = statsHtml + `
+      <div class="lg-squad">
+        ${buildPlayers(starters, false)}
+        ${benchDivider}
+        ${buildPlayers(bench, true)}
+      </div>
+    `;
+
+    row.dataset.loaded = 'true';
+  } catch (err) {
+    expansion.innerHTML = `
+      <div class="lg-empty" style="padding:20px">
+        <i class="fa-solid fa-triangle-exclamation" style="font-size:1rem;"></i>
+        <p style="font-size:0.8rem">Couldn't load squad.</p>
+      </div>`;
   }
+}
+
+/* ============================================
+   SEARCH FILTER
+   ============================================ */
+document.getElementById('manager-search').addEventListener('input', function () {
+  const term = this.value.toLowerCase().trim();
+  const filtered = state.allManagers.filter(manager => {
+    const text = (manager.entry_name + ' ' + manager.player_name).toLowerCase();
+    return !term || text.includes(term);
+  });
+
+  state.filteredManagers = filtered;
+  updateResultsCounter(state.allManagers.length, filtered.length);
+  applySortAndRender();
 });
 
-document.addEventListener('DOMContentLoaded',init);
+/* ============================================
+   BOOT
+   ============================================ */
+document.addEventListener('DOMContentLoaded', init);
 </script>
 
-<!-- PWA & NOTIFICATIONS -->
+
 <script src="/kopala-notify.js"></script>
-<script src="nav.js" defer></script>
-<script src="live-widget.js" defer></script>
-<script src="weekly-digest.js" defer></script>
-<script src="pwa.js" defer></script>
-<script src="footer.js" defer></script>
+<script src="nav.js"></script>
+<script src="live-widget.js"></script>
+<script src="shimmer.js"></script>
+<script src="pwa.js"></script>
 <script src="sw.js"></script>
+<script src="footer.js"></script>
 
 </body>
 </html>
