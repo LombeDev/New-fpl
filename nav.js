@@ -130,6 +130,14 @@
             <span>Change Team ID</span>
           </button>
 
+          <button class="kfl-dropdown__item kfl-dropdown__item--danger"
+                  id="logout-btn"
+                  role="menuitem"
+                  type="button">
+            <span class="material-symbols-rounded">logout</span>
+            <span>Log Out</span>
+          </button>
+
         </div>
       </div>`;
 
@@ -225,16 +233,82 @@
 
     document.getElementById('change-id-btn')?.addEventListener('click', () => {
       close();
-      const loginScreen = document.getElementById('login-screen');
-      if (loginScreen) {
-        loginScreen.style.display = 'flex';
-        const inp = document.getElementById('fpl-id-inp');
-        const err = document.getElementById('err-msg');
-        if (inp) { inp.value = ''; inp.classList.remove('error'); }
-        if (err) { err.style.display = 'none'; err.textContent = ''; }
-        setTimeout(() => inp?.focus(), 100);
-      }
+      logout();
     });
+
+    document.getElementById('logout-btn')?.addEventListener('click', () => {
+      close();
+      logout();
+    });
+  }
+
+  /* ── AUTH HELPERS ── */
+  const TEAM_ID_KEY = 'fplTeamId';
+
+  function isLoggedIn() {
+    const id = localStorage.getItem(TEAM_ID_KEY);
+    return id && id.trim() !== '';
+  }
+
+  function logout() {
+    localStorage.removeItem(TEAM_ID_KEY);
+    showLoginScreen();
+  }
+
+  function showLoginScreen() {
+    const loginScreen = document.getElementById('login-screen');
+    if (!loginScreen) return;
+    loginScreen.style.display = 'flex';
+    const inp = document.getElementById('fpl-id-inp');
+    const err = document.getElementById('err-msg');
+    if (inp) { inp.value = ''; inp.classList.remove('error'); }
+    if (err) { err.style.display = 'none'; err.textContent = ''; }
+    setTimeout(() => inp?.focus(), 100);
+  }
+
+  /* ── AUTH GATE ──
+     On load: redirect to login if no team ID stored.
+     On every nav click: block and show login if unauthenticated.
+     Uses capture phase so it fires before all other handlers. */
+  function setupAuthGate() {
+    if (!isLoggedIn()) showLoginScreen();
+
+    // Intercept bottom nav tabs
+    document.querySelectorAll('.kfl-tab').forEach(tab => {
+      tab.addEventListener('click', e => {
+        if (!isLoggedIn()) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
+          showLoginScreen();
+        }
+      }, true); // capture phase — fires before haptic handler
+    });
+
+    // Intercept dropdown nav links
+    document.querySelectorAll('.kfl-dropdown__item[href]').forEach(link => {
+      link.addEventListener('click', e => {
+        if (!isLoggedIn()) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          showLoginScreen();
+        }
+      }, true);
+    });
+
+    // Intercept all <a href> clicks (catches pwa.js page transitions too)
+    document.addEventListener('click', e => {
+      if (isLoggedIn()) return;
+      const link = e.target.closest('a[href]');
+      if (!link) return;
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('http') || href.startsWith('//') ||
+          href.startsWith('#') || href.startsWith('mailto:') ||
+          link.target === '_blank') return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      showLoginScreen();
+    }, true);
   }
 
   /* ── BOTTOM NAV HAPTIC ── */
@@ -279,6 +353,7 @@
     setupDropdown();
     setupBottomNav();
     setupScroll();
+    setupAuthGate();
   }
 
   if (document.readyState === 'loading') {
