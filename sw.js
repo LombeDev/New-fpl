@@ -4,8 +4,8 @@
    Falls back to cache when offline.
    ============================================================ */
 
-const CACHE_NAME    = 'kopala-fpl-v10';   // ← bumped from v9
-const RUNTIME_CACHE = 'kopala-runtime-v9'; // ← bumped from v8
+const CACHE_NAME    = 'kopala-fpl-v10';
+const RUNTIME_CACHE = 'kopala-runtime-v9';
 
 // Static assets only — NO HTML files.
 const PRECACHE_URLS = [
@@ -34,7 +34,7 @@ const PBS_PRICE     = 'fpl-price-sync';
 
 const BOOTSTRAP_TTL_MS = 60 * 60 * 1000;
 
-/* ── INSTALL — skip waiting immediately so new SW activates fast ── */
+/* ── INSTALL ─────────────────────────────────────────────── */
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -47,7 +47,8 @@ self.addEventListener('install', event => {
           .catch(err => console.warn('[SW] Skipped:', url, '-', err.message))
       );
       return Promise.allSettled(attempts);
-    }).then(() => self.skipWaiting()) // ← forces immediate activation
+    })
+    // No skipWaiting — SW waits for existing tabs to close naturally
   );
 });
 
@@ -84,7 +85,6 @@ self.addEventListener('activate', event => {
           );
         }
       })
-      // ← claim all open tabs immediately — no reload needed
       .then(() => self.clients.claim())
       .then(() => console.log('[SW] Active and controlling all clients'))
   );
@@ -133,7 +133,7 @@ async function networkFirst(request, cacheName) {
       const tagged  = new Response(await response.clone().arrayBuffer(), {
         status: response.status, statusText: response.statusText, headers,
       });
-      cache.put(request, tagged); // fire and forget — don't block the response
+      cache.put(request, tagged);
     }
     return response;
   } catch {
@@ -165,8 +165,8 @@ async function staleWhileRevalidate(request, cacheName, ttlMs) {
     return res;
   }).catch(() => null);
 
-  if (cached) return cached; // serve stale instantly, revalidate in background
-  return revalidate;         // first visit — wait for network
+  if (cached) return cached;
+  return revalidate;
 }
 
 /* ── NOTIFY CLIENTS ──────────────────────────────────────── */
@@ -330,12 +330,4 @@ self.addEventListener('notificationclick', event => {
       return clients.openWindow(url);
     })
   );
-});
-
-
-
-self.addEventListener('message', event => {
-  if (event.data?.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
 });
