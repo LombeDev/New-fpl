@@ -31,6 +31,7 @@ const BOOTSTRAP_URL = '/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/'
 
 const PBS_BOOTSTRAP = 'fpl-bootstrap-sync';
 const PBS_PRICE     = 'fpl-price-sync';
+const PBS_DEADLINE  = 'fpl-deadline-check';
 
 const BOOTSTRAP_TTL_MS = 60 * 60 * 1000;
 
@@ -220,6 +221,83 @@ self.addEventListener('periodicsync', event => {
     })());
     return;
   }
+
+  /* ── Deadline check — fires every hour via periodic sync ──
+     Fetches bootstrap, finds next deadline, fires a notification
+     if it is within 2 hours and we haven't already notified for
+     this exact GW. Works even when the app is fully closed.    */
+  if (event.tag === PBS_DEADLINE) {
+    console.log('[SW] Deadline check fired');
+    event.waitUntil((async () => {
+      try {
+        const res = await fetch(BOOTSTRAP_URL);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.clone().json();
+
+        const now  = Date.now();
+        const next = data.events
+          .filter(e => new Date(e.deadline_time).getTime() > now)
+          .sort((a, b) => new Date(a.deadline_time) - new Date(b.deadline_time))[0];
+
+        if (!next) return;
+
+        const deadline   = new Date(next.deadline_time).getTime();
+        const minsToGo   = (deadline - now) / 60000;
+
+        /* Only fire in the 2h window (120 mins → 90 mins before deadline).
+           The 30-min lower bound stops it re-firing on the next sync cycle
+           if the user hasn't dismissed the notification yet. */
+        if (minsToGo > 120 || minsToGo < 30) return;
+
+        /* Check we haven't already notified for this GW */
+        const cache      = await caches.open(RUNTIME_CACHE);
+        const sentKey    = `kfl-deadline-sent-gw${next.id}`;
+        const alreadySent = await cache.match(new Request(sentKey));
+        if (alreadySent) return;
+
+        /* Format deadline string */
+        const dlStr = new Intl.DateTimeFormat('en-GB', {
+          weekday: 'short', day: 'numeric', month: 'short',
+          hour: '2-digit', minute: '2-digit',
+        }).format(new Date(deadline));
+
+        /* Fire the notification */
+        await self.registration.showNotification(
+          '⏰ 2 hours to ' + next.name + ' deadline!',
+          {
+            body:     'Lock in your captain and transfers before ' + dlStr,
+            icon:     '/android-chrome-192x192.png',
+            badge:    '/android-chrome-96x96.png',
+            vibrate:  [200, 80, 200, 80, 200],
+            tag:      'kfl-deadline-2h',
+            group:    'kfl-deadline',
+            renotify: true,
+            silent:   false,
+            data:     { url: '/transfers.html', group: 'kfl-deadline' },
+            actions:  [
+              { action: 'open',    title: '📋 Transfers' },
+              { action: 'dismiss', title: 'Dismiss' },
+            ],
+          }
+        );
+
+        /* Mark as sent so we don't fire again this GW */
+        await cache.put(
+          new Request(sentKey),
+          new Response('sent', { headers: { 'sw-deadline-sent-at': String(now) } })
+        );
+
+        console.log('[SW] Deadline notification fired for', next.name);
+
+        /* Also wake any open clients so the in-app banner shows */
+        notifyClients({ type: 'DEADLINE_APPROACHING', gwName: next.name, dlStr, deadline });
+
+      } catch (err) {
+        console.warn('[SW] Deadline check failed:', err.message);
+      }
+    })());
+    return;
+  }
 });
 
 /* ── BACKGROUND SYNC (one-off, for live data) ────────────── */
@@ -236,24 +314,32 @@ async function doBackgroundSync() {
 }
 
 /* ── PUSH NOTIFICATIONS ──────────────────────────────────── */
+/* Handles server-sent push payloads (future use).
+   Client-side notifications are fired directly by kopala-notify.js. */
 
 self.addEventListener('push', event => {
   if (!event.data) return;
   let data;
   try { data = event.data.json(); } catch (_) { return; }
 
-  const tag   = data.tag   || 'kfl-push';
   const group = data.group || null;
+
+  /* Route to correct page based on group */
+  const urlMap = {
+    'kfl-deadline': '/transfers.html',
+    'kfl-goals':    '/games.html',
+    'kfl-prices':   '/prices.html',
+  };
 
   const options = {
     body:     data.body    || '',
-    icon:     data.icon    || '/android-chrome-192x192.png',
-    badge:    data.badge   || '/android-chrome-96x96.png',
-    vibrate:  data.vibrate || [200, 100, 200],
-    tag,
-    renotify: true,
+    icon:     '/android-chrome-192x192.png',
+    badge:    '/android-chrome-96x96.png',
+    vibrate:  data.vibrate || [100, 50, 100],
+    tag:      data.tag     || 'kfl-push',
+    renotify: data.renotify !== false,
     silent:   false,
-    data:     { url: data.url || '/', group },
+    data:     { url: data.url || urlMap[group] || '/', group },
     actions:  data.actions || [],
   };
 
@@ -262,20 +348,20 @@ self.addEventListener('push', event => {
   event.waitUntil((async () => {
     await self.registration.showNotification(data.title || 'Kopala FPL', options);
 
+    /* Update the group summary so Android/iOS stacks the notifications */
     if (group) {
-      const existing = await self.registration.getNotifications({ tag: group + '-summary' });
-      const count = existing.length > 0
-        ? parseInt(existing[0].data?.count || '1', 10) + 1
-        : 1;
+      const existing  = await self.registration.getNotifications({ tag: group + '-summary' });
+      const prevCount = existing.length > 0 ? (existing[0].data?.count || 1) : 0;
+      const count     = prevCount + 1;
 
-      const summaryText = {
+      const summaryTitles = {
+        'kfl-deadline': 'FPL Deadline',
         'kfl-goals':    `${count} goal alert${count > 1 ? 's' : ''}`,
         'kfl-prices':   `${count} price change${count > 1 ? 's' : ''} in your squad`,
-        'kfl-deadline': 'Deadline reminder',
       };
 
       await self.registration.showNotification(
-        summaryText[group] || `${count} Kopala FPL notification${count > 1 ? 's' : ''}`,
+        summaryTitles[group] || `${count} Kopala FPL update${count > 1 ? 's' : ''}`,
         {
           body:     'Tap to open Kopala FPL',
           icon:     '/android-chrome-192x192.png',
@@ -284,7 +370,7 @@ self.addEventListener('push', event => {
           group,
           silent:   true,
           renotify: false,
-          data:     { url: '/', group, isSummary: true, count },
+          data:     { url: urlMap[group] || '/', group, isSummary: true, count },
         }
       );
     }
