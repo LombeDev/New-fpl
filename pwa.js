@@ -18,37 +18,16 @@
 
       navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .then(async reg => {
-
-          // Show update nudge ONLY when a brand-new SW (new code deploy) is waiting.
-          // This fires because sw.js itself changed — i.e. you pushed new code.
-          // Data refreshes (bootstrap-static, fixtures) never trigger updatefound.
-          reg.addEventListener('updatefound', () => {
-            const worker = reg.installing;
-            if (!worker) return;
-
-            worker.addEventListener('statechange', () => {
-              // 'installed' + existing controller = genuine new version waiting
-              if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-                showUpdateNudge(worker);
-              }
-            });
-          });
-
           await waitForActive(reg);
           registerPeriodicSync(reg);
         })
         .catch(err => console.warn('[SW] Registration failed:', err));
-
-      // ── NO controllerchange → reload here ──
-      // That pattern caused infinite reload loops. The update nudge above
-      // handles notifying the user, and they click Reload themselves.
 
       // Messages from SW — data updates are silent, never show UI
       navigator.serviceWorker.addEventListener('message', event => {
         const { type, ts } = event.data || {};
 
         if (type === 'BOOTSTRAP_UPDATED') {
-          // Silent data refresh — just dispatch for pages that care
           console.log('[PWA] Fresh bootstrap-static in cache', ts ? new Date(ts).toLocaleTimeString() : '');
           window.dispatchEvent(new CustomEvent('kopala:bootstrap-updated', { detail: { ts } }));
         }
@@ -156,35 +135,7 @@
     setTimeout(() => toast.remove(), 350);
   }
 
-  /* ── 5. UPDATE NUDGE ─────────────────────────────────── */
-  // Only shown for real code deploys — never for data refreshes.
-  // Receives the waiting worker so Reload sends it skipWaiting first.
-  function showUpdateNudge(waitingWorker) {
-    if (document.getElementById('kfl-update-nudge')) return;
-    const bar = document.createElement('div');
-    bar.id = 'kfl-update-nudge';
-    bar.innerHTML = `
-      <span>
-        <span class="material-symbols-rounded" style="font-size:16px;vertical-align:-3px;margin-right:6px">refresh</span>
-        Update available
-      </span>
-      <button id="kfl-update-btn">Reload</button>
-    `;
-    document.body.prepend(bar);
-
-    document.getElementById('kfl-update-btn')?.addEventListener('click', () => {
-      // Tell the waiting SW to take over, then reload once
-      if (waitingWorker) {
-        waitingWorker.postMessage({ type: 'SKIP_WAITING' });
-        // Small delay so SW has time to activate before reload
-        setTimeout(() => window.location.reload(), 200);
-      } else {
-        window.location.reload();
-      }
-    });
-  }
-
-  /* ── 6. NATIVE-FEEL ──────────────────────────────────── */
+  /* ── 5. NATIVE-FEEL ──────────────────────────────────── */
   document.addEventListener('touchstart', function () {}, { passive: true });
 
   const tapStyle = document.createElement('style');
@@ -198,7 +149,7 @@
 
   document.body.style.overscrollBehaviorY = 'contain';
 
-  /* ── 7. PAGE TRANSITIONS ─────────────────────────────── */
+  /* ── 6. PAGE TRANSITIONS ─────────────────────────────── */
   document.addEventListener('click', e => {
     const link = e.target.closest('a[href]');
     if (!link) return;
@@ -219,7 +170,7 @@
     document.body.style.transition = 'opacity 0.15s ease';
   });
 
-  /* ── 8. STATUS BAR COLOR ─────────────────────────────── */
+  /* ── 7. STATUS BAR COLOR ─────────────────────────────── */
   const THEME_COLORS = { dark: '#0e0d1a', light: '#f4f2ff' };
 
   function syncStatusBar() {
@@ -234,12 +185,12 @@
   document.addEventListener('DOMContentLoaded', syncStatusBar);
   new MutationObserver(syncStatusBar).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-  /* ── 9. BACK GESTURE ─────────────────────────────────── */
+  /* ── 8. BACK GESTURE ─────────────────────────────────── */
   if (isInstalled() && window.history.length <= 1) {
     history.replaceState({ page: 'home' }, '', window.location.href);
   }
 
-  /* ── 10. STYLES ──────────────────────────────────────── */
+  /* ── 9. STYLES ───────────────────────────────────────── */
   const pwaStyles = document.createElement('style');
   pwaStyles.textContent = `
     #kfl-install-toast {
@@ -288,20 +239,6 @@
     }
     .kfl-install-toast__close:hover { color: var(--kfl-text-1, #f0eeff); }
     .kfl-install-toast__close .material-symbols-rounded { font-size: 18px; }
-
-    #kfl-update-nudge {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
-      background: var(--kfl-accent, #d4f000); color: var(--kfl-accent-text, #0e0d1a);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 9px 16px; font-size: 12.5px; font-weight: 600;
-    }
-    #kfl-update-btn {
-      background: rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.18);
-      color: inherit; border-radius: 6px; padding: 4px 12px;
-      font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
-      transition: background 0.15s;
-    }
-    #kfl-update-btn:hover { background: rgba(0,0,0,0.22); }
     .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important; }
   `;
   document.head.appendChild(pwaStyles);
