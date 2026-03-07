@@ -243,7 +243,7 @@
   }
 
   /* ── AUTH HELPERS ── */
-  const TEAM_ID_KEY = 'fplTeamId';
+  const TEAM_ID_KEY = 'kopala_id';
 
   function isLoggedIn() {
     const id = localStorage.getItem(TEAM_ID_KEY);
