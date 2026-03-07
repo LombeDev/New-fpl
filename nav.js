@@ -44,19 +44,64 @@
 
   /* ── TOP BAR ── */
   function buildTopbar() {
+    const dropdown = `
+      <div class="kfl-dropdown" id="kfl-dropdown" role="menu" aria-hidden="true" inert>
+        <div class="kfl-dropdown__inner">
+
+          <p class="kfl-dropdown__label">Navigate</p>
+          ${MENU_LINKS.map(l => `
+            <a href="${l.href}"
+               class="kfl-dropdown__item${isActive(l.href) ? ' is-active' : ''}"
+               role="menuitem"
+               ${isActive(l.href) ? 'aria-current="page"' : ''}>
+              <span class="material-symbols-rounded">${l.icon}</span>
+              <span>${l.label}</span>
+              ${isActive(l.href) ? '<span class="kfl-dropdown__dot"></span>' : ''}
+            </a>`).join('')}
+
+          <div class="kfl-dropdown__divider"></div>
+          <p class="kfl-dropdown__label">Settings</p>
+
+          <button class="kfl-dropdown__item kfl-dropdown__item--theme"
+                  id="theme-toggle"
+                  role="menuitem"
+                  type="button">
+            <span class="material-symbols-rounded" id="theme-icon">${ICON_MAP[_initialTheme]}</span>
+            <span id="theme-label">${LABEL_MAP[_initialTheme]}</span>
+            <span class="kfl-dropdown__theme-pill" id="theme-pill">${_initialTheme === 'dark' ? 'Dark' : 'Light'}</span>
+          </button>
+
+          <a href="https://wa.me/260978263899"
+             class="kfl-dropdown__item"
+             role="menuitem"
+             target="_blank"
+             rel="noopener noreferrer">
+            <span class="material-symbols-rounded">chat</span>
+            <span>Contact Us</span>
+          </a>
+
+          <button class="kfl-dropdown__item"
+                  id="change-id-btn"
+                  role="menuitem"
+                  type="button">
+            <span class="material-symbols-rounded">swap_horiz</span>
+            <span>Change Team ID</span>
+          </button>
+
+        </div>
+      </div>`;
+
+    // Dropdown is a sibling of <header>, NOT a child — avoids backdrop-filter stacking context trap
     return `
       <header class="kfl-topbar" role="banner">
         <div class="kfl-topbar__inner">
 
-          <!-- LEFT: Logo -->
           <a href="index.html" class="kfl-logo" aria-label="Kopala FPL — Home">
             <img src="/logo.png" alt="Kopala FPL" class="kfl-logo__img">
           </a>
 
-          <!-- SPACER -->
           <div class="kfl-topbar__spacer"></div>
 
-          <!-- RIGHT: Three-dot menu -->
           <button class="kfl-icon-btn kfl-dots-btn"
                   id="dots-btn"
                   aria-label="Open menu"
@@ -68,55 +113,8 @@
           </button>
 
         </div>
-
-        <!-- Dropdown -->
-        <div class="kfl-dropdown" id="kfl-dropdown" role="menu" aria-hidden="true" inert>
-          <div class="kfl-dropdown__inner">
-
-            <p class="kfl-dropdown__label">Navigate</p>
-            ${MENU_LINKS.map(l => `
-              <a href="${l.href}"
-                 class="kfl-dropdown__item${isActive(l.href) ? ' is-active' : ''}"
-                 role="menuitem"
-                 ${isActive(l.href) ? 'aria-current="page"' : ''}>
-                <span class="material-symbols-rounded">${l.icon}</span>
-                <span>${l.label}</span>
-                ${isActive(l.href) ? '<span class="kfl-dropdown__dot"></span>' : ''}
-              </a>`).join('')}
-
-            <div class="kfl-dropdown__divider"></div>
-            <p class="kfl-dropdown__label">Settings</p>
-
-            <!-- Theme toggle row -->
-            <button class="kfl-dropdown__item kfl-dropdown__item--theme"
-                    id="theme-toggle"
-                    role="menuitem"
-                    type="button">
-              <span class="material-symbols-rounded" id="theme-icon">${ICON_MAP[_initialTheme]}</span>
-              <span id="theme-label">${LABEL_MAP[_initialTheme]}</span>
-              <span class="kfl-dropdown__theme-pill" id="theme-pill">${_initialTheme === 'dark' ? 'Dark' : 'Light'}</span>
-            </button>
-
-            <a href="https://wa.me/260978263899"
-               class="kfl-dropdown__item"
-               role="menuitem"
-               target="_blank"
-               rel="noopener noreferrer">
-              <span class="material-symbols-rounded">chat</span>
-              <span>Contact Us</span>
-            </a>
-
-            <button class="kfl-dropdown__item"
-                    id="change-id-btn"
-                    role="menuitem"
-                    type="button">
-              <span class="material-symbols-rounded">swap_horiz</span>
-              <span>Change Team ID</span>
-            </button>
-
-          </div>
-        </div>
-      </header>`;
+      </header>
+      ${dropdown}`;
   }
 
   /* ── BOTTOM NAV ── */
@@ -242,10 +240,12 @@
 
   /* ── INIT ── */
   function loadNav() {
-    const topbarTarget = document.getElementById('kfl-topbar-mount');
-    const bottomTarget = document.getElementById('kfl-bottom-nav-mount');
+    const topbarTarget  = document.getElementById('kfl-topbar-mount');
+    const bottomTarget  = document.getElementById('kfl-bottom-nav-mount');
     const overlayTarget = document.getElementById('kfl-overlay-mount');
 
+    // buildTopbar() now returns <header>...</header> + <div.kfl-dropdown>
+    // so injecting via outerHTML replaces the mount with both elements
     if (topbarTarget)  topbarTarget.outerHTML  = buildTopbar();
     if (bottomTarget)  bottomTarget.outerHTML  = buildBottomNav();
     if (overlayTarget) overlayTarget.outerHTML = buildOverlay();
