@@ -1,7 +1,9 @@
 /* ============================================================
    KOPALA FPL — NAVIGATION STYLES
-   Layout: [LOGO left] [spacer] [⋮ dots right]
-   FPL Official Colors: #38003c / #04f5ff / #e90052 / #00ff85
+   • Topbar: fully transparent, no bar, page bg shows through
+   • Topbar center: active page name
+   • Bottom nav: WhatsApp-style pill in FPL pink on active item
+   • FPL Colors: #38003c / #04f5ff / #e90052 / #00ff85
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
@@ -11,102 +13,64 @@
    TOKENS
 ══════════════════════════════════════════════════════ */
 :root {
-  --kfl-topbar-h:        56px;
-  --kfl-bottom-nav-h:    62px;
-  --content-max-w:       1280px;
-  --kfl-pad-mobile:      14px;
-  --kfl-pad-tablet:      24px;
-  --kfl-pad-desktop:     32px;
-  --kfl-radius-lg:       16px;
-  --kfl-radius-md:       12px;
-  --kfl-radius-sm:       9px;
-  --kfl-ease:            0.18s cubic-bezier(0.4, 0, 0.2, 1);
-  --kfl-spring:          0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
-  --kfl-font:            'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --kfl-topbar-h:     56px;
+  --kfl-bottom-nav-h: 68px;
+  --content-max-w:    1280px;
+  --kfl-pad:          16px;
+  --kfl-ease:         0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --kfl-spring:       0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --kfl-font:         'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* ══════════════════════════════════════════════════════
    FPL THEME PALETTES
-   Official FPL colors:
-     Purple  #38003c
-     Cyan    #04f5ff
-     Pink    #e90052
-     Green   #00ff85
 ══════════════════════════════════════════════════════ */
 [data-theme="dark"], :root:not([data-theme]) {
   --bg:           #1a0120;
   --surface:      #26002f;
   --surface-2:    #38003c;
-  --surface-3:    #4a0050;
-  --surface-4:    #5d0066;
-
   --border:       rgba(4, 245, 255, 0.08);
-  --border-mid:   rgba(4, 245, 255, 0.14);
-  --glass:        rgba(22, 1, 28, 0.93);
-  --glass-border: rgba(4, 245, 255, 0.1);
-
-  --text-1:  #ffffff;
-  --text-2:  rgba(255, 255, 255, 0.58);
-  --text-3:  rgba(255, 255, 255, 0.26);
-
-  --shadow-nav:      0 1px 0 rgba(4,245,255,0.07), 0 4px 28px rgba(0,0,0,0.75);
-  --shadow-dropdown: 0 16px 56px rgba(0,0,0,0.9), 0 0 0 1px rgba(4,245,255,0.12);
-
-  /* FPL Cyan — primary accent */
-  --accent:      #04f5ff;
-  --accent-dim:  rgba(4, 245, 255, 0.1);
-  --accent-glow: rgba(4, 245, 255, 0.28);
-  --accent-text: #38003c;
-
-  /* FPL Pink — live / secondary */
-  --pink:        #e90052;
-  --pink-dim:    rgba(233, 0, 82, 0.12);
-  --pink-glow:   rgba(233, 0, 82, 0.38);
-
-  /* FPL Green — positive data */
-  --green:       #00ff85;
-  --green-dim:   rgba(0, 255, 133, 0.1);
-  --green-glow:  rgba(0, 255, 133, 0.25);
-
-  --hover-bg:    rgba(4, 245, 255, 0.05);
-  --active-bg:   rgba(4, 245, 255, 0.09);
+  --border-mid:   rgba(4, 245, 255, 0.15);
+  --glass-border: rgba(4, 245, 255, 0.07);
+  --text-1:       #ffffff;
+  --text-2:       rgba(255, 255, 255, 0.55);
+  --text-3:       rgba(255, 255, 255, 0.25);
+  --shadow-dd:    0 16px 56px rgba(0,0,0,0.9), 0 0 0 1px rgba(4,245,255,0.1);
+  --accent:       #04f5ff;
+  --accent-dim:   rgba(4, 245, 255, 0.1);
+  --accent-glow:  rgba(4, 245, 255, 0.28);
+  --accent-text:  #38003c;
+  --pink:         #e90052;
+  --pink-dim:     rgba(233, 0, 82, 0.15);
+  --pink-glow:    rgba(233, 0, 82, 0.35);
+  --green:        #00ff85;
+  --green-dim:    rgba(0, 255, 133, 0.1);
+  --hover-bg:     rgba(255, 255, 255, 0.05);
+  --active-bg:    rgba(4, 245, 255, 0.08);
 }
 
 [data-theme="light"] {
   --bg:           #f5eeff;
   --surface:      #ffffff;
   --surface-2:    #f0e4ff;
-  --surface-3:    #e3cefc;
-  --surface-4:    #d3b5f8;
-
   --border:       rgba(56, 0, 60, 0.1);
   --border-mid:   rgba(56, 0, 60, 0.17);
-  --glass:        rgba(255, 255, 255, 0.97);
-  --glass-border: rgba(56, 0, 60, 0.1);
-
-  --text-1:  #38003c;
-  --text-2:  rgba(56, 0, 60, 0.6);
-  --text-3:  rgba(56, 0, 60, 0.34);
-
-  --shadow-nav:      0 1px 0 rgba(56,0,60,0.08), 0 4px 20px rgba(56,0,60,0.1);
-  --shadow-dropdown: 0 8px 40px rgba(56,0,60,0.18), 0 0 0 1px rgba(56,0,60,0.09);
-
-  /* Light mode: FPL purple as accent */
-  --accent:      #38003c;
-  --accent-dim:  rgba(56, 0, 60, 0.08);
-  --accent-glow: rgba(56, 0, 60, 0.18);
-  --accent-text: #ffffff;
-
-  --pink:        #e90052;
-  --pink-dim:    rgba(233, 0, 82, 0.08);
-  --pink-glow:   rgba(233, 0, 82, 0.25);
-
-  --green:       #007a40;
-  --green-dim:   rgba(0, 122, 64, 0.1);
-  --green-glow:  rgba(0, 122, 64, 0.2);
-
-  --hover-bg:    rgba(56, 0, 60, 0.06);
-  --active-bg:   rgba(56, 0, 60, 0.08);
+  --glass-border: rgba(56, 0, 60, 0.07);
+  --text-1:       #38003c;
+  --text-2:       rgba(56, 0, 60, 0.58);
+  --text-3:       rgba(56, 0, 60, 0.32);
+  --shadow-dd:    0 8px 40px rgba(56,0,60,0.18), 0 0 0 1px rgba(56,0,60,0.08);
+  --accent:       #38003c;
+  --accent-dim:   rgba(56, 0, 60, 0.08);
+  --accent-glow:  rgba(56, 0, 60, 0.18);
+  --accent-text:  #ffffff;
+  --pink:         #e90052;
+  --pink-dim:     rgba(233, 0, 82, 0.1);
+  --pink-glow:    rgba(233, 0, 82, 0.25);
+  --green:        #007a40;
+  --green-dim:    rgba(0, 122, 64, 0.1);
+  --hover-bg:     rgba(56, 0, 60, 0.06);
+  --active-bg:    rgba(56, 0, 60, 0.07);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -138,55 +102,83 @@ body {
 }
 
 /* ══════════════════════════════════════════════════════
-   TOP BAR
-   [logo.png  LEFT]  [————spacer————]  [⋮  RIGHT]
+   TOP BAR — FULLY TRANSPARENT
+   No background, no border, no shadow by default.
+   Blends completely into the page background.
+   Only a faint shadow appears after scrolling 40px.
 ══════════════════════════════════════════════════════ */
 .kfl-topbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
   height: var(--kfl-topbar-h);
-  background: var(--glass);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border-bottom: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-nav);
-  transition: background 0.25s ease;
+  /* Transparent — no bg, no border, no shadow */
+  background: transparent;
+  border-bottom: none;
+  box-shadow: none;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* After scrolling: subtle surface tint so content behind doesn't bleed */
 .kfl-topbar.is-scrolled {
-  background: var(--surface);
+  background: var(--bg);
+  box-shadow: 0 1px 0 var(--glass-border);
 }
 
 .kfl-topbar__inner {
   max-width: var(--content-max-w);
   width: 100%; height: 100%; margin: 0 auto;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: 0 var(--kfl-pad-mobile);
+  padding: 0 var(--kfl-pad);
   gap: 8px;
 }
 
-.kfl-topbar__spacer { flex: 1; }
-
-/* ── Logo ── */
+/* ── LEFT: Logo ── */
 .kfl-logo {
   display: flex;
   align-items: center;
   text-decoration: none;
   flex-shrink: 0;
+  justify-self: start;
   transition: opacity var(--kfl-ease);
 }
-.kfl-logo:hover { opacity: 0.8; }
+.kfl-logo:hover { opacity: 0.78; }
 
 .kfl-logo__img {
-  height: 34px;
+  height: 32px;
   width: auto;
   display: block;
   object-fit: contain;
 }
 
-/* ── Icon button (dots) ── */
+/* ── CENTER: Active page name ── */
+.kfl-topbar__title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kfl-topbar__page-name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--text-1);
+  white-space: nowrap;
+}
+
+/* ── RIGHT: Dots button ── */
+.kfl-topbar__right-slot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* ── Shared icon button ── */
 .kfl-icon-btn {
-  width: 42px; height: 42px; border-radius: 50%;
+  width: 40px; height: 40px;
+  border-radius: 50%;
   border: none; background: transparent;
   color: var(--text-2);
   display: flex; align-items: center; justify-content: center;
@@ -196,10 +188,7 @@ body {
 }
 .kfl-icon-btn:hover  { background: var(--hover-bg); color: var(--text-1); }
 .kfl-icon-btn:active { transform: scale(0.86); }
-.kfl-icon-btn.is-active {
-  background: var(--accent-dim);
-  color: var(--accent);
-}
+.kfl-icon-btn.is-active { background: var(--accent-dim); color: var(--accent); }
 
 /* Three vertical dots */
 .kfl-dots {
@@ -207,8 +196,8 @@ body {
   align-items: center; gap: 3.5px;
 }
 .kfl-dots span {
-  display: block; width: 4px; height: 4px; border-radius: 50%;
-  background: currentColor;
+  display: block; width: 4px; height: 4px;
+  border-radius: 50%; background: currentColor;
   transition: background var(--kfl-ease), transform var(--kfl-ease);
 }
 .kfl-icon-btn.is-active .kfl-dots span { background: var(--accent); }
@@ -216,60 +205,52 @@ body {
 .kfl-icon-btn.is-active .kfl-dots span:last-child  { transform: translateY(-1.5px); }
 
 /* ══════════════════════════════════════════════════════
-   DROPDOWN — springs from top-right corner
+   DROPDOWN — body-level sibling, NOT inside <header>
+   (backdrop-filter on header creates stacking context
+    that would trap and break pointer events here)
 ══════════════════════════════════════════════════════ */
 .kfl-dropdown {
   position: fixed;
-  top: calc(var(--kfl-topbar-h) + 8px);
+  top: calc(var(--kfl-topbar-h) + 6px);
   right: 12px;
   z-index: 1300;
   width: 232px;
   background: var(--surface);
-  border-radius: var(--kfl-radius-lg);
-  box-shadow: var(--shadow-dropdown);
+  border-radius: 16px;
+  box-shadow: var(--shadow-dd);
   border: 1px solid var(--border);
   overflow: hidden;
-
   opacity: 0;
   transform: scale(0.88) translateY(-10px);
   transform-origin: top right;
   pointer-events: none;
-  transition:
-    opacity 0.18s ease,
-    transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: opacity 0.18s ease, transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .kfl-dropdown.is-open {
   opacity: 1;
   transform: scale(1) translateY(0);
   pointer-events: auto;
 }
-
 .kfl-dropdown__inner { padding: 8px 0 6px; }
 
 .kfl-dropdown__label {
   font-size: 10px; font-weight: 700;
   letter-spacing: 1.1px; text-transform: uppercase;
-  color: var(--text-3);
-  padding: 8px 16px 4px; margin: 0;
+  color: var(--text-3); padding: 8px 16px 4px; margin: 0;
 }
-
-/* Base item */
 .kfl-dropdown__item {
   display: flex; align-items: center; gap: 12px;
   padding: 10px 16px;
   color: var(--text-2); text-decoration: none;
-  font-size: 13.5px; font-weight: 500;
-  font-family: var(--kfl-font);
+  font-size: 13.5px; font-weight: 500; font-family: var(--kfl-font);
   background: transparent; border: none; width: 100%;
-  text-align: left; cursor: pointer; position: relative;
+  text-align: left; cursor: pointer;
   transition: background var(--kfl-ease), color var(--kfl-ease);
   -webkit-tap-highlight-color: transparent;
 }
-.kfl-dropdown__item:hover  { background: var(--hover-bg); color: var(--text-1); }
+.kfl-dropdown__item:hover { background: var(--hover-bg); color: var(--text-1); }
 .kfl-dropdown__item.is-active {
-  color: var(--accent);
-  background: var(--active-bg);
-  font-weight: 600;
+  color: var(--accent); background: var(--active-bg); font-weight: 600;
 }
 .kfl-dropdown__item.is-active .material-symbols-rounded {
   font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
@@ -279,148 +260,118 @@ body {
 }
 .kfl-dropdown__item.is-active .material-symbols-rounded { opacity: 1; }
 
-/* Active page dot */
 .kfl-dropdown__dot {
   width: 7px; height: 7px; border-radius: 50%;
-  background: var(--accent);
-  margin-left: auto; flex-shrink: 0;
+  background: var(--accent); margin-left: auto; flex-shrink: 0;
   box-shadow: 0 0 6px var(--accent-glow);
 }
-
-/* Theme toggle row — special treatment */
-.kfl-dropdown__item--theme {
-  color: var(--text-2);
-}
-.kfl-dropdown__item--theme:hover { color: var(--text-1); }
-
-/* Pill showing current theme */
 .kfl-dropdown__theme-pill {
-  margin-left: auto;
-  padding: 2px 8px;
-  border-radius: 100px;
-  background: var(--accent-dim);
-  color: var(--accent);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  border: 1px solid var(--border-mid);
-  flex-shrink: 0;
+  margin-left: auto; padding: 2px 8px; border-radius: 100px;
+  background: var(--accent-dim); color: var(--accent);
+  font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
+  border: 1px solid var(--border-mid); flex-shrink: 0;
 }
-
-#theme-icon {
-  transition: opacity 0.15s ease, transform 0.22s ease;
-}
-
-.kfl-dropdown__divider {
-  height: 1px; background: var(--border); margin: 6px 0;
-}
+#theme-icon { transition: opacity 0.15s ease, transform 0.22s ease; }
+.kfl-dropdown__divider { height: 1px; background: var(--border); margin: 6px 0; }
 
 /* ══════════════════════════════════════════════════════
-   OVERLAY — MUST be below dropdown (1100 < 1300)
+   OVERLAY — z-index BELOW dropdown (1100 < 1300)
+   No backdrop-filter (would create stacking context)
 ══════════════════════════════════════════════════════ */
 .kfl-overlay {
   display: none; position: fixed; inset: 0;
-  background: rgba(0, 0, 0, 0.28);
-  z-index: 1100;           /* below dropdown z-index:1300 */
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  /* No backdrop-filter — it creates a stacking context that traps the dropdown */
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 1100;
+  opacity: 0; transition: opacity 0.2s ease;
 }
 .kfl-overlay.is-open { display: block; opacity: 1; }
 
 /* ══════════════════════════════════════════════════════
-   BOTTOM NAVIGATION
-   Twitter/WhatsApp style — active = filled + pip dot
-   Live tab uses FPL pink
+   BOTTOM NAVIGATION — WhatsApp pill style
+   Active item: wide pill background in FPL pink (#e90052)
+   containing the filled icon. Label below in pink.
 ══════════════════════════════════════════════════════ */
 .kfl-bottom-nav {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 990;
-  background: var(--glass);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  background: var(--bg);
   border-top: 1px solid var(--glass-border);
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  transition: background 0.25s ease;
 }
+
 .kfl-bottom-nav__inner {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   max-width: 600px; margin: 0 auto;
   height: var(--kfl-bottom-nav-h);
-  padding: 0 6px;
+  padding: 6px 4px 4px;
+  align-items: center;
 }
 
 .kfl-tab {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 3px; padding: 8px 4px 6px;
-  color: var(--text-3); text-decoration: none;
-  font-size: 9px; font-weight: 700;
-  letter-spacing: 0.5px; text-transform: uppercase;
-  transition: color var(--kfl-ease);
+  gap: 4px;
+  text-decoration: none; border: none; background: none;
+  cursor: pointer; font-family: var(--kfl-font);
+  color: var(--text-3);
   -webkit-tap-highlight-color: transparent;
+  transition: color var(--kfl-ease);
 }
 
-.kfl-tab__icon {
-  position: relative;
-  display: flex; align-items: center; justify-content: center;
-  width: 40px; height: 26px;
+/* The pill container — holds the icon */
+.kfl-tab__pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Default: no pill */
+  width: 56px;
+  height: 30px;
+  border-radius: 100px;
+  background: transparent;
+  transition:
+    background var(--kfl-spring),
+    width var(--kfl-spring),
+    transform var(--kfl-spring);
 }
 
 .kfl-tab .material-symbols-rounded {
-  font-size: 23px;
+  font-size: 22px;
   transition:
     color var(--kfl-ease),
-    transform var(--kfl-spring),
     font-variation-settings 0.18s ease,
-    filter 0.18s ease;
+    transform var(--kfl-spring);
 }
 
-/* Active — FPL cyan */
-.kfl-tab.is-active {
-  color: var(--accent);
-}
-.kfl-tab.is-active .material-symbols-rounded {
-  color: var(--accent);
-  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
-  transform: translateY(-2px);
-  filter: drop-shadow(0 0 6px var(--accent-glow));
-}
-.kfl-tab.is-active .kfl-tab__label { color: var(--accent); }
-
-/* Live tab active — FPL pink */
-.kfl-tab--live.is-active {
-  color: var(--pink);
-}
-.kfl-tab--live.is-active .material-symbols-rounded {
-  color: var(--pink);
-  filter: drop-shadow(0 0 7px var(--pink-glow));
-}
-.kfl-tab--live.is-active .kfl-tab__label { color: var(--pink); }
-.kfl-tab--live.is-active .kfl-tab__pip {
+/* ── Active: FPL pink pill ── */
+.kfl-tab.is-active .kfl-tab__pill {
   background: var(--pink);
-  box-shadow: 0 0 6px var(--pink-glow);
+  /* Pill expands slightly like WhatsApp */
+  width: 64px;
 }
 
-/* Pip dot indicator */
-.kfl-tab__pip {
-  position: absolute; bottom: -4px; left: 50%;
-  transform: translateX(-50%);
-  width: 4px; height: 4px; border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 6px var(--accent-glow);
-  animation: pipIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-@keyframes pipIn {
-  from { transform: translateX(-50%) scale(0); opacity: 0; }
-  to   { transform: translateX(-50%) scale(1); opacity: 1; }
+.kfl-tab.is-active .material-symbols-rounded {
+  color: #ffffff;
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  transform: translateY(-1px);
 }
 
-.kfl-tab__label { line-height: 1; }
-.kfl-tab:active .material-symbols-rounded { transform: scale(0.8); }
+.kfl-tab__label {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  line-height: 1;
+  transition: color var(--kfl-ease);
+}
+
+.kfl-tab.is-active .kfl-tab__label {
+  color: var(--pink);
+}
+
+/* Touch press feedback */
+.kfl-tab:active .kfl-tab__pill { transform: scale(0.9); }
 
 /* ══════════════════════════════════════════════════════
-   LIVE BADGE (reusable)
+   LIVE BADGE (reusable utility)
 ══════════════════════════════════════════════════════ */
 .kfl-live-badge {
   display: inline-flex; align-items: center; gap: 5px;
@@ -442,14 +393,16 @@ body {
    RESPONSIVE
 ══════════════════════════════════════════════════════ */
 @media (min-width: 768px) {
-  .kfl-topbar__inner { padding: 0 var(--kfl-pad-tablet); }
+  .kfl-topbar__inner { padding: 0 24px; }
   .kfl-bottom-nav { display: none; }
   body { padding-bottom: 0; }
 }
 @media (min-width: 1024px) {
-  .kfl-topbar__inner { padding: 0 var(--kfl-pad-desktop); }
+  .kfl-topbar__inner { padding: 0 32px; }
 }
 @media (max-width: 360px) {
+  .kfl-tab__pill { width: 48px; }
+  .kfl-tab.is-active .kfl-tab__pill { width: 56px; }
   .kfl-tab .material-symbols-rounded { font-size: 20px; }
-  .kfl-tab__label { font-size: 8px; }
+  .kfl-tab__label { font-size: 8.5px; }
 }
