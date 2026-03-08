@@ -1,66 +1,119 @@
-[[redirects]]
-  from = "/api/*"
-  to = "https://api.football-data.org/v4/:splat"
-  status = 200
-  force = true
-  headers = {X-Auth-Token = "c24eb6d142cc4b42a529bed2b380d7db"}
+# ============================================================
+#  KOPALA FPL â€” netlify.toml
+# ============================================================
 
-
-  [[redirects]]
-  from = "/fpl-api/*"
-  to = "https://fantasy.premierleague.com/api/:splat"
-  status = 200
-  force = true
-
-[[headers]]
-  for = "/fpl-api/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-
-[[redirects]]
-  from = "/fpl-api/*"
-  to = "https://fantasy.premierleague.com/api/:splat"
-  status = 200
-  force = true
-
-
-  [build]
+# â”€â”€ Build â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+[build]
   functions = "netlify/functions"
 
 [functions]
   node_bundler = "esbuild"
 
 
+# â”€â”€ Cache Headers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Immutable assets (JS, CSS, images, fonts, icons)
+# max-age=31536000 = 1 year. "immutable" tells the browser
+# never to revalidate â€” these files never change at a given URL.
+# When you deploy a new version, Netlify serves new URLs/hashes.
 
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
-[[redirects]]
-  from = "/api/fpl/*"
-  to = "https://fantasy.premierleague.com/api/:splat"
-  status = 200
-  force = true
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.woff2"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.woff"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# HTML â€” never cache, always fresh
+# Users must always get the latest HTML so SW + JS updates land immediately.
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Manifest â€” short cache, needs to stay fresh for PWA installs
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Service worker â€” NEVER cache, browser must always get latest
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# CORS â€” allow all origins on every route (needed for PWA + API calls)
 [[headers]]
   for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
 
 
-    [[redirects]]
-  from = "/fpl-api/*"
-  to = "https://fantasy.premierleague.com/api/:splat"
+# â”€â”€ Security Headers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Adds baseline security hardening on all HTML responses.
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    X-Content-Type-Options    = "nosniff"
+    X-Frame-Options           = "DENY"
+    Referrer-Policy           = "strict-origin-when-cross-origin"
+    Permissions-Policy        = "camera=(), microphone=(), geolocation=()"
+
+
+# â”€â”€ Redirects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Single canonical FPL proxy redirect.
+# All duplicates removed â€” Netlify only needs one rule per pattern.
+[[redirects]]
+  from   = "/.netlify/functions/fpl-proxy"
+  to     = "/.netlify/functions/fpl-proxy"
   status = 200
-  force = true
-
-
-
 
 [[redirects]]
-  from = "/fpl-api/*"
-  to = "https://fantasy.premierleague.com/api/:splat"
+  from   = "/fpl-api/*"
+  to     = "https://fantasy.premierleague.com/api/:splat"
   status = 200
-  force = true
-  headers = {X-From = "Netlify"}
- 
+  force  = true
 
-
-
+[[redirects]]
+  from   = "/api/fpl/*"
+  to     = "https://fantasy.premierleague.com/api/:splat"
+  status = 200
+  force  = true
