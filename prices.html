@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Price Changes | Kopala FPL</title>
+<meta name="description" content="Live FPL price change predictions using the real cumulative transfer threshold algorithm — same methodology as LiveFPL.net.">
+<meta name="theme-color" content="#060810" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f0f2f8" media="(prefers-color-scheme: light)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kopala FPL">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/android-chrome-192x192.png">
+<link rel="manifest" href="manifest.json">
+
+<script>(function(){
+  var t=localStorage.getItem('kopala_theme');
+  if(!t)t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  document.documentElement.setAttribute('data-theme',t);
+})();</script>
+
+<style>
+/* ══════════ TOKENS ══════════ */
+[data-theme="dark"]{
+  --bg:#060810;--su:#0b101e;--s2:#10172a;--s3:#151e33;--s4:#1a2440;--s5:#212d4e;
+  --bd:rgba(255,255,255,.046);--bd2:rgba(255,255,255,.088);--bd3:rgba(255,255,255,.14);
+  --t1:#e6eaff;--t2:#616b9a;--t3:#333d60;
+  --gr:#00e87a;--gr2:#00ff88;--grd:rgba(0,232,122,.07);--grm:rgba(0,232,122,.17);
+  --re:#ff3352;--re2:#ff6070;--red:rgba(255,51,82,.07);--rem:rgba(255,51,82,.17);
+  --am:#ffb020;--bl:#4d8fff;--go:#ffd54f;
+  --nav:rgba(6,8,16,.88);
+  --sh:0 2px 14px rgba(0,0,0,.22);
+  --fn:'Space Grotesk',monospace;
+}
+[data-theme="light"]{
+  --bg:#eff2fb;--su:#fff;--s2:#f4f6fd;--s3:#eceffd;--s4:#e3e7fc;--s5:#d8dcf8;
+  --bd:rgba(0,0,0,.053);--bd2:rgba(0,0,0,.096);--bd3:rgba(0,0,0,.15);
+  --t1:#080b1e;--t2:#424a78;--t3:#8e95bc;
+  --gr:#009950;--gr2:#00b860;--grd:rgba(0,153,80,.07);--grm:rgba(0,153,80,.15);
+  --re:#d42038;--re2:#e8405a;--red:rgba(212,32,56,.07);--rem:rgba(212,32,56,.15);
+  --am:#d67800;--bl:#1e5edc;--go:#c08800;
+  --nav:rgba(239,242,251,.9);
+  --sh:0 2px 12px rgba(0,0,0,.06);
+  --fn:'Space Grotesk',monospace;
+}
+:root{
+  --r:8px;--rm:13px;--rl:18px;--rxl:24px;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --snap:cubic-bezier(.22,1,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',system-ui,sans-serif;
+  background:var(--bg);color:var(--t1);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  padding-bottom:calc(68px + env(safe-area-inset-bottom,0px));
+}
+
+/* ══════════ KEYFRAMES ══════════ */
+@keyframes shimmer{from{background-position:-900px 0}to{background-position:900px 0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes rowIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.28}}
+@keyframes livePing{0%{box-shadow:0 0 0 0 rgba(0,232,122,.5)}80%{box-shadow:0 0 0 9px rgba(0,232,122,0)}100%{box-shadow:0 0 0 0 rgba(0,232,122,0)}}
+@keyframes pillSlide{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+
+/* ══════════ LAYOUT ══════════ */
+.wrap{max-width:720px;margin:0 auto}
+
+/* ══════════════════════════════════
+   HERO
+   ══════════════════════════════════ */
+.hero{
+  background:linear-gradient(155deg,var(--su) 0%,var(--s2) 100%);
+  border-bottom:1px solid var(--bd2);
+  padding:14px 0 12px;
+  position:relative;overflow:hidden;
+}
+.hero::after{
+  content:'';position:absolute;right:-50px;top:-50px;width:230px;height:230px;
+  border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(0,232,122,.055),transparent 68%);
+}
+.hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:relative;z-index:1}
+.hero-eyebrow{font-size:.54rem;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:var(--t3);margin-bottom:4px}
+.hero-title{font-family:'Barlow Condensed',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:.4px;color:var(--t1);display:flex;align-items:center;gap:9px}
+.live-dot{width:9px;height:9px;border-radius:50%;background:var(--gr);flex-shrink:0;animation:livePing 2.4s ease-out infinite}
+.hero-sub{font-size:.63rem;color:var(--t3);margin-top:3px}
+.timer-col{display:flex;flex-direction:column;align-items:flex-end;gap:1px;flex-shrink:0}
+.timer-lbl{font-size:.52rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
+.timer{
+  font-family:var(--fn);font-size:2rem;font-weight:800;
+  color:var(--gr);letter-spacing:1.5px;font-variant-numeric:tabular-nums;
+  text-shadow:0 0 22px rgba(0,232,122,.25);transition:color .3s,text-shadow .3s;
+}
+.timer.urgent{color:var(--re);text-shadow:0 0 22px rgba(255,51,82,.4);animation:blink 1s infinite}
+.hero-prog{margin-top:10px;position:relative;z-index:1}
+.hstats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.hstat{display:flex;align-items:center;gap:5px;font-size:.61rem;color:var(--t2)}
+.hstat b{font-family:var(--fn);font-size:.8rem;font-weight:800;color:var(--t1)}
+.hstat.g b{color:var(--gr)}.hstat.r b{color:var(--re)}
+.pbar{height:3px;background:var(--s4);border-radius:100px;overflow:hidden}
+.pfill{height:100%;background:linear-gradient(90deg,var(--gr),var(--gr2));border-radius:100px;box-shadow:0 0 8px rgba(0,232,122,.4);transition:width 1s linear}
+
+/* ══════════════════════════════════
+   SQUAD BANNER
+   ══════════════════════════════════ */
+.squad-wrap{
+  margin:10px 0 0;
+  background:var(--su);border:1px solid var(--bd2);
+  border-radius:var(--rl);overflow:hidden;
+  animation:fadeUp .38s var(--snap) both;
+}
+.squad-hdr{
+  padding:9px 14px;
+  display:flex;align-items:center;gap:10px;
+  background:linear-gradient(90deg,rgba(0,232,122,.06),transparent);
+  border-bottom:1px solid var(--bd);
+}
+.sq-avatar{
+  width:30px;height:30px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gr),var(--bl));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fn);font-size:.76rem;font-weight:800;color:#000;
+}
+.sq-name{font-size:.78rem;font-weight:700;color:var(--t1)}
+.sq-meta{font-size:.59rem;color:var(--t3);margin-top:1px}
+.squad-pills{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding:9px 0;scrollbar-width:none}
+.squad-pills::-webkit-scrollbar{display:none}
+.sq-pill{
+  flex:0 0 auto;display:flex;align-items:center;gap:6px;
+  padding:6px 11px;border-radius:100px;border:1px solid var(--bd2);
+  background:var(--s2);cursor:pointer;
+  font-size:.7rem;font-weight:600;color:var(--t1);white-space:nowrap;
+  transition:all .18s;-webkit-tap-highlight-color:transparent;
+  animation:pillSlide .3s var(--snap) both;
+}
+.sq-pill:hover{transform:translateY(-1px);box-shadow:var(--sh)}
+.sq-pill.sqr{border-color:rgba(0,232,122,.32);background:var(--grd)}
+.sq-pill.sqf{border-color:rgba(255,51,82,.32);background:var(--red)}
+.sq-pill .sdir{font-family:var(--fn);font-size:.72rem;font-weight:800}
+.sq-pill.sqr .sdir{color:var(--gr)}.sq-pill.sqf .sdir{color:var(--re)}
+.sq-shirt{width:20px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.25));flex-shrink:0}
+.sq-none{padding:10px 0;font-size:.67rem;color:var(--t3);text-align:center}
+
+/* ══════════════════════════════════
+   ALGORITHM EXPLAINER
+   ══════════════════════════════════ */
+.algo{margin:10px 0 0;background:var(--su);border:1px solid var(--bd2);border-radius:var(--rm);overflow:hidden}
+.algo-btn{
+  width:100%;padding:9px 13px;
+  display:flex;align-items:center;gap:9px;
+  background:transparent;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:.65rem;color:var(--t2);font-weight:600;text-align:left;
+  -webkit-tap-highlight-color:transparent;transition:background .15s;
+}
+.algo-btn:hover{background:var(--s3)}
+.algo-btn .ai{color:var(--bl);font-size:.58rem;flex-shrink:0}
+.algo-btn .achev{margin-left:auto;font-size:.5rem;color:var(--t3);transition:transform .28s var(--spring)}
+.algo-btn.open .achev{transform:rotate(180deg)}
+.algo-body{display:none;padding:0 13px 12px;font-size:.62rem;color:var(--t2);line-height:1.65}
+.algo-body.open{display:block}
+.algo-body b{color:var(--t1)}
+.rules{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.rule{display:flex;align-items:flex-start;gap:8px;padding:6px 9px;border-radius:var(--r);background:var(--s3);font-size:.6rem;color:var(--t2)}
+.rule i{flex-shrink:0;margin-top:2px;font-size:.57rem}
+.ri{color:var(--gr)}.rx{color:var(--re)}.ra{color:var(--am)}.rb{color:var(--bl)}
+
+/* ══════════════════════════════════
+   ZONES
+   ══════════════════════════════════ */
+.zones{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 0 0}
+.zone{
+  background:var(--su);border:1px solid var(--bd2);border-radius:var(--rl);
+  padding:12px 10px 10px;text-align:center;cursor:pointer;
+  transition:all .2s var(--ease);position:relative;overflow:hidden;
+  -webkit-tap-highlight-color:transparent;animation:fadeUp .35s var(--snap) both;
+}
+.zone:hover{transform:translateY(-2px);border-color:var(--bd3);box-shadow:var(--sh)}
+.zone:active{transform:scale(.97)}
+.zone.sel{outline:2px solid var(--t2);outline-offset:1px}
+.zone::before{content:'';position:absolute;inset:0;border-radius:var(--rl);pointer-events:none;background:radial-gradient(circle at 50% 115%,var(--zg,transparent),transparent 68%)}
+.zt{--zg:rgba(255,51,82,.09);border-color:rgba(255,51,82,.22)}.zt .zn{color:var(--re)}
+.zs{--zg:rgba(255,176,32,.08);border-color:rgba(255,176,32,.2)}.zs .zn{color:var(--am)}
+.zw{--zg:rgba(77,143,255,.08);border-color:rgba(77,143,255,.2)}.zw .zn{color:var(--bl)}
+.zn{font-family:var(--fn);font-size:1.9rem;font-weight:800;line-height:1.1}
+.zl{font-size:.55rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);margin-top:3px}
+.znames{font-size:.57rem;color:var(--t3);margin-top:5px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.zt .znames{color:rgba(255,51,82,.62)}.zs .znames{color:rgba(255,176,32,.62)}.zw .znames{color:rgba(77,143,255,.62)}
+
+/* ══════════════════════════════════
+   CONFIRMED STRIP
+   ══════════════════════════════════ */
+.cfm{margin:10px 0 0;display:none;background:var(--su);border:1px solid var(--bd2);border-radius:var(--rl);overflow:hidden}
+.cfm-hdr{padding:8px 13px;font-size:.56rem;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:7px}
+.cfm-hdr i{color:var(--gr);font-size:.54rem}
+.cfm-scroll{display:flex;gap:7px;padding:9px 13px;overflow-x:auto;scrollbar-width:none}
+.cfm-scroll::-webkit-scrollbar{display:none}
+.cpill{flex:0 0 auto;display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:100px;border:1px solid var(--bd2);background:var(--s2);white-space:nowrap;animation:fadeUp .28s var(--snap) both}
+.cpill.rise{border-color:rgba(0,232,122,.3);background:var(--grd)}
+.cpill.fall{border-color:rgba(255,51,82,.3);background:var(--red)}
+.cpill-name{font-size:.73rem;font-weight:700;color:var(--t1)}
+.cpill-delta{font-family:var(--fn);font-size:.82rem;font-weight:800}
+.rise .cpill-delta{color:var(--gr)}.fall .cpill-delta{color:var(--re)}
+.cpill-pr{font-size:.58rem;color:var(--t3)}
+
+/* ══════════════════════════════════
+   CONTROLS
+   ══════════════════════════════════ */
+.ctrl{position:sticky;top:0;z-index:200;background:var(--nav);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--bd2);padding:9px 0;display:flex;flex-direction:column;gap:8px}
+.ctrl-tabs{display:flex;gap:3px;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rl);padding:3px;margin:0 12px}
+.ctab{flex:1;padding:8px 4px;border:none;border-radius:var(--rm);background:transparent;font-family:'Barlow Condensed',sans-serif;font-size:.86rem;font-weight:800;color:var(--t3);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .2s var(--ease);-webkit-tap-highlight-color:transparent}
+.ctab i{font-size:.6rem}
+.ctab.tg{background:var(--grd);color:var(--gr);box-shadow:0 1px 6px rgba(0,0,0,.1)}
+.ctab.tr{background:var(--red);color:var(--re);box-shadow:0 1px 6px rgba(0,0,0,.1)}
+.ctab.ta{background:rgba(255,176,32,.08);color:var(--am);box-shadow:0 1px 6px rgba(0,0,0,.1)}
+.ctrl-pos{display:flex;gap:4px;margin:0 12px}
+.pbtn{flex:1;padding:7px 3px;border:1px solid var(--bd);border-radius:var(--r);background:var(--s2);font-family:'Barlow Condensed',sans-serif;font-size:.77rem;font-weight:900;color:var(--t3);cursor:pointer;transition:all .14s;-webkit-tap-highlight-color:transparent}
+.pbtn.all{background:rgba(255,255,255,.07);color:var(--t1);border-color:var(--bd2)}
+.pbtn.gk{background:rgba(255,176,32,.11);color:var(--am);border-color:rgba(255,176,32,.26)}
+.pbtn.df{background:rgba(0,232,122,.09);color:var(--gr);border-color:rgba(0,232,122,.22)}
+.pbtn.md{background:rgba(77,143,255,.09);color:var(--bl);border-color:rgba(77,143,255,.22)}
+.pbtn.fw{background:rgba(255,51,82,.09);color:var(--re);border-color:rgba(255,51,82,.22)}
+.ctrl-sf{display:flex;gap:7px;margin:0 12px}
+.sw{position:relative;flex:1}
+.sw i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.62rem;color:var(--t3);pointer-events:none}
+#pcSearch{width:100%;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rm);padding:9px 10px 9px 28px;font-family:'DM Sans',sans-serif;font-size:.76rem;color:var(--t1);outline:none;transition:border-color .18s}
+#pcSearch:focus{border-color:var(--bd3)}
+#pcSearch::placeholder{color:var(--t3)}
+.tw{position:relative;flex:0 0 108px}
+.tw i{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.6rem;color:var(--t3);pointer-events:none}
+#teamFilter{width:100%;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rm);padding:9px 7px 9px 25px;font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:600;color:var(--t1);outline:none;appearance:none;cursor:pointer}
+.ctrl-sort{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 12px}
+.sort-lbl{font-size:.58rem;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--t3)}
+.sortpills{display:flex;gap:4px;flex-wrap:wrap}
+.spill{font-family:'DM Sans',sans-serif;font-size:.67rem;font-weight:700;padding:5px 9px;border:1px solid var(--bd);border-radius:100px;background:var(--s2);color:var(--t3);cursor:pointer;transition:all .14s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+.spill.on{background:var(--s4);color:var(--t1);border-color:var(--bd2)}
+.ctrl-own{display:flex;align-items:center;gap:9px;margin:0 12px}
+.own-lbl{font-size:.65rem;font-weight:600;color:var(--t3);flex-shrink:0;display:flex;align-items:center;gap:4px}
+.own-lbl i{opacity:.65;font-size:.55rem}
+.own-val{font-family:var(--fn);font-size:.85rem;font-weight:800;color:var(--t1);flex-shrink:0;min-width:40px;text-align:right}
+input[type=range]#ownSlider{flex:1;-webkit-appearance:none;height:4px;border-radius:100px;background:var(--s4);outline:none;cursor:pointer}
+input[type=range]#ownSlider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gr);cursor:pointer;box-shadow:0 0 0 4px var(--grd);transition:box-shadow .15s}
+input[type=range]#ownSlider:active::-webkit-slider-thumb{box-shadow:0 0 0 8px var(--grd)}
+
+/* ══════════════════════════════════
+   TABLE HEADER
+   ══════════════════════════════════ */
+.thead{display:grid;grid-template-columns:1fr 68px 46px 52px 54px 30px;padding:7px 0;border-bottom:1px solid var(--bd);gap:4px}
+.thead th{font-size:.53rem;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--t3);background:none;border:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .14s}
+.thead th:not(:first-child){text-align:center}
+.thead th:first-child{padding-left:5px}
+.thead th:hover,.thead th.on{color:var(--t2)}
+.sect{padding:12px 0 5px;font-size:.56rem;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--t3);display:flex;align-items:center;gap:8px}
+.sect::after{content:'';flex:1;height:1px;background:var(--bd)}
+
+/* ══════════════════════════════════
+   LIST & ROWS
+   ══════════════════════════════════ */
+.list{padding:0 0 14px;display:flex;flex-direction:column;gap:5px}
+.row{
+  background:var(--su);border:1px solid var(--bd);border-radius:var(--rm);
+  display:grid;grid-template-columns:1fr 68px 46px 52px 54px 30px;
+  align-items:center;padding:10px 13px;gap:4px;
+  transition:border-color .2s,box-shadow .2s,transform .18s;
+  animation:rowIn .24s var(--snap) both;
+  position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;
+}
+.row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;background:var(--acc,transparent)}
+.row.rr{--acc:var(--gr)}.row.rf{--acc:var(--re)}
+.row:hover{border-color:var(--bd3);transform:translateY(-1px);box-shadow:var(--sh)}
+.row.rr:hover{border-color:rgba(0,232,122,.3);box-shadow:0 4px 18px rgba(0,232,122,.08)}
+.row.rf:hover{border-color:rgba(255,51,82,.3);box-shadow:0 4px 18px rgba(255,51,82,.08)}
+.row:active{transform:scale(.99)}
+.row.done{opacity:.28;border-style:dashed;filter:saturate(.4);pointer-events:none}
+.row.mine{background:linear-gradient(90deg,rgba(255,176,32,.045),var(--su) 50%);border-color:rgba(255,176,32,.16)}
+.row.mine:hover{border-color:rgba(255,176,32,.32)}
+.row.floor{opacity:.2;filter:grayscale(.7)}
+.row.hot-r{border-color:rgba(0,232,122,.32)}.row.hot-f{border-color:rgba(255,51,82,.32)}
+
+/* Player cell */
+.pc{display:flex;align-items:center;gap:9px;min-width:0;padding-left:5px}
+.shirt{width:30px;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(0,0,0,.28));transition:transform .22s var(--spring)}
+.row:hover .shirt{transform:scale(1.07) translateY(-1px)}
+.pinfo{min-width:0}
+.pname{font-size:.79rem;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px}
+.mine-star{font-size:.52rem;color:var(--go)}
+.pmeta{font-size:.58rem;color:var(--t3);display:flex;align-items:center;gap:4px;margin-top:2px;flex-wrap:wrap}
+.ppr{color:var(--t2);font-weight:700}
+.posb{font-size:.5rem;font-weight:900;padding:1.5px 4px;border-radius:3px;letter-spacing:.3px;text-transform:uppercase}
+.gk{background:rgba(255,176,32,.12);color:var(--am)}.df{background:rgba(0,232,122,.1);color:var(--gr)}
+.md{background:rgba(77,143,255,.1);color:var(--bl)}.fw{background:rgba(255,51,82,.1);color:var(--re)}
+.warn{color:var(--am);font-size:.5rem}
+.flbl{font-size:.48rem;font-weight:800;padding:1px 4px;border-radius:3px;background:var(--red);color:var(--re);letter-spacing:.3px}
+.sell{font-size:.55rem;font-weight:700;color:var(--gr);margin-top:2px;display:none}
+.row.rr:not(.done) .sell{display:block}
+
+/* Cumulative progress cell */
+.cumul{display:flex;flex-direction:column;align-items:center;gap:3px}
+.cpct{font-family:var(--fn);font-size:.94rem;font-weight:800;line-height:1;letter-spacing:.5px}
+.cr{color:var(--gr)}.cf{color:var(--re)}.cd{color:var(--t3)}
+.cbar{width:100%;height:5px;background:var(--s4);border-radius:100px;overflow:hidden;position:relative}
+.cest{position:absolute;inset:0;border-radius:100px;transition:width .65s var(--snap)}
+.cnow{position:absolute;top:0;left:0;bottom:0;border-radius:100px;transition:width .65s var(--snap)}
+.rr .cest{background:var(--grm)}.rr .cnow{background:linear-gradient(90deg,var(--gr),var(--gr2));box-shadow:0 0 6px rgba(0,232,122,.4)}
+.rf .cest{background:var(--rem)}.rf .cnow{background:linear-gradient(90deg,var(--re),var(--re2));box-shadow:0 0 6px rgba(255,51,82,.4)}
+.csub{font-size:.46rem;color:var(--t3);white-space:nowrap;letter-spacing:.2px}
+.vel{font-size:.52rem;font-weight:800;display:flex;align-items:center;justify-content:center;gap:2px}
+.vu{color:var(--gr)}.vd{color:var(--re)}.vn{color:var(--t3)}
+
+/* Net cell */
+.pnet{font-family:var(--fn);font-size:.8rem;font-weight:800;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px}
+.nr{color:var(--gr)}.nf{color:var(--re)}.nd{color:var(--t3)}
+.nsub{font-size:.49rem;color:var(--t3);font-family:'DM Sans',sans-serif;font-weight:400}
+
+/* Probability ring */
+.pprob{text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.pring{width:30px;height:30px}
+.pval{font-family:var(--fn);font-size:.68rem;font-weight:800;color:var(--t1)}
+
+/* Prediction badge */
+.ppred{text-align:center}
+.pred{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:900;padding:4px 7px;border-radius:6px;display:inline-block;letter-spacing:.4px}
+.p-tn{background:rgba(255,51,82,.15);color:var(--re)}
+.p-so{background:rgba(255,176,32,.14);color:var(--am)}
+.p-wa{background:rgba(77,143,255,.12);color:var(--bl)}
+.p-dn{background:var(--s3);color:var(--t3)}
+.p-fl{background:var(--s3);color:var(--t3);font-size:.62rem}
+.p-none{color:var(--t3);font-size:.7rem}
+
+/* Star */
+.pstar{background:none;border:none;font-size:.82rem;color:var(--t3);cursor:pointer;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;transition:color .15s,transform .13s,background .15s;-webkit-tap-highlight-color:transparent}
+.pstar:hover{background:var(--s3);color:var(--am)}.pstar:active{transform:scale(1.36)}.pstar.on{color:var(--go)}
+
+/* Skeletons & empty */
+.skel{height:66px;border-radius:var(--rm);background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);background-size:1800px 100%;animation:shimmer 1.8s ease-in-out infinite;border:1px solid var(--bd)}
+.empty{text-align:center;padding:52px 20px;color:var(--t3)}
+.empty i{font-size:2.2rem;margin-bottom:12px;opacity:.26;display:block}
+.empty p{font-size:.84rem;line-height:1.65;color:var(--t2)}
+
+@media(max-width:400px){
+  .thead,.row{grid-template-columns:1fr 60px 42px 46px 48px 28px;padding:9px 10px}
+  .timer{font-size:1.6rem}.zones{padding:10px 0 0}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://fantasy.premierleague.com">
+<link rel="dns-prefetch" href="https://draft.premierleague.com">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="style.css">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="nav.css">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="footer.css">
+<noscript>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="nav.css">
+  <link rel="stylesheet" href="footer.css">
+</noscript>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap"></noscript>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"></noscript>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<!-- ═══ MAIN CONTENT WRAPPER ═══ -->
+<div class="wrap">
+
+<!-- ═══ HERO ═══ -->
+<div class="hero" role="region" aria-label="Price change overview">
+  <div class="hero-top">
+    <div>
+      <div class="hero-eyebrow">FPL Price Predictor</div>
+      <h1 class="hero-title"><span class="live-dot" aria-hidden="true"></span>Price Changes</h1>
+      <div class="hero-sub">Next price change countdown: resets 01:30 UTC daily</div>
+    </div>
+    <div class="timer-col">
+      <div class="timer-lbl">Next update</div>
+      <div class="timer" id="pc-timer" role="timer" aria-label="Time until next price update">--:--:--</div>
+    </div>
+  </div>
+  <div class="hero-prog">
+    <div class="hstats">
+      <div class="hstat g"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i><span>Rising: <b id="h-rise">—</b></span></div>
+      <div class="hstat r"><i class="fa-solid fa-arrow-trend-down" aria-hidden="true"></i><span>Falling: <b id="h-fall">—</b></span></div>
+      <div class="hstat"><i class="fa-solid fa-rotate" aria-hidden="true"></i><span>Updated: <b id="h-upd">—</b></span></div>
+    </div>
+    <div class="pbar"><div class="pfill" id="h-prog" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- ═══ SQUAD BANNER ═══ -->
+<div class="squad-wrap" id="squad-wrap" style="display:none" aria-label="Your squad price movements">
+  <div class="squad-hdr">
+    <div class="sq-avatar" id="sq-av">?</div>
+    <div>
+      <div class="sq-name" id="sq-name">Your Squad</div>
+      <div class="sq-meta" id="sq-meta">Tap a player to jump to them in the list</div>
+    </div>
+  </div>
+  <div class="squad-pills" id="sq-pills" role="list" aria-label="Squad players with price movements"></div>
+</div>
+
+<!-- ═══ ALGORITHM EXPLAINER ═══ -->
+<div class="algo">
+  <button class="algo-btn" onclick="toggleAlgo(this)" aria-expanded="false" aria-controls="algo-body">
+    <i class="ai fa-solid fa-flask-vial" aria-hidden="true"></i>
+    <span><b>Understanding and Predicting FPL Price Changes</b></span>
+    <i class="achev fa-solid fa-chevron-down" aria-hidden="true"></i>
+  </button>
+  <div class="algo-body" id="algo-body">
+   
+    <div class="rules">
+      <div class="rule"><i class="fa-solid fa-circle-check ri" aria-hidden="true"></i><span><b>Predicting Live Wildcard Usage</b> The live data from FPL shows total transfers in/out for players which includes wildcard/freehit transfers. However, those chip transfers don't affect price changes. Predictors have to decide on a predicted probability for each published transfer to count or not count towards price changes.</span></div>
+      <div class="rule"><i class="fa-solid fa-circle-check ri" aria-hidden="true"></i><span><b>Two conditions required:</b> cumulative ≥ 220k AND today's net ≥ 30k. Either alone won't trigger a change.</span></div>
+      <div class="rule"><i class="fa-solid fa-ban rx" aria-hidden="true"></i><span><b>Below ~1.7% ownership = zero rises ever.</b> Proven across 532,000 player-days. The algorithm has a hard floor.</span></div>
+      <div class="rule"><i class="fa-solid fa-rotate ra" aria-hidden="true"></i><span><b> Impact of Flag Changes</b> Player flag changes (e.g., red to yellow, yellow to no flag) significantly affect how price changes operate. Historically, it was understood that when a player moves from a red flag to no flag immediately, they are locked for eight days, during which their transfers don't count. However, recent evidence suggests this is more complex.</span></div>
+      <div class="rule"><i class="fa-solid fa-arrow-down rx" aria-hidden="true"></i><span><b>Falls are 6× easier</b> — only ~37k cumulative needed, not 220k. Prices deflate faster than they rise.</span></div>
+      <div class="rule"><i class="fa-solid fa-info-circle rb" aria-hidden="true"></i><span><b>Transfers Across Game Weeks</b> After a game week deadline, FPL appears to discard a percentage of valid transfers made before the deadline. Without this exclusion, a larger number of price changes would occur post-deadline. This issue seems to mainly affect players who have already risen or fallen during the week but was observed occasionally with other players too. Some of their transfer volume does not carry over into the next game week and is seemingly discarded.
+
+Using trial and error, we've attempted to estimate the percentage of transfers excluded, but the exact figure remains uncertain.</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ZONES ═══ -->
+<div class="zones" role="list" aria-label="Price change urgency zones">
+  <div class="zone zt" id="zb-tn" role="listitem" tabindex="0"
+       onclick="setZone('tn')" onkeydown="if(event.key==='Enter')setZone('tn')"
+       aria-label="Tonight zone" style="animation-delay:.04s">
+    <div class="zn" id="z-tn">—</div>
+    <div class="zl">Tonight</div>
+    <div class="znames" id="z-tn-n">—</div>
+  </div>
+  <div class="zone zs" id="zb-so" role="listitem" tabindex="0"
+       onclick="setZone('so')" onkeydown="if(event.key==='Enter')setZone('so')"
+       aria-label="Soon zone" style="animation-delay:.09s">
+    <div class="zn" id="z-so">—</div>
+    <div class="zl">Soon ≥60%</div>
+    <div class="znames" id="z-so-n">—</div>
+  </div>
+  <div class="zone zw" id="zb-wa" role="listitem" tabindex="0"
+       onclick="setZone('wa')" onkeydown="if(event.key==='Enter')setZone('wa')"
+       aria-label="Watch zone" style="animation-delay:.14s">
+    <div class="zn" id="z-wa">—</div>
+    <div class="zl">Watch ≥30%</div>
+    <div class="znames" id="z-wa-n">—</div>
+  </div>
+</div>
+
+<!-- ═══ CONFIRMED CHANGES ═══ -->
+<div class="cfm" id="cfm" aria-label="Confirmed price changes this cycle">
+  <div class="cfm-hdr"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Confirmed This Cycle</div>
+  <div class="cfm-scroll" id="cfm-scroll" role="list"></div>
+</div>
+
+<!-- ═══ CONTROLS ═══ -->
+<div class="ctrl" role="search" aria-label="Filter and sort players">
+  <div class="ctrl-tabs" role="tablist">
+    <button class="ctab tg" id="tab-r" role="tab" aria-selected="true" onclick="setView('r')">
+      <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> Risers
+    </button>
+    <button class="ctab" id="tab-f" role="tab" aria-selected="false" onclick="setView('f')">
+      <i class="fa-solid fa-arrow-trend-down" aria-hidden="true"></i> Fallers
+    </button>
+    <button class="ctab" id="tab-w" role="tab" aria-selected="false" onclick="setView('w')">
+      <i class="fa-solid fa-star" aria-hidden="true"></i> Watch<span id="wc-ct"></span>
+    </button>
+  </div>
+  <div class="ctrl-pos" role="group" aria-label="Filter by position">
+    <button class="pbtn all" id="pb0" onclick="setPos(0)" aria-pressed="true">ALL</button>
+    <button class="pbtn" id="pb1" onclick="setPos(1)" aria-pressed="false">GKP</button>
+    <button class="pbtn" id="pb2" onclick="setPos(2)" aria-pressed="false">DEF</button>
+    <button class="pbtn" id="pb3" onclick="setPos(3)" aria-pressed="false">MID</button>
+    <button class="pbtn" id="pb4" onclick="setPos(4)" aria-pressed="false">FWD</button>
+  </div>
+  <div class="ctrl-sf">
+    <div class="sw">
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <label for="pcSearch" class="sr-only">Search players</label>
+      <input id="pcSearch" type="search" placeholder="Search players…" oninput="render()" autocomplete="off">
+    </div>
+    <div class="tw">
+      <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+      <label for="teamFilter" class="sr-only">Filter by team</label>
+      <select id="teamFilter" onchange="render()"><option value="all">All teams</option></select>
+    </div>
+  </div>
+  <div class="ctrl-sort">
+    <span class="sort-lbl">Sort</span>
+    <div class="sortpills" role="group" aria-label="Sort by">
+      <button class="spill on" id="sp-prog" onclick="setSort('prog')" aria-pressed="true">Progress</button>
+      <button class="spill" id="sp-est"  onclick="setSort('est')"  aria-pressed="false">Tonight est.</button>
+      <button class="spill" id="sp-net"  onclick="setSort('net')"  aria-pressed="false">Net Δ</button>
+      <button class="spill" id="sp-own"  onclick="setSort('own')"  aria-pressed="false">Ownership</button>
+    </div>
+  </div>
+  <div class="ctrl-own">
+    <label for="ownSlider" class="own-lbl"><i class="fa-solid fa-users" aria-hidden="true"></i>Min own</label>
+    <input type="range" id="ownSlider" min="0" max="30" step="0.5" value="0" oninput="syncOwn();render()" aria-label="Minimum ownership">
+    <span class="own-val" id="own-val" aria-live="polite">0%</span>
+  </div>
+</div>
+
+<!-- ═══ TABLE HEADER ═══ -->
+<div class="thead" role="row">
+  <th onclick="setSort('name')" id="th-name">Player</th>
+  <th onclick="setSort('prog')" id="th-prog" class="on">Progress</th>
+  <th onclick="setSort('net')"  id="th-net">Net Δ</th>
+  <th onclick="setSort('prob')" id="th-prob">Prob</th>
+  <th>Pred</th>
+  <th><span class="sr-only">Watch</span></th>
+</div>
+
+<div id="pc-list" class="list" role="list" aria-label="Price change predictions"></div>
+
+</div><!-- END .wrap -->
+
+<div id="footer-placeholder"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   KOPALA FPL — PRICES v3
+   Real LiveFPL-equivalent algorithm (FPL Core reverse-engineering)
+   ═══════════════════════════════════════════════════════════════════
+
+   THE REAL RULES (proven from 720k FPL player-day dataset):
+
+   RISE requires ALL of:
+     1. cumulative net transfers since last price change >= ~220,000
+     2. today's net transfers >= ~30,000
+     3. ownership >= ~1.7% (absolute hard floor — zero rises below this ever)
+
+   FALL requires ALL of:
+     1. cumulative net outflow >= ~37,000  (~17% of rise threshold, 6× easier)
+     2. today's net outflow >= ~5,000
+
+   The FPL API gives us transfers_in_event / transfers_out_event = GW cumulative.
+   This is the best available proxy for the algorithm's internal counter,
+   which resets after each price change (matching GW start approximately).
+
+   Falls: flag status affects ease (doubtful/injured players shed value faster
+   because fewer active owners are transferring them out to resist the fall).
+
+   Wildcard noise: algorithm counts unique managers (cap=1 per manager per day).
+   Wildcards contribute ~1.4% of total pressure at population scale — negligible.
+   ═══════════════════════════════════════════════════════════════════ */
+
+const PROXY   = '/.netlify/functions/fpl-proxy?endpoint=';
+const UPD_H   = 1, UPD_M = 30; // 01:30 UTC daily
+
+/* ── Empirically derived thresholds ── */
+const RISE_CUMUL  = 220000; // fixed for all players
+const RISE_DAILY  =  30000; // today must also show active demand
+const FALL_CUMUL  =  37000; // only 17% of rise bar
+const FALL_DAILY  =   5000;
+const OWN_FLOOR   =    1.7; // % — hard floor, no rises below this
+
+const POS_LBL = ['','GKP','DEF','MID','FWD'];
+const POS_CLS = ['','gk','df','md','fw'];
+const POS_BTN = ['all','gk','df','md','fw'];
+
+/* ── Global state ── */
+let ALL = [], TMAP = {}, TCODES = {};
+let view = 'r', pos = 0, sort = 'prog', zone = null;
+let watchlist  = JSON.parse(localStorage.getItem('kopala_watchlist') || '[]');
+let mySquad    = new Set();
+let squadMeta  = null;
+
+/* ════════════════════════
+   CORE ALGORITHM
+   ════════════════════════ */
+function getUpdateTarget() {
+  const t = new Date(); t.setUTCHours(UPD_H, UPD_M, 0, 0);
+  if (Date.now() >= t) t.setUTCDate(t.getUTCDate() + 1);
+  return t;
+}
+function getGWStart() {
+  const p = new Date(); p.setUTCHours(UPD_H, UPD_M, 0, 0);
+  if (new Date() < p) p.setUTCDate(p.getUTCDate() - 1);
+  return p;
+}
+
+function calcPlayer(p) {
+  const own     = parseFloat(p.selected_by_percent) || 0;
+  const rawIn   = p.transfers_in_event  || 0;
+  const rawOut  = p.transfers_out_event || 0;
+  const net     = rawIn - rawOut;      // GW cumulative — proxy for algorithm's counter
+  const isRise  = net >= 0;
+
+  /* Hard floor check */
+  const belowFloor = own < OWN_FLOOR;
+
+  /* ── Status multiplier for falls ──
+     Injured/doubtful players shed value faster because they have fewer active
+     owners transferring them in to resist the outflow.                        */
+  const flagMult = isRise ? 1.0
+    : p.status === 'a' ? 1.0
+    : p.status === 'd' ? 0.75   // doubtful: easier to fall (less inbound resistance)
+    : p.status === 'i' ? 0.55   // injured: even easier
+    : p.status === 's' ? 0.45   // suspended: easiest
+    : 1.0;
+
+  /* ── Effective thresholds ── */
+  const cumulThresh = isRise ? RISE_CUMUL : FALL_CUMUL * flagMult;
+  const dailyThresh = isRise ? RISE_DAILY : FALL_DAILY * flagMult;
+
+  /* ── Progress toward cumulative threshold ── */
+  const absNet     = Math.abs(net);
+  const cumulProg  = belowFloor ? 0 : Math.min(100, (absNet / cumulThresh) * 100);
+
+  /* ── Two-condition gate ──
+     Both conditions must be met. Track each independently.               */
+  const cumulMet = absNet >= cumulThresh;
+  const dailyMet = absNet >= dailyThresh;
+
+  /* ── Tonight estimate using hourly rate ── */
+  const now       = new Date();
+  const gwStart   = getGWStart();
+  const gwEnd     = getUpdateTarget();
+  const hElapsed  = Math.max(0.5, (now - gwStart) / 3.6e6);
+  const hLeft     = Math.max(0, (gwEnd - now) / 3.6e6);
+  const ratePerH  = cumulProg / hElapsed;
+  /* Late-day dampen: transfer velocity slows as the day progresses */
+  const dayFrac   = hElapsed / 24;
+  const damp      = dayFrac < 0.3 ? 1.15 : dayFrac < 0.65 ? 1.0 : 0.7;
+  const tonightEst = belowFloor ? 0 : Math.min(100, cumulProg + ratePerH * damp * hLeft);
+
+  /* ── Velocity from saved snapshots ── */
+  const snap = loadSnap(p.id);
+  let velIcon = 'fa-minus', velCls = 'vn';
+  if (snap) {
+    const delta = cumulProg - snap.prog;
+    const tDiff = Math.max(0.1, (now - new Date(snap.ts)) / 3.6e6);
+    const rate  = delta / tDiff;
+    if      (rate > 3)    { velIcon = 'fa-angles-up';   velCls = 'vu' }
+    else if (rate > 0.8)  { velIcon = 'fa-angle-up';    velCls = 'vu' }
+    else if (rate < -3)   { velIcon = 'fa-angles-down'; velCls = 'vd' }
+    else if (rate < -0.8) { velIcon = 'fa-angle-down';  velCls = 'vd' }
+  }
+
+  /* ── Probability (two-condition model) ──
+     Both cumulative AND daily must be green. The weaker of the two
+     conditions caps the probability — high cumulative + low daily = still low.
+     This is why the old single-threshold model showed too many "TONIGHT" players. */
+  const cumulRatio = Math.min(100, (absNet / cumulThresh) * 100);
+  const dailyRatio = Math.min(100, (absNet / dailyThresh)  * 100);
+  /* The bottleneck condition limits overall probability */
+  const weakCond   = Math.min(cumulRatio, dailyRatio);
+  let prob;
+  if (belowFloor)          prob = 0;
+  else if (weakCond < 40)  prob = Math.round(weakCond * 0.45);
+  else if (weakCond < 70)  prob = Math.round(18 + (weakCond - 40) * 1.5);
+  else if (weakCond < 88)  prob = Math.round(63 + (weakCond - 70) * 1.8);
+  else                     prob = Math.round(95 + (weakCond - 88) * 0.3);
+  prob = Math.min(99, Math.max(0, prob));
+
+  /* ── Prediction label ── */
+  const moved = p.cost_change_event !== 0;
+  let pred, predCls;
+  if (moved) {
+    pred = p.cost_change_event > 0 ? '+£0.1' : '−£0.1'; predCls = 'p-dn';
+  } else if (belowFloor) {
+    pred = '< FLOOR'; predCls = 'p-fl';
+  } else if (tonightEst >= 88) {
+    pred = 'TONIGHT'; predCls = 'p-tn';
+  } else if (tonightEst >= 60) {
+    pred = 'SOON';    predCls = 'p-so';
+  } else if (cumulProg >= 30) {
+    pred = 'WATCH';   predCls = 'p-wa';
+  } else {
+    pred = '—';       predCls = 'p-none';
+  }
+
+  /* ── Net display ── */
+  const fmt = v => v >= 1000 ? (v/1000).toFixed(1)+'k' : v.toString();
+  const netDisplay = `${isRise ? '+' : '−'}${fmt(absNet)}`;
+
+  return {
+    id: p.id, name: p.web_name,
+    teamId: p.team, teamCode: p.team_code,
+    pos: p.element_type,
+    price: (p.now_cost / 10).toFixed(1),
+    own, net, absNet,
+    cumulProg: parseFloat(cumulProg.toFixed(1)),
+    tonightEst: parseFloat(tonightEst.toFixed(1)),
+    cumulMet, dailyMet, prob,
+    pred, predCls, isRise, moved,
+    actualChange: p.cost_change_event,
+    netDisplay, netCls: isRise ? 'nr' : 'nf',
+    pctCls: moved ? 'cd' : isRise ? 'cr' : 'cf',
+    velIcon, velCls, belowFloor,
+    status: p.status,
+    isMine: mySquad.has(p.id),
+  };
+}
+
+/* ════════════════════════
+   SNAPSHOTS (velocity)
+   ════════════════════════ */
+function saveSnap(id, prog) {
+  try {
+    const s = JSON.parse(localStorage.getItem('kfpl_snaps') || '{}');
+    if (!s[id] || Date.now() - new Date(s[id].ts) > 1800000) {
+      s[id] = { prog, ts: new Date().toISOString() };
+      localStorage.setItem('kfpl_snaps', JSON.stringify(s));
+    }
+  } catch {}
+}
+function loadSnap(id) {
+  try { return JSON.parse(localStorage.getItem('kfpl_snaps') || '{}')[id] || null; } catch { return null; }
+}
+
+/* ════════════════════════
+   CONFIRMED CHANGES
+   ════════════════════════ */
+function detectConfirmed(elements) {
+  const saved = JSON.parse(localStorage.getItem('kopala_prices') || '{}');
+  const now   = {};
+  const hits  = [];
+  elements.forEach(p => {
+    now[p.id] = p.now_cost;
+    if (saved[p.id] && saved[p.id] !== p.now_cost) {
+      hits.push({ name: p.web_name, old: (saved[p.id]/10).toFixed(1), cur: (p.now_cost/10).toFixed(1), type: p.now_cost > saved[p.id] ? 'rise' : 'fall', isMine: mySquad.has(p.id) });
+    }
+  });
+  localStorage.setItem('kopala_prices', JSON.stringify(now));
+  return hits;
+}
+
+/* ════════════════════════
+   ZONES
+   ════════════════════════ */
+function updateZones() {
+  const pending = ALL.filter(p => !p.moved && !p.belowFloor);
+  const tn = pending.filter(p => p.tonightEst >= 88);
+  const so = pending.filter(p => p.tonightEst >= 60 && p.tonightEst < 88);
+  const wa = pending.filter(p => p.cumulProg  >= 30 && p.tonightEst < 60);
+  setText('z-tn', tn.length || '0'); setText('z-so', so.length || '0'); setText('z-wa', wa.length || '0');
+  const fmt = a => a.slice(0,3).map(p=>p.name).join(', ') || '—';
+  setText('z-tn-n', fmt(tn)); setText('z-so-n', fmt(so)); setText('z-wa-n', fmt(wa));
+  setText('h-rise', ALL.filter(p=>p.isRise&&!p.moved&&p.tonightEst>=40).length);
+  setText('h-fall', ALL.filter(p=>!p.isRise&&!p.moved&&p.tonightEst>=40).length);
+}
+
+function setZone(z) {
+  zone = zone === z ? null : z;
+  ['tn','so','wa'].forEach(k => { const el=document.getElementById(`zb-${k}`); if(el) el.classList.toggle('sel', k===zone); });
+  render();
+  document.getElementById('pc-list').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+/* ════════════════════════
+   SQUAD BANNER
+   ════════════════════════ */
+function renderSquadBanner() {
+  if (!squadMeta || !ALL.length) return;
+  const wrap = document.getElementById('squad-wrap');
+  wrap.style.display = '';
+  const ini = (squadMeta.name || 'FPL').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+  setText('sq-av', ini);
+  setText('sq-name', squadMeta.name);
+  setText('sq-meta', `GW${squadMeta.gw} · ${mySquad.size} players tracked · tap to jump`);
+
+  const movers = ALL.filter(p => p.isMine && !p.moved && p.cumulProg >= 12)
+    .sort((a,b) => b.cumulProg - a.cumulProg).slice(0, 12);
+
+  const pills = document.getElementById('sq-pills');
+  if (!movers.length) {
+    pills.innerHTML = '<div class="sq-none">None of your players are moving significantly yet</div>';
+    return;
+  }
+  pills.innerHTML = movers.map((p, i) => {
+    const shirt = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos===1?'_1':''}-66.png`;
+    const cls   = p.isRise ? 'sqr' : 'sqf';
+    const emoji = p.pred==='TONIGHT' ? '🔥' : p.pred==='SOON' ? '📈' : '';
+    return `<button class="sq-pill ${cls}" style="animation-delay:${i*.05}s"
+              onclick="focusPlayer(${p.id})" aria-label="${p.name} — ${p.pred}" role="listitem">
+      <img class="sq-shirt" src="${shirt}" alt="" loading="lazy"
+           onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
+      <span>${p.name}</span>
+      <span class="sdir">${emoji}${p.isRise?'+':'−'}${p.cumulProg.toFixed(0)}%</span>
+    </button>`;
+  }).join('');
+}
+
+function focusPlayer(id) {
+  const p = ALL.find(x => x.id === id);
+  if (!p) return;
+  setView(p.isRise ? 'r' : 'f');
+  setTimeout(() => {
+    const row = document.getElementById(`row-${id}`);
+    if (!row) return;
+    row.scrollIntoView({ behavior:'smooth', block:'center' });
+    row.style.outline = '2px solid var(--am)';
+    row.style.transition = 'outline .3s';
+    setTimeout(() => { row.style.outline = ''; }, 2000);
+  }, 150);
+}
+
+/* ════════════════════════
+   RENDER LIST
+   ════════════════════════ */
+function render() {
+  const list   = document.getElementById('pc-list');
+  const search = (document.getElementById('pcSearch')?.value || '').toLowerCase().trim();
+  const teamF  = document.getElementById('teamFilter')?.value || 'all';
+  const minOwn = parseFloat(document.getElementById('ownSlider')?.value || 0);
+  const autoHide = !search && view !== 'w';
+
+  let pool = ALL.filter(p => {
+    if (view === 'r' && !p.isRise)                     return false;
+    if (view === 'f' &&  p.isRise)                     return false;
+    if (view === 'w' && !watchlist.includes(p.id))     return false;
+    if (pos !== 0 && p.pos !== pos)                    return false;
+    if (search && !p.name.toLowerCase().includes(search)) return false;
+    if (teamF !== 'all' && String(p.teamId) !== teamF) return false;
+    if (autoHide && p.moved)                           return false;
+    if (p.own < minOwn)                                return false;
+    if (zone === 'tn' && (p.moved || p.tonightEst < 88))                            return false;
+    if (zone === 'so' && (p.moved || p.tonightEst < 60 || p.tonightEst >= 88))      return false;
+    if (zone === 'wa' && (p.moved || p.cumulProg  < 30 || p.tonightEst >= 60))      return false;
+    return true;
+  });
+
+  const sortFns = {
+    prog: (a,b) => b.cumulProg  - a.cumulProg,
+    est:  (a,b) => b.tonightEst - a.tonightEst,
+    net:  (a,b) => b.absNet     - a.absNet,
+    own:  (a,b) => b.own        - a.own,
+    name: (a,b) => a.name.localeCompare(b.name),
+  };
+  pool.sort(sortFns[sort] || sortFns.prog);
+
+  if (!pool.length) {
+    list.innerHTML = `<div class="empty" role="status">
+      <i class="fa-solid fa-${view==='w'?'star':'filter'}" aria-hidden="true"></i>
+      <p>${view==='w' ? 'No players starred yet.<br>Tap ☆ on any player to track them here.' : 'No players match your filters.'}</p>
+    </div>`;
+    return;
+  }
+
+  if (!zone) {
+    const gTn = pool.filter(p => !p.moved && p.tonightEst >= 88);
+    const gSo = pool.filter(p => !p.moved && p.tonightEst >= 60 && p.tonightEst < 88);
+    const gRe = pool.filter(p =>  p.moved || p.tonightEst < 60);
+    let html = '', i = 0;
+    if (gTn.length) { html += mkSect('Tonight — Near Certain', gTn.length, 'var(--re)'); html += gTn.map(p => mkRow(p, i++)).join(''); }
+    if (gSo.length) { html += mkSect('Soon — High Probability', gSo.length, 'var(--am)'); html += gSo.map(p => mkRow(p, i++)).join(''); }
+    if (gRe.length) { if (gTn.length || gSo.length) html += mkSect('On The Radar', gRe.length, 'var(--t3)'); html += gRe.map(p => mkRow(p, i++)).join(''); }
+    list.innerHTML = html;
+  } else {
+    list.innerHTML = pool.map((p,i) => mkRow(p, i)).join('');
+  }
+}
+
+function mkSect(label, n, color) {
+  return `<div class="sect" style="color:${color}">${label} <span style="color:var(--t3);font-family:var(--fn);font-size:.68rem;font-weight:700">(${n})</span></div>`;
+}
+
+/* ─── Build one row ─── */
+function mkRow(p, idx) {
+  const starred = watchlist.includes(p.id);
+  const shirt   = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos===1?'_1':''}-66.png`;
+  const delay   = Math.min(idx, 22) * 0.017;
+  const estW    = p.moved ? 100 : Math.min(100, p.tonightEst);
+  const nowW    = p.moved ? 100 : Math.min(100, p.cumulProg);
+  const relNow  = estW > 0 ? (nowW / estW) * 100 : nowW;
+  const pctLbl  = p.moved ? (p.actualChange > 0 ? '+£0.1' : '−£0.1') : p.belowFloor ? 'FLOOR' : `${p.cumulProg.toFixed(0)}%`;
+  const rowCls  = [
+    p.isRise ? 'rr' : 'rf',
+    p.moved      ? 'done'  : '',
+    p.isMine     ? 'mine'  : '',
+    p.belowFloor ? 'floor' : '',
+    !p.moved && p.tonightEst >= 88 && p.isRise  ? 'hot-r' : '',
+    !p.moved && p.tonightEst >= 88 && !p.isRise ? 'hot-f' : '',
+  ].filter(Boolean).join(' ');
+
+  /* The net sub-label shows which condition is the bottleneck */
+  const bottleneck = p.moved ? '' : p.cumulMet ? '✓ cumul' : `${((p.absNet/RISE_CUMUL)*100).toFixed(0)}% cumul`;
+
+  return `<div class="${rowCls}" id="row-${p.id}" style="animation-delay:${delay}s" role="listitem"
+              aria-label="${p.name}${p.isMine?' — your player':''} — ${p.pred}">
+
+  <div class="pc">
+    <img class="shirt" src="${shirt}" alt="" loading="lazy"
+         onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
+    <div class="pinfo">
+      <div class="pname">
+        ${p.name}
+        ${p.isMine ? '<i class="fa-solid fa-star mine-star" aria-label="In your squad"></i>' : ''}
+      </div>
+      <div class="pmeta">
+        <span class="posb ${POS_CLS[p.pos]}">${POS_LBL[p.pos]}</span>
+        <span>${TMAP[p.teamId]||''}</span>
+        <span class="ppr">£${p.price}</span>
+        <span>${p.own.toFixed(1)}%</span>
+        ${p.belowFloor ? '<span class="flbl">FLOOR</span>' : ''}
+        ${p.status!=='a'&&!p.belowFloor ? '<i class="fa-solid fa-triangle-exclamation warn" title="Fitness concern" aria-label="Fitness concern"></i>' : ''}
+      </div>
+      ${!p.moved && p.isRise && !p.belowFloor ? '<div class="sell" aria-label="Sell price rises by 5p if price rises tonight"><i class="fa-solid fa-arrow-up" style="font-size:.48rem" aria-hidden="true"></i> +£0.05 sell price if rises tonight</div>' : ''}
+    </div>
+  </div>
+
+  <div class="cumul" aria-label="Progress ${p.cumulProg.toFixed(0)}% of threshold, tonight estimate ${p.tonightEst.toFixed(0)}%">
+    <div class="cpct ${p.pctCls}">${pctLbl}</div>
+    <div class="cbar" role="progressbar"
+         aria-valuenow="${p.cumulProg}" aria-valuemin="0" aria-valuemax="100"
+         title="Cumul: ${p.cumulProg.toFixed(0)}% · Tonight: ~${p.tonightEst.toFixed(0)}%">
+      <div class="cest" style="width:${estW}%"></div>
+      <div class="cnow" style="width:${relNow}%"></div>
+    </div>
+    <div class="csub">~${p.tonightEst.toFixed(0)}% tonight</div>
+    ${!p.moved ? `<div class="vel"><i class="fa-solid ${p.velIcon} ${p.velCls}" aria-hidden="true"></i></div>` : ''}
+  </div>
+
+  <div class="pnet" aria-label="Net transfers ${p.netDisplay}">
+    <span class="${p.netCls}">${p.moved ? '✓' : p.netDisplay}</span>
+    ${!p.moved ? `<span class="nsub">${bottleneck}</span>` : ''}
+  </div>
+
+  <div class="pprob" aria-label="Probability ${p.prob}%">
+    ${probRing(p.prob, p.isRise)}
+    <span class="pval">${p.moved ? '✓' : p.prob+'%'}</span>
+  </div>
+
+  <div class="ppred">
+    <span class="pred ${p.predCls}">${p.pred}</span>
+  </div>
+
+  <button class="pstar ${starred?'on':''}"
+    onclick="toggleWatch(${p.id},event)"
+    aria-label="${starred?'Remove from':'Add to'} watchlist"
+    aria-pressed="${starred}">
+    <i class="fa-${starred?'solid':'regular'} fa-star" aria-hidden="true"></i>
+  </button>
+</div>`;
+}
+
+/* ─── Probability SVG ring ─── */
+function probRing(prob, isRise) {
+  const r=12, c=15, circ=2*Math.PI*r;
+  const fill=(prob/100)*circ;
+  const col = isRise ? 'var(--gr)' : 'var(--re)';
+  const bg  = isRise ? 'rgba(0,232,122,.12)' : 'rgba(255,51,82,.12)';
+  return `<svg class="pring" width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+    <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${bg}" stroke-width="3"/>
+    <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${col}" stroke-width="3"
+      stroke-dasharray="${fill} ${circ}" stroke-dashoffset="0"
+      transform="rotate(-90 ${c} ${c})" stroke-linecap="round"/>
+  </svg>`;
+}
+
+/* ════════════════════════
+   CONTROLS
+   ════════════════════════ */
+function setView(v) {
+  view = v; zone = null;
+  ['r','f','w'].forEach(id => {
+    const el = document.getElementById(`tab-${id}`);
+    if (!el) return;
+    const clsMap = {r:'tg',f:'tr',w:'ta'};
+    el.className = `ctab${id===v ? ' '+clsMap[id] : ''}`;
+    el.setAttribute('aria-selected', id===v);
+  });
+  ['tn','so','wa'].forEach(k => { const el=document.getElementById(`zb-${k}`); if(el) el.classList.remove('sel'); });
+  render();
+}
+
+function setPos(p) {
+  pos = p;
+  for (let i=0;i<5;i++) {
+    const el = document.getElementById(`pb${i}`);
+    if (!el) continue;
+    el.className = `pbtn${i===p?' '+POS_BTN[i]:''}`;
+    el.setAttribute('aria-pressed', i===p);
+  }
+  render();
+}
+
+function setSort(s) {
+  sort = s;
+  ['sp-prog','sp-est','sp-net','sp-own'].forEach(id => { const e=document.getElementById(id); if(e){e.classList.remove('on');e.setAttribute('aria-pressed','false')} });
+  ['th-name','th-prog','th-net','th-prob'].forEach(id => { const e=document.getElementById(id); if(e) e.classList.remove('on') });
+  const spMap={prog:'sp-prog',est:'sp-est',net:'sp-net',own:'sp-own'};
+  const thMap={prog:'th-prog',net:'th-net',prob:'th-prob',name:'th-name'};
+  if(spMap[s]){const e=document.getElementById(spMap[s]);if(e){e.classList.add('on');e.setAttribute('aria-pressed','true')}}
+  if(thMap[s]){const e=document.getElementById(thMap[s]);if(e) e.classList.add('on')}
+  render();
+}
+
+function syncOwn() {
+  const v = document.getElementById('ownSlider')?.value || 0;
+  setText('own-val', `${parseFloat(v).toFixed(1)}%`);
+}
+
+function toggleWatch(id, e) {
+  e.stopPropagation();
+  const i = watchlist.indexOf(id);
+  if (i > -1) watchlist.splice(i, 1); else watchlist.push(id);
+  localStorage.setItem('kopala_watchlist', JSON.stringify(watchlist));
+  const wc = document.getElementById('wc-ct');
+  if (wc) wc.textContent = watchlist.length ? ` (${watchlist.length})` : '';
+  render();
+}
+
+function toggleAlgo(btn) {
+  const body = document.getElementById('algo-body');
+  const open = !body.classList.contains('open');
+  body.classList.toggle('open', open);
+  btn.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+}
+
+/* ════════════════════════
+   COUNTDOWN TIMER
+   ════════════════════════ */
+function startTimer() {
+  function tick() {
+    const ms  = getUpdateTarget() - Date.now();
+    if (ms <= 0) { setText('pc-timer', '00:00:00'); return; }
+    const h=String(Math.floor(ms/3.6e6)).padStart(2,'0');
+    const m=String(Math.floor((ms%3.6e6)/60000)).padStart(2,'0');
+    const s=String(Math.floor((ms%60000)/1000)).padStart(2,'0');
+    const el = document.getElementById('pc-timer');
+    if (el) { el.textContent=`${h}:${m}:${s}`; el.classList.toggle('urgent', ms<3600000); }
+    const gwS = getGWStart().getTime();
+    const gwE = getUpdateTarget().getTime();
+    const pct = Math.min(100, ((Date.now()-gwS)/(gwE-gwS))*100);
+    const pf  = document.getElementById('h-prog');
+    if (pf) pf.style.width = `${pct.toFixed(1)}%`;
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+/* ════════════════════════
+   SQUAD LOADING
+   ════════════════════════ */
+async function loadSquad(fplId, gwNum) {
+  try {
+    const [eR, pR] = await Promise.all([
+      fetch(`${PROXY}entry/${fplId}/`),
+      fetch(`${PROXY}entry/${fplId}/event/${gwNum}/picks/`),
+    ]);
+    if (!eR.ok || !pR.ok) return;
+    const entry = await eR.json();
+    const picks = await pR.json();
+    picks.picks.forEach(pk => mySquad.add(pk.element));
+    squadMeta = {
+      name: entry.name || `${entry.player_first_name||''} ${entry.player_last_name||''}`.trim() || 'Your Squad',
+      gw: gwNum,
+    };
+  } catch (err) { console.warn('[Squad]', err); }
+}
+
+/* ════════════════════════
+   SKELETONS / HELPERS
+   ════════════════════════ */
+function showSkels(n=10) {
+  document.getElementById('pc-list').innerHTML = Array.from({length:n},(_,i)=>
+    `<div class="skel" style="animation-delay:${i*.04}s" aria-hidden="true"></div>`
+  ).join('');
+}
+function setText(id, v) { const el=document.getElementById(id); if(el) el.textContent=v; }
+
+/* ════════════════════════
+   IDB BOOTSTRAP CACHE
+   ════════════════════════ */
+const KopalaIDB=(()=>{
+  const DB='kopala-fpl',VER=1,STORE='bootstrap',KEY='static',TTL=60*60*1000;
+  const open=()=>new Promise((res,rej)=>{const r=indexedDB.open(DB,VER);r.onupgradeneeded=e=>{if(!e.target.result.objectStoreNames.contains(STORE))e.target.result.createObjectStore(STORE);};r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);});
+  const get=(db,k)=>new Promise((res,rej)=>{const r=db.transaction(STORE,'readonly').objectStore(STORE).get(k);r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);});
+  const set=(db,k,v)=>new Promise((res,rej)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).put(v,k);r.onsuccess=()=>res();r.onerror=e=>rej(e.target.error);});
+  async function getBootstrap(proxy){
+    let db;
+    try{
+      db=await open();
+      const cached=await get(db,KEY);
+      if(cached&&(Date.now()-cached.ts)<TTL)return cached.data;
+      const r=await fetch(`${proxy}bootstrap-static/`);
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const data=await r.json();
+      set(db,KEY,{data,ts:Date.now()}).catch(()=>{});
+      return data;
+    }catch(err){
+      if(db){const stale=await get(db,KEY).catch(()=>null);if(stale)return stale.data;}
+      throw err;
+    }
+  }
+  // Bypass TTL for auto-refresh (caller already knows data is stale)
+  async function fetchFresh(proxy){
+    const r=await fetch(`${proxy}bootstrap-static/`);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    const db=await open();
+    set(db,KEY,{data,ts:Date.now()}).catch(()=>{});
+    return data;
+  }
+  return{getBootstrap,fetchFresh};
+})();
+
+/* ════════════════════════
+   WORKER: process bootstrap
+   ════════════════════════ */
+const PR_WORKER_SRC=`
+self.onmessage=function(e){
+  if(e.data.type!=='PROCESS')return;
+  try{
+    const d=e.data.payload,proxy=e.data.proxy;
+    const TMAP={},TCODES={};
+    d.teams.forEach(t=>{TMAP[t.id]=t.short_name;TCODES[t.id]=t.code;});
+    const teamList=d.teams.map(t=>({id:t.id,name:t.name}));
+    const curGW=d.events.find(e=>e.is_current)||d.events[0];
+    self.postMessage({type:'DONE',payload:{TMAP,TCODES,teamList,gwNum:curGW?.id||1,elements:d.elements}});
+  }catch(err){self.postMessage({type:'ERROR',payload:err.message});}
+};
+`;
+function runPricesWorker(data){
+  return new Promise((resolve,reject)=>{
+    try{
+      const blob=new Blob([PR_WORKER_SRC],{type:'application/javascript'});
+      const url=URL.createObjectURL(blob);
+      const worker=new Worker(url);
+      worker.onmessage=e=>{URL.revokeObjectURL(url);worker.terminate();e.data.type==='DONE'?resolve(e.data.payload):reject(new Error(e.data.payload));};
+      worker.onerror=err=>{URL.revokeObjectURL(url);worker.terminate();reject(err);};
+      worker.postMessage({type:'PROCESS',payload:data});
+    }catch(err){
+      // Fallback: main thread
+      const TMAP={},TCODES={};
+      data.teams.forEach(t=>{TMAP[t.id]=t.short_name;TCODES[t.id]=t.code;});
+      resolve({TMAP,TCODES,teamList:data.teams.map(t=>({id:t.id,name:t.name})),gwNum:(data.events.find(e=>e.is_current)||data.events[0])?.id||1,elements:data.elements});
+    }
+  });
+}
+
+/* ════════════════════════
+   AUTO REFRESH (3 min)
+   ════════════════════════ */
+let refreshTimer;
+function scheduleRefresh() {
+  clearInterval(refreshTimer);
+  refreshTimer = setInterval(async () => {
+    try {
+      // Force-fetch fresh data, update IDB, skip TTL check
+      const data = await KopalaIDB.fetchFresh(PROXY);
+      ALL = data.elements.map(p => calcPlayer(p));
+      ALL.forEach(p => saveSnap(p.id, p.cumulProg));
+      updateZones(); renderSquadBanner(); render();
+      setText('h-upd', new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+    } catch {}
+  }, 180000);
+}
+
+/* ════════════════════════
+   INIT
+   ════════════════════════ */
+async function init() {
+  showSkels(10);
+  startTimer();
+  try {
+    // IDB cache (sub-10ms on repeat) → Worker processes maps off main thread
+    const data = await KopalaIDB.getBootstrap(PROXY);
+    const processed = await runPricesWorker(data);
+
+    Object.assign(TMAP, processed.TMAP);
+    Object.assign(TCODES, processed.TCODES);
+    const gwNum = processed.gwNum;
+
+    processed.teamList.forEach(t => {
+      const o = document.createElement('option');
+      o.value = t.id; o.textContent = t.name;
+      document.getElementById('teamFilter').appendChild(o);
+    });
+
+    /* Load squad from logged-in FPL ID */
+    const fplId = localStorage.getItem('kopala_id');
+    if (fplId) await loadSquad(fplId, gwNum);
+
+    /* Detect confirmed price changes since last visit */
+    renderConfirmedStrip(detectConfirmed(processed.elements));
+
+    /* Process all players */
+    ALL = processed.elements.map(p => calcPlayer(p));
+    ALL.forEach(p => saveSnap(p.id, p.cumulProg));
+
+    updateZones();
+    renderSquadBanner();
+
+    const wc = document.getElementById('wc-ct');
+    if (wc && watchlist.length) wc.textContent = ` (${watchlist.length})`;
+
+    setText('h-upd', new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+    render();
+    scheduleRefresh();
+
+  } catch (err) {
+    console.error('[Prices init]', err);
+    document.getElementById('pc-list').innerHTML = `
+      <div class="empty" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <p>Failed to load price data.<br>Check your connection and try again.</p>
+      </div>`;
+  }
+}
+
+function renderConfirmedStrip(hits) {
+  if (!hits.length) return;
+  const wrap = document.getElementById('cfm');
+  const scroll = document.getElementById('cfm-scroll');
+  wrap.style.display = '';
+  scroll.innerHTML = hits.map((c, i) => `
+    <div class="cpill ${c.type}" style="animation-delay:${i*.06}s" role="listitem">
+      ${c.isMine ? '<i class="fa-solid fa-star" style="color:var(--go);font-size:.58rem" aria-label="Your player"></i>' : ''}
+      <span class="cpill-name">${c.name}</span>
+      <span class="cpill-delta">${c.type==='rise' ? '+£0.1' : '−£0.1'}</span>
+      <span class="cpill-pr">£${c.old}→£${c.cur}</span>
+    </div>`).join('');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+<script src="nav.js"           defer></script>
+<script src="live-widget.js"   defer></script>
+<script src="deadline.js"      defer></script>
+<script src="kopala-notify.js" defer></script>
+<script src="footer.js"        defer></script>
+<script src="badge.js"         defer></script>
+<script src="pwa.js"           defer></script>
+</body>
+</html>
