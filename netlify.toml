@@ -1,8 +1,8 @@
 # ============================================================
-#  KOPALA FPL â€” netlify.toml
+#  KOPALA FPL — netlify.toml
 # ============================================================
 
-# â”€â”€ Build â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Build ────────────────────────────────────────────────────
 [build]
   functions = "netlify/functions"
 
@@ -10,10 +10,10 @@
   node_bundler = "esbuild"
 
 
-# â”€â”€ Cache Headers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Cache Headers ────────────────────────────────────────────
 # Immutable assets (JS, CSS, images, fonts, icons)
 # max-age=31536000 = 1 year. "immutable" tells the browser
-# never to revalidate â€” these files never change at a given URL.
+# never to revalidate — these files never change at a given URL.
 # When you deploy a new version, Netlify serves new URLs/hashes.
 
 [[headers]]
@@ -56,7 +56,7 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# HTML â€” never cache, always fresh
+# HTML — never cache, always fresh
 # Users must always get the latest HTML so SW + JS updates land immediately.
 [[headers]]
   for = "/*.html"
@@ -68,26 +68,26 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-# Manifest â€” short cache, needs to stay fresh for PWA installs
+# Manifest — short cache, needs to stay fresh for PWA installs
 [[headers]]
   for = "/manifest.json"
   [headers.values]
     Cache-Control = "public, max-age=3600"
 
-# Service worker â€” NEVER cache, browser must always get latest
+# Service worker — NEVER cache, browser must always get latest
 [[headers]]
   for = "/sw.js"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
 
-# CORS â€” allow all origins on every route (needed for PWA + API calls)
+# CORS — allow all origins on every route (needed for PWA + API calls)
 [[headers]]
   for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
 
 
-# â”€â”€ Security Headers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Security Headers ─────────────────────────────────────────
 # Adds baseline security hardening on all HTML responses.
 [[headers]]
   for = "/*.html"
@@ -98,9 +98,9 @@
     Permissions-Policy        = "camera=(), microphone=(), geolocation=()"
 
 
-# â”€â”€ Redirects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Redirects ────────────────────────────────────────────────
 # Single canonical FPL proxy redirect.
-# All duplicates removed â€” Netlify only needs one rule per pattern.
+# All duplicates removed — Netlify only needs one rule per pattern.
 [[redirects]]
   from   = "/.netlify/functions/fpl-proxy"
   to     = "/.netlify/functions/fpl-proxy"
