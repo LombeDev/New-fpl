@@ -545,4 +545,58 @@
     history.replaceState({ page: 'home', href: location.pathname }, '', location.href);
   }
 
-  /* ─
+  
+  /* ── 10. STYLES ──────────────────────────────────────── */
+  const pwaStyles = document.createElement('style');
+  pwaStyles.textContent = `
+    #kfl-install-toast {
+      position: fixed;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 76px);
+      left: 12px; right: 12px;
+      background: var(--kfl-surface, #13112a);
+      border: 1px solid var(--kfl-border, rgba(255,255,255,0.08));
+      border-radius: 14px;
+      padding: 13px 13px 13px 15px;
+      display: flex; align-items: center; gap: 11px;
+      z-index: 9999;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.55);
+      transform: translateY(120%); opacity: 0;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease;
+      max-width: 480px; margin: 0 auto;
+    }
+    @media (min-width: 768px) {
+      #kfl-install-toast { left: auto; bottom: 24px; right: 24px; width: 320px; max-width: 320px; }
+    }
+    #kfl-install-toast.kfl-install-toast--visible { transform: translateY(0); opacity: 1; }
+    .kfl-install-toast__icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: var(--kfl-accent-dim, rgba(233,0,82,0.1));
+      color: var(--kfl-accent, #e90052);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .kfl-install-toast__icon .material-symbols-rounded {
+      font-size: 18px;
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .kfl-install-toast__text { flex: 1; min-width: 0; }
+    .kfl-install-toast__text strong { display: block; font-size: 13px; font-weight: 700; color: var(--kfl-text-1, #f0eeff); margin-bottom: 2px; }
+    .kfl-install-toast__text span { font-size: 11.5px; color: var(--kfl-text-3, #5c5585); }
+    .kfl-install-toast__btn {
+      background: var(--kfl-accent, #e90052); color: #fff;
+      border: none; border-radius: 8px; padding: 8px 14px;
+      font-size: 12px; font-weight: 700; cursor: pointer; flex-shrink: 0;
+      font-family: inherit; transition: opacity 0.15s;
+    }
+    .kfl-install-toast__btn:hover { opacity: 0.85; }
+    .kfl-install-toast__close {
+      background: none; border: none; color: var(--kfl-text-3, #5c5585);
+      cursor: pointer; padding: 4px; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0; border-radius: 6px; transition: color 0.15s;
+    }
+    .kfl-install-toast__close:hover { color: var(--kfl-text-1, #f0eeff); }
+    .kfl-install-toast__close .material-symbols-rounded { font-size: 18px; }
+    .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important; }
+  `;
+  document.head.appendChild(pwaStyles);
+
+})();
