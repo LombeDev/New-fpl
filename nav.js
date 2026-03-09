@@ -13,7 +13,7 @@
     { href: 'leagues.html',    label: 'Leagues', icon: 'fa-trophy' },
     { href: 'prices.html',     label: 'Prices',  icon: 'fa-arrow-trend-up' },
     { href: 'games.html',      label: 'Live',    icon: 'fa-futbol', live: true },
-    { href: 'statistics.html', label: 'Stats',   icon: 'fa-chart-line' },
+   
   ];
 
   const MENU_LINKS = [
@@ -21,7 +21,7 @@
     { href: 'leagues.html',    label: 'Leagues', icon: 'fa-trophy' },
     { href: 'prices.html',     label: 'Prices',  icon: 'fa-arrow-trend-up' },
     { href: 'games.html',      label: 'Live',    icon: 'fa-futbol',        live: true },
-    { href: 'statistics.html', label: 'Stats',   icon: 'fa-chart-line' },
+    
   ];
 
   /* ── THEME ── */
@@ -394,7 +394,7 @@
           <div class="kfl-dd-footer">
             <span>Kopala FPL</span>
             <span class="kfl-dd-footer-dot">·</span>
-            <span>Built for Zambians 🇿🇲</span>
+            <span>🇿🇲</span>
           </div>
 
         </div>
