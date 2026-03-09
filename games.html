@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Kopala FPL — Fixtures & Live Scores</title>
+<meta name="theme-color" content="#0a0e1a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kopala FPL">
+<link rel="apple-touch-icon" href="/android-chrome-192x192.png">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="manifest" href="manifest.json">
+
+<script>(function(){
+  var t=localStorage.getItem('kopala_theme');
+  if(!t)t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  document.documentElement.setAttribute('data-theme',t);
+})();</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://fantasy.premierleague.com">
+<link rel="dns-prefetch" href="https://draft.premierleague.com">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@700;800&display=swap">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@700;800&display=swap"></noscript>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"></noscript>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="nav.css">
+<link rel="stylesheet" href="footer.css">
+<noscript>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="nav.css">
+  <link rel="stylesheet" href="footer.css">
+</noscript>
+
+<style>
+[data-theme="light"]{
+  --bg:#ffffff;--surf:#ffffff;--s2:#f8f9fc;--s3:#f0f2f8;--s4:#e8eaf2;
+  --b1:rgba(0,0,0,.06);--b2:rgba(0,0,0,.11);--b3:rgba(0,0,0,.18);
+  --t1:#0d0f1a;--t2:#4a4f6a;--t3:#9298b5;
+  --grn:#00c060;--red:#e8334a;--amb:#e8a020;--blu:#3b7fff;--gld:#c49a00;
+  --nav-bg:rgba(240,242,248,.96);
+  --card-sh:0 8px 32px rgba(0,0,0,.13),0 2px 8px rgba(0,0,0,.07);
+  --card-sh2:0 4px 18px rgba(0,0,0,.09),0 1px 4px rgba(0,0,0,.05);
+  --card-sh3:0 2px 10px rgba(0,0,0,.06);
+}
+[data-theme="dark"]{
+  --bg:#0a0e1a;--surf:#111520;--s2:#181d2e;--s3:#1f2538;--s4:#252b3d;
+  --b1:rgba(255,255,255,.05);--b2:rgba(255,255,255,.09);--b3:rgba(255,255,255,.15);
+  --t1:#eef0ff;--t2:#8890b8;--t3:#454d72;
+  --grn:#00e87a;--red:#ff3d5a;--amb:#ffb020;--blu:#5090ff;--gld:#ffd54f;
+  --nav-bg:rgba(10,14,26,.96);
+  --card-sh:0 12px 48px rgba(0,0,0,.6),0 4px 16px rgba(0,0,0,.4);
+  --card-sh2:0 6px 28px rgba(0,0,0,.45),0 2px 10px rgba(0,0,0,.3);
+  --card-sh3:0 3px 14px rgba(0,0,0,.35);
+}
+:root{
+  --top:56px;--bot:64px;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --snap:cubic-bezier(.22,1,.36,1);
+  --r:22px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg)}
+body{
+  font-family:'DM Sans',system-ui,sans-serif;
+  color:var(--t1);-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+}
+
+/* ── KEYFRAMES ── */
+@keyframes shimmer{0%{background-position:-500px 0}100%{background-position:500px 0}}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+@keyframes liveGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,61,90,.4)}70%{box-shadow:0 0 0 6px transparent}}
+@keyframes deckIn{
+  0%{opacity:0;transform:translateY(30px) scale(.94)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes flyLeft{
+  to{transform:translateX(-115%) rotate(-14deg);opacity:0}
+}
+@keyframes flyRight{
+  to{transform:translateX(115%) rotate(14deg);opacity:0}
+}
+@keyframes snapBack{
+  0%{transform:var(--snap-from,translate(0))}
+  55%{transform:translateX(5px) rotate(.4deg)}
+  100%{transform:translateX(0) rotate(0)}
+}
+@keyframes riseUp{
+  0%{transform:var(--rise-from,scale(.94) translateY(12px));opacity:.7}
+  100%{transform:scale(1) translateY(0);opacity:1}
+}
+@keyframes hintWobble{
+  0%,100%{transform:translateX(0) rotate(0)}
+  20%{transform:translateX(-14px) rotate(-1.5deg)}
+  55%{transform:translateX(9px) rotate(1.2deg)}
+  78%{transform:translateX(-4px) rotate(-.6deg)}
+}
+@keyframes panelIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes dotBump{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+
+/* ── GW NAV ── */
+.gw-nav{
+  position:sticky;
+  top:calc(var(--top) + env(safe-area-inset-top,0px));
+  z-index:400;
+  background:var(--nav-bg);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--b2);
+  padding:10px 14px;
+  display:flex;align-items:center;gap:8px;
+}
+.gw-arr{
+  width:36px;height:36px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--s2);border:1px solid var(--b2);border-radius:8px;
+  color:var(--t2);font-size:.72rem;cursor:pointer;
+  transition:all .16s;-webkit-tap-highlight-color:transparent;
+}
+.gw-arr:hover:not(:disabled){background:var(--s3);color:var(--t1)}
+.gw-arr:active:not(:disabled){transform:scale(.9)}
+.gw-arr:disabled{opacity:.25;cursor:not-allowed}
+.gw-tabs{
+  flex:1;display:flex;background:var(--s2);
+  border:1px solid var(--b2);border-radius:12px;padding:3px;gap:3px;
+}
+.gw-tab{
+  flex:1;padding:8px 4px;border:none;border-radius:9px;
+  background:transparent;
+  font-family:'Barlow Condensed',sans-serif;font-size:.84rem;font-weight:800;
+  color:var(--t3);cursor:pointer;white-space:nowrap;
+  transition:all .18s;-webkit-tap-highlight-color:transparent;
+}
+.gw-tab.active{background:var(--surf);color:var(--t1);box-shadow:0 2px 8px rgba(0,0,0,.14)}
+
+/* ── PAGE WRAP ── */
+.page-wrap{
+  max-width:520px;margin:0 auto;padding:0 14px;
+  padding-bottom:calc(var(--bot) + env(safe-area-inset-bottom,0px) + 40px);
+}
+
+/* ── GW HEADER ── */
+.gw-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0 8px;
+}
+.gw-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:1.35rem;font-weight:900;letter-spacing:.3px;
+}
+.live-badge{
+  display:none;align-items:center;gap:5px;
+  font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:900;
+  letter-spacing:.8px;color:var(--red);
+  background:rgba(255,61,90,.1);border:1px solid rgba(255,61,90,.22);
+  border-radius:100px;padding:4px 10px;
+}
+.live-badge.show{display:flex}
+.live-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--red);
+  animation:livePulse 1.4s ease-in-out infinite,liveGlow 1.4s ease-in-out infinite;
+}
+
+/* ── COUNTER ── */
+.deck-meta{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;min-height:24px;
+}
+.counter-dots{display:flex;gap:5px;align-items:center;flex-wrap:wrap;max-width:200px}
+.cdot{
+  width:6px;height:6px;border-radius:50%;background:var(--b3);
+  transition:all .3s var(--spring);flex-shrink:0;
+}
+.cdot.active{background:var(--t1);width:20px;border-radius:4px}
+.cdot.done{background:var(--grn);opacity:.55}
+.counter-lbl{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.78rem;font-weight:800;letter-spacing:.4px;color:var(--t3);
+}
+.counter-cur{color:var(--t1);display:inline-block}
+
+/* ── SWIPE HINT ── */
+.swipe-hint{
+  text-align:center;font-size:.67rem;font-weight:600;color:var(--t3);
+  margin-bottom:10px;opacity:0;transition:opacity .35s;
+  letter-spacing:.3px;
+}
+.swipe-hint.show{opacity:1}
+
+/* ─────────────────────────────
+   DECK CONTAINER
+   All cards absolutely stacked
+   at same position. The visible
+   ones peek behind via transform.
+───────────────────────────────*/
+.deck-wrap{
+  position:relative;
+  /* Height = tallest rendered card. Set by JS. */
+  min-height:320px;
+  margin-bottom:24px;
+  /* Overflow visible so peeking cards show */
+  overflow:visible;
+}
+
+/* ── CARD ── */
+.match-card{
+  position:absolute;
+  left:0;right:0;top:0;
+  background:var(--surf);
+  border:1px solid var(--b2);
+  border-radius:var(--r);
+  overflow:hidden;
+  transform-origin:center bottom;
+  will-change:transform,opacity,box-shadow;
+  user-select:none;-webkit-user-select:none;
+  touch-action:pan-y;
+  /* Default hidden */
+  opacity:0;pointer-events:none;
+  transition:transform .38s var(--snap), box-shadow .3s, opacity .3s, border-color .25s;
+}
+
+/* depth 0 = top card */
+.match-card[data-d="0"]{
+  z-index:40;opacity:1;pointer-events:auto;cursor:grab;
+  box-shadow:var(--card-sh);
+  transform:scale(1) translateY(0) rotate(0deg);
+}
+.match-card[data-d="1"]{
+  z-index:30;opacity:1;pointer-events:none;
+  box-shadow:var(--card-sh2);
+  transform:scale(.96) translateY(10px);
+}
+.match-card[data-d="2"]{
+  z-index:20;opacity:.9;pointer-events:none;
+  box-shadow:var(--card-sh3);
+  transform:scale(.92) translateY(19px);
+}
+.match-card[data-d="3"]{
+  z-index:10;opacity:.6;pointer-events:none;
+  transform:scale(.88) translateY(27px);
+  box-shadow:none;
+}
+.match-card[data-d="4"]{
+  z-index:5;opacity:.35;pointer-events:none;
+  transform:scale(.85) translateY(33px);
+  box-shadow:none;
+}
+/* anything deeper stays hidden */
+.match-card[data-d="5"],
+.match-card[data-d="h"]{
+  opacity:0;pointer-events:none;
+  transform:scale(.84) translateY(36px);
+  z-index:1;
+}
+
+/* Dragging */
+.match-card.dragging{
+  transition:none !important;
+  cursor:grabbing;
+  box-shadow:0 24px 64px rgba(0,0,0,.55),0 8px 24px rgba(0,0,0,.35) !important;
+}
+
+/* fly out */
+.match-card.fly-l{animation:flyLeft .4s var(--ease) forwards;pointer-events:none !important}
+.match-card.fly-r{animation:flyRight .4s var(--ease) forwards;pointer-events:none !important}
+.match-card.snap{animation:snapBack .45s var(--spring) forwards}
+.match-card.rise{animation:riseUp .4s var(--snap) forwards}
+
+/* live card tint */
+.match-card.is-live[data-d="0"]{
+  border-color:rgba(255,61,90,.28);
+}
+
+/* ── SWIPE OVERLAYS ── */
+.sw-ov{
+  position:absolute;inset:0;border-radius:var(--r);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;z-index:99;
+  transition:opacity .12s;
+}
+.sw-ov-next{background:linear-gradient(135deg,rgba(0,232,122,.15),transparent)}
+.sw-ov-prev{background:linear-gradient(225deg,rgba(80,144,255,.15),transparent)}
+.sw-lbl{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:1.3rem;font-weight:900;letter-spacing:.8px;
+  padding:9px 20px;border-radius:100px;border:2.5px solid;
+}
+.sw-ov-next .sw-lbl{color:var(--grn);border-color:var(--grn);transform:rotate(-10deg)}
+.sw-ov-prev .sw-lbl{color:var(--blu);border-color:var(--blu);transform:rotate(10deg)}
+
+/* ── CARD TOPBAR ── */
+.card-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px 9px;
+  background:var(--s2);border-bottom:1px solid var(--b1);
+  position:relative;z-index:1;
+}
+.card-time{display:flex;align-items:center;gap:6px;font-size:.68rem;font-weight:600;color:var(--t2)}
+.live-chip{
+  display:flex;align-items:center;gap:4px;
+  font-family:'Barlow Condensed',sans-serif;font-size:.68rem;font-weight:900;
+  color:var(--red);background:rgba(255,61,90,.1);
+  border-radius:100px;padding:2px 8px;
+  animation:livePulse 2s ease-in-out infinite;
+}
+.live-chip-dot{width:5px;height:5px;border-radius:50%;background:var(--red)}
+.fdr-row{display:flex;align-items:center;gap:5px}
+.fdr-tag{
+  font-family:'Barlow Condensed',sans-serif;font-size:.67rem;font-weight:900;
+  padding:2px 7px;border-radius:6px;
+}
+.fdr-sep{font-size:.52rem;font-weight:800;color:var(--t3)}
+.fdr-1,.fdr-2{background:rgba(0,232,122,.1);color:var(--grn)}
+.fdr-3{background:rgba(255,176,32,.1);color:var(--amb)}
+.fdr-4{background:rgba(255,61,90,.1);color:var(--red)}
+.fdr-5{background:rgba(180,0,30,.18);color:#ff6080}
+
+/* ── SCORELINE ── */
+.card-match{
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;gap:8px;padding:20px 12px 18px;
+  position:relative;z-index:1;
+}
+.team-col{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0}
+.team-shirt{
+  width:50px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3));
+  transition:transform .28s var(--spring);pointer-events:none;
+}
+.match-card[data-d="0"]:hover .team-shirt{transform:scale(1.07) translateY(-2px)}
+.team-name{
+  font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;
+  color:var(--t1);text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;
+}
+.team-loc{font-size:.55rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--t3)}
+.team-loc.home{color:var(--grn)}
+.score-center{display:flex;flex-direction:column;align-items:center;gap:7px;flex:0 0 104px}
+.status-pill{
+  font-family:'Barlow Condensed',sans-serif;font-size:.67rem;font-weight:900;
+  padding:3px 10px;border-radius:100px;
+}
+.sft{background:var(--s3);color:var(--t2)}
+.slive{background:rgba(255,61,90,.14);color:var(--red);animation:livePulse 2s ease-in-out infinite}
+.ssched{background:var(--s3);color:var(--t3)}
+.score-nums{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:2.4rem;font-weight:800;line-height:1;
+  color:var(--t1);letter-spacing:2px;
+}
+.score-sep{color:var(--t3);margin:0 1px;font-weight:600}
+.vs-txt{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;color:var(--t3)}
+
+/* ── EVENTS (surface) ── */
+.card-events{
+  border-top:1px solid var(--b1);padding:9px 14px;
+  display:grid;grid-template-columns:1fr 1fr;gap:7px;
+  position:relative;z-index:1;
+}
+.ev-col{display:flex;flex-direction:column;gap:3px}
+.ev-col.home{border-right:1px solid var(--b1);padding-right:8px;text-align:right}
+.ev-col.away{padding-left:8px}
+.ev-item{font-size:.66rem;font-weight:600;color:var(--t2);display:flex;align-items:center;gap:4px;line-height:1.3}
+.ev-col.home .ev-item{justify-content:flex-end}
+.ev-icon{font-size:.5rem;flex-shrink:0}
+.ic-goal{color:var(--t1)}.ic-assist{color:var(--blu)}.ic-og{color:var(--red)}
+.ic-pen{color:var(--amb)}.ic-yellow{color:var(--gld)}.ic-red{color:var(--red)}
+.ic-save{color:var(--grn)}
+
+/* ── BONUS ── */
+.card-bonus{
+  border-top:1px solid var(--b1);padding:9px 14px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  position:relative;z-index:1;
+}
+.bonus-lbl{font-size:.58rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);flex-shrink:0}
+.bonus-list{display:flex;gap:7px;flex-wrap:wrap}
+.bonus-item{display:flex;align-items:center;gap:4px;font-size:.69rem;font-weight:600;color:var(--t2)}
+.bonus-pts{
+  font-family:'Space Grotesk',sans-serif;font-size:.76rem;font-weight:800;
+  background:var(--grn);color:#000;padding:1px 5px;border-radius:4px;
+}
+
+/* ── TOGGLE ── */
+.card-toggle{
+  width:100%;padding:10px 14px;
+  background:transparent;border:none;border-top:1px solid var(--b1);
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:700;color:var(--t3);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:color .15s,background .15s;
+  position:relative;z-index:1;
+}
+.card-toggle:hover{background:var(--s2);color:var(--t2)}
+.tog-icon{font-size:.6rem;transition:transform .3s var(--spring)}
+.match-card.open .tog-icon{transform:rotate(180deg)}
+
+/* ── DRAWER ── */
+.card-drawer{
+  max-height:0;overflow:hidden;
+  transition:max-height .4s var(--snap);
+  position:relative;z-index:1;
+}
+.match-card.open .card-drawer{
+  max-height:700px;
+  border-top:1px solid var(--b1);
+}
+.drawer-tabs{display:flex;background:var(--s2);border-bottom:1px solid var(--b1)}
+.dtab{
+  flex:1;padding:10px 4px;
+  font-family:'DM Sans',sans-serif;font-size:.65rem;font-weight:700;
+  color:var(--t3);text-align:center;cursor:pointer;
+  border-bottom:2px solid transparent;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  transition:all .18s;-webkit-tap-highlight-color:transparent;
+}
+.dtab:hover{color:var(--t2)}
+.dtab.active{color:var(--grn);border-bottom-color:var(--grn)}
+.dtab i{font-size:.54rem}
+.dpanel{display:none;padding:13px;animation:panelIn .22s var(--snap)}
+.dpanel.active{display:block}
+
+/* ── OWNERSHIP ── */
+.own-table{width:100%;border-collapse:collapse}
+.own-table tr{border-bottom:1px solid var(--b1)}
+.own-table tr:last-child{border-bottom:none}
+.own-table td{padding:7px 4px;font-size:.69rem;vertical-align:middle}
+.own-shirt{width:22px;filter:drop-shadow(0 1px 4px rgba(0,0,0,.2))}
+.own-name{font-weight:700;color:var(--t1);font-size:.72rem}
+.own-price{font-size:.58rem;color:var(--t3);margin-top:1px}
+.pos-b{font-size:.54rem;font-weight:800;padding:2px 5px;border-radius:4px;text-transform:uppercase;display:inline-block}
+.pos-gk{background:rgba(255,176,32,.1);color:var(--amb)}
+.pos-def{background:rgba(0,232,122,.1);color:var(--grn)}
+.pos-mid{background:rgba(80,144,255,.1);color:var(--blu)}
+.pos-fwd{background:rgba(255,61,90,.1);color:var(--red)}
+.own-bar{width:50px;height:4px;background:var(--s4);border-radius:100px;overflow:hidden;margin:0 auto}
+.own-bar-f{height:100%;background:linear-gradient(90deg,var(--grn),#00c060);border-radius:100px}
+.own-pct{font-family:'Space Grotesk',sans-serif;font-size:.86rem;font-weight:800;color:var(--t1);text-align:right}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr}
+.stat-side{display:flex;flex-direction:column;gap:8px}
+.stat-side:first-child{border-right:1px solid var(--b1);padding-right:13px}
+.stat-side:last-child{padding-left:13px}
+.stat-lbl-team{font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:900;color:var(--t2);text-transform:uppercase;margin-bottom:2px}
+.stat-row{display:flex;justify-content:space-between;align-items:center}
+.stat-lbl{font-size:.63rem;color:var(--t3);font-weight:600}
+.stat-val{font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:800;color:var(--t1)}
+.stat-pos{color:var(--grn)}.stat-neg{color:var(--red)}
+
+/* ── EV PANEL ── */
+.ep-sec{margin-bottom:11px}
+.ep-sec:last-child{margin-bottom:0}
+.ep-title{font-size:.58rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.ep-cols{display:grid;grid-template-columns:1fr 1fr}
+.ep-side{display:flex;flex-direction:column;gap:3px}
+.ep-side.home{border-right:1px solid var(--b1);padding-right:10px;text-align:right}
+.ep-side.away{padding-left:10px}
+.ep-entry{font-size:.66rem;font-weight:600;color:var(--t2);display:flex;align-items:center;gap:4px}
+.ep-side.home .ep-entry{justify-content:flex-end}
+.ep-empty{font-size:.63rem;color:var(--t3)}
+
+/* ── SKELETON ── */
+.sk-deck{position:relative;min-height:280px;margin-bottom:24px}
+.sk-card{
+  position:absolute;left:0;right:0;top:0;
+  border-radius:var(--r);
+  background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);
+  background-size:1000px 100%;
+  animation:shimmer 1.6s ease-in-out infinite;
+}
+
+/* ── EMPTY ── */
+.empty-st{text-align:center;padding:50px 20px}
+.empty-st i{font-size:2rem;opacity:.35;color:var(--t3);display:block;margin-bottom:12px}
+.empty-st p{font-size:.84rem;color:var(--t2);line-height:1.6}
+
+/* ── DONE ── */
+.done-wrap{
+  text-align:center;padding:48px 20px;
+  animation:deckIn .4s var(--snap);
+}
+.done-wrap h3{
+  font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:900;
+  color:var(--t1);margin:12px 0 6px;
+}
+.done-wrap p{font-size:.8rem;color:var(--t3);margin-bottom:22px}
+.restart-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:11px 24px;background:var(--grn);color:#000;
+  border:none;border-radius:100px;
+  font-family:'Barlow Condensed',sans-serif;font-size:.98rem;font-weight:900;
+  cursor:pointer;box-shadow:0 4px 20px rgba(0,232,122,.28);
+  transition:opacity .18s,transform .14s;-webkit-tap-highlight-color:transparent;
+}
+.restart-btn:active{transform:scale(.95);opacity:.88}
+
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+</style>
+</head>
+<body>
+
+<div id="nav-placeholder"></div>
+
+<div class="page-wrap">
+  <nav class="gw-nav">
+    <button class="gw-arr" id="btn-prev" onclick="shiftGW(-1)" disabled aria-label="Previous GW">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <div class="gw-tabs">
+      <button class="gw-tab" id="tab-prev" onclick="jumpRel(-1)">Prev GW</button>
+      <button class="gw-tab active" id="tab-curr" onclick="jumpRel(0)">Current</button>
+      <button class="gw-tab" id="tab-next" onclick="jumpRel(1)">Next GW</button>
+    </div>
+    <button class="gw-arr" id="btn-next" onclick="shiftGW(1)" disabled aria-label="Next GW">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </nav>
+
+  <div class="gw-hdr">
+    <h1 class="gw-title" id="gw-title">Gameweek —</h1>
+    <div class="live-badge" id="live-badge">
+      <div class="live-dot"></div><span>LIVE</span>
+    </div>
+  </div>
+
+  <div class="deck-meta" id="deck-meta" style="display:none">
+    <div class="counter-dots" id="counter-dots"></div>
+    <div class="counter-lbl">
+      <span class="counter-cur" id="counter-cur">1</span>
+      <span id="counter-tot"> / —</span>
+    </div>
+  </div>
+  <div class="swipe-hint" id="swipe-hint">← swipe to browse fixtures →</div>
+
+  <div class="deck-wrap" id="deck-wrap"></div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script>
+/* ── STATE ── */
+const G={
+  players:[],teams:[],currentGW:1,maxGW:38,viewGW:1,
+  cache:{},myPicks:new Set(),timer:null,
+  cards:[],cur:0,total:0,dragging:false,hintDone:false,
+};
+const PROXY='/.netlify/functions/fpl-proxy?endpoint=';
+const SH=(c,gk)=>`https://draft.premierleague.com/img/shirts/standard/shirt_${c}${gk?'_1':''}-66.png`;
+const ESH=`onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'"`;
+const POS=['','GK','DEF','MID','FWD'];
+const POC=['','pos-gk','pos-def','pos-mid','pos-fwd'];
+
+/* ── IDB BOOTSTRAP CACHE ── */
+const KopalaIDB=(()=>{
+  const DB='kopala-fpl',VER=1,STORE='bootstrap',KEY='static',TTL=60*60*1000;
+  const open=()=>new Promise((res,rej)=>{const r=indexedDB.open(DB,VER);r.onupgradeneeded=e=>{if(!e.target.result.objectStoreNames.contains(STORE))e.target.result.createObjectStore(STORE);};r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);});
+  const iget=(db,k)=>new Promise((res,rej)=>{const r=db.transaction(STORE,'readonly').objectStore(STORE).get(k);r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);});
+  const iset=(db,k,v)=>new Promise((res,rej)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).put(v,k);r.onsuccess=()=>res();r.onerror=e=>rej(e.target.error);});
+  async function getBootstrap(proxy){
+    let db;
+    try{
+      db=await open();const cached=await iget(db,KEY);
+      if(cached&&(Date.now()-cached.ts)<TTL)return cached.data;
+      const r=await fetch(`${proxy}bootstrap-static/`);if(!r.ok)throw new Error('HTTP '+r.status);
+      const data=await r.json();iset(db,KEY,{data,ts:Date.now()}).catch(()=>{});return data;
+    }catch(err){if(db){const s=await iget(db,KEY).catch(()=>null);if(s)return s.data;}throw err;}
+  }
+  return{getBootstrap};
+})();
+
+/* ── WORKER: process bootstrap ── */
+const GW_WORKER_SRC=`
+self.onmessage=function(e){
+  if(e.data.type!=='PROCESS')return;
+  try{
+    const bs=e.data.payload;
+    const players=bs.elements;
+    const teams=bs.teams;
+    const maxGW=bs.events.length;
+    const cur=bs.events.find(e=>e.is_current)||bs.events.find(e=>e.is_next)||bs.events[0];
+    self.postMessage({type:'DONE',payload:{players,teams,maxGW,currentGW:cur.id}});
+  }catch(err){self.postMessage({type:'ERROR',payload:err.message});}
+};
+`;
+function runGamesWorker(data){
+  return new Promise((resolve,reject)=>{
+    try{
+      const blob=new Blob([GW_WORKER_SRC],{type:'application/javascript'});
+      const url=URL.createObjectURL(blob);
+      const w=new Worker(url);
+      w.onmessage=e=>{URL.revokeObjectURL(url);w.terminate();e.data.type==='DONE'?resolve(e.data.payload):reject(new Error(e.data.payload));};
+      w.onerror=err=>{URL.revokeObjectURL(url);w.terminate();reject(err);};
+      w.postMessage({type:'PROCESS',payload:data});
+    }catch(err){
+      const cur=data.events.find(e=>e.is_current)||data.events.find(e=>e.is_next)||data.events[0];
+      resolve({players:data.elements,teams:data.teams,maxGW:data.events.length,currentGW:cur.id});
+    }
+  });
+}
+
+/* ── BOOT ── */
+async function init(){
+  showSkel();
+  try{
+    const id=localStorage.getItem('kopala_id');
+    const raw=await KopalaIDB.getBootstrap(PROXY);
+    const bs=await runGamesWorker(raw);
+    G.players=bs.players; G.teams=bs.teams; G.maxGW=bs.maxGW;
+    G.currentGW=bs.currentGW; G.viewGW=bs.currentGW;
+    if(id){try{const p=await fetch(`${PROXY}entry/${id}/event/${G.currentGW}/picks/`).then(r=>r.json());p.picks.forEach(x=>G.myPicks.add(x.element));}catch{}}
+    await Promise.all([cur.id-1,cur.id,cur.id+1].filter(g=>g>=1&&g<=G.maxGW).map(fetchFx));
+    renderGW(G.currentGW);
+    autoRefresh();
+  }catch(e){
+    console.error(e);
+    document.getElementById('deck-wrap').innerHTML='<div class="empty-st"><i class="fa-solid fa-triangle-exclamation"></i><p>Failed to load. Check connection.</p></div>';
+  }
+}
+
+async function fetchFx(gw){
+  if(G.cache[gw])return;
+  try{G.cache[gw]=await fetch(`${PROXY}fixtures/?event=${gw}`).then(r=>r.json());}
+  catch{G.cache[gw]=[];}
+}
+
+/* ── GW NAV ── */
+async function shiftGW(d){
+  const n=G.viewGW+d;
+  if(n<1||n>G.maxGW)return;
+  G.viewGW=n; showSkel();
+  await fetchFx(n); renderGW(n);
+}
+async function jumpRel(off){
+  const t=G.currentGW+off;
+  if(t<1||t>G.maxGW)return;
+  G.viewGW=t; await fetchFx(t); renderGW(t);
+}
+function syncNav(){
+  const off=G.viewGW-G.currentGW;
+  ['prev','curr','next'].forEach((id,i)=>{
+    const el=document.getElementById(`tab-${id}`);
+    const a=i-1===off;
+    if(el){el.classList.toggle('active',a);el.setAttribute('aria-selected',a);}
+  });
+  document.getElementById('btn-prev').disabled=G.viewGW<=1;
+  document.getElementById('btn-next').disabled=G.viewGW>=G.maxGW;
+}
+
+function autoRefresh(){
+  clearInterval(G.timer);
+  G.timer=setInterval(async()=>{
+    if(G.viewGW!==G.currentGW)return;
+    if(!(G.cache[G.currentGW]||[]).some(f=>f.started&&!f.finished))return;
+    delete G.cache[G.currentGW];
+    await fetchFx(G.currentGW); renderGW(G.currentGW);
+  },60000);
+}
+
+/* ── RENDER GW ── */
+function renderGW(gw){
+  document.getElementById('gw-title').textContent=`Gameweek ${gw}`;
+  syncNav();
+  const fx=G.cache[gw]||[];
+  const wrap=document.getElementById('deck-wrap');
+  if(!fx.length){
+    wrap.innerHTML='<div class="empty-st"><i class="fa-solid fa-calendar-xmark"></i><p>No fixtures found.</p></div>';
+    document.getElementById('deck-meta').style.display='none';
+    document.getElementById('live-badge').classList.remove('show');
+    return;
+  }
+  const sorted=[...fx].sort((a,b)=>{
+    const la=a.started&&!a.finished?0:1,lb=b.started&&!b.finished?0:1;
+    if(la!==lb)return la-lb;
+    return new Date(a.kickoff_time)-new Date(b.kickoff_time);
+  });
+  document.getElementById('live-badge').classList.toggle('show',sorted.some(f=>f.started&&!f.finished));
+
+  wrap.innerHTML='';
+  G.cards=[]; G.cur=0; G.total=sorted.length;
+
+  sorted.forEach((f,i)=>{
+    const el=document.createElement('div');
+    el.innerHTML=buildCardHTML(f,i);
+    const card=el.firstElementChild;
+    wrap.appendChild(card);
+    G.cards.push(card);
+  });
+
+  applyDepths();
+  setDeckHeight();
+
+  document.getElementById('deck-meta').style.display='flex';
+  updateCounter();
+  attachSwipe(G.cards[0]);
+
+  // Show hint once
+  if(!G.hintDone && G.total>1){
+    G.hintDone=true;
+    const hint=document.getElementById('swipe-hint');
+    setTimeout(()=>{
+      hint.classList.add('show');
+      // wobble top card
+      const c=G.cards[0];
+      if(c){c.style.animation='hintWobble 1.1s var(--spring)';setTimeout(()=>{c.style.animation='';},1200);}
+      setTimeout(()=>hint.classList.remove('show'),3200);
+    },700);
+  }
+}
+
+/* ── DEPTHS ── */
+function applyDepths(){
+  G.cards.forEach((c,i)=>{
+    const d=i-G.cur;
+    c.setAttribute('data-d', d<0?'h': d>4?'5':String(d));
+  });
+}
+
+function setDeckHeight(){
+  const wrap=document.getElementById('deck-wrap');
+  const top=G.cards[G.cur];
+  if(!top){wrap.style.minHeight='320px';return;}
+  requestAnimationFrame(()=>{
+    // height of top card + enough for the 4 peeking ones
+    const h=top.offsetHeight||320;
+    wrap.style.minHeight=(h+36)+'px';
+  });
+}
+
+/* ── COUNTER ── */
+function updateCounter(){
+  const cur=document.getElementById('counter-cur');
+  const tot=document.getElementById('counter-tot');
+  if(cur){
+    cur.style.animation='dotBump .28s var(--spring)';
+    setTimeout(()=>cur.style.animation='',300);
+    cur.textContent=G.cur+1;
+  }
+  if(tot)tot.textContent=` / ${G.total}`;
+
+  const dots=document.getElementById('counter-dots');
+  if(dots){
+    const n=Math.min(G.total,12);
+    dots.innerHTML='';
+    for(let i=0;i<n;i++){
+      const d=document.createElement('div');
+      d.className='cdot'+(i===G.cur?' active':i<G.cur?' done':'');
+      dots.appendChild(d);
+    }
+  }
+}
+
+/* ── NAVIGATE ── */
+function goNext(viaSwipe=false){
+  if(G.cur>=G.total-1){showDone();return;}
+  const old=G.cards[G.cur];
+  if(!viaSwipe){
+    old.classList.add('fly-l');
+    setTimeout(()=>{old.setAttribute('data-d','h');old.classList.remove('fly-l');},420);
+  } else {
+    old.setAttribute('data-d','h');
+  }
+  G.cur++;
+  applyDepths();
+  setDeckHeight();
+  updateCounter();
+  const next=G.cards[G.cur];
+  if(next){
+    next.style.setProperty('--rise-from','scale(.92) translateY(20px)');
+    next.classList.add('rise');
+    setTimeout(()=>next.classList.remove('rise'),420);
+    attachSwipe(next);
+  }
+}
+
+function goPrev(){
+  if(G.cur<=0)return;
+  G.cur--;
+  applyDepths();
+  setDeckHeight();
+  updateCounter();
+  const c=G.cards[G.cur];
+  if(c){
+    attachSwipe(c);
+    c.style.transition='none';
+    c.style.transform='translateX(70px) rotate(5deg)';
+    c.style.opacity='0';
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        c.style.transition='';
+        c.style.transform='';
+        c.style.opacity='';
+      });
+    });
+  }
+}
+
+function showDone(){
+  const wrap=document.getElementById('deck-wrap');
+  wrap.innerHTML=`
+    <div class="done-wrap">
+      <div style="font-size:2.8rem">🏁</div>
+      <h3>All ${G.total} fixtures seen!</h3>
+      <p>You've been through every match this gameweek.</p>
+      <button class="restart-btn" onclick="restartDeck()">
+        <i class="fa-solid fa-rotate-left"></i> View again
+      </button>
+    </div>`;
+  document.getElementById('deck-meta').style.display='none';
+}
+
+function restartDeck(){
+  G.cur=0;
+  const wrap=document.getElementById('deck-wrap');
+  wrap.innerHTML='';
+  G.cards.forEach(c=>wrap.appendChild(c));
+  applyDepths();
+  setDeckHeight();
+  updateCounter();
+  document.getElementById('deck-meta').style.display='flex';
+  attachSwipe(G.cards[0]);
+}
+
+/* ── SWIPE ENGINE ── */
+function attachSwipe(card){
+  if(!card)return;
+  // Clone to clear old listeners
+  const fresh=card.cloneNode(true);
+  card.parentNode?.replaceChild(fresh,card);
+  G.cards[G.cur]=fresh;
+  const c=fresh;
+
+  let sx=0,sy=0,cx=0,active=false,locked=false,scrolling=false;
+
+  const start=e=>{
+    if(locked)return;
+    // Don't intercept button / drawer taps
+    if(e.target.closest('button,a,.dtab,.card-toggle'))return;
+    const pt=e.touches?e.touches[0]:e;
+    sx=pt.clientX; sy=pt.clientY; cx=0;
+    active=true; scrolling=false;
+    G.dragging=false;
+    c.classList.add('dragging');
+    c.style.transition='none';
+  };
+  const move=e=>{
+    if(!active)return;
+    const pt=e.touches?e.touches[0]:e;
+    const dx=pt.clientX-sx, dy=pt.clientY-sy;
+    // If user is scrolling vertically, bail
+    if(!G.dragging&&!scrolling){
+      if(Math.abs(dy)>Math.abs(dx)*1.4){scrolling=true; active=false; c.classList.remove('dragging'); c.style.transition=''; return;}
+    }
+    G.dragging=true;
+    if(e.cancelable)e.preventDefault();
+    cx=dx;
+    const rot=dx*0.055;
+    const lift=Math.abs(dx)*0.035;
+    c.style.transform=`translateX(${dx}px) rotate(${rot}deg) translateY(-${lift}px)`;
+    c.style.setProperty('--snap-from',`translateX(${dx}px) rotate(${rot}deg)`);
+    // Overlays
+    const pct=Math.min(Math.abs(dx)/100,1);
+    const no=c.querySelector('.sw-ov-next'), po=c.querySelector('.sw-ov-prev');
+    if(no)no.style.opacity=dx<0?pct*0.85:'0';
+    if(po)po.style.opacity=dx>0?pct*0.85:'0';
+    // Nudge card below forward
+    const below=G.cards[G.cur+1];
+    if(below){
+      const prog=Math.min(Math.abs(dx)/200,1);
+      const sc=0.96+prog*0.04, ty=10-prog*10;
+      below.style.transition='none';
+      below.style.transform=`scale(${sc}) translateY(${ty}px)`;
+    }
+  };
+  const end=e=>{
+    if(!active)return;
+    active=false;
+    c.classList.remove('dragging');
+    c.style.transition='';
+    const below=G.cards[G.cur+1];
+    if(below){below.style.transition='';below.style.transform='';}
+    const no=c.querySelector('.sw-ov-next'), po=c.querySelector('.sw-ov-prev');
+    if(no)no.style.opacity='0';
+    if(po)po.style.opacity='0';
+    const THRESH=75;
+    if(cx<-THRESH){
+      locked=true;
+      c.classList.add('fly-l');
+      setTimeout(()=>{c.classList.remove('fly-l');locked=false;goNext(true);},420);
+    } else if(cx>THRESH){
+      locked=true;
+      c.classList.add('fly-r');
+      setTimeout(()=>{c.classList.remove('fly-r');locked=false;goPrev();},420);
+    } else {
+      c.classList.add('snap');
+      c.style.transform='';
+      if(below){below.style.transform='';}
+      setTimeout(()=>c.classList.remove('snap'),480);
+    }
+    cx=0; G.dragging=false;
+  };
+
+  c.addEventListener('touchstart',start,{passive:true});
+  c.addEventListener('touchmove',move,{passive:false});
+  c.addEventListener('touchend',end);
+  c.addEventListener('mousedown',start);
+  window.addEventListener('mousemove',move);
+  window.addEventListener('mouseup',end);
+
+  // Drawer toggle
+  const tog=c.querySelector('.card-toggle');
+  if(tog) tog.addEventListener('click',()=>{if(!G.dragging)toggleCard(tog.dataset.fid,c);});
+  // Tab clicks
+  c.querySelectorAll('.dtab').forEach(tab=>{
+    tab.addEventListener('click',()=>{if(!G.dragging)switchTab(tab.dataset.fid,tab.dataset.panel,c);});
+  });
+}
+
+/* ── CARD HTML ── */
+function buildCardHTML(f){
+  const hT=G.teams.find(t=>t.id===f.team_h), aT=G.teams.find(t=>t.id===f.team_a);
+  if(!hT||!aT)return'';
+  const live=f.started&&!f.finished, done=f.finished||f.finished_provisional;
+  const hD=f.team_h_difficulty||3, aD=f.team_a_difficulty||3;
+
+  const timeHtml=live
+    ?`<div class="live-chip"><div class="live-chip-dot"></div>LIVE ${getMin(f)}</div>`
+    :done?`<span>Full Time</span>`
+    :`<span>${fmtDT(f.kickoff_time)}</span>`;
+
+  const stTxt=done?'FT':live?getMin(f):fmtT(f.kickoff_time);
+  const stCls=done?'sft':live?'slive':'ssched';
+
+  const{hEv,aEv}=buildEvs(f);
+  const evHtml=(hEv.length||aEv.length)
+    ?`<div class="card-events"><div class="ev-col home">${hEv.join('')}</div><div class="ev-col away">${aEv.join('')}</div></div>`:'';
+  const bonHtml=buildBonus(f,done);
+
+  return`
+<div class="match-card${live?' is-live':''}" id="mc-${f.id}">
+  <div class="sw-ov sw-ov-next"><div class="sw-lbl">NEXT →</div></div>
+  <div class="sw-ov sw-ov-prev"><div class="sw-lbl">← PREV</div></div>
+
+  <div class="card-topbar">
+    <div class="card-time">${timeHtml}</div>
+    <div class="fdr-row">
+      <span class="fdr-tag fdr-${hD}">${hT.short_name}</span>
+      <span class="fdr-sep">FDR</span>
+      <span class="fdr-tag fdr-${aD}">${aT.short_name}</span>
+    </div>
+  </div>
+
+  <div class="card-match">
+    <div class="team-col">
+      <img class="team-shirt" src="${SH(hT.code,false)}" alt="${hT.name}" loading="lazy" ${ESH}>
+      <div class="team-name">${hT.short_name}</div>
+      <div class="team-loc home">HOME</div>
+    </div>
+    <div class="score-center">
+      <div class="status-pill ${stCls}">${stTxt}</div>
+      ${f.started
+        ?`<div class="score-nums"><span>${f.team_h_score}</span><span class="score-sep">:</span><span>${f.team_a_score}</span></div>`
+        :`<div class="vs-txt">VS</div>`}
+    </div>
+    <div class="team-col">
+      <img class="team-shirt" src="${SH(aT.code,false)}" alt="${aT.name}" loading="lazy" ${ESH}>
+      <div class="team-name">${aT.short_name}</div>
+      <div class="team-loc">AWAY</div>
+    </div>
+  </div>
+
+  ${evHtml}${bonHtml}
+
+  <button class="card-toggle" data-fid="${f.id}" aria-expanded="false">
+    <span><i class="fa-solid fa-chart-simple" style="margin-right:5px;font-size:.57rem"></i>Squad &amp; Stats</span>
+    <i class="fa-solid fa-chevron-down tog-icon"></i>
+  </button>
+
+  <div class="card-drawer" id="dr-${f.id}">
+    <div class="drawer-tabs">
+      <button class="dtab active" data-fid="${f.id}" data-panel="own"><i class="fa-solid fa-users"></i><span>Ownership</span></button>
+      <button class="dtab" data-fid="${f.id}" data-panel="stats"><i class="fa-solid fa-chart-bar"></i><span>Stats</span></button>
+      ${f.started?`<button class="dtab" data-fid="${f.id}" data-panel="ev"><i class="fa-solid fa-list"></i><span>Events</span></button>`:''}
+    </div>
+    <div class="dpanel active" id="dp-own-${f.id}">${buildOwn(f.team_h,f.team_a)}</div>
+    <div class="dpanel" id="dp-stats-${f.id}">${buildStats(f,hT,aT)}</div>
+    ${f.started?`<div class="dpanel" id="dp-ev-${f.id}">${buildEvPanel(f)}</div>`:''}
+  </div>
+</div>`;
+}
+
+/* ── INTERACTIONS ── */
+function toggleCard(fid,cardEl){
+  const c=cardEl||document.getElementById(`mc-${fid}`);
+  if(!c)return;
+  const open=c.classList.toggle('open');
+  c.querySelector('.card-toggle')?.setAttribute('aria-expanded',open);
+  setTimeout(()=>setDeckHeight(),430);
+}
+function switchTab(fid,panel,cardEl){
+  const c=cardEl||document.getElementById(`mc-${fid}`);
+  if(!c)return;
+  ['own','stats','ev'].forEach(p=>{
+    c.querySelector(`[data-panel="${p}"]`)?.classList.toggle('active',p===panel);
+    c.querySelector(`#dp-${p}-${fid}`)?.classList.toggle('active',p===panel);
+  });
+  setTimeout(()=>setDeckHeight(),50);
+}
+
+/* ── DATA ── */
+function getMin(f){
+  if(f.finished||f.finished_provisional)return'FT';
+  if(!f.started)return'';
+  if(f.minutes>0)return`${f.minutes}'`;
+  const el=Math.floor((Date.now()-new Date(f.kickoff_time))/60000);
+  if(el>45&&el<60)return'HT';
+  return`${Math.min(90,Math.max(1,el>=60?el-15:el))}'`;
+}
+function fmtT(iso){return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+function fmtDT(iso){const d=new Date(iso);return d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+function pn(id){return G.players.find(p=>p.id===id)?.web_name||'?';}
+function gStat(f,sid){const s=(f.stats||[]).find(s=>s.identifier===sid);return s?{h:s.h||[],a:s.a||[]}:{h:[],a:[]};}
+
+function buildEvs(f){
+  if(!f.started)return{hEv:[],aEv:[]};
+  const hEv=[],aEv=[];
+  [{id:'goals_scored',ic:'fa-futbol',cl:'ic-goal'},{id:'assists',ic:'fa-circle-dot',cl:'ic-assist'},{id:'own_goals',ic:'fa-futbol',cl:'ic-og',sx:' OG'},{id:'penalties_scored',ic:'fa-circle',cl:'ic-pen',sx:' (P)'},{id:'yellow_cards',ic:'fa-square',cl:'ic-yellow'},{id:'red_cards',ic:'fa-square',cl:'ic-red'}]
+  .forEach(({id,ic,cl,sx=''})=>{
+    const s=gStat(f,id);
+    s.h.forEach(e=>hEv.push(`<div class="ev-item"><i class="fa-solid ${ic} ev-icon ${cl}"></i><span>${pn(e.element)}${e.value>1?` ×${e.value}`:''}${sx}</span></div>`));
+    s.a.forEach(e=>aEv.push(`<div class="ev-item"><i class="fa-solid ${ic} ev-icon ${cl}"></i><span>${pn(e.element)}${e.value>1?` ×${e.value}`:''}${sx}</span></div>`));
+  });
+  return{hEv,aEv};
+}
+
+function buildBonus(f,done){
+  const s=gStat(f,done?'bonus':'bps');
+  const all=[...s.h,...s.a].sort((a,b)=>b.value-a.value).slice(0,3);
+  if(!all.length)return'';
+  const items=all.map((p,i)=>{
+    const pts=done?p.value:3-i;
+    const mine=G.myPicks.has(p.element);
+    return`<div class="bonus-item"><span>${pn(p.element)}${mine?'<i class="fa-solid fa-star" style="color:var(--gld);font-size:.5rem;margin-left:2px"></i>':''}</span><span class="bonus-pts">${pts}</span></div>`;
+  }).join('');
+  return`<div class="card-bonus"><span class="bonus-lbl">${done?'Bonus':'BPS'}</span><div class="bonus-list">${items}</div></div>`;
+}
+
+function buildOwn(hId,aId){
+  const rel=G.players.filter(p=>p.team===hId||p.team===aId)
+    .sort((a,b)=>parseFloat(b.selected_by_percent)-parseFloat(a.selected_by_percent)).slice(0,12);
+  if(!rel.length)return'<p style="padding:14px;text-align:center;font-size:.72rem;color:var(--t3)">No data.</p>';
+  return`<table class="own-table">${rel.map(p=>{
+    const t=G.teams.find(t=>t.id===p.team), own=parseFloat(p.selected_by_percent)||0;
+    const mine=G.myPicks.has(p.id);
+    return`<tr>
+      <td style="width:24px"><img class="own-shirt" src="${SH(t?.code||1,p.element_type===1)}" alt="" loading="lazy" ${ESH}></td>
+      <td><div class="own-name">${p.web_name}${mine?'<i class="fa-solid fa-check-circle" style="color:var(--grn);font-size:.56rem;margin-left:3px"></i>':''}</div><div class="own-price">£${(p.now_cost/10).toFixed(1)}m · ${t?.short_name||''}</div></td>
+      <td><span class="pos-b ${POC[p.element_type]}">${POS[p.element_type]}</span></td>
+      <td><div class="own-bar"><div class="own-bar-f" style="width:${Math.min(100,own*3.33)}%"></div></div></td>
+      <td class="own-pct">${own}%</td>
+    </tr>`;
+  }).join('')}</table>`;
+}
+
+function buildStats(f,hT,aT){
+  const hp=G.players.filter(p=>p.team===f.team_h), ap=G.players.filter(p=>p.team===f.team_a);
+  const sum=(arr,k)=>arr.reduce((t,p)=>t+(parseFloat(p[k])||0),0);
+  const side=(t,pl,fdr)=>`<div class="stat-side">
+    <div class="stat-lbl-team">${t.short_name}</div>
+    <div class="stat-row"><span class="stat-lbl">xG/90</span><span class="stat-val stat-pos">${sum(pl,'expected_goals_per_90').toFixed(2)}</span></div>
+    <div class="stat-row"><span class="stat-lbl">xGC/90</span><span class="stat-val stat-neg">${sum(pl.filter(p=>p.element_type<=2),'expected_goals_conceded_per_90').toFixed(2)}</span></div>
+    <div class="stat-row"><span class="stat-lbl">Form</span><span class="stat-val">${sum(pl,'form').toFixed(1)}</span></div>
+    <div class="stat-row"><span class="stat-lbl">FDR</span><span class="fdr-tag fdr-${fdr}">${fdr}</span></div>
+    <div class="stat-row"><span class="stat-lbl">Transfers In</span><span class="stat-val" style="font-size:.74rem">${pl.reduce((t,p)=>t+(parseInt(p.transfers_in_event)||0),0).toLocaleString()}</span></div>
+  </div>`;
+  return`<div class="stats-grid">${side(hT,hp,f.team_h_difficulty||3)}${side(aT,ap,f.team_a_difficulty||3)}</div>`;
+}
+
+function buildEvPanel(f){
+  const defs=[{id:'goals_scored',l:'Goals',ic:'fa-futbol',cl:'ic-goal'},{id:'assists',l:'Assists',ic:'fa-circle-dot',cl:'ic-assist'},{id:'own_goals',l:'Own Goals',ic:'fa-futbol',cl:'ic-og'},{id:'penalties_scored',l:'Penalties',ic:'fa-circle',cl:'ic-pen'},{id:'yellow_cards',l:'Yellows',ic:'fa-square',cl:'ic-yellow'},{id:'red_cards',l:'Reds',ic:'fa-square',cl:'ic-red'},{id:'saves',l:'Saves',ic:'fa-hand',cl:'ic-save'},{id:'bonus',l:'Bonus',ic:'fa-star',cl:'ic-goal'}];
+  let html='';
+  defs.forEach(({id,l,ic,cl})=>{
+    const s=gStat(f,id); if(!s.h.length&&!s.a.length)return;
+    const bs=arr=>arr.length?arr.map(e=>`<div class="ep-entry"><i class="fa-solid ${ic} ev-icon ${cl}"></i><span>${pn(e.element)}${e.value>1?` ×${e.value}`:''}</span></div>`).join(''):'<div class="ep-empty">—</div>';
+    html+=`<div class="ep-sec"><div class="ep-title"><i class="fa-solid ${ic} ${cl}" style="font-size:.55rem"></i>${l}</div><div class="ep-cols"><div class="ep-side home">${bs(s.h)}</div><div class="ep-side away">${bs(s.a)}</div></div></div>`;
+  });
+  return html||'<p style="padding:14px;text-align:center;font-size:.72rem;color:var(--t3)">No events yet.</p>';
+}
+
+/* ── SKELETON ── */
+function showSkel(){
+  const w=document.getElementById('deck-wrap');
+  w.innerHTML=`<div class="sk-deck">
+    <div class="sk-card" style="height:260px;z-index:4;opacity:1"></div>
+    <div class="sk-card" style="height:260px;z-index:3;opacity:.75;transform:scale(.96) translateY(10px);animation-delay:.1s"></div>
+    <div class="sk-card" style="height:260px;z-index:2;opacity:.5;transform:scale(.92) translateY(19px);animation-delay:.2s"></div>
+    <div class="sk-card" style="height:260px;z-index:1;opacity:.3;transform:scale(.88) translateY(27px);animation-delay:.3s"></div>
+  </div>`;
+  document.getElementById('deck-meta').style.display='none';
+}
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+
+<script src="nav.js"           defer></script>
+<script src="live-widget.js"   defer></script>
+<script src="deadline.js"      defer></script>
+<script src="kopala-notify.js" defer></script>
+<script src="footer.js"        defer></script>
+<script src="badge.js"         defer></script>
+<script src="pwa.js"           defer></script>
+</body>
+</html>
