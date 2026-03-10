@@ -1628,21 +1628,24 @@ const ESH=`onerror="this.src='https://draft.premierleague.com/img/shirts/standar
 const T=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
 const LST=t=>{const e=document.getElementById('ls');if(e)e.textContent=t;};
 
+// Updated handleLogin function (replace your existing one)
 async function handleLogin(){
   const inp=document.getElementById('fpl-id-inp'),err=document.getElementById('err-msg'),btn=document.getElementById('login-btn');
-  inp.classList.remove('error');err.style.display='none';
+  inp.classList.remove('error');err.classList.remove('show');
   let raw=inp.value.trim();const m=raw.match(/entry\/(\d+)/);if(m)raw=m[1];
   const id=parseInt(raw,10);
   if(!id||isNaN(id)){showErr('Please enter a valid numeric ID');return;}
   try{
-    btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Checking…';
+    btn.disabled=true;btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2.4"/></svg> <span>Checking…</span>';
     const r=await fetch(`${PROXY}entry/${id}/`);if(!r.ok)throw 0;
     localStorage.setItem('kopala_id',id);
     if(window.KopalaNotify) KopalaNotify.updateTeamId(String(id));
     location.reload();
-  }catch{showErr('Team ID not found — check and try again.');btn.disabled=false;btn.textContent='Continue';}
-  function showErr(m){inp.classList.add('error');err.textContent=m;err.style.display='flex';}
+  }catch{showErr('Team ID not found — check and try again.');btn.disabled=false;btn.innerHTML='<span>Continue</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';}
+  function showErr(m){inp.classList.add('error');err.textContent=m;err.classList.add('show');}
 }
+
+// Keep this listener
 document.getElementById('fpl-id-inp')?.addEventListener('keydown',e=>{if(e.key==='Enter')handleLogin();});
 
 /* ── IndexedDB bootstrap cache ─────────────────────────────────────────── */
