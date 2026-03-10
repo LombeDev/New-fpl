@@ -253,11 +253,19 @@
             <img src="/logo.png" alt="Kopala FPL" class="kfl-logo__img">
           </a>
 
-          <!-- CENTER: empty -->
-          <div></div>
+          <!-- CENTER: desktop nav links (hidden on mobile via CSS) -->
+          <nav class="kfl-desktop-links" aria-label="Main navigation">
+            ${MENU_LINKS.map(l => `
+              <a href="${l.href}"
+                 class="kfl-desktop-link${isActive(l.href) ? ' is-active' : ''}"
+                 ${isActive(l.href) ? 'aria-current="page"' : ''}>
+                ${l.label}
+              </a>`).join('')}
+          </nav>
 
-          <!-- RIGHT: hamburger only -->
+          <!-- RIGHT: settings/auth buttons + mobile hamburger -->
           <div class="kfl-topbar__right">
+            <!-- Mobile hamburger only — hidden on desktop -->
             <button class="kfl-icon-btn kfl-dots-btn"
                     id="dots-btn"
                     aria-label="Open menu"
