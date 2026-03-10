@@ -254,6 +254,7 @@
           </a>
 
           <!-- CENTER: desktop nav links (hidden on mobile via CSS) -->
+          <div class="kfl-topbar__center">
           <nav class="kfl-desktop-links" aria-label="Main navigation">
             ${MENU_LINKS.map(l => `
               <a href="${l.href}"
@@ -262,6 +263,7 @@
                 ${l.label}
               </a>`).join('')}
           </nav>
+          </div>
 
           <!-- RIGHT: settings/auth buttons + mobile hamburger -->
           <div class="kfl-topbar__right">
