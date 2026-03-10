@@ -90,15 +90,18 @@ body {
 .kfl-topbar {
   position: fixed; top: 0; left: 0; right: 0;
   z-index: 1000; height: var(--kfl-topbar-h);
-  background: var(--bg);                      /* always filled = status bar matches */
-  border-bottom: 1px solid var(--border);
-  transition: background 0.22s ease, border-color 0.22s ease;
+  /* Mobile: transparent glass from the start */
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--glass-border);
+  transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
 }
-/* subtle elevation on scroll */
+/* Slightly more elevated on scroll */
 .kfl-topbar.is-scrolled {
   background: var(--glass-bg);
-  backdrop-filter: blur(24px) saturate(1.5);
-  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  backdrop-filter: blur(28px) saturate(1.6);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
   border-bottom-color: var(--glass-border);
   box-shadow: var(--shadow-sm);
 }
@@ -224,12 +227,70 @@ body {
   50%     { opacity: 0.3; transform: scale(0.55); }
 }
 
+/* ── DESKTOP NAV LINKS ── */
+.kfl-desktop-links {
+  display: none;
+}
+
 /* ── RESPONSIVE ── */
 @media (min-width: 768px) {
   .kfl-topbar__inner { padding: 0 24px; }
   .kfl-bottom-nav { display: none; }
   body { padding-bottom: 0; }
+
+  /* Desktop: restore solid background */
+  .kfl-topbar {
+    background: var(--bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom-color: var(--border);
+  }
+  .kfl-topbar.is-scrolled {
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  }
+
+  /* Hide hamburger, show desktop links */
+  .kfl-dots-btn { display: none; }
+
+  .kfl-desktop-links {
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .kfl-desktop-link {
+    display: inline-flex; align-items: center;
+    padding: 7px 13px;
+    text-decoration: none;
+    font-family: var(--kfl-font);
+    font-size: 14px; font-weight: 500;
+    color: var(--text-2);
+    border-radius: 8px;
+    border: none; background: none; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s ease, background 0.15s ease;
+    white-space: nowrap;
+  }
+  .kfl-desktop-link:hover { color: var(--text-1); background: var(--hover-bg); }
+  .kfl-desktop-link.is-active { color: var(--text-1); font-weight: 600; }
+
+  /* Login / CTA buttons */
+  .kfl-desktop-link--ghost {
+    border: 1px solid var(--border-mid);
+    background: transparent;
+    color: var(--text-1);
+  }
+  .kfl-desktop-link--ghost:hover { background: var(--hover-bg); }
+
+  .kfl-desktop-link--cta {
+    background: var(--accent);
+    color: var(--accent-text);
+    font-weight: 700;
+    border: none;
+  }
+  .kfl-desktop-link--cta:hover { opacity: 0.88; background: var(--accent); }
 }
+
 @media (min-width: 1024px) { .kfl-topbar__inner { padding: 0 32px; } }
 @media (max-width: 360px) {
   .kfl-tab__pill { width: 42px; }
