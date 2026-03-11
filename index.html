@@ -676,6 +676,9 @@ body{
 .dl-d{width:7px;height:7px;border-radius:50%}
 
 /* ── PLAYER CARDS ── */
+In index.html, find this ENTIRE block inside the <style> tag:
+
+/* ── PLAYER CARDS ── */
 .player-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 @media(min-width:400px){.player-grid{grid-template-columns:repeat(4,1fr)}}
 @media(min-width:600px){.player-grid{grid-template-columns:repeat(5,1fr)}}
@@ -714,6 +717,56 @@ body{
 .bdiv-l{flex:1;height:1px;background:var(--c-border)}
 .bdiv-t{font-size:.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--c-t3)}
 
+REPLACE WITH:
+
+/* ── PLAYER CARDS — LiveFPL style ── */
+.player-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:2px 4px}
+.player-grid.bench-grid{grid-template-columns:repeat(4,1fr)}
+@media(max-width:360px){
+  .player-grid{grid-template-columns:repeat(4,1fr)}
+}
+.pc{
+  display:flex;flex-direction:column;align-items:center;
+  gap:2px;padding:6px 2px 5px;
+  position:relative;cursor:pointer;
+  background:none;border:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .18s var(--spring);
+}
+.pc:hover{transform:translateY(-2px)}
+.pc:active{transform:scale(.94)}
+.pc::before{display:none}
+.pc.bench{opacity:.5}
+.pc-bdg{
+  position:absolute;top:4px;right:4px;
+  width:16px;height:16px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Grotesk',sans-serif;font-size:.55rem;font-weight:900;
+  z-index:2;
+}
+.pc-cap{background:var(--c-green);color:var(--c-pill);box-shadow:0 1px 6px rgba(0,232,122,.5)}
+.pc-vc{background:var(--c-s3);color:var(--c-t2);border:1px solid var(--c-border2)}
+.pc-sh{
+  width:54px;height:auto;
+  filter:drop-shadow(0 3px 8px rgba(0,0,0,.32));
+  transition:transform .18s var(--spring);
+  display:block;
+}
+.pc:hover .pc-sh{transform:scale(1.08) translateY(-3px)}
+.pc-nm{
+  font-size:.59rem;font-weight:700;color:var(--c-t1);
+  text-align:center;line-height:1.15;
+  width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  padding:0 2px;margin-top:1px;
+}
+.pc-pt{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:var(--c-green);line-height:1}
+.pc-ptz{color:var(--c-t3)}
+.pc-ptneg{color:var(--c-red)}
+.pc-eo{font-size:.5rem;color:var(--c-t3);letter-spacing:.1px}
+.pc-ob,.pc-of{display:none}
+.bdiv{display:flex;align-items:center;gap:12px;padding:7px 16px;margin:2px 0}
+.bdiv-l{flex:1;height:1px;background:var(--c-border)}
+.bdiv-t{font-size:.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--c-t3)}
 /* ── WHAT-IF ── */
 .wi-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px}
 .wi-c{
@@ -1589,7 +1642,7 @@ function renderDiffs(picks){const myAll=new Set(picks.picks.map(p=>p.element));c
 function dCard(eid){const meta=S.playerMap[eid];if(!meta)return'';const pts=S.ptsMap[eid]?.pts||0,mins=S.ptsMap[eid]?.mins||0;const s=SH(meta.teamCode,meta.pos===1);const dc=mins===0?'var(--c-s3)':mins<90?'var(--c-amber)':pts===0?'var(--c-red)':'var(--c-t3)';const icon=pts>=5?`<i class="fa-solid fa-star dp-ic" style="color:var(--c-amber)" aria-hidden="true"></i>`:mins>0&&pts<5?`<i class="fa-solid fa-thumbs-down dp-ic" style="color:var(--c-t3)" aria-hidden="true"></i>`:'';return`<div class="dp" role="listitem"><div class="dp-w"><img class="dp-sh" src="${s}" alt="" loading="lazy" ${ESH}><div class="dp-st" style="background:${dc}"></div>${icon}</div><div class="dp-nm">${meta.name}</div><div class="dp-pt">${pts}</div><div class="dp-ow">${meta.ownership}%</div></div>`;}
 function renderMyXfers(transfers){const c=document.getElementById('my-xfers-container');if(!c)return;const gwT=transfers.filter(t=>t.event===S.currentGW);if(!gwT.length){c.innerHTML='';return;}const cost=S.picks?.entry_history.event_transfers_cost||0;const costBadge=cost>0?`<span class="xfc">-${cost}pts</span>`:'<span style="font-size:.66rem;font-weight:700;color:var(--c-green)">Free</span>';const cards=gwT.map((t,i)=>`<div class="mxf"><div class="xfo"><i class="fa-solid fa-arrow-down" style="font-size:.62rem;margin-right:4px" aria-hidden="true"></i>${S.playerMap[t.element_out]?.name||'?'}</div><i class="fa-solid fa-arrow-right xfa" aria-hidden="true"></i><div class="xfi"><i class="fa-solid fa-arrow-up" style="font-size:.62rem;margin-right:4px" aria-hidden="true"></i>${S.playerMap[t.element_in]?.name||'?'}</div>${i===0?costBadge:''}</div>`).join('');c.innerHTML=`<div class="ks" style="padding-top:0"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span class="ks-t" style="font-size:1rem">My Transfers</span></div><div class="kc">${cards}</div></div>`;}
 function renderGrids(picks){rGrid('starting-grid',picks.picks.slice(0,11),false);rGrid('bench-grid',picks.picks.slice(11),true);}
-function rGrid(id,list,isBench){const g=document.getElementById(id);if(!g)return;g.innerHTML=list.map(p=>{const meta=S.playerMap[p.element];if(!meta)return'';const pts=(S.ptsMap[p.element]?.pts||0)*(p.multiplier||1);const s=SH(meta.teamCode,meta.pos===1),own=Math.min(meta.ownership,100);const badge=p.is_captain?'<div class="pc-bdg pc-cap" aria-label="Captain">C</div>':p.is_vice_captain?'<div class="pc-bdg pc-vc" aria-label="Vice Captain">V</div>':'';return`<div class="pc ${isBench?'bench':''}" data-pos="${meta.pos}" role="listitem">${badge}<img class="pc-sh" src="${s}" alt="${meta.name}" loading="lazy" ${ESH}><div class="pc-nm">${meta.name}</div><div class="pc-pt ${pts===0?'pc-ptz':''}">${pts}</div><div class="pc-eo">${meta.ownership}% EO</div><div class="pc-ob"><div class="pc-of" style="width:${own}%"></div></div></div>`;}).join('');}
+function rGrid(id,list,isBench){const g=document.getElementById(id);if(!g)return;if(isBench)g.classList.add('bench-grid');g.innerHTML=list.map(p=>{const meta=S.playerMap[p.element];if(!meta)return'';const pts=(S.ptsMap[p.element]?.pts||0)*(p.multiplier||1);const s=SH(meta.teamCode,meta.pos===1);const ptCls=pts>0?'pc-pt':pts<0?'pc-pt pc-ptneg':'pc-pt pc-ptz';const badge=p.is_captain?'<div class="pc-bdg pc-cap" aria-label="Captain">C</div>':p.is_vice_captain?'<div class="pc-bdg pc-vc" aria-label="Vice Captain">V</div>':'';const star=(S.ptsMap[p.element]?.pts||0)>=8?'<span style="font-size:.5rem;color:var(--c-amber);margin-left:2px">★</span>':'';return`<div class="pc${isBench?' bench':''}" data-pos="${meta.pos}" role="listitem">${badge}<img class="pc-sh" src="${s}" alt="${meta.name}" loading="lazy" ${ESH}><div class="pc-nm">${meta.name}</div><div class="${ptCls}">${pts}${star}</div><div class="pc-eo">${meta.ownership}% EO</div></div>`;}).join('');}
 function renderWhatIf(picks){const grid=document.getElementById('wi-grid');if(!grid)return;const top6=picks.picks.slice(0,11).sort((a,b)=>(S.ptsMap[b.element]?.pts||0)-(S.ptsMap[a.element]?.pts||0)).slice(0,6);grid.innerHTML=top6.map(p=>{const meta=S.playerMap[p.element];if(!meta)return'';const base=S.ptsMap[p.element]?.pts||0,extra=S.wiExtras[p.element]||0;const s=SH(meta.teamCode,meta.pos===1);const cls=extra>0?'wi-xp':extra<0?'wi-xn':'wi-x0';return`<div class="wi-c"><div class="wi-p"><img class="wi-sh" src="${s}" alt="" loading="lazy" ${ESH}><div class="wi-pn">${meta.name}</div></div><div class="wi-b">${base} pts</div><div class="wi-ctrl"><button class="wi-btn" onclick="adjWI(${p.element},-1)" aria-label="Decrease score">−</button><div class="wi-ex ${cls}" id="wi-ex-${p.element}">${extra>=0?'+':''}${extra}</div><button class="wi-btn" onclick="adjWI(${p.element},+1)" aria-label="Increase score">+</button></div></div>`;}).join('');updateWITotal();}
 function adjWI(eid,delta){S.wiExtras[eid]=Math.max(-20,Math.min(20,(S.wiExtras[eid]||0)+delta));const el=document.getElementById(`wi-ex-${eid}`),v=S.wiExtras[eid];if(el){el.textContent=(v>=0?'+':'')+v;el.className=`wi-ex ${v>0?'wi-xp':v<0?'wi-xn':'wi-x0'}`;}updateWITotal();}
 function updateWITotal(){if(!S.picks)return;const cost=S.picks.entry_history.event_transfers_cost||0,base=S.picks.entry_history.points-cost;let extras=0;S.picks.picks.slice(0,11).forEach(p=>{extras+=(S.wiExtras[p.element]||0)*(p.is_captain?(p.multiplier||2):1);});const sim=base+extras,rank=S.entry?.summary_overall_rank||0;const estRank=extras!==0?Math.max(1,rank-(extras*2000)):null;const tv=document.getElementById('wi-total'),rv=document.getElementById('wi-rank-est');if(tv){tv.textContent=`${sim} pts (${extras>=0?'+':''}${extras})`;tv.className=`wi-rv ${extras>0?'wi-rp':extras<0?'wi-rn':'wi-r0'}`;}if(rv)rv.textContent=estRank?`Est. rank ~${estRank.toLocaleString()}`:'No changes yet';}
