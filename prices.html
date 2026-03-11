@@ -250,91 +250,145 @@ input[type=range]#ownSlider:active::-webkit-slider-thumb{box-shadow:0 0 0 8px va
 /* ══════════════════════════════════
    TABLE HEADER
    ══════════════════════════════════ */
-.thead{display:grid;grid-template-columns:1fr 68px 46px 52px 54px 30px;padding:7px 0;border-bottom:1px solid var(--bd);gap:4px}
-.thead th{font-size:.53rem;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--t3);background:none;border:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .14s}
-.thead th:not(:first-child){text-align:center}
-.thead th:first-child{padding-left:5px}
-.thead th:hover,.thead th.on{color:var(--t2)}
-.sect{padding:12px 0 5px;font-size:.56rem;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--t3);display:flex;align-items:center;gap:8px}
+/* Grid: shirt | player+star | team | progress | prediction | per-hr */
+.thead{
+  display:grid;
+  grid-template-columns:46px 1fr 88px 1fr 130px 72px;
+  align-items:center;
+  padding:10px 14px;
+  background:var(--s2);
+  border-radius:var(--rm) var(--rm) 0 0;
+  border:1px solid var(--bd2);
+  border-bottom:none;
+  gap:0;
+  margin-top:12px;
+}
+.thead th{
+  font-size:.56rem;font-weight:800;letter-spacing:.9px;
+  text-transform:uppercase;color:var(--t2);
+  background:none;border:none;padding:0;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:color .14s;white-space:nowrap;
+}
+.thead th:nth-child(n+3){text-align:center}
+.thead th:hover,.thead th.on{color:var(--t1)}
+.sect{padding:14px 0 6px;font-size:.56rem;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--t3);display:flex;align-items:center;gap:8px}
 .sect::after{content:'';flex:1;height:1px;background:var(--bd)}
 
 /* ══════════════════════════════════
-   LIST & ROWS
+   LIST & ROWS  — LiveFPL-style table
+   Grid: shirt(46) | player(1fr) | team(88) | progress(1fr) | prediction(130) | per-hr(72)
    ══════════════════════════════════ */
-.list{padding:0 0 14px;display:flex;flex-direction:column;gap:5px}
-.row{
-  background:var(--su);border:1px solid var(--bd);border-radius:var(--rm);
-  display:grid;grid-template-columns:1fr 68px 46px 52px 54px 30px;
-  align-items:center;padding:10px 13px;gap:4px;
-  transition:border-color .2s,box-shadow .2s,transform .18s;
-  animation:rowIn .24s var(--snap) both;
-  position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;
+.list{
+  padding:0 0 24px;display:flex;flex-direction:column;gap:0;
+  border-radius:0 0 var(--rm) var(--rm);
+  overflow:hidden;
 }
-.row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;background:var(--acc,transparent)}
-.row.rr{--acc:var(--gr)}.row.rf{--acc:var(--re)}
-.row:hover{border-color:var(--bd3);transform:translateY(-1px);box-shadow:var(--sh)}
-.row.rr:hover{border-color:rgba(0,232,122,.3);box-shadow:0 4px 18px rgba(0,232,122,.08)}
-.row.rf:hover{border-color:rgba(255,51,82,.3);box-shadow:0 4px 18px rgba(255,51,82,.08)}
-.row:active{transform:scale(.99)}
-.row.done{opacity:.28;border-style:dashed;filter:saturate(.4);pointer-events:none}
-.row.mine{background:linear-gradient(90deg,rgba(255,176,32,.045),var(--su) 50%);border-color:rgba(255,176,32,.16)}
-.row.mine:hover{border-color:rgba(255,176,32,.32)}
-.row.floor{opacity:.2;filter:grayscale(.7)}
-.row.hot-r{border-color:rgba(0,232,122,.32)}.row.hot-f{border-color:rgba(255,51,82,.32)}
+/* Border between grouped rows */
+.list .row + .row{border-top:none}
+.list .sect + .row{border-top:1px solid var(--bd) !important}
 
-/* Player cell */
-.pc{display:flex;align-items:center;gap:9px;min-width:0;padding-left:5px}
-.shirt{width:30px;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(0,0,0,.28));transition:transform .22s var(--spring)}
-.row:hover .shirt{transform:scale(1.07) translateY(-1px)}
-.pinfo{min-width:0}
-.pname{font-size:.79rem;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px}
+.row{
+  background:var(--su);
+  border:1px solid var(--bd);
+  border-top:none;
+  display:grid;
+  grid-template-columns:46px 1fr 88px 1fr 130px 72px;
+  align-items:center;
+  padding:12px 14px;
+  gap:0;
+  transition:background .15s,box-shadow .18s;
+  animation:rowIn .24s var(--snap) both;
+  position:relative;overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+/* First row gets top border + top radius */
+.list > .row:first-child,.list > .sect + .row{border-top:1px solid var(--bd)}
+.list > .row:last-child{border-radius:0 0 var(--rm) var(--rm)}
+
+/* Left accent line */
+.row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc,transparent)}
+.row.rr{--acc:var(--gr)}.row.rf{--acc:var(--re)}
+
+.row:hover{background:var(--s2);z-index:1}
+.row.rr:hover{background:linear-gradient(90deg,rgba(0,232,122,.04),var(--s2) 60%)}
+.row.rf:hover{background:linear-gradient(90deg,rgba(255,51,82,.04),var(--s2) 60%)}
+.row:active{background:var(--s3)}
+.row.done{opacity:.3;filter:saturate(.35);pointer-events:none}
+.row.mine{background:linear-gradient(90deg,rgba(255,176,32,.05),var(--su) 50%)}
+.row.mine:hover{background:linear-gradient(90deg,rgba(255,176,32,.09),var(--s2) 60%)}
+.row.floor{opacity:.22;filter:grayscale(.7)}
+.row.hot-r{background:linear-gradient(90deg,rgba(0,232,122,.06),var(--su) 40%)}
+.row.hot-f{background:linear-gradient(90deg,rgba(255,51,82,.06),var(--su) 40%)}
+
+/* ── Col 1: Shirt ── */
+.pc-shirt-col{display:flex;align-items:center;justify-content:center}
+.shirt{width:32px;flex-shrink:0;filter:drop-shadow(0 2px 5px rgba(0,0,0,.25));transition:transform .2s var(--spring)}
+.row:hover .shirt{transform:scale(1.08) translateY(-1px)}
+
+/* ── Col 2: Player info ── */
+.pc{display:flex;align-items:center;gap:0;min-width:0;padding-right:8px}
+.pinfo{min-width:0;flex:1}
+.pname{font-size:.84rem;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:5px;line-height:1.2}
 .mine-star{font-size:.52rem;color:var(--go)}
-.pmeta{font-size:.58rem;color:var(--t3);display:flex;align-items:center;gap:4px;margin-top:2px;flex-wrap:wrap}
+.pmeta{font-size:.6rem;color:var(--t3);display:flex;align-items:center;gap:5px;margin-top:3px}
 .ppr{color:var(--t2);font-weight:700}
-.posb{font-size:.5rem;font-weight:900;padding:1.5px 4px;border-radius:3px;letter-spacing:.3px;text-transform:uppercase}
-.gk{background:rgba(255,176,32,.12);color:var(--am)}.df{background:rgba(0,232,122,.1);color:var(--gr)}
+.posb{font-size:.5rem;font-weight:900;padding:2px 5px;border-radius:3px;letter-spacing:.3px;text-transform:uppercase}
+.gk{background:rgba(255,176,32,.13);color:var(--am)}.df{background:rgba(0,232,122,.1);color:var(--gr)}
 .md{background:rgba(77,143,255,.1);color:var(--bl)}.fw{background:rgba(255,51,82,.1);color:var(--re)}
 .warn{color:var(--am);font-size:.5rem}
-.flbl{font-size:.48rem;font-weight:800;padding:1px 4px;border-radius:3px;background:var(--red);color:var(--re);letter-spacing:.3px}
+.flbl{font-size:.48rem;font-weight:800;padding:1px 5px;border-radius:3px;background:var(--red);color:var(--re);letter-spacing:.3px}
 .sell{font-size:.55rem;font-weight:700;color:var(--gr);margin-top:2px;display:none}
 .row.rr:not(.done) .sell{display:block}
 
-/* Cumulative progress cell */
-.cumul{display:flex;flex-direction:column;align-items:center;gap:3px}
-.cpct{font-family:var(--fn);font-size:.94rem;font-weight:800;line-height:1;letter-spacing:.5px}
+/* Star button inline with player */
+.pstar{background:none;border:none;font-size:.84rem;color:var(--t3);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  width:28px;height:28px;flex-shrink:0;border-radius:50%;
+  transition:color .15s,transform .13s,background .15s;
+  -webkit-tap-highlight-color:transparent;margin-left:4px}
+.pstar:hover{background:var(--s3);color:var(--am)}.pstar:active{transform:scale(1.35)}.pstar.on{color:var(--go)}
+
+/* ── Col 3: Team name ── */
+.pteam-col{font-size:.72rem;font-weight:600;color:var(--t3);text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── Col 4: Progress ── */
+.cumul{display:flex;flex-direction:column;gap:4px;padding:0 12px 0 4px}
+.cpct{font-family:var(--fn);font-size:.85rem;font-weight:800;line-height:1;letter-spacing:.3px;color:var(--t2)}
 .cr{color:var(--gr)}.cf{color:var(--re)}.cd{color:var(--t3)}
-.cbar{width:100%;height:5px;background:var(--s4);border-radius:100px;overflow:hidden;position:relative}
+.cbar{width:100%;height:7px;background:var(--s4);border-radius:100px;overflow:hidden;position:relative}
 .cest{position:absolute;inset:0;border-radius:100px;transition:width .65s var(--snap)}
 .cnow{position:absolute;top:0;left:0;bottom:0;border-radius:100px;transition:width .65s var(--snap)}
-.rr .cest{background:var(--grm)}.rr .cnow{background:linear-gradient(90deg,var(--gr),var(--gr2));box-shadow:0 0 6px rgba(0,232,122,.4)}
-.rf .cest{background:var(--rem)}.rf .cnow{background:linear-gradient(90deg,var(--re),var(--re2));box-shadow:0 0 6px rgba(255,51,82,.4)}
-.csub{font-size:.46rem;color:var(--t3);white-space:nowrap;letter-spacing:.2px}
-.vel{font-size:.52rem;font-weight:800;display:flex;align-items:center;justify-content:center;gap:2px}
+.rr .cest{background:var(--grm)}.rr .cnow{background:linear-gradient(90deg,var(--gr),var(--gr2));box-shadow:0 0 8px rgba(0,232,122,.5)}
+.rf .cest{background:var(--rem)}.rf .cnow{background:linear-gradient(90deg,var(--re),var(--re2));box-shadow:0 0 8px rgba(255,51,82,.4)}
+.csub{font-size:.52rem;color:var(--t3);white-space:nowrap}
+.vel{display:none} /* velocity moved to per-hr col */
 .vu{color:var(--gr)}.vd{color:var(--re)}.vn{color:var(--t3)}
 
-/* Net cell */
-.pnet{font-family:var(--fn);font-size:.8rem;font-weight:800;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px}
-.nr{color:var(--gr)}.nf{color:var(--re)}.nd{color:var(--t3)}
-.nsub{font-size:.49rem;color:var(--t3);font-family:'DM Sans',sans-serif;font-weight:400}
+/* ── Col 5: Prediction (large % + label) ── */
+.ppred{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;padding:0 6px}
+/* Repurpose .pred as the big percentage number */
+.pred{font-family:var(--fn);font-size:1.02rem;font-weight:800;display:inline-block;padding:0;border-radius:0;background:none !important;letter-spacing:.3px}
+.p-tn{color:var(--gr)}.p-so{color:var(--am)}.p-wa{color:var(--bl)}.p-dn{color:var(--t3)}.p-fl{color:var(--t3);font-size:.8rem}.p-none{color:var(--t3)}
+/* Sub-label inside prediction col */
+.pred-lbl{font-size:.56rem;font-weight:700;color:var(--t3);letter-spacing:.2px}
+/* "Tonight" highlight cell */
+.ppred.tonight-hi{background:rgba(0,232,122,.07);border-radius:var(--r);padding:4px 8px;margin:-2px 0}
+.ppred.tonight-hi .pred{color:var(--gr)}
+.ppred.tonight-hi .pred-lbl{color:rgba(0,232,122,.7)}
 
-/* Probability ring */
-.pprob{text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
-.pring{width:30px;height:30px}
-.pval{font-family:var(--fn);font-size:.68rem;font-weight:800;color:var(--t1)}
+/* Remove old probability ring styles (ring hidden via JS col remap) */
+.pprob{display:none}
+.pring,.pval{display:none}
 
-/* Prediction badge */
-.ppred{text-align:center}
-.pred{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:900;padding:4px 7px;border-radius:6px;display:inline-block;letter-spacing:.4px}
-.p-tn{background:rgba(255,51,82,.15);color:var(--re)}
-.p-so{background:rgba(255,176,32,.14);color:var(--am)}
-.p-wa{background:rgba(77,143,255,.12);color:var(--bl)}
-.p-dn{background:var(--s3);color:var(--t3)}
-.p-fl{background:var(--s3);color:var(--t3);font-size:.62rem}
-.p-none{color:var(--t3);font-size:.7rem}
+/* Net cell (hidden — data shown in per-hr col instead) */
+.pnet{display:none}
 
-/* Star */
-.pstar{background:none;border:none;font-size:.82rem;color:var(--t3);cursor:pointer;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;transition:color .15s,transform .13s,background .15s;-webkit-tap-highlight-color:transparent}
-.pstar:hover{background:var(--s3);color:var(--am)}.pstar:active{transform:scale(1.36)}.pstar.on{color:var(--go)}
+/* ── Col 6: Per hr (velocity + net direction) ── */
+.pperhr{display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding-left:4px}
+.pperhr-val{font-family:var(--fn);font-size:.75rem;font-weight:800;white-space:nowrap}
+.pperhr-val.vu{color:var(--gr)}.pperhr-val.vd{color:var(--re)}.pperhr-val.vn{color:var(--t3)}
+.pperhr-dir{font-size:.5rem;color:var(--t3)}
 
 /* Skeletons & empty */
 .skel{height:66px;border-radius:var(--rm);background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);background-size:1800px 100%;animation:shimmer 1.8s ease-in-out infinite;border:1px solid var(--bd)}
@@ -342,9 +396,20 @@ input[type=range]#ownSlider:active::-webkit-slider-thumb{box-shadow:0 0 0 8px va
 .empty i{font-size:2.2rem;margin-bottom:12px;opacity:.26;display:block}
 .empty p{font-size:.84rem;line-height:1.65;color:var(--t2)}
 
-@media(max-width:400px){
-  .thead,.row{grid-template-columns:1fr 60px 42px 46px 48px 28px;padding:9px 10px}
+@media(max-width:480px){
+  .thead,.row{grid-template-columns:40px 1fr 0px 1fr 100px 60px;padding:10px 10px}
+  .pteam-col{display:none}
+  .thead th:nth-child(3){display:none}
   .timer{font-size:1.6rem}.zones{padding:10px 0 0}
+  .pred{font-size:.88rem}
+  .pperhr-val{font-size:.68rem}
+  .cpct{font-size:.78rem}
+}
+@media(max-width:360px){
+  .thead,.row{grid-template-columns:36px 1fr 1fr 90px 52px;padding:9px 8px}
+  .pteam-col{display:none}
+  .pred{font-size:.8rem}
+  .timer{font-size:1.5rem}
 }
 
 /* ══════════════════════════════════
@@ -707,12 +772,12 @@ Using trial and error, we've attempted to estimate the percentage of transfers e
 
 <!-- ═══ TABLE HEADER ═══ -->
 <div class="thead" role="row">
+  <th></th>
   <th onclick="setSort('name')" id="th-name">Player</th>
-  <th onclick="setSort('prog')" id="th-prog" class="on">Progress</th>
-  <th onclick="setSort('net')"  id="th-net">Net Δ</th>
-  <th onclick="setSort('prob')" id="th-prob">Prob</th>
-  <th>Pred</th>
-  <th><span class="sr-only">Watch</span></th>
+  <th onclick="setSort('own')"  id="th-own">Team</th>
+  <th onclick="setSort('prog')" id="th-prog" class="on">Progress Now</th>
+  <th onclick="setSort('prob')" id="th-prob">Prediction</th>
+  <th onclick="setSort('net')"  id="th-net">Per hr</th>
 </div>
 
 <div id="pc-list" class="list" role="list" aria-label="Price change predictions"></div>
@@ -1090,7 +1155,7 @@ function mkRow(p, idx) {
   const estW    = p.moved ? 100 : Math.min(100, p.tonightEst);
   const nowW    = p.moved ? 100 : Math.min(100, p.cumulProg);
   const relNow  = estW > 0 ? (nowW / estW) * 100 : nowW;
-  const pctLbl  = p.moved ? (p.actualChange > 0 ? '+£0.1' : '−£0.1') : p.belowFloor ? 'FLOOR' : `${p.cumulProg.toFixed(0)}%`;
+  const pctLbl  = p.moved ? (p.actualChange > 0 ? '+£0.1' : '−£0.1') : p.belowFloor ? 'FLOOR' : `${p.cumulProg.toFixed(1)}%`;
   const rowCls  = [
     p.isRise ? 'rr' : 'rf',
     p.moved      ? 'done'  : '',
@@ -1100,15 +1165,37 @@ function mkRow(p, idx) {
     !p.moved && p.tonightEst >= 88 && !p.isRise ? 'hot-f' : '',
   ].filter(Boolean).join(' ');
 
-  /* The net sub-label shows which condition is the bottleneck */
-  const bottleneck = p.moved ? '' : p.cumulMet ? '✓ cumul' : `${((p.absNet/RISE_CUMUL)*100).toFixed(0)}% cumul`;
+  /* Prediction display: big % + small label */
+  const predPct  = p.moved ? (p.actualChange > 0 ? '+£0.1' : '−£0.1')
+                 : p.belowFloor ? '< floor'
+                 : `${p.tonightEst.toFixed(2)}%`;
+  const predLbl  = p.moved ? 'confirmed'
+                 : p.belowFloor ? 'floor'
+                 : p.tonightEst >= 88 ? 'Tonight'
+                 : p.tonightEst >= 60 ? 'Soon'
+                 : p.tonightEst >= 30 ? 'Watch'
+                 : '>2 days';
+  const tonightHi = !p.moved && !p.belowFloor && p.tonightEst >= 88;
+  const predColCls = tonightHi ? 'ppred tonight-hi' : 'ppred';
+
+  /* Per-hr column: net direction + velocity */
+  const perHrVal = p.moved ? 'done'
+    : p.belowFloor ? '—'
+    : p.netDisplay;
+  const perHrCls = p.isRise ? 'pperhr-val vu' : 'pperhr-val vd';
+  const velArrow = p.velCls === 'vu' ? '↑' : p.velCls === 'vd' ? '↓' : '';
 
   return `<div class="${rowCls}" id="row-${p.id}" style="animation-delay:${delay}s" role="listitem"
-              aria-label="${p.name}${p.isMine?' — your player':''} — ${p.pred}">
+              aria-label="${p.name}${p.isMine?' — your player':''} — ${predLbl}">
 
-  <div class="pc">
+  <!-- Col 1: Shirt -->
+  <div class="pc-shirt-col">
     <img class="shirt" src="${shirt}" alt="" loading="lazy"
          onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
+  </div>
+
+  <!-- Col 2: Player + star -->
+  <div class="pc">
     <div class="pinfo">
       <div class="pname">
         ${p.name}
@@ -1116,48 +1203,46 @@ function mkRow(p, idx) {
       </div>
       <div class="pmeta">
         <span class="posb ${POS_CLS[p.pos]}">${POS_LBL[p.pos]}</span>
-        <span>${TMAP[p.teamId]||''}</span>
         <span class="ppr">£${p.price}</span>
         <span>${p.own.toFixed(1)}%</span>
         ${p.belowFloor ? '<span class="flbl">FLOOR</span>' : ''}
-        ${p.status!=='a'&&!p.belowFloor ? '<i class="fa-solid fa-triangle-exclamation warn" title="Fitness concern" aria-label="Fitness concern"></i>' : ''}
+        ${p.status!=='a'&&!p.belowFloor ? '<i class="fa-solid fa-triangle-exclamation warn" aria-label="Fitness concern"></i>' : ''}
       </div>
-      ${!p.moved && p.isRise && !p.belowFloor ? '<div class="sell" aria-label="Sell price rises by 5p if price rises tonight"><i class="fa-solid fa-arrow-up" style="font-size:.48rem" aria-hidden="true"></i> +£0.05 sell price if rises tonight</div>' : ''}
+      ${!p.moved && p.isRise && !p.belowFloor ? '<div class="sell"><i class="fa-solid fa-arrow-up" style="font-size:.46rem" aria-hidden="true"></i> +£0.05 sell if rises</div>' : ''}
     </div>
+    <button class="pstar ${starred?'on':''}"
+      onclick="toggleWatch(${p.id},event)"
+      aria-label="${starred?'Remove from':'Add to'} watchlist"
+      aria-pressed="${starred}">
+      <i class="fa-${starred?'solid':'regular'} fa-star" aria-hidden="true"></i>
+    </button>
   </div>
 
-  <div class="cumul" aria-label="Progress ${p.cumulProg.toFixed(0)}% of threshold, tonight estimate ${p.tonightEst.toFixed(0)}%">
+  <!-- Col 3: Team -->
+  <div class="pteam-col">${TMAP[p.teamId]||''}</div>
+
+  <!-- Col 4: Progress bar -->
+  <div class="cumul" aria-label="Progress ${p.cumulProg.toFixed(0)}%, tonight ~${p.tonightEst.toFixed(0)}%">
     <div class="cpct ${p.pctCls}">${pctLbl}</div>
     <div class="cbar" role="progressbar"
-         aria-valuenow="${p.cumulProg}" aria-valuemin="0" aria-valuemax="100"
-         title="Cumul: ${p.cumulProg.toFixed(0)}% · Tonight: ~${p.tonightEst.toFixed(0)}%">
+         aria-valuenow="${p.cumulProg}" aria-valuemin="0" aria-valuemax="100">
       <div class="cest" style="width:${estW}%"></div>
       <div class="cnow" style="width:${relNow}%"></div>
     </div>
-    <div class="csub">~${p.tonightEst.toFixed(0)}% tonight</div>
-    ${!p.moved ? `<div class="vel"><i class="fa-solid ${p.velIcon} ${p.velCls}" aria-hidden="true"></i></div>` : ''}
   </div>
 
-  <div class="pnet" aria-label="Net transfers ${p.netDisplay}">
-    <span class="${p.netCls}">${p.moved ? '✓' : p.netDisplay}</span>
-    ${!p.moved ? `<span class="nsub">${bottleneck}</span>` : ''}
+  <!-- Col 5: Prediction -->
+  <div class="${predColCls}">
+    <span class="pred ${p.predCls}">${predPct}</span>
+    <span class="pred-lbl">${predLbl}</span>
   </div>
 
-  <div class="pprob" aria-label="Probability ${p.prob}%">
-    ${probRing(p.prob, p.isRise)}
-    <span class="pval">${p.moved ? '✓' : p.prob+'%'}</span>
+  <!-- Col 6: Per hr / net -->
+  <div class="pperhr">
+    <span class="${perHrCls}">${p.moved ? '✓' : perHrVal} ${velArrow}</span>
+    <span class="pperhr-dir">${p.moved ? '' : p.velCls !== 'vn' ? 'trending' : ''}</span>
   </div>
 
-  <div class="ppred">
-    <span class="pred ${p.predCls}">${p.pred}</span>
-  </div>
-
-  <button class="pstar ${starred?'on':''}"
-    onclick="toggleWatch(${p.id},event)"
-    aria-label="${starred?'Remove from':'Add to'} watchlist"
-    aria-pressed="${starred}">
-    <i class="fa-${starred?'solid':'regular'} fa-star" aria-hidden="true"></i>
-  </button>
 </div>`;
 }
 
