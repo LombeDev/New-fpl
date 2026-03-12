@@ -981,415 +981,142 @@ function calcPlayer(p) {
   };
 }
 
-/* ════════════════════════════════════════════════════════
-   SNAPSHOTS — delegate to KopalaDB (loaded via kopala-idb.js)
-   Legacy shims so existing calcPlayer calls still work
-   ════════════════════════════════════════════════════════ */
+/* ════════════════════════
+   SNAPSHOTS (velocity)
+   ════════════════════════ */
 function saveSnap(id, prog) {
-  // Batch-written by worker flush cycle via KopalaDB.snapshots.save
-  if (window.KopalaDB) KopalaDB.snapshots.save(id, prog);
+  try {
+    const s = JSON.parse(localStorage.getItem('kfpl_snaps') || '{}');
+    if (!s[id] || Date.now() - new Date(s[id].ts) > 1800000) {
+      s[id] = { prog, ts: new Date().toISOString() };
+      localStorage.setItem('kfpl_snaps', JSON.stringify(s));
+    }
+  } catch {}
 }
 function loadSnap(id) {
-  // Sync read from in-memory cache — KopalaDB pre-loads all snaps at init
-  return _snapCache[id] || null;
+  try { return JSON.parse(localStorage.getItem('kfpl_snaps') || '{}')[id] || null; } catch { return null; }
 }
-let _snapCache = {};  // populated once at init from IDB
 
-/* ════════════════════════════════════════════════════════
-   WORKER — persistent instance (not recreated per-call)
-   ════════════════════════════════════════════════════════ */
-let _worker = null;
-let _workerCallbacks = {};
-let _workerCallId = 0;
-
-function getWorker() {
-  if (_worker) return _worker;
-  try {
-    _worker = new Worker('/kopala-worker.js');
-  } catch {
-    // Fallback: inline blob worker using the same source
-    const src = `${PRICES_WORKER_INLINE}`;
-    const blob = new Blob([src], { type: 'application/javascript' });
-    _worker = new Worker(URL.createObjectURL(blob));
-  }
-  _worker.onmessage = e => {
-    const { type, payload, _id } = e.data;
-    if (_id && _workerCallbacks[_id]) {
-      const { resolve, reject } = _workerCallbacks[_id];
-      delete _workerCallbacks[_id];
-      if (type === 'ERROR') reject(new Error(payload));
-      else resolve(payload);
-      return;
+/* ════════════════════════
+   CONFIRMED CHANGES
+   ════════════════════════ */
+function detectConfirmed(elements) {
+  const saved = JSON.parse(localStorage.getItem('kopala_prices') || '{}');
+  const now   = {};
+  const hits  = [];
+  elements.forEach(p => {
+    now[p.id] = p.now_cost;
+    if (saved[p.id] && saved[p.id] !== p.now_cost) {
+      hits.push({ id: p.id, name: p.web_name, old: (saved[p.id]/10).toFixed(1), cur: (p.now_cost/10).toFixed(1), type: p.now_cost > saved[p.id] ? 'rise' : 'fall', isMine: mySquad.has(p.id) });
     }
-    // Unsolicited messages (e.g. progress)
-    if (type === 'ERROR') console.warn('[Worker]', payload);
-  };
-  _worker.onerror = err => console.warn('[Worker] error:', err);
-  return _worker;
-}
-
-function workerCall(type, payload) {
-  return new Promise((resolve, reject) => {
-    const id = ++_workerCallId;
-    _workerCallbacks[id] = { resolve, reject };
-    getWorker().postMessage({ type, payload, _id: id });
-    // Timeout after 8s to avoid hanging
-    setTimeout(() => {
-      if (_workerCallbacks[id]) {
-        delete _workerCallbacks[id];
-        reject(new Error('Worker timeout: ' + type));
-      }
-    }, 8000);
   });
+  localStorage.setItem('kopala_prices', JSON.stringify(now));
+  return hits;
 }
 
-/* Inline fallback worker source (minified) */
-const PRICES_WORKER_INLINE = `
-const RC=220000,RD=30000,FC=37000,FD=5000,OF=1.7;
-self.onmessage=function(e){
-  const{type,payload,_id}=e.data;
-  try{
-    let r;
-    if(type==='PROCESS_BOOTSTRAP')r=pb(payload);
-    else if(type==='CALC_PRICES')r=cp(payload);
-    else if(type==='SORT_FILTER')r=sf(payload);
-    else if(type==='DIFF')r=df(payload);
-    else throw new Error('Unknown:'+type);
-    const out={type:type==='PROCESS_BOOTSTRAP'?'BOOTSTRAP_READY':type==='CALC_PRICES'?'PRICES_READY':type==='SORT_FILTER'?'SORTED':'DIFF_READY',payload:r};
-    if(_id)out._id=_id;
-    self.postMessage(out);
-  }catch(err){self.postMessage({type:'ERROR',payload:err.message,_id});}
-};
-function gu(){const t=new Date();t.setUTCHours(1,30,0,0);if(Date.now()>=t.getTime())t.setUTCDate(t.getUTCDate()+1);return t.getTime();}
-function gs(){const p=new Date();p.setUTCHours(1,30,0,0);if(Date.now()<p.getTime())p.setUTCDate(p.getUTCDate()-1);return p.getTime();}
-function pb(d){const T={},TC={};d.teams.forEach(t=>{T[t.id]=t.short_name;TC[t.id]=t.code;});const tl=d.teams.map(t=>({id:t.id,name:t.name,short:t.short_name,code:t.code}));const ev=d.events.find(e=>e.is_current)||d.events.find(e=>e.is_next)||d.events[0];return{TMAP:T,TCODES:TC,teamList:tl,allElements:d.elements,totalPlayers:d.total_players||0,currentGW:ev?ev.id:1,gwNum:ev?ev.id:1};}
-function cp({elements,snapshots={},mySquad=[],TMAP={},gwStartMs,gwEndMs}){const ms=new Set(mySquad),gs2=gwStartMs||gs(),ge=gwEndMs||gu(),all=elements.map(p=>cv(p,snapshots,ms,TMAP,gs2,ge));const pd=all.filter(p=>!p.moved&&!p.belowFloor);return{all,zones:{tn:pd.filter(p=>p.tonightEst>=88).length,so:pd.filter(p=>p.tonightEst>=60&&p.tonightEst<88).length,wa:pd.filter(p=>p.cumulProg>=30&&p.tonightEst<60).length,tnNames:pd.filter(p=>p.tonightEst>=88).slice(0,3).map(p=>p.name),soNames:pd.filter(p=>p.tonightEst>=60&&p.tonightEst<88).slice(0,3).map(p=>p.name),waNames:pd.filter(p=>p.cumulProg>=30&&p.tonightEst<60).slice(0,3).map(p=>p.name),risers:all.filter(p=>p.isRise&&!p.moved&&p.tonightEst>=40).length,fallers:all.filter(p=>!p.isRise&&!p.moved&&p.tonightEst>=40).length}};}
-function cv(p,sn,ms,TM,gwS,gwE){const own=parseFloat(p.selected_by_percent)||0,net=(p.transfers_in_event||0)-(p.transfers_out_event||0),isR=net>=0,bf=own<OF,fm=isR?1:p.status==='a'?1:p.status==='d'?0.75:p.status==='i'?0.55:0.45,ct=isR?RC:FC*fm,dt=isR?RD:FD*fm,an=Math.abs(net),cp2=bf?0:Math.min(100,(an/ct)*100),now=Date.now(),hE=Math.max(0.5,(now-gwS)/3.6e6),hL=Math.max(0,(gwE-now)/3.6e6),dm=hE/24<0.3?1.15:hE/24<0.65?1:0.7,te=bf?0:Math.min(100,cp2+(cp2/hE)*dm*hL),sn2=sn[p.id]||null;let vc='vn',vi='fa-minus';if(sn2){const r=(cp2-sn2.prog)/Math.max(0.1,(now-sn2.ts)/3.6e6);if(r>3){vi='fa-angles-up';vc='vu';}else if(r>0.8){vi='fa-angle-up';vc='vu';}else if(r<-3){vi='fa-angles-down';vc='vd';}else if(r<-0.8){vi='fa-angle-down';vc='vd';}}const wc=Math.min(Math.min(100,(an/ct)*100),Math.min(100,(an/dt)*100));let pr=0;if(!bf){if(wc<40)pr=Math.round(wc*0.45);else if(wc<70)pr=Math.round(18+(wc-40)*1.5);else if(wc<88)pr=Math.round(63+(wc-70)*1.8);else pr=Math.round(95+(wc-88)*0.3);pr=Math.min(99,Math.max(0,pr));}const mv=p.cost_change_event!==0;let pred='—',pc='p-none';if(mv){pred=p.cost_change_event>0?'+£0.1':'−£0.1';pc='p-dn';}else if(bf){pred='< FLOOR';pc='p-fl';}else if(te>=88){pred='TONIGHT';pc='p-tn';}else if(te>=60){pred='SOON';pc='p-so';}else if(cp2>=30){pred='WATCH';pc='p-wa';}const fm2=v=>v>=1000?(v/1000).toFixed(1)+'k':String(v);return{id:p.id,name:p.web_name,teamId:p.team,teamCode:p.team_code,teamShort:TM[p.team]||'',pos:p.element_type,price:(p.now_cost/10).toFixed(1),own,net,absNet:an,cumulProg:parseFloat(cp2.toFixed(1)),tonightEst:parseFloat(te.toFixed(1)),cumulMet:an>=ct,dailyMet:an>=dt,prob:pr,pred,predCls:pc,isRise:isR,moved:mv,actualChange:p.cost_change_event,netDisplay:(isR?'+':'-')+fm2(an),netCls:isR?'nr':'nf',pctCls:mv?'cd':isR?'cr':'cf',velIcon:vi,velCls:vc,belowFloor:bf,status:p.status,isMine:ms.has(p.id)};}
-function sf({players,view,pos,sort,search,teamId,minOwn,zone,watchlist}){const ws=new Set(watchlist||[]),ah=!search&&view!=='w';let pool=players.filter(p=>{if(view==='r'&&!p.isRise)return false;if(view==='f'&&p.isRise)return false;if(view==='w'&&!ws.has(p.id))return false;if(pos&&p.pos!==pos)return false;if(search&&!p.name.toLowerCase().includes(search))return false;if(teamId&&teamId!=='all'&&String(p.teamId)!==teamId)return false;if(ah&&p.moved)return false;if(minOwn&&p.own<minOwn)return false;if(zone==='tn'&&(p.moved||p.tonightEst<88))return false;if(zone==='so'&&(p.moved||p.tonightEst<60||p.tonightEst>=88))return false;if(zone==='wa'&&(p.moved||p.cumulProg<30||p.tonightEst>=60))return false;return true;});const fn={prog:(a,b)=>b.cumulProg-a.cumulProg,est:(a,b)=>b.tonightEst-a.tonightEst,net:(a,b)=>b.absNet-a.absNet,own:(a,b)=>b.own-a.own,name:(a,b)=>a.name.localeCompare(b.name)};pool.sort(fn[sort]||fn.prog);return{pool};}
-function df({prev,next}){const pm={};prev.forEach(p=>{pm[p.id]=p;});const ch=[];next.forEach(p=>{const o=pm[p.id];if(!o||o.cumulProg!==p.cumulProg||o.tonightEst!==p.tonightEst||o.prob!==p.prob||o.pred!==p.pred||o.netDisplay!==p.netDisplay||o.velCls!==p.velCls||o.moved!==p.moved)ch.push(p.id);});return{changed:ch};}
-`;
-
-/* ════════════════════════════════════════════════════════
-   AUTO REFRESH — stale-while-revalidate every 3 min
-   Uses diff to patch only changed rows (no full re-render)
-   ════════════════════════════════════════════════════════ */
-let _prevAll = [];
-let refreshTimer;
-
-function scheduleRefresh() {
-  clearInterval(refreshTimer);
-  refreshTimer = setInterval(async () => {
-    try {
-      const data       = await KopalaDB.bootstrap.fresh(PROXY);
-      const snapsMap   = await KopalaDB.snapshots.getAll();
-      const { all: nextAll, zones } = await workerCall('CALC_PRICES', {
-        elements:   data.elements,
-        snapshots:  snapsMap,
-        mySquad:    Array.from(mySquad),
-        TMAP,
-        gwStartMs:  getGWStart(),
-        gwEndMs:    getUpdateTarget(),
-      });
-
-      // Diff: only patch changed rows
-      const { changed } = await workerCall('DIFF', { prev: _prevAll, next: nextAll });
-      _prevAll = nextAll;
-      ALL      = nextAll;
-
-      // Save new snaps in background
-      nextAll.forEach(p => KopalaDB.snapshots.save(p.id, p.cumulProg));
-
-      if (changed.length > 0) {
-        patchRows(changed, nextAll);
-      }
-
-      updateZones(zones);
-      setText('h-upd', new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }));
-
-      // Save render cache for next visit
-      KopalaDB.render.save('prices', document.getElementById('pc-list')?.innerHTML || '');
-    } catch {}
-  }, 180000);
+/* ════════════════════════
+   ZONES
+   ════════════════════════ */
+function updateZones() {
+  const pending = ALL.filter(p => !p.moved && !p.belowFloor);
+  const tn = pending.filter(p => p.tonightEst >= 88);
+  const so = pending.filter(p => p.tonightEst >= 60 && p.tonightEst < 88);
+  const wa = pending.filter(p => p.cumulProg  >= 30 && p.tonightEst < 60);
+  setText('z-tn', tn.length || '0'); setText('z-so', so.length || '0'); setText('z-wa', wa.length || '0');
+  const fmt = a => a.slice(0,3).map(p=>p.name).join(', ') || '—';
+  setText('z-tn-n', fmt(tn)); setText('z-so-n', fmt(so)); setText('z-wa-n', fmt(wa));
+  setText('h-rise', ALL.filter(p=>p.isRise&&!p.moved&&p.tonightEst>=40).length);
+  setText('h-fall', ALL.filter(p=>!p.isRise&&!p.moved&&p.tonightEst>=40).length);
 }
 
-/* ── Surgical DOM patch: only update rows that changed ── */
-function patchRows(changedIds, allPlayers) {
-  const playerMap = {};
-  allPlayers.forEach(p => { playerMap[p.id] = p; });
+function setZone(z) {
+  zone = zone === z ? null : z;
+  ['tn','so','wa'].forEach(k => { const el=document.getElementById(`zb-${k}`); if(el) el.classList.toggle('sel', k===zone); });
+  render();
+  document.getElementById('pc-list').scrollIntoView({ behavior:'smooth', block:'start' });
+}
 
-  changedIds.forEach(id => {
+/* ════════════════════════
+   SQUAD BANNER
+   ════════════════════════ */
+function renderSquadBanner() {
+  if (!squadMeta || !ALL.length) return;
+  const wrap = document.getElementById('squad-wrap');
+  wrap.style.display = '';
+  const ini = (squadMeta.name || 'FPL').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+  setText('sq-av', ini);
+  setText('sq-name', squadMeta.name);
+  setText('sq-meta', `GW${squadMeta.gw} · ${mySquad.size} players tracked · tap to jump`);
+
+  const movers = ALL.filter(p => p.isMine && !p.moved && p.cumulProg >= 12)
+    .sort((a,b) => b.cumulProg - a.cumulProg).slice(0, 12);
+
+  const pills = document.getElementById('sq-pills');
+  if (!movers.length) {
+    pills.innerHTML = '<div class="sq-none">None of your players are moving significantly yet</div>';
+    return;
+  }
+  pills.innerHTML = movers.map((p, i) => {
+    const shirt = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos===1?'_1':''}-66.png`;
+    const cls   = p.isRise ? 'sqr' : 'sqf';
+    const emoji = p.pred==='TONIGHT' ? '🔥' : p.pred==='SOON' ? '📈' : '';
+    return `<button class="sq-pill ${cls}" style="animation-delay:${i*.05}s"
+              onclick="focusPlayer(${p.id})" aria-label="${p.name} — ${p.pred}" role="listitem">
+      <img class="sq-shirt" src="${shirt}" alt="" loading="lazy"
+           onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
+      <span>${p.name}</span>
+      <span class="sdir">${emoji}${p.isRise?'+':'−'}${p.cumulProg.toFixed(0)}%</span>
+    </button>`;
+  }).join('');
+}
+
+function focusPlayer(id) {
+  const p = ALL.find(x => x.id === id);
+  if (!p) return;
+  setView(p.isRise ? 'r' : 'f');
+  setTimeout(() => {
     const row = document.getElementById(`row-${id}`);
-    if (!row) return;  // row not currently visible — skip
-    const p = playerMap[id];
-    if (!p) return;
-
-    // Patch progress bar
-    const estW   = p.moved ? 100 : Math.min(100, p.tonightEst);
-    const nowW   = p.moved ? 100 : Math.min(100, p.cumulProg);
-    const relNow = estW > 0 ? (nowW / estW) * 100 : nowW;
-
-    const cest = row.querySelector('.cest');
-    const cnow = row.querySelector('.cnow');
-    const cpct = row.querySelector('.cpct');
-    const csub = row.querySelector('.csub');
-    if (cest) cest.style.width = estW + '%';
-    if (cnow) cnow.style.width = relNow + '%';
-    if (cpct) {
-      const pctLbl = p.moved ? (p.actualChange > 0 ? '+£0.1' : '−£0.1') : p.belowFloor ? 'FLOOR' : `${p.cumulProg.toFixed(1)}%`;
-      cpct.textContent  = pctLbl;
-      cpct.className    = `cpct ${p.pctCls}`;
-    }
-
-    // Patch prediction col
-    const predEl  = row.querySelector('.pred');
-    const predLbl = row.querySelector('.pred-lbl');
-    const ppred   = row.querySelector('.ppred');
-    if (predEl) {
-      const predPct = p.moved ? (p.actualChange > 0 ? '+£0.1' : '−£0.1') : p.belowFloor ? '< floor' : `${p.tonightEst.toFixed(2)}%`;
-      predEl.textContent = predPct;
-      predEl.className   = `pred ${p.predCls}`;
-    }
-    if (predLbl) {
-      predLbl.textContent = p.moved ? 'confirmed' : p.belowFloor ? 'floor' : p.tonightEst>=88 ? 'Tonight' : p.tonightEst>=60 ? 'Soon' : p.tonightEst>=30 ? 'Watch' : '>2 days';
-    }
-    if (ppred) {
-      ppred.className = (!p.moved && !p.belowFloor && p.tonightEst >= 88) ? 'ppred tonight-hi' : 'ppred';
-    }
-
-    // Patch per-hr col
-    const perHr = row.querySelector('.pperhr-val');
-    if (perHr) {
-      perHr.textContent = p.moved ? '✓' : p.netDisplay;
-      perHr.className   = `pperhr-val ${p.velCls === 'vu' ? 'vu' : p.velCls === 'vd' ? 'vd' : 'vn'}`;
-    }
-
-    // Add/remove hot classes
-    row.classList.toggle('hot-r', !p.moved && p.tonightEst >= 88 && p.isRise);
-    row.classList.toggle('hot-f', !p.moved && p.tonightEst >= 88 && !p.isRise);
-    row.classList.toggle('done',  !!p.moved);
-  });
+    if (!row) return;
+    row.scrollIntoView({ behavior:'smooth', block:'center' });
+    row.style.outline = '2px solid var(--am)';
+    row.style.transition = 'outline .3s';
+    setTimeout(() => { row.style.outline = ''; }, 2000);
+  }, 150);
 }
 
-function getGWStart() {
-  const p = new Date(); p.setUTCHours(1, 30, 0, 0);
-  if (Date.now() < p.getTime()) p.setUTCDate(p.getUTCDate() - 1);
-  return p.getTime();
-}
-function getUpdateTarget() {
-  const t = new Date(); t.setUTCHours(1, 30, 0, 0);
-  if (Date.now() >= t.getTime()) t.setUTCDate(t.getUTCDate() + 1);
-  return t.getTime();
-}
-
-/* ════════════════════════════════════════════════════════
-   INIT — stale-first, never shows skeleton if cache exists
-   ════════════════════════════════════════════════════════ */
-async function init() {
-  startTimer();
-
-  /* ── Step 1: Load snaps from IDB into memory map (sync-fast) ── */
-  if (window.KopalaDB) {
-    _snapCache = await KopalaDB.snapshots.getAll();
-  }
-
-  /* ── Step 2: Try render cache — paint INSTANTLY if available ── */
-  let paintedFromCache = false;
-  if (window.KopalaDB) {
-    const cached = await KopalaDB.render.get('prices');
-    if (cached) {
-      document.getElementById('pc-list').innerHTML = cached;
-      paintedFromCache = true;
-      // Restore watchlist state on cached rows
-      watchlist = window.KopalaDB
-        ? await KopalaDB.watchlist.get()
-        : JSON.parse(localStorage.getItem('kopala_watchlist') || '[]');
-    }
-  }
-
-  /* ── Step 3: Load bootstrap (IDB cache, <5ms on repeat) ── */
-  if (!paintedFromCache) showSkels(10);
-
-  try {
-    const data = window.KopalaDB
-      ? await KopalaDB.bootstrap.get(PROXY)
-      : await (async () => {
-          const r = await fetch(`${PROXY}bootstrap-static/`);
-          return r.json();
-        })();
-
-    /* ── Step 4: Worker processes everything off main thread ── */
-    const processed = await workerCall('PROCESS_BOOTSTRAP', data);
-
-    Object.assign(TMAP, processed.TMAP);
-    Object.assign(TCODES, processed.TCODES);
-    const gwNum = processed.gwNum;
-
-    // Populate team filter
-    processed.teamList.forEach(t => {
-      const o = document.createElement('option');
-      o.value = t.id; o.textContent = t.name;
-      document.getElementById('teamFilter')?.appendChild(o);
-    });
-
-    /* ── Step 5: Load squad (from IDB cache if available) ── */
-    const fplId = localStorage.getItem('kopala_id');
-    if (fplId) {
-      const squadData = window.KopalaDB
-        ? await KopalaDB.squad.get(fplId, gwNum, PROXY)
-        : await loadSquadDirect(fplId, gwNum);
-      if (squadData) {
-        squadData.picks?.picks?.forEach(pk => mySquad.add(pk.element));
-        squadMeta = {
-          name: squadData.entry?.name || 'Your Squad',
-          gw:   gwNum,
-        };
-      }
-    }
-
-    /* ── Step 6: Detect confirmed price changes ── */
-    const confirmedHits = detectConfirmed(processed.allElements);
-    if (confirmedHits.length) {
-      const pmap = {};
-      processed.allElements.forEach(p => { pmap[p.id] = p; });
-      if (window.KopalaDB) KopalaDB.prices.log(confirmedHits, pmap);
-      else logPriceChanges(confirmedHits, pmap);
-    }
-    renderConfirmedStrip(confirmedHits);
-
-    /* ── Step 7: calcPlayer via worker (all 600, off main thread) ── */
-    const snapsMap = window.KopalaDB ? await KopalaDB.snapshots.getAll() : {};
-    const { all: calcResult, zones } = await workerCall('CALC_PRICES', {
-      elements:  processed.allElements,
-      snapshots: snapsMap,
-      mySquad:   Array.from(mySquad),
-      TMAP:      processed.TMAP,
-      gwStartMs: getGWStart(),
-      gwEndMs:   getUpdateTarget(),
-    });
-
-    ALL    = calcResult;
-    _prevAll = calcResult;
-
-    /* Save snaps in background */
-    ALL.forEach(p => {
-      if (window.KopalaDB) KopalaDB.snapshots.save(p.id, p.cumulProg);
-    });
-
-    /* Save ownership trend daily snapshot */
-    if (window.KopalaDB) KopalaDB.ownership.snap(processed.allElements);
-
-    updateZones(zones);
-    renderSquadBanner();
-
-    const wc = document.getElementById('wc-ct');
-    watchlist = window.KopalaDB
-      ? await KopalaDB.watchlist.get()
-      : JSON.parse(localStorage.getItem('kopala_watchlist') || '[]');
-    if (wc && watchlist.length) wc.textContent = ` (${watchlist.length})`;
-
-    setText('h-upd', new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }));
-
-    /* ── Step 8: Render list (worker sort) ── */
-    await renderFromWorker();
-
-    /* ── Step 9: Save render cache for next visit ── */
-    if (window.KopalaDB) {
-      KopalaDB.render.save('prices', document.getElementById('pc-list')?.innerHTML || '');
-    }
-
-    scheduleRefresh();
-
-    /* ── Subscribe to background bootstrap updates ── */
-    if (window.KopalaDB) {
-      KopalaDB.on('bootstrap', async freshData => {
-        const snaps2 = await KopalaDB.snapshots.getAll();
-        const { all: next, zones: z } = await workerCall('CALC_PRICES', {
-          elements: freshData.elements, snapshots: snaps2,
-          mySquad: Array.from(mySquad), TMAP,
-          gwStartMs: getGWStart(), gwEndMs: getUpdateTarget(),
-        });
-        const { changed } = await workerCall('DIFF', { prev: _prevAll, next });
-        _prevAll = next; ALL = next;
-        if (changed.length) patchRows(changed, next);
-        updateZones(z);
-        KopalaDB.render.save('prices', document.getElementById('pc-list')?.innerHTML || '');
-      });
-    }
-
-  } catch (err) {
-    console.error('[Prices init]', err);
-    if (!paintedFromCache) {
-      document.getElementById('pc-list').innerHTML = `
-        <div class="empty" role="alert">
-          <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-          <p>Failed to load price data.<br>Check your connection and try again.</p>
-        </div>`;
-    }
-  }
-}
-
-async function loadSquadDirect(fplId, gwNum) {
-  try {
-    const [eR, pR] = await Promise.all([
-      fetch(`${PROXY}entry/${fplId}/`),
-      fetch(`${PROXY}entry/${fplId}/event/${gwNum}/picks/`),
-    ]);
-    if (!eR.ok || !pR.ok) return null;
-    const [entry, picks] = await Promise.all([eR.json(), pR.json()]);
-    return { entry, picks };
-  } catch { return null; }
-}
-
-/* ── Render list via worker sort/filter ── */
-async function renderFromWorker() {
-  const search = (document.getElementById('pcSearch')?.value || '').toLowerCase().trim();
-  const teamId = document.getElementById('teamFilter')?.value || 'all';
-  const minOwn = parseFloat(document.getElementById('ownSlider')?.value || 0);
-
-  try {
-    const { pool } = await workerCall('SORT_FILTER', {
-      players: ALL, view, pos, sort, search, teamId, minOwn, zone,
-      watchlist: Array.isArray(watchlist) ? watchlist : [],
-    });
-    renderPool(pool);
-  } catch {
-    render(); // fallback to sync render
-  }
-}
-
-/* ── updateZones accepts pre-computed zones from worker ── */
-function updateZones(zones) {
-  if (!zones) {
-    // Compute on main thread as fallback
-    const pending = ALL.filter(p => !p.moved && !p.belowFloor);
-    zones = {
-      tn: pending.filter(p => p.tonightEst >= 88).length,
-      so: pending.filter(p => p.tonightEst >= 60 && p.tonightEst < 88).length,
-      wa: pending.filter(p => p.cumulProg  >= 30 && p.tonightEst < 60).length,
-      tnNames: pending.filter(p => p.tonightEst >= 88).slice(0,3).map(p=>p.name),
-      soNames: pending.filter(p => p.tonightEst >= 60 && p.tonightEst < 88).slice(0,3).map(p=>p.name),
-      waNames: pending.filter(p => p.cumulProg  >= 30 && p.tonightEst < 60).slice(0,3).map(p=>p.name),
-      risers:  ALL.filter(p => p.isRise  && !p.moved && p.tonightEst >= 40).length,
-      fallers: ALL.filter(p => !p.isRise && !p.moved && p.tonightEst >= 40).length,
-    };
-  }
-  setText('z-tn', zones.tn || '0'); setText('z-so', zones.so || '0'); setText('z-wa', zones.wa || '0');
-  setText('z-tn-n', (zones.tnNames || []).join(', ') || '—');
-  setText('z-so-n', (zones.soNames || []).join(', ') || '—');
-  setText('z-wa-n', (zones.waNames || []).join(', ') || '—');
-  setText('h-rise', zones.risers || 0);
-  setText('h-fall', zones.fallers || 0);
-}
-
-/* ── render() now delegates to worker ── */
+/* ════════════════════════
+   RENDER LIST
+   ════════════════════════ */
 function render() {
-  if (ALL.length === 0) { renderPool([]); return; }
-  renderFromWorker();
-}
+  const list   = document.getElementById('pc-list');
+  const search = (document.getElementById('pcSearch')?.value || '').toLowerCase().trim();
+  const teamF  = document.getElementById('teamFilter')?.value || 'all';
+  const minOwn = parseFloat(document.getElementById('ownSlider')?.value || 0);
+  const autoHide = !search && view !== 'w';
 
-/* ── renderPool: called with the already-sorted/filtered pool ── */
-function renderPool(pool) {
-  const list = document.getElementById('pc-list');
+  let pool = ALL.filter(p => {
+    if (view === 'r' && !p.isRise)                     return false;
+    if (view === 'f' &&  p.isRise)                     return false;
+    if (view === 'w' && !watchlist.includes(p.id))     return false;
+    if (pos !== 0 && p.pos !== pos)                    return false;
+    if (search && !p.name.toLowerCase().includes(search)) return false;
+    if (teamF !== 'all' && String(p.teamId) !== teamF) return false;
+    if (autoHide && p.moved)                           return false;
+    if (p.own < minOwn)                                return false;
+    if (zone === 'tn' && (p.moved || p.tonightEst < 88))                            return false;
+    if (zone === 'so' && (p.moved || p.tonightEst < 60 || p.tonightEst >= 88))      return false;
+    if (zone === 'wa' && (p.moved || p.cumulProg  < 30 || p.tonightEst >= 60))      return false;
+    return true;
+  });
+
+  const sortFns = {
+    prog: (a,b) => b.cumulProg  - a.cumulProg,
+    est:  (a,b) => b.tonightEst - a.tonightEst,
+    net:  (a,b) => b.absNet     - a.absNet,
+    own:  (a,b) => b.own        - a.own,
+    name: (a,b) => a.name.localeCompare(b.name),
+  };
+  pool.sort(sortFns[sort] || sortFns.prog);
 
   if (!pool.length) {
     list.innerHTML = `<div class="empty" role="status">
@@ -1399,8 +1126,7 @@ function renderPool(pool) {
     return;
   }
 
-  const zone_active = zone;
-  if (!zone_active) {
+  if (!zone) {
     const gTn = pool.filter(p => !p.moved && p.tonightEst >= 88);
     const gSo = pool.filter(p => !p.moved && p.tonightEst >= 60 && p.tonightEst < 88);
     const gRe = pool.filter(p =>  p.moved || p.tonightEst < 60);
@@ -1410,18 +1136,734 @@ function renderPool(pool) {
     if (gRe.length) { if (gTn.length || gSo.length) html += mkSect('On The Radar', gRe.length, 'var(--t3)'); html += gRe.map(p => mkRow(p, i++)).join(''); }
     list.innerHTML = html;
   } else {
-    list.innerHTML = pool.map((p, i) => mkRow(p, i)).join('');
+    list.innerHTML = pool.map((p,i) => mkRow(p, i)).join('');
   }
-
-  // CSS containment for smooth scroll
-  list.querySelectorAll('.row').forEach(r => { r.style.contain = 'layout style paint'; });
 }
 
-document.addEventListener('DOMContentLoaded', () => { init(); updateHistBadge(); });
+function mkSect(label, n, color) {
+  return `<div class="sect" style="color:${color}">${label} <span style="color:var(--t3);font-family:var(--fn);font-size:.68rem;font-weight:700">(${n})</span></div>`;
+}
 
+/* ─── Build one row ─── */
+function mkRow(p, idx) {
+  const starred = watchlist.includes(p.id);
+  const shirt   = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos===1?'_1':''}-66.png`;
+  const delay   = Math.min(idx, 22) * 0.017;
+  const estW    = p.moved ? 100 : Math.min(100, p.tonightEst);
+  const nowW    = p.moved ? 100 : Math.min(100, p.cumulProg);
+  const relNow  = estW > 0 ? (nowW / estW) * 100 : nowW;
+  const pctLbl  = p.moved ? (p.actualChange > 0 ? '+£0.1' : '−£0.1') : p.belowFloor ? 'FLOOR' : `${p.cumulProg.toFixed(1)}%`;
+  const rowCls  = [
+    p.isRise ? 'rr' : 'rf',
+    p.moved      ? 'done'  : '',
+    p.isMine     ? 'mine'  : '',
+    p.belowFloor ? 'floor' : '',
+    !p.moved && p.tonightEst >= 88 && p.isRise  ? 'hot-r' : '',
+    !p.moved && p.tonightEst >= 88 && !p.isRise ? 'hot-f' : '',
+  ].filter(Boolean).join(' ');
+
+  /* Prediction display: big % + small label */
+  const predPct  = p.moved ? (p.actualChange > 0 ? '+£0.1' : '−£0.1')
+                 : p.belowFloor ? '< floor'
+                 : `${p.tonightEst.toFixed(2)}%`;
+  const predLbl  = p.moved ? 'confirmed'
+                 : p.belowFloor ? 'floor'
+                 : p.tonightEst >= 88 ? 'Tonight'
+                 : p.tonightEst >= 60 ? 'Soon'
+                 : p.tonightEst >= 30 ? 'Watch'
+                 : '>2 days';
+  const tonightHi = !p.moved && !p.belowFloor && p.tonightEst >= 88;
+  const predColCls = tonightHi ? 'ppred tonight-hi' : 'ppred';
+
+  /* Per-hr column: net direction + velocity */
+  const perHrVal = p.moved ? 'done'
+    : p.belowFloor ? '—'
+    : p.netDisplay;
+  const perHrCls = p.isRise ? 'pperhr-val vu' : 'pperhr-val vd';
+  const velArrow = p.velCls === 'vu' ? '↑' : p.velCls === 'vd' ? '↓' : '';
+
+  return `<div class="${rowCls}" id="row-${p.id}" style="animation-delay:${delay}s" role="listitem"
+              aria-label="${p.name}${p.isMine?' — your player':''} — ${predLbl}">
+
+  <!-- Col 1: Shirt -->
+  <div class="pc-shirt-col">
+    <img class="shirt" src="${shirt}" alt="" loading="lazy"
+         onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
+  </div>
+
+  <!-- Col 2: Player + star -->
+  <div class="pc">
+    <div class="pinfo">
+      <div class="pname">
+        ${p.name}
+        ${p.isMine ? '<i class="fa-solid fa-star mine-star" aria-label="In your squad"></i>' : ''}
+      </div>
+      <div class="pmeta">
+        <span class="posb ${POS_CLS[p.pos]}">${POS_LBL[p.pos]}</span>
+        <span class="ppr">£${p.price}</span>
+        <span>${p.own.toFixed(1)}%</span>
+        ${p.belowFloor ? '<span class="flbl">FLOOR</span>' : ''}
+        ${p.status!=='a'&&!p.belowFloor ? '<i class="fa-solid fa-triangle-exclamation warn" aria-label="Fitness concern"></i>' : ''}
+      </div>
+      ${!p.moved && p.isRise && !p.belowFloor ? '<div class="sell"><i class="fa-solid fa-arrow-up" style="font-size:.46rem" aria-hidden="true"></i> +£0.05 sell if rises</div>' : ''}
+    </div>
+    <button class="pstar ${starred?'on':''}"
+      onclick="toggleWatch(${p.id},event)"
+      aria-label="${starred?'Remove from':'Add to'} watchlist"
+      aria-pressed="${starred}">
+      <i class="fa-${starred?'solid':'regular'} fa-star" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <!-- Col 3: Team -->
+  <div class="pteam-col">${TMAP[p.teamId]||''}</div>
+
+  <!-- Col 4: Progress bar -->
+  <div class="cumul" aria-label="Progress ${p.cumulProg.toFixed(0)}%, tonight ~${p.tonightEst.toFixed(0)}%">
+    <div class="cpct ${p.pctCls}">${pctLbl}</div>
+    <div class="cbar" role="progressbar"
+         aria-valuenow="${p.cumulProg}" aria-valuemin="0" aria-valuemax="100">
+      <div class="cest" style="width:${estW}%"></div>
+      <div class="cnow" style="width:${relNow}%"></div>
+    </div>
+  </div>
+
+  <!-- Col 5: Prediction -->
+  <div class="${predColCls}">
+    <span class="pred ${p.predCls}">${predPct}</span>
+    <span class="pred-lbl">${predLbl}</span>
+  </div>
+
+  <!-- Col 6: Per hr / net -->
+  <div class="pperhr">
+    <span class="${perHrCls}">${p.moved ? '✓' : perHrVal} ${velArrow}</span>
+    <span class="pperhr-dir">${p.moved ? '' : p.velCls !== 'vn' ? 'trending' : ''}</span>
+  </div>
+
+</div>`;
+}
+
+/* ─── Probability SVG ring ─── */
+function probRing(prob, isRise) {
+  const r=12, c=15, circ=2*Math.PI*r;
+  const fill=(prob/100)*circ;
+  const col = isRise ? 'var(--gr)' : 'var(--re)';
+  const bg  = isRise ? 'rgba(0,232,122,.12)' : 'rgba(255,51,82,.12)';
+  return `<svg class="pring" width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+    <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${bg}" stroke-width="3"/>
+    <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${col}" stroke-width="3"
+      stroke-dasharray="${fill} ${circ}" stroke-dashoffset="0"
+      transform="rotate(-90 ${c} ${c})" stroke-linecap="round"/>
+  </svg>`;
+}
+
+/* ════════════════════════
+   CONTROLS
+   ════════════════════════ */
+function setView(v) {
+  view = v; zone = null;
+  ['r','f','w'].forEach(id => {
+    const el = document.getElementById(`tab-${id}`);
+    if (!el) return;
+    const clsMap = {r:'tg',f:'tr',w:'ta'};
+    el.className = `ctab${id===v ? ' '+clsMap[id] : ''}`;
+    el.setAttribute('aria-selected', id===v);
+  });
+  ['tn','so','wa'].forEach(k => { const el=document.getElementById(`zb-${k}`); if(el) el.classList.remove('sel'); });
+  render();
+}
+
+function setPos(p) {
+  pos = p;
+  for (let i=0;i<5;i++) {
+    const el = document.getElementById(`pb${i}`);
+    if (!el) continue;
+    el.className = `pbtn${i===p?' '+POS_BTN[i]:''}`;
+    el.setAttribute('aria-pressed', i===p);
+  }
+  render();
+}
+
+function setSort(s) {
+  sort = s;
+  ['sp-prog','sp-est','sp-net','sp-own'].forEach(id => { const e=document.getElementById(id); if(e){e.classList.remove('on');e.setAttribute('aria-pressed','false')} });
+  ['th-name','th-prog','th-net','th-prob'].forEach(id => { const e=document.getElementById(id); if(e) e.classList.remove('on') });
+  const spMap={prog:'sp-prog',est:'sp-est',net:'sp-net',own:'sp-own'};
+  const thMap={prog:'th-prog',net:'th-net',prob:'th-prob',name:'th-name'};
+  if(spMap[s]){const e=document.getElementById(spMap[s]);if(e){e.classList.add('on');e.setAttribute('aria-pressed','true')}}
+  if(thMap[s]){const e=document.getElementById(thMap[s]);if(e) e.classList.add('on')}
+  render();
+}
+
+function syncOwn() {
+  const v = document.getElementById('ownSlider')?.value || 0;
+  setText('own-val', `${parseFloat(v).toFixed(1)}%`);
+}
+
+function toggleWatch(id, e) {
+  e.stopPropagation();
+  const i = watchlist.indexOf(id);
+  if (i > -1) watchlist.splice(i, 1); else watchlist.push(id);
+  localStorage.setItem('kopala_watchlist', JSON.stringify(watchlist));
+  const wc = document.getElementById('wc-ct');
+  if (wc) wc.textContent = watchlist.length ? ` (${watchlist.length})` : '';
+  render();
+}
+
+function toggleAlgo(btn) {
+  const body = document.getElementById('algo-body');
+  const open = !body.classList.contains('open');
+  body.classList.toggle('open', open);
+  btn.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+}
+
+/* ════════════════════════
+   COUNTDOWN TIMER
+   ════════════════════════ */
+function startTimer() {
+  function tick() {
+    const ms  = getUpdateTarget() - Date.now();
+    if (ms <= 0) { setText('pc-timer', '00:00:00'); return; }
+    const h=String(Math.floor(ms/3.6e6)).padStart(2,'0');
+    const m=String(Math.floor((ms%3.6e6)/60000)).padStart(2,'0');
+    const s=String(Math.floor((ms%60000)/1000)).padStart(2,'0');
+    const el = document.getElementById('pc-timer');
+    if (el) { el.textContent=`${h}:${m}:${s}`; el.classList.toggle('urgent', ms<3600000); }
+    const gwS = getGWStart().getTime();
+    const gwE = getUpdateTarget().getTime();
+    const pct = Math.min(100, ((Date.now()-gwS)/(gwE-gwS))*100);
+    const pf  = document.getElementById('h-prog');
+    if (pf) pf.style.width = `${pct.toFixed(1)}%`;
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+/* ════════════════════════
+   SQUAD LOADING
+   ════════════════════════ */
+async function loadSquad(fplId, gwNum) {
+  try {
+    const [eR, pR] = await Promise.all([
+      fetch(`${PROXY}entry/${fplId}/`),
+      fetch(`${PROXY}entry/${fplId}/event/${gwNum}/picks/`),
+    ]);
+    if (!eR.ok || !pR.ok) return;
+    const entry = await eR.json();
+    const picks = await pR.json();
+    picks.picks.forEach(pk => mySquad.add(pk.element));
+    squadMeta = {
+      name: entry.name || `${entry.player_first_name||''} ${entry.player_last_name||''}`.trim() || 'Your Squad',
+      gw: gwNum,
+    };
+  } catch (err) { console.warn('[Squad]', err); }
+}
+
+/* ════════════════════════
+   SKELETONS / HELPERS
+   ════════════════════════ */
+function showSkels(n=10) {
+  document.getElementById('pc-list').innerHTML = Array.from({length:n},(_,i)=>
+    `<div class="skel" style="animation-delay:${i*.04}s" aria-hidden="true"></div>`
+  ).join('');
+}
+function setText(id, v) { const el=document.getElementById(id); if(el) el.textContent=v; }
+
+/* ════════════════════════
+   IDB BOOTSTRAP CACHE
+   ════════════════════════ */
+const KopalaIDB=(()=>{
+  const DB='kopala-fpl',VER=1,STORE='bootstrap',KEY='static',TTL=60*60*1000;
+  const open=()=>new Promise((res,rej)=>{const r=indexedDB.open(DB,VER);r.onupgradeneeded=e=>{if(!e.target.result.objectStoreNames.contains(STORE))e.target.result.createObjectStore(STORE);};r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);});
+  const get=(db,k)=>new Promise((res,rej)=>{const r=db.transaction(STORE,'readonly').objectStore(STORE).get(k);r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);});
+  const set=(db,k,v)=>new Promise((res,rej)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).put(v,k);r.onsuccess=()=>res();r.onerror=e=>rej(e.target.error);});
+  async function getBootstrap(proxy){
+    let db;
+    try{
+      db=await open();
+      const cached=await get(db,KEY);
+      if(cached&&(Date.now()-cached.ts)<TTL)return cached.data;
+      const r=await fetch(`${proxy}bootstrap-static/`);
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const data=await r.json();
+      set(db,KEY,{data,ts:Date.now()}).catch(()=>{});
+      return data;
+    }catch(err){
+      if(db){const stale=await get(db,KEY).catch(()=>null);if(stale)return stale.data;}
+      throw err;
+    }
+  }
+  // Bypass TTL for auto-refresh (caller already knows data is stale)
+  async function fetchFresh(proxy){
+    const r=await fetch(`${proxy}bootstrap-static/`);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    const db=await open();
+    set(db,KEY,{data,ts:Date.now()}).catch(()=>{});
+    return data;
+  }
+  return{getBootstrap,fetchFresh};
+})();
+
+/* ════════════════════════
+   WORKER: process bootstrap
+   ════════════════════════ */
+const PR_WORKER_SRC=`
+self.onmessage=function(e){
+  if(e.data.type!=='PROCESS')return;
+  try{
+    const d=e.data.payload,proxy=e.data.proxy;
+    const TMAP={},TCODES={};
+    d.teams.forEach(t=>{TMAP[t.id]=t.short_name;TCODES[t.id]=t.code;});
+    const teamList=d.teams.map(t=>({id:t.id,name:t.name}));
+    const curGW=d.events.find(e=>e.is_current)||d.events[0];
+    self.postMessage({type:'DONE',payload:{TMAP,TCODES,teamList,gwNum:curGW?.id||1,elements:d.elements}});
+  }catch(err){self.postMessage({type:'ERROR',payload:err.message});}
+};
+`;
+function runPricesWorker(data){
+  return new Promise((resolve,reject)=>{
+    try{
+      const blob=new Blob([PR_WORKER_SRC],{type:'application/javascript'});
+      const url=URL.createObjectURL(blob);
+      const worker=new Worker(url);
+      worker.onmessage=e=>{URL.revokeObjectURL(url);worker.terminate();e.data.type==='DONE'?resolve(e.data.payload):reject(new Error(e.data.payload));};
+      worker.onerror=err=>{URL.revokeObjectURL(url);worker.terminate();reject(err);};
+      worker.postMessage({type:'PROCESS',payload:data});
+    }catch(err){
+      // Fallback: main thread
+      const TMAP={},TCODES={};
+      data.teams.forEach(t=>{TMAP[t.id]=t.short_name;TCODES[t.id]=t.code;});
+      resolve({TMAP,TCODES,teamList:data.teams.map(t=>({id:t.id,name:t.name})),gwNum:(data.events.find(e=>e.is_current)||data.events[0])?.id||1,elements:data.elements});
+    }
+  });
+}
+
+/* ════════════════════════
+   AUTO REFRESH (3 min)
+   ════════════════════════ */
+let refreshTimer;
+function scheduleRefresh() {
+  clearInterval(refreshTimer);
+  refreshTimer = setInterval(async () => {
+    try {
+      // Force-fetch fresh data, update IDB, skip TTL check
+      const data = await KopalaIDB.fetchFresh(PROXY);
+      ALL = data.elements.map(p => calcPlayer(p));
+      ALL.forEach(p => saveSnap(p.id, p.cumulProg));
+      updateZones(); renderSquadBanner(); render();
+      setText('h-upd', new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+    } catch {}
+  }, 180000);
+}
+
+/* ════════════════════════
+   INIT
+   ════════════════════════ */
+async function init() {
+  showSkels(10);
+  startTimer();
+  try {
+    // IDB cache (sub-10ms on repeat) → Worker processes maps off main thread
+    const data = await KopalaIDB.getBootstrap(PROXY);
+    const processed = await runPricesWorker(data);
+
+    Object.assign(TMAP, processed.TMAP);
+    Object.assign(TCODES, processed.TCODES);
+    const gwNum = processed.gwNum;
+
+    processed.teamList.forEach(t => {
+      const o = document.createElement('option');
+      o.value = t.id; o.textContent = t.name;
+      document.getElementById('teamFilter').appendChild(o);
+    });
+
+    /* Load squad from logged-in FPL ID */
+    const fplId = localStorage.getItem('kopala_id');
+    if (fplId) await loadSquad(fplId, gwNum);
+
+    /* Detect confirmed price changes since last visit + log to history */
+    const confirmedHits = detectConfirmed(processed.elements);
+    if (confirmedHits.length) {
+      // Build a quick id->element map for history logging
+      const _pmap = {};
+      processed.elements.forEach(p => { _pmap[p.id] = p; });
+      logPriceChanges(confirmedHits, _pmap);
+    }
+    renderConfirmedStrip(confirmedHits);
+
+    /* Process all players */
+    ALL = processed.elements.map(p => calcPlayer(p));
+    ALL.forEach(p => saveSnap(p.id, p.cumulProg));
+
+    updateZones();
+    renderSquadBanner();
+
+    const wc = document.getElementById('wc-ct');
+    if (wc && watchlist.length) wc.textContent = ` (${watchlist.length})`;
+
+    setText('h-upd', new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+    render();
+    scheduleRefresh();
+
+  } catch (err) {
+    console.error('[Prices init]', err);
+    document.getElementById('pc-list').innerHTML = `
+      <div class="empty" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <p>Failed to load price data.<br>Check your connection and try again.</p>
+      </div>`;
+  }
+}
+
+function renderConfirmedStrip(hits) {
+  if (!hits.length) return;
+  const wrap = document.getElementById('cfm');
+  const scroll = document.getElementById('cfm-scroll');
+  wrap.style.display = '';
+  scroll.innerHTML = hits.map((c, i) => `
+    <div class="cpill ${c.type}" style="animation-delay:${i*.06}s" role="listitem">
+      ${c.isMine ? '<i class="fa-solid fa-star" style="color:var(--go);font-size:.58rem" aria-label="Your player"></i>' : ''}
+      <span class="cpill-name">${c.name}</span>
+      <span class="cpill-delta">${c.type==='rise' ? '+£0.1' : '−£0.1'}</span>
+      <span class="cpill-pr">£${c.old}→£${c.cur}</span>
+    </div>`).join('');
+}
+
+
+/* ════════════════════════════════════════════════════
+   PRICE HISTORY SYSTEM
+   Stores nightly confirmed price changes keyed by date.
+   Format: { 'YYYY-MM-DD': { rises: [...], falls: [...] } }
+   Each entry: { id, name, teamCode, pos, oldPrice, newPrice, type }
+   Keeps last 7 days, older entries pruned automatically.
+   ════════════════════════════════════════════════════ */
+const PRICE_HISTORY_KEY = 'kopala_price_history_v2';
+const HISTORY_DAYS = 7;
+
+function todayKey() {
+  // Use the FPL price change cycle date: if before 01:30 UTC, it's "yesterday's" cycle
+  const now = new Date();
+  const utcH = now.getUTCHours(), utcM = now.getUTCMinutes();
+  const d = new Date(now);
+  if (utcH < 1 || (utcH === 1 && utcM < 30)) d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(PRICE_HISTORY_KEY) || '{}'); } catch { return {}; }
+}
+
+function saveHistory(h) {
+  // Prune to last HISTORY_DAYS keys
+  const keys = Object.keys(h).sort().reverse().slice(0, HISTORY_DAYS);
+  const pruned = {};
+  keys.forEach(k => pruned[k] = h[k]);
+  try { localStorage.setItem(PRICE_HISTORY_KEY, JSON.stringify(pruned)); } catch {}
+}
+
+/* Called after detectConfirmed() finds real price changes.
+   Logs them into today's history entry.
+   playerMap: { id -> { teamCode, element_type } }            */
+function logPriceChanges(hits, playerMapRef) {
+  if (!hits.length) return;
+  const key = todayKey();
+  const hist = loadHistory();
+  if (!hist[key]) hist[key] = { rises: [], falls: [], ts: Date.now() };
+
+  hits.forEach(c => {
+    const entry = {
+      id:       c.id || 0,
+      name:     c.name,
+      teamCode: playerMapRef[c.id]?.team_code || 0,
+      pos:      playerMapRef[c.id]?.element_type || 0,
+      oldPrice: parseFloat(c.old),
+      newPrice: parseFloat(c.cur),
+      type:     c.type,
+    };
+    // Deduplicate by player id within same day
+    const bucket = c.type === 'rise' ? 'rises' : 'falls';
+    if (!hist[key][bucket].some(e => e.id === entry.id)) {
+      hist[key][bucket].push(entry);
+    }
+  });
+
+  saveHistory(hist);
+  updateHistBadge();
+}
+
+function updateHistBadge() {
+  const hist = loadHistory();
+  const days = Object.keys(hist).length;
+  const badge = document.getElementById('hist-badge');
+  if (badge) badge.textContent = days ? `${days} day${days > 1 ? 's' : ''}` : '7 days';
+}
+
+/* ── History sheet open/close ── */
+let _histActiveDay = null;
+
+function openHistory() {
+  const overlay = document.getElementById('hist-overlay');
+  const sheet   = document.getElementById('hist-sheet');
+  if (!overlay || !sheet) return;
+  window.KopalaNotify?.prompt?.(); // gentle reminder if perms not set
+  overlay.classList.add('open');
+  sheet.classList.add('open');
+  overlay.removeAttribute('aria-hidden');
+  sheet.removeAttribute('aria-hidden');
+  document.body.style.overflow = 'hidden';
+  renderHistoryTabs();
+}
+
+function closeHistory() {
+  const overlay = document.getElementById('hist-overlay');
+  const sheet   = document.getElementById('hist-sheet');
+  if (!overlay || !sheet) return;
+  overlay.classList.remove('open');
+  sheet.classList.remove('open');
+  overlay.setAttribute('aria-hidden', 'true');
+  sheet.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+/* ── Build the 7 day tab strip ── */
+function renderHistoryTabs() {
+  const hist  = loadHistory();
+  const tabs  = document.getElementById('hist-tabs');
+  if (!tabs) return;
+
+  // Build last 7 days (today back to 6 days ago)
+  const days = [];
+  for (let i = 0; i < HISTORY_DAYS; i++) {
+    const d = new Date();
+    // Adjust for FPL cycle: if before 01:30 UTC today's cycle hasn't run yet
+    const utcH = d.getUTCHours(), utcM = d.getUTCMinutes();
+    if (utcH < 1 || (utcH === 1 && utcM < 30)) d.setUTCDate(d.getUTCDate() - 1);
+    d.setUTCDate(d.getUTCDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    const dayName = i === 0 ? 'Today' : i === 1 ? 'Yesterday'
+      : d.toLocaleDateString('en-GB', { weekday: 'short' });
+    const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const data    = hist[key];
+    const count   = data ? (data.rises.length + data.falls.length) : 0;
+    days.push({ key, dayName, dateStr, count, isToday: i === 0 });
+  }
+
+  // Default: first day with data, or today
+  if (!_histActiveDay) {
+    const firstWithData = days.find(d => d.count > 0);
+    _histActiveDay = firstWithData ? firstWithData.key : days[0].key;
+  }
+
+  tabs.innerHTML = days.map(d => `
+    <button class="hist-tab${d.key === _histActiveDay ? ' active' : ''}${d.isToday ? ' today' : ''}${d.count > 0 ? ' has-data' : ''}"
+            role="tab" aria-selected="${d.key === _histActiveDay}"
+            onclick="selectHistDay('${d.key}')"
+            aria-label="${d.dayName} ${d.dateStr}${d.count ? ', ' + d.count + ' changes' : ', no changes'}">
+      <span class="hist-tab-day">${d.dayName}</span>
+      <span class="hist-tab-date">${d.dateStr}</span>
+      <span class="hist-tab-ct">${d.count ? d.count + ' change' + (d.count > 1 ? 's' : '') : 'No data'}</span>
+      <span class="hist-tab-dot" aria-hidden="true"></span>
+    </button>`).join('');
+
+  renderHistoryDay(_histActiveDay);
+}
+
+function selectHistDay(key) {
+  _histActiveDay = key;
+  // Update tab active states
+  document.querySelectorAll('.hist-tab').forEach(t => {
+    const isActive = t.getAttribute('onclick').includes(key);
+    t.classList.toggle('active', isActive);
+    t.setAttribute('aria-selected', isActive);
+  });
+  renderHistoryDay(key);
+}
+
+/* ── Render one day's content ── */
+function renderHistoryDay(key) {
+  const body = document.getElementById('hist-body');
+  if (!body) return;
+  const hist = loadHistory();
+  const day  = hist[key];
+  const utcH = new Date().getUTCHours(), utcM = new Date().getUTCMinutes();
+  const cycleToday = todayKey();
+  const isToday = key === cycleToday;
+
+  if (!day || (!day.rises.length && !day.falls.length)) {
+    if (isToday) {
+      // Today hasn't completed yet — show a preview from live data
+      body.innerHTML = renderTodayPreview();
+      return;
+    }
+    // Check if we have ANY history at all
+    const anyHistory = Object.values(hist).some(d => d.rises.length || d.falls.length);
+    if (!anyHistory) {
+      body.innerHTML = `
+        <div class="hist-onboarding">
+          <span class="hist-onboarding-icon">📅</span>
+          <h3>History starts tonight</h3>
+          <p>Kopala will automatically log every price change that happens each night after 01:30 UTC. Come back tomorrow to see today's changes recorded here.</p>
+        </div>`;
+      return;
+    }
+    body.innerHTML = `
+      <div class="hist-empty">
+        <i class="fa-solid fa-moon"></i>
+        <p>No price changes were recorded on this day.<br><span style="color:var(--t3);font-size:.65rem">Either no changes happened or the app wasn't open.</span></p>
+      </div>`;
+    return;
+  }
+
+  const mySet = mySquad; // inherited from page scope
+  let html = '';
+
+  // Today preview banner if it's today but also has logged data from earlier
+  if (isToday) {
+    html += `<div class="hist-today-banner">
+      <i class="fa-solid fa-circle-notch fa-spin"></i>
+      <span>Today's cycle runs at <b>01:30 UTC</b>. Data shown was logged earlier this cycle.</span>
+    </div>`;
+  }
+
+  const ts = day.ts ? new Date(day.ts) : null;
+  if (ts) {
+    html += `<div style="font-size:.58rem;color:var(--t3);margin-bottom:12px;display:flex;align-items:center;gap:5px">
+      <i class="fa-regular fa-clock"></i> Logged at ${ts.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
+      <span style="opacity:.4">·</span> ${day.rises.length} rise${day.rises.length !== 1 ? 's' : ''}, ${day.falls.length} fall${day.falls.length !== 1 ? 's' : ''}
+    </div>`;
+  }
+
+  if (day.rises.length) {
+    html += `<div class="hist-section"><span class="hist-section-lbl rises"><i class="fa-solid fa-arrow-trend-up" style="margin-right:4px"></i>Rises (${day.rises.length})</span></div>`;
+    html += day.rises.map((c, i) => mkHistCard(c, 'rise', mySet, i)).join('');
+  }
+
+  if (day.falls.length) {
+    if (day.rises.length) html += '<div style="height:10px"></div>';
+    html += `<div class="hist-section"><span class="hist-section-lbl falls"><i class="fa-solid fa-arrow-trend-down" style="margin-right:4px"></i>Falls (${day.falls.length})</span></div>`;
+    html += day.falls.map((c, i) => mkHistCard(c, 'fall', mySet, i)).join('');
+  }
+
+  body.innerHTML = html;
+}
+
+/* ── Render today's preview from live ALL data ── */
+function renderTodayPreview() {
+  if (!ALL.length) return `
+    <div class="hist-empty">
+      <i class="fa-solid fa-satellite-dish"></i>
+      <p>Loading live price data…</p>
+    </div>`;
+
+  const risers = ALL.filter(p => p.isRise && !p.moved && p.tonightEst >= 60)
+    .sort((a,b) => b.tonightEst - a.tonightEst).slice(0, 10);
+  const fallers = ALL.filter(p => !p.isRise && !p.moved && p.tonightEst >= 60)
+    .sort((a,b) => b.tonightEst - a.tonightEst).slice(0, 10);
+
+  if (!risers.length && !fallers.length) return `
+    <div class="hist-empty">
+      <i class="fa-solid fa-moon"></i>
+      <p>No players are on course for a change tonight yet.<br><span style="font-size:.63rem;color:var(--t3)">Check back later — prices reset at 01:30 UTC.</span></p>
+    </div>`;
+
+  let html = `<div class="hist-today-banner">
+    <i class="fa-solid fa-eye"></i>
+    <span>Live preview — players with <b>≥60% chance</b> tonight. Actual changes logged after 01:30 UTC.</span>
+  </div>`;
+
+  if (risers.length) {
+    html += `<div class="hist-section"><span class="hist-section-lbl rises"><i class="fa-solid fa-arrow-trend-up" style="margin-right:4px"></i>Likely Rising (${risers.length})</span></div>`;
+    html += risers.map((p, i) => mkHistCardLive(p, 'rise', i)).join('');
+  }
+  if (fallers.length) {
+    if (risers.length) html += '<div style="height:10px"></div>';
+    html += `<div class="hist-section"><span class="hist-section-lbl falls"><i class="fa-solid fa-arrow-trend-down" style="margin-right:4px"></i>Likely Falling (${fallers.length})</span></div>`;
+    html += fallers.map((p, i) => mkHistCardLive(p, 'fall', i)).join('');
+  }
+  return html;
+}
+
+/* ── Build a history card (confirmed change) ── */
+function mkHistCard(c, type, mySet, idx) {
+  const isMine   = mySet.has(c.id);
+  const shirt    = `https://draft.premierleague.com/img/shirts/standard/shirt_${c.teamCode}${c.pos===1?'_1':''}-66.png`;
+  const delta    = type === 'rise' ? '+£0.1' : '−£0.1';
+  const delay    = Math.min(idx, 12) * 0.04;
+  const posCls   = ['','gk','df','md','fw'][c.pos] || '';
+  const posLbl   = ['','GKP','DEF','MID','FWD'][c.pos] || '';
+  return `
+    <div class="hist-card ${type}${isMine ? ' mine' : ''}" style="animation-delay:${delay}s">
+      <img class="hist-card-shirt" src="${shirt}" alt="" loading="lazy"
+           onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
+      <div class="hist-card-info">
+        <div class="hist-card-name">
+          ${c.name}
+          ${isMine ? '<span class="mine-badge">YOUR SQUAD</span>' : ''}
+        </div>
+        <div class="hist-card-meta">
+          ${posLbl ? `<span class="posb ${posCls}">${posLbl}</span>` : ''}
+          <span class="hist-card-price">£${c.oldPrice.toFixed(1)} → £${c.newPrice.toFixed(1)}</span>
+        </div>
+      </div>
+      <div class="hist-card-right">
+        <span class="hist-card-delta">${delta}</span>
+        <span class="hist-card-old">was £${c.oldPrice.toFixed(1)}</span>
+      </div>
+    </div>`;
+}
+
+/* ── Build a history card (live preview, not confirmed) ── */
+function mkHistCardLive(p, type, idx) {
+  const isMine   = p.isMine;
+  const shirt    = `https://draft.premierleague.com/img/shirts/standard/shirt_${p.teamCode}${p.pos===1?'_1':''}-66.png`;
+  const delta    = type === 'rise' ? '+£0.1' : '−£0.1';
+  const delay    = Math.min(idx, 12) * 0.04;
+  const posCls   = ['','gk','df','md','fw'][p.pos] || '';
+  const posLbl   = ['','GKP','DEF','MID','FWD'][p.pos] || '';
+  return `
+    <div class="hist-card ${type}${isMine ? ' mine' : ''}" style="animation-delay:${delay}s;opacity:.85">
+      <img class="hist-card-shirt" src="${shirt}" alt="" loading="lazy"
+           onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
+      <div class="hist-card-info">
+        <div class="hist-card-name">
+          ${p.name}
+          ${isMine ? '<span class="mine-badge">YOUR SQUAD</span>' : ''}
+        </div>
+        <div class="hist-card-meta">
+          ${posLbl ? `<span class="posb ${posCls}">${posLbl}</span>` : ''}
+          <span class="hist-card-price">£${p.price} · ${p.tonightEst.toFixed(0)}% chance</span>
+        </div>
+      </div>
+      <div class="hist-card-right">
+        <span class="hist-card-delta" style="opacity:.6">${delta}</span>
+        <span class="hist-card-old" style="color:var(--am)">~tonight</span>
+      </div>
+    </div>`;
+}
+
+/* Escape key closes history sheet */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeHistory();
+});
+
+/* Swipe down to close */
+(function(){
+  let startY = 0;
+  const sheet = () => document.getElementById('hist-sheet');
+  document.addEventListener('touchstart', e => {
+    if (sheet()?.classList.contains('open')) startY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (!sheet()?.classList.contains('open')) return;
+    const diff = e.changedTouches[0].clientY - startY;
+    if (diff > 80) closeHistory();
+  }, { passive: true });
+})();
+
+document.addEventListener('DOMContentLoaded', () => { init(); updateHistBadge(); });
 </script>
-<script src="kopala-idb.js"></script>
-  <script src="nav.js"           defer></script>
+<script src="nav.js"           defer></script>
 <script src="live-widget.js"   defer></script>
 <script src="deadline.js"      defer></script>
 <script src="kopala-notify.js" defer></script>
