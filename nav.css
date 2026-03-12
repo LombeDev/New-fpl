@@ -1,0 +1,273 @@
+/* ============================================================
+   KOPALA FPL — NAVIGATION v5
+   Topbar : glass blur · logo left · hamburger right
+   Menu   : full-screen overlay · Apple-style large links
+   Bottom : 4-tab pill nav
+   ============================================================ */
+
+:root {
+  --kfl-topbar-h:     56px;
+  --kfl-bottom-nav-h: 68px;
+  --content-max-w:    1280px;
+  --kfl-pad:          16px;
+  --kfl-ease:         cubic-bezier(0.4, 0, 0.2, 1);
+  --kfl-spring:       cubic-bezier(0.34, 1.56, 0.64, 1);
+  --kfl-snap:         cubic-bezier(0.22, 1, 0.36, 1);
+  --kfl-font:         'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+[data-theme="dark"], :root:not([data-theme]) {
+  --bg:               #060810;
+  --surface:          #060810;
+  --surface-2:        #10172a;
+  --surface-3:        #151e33;
+  --border:           rgba(255,255,255,0.07);
+  --border-mid:       rgba(255,255,255,0.11);
+  --glass-border:     rgba(255,255,255,0.055);
+  --glass-bg:         rgba(6,8,16,0.92);
+  --text-1:           #e6eaff;
+  --text-2:           rgba(230,234,255,0.52);
+  --text-3:           rgba(230,234,255,0.28);
+  --shadow-sm:        0 1px 0 rgba(255,255,255,0.04);
+  --accent:           #00e87a;
+  --accent-dim:       rgba(0,232,122,0.1);
+  --accent-glow:      rgba(0,232,122,0.28);
+  --accent-glow-lg:   rgba(0,232,122,0.14);
+  --accent-text:      #000c06;
+  --pink:             #ff3352;
+  --pink-dim:         rgba(255,51,82,0.14);
+  --pink-glow:        rgba(255,51,82,0.3);
+  --hover-bg:         rgba(255,255,255,0.055);
+  --active-bg:        rgba(0,232,122,0.08);
+  --pill-active-bg:   #ff3352;
+  --pill-active-glow: rgba(255,51,82,0.5);
+}
+
+[data-theme="light"] {
+  --bg:               #ffffff;
+  --surface:          #ffffff;
+  --surface-2:        #f5f5f7;
+  --surface-3:        #e8e8ed;
+  --border:           rgba(0,0,0,0.08);
+  --border-mid:       rgba(0,0,0,0.12);
+  --glass-border:     rgba(0,0,0,0.07);
+  --glass-bg:         rgba(255,255,255,0.94);
+  --text-1:           #1d1d1f;
+  --text-2:           rgba(29,29,31,0.55);
+  --text-3:           rgba(29,29,31,0.32);
+  --shadow-sm:        0 1px 0 rgba(0,0,0,0.06);
+  --accent:           #007a3d;
+  --accent-dim:       rgba(0,122,61,0.09);
+  --accent-glow:      rgba(0,122,61,0.22);
+  --accent-glow-lg:   rgba(0,122,61,0.1);
+  --accent-text:      #ffffff;
+  --pink:             #c8001c;
+  --pink-dim:         rgba(200,0,28,0.08);
+  --pink-glow:        rgba(200,0,28,0.2);
+  --hover-bg:         rgba(0,0,0,0.04);
+  --active-bg:        rgba(0,122,61,0.07);
+  --pill-active-bg:   #c8001c;
+  --pill-active-glow: rgba(200,0,28,0.35);
+}
+
+/* ── BASE ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  margin: 0;
+  padding-top: var(--kfl-topbar-h);
+  padding-bottom: calc(var(--kfl-bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+  font-family: var(--kfl-font);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.22s ease, color 0.22s ease;
+}
+
+/* ── TOP BAR ── */
+.kfl-topbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000; height: var(--kfl-topbar-h);
+  background: var(--bg);                      /* always filled = status bar matches */
+  border-bottom: 1px solid var(--border);
+  transition: background 0.22s ease, border-color 0.22s ease;
+}
+/* subtle elevation on scroll */
+.kfl-topbar.is-scrolled {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border-bottom-color: var(--glass-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.kfl-topbar__inner {
+  max-width: var(--content-max-w); width: 100%; height: 100%; margin: 0 auto;
+  display: flex; align-items: center;
+  padding: 0 var(--kfl-pad); gap: 0;
+}
+
+/* Logo */
+.kfl-logo {
+  display: flex; align-items: center; text-decoration: none;
+  flex-shrink: 0; justify-self: start;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+.kfl-logo:active { opacity: 0.6; transform: scale(0.93); }
+.kfl-logo__img { height: 30px; width: auto; display: block; object-fit: contain; }
+
+/* Right slot (legacy, kept for compat) */
+.kfl-topbar__right {
+  display: flex; align-items: center; justify-content: flex-end;
+}
+
+/* Icon button */
+.kfl-icon-btn {
+  width: 40px; height: 40px; border-radius: 50%; border: none;
+  background: transparent; color: var(--text-1);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0; touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent; position: relative;
+  transition: background 0.14s ease, color 0.14s ease, transform 0.12s ease;
+}
+.kfl-icon-btn:active { transform: scale(0.82); }
+.kfl-icon-btn.is-active { color: var(--accent); }
+
+/* Three dots → X morph */
+.kfl-dots { display: flex; flex-direction: column; align-items: center; gap: 3.5px; }
+.kfl-dots span {
+  display: block; width: 4px; height: 4px; border-radius: 50%;
+  background: currentColor;
+  transition: transform 0.24s var(--kfl-spring), opacity 0.16s ease, background 0.16s ease;
+}
+.kfl-icon-btn.is-active .kfl-dots span { background: var(--accent); }
+.kfl-icon-btn.is-active .kfl-dots span:first-child  { transform: translateY(7.5px)  rotate(45deg)  scaleX(2.2); border-radius: 2px; }
+.kfl-icon-btn.is-active .kfl-dots span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.kfl-icon-btn.is-active .kfl-dots span:last-child   { transform: translateY(-7.5px) rotate(-45deg) scaleX(2.2); border-radius: 2px; }
+
+/* ── Overlay (dim background — sits below .kfl-overlay-menu) ── */
+.kfl-overlay {
+  display: none; position: fixed; inset: 0;
+  background: transparent; /* overlay menu covers full screen, no extra dim needed */
+  z-index: 1300;
+}
+.kfl-overlay.is-open { display: block; }
+
+/* ══════════════════════════════════════════════════════
+   BOTTOM NAV — Material Symbols + Play Store pill animation
+══════════════════════════════════════════════════════ */
+.kfl-bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 990;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border-top: 1px solid var(--glass-border);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.kfl-bottom-nav__inner {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  max-width: 480px; margin: 0 auto;
+  height: var(--kfl-bottom-nav-h);
+  padding: 6px 4px 4px; align-items: center;
+}
+
+.kfl-tab {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 3px;
+  text-decoration: none; border: none; background: none;
+  cursor: pointer; font-family: var(--kfl-font); color: var(--text-3);
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  transition: color 0.22s ease; position: relative;
+}
+
+/* ── Pill container ── */
+.kfl-tab__pill {
+  display: flex; align-items: center; justify-content: center;
+  width: 48px; height: 28px; border-radius: 100px; background: transparent;
+  transition:
+    background 0.28s var(--kfl-spring),
+    width      0.28s var(--kfl-spring),
+    box-shadow 0.28s ease,
+    transform  0.15s var(--kfl-spring);
+  will-change: transform, background, width;
+}
+
+/* ── Material Symbol icon ── */
+.kfl-tab__icon {
+  /* Variable font axes: weight, optical size, fill, grade */
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: 22px;
+  color: inherit;
+  user-select: none;
+  /* Animate the fill axis — this is the Play Store hollow→filled effect */
+  transition:
+    font-variation-settings 0.22s ease,
+    color                   0.22s ease,
+    transform               0.22s var(--kfl-spring);
+  display: block; line-height: 1;
+}
+
+/* ── ACTIVE STATE ── */
+.kfl-tab.is-active {
+  color: var(--pill-active-bg);
+}
+.kfl-tab.is-active .kfl-tab__pill {
+  background: var(--pill-active-bg);
+  width: 60px;
+  box-shadow: 0 4px 22px var(--pill-active-glow);
+}
+/* Icon fills in and turns white — the key Play Store effect */
+.kfl-tab.is-active .kfl-tab__icon {
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+  color: #fff;
+  transform: translateY(-1px) scale(1.04);
+}
+.kfl-tab.is-active .kfl-tab__label {
+  color: var(--pill-active-bg);
+  font-weight: 800;
+}
+
+/* ── TAP FEEDBACK — bounce animation ── */
+.kfl-tab:active .kfl-tab__pill {
+  transform: scale(0.84);
+}
+.kfl-tab:active .kfl-tab__icon {
+  /* Mid-tap: partially fill and bounce */
+  font-variation-settings: 'FILL' 0.5, 'wght' 500, 'GRAD' 0, 'opsz' 24 !important;
+  transform: scale(0.86) !important;
+}
+
+/* ── Label ── */
+.kfl-tab__label {
+  font-size: 9.5px; font-weight: 600; letter-spacing: 0.2px; line-height: 1;
+  transition: color 0.22s ease, font-weight 0.15s ease;
+}
+
+/* Live pulse */
+@keyframes livepulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%     { opacity: 0.3; transform: scale(0.55); }
+}
+
+/* ── RESPONSIVE ── */
+@media (min-width: 768px) {
+  .kfl-topbar__inner { padding: 0 24px; }
+  .kfl-bottom-nav { display: none; }
+  body { padding-bottom: 0; }
+  /* On desktop, title aligns left with more breathing room */
+  .kfl-topbar__title { font-size: 22px; }
+}
+@media (min-width: 1024px) { .kfl-topbar__inner { padding: 0 32px; } }
+@media (max-width: 360px) {
+  .kfl-tab__pill { width: 42px; }
+  .kfl-tab.is-active .kfl-tab__pill { width: 52px; }
+  .kfl-tab__icon { font-size: 20px; }
+  .kfl-tab__label { font-size: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kfl-tab__pill, .kfl-tab__icon, .kfl-dots span,
+  .kfl-overlay-menu { transition-duration: 0.01ms !important; }
+}
