@@ -1433,75 +1433,41 @@ async function handleLogin(){
 document.getElementById('fpl-id-inp')?.addEventListener('keydown',e=>{if(e.key==='Enter')handleLogin();});
 
 /* ── IndexedDB bootstrap cache ─────────────────────────────────────────── */
-const KopalaIDB=(()=>{
-  const DB='kopala-fpl',VER=1,STORE='bootstrap',KEY='static',TTL=60*60*1000;
-  const open=()=>new Promise((res,rej)=>{const r=indexedDB.open(DB,VER);r.onupgradeneeded=e=>{if(!e.target.result.objectStoreNames.contains(STORE))e.target.result.createObjectStore(STORE);};r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);});
-  const get=(db,k)=>new Promise((res,rej)=>{const r=db.transaction(STORE,'readonly').objectStore(STORE).get(k);r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);});
-  const set=(db,k,v)=>new Promise((res,rej)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).put(v,k);r.onsuccess=()=>res();r.onerror=e=>rej(e.target.error);});
-  const del=(db,k)=>new Promise((res,rej)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).delete(k);r.onsuccess=()=>res();r.onerror=e=>rej(e.target.error);});
-  async function getBootstrap(proxy){
-    let db;
-    try{
-      db=await open();
-      const cached=await get(db,KEY);
-      if(cached&&(Date.now()-cached.ts)<TTL){console.debug('[IDB] hit',Math.round((Date.now()-cached.ts)/1000)+'s old');return cached.data;}
-      console.debug('[IDB] miss — fetching');
-      const r=await fetch(`${proxy}bootstrap-static/`);
-      if(!r.ok)throw new Error('HTTP '+r.status);
-      const data=await r.json();
-      set(db,KEY,{data,ts:Date.now()}).catch(()=>{});
-      return data;
-    }catch(err){
-      if(db){const stale=await get(db,KEY).catch(()=>null);if(stale){console.warn('[IDB] stale fallback');return stale.data;}}
-      throw err;
-    }
-  }
-  async function invalidate(){try{const db=await open();await del(db,KEY);}catch(e){console.warn('[IDB] invalidate',e);}}
-  return{getBootstrap,invalidate};
-})();
-
-/* ── Web Worker for bootstrap processing ──────────────────────────────── */
-const WORKER_SRC=`
-self.onmessage=function(e){
-  if(e.data.type!=='PROCESS_BOOTSTRAP')return;
-  try{self.postMessage({type:'BOOTSTRAP_READY',payload:process(e.data.payload)});}
-  catch(err){self.postMessage({type:'ERROR',payload:err.message});}
+/* ── KopalaIDB shim → delegates to KopalaDB ───────────────── */
+const KopalaIDB = {
+  getBootstrap: p => window.KopalaDB ? KopalaDB.bootstrap.get(p) : fetch(p+'bootstrap-static/').then(r=>r.json()),
+  fetchFresh:   p => window.KopalaDB ? KopalaDB.bootstrap.fresh(p) : fetch(p+'bootstrap-static/').then(r=>r.json()),
+  invalidate:   () => window.KopalaDB ? KopalaDB.invalidate() : Promise.resolve(),
 };
-function process(d){
-  const teamMap={};
-  d.teams.forEach(t=>{teamMap[t.id]={code:t.code,name:t.name,short:t.short_name};});
-  const playerMap={},elementData={};
-  d.elements.forEach(p=>{
-    playerMap[p.id]={name:p.web_name,fullName:p.first_name+' '+p.second_name,teamCode:teamMap[p.team]?.code||1,teamShort:teamMap[p.team]?.short||'?',pos:p.element_type,team:p.team,ownership:parseFloat(p.selected_by_percent)||0,nowCost:p.now_cost,costChangeEvent:p.cost_change_event||0,transfersIn:p.transfers_in_event||0,transfersOut:p.transfers_out_event||0};
-    elementData[p.id]=p;
-  });
-  const priceRisers=d.elements.filter(e=>e.cost_change_event>0).sort((a,b)=>b.cost_change_event-a.cost_change_event).slice(0,25);
-  const priceFallers=d.elements.filter(e=>e.cost_change_event<0).sort((a,b)=>a.cost_change_event-b.cost_change_event).slice(0,25);
-  const top30=d.elements.slice().sort((a,b)=>b.selected_by_percent-a.selected_by_percent).slice(0,30).map(e=>e.id);
-  const ev=d.events.find(e=>e.is_current)||d.events.find(e=>e.is_next)||d.events[0];
-  return{playerMap,teamMap,elementData,allElements:d.elements,priceRisers,priceFallers,top30,totalPlayers:d.total_players||0,currentGW:ev.id,gwAvg:ev.average_entry_score||0,gwHigh:ev.highest_score||0};
-}
-`;
-function runWorker(data){
-  return new Promise((resolve,reject)=>{
-    let worker;
-    try{
-      const blob=new Blob([WORKER_SRC],{type:'application/javascript'});
-      const url=URL.createObjectURL(blob);
-      worker=new Worker(url);
-      worker.onmessage=e=>{
-        URL.revokeObjectURL(url);
-        worker.terminate();
-        if(e.data.type==='BOOTSTRAP_READY')resolve(e.data.payload);
-        else reject(new Error(e.data.payload));
-      };
-      worker.onerror=err=>{URL.revokeObjectURL(url);worker.terminate();reject(err);};
-      worker.postMessage({type:'PROCESS_BOOTSTRAP',payload:data});
-    }catch(err){
-      // Worker not supported — fall back to main thread
-      console.warn('[Worker] fallback to main thread');
-      resolve(processBootstrapSync(data));
+
+/* ── Persistent bootstrap worker ──────────────────────────── */
+let _bs_worker = null, _bs_cbs = {}, _bs_cid = 0;
+function _bs_getWorker() {
+  if (_bs_worker) return _bs_worker;
+  try { _bs_worker = new Worker('/kopala-worker.js'); }
+  catch {
+    /* Inline fallback — full processing matching kopala-worker.js output */
+    const src = `self.onmessage=function(e){const{type,payload:d,_id}=e.data;if(type!=='PROCESS_BOOTSTRAP')return;try{const tM={},TMAP={},TCODES={};d.teams.forEach(t=>{tM[t.id]={code:t.code,name:t.name,short:t.short_name};TMAP[t.id]=t.short_name;TCODES[t.id]=t.code;});const teamList=d.teams.map(t=>({id:t.id,name:t.name,short:t.short_name,code:t.code}));const pM={},eD={};d.elements.forEach(p=>{pM[p.id]={name:p.web_name,fullName:p.first_name+' '+p.second_name,teamCode:tM[p.team]?.code||1,teamShort:tM[p.team]?.short||'?',pos:p.element_type,team:p.team,ownership:parseFloat(p.selected_by_percent)||0,nowCost:p.now_cost,costChangeEvent:p.cost_change_event||0,transfersIn:p.transfers_in_event||0,transfersOut:p.transfers_out_event||0};eD[p.id]=p;});const pR=d.elements.filter(e=>e.cost_change_event>0).sort((a,b)=>b.cost_change_event-a.cost_change_event).slice(0,25).map(e=>e.id);const pF=d.elements.filter(e=>e.cost_change_event<0).sort((a,b)=>a.cost_change_event-b.cost_change_event).slice(0,25).map(e=>e.id);const top30=d.elements.slice().sort((a,b)=>b.selected_by_percent-a.selected_by_percent).slice(0,30).map(e=>e.id);const ev=d.events.find(e=>e.is_current)||d.events.find(e=>e.is_next)||d.events[0];const now=Date.now();const nx=d.events.filter(e=>new Date(e.deadline_time).getTime()>now).sort((a,b)=>new Date(a.deadline_time)-new Date(b.deadline_time))[0];const out={playerMap:pM,teamMap:tM,elementData:eD,allElements:d.elements,priceRisers:pR,priceFallers:pF,top30,totalPlayers:d.total_players||0,currentGW:ev?ev.id:1,gwAvg:ev?ev.average_entry_score||0:0,gwHigh:ev?ev.highest_score||0:0,TMAP,TCODES,teamList,gwNum:ev?ev.id:1,maxGW:d.events.length,nextDeadline:nx?new Date(nx.deadline_time).getTime():null,nextGWName:nx?nx.name:null};const r={type:'BOOTSTRAP_READY',payload:out};if(_id!==undefined)r._id=_id;self.postMessage(r);}catch(err){self.postMessage({type:'ERROR',payload:err.message,_id});}};`;
+    const blob = new Blob([src], { type: 'application/javascript' });
+    _bs_worker = new Worker(URL.createObjectURL(blob));
+  }
+  _bs_worker.onmessage = e => {
+    const { type, payload, _id } = e.data;
+    if (_id && _bs_cbs[_id]) {
+      const { resolve, reject } = _bs_cbs[_id];
+      delete _bs_cbs[_id];
+      type === 'ERROR' ? reject(new Error(payload)) : resolve(payload);
     }
+  };
+  _bs_worker.onerror = err => console.warn('[Bootstrap Worker]', err);
+  return _bs_worker;
+}
+function runWorker(data) {
+  return new Promise((resolve, reject) => {
+    const id = ++_bs_cid;
+    _bs_cbs[id] = { resolve, reject };
+    setTimeout(() => { if (_bs_cbs[id]) { delete _bs_cbs[id]; reject(new Error('Worker timeout')); } }, 8000);
+    _bs_getWorker().postMessage({ type: 'PROCESS_BOOTSTRAP', payload: data, _id: id });
   });
 }
 function processBootstrapSync(d){
@@ -1515,29 +1481,72 @@ function processBootstrapSync(d){
 /* ── initBootstrap: IDB → Worker → S ──────────────────────────────────── */
 async function initBootstrap(){
   LST('Loading FPL player database…');
-  // 1. Get raw JSON from IDB (sub-10ms if cached) or network
-  const raw=await KopalaIDB.getBootstrap(PROXY);
-  // 2. Process off main thread via Worker
+  // 1. Get from IDB instantly (stale-while-revalidate — sub-5ms on repeat visits)
+  const raw = await KopalaIDB.getBootstrap(PROXY);
+  // 2. Process off main thread via persistent worker
   LST('Processing player data…');
-  const result=await runWorker(raw);
+  const result = await runWorker(raw);
   // 3. Populate S from worker result
-  S.playerMap=result.playerMap;
-  S.teamMap=result.teamMap;
-  S.elementData=result.elementData;
-  S.allElements=result.allElements;
-  S._priceRisers=result.priceRisers;
-  S._priceFallers=result.priceFallers;
-  S._top30=new Set(result.top30);
-  S.totalPlayers=result.totalPlayers;
-  S.currentGW=result.currentGW;
-  S.gwAvg=result.gwAvg;
-  S.gwHigh=result.gwHigh;
+  S.playerMap    = result.playerMap;
+  S.teamMap      = result.teamMap;
+  S.elementData  = result.elementData;
+  S.allElements  = result.allElements;
+  S._priceRisers = result.priceRisers;
+  S._priceFallers= result.priceFallers;
+  S._top30       = new Set(result.top30);
+  S.totalPlayers = result.totalPlayers;
+  S.currentGW    = result.currentGW;
+  S.gwAvg        = result.gwAvg;
+  S.gwHigh       = result.gwHigh;
+
+  // Subscribe to background revalidation — silently refresh S when fresh data arrives
+  if (window.KopalaDB) {
+    KopalaDB.off('bootstrap', _onBootstrapUpdate);
+    KopalaDB.on('bootstrap', _onBootstrapUpdate);
+  }
+}
+
+async function _onBootstrapUpdate(freshData) {
+  try {
+    const r = await runWorker(freshData);
+    S.playerMap    = r.playerMap;
+    S.teamMap      = r.teamMap;
+    S.elementData  = r.elementData;
+    S.allElements  = r.allElements;
+    S._priceRisers = r.priceRisers;
+    S._priceFallers= r.priceFallers;
+    S._top30       = new Set(r.top30);
+    S.currentGW    = r.currentGW;
+    S.gwAvg        = r.gwAvg;
+    S.gwHigh       = r.gwHigh;
+    // Re-render prices silently if visible
+    if (typeof buildPriceData === 'function') { buildPriceData(S.picks); renderPrices(); }
+  } catch {}
 }
 
 async function fetchAndRender(){
   LST('Fetching your team data…');
-  const [eR,pR,lR,tR,fR]=await Promise.all([fetch(`${PROXY}entry/${S.id}/`),fetch(`${PROXY}entry/${S.id}/event/${S.currentGW}/picks/`),fetch(`${PROXY}event/${S.currentGW}/live/`),fetch(`${PROXY}entry/${S.id}/transfers/`),fetch(`${PROXY}fixtures/?event=${S.currentGW}`)]);
-  const [entry,picks,live,transfers,fixtures]=await Promise.all([eR.json(),pR.json(),lR.json(),tR.json(),fR.json()]);
+  // Use KopalaDB caches where possible — avoids redundant fetches on repeat visits
+  let entry, picks, live, transfers, fixtures;
+  if (window.KopalaDB) {
+    const squadData = await KopalaDB.squad.get(S.id, S.currentGW, PROXY);
+    const liveData  = await KopalaDB.live.get(S.currentGW, PROXY);
+    const fixData   = await KopalaDB.fixtures.get(PROXY);
+    const [tR, eR]  = await Promise.all([
+      fetch(`${PROXY}entry/${S.id}/transfers/`),
+      squadData ? Promise.resolve({ok:true,json:()=>Promise.resolve(squadData.entry)}) : fetch(`${PROXY}entry/${S.id}/`),
+    ]);
+    transfers = await tR.json();
+    entry     = squadData?.entry || await eR.json();
+    picks     = squadData?.picks || null;
+    if (!picks) { const r = await fetch(`${PROXY}entry/${S.id}/event/${S.currentGW}/picks/`); picks = await r.json(); }
+    live      = liveData;
+    fixtures  = fixData ? { events: fixData } : null;
+    if (!fixtures) { const r = await fetch(`${PROXY}fixtures/?event=${S.currentGW}`); fixtures = await r.json(); }
+  } else {
+    const [eR,pR,lR,tR,fR]=await Promise.all([fetch(`${PROXY}entry/${S.id}/`),fetch(`${PROXY}entry/${S.id}/event/${S.currentGW}/picks/`),fetch(`${PROXY}event/${S.currentGW}/live/`),fetch(`${PROXY}entry/${S.id}/transfers/`),fetch(`${PROXY}fixtures/?event=${S.currentGW}`)]);
+    [entry,picks,live,transfers,fixtures]=await Promise.all([eR.json(),pR.json(),lR.json(),tR.json(),fR.json()]);
+  }
   S.entry=entry;S.picks=picks;S.live=live;S.transfers=transfers;S.fixtures=fixtures;
   live.elements.forEach(el=>{S.ptsMap[el.id]={pts:el.stats.total_points,mins:el.stats.minutes,bps:el.stats.bps||0};});
   fixtures.forEach(f=>{(f.stats||[]).forEach(s=>{if(s.identifier==='bps'){[...(s.h||[]),...(s.a||[])].forEach(e=>{S.bpsMap[e.element]=(S.bpsMap[e.element]||0)+e.value;});}});});
@@ -1604,7 +1613,8 @@ function showToast(msg){const t=document.getElementById('toast');if(!t)return;t.
 async function startApp(){if(!S.id){document.getElementById('lo').style.display='none';document.getElementById('login-screen').style.display='flex';return;}try{await initBootstrap();await fetchAndRender();buildPriceData(S.picks);renderPrices();scheduleAutoRefresh();}catch(err){console.error(err);document.getElementById('lo').classList.add('hidden');setTimeout(()=>document.getElementById('lo').style.display='none',450);document.getElementById('main-content').style.display='block';T('mgr-name','Failed to load');const sub=document.getElementById('mgr-sub');if(sub)sub.textContent='Check connection and refresh';}}
 document.addEventListener('DOMContentLoaded',startApp);
 </script>
-<script src="nav.js"            defer></script>
+<script src="kopala-idb.js"></script>
+  <script src="nav.js"            defer></script>
 <script src="live-widget.js"    defer></script>
 <script src="deadline.js"       defer></script>
 <script src="kopala-notify.js"  defer></script>
