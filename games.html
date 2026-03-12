@@ -557,51 +557,50 @@ const ESH=`onerror="this.src='https://draft.premierleague.com/img/shirts/standar
 const POS=['','GK','DEF','MID','FWD'];
 const POC=['','pos-gk','pos-def','pos-mid','pos-fwd'];
 
-/* ── IDB BOOTSTRAP CACHE ── */
-const KopalaIDB=(()=>{
-  const DB='kopala-fpl',VER=1,STORE='bootstrap',KEY='static',TTL=60*60*1000;
-  const open=()=>new Promise((res,rej)=>{const r=indexedDB.open(DB,VER);r.onupgradeneeded=e=>{if(!e.target.result.objectStoreNames.contains(STORE))e.target.result.createObjectStore(STORE);};r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);});
-  const iget=(db,k)=>new Promise((res,rej)=>{const r=db.transaction(STORE,'readonly').objectStore(STORE).get(k);r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);});
-  const iset=(db,k,v)=>new Promise((res,rej)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).put(v,k);r.onsuccess=()=>res();r.onerror=e=>rej(e.target.error);});
-  async function getBootstrap(proxy){
-    let db;
-    try{
-      db=await open();const cached=await iget(db,KEY);
-      if(cached&&(Date.now()-cached.ts)<TTL)return cached.data;
-      const r=await fetch(`${proxy}bootstrap-static/`);if(!r.ok)throw new Error('HTTP '+r.status);
-      const data=await r.json();iset(db,KEY,{data,ts:Date.now()}).catch(()=>{});return data;
-    }catch(err){if(db){const s=await iget(db,KEY).catch(()=>null);if(s)return s.data;}throw err;}
-  }
-  return{getBootstrap};
-})();
-
-/* ── WORKER: process bootstrap ── */
-const GW_WORKER_SRC=`
-self.onmessage=function(e){
-  if(e.data.type!=='PROCESS')return;
-  try{
-    const bs=e.data.payload;
-    const players=bs.elements;
-    const teams=bs.teams;
-    const maxGW=bs.events.length;
-    const cur=bs.events.find(e=>e.is_current)||bs.events.find(e=>e.is_next)||bs.events[0];
-    self.postMessage({type:'DONE',payload:{players,teams,maxGW,currentGW:cur.id}});
-  }catch(err){self.postMessage({type:'ERROR',payload:err.message});}
+/* ── KopalaIDB shim → delegates to KopalaDB ───────────────── */
+const KopalaIDB = {
+  getBootstrap: p => window.KopalaDB ? KopalaDB.bootstrap.get(p) : fetch(p+'bootstrap-static/').then(r=>r.json()),
+  fetchFresh:   p => window.KopalaDB ? KopalaDB.bootstrap.fresh(p) : fetch(p+'bootstrap-static/').then(r=>r.json()),
+  invalidate:   () => window.KopalaDB ? KopalaDB.invalidate() : Promise.resolve(),
 };
-`;
-function runGamesWorker(data){
-  return new Promise((resolve,reject)=>{
-    try{
-      const blob=new Blob([GW_WORKER_SRC],{type:'application/javascript'});
-      const url=URL.createObjectURL(blob);
-      const w=new Worker(url);
-      w.onmessage=e=>{URL.revokeObjectURL(url);w.terminate();e.data.type==='DONE'?resolve(e.data.payload):reject(new Error(e.data.payload));};
-      w.onerror=err=>{URL.revokeObjectURL(url);w.terminate();reject(err);};
-      w.postMessage({type:'PROCESS',payload:data});
-    }catch(err){
-      const cur=data.events.find(e=>e.is_current)||data.events.find(e=>e.is_next)||data.events[0];
-      resolve({players:data.elements,teams:data.teams,maxGW:data.events.length,currentGW:cur.id});
+
+/* ── Persistent worker ─────────────────────────────────────── */
+let _gw_worker = null, _gw_cbs = {}, _gw_cid = 0;
+function _gw_getWorker() {
+  if (_gw_worker) return _gw_worker;
+  try { _gw_worker = new Worker('/kopala-worker.js'); }
+  catch {
+    const src = `self.onmessage=function(e){const{type,payload:d,_id}=e.data;if(type!=='PROCESS_BOOTSTRAP')return;try{const tM={},TMAP={},TCODES={};d.teams.forEach(t=>{tM[t.id]={code:t.code,name:t.name,short:t.short_name};TMAP[t.id]=t.short_name;TCODES[t.id]=t.code;});const teamList=d.teams.map(t=>({id:t.id,name:t.name,short:t.short_name,code:t.code}));const pM={},eD={};d.elements.forEach(p=>{pM[p.id]={name:p.web_name,fullName:p.first_name+' '+p.second_name,teamCode:tM[p.team]?.code||1,teamShort:tM[p.team]?.short||'?',pos:p.element_type,team:p.team,ownership:parseFloat(p.selected_by_percent)||0,nowCost:p.now_cost,costChangeEvent:p.cost_change_event||0,transfersIn:p.transfers_in_event||0,transfersOut:p.transfers_out_event||0};eD[p.id]=p;});const pR=d.elements.filter(e=>e.cost_change_event>0).sort((a,b)=>b.cost_change_event-a.cost_change_event).slice(0,25).map(e=>e.id);const pF=d.elements.filter(e=>e.cost_change_event<0).sort((a,b)=>a.cost_change_event-b.cost_change_event).slice(0,25).map(e=>e.id);const top30=d.elements.slice().sort((a,b)=>b.selected_by_percent-a.selected_by_percent).slice(0,30).map(e=>e.id);const ev=d.events.find(e=>e.is_current)||d.events.find(e=>e.is_next)||d.events[0];const now=Date.now();const nx=d.events.filter(e=>new Date(e.deadline_time).getTime()>now).sort((a,b)=>new Date(a.deadline_time)-new Date(b.deadline_time))[0];const out={playerMap:pM,teamMap:tM,elementData:eD,allElements:d.elements,priceRisers:pR,priceFallers:pF,top30,totalPlayers:d.total_players||0,currentGW:ev?ev.id:1,gwAvg:ev?ev.average_entry_score||0:0,gwHigh:ev?ev.highest_score||0:0,TMAP,TCODES,teamList,gwNum:ev?ev.id:1,maxGW:d.events.length,nextDeadline:nx?new Date(nx.deadline_time).getTime():null,nextGWName:nx?nx.name:null};const r={type:'BOOTSTRAP_READY',payload:out};if(_id!==undefined)r._id=_id;self.postMessage(r);}catch(err){self.postMessage({type:'ERROR',payload:err.message,_id});}};`;
+    const blob = new Blob([src], { type: 'application/javascript' });
+    _gw_worker = new Worker(URL.createObjectURL(blob));
+  }
+  _gw_worker.onmessage = e => {
+    const { type, payload, _id } = e.data;
+    if (_id && _gw_cbs[_id]) {
+      const { resolve, reject } = _gw_cbs[_id];
+      delete _gw_cbs[_id];
+      type === 'ERROR' ? reject(new Error(payload)) : resolve(payload);
     }
+  };
+  _gw_worker.onerror = err => console.warn('[GW Worker]', err);
+  return _gw_worker;
+}
+function runGamesWorker(data) {
+  return new Promise((resolve, reject) => {
+    const id = ++_gw_cid;
+    _gw_cbs[id] = { resolve, reject };
+    setTimeout(() => { if (_gw_cbs[id]) { delete _gw_cbs[id]; reject(new Error('timeout')); } }, 8000);
+    _gw_getWorker().postMessage({ type: 'PROCESS_BOOTSTRAP', payload: data, _id: id });
+  }).then(p => {
+    // Adapt kopala-worker output to shape games.html expects
+    const players = {};
+    (p.allElements || []).forEach(el => { players[el.id] = el; });
+    return {
+      players,
+      teams: p.teamList || [],
+      currentGW: p.currentGW || p.gwNum,
+      maxGW: (p.allElements ? data.events.length : 38),
+    };
   });
 }
 
@@ -610,11 +609,18 @@ async function init(){
   showSkel();
   try{
     const id=localStorage.getItem('kopala_id');
+    // Stale-first: get from IDB instantly (sub-5ms on repeat), revalidate in background
     const raw=await KopalaIDB.getBootstrap(PROXY);
     const bs=await runGamesWorker(raw);
     G.players=bs.players; G.teams=bs.teams; G.maxGW=bs.maxGW;
     G.currentGW=bs.currentGW; G.viewGW=bs.currentGW;
-    if(id){try{const p=await fetch(`${PROXY}entry/${id}/event/${G.currentGW}/picks/`).then(r=>r.json());p.picks.forEach(x=>G.myPicks.add(x.element));}catch{}}
+    if(id){try{
+      // Use KopalaDB squad cache (15-min TTL) instead of bare fetch
+      const squadData = window.KopalaDB
+        ? await KopalaDB.squad.get(id, G.currentGW, PROXY)
+        : await fetch(`${PROXY}entry/${id}/event/${G.currentGW}/picks/`).then(r=>r.json()).then(p=>({picks:p}));
+      (squadData?.picks?.picks||[]).forEach(x=>G.myPicks.add(x.element));
+    }catch{}}
     await Promise.all([cur.id-1,cur.id,cur.id+1].filter(g=>g>=1&&g<=G.maxGW).map(fetchFx));
     renderGW(G.currentGW);
     autoRefresh();
@@ -1108,7 +1114,8 @@ function showSkel(){
 document.addEventListener('DOMContentLoaded',init);
 </script>
 
-<script src="nav.js"           defer></script>
+<script src="kopala-idb.js"></script>
+  <script src="nav.js"           defer></script>
 <script src="live-widget.js"   defer></script>
 <script src="deadline.js"      defer></script>
 <script src="kopala-notify.js" defer></script>
