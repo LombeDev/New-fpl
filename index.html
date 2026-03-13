@@ -159,8 +159,9 @@ body{
 .sk-list-chg{width:46px;height:15px;border-radius:5px}
 .spin{width:36px;height:36px;border:3px solid var(--c-border);border-top-color:var(--c-green);border-radius:50%;animation:spin .9s linear infinite}
 
-/* ── LOGIN ── */
+
 /* ── LOGIN SCREEN - CENTERED SINGLE COLUMN ── */
+/* ── LOGIN SCREEN — SIMPLIFIED ── */
 #login-screen{
   display:none;
   position:fixed;
@@ -169,279 +170,132 @@ body{
   background:var(--c-bg);
   flex-direction:column;
   align-items:center;
-  justify-content:center;
+  justify-content:flex-start;
+  padding:0 28px;
   overflow-y:auto;
-  padding:20px;
-  animation:fadeIn .4s var(--ease);
 }
 
 .login-container{
   width:100%;
   max-width:420px;
-  animation:slideUp .5s var(--ease) .1s backwards;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-top:96px;
 }
 
-.login-card{
-  background:var(--c-surface);
-  border:1px solid var(--c-border);
-  border-radius:var(--r-lg);
-  padding:48px 40px;
-  box-shadow:0 4px 24px rgba(0,0,0,.08);
-}
-
-.login-header{
-  text-align:center;
-  margin-bottom:36px;
-}
-
+/* Logo block */
+.login-card{ background:none; border:none; padding:0; box-shadow:none; width:100%; }
+.login-header{ text-align:center; margin-bottom:72px; }
 .login-welcome{
   font-family:'Barlow Condensed',sans-serif;
-  font-size:2rem;
+  font-size:2.2rem;
   font-weight:900;
-  color:var(--c-t1);
-  line-height:1.2;
-  margin-bottom:6px;
-  letter-spacing:0.3px;
-  animation:fadeUp .5s var(--ease) .15s backwards;
+  color:var(--c-green);
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin-bottom:0;
 }
+.login-subtitle{ display:none; }
 
-.login-subtitle{
-  font-size:1.05rem;
-  color:var(--c-t2);
-  font-weight:500;
-  animation:fadeUp .5s var(--ease) .2s backwards;
-}
-
-.login-form{
-  display:flex;
-  flex-direction:column;
-  gap:20px;
-  margin-bottom:24px;
-}
-
-.form-group{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  animation:fadeUp .5s var(--ease) .25s backwards;
-}
+/* Form */
+.login-form{ display:flex; flex-direction:column; gap:14px; width:100%; margin-bottom:0; }
 
 .form-label{
-  font-size:.85rem;
+  font-size:.88rem;
   font-weight:600;
   color:var(--c-t1);
-  text-transform:capitalize;
-  letter-spacing:0.3px;
+  margin-bottom:8px;
+  display:block;
 }
 
+/* Pill input with prefix */
 .input-wrapper{
-  position:relative;
   display:flex;
   align-items:center;
-}
-
-.form-input{
-  width:100%;
-  padding:12px 16px;
   background:var(--c-s2);
   border:1.5px solid var(--c-border2);
-  border-radius:var(--r-md);
+  border-radius:100px;
+  height:56px;
+  overflow:hidden;
+  transition:border-color .2s, box-shadow .2s;
+}
+.input-wrapper:focus-within{
+  border-color:var(--c-green);
+  box-shadow:0 0 0 3px var(--c-green-d);
+}
+.input-prefix{
+  padding:0 14px 0 20px;
+  font-size:.9rem;
+  font-weight:700;
+  color:var(--c-t2);
+  border-right:1.5px solid var(--c-border2);
+  height:100%;
+  display:flex;
+  align-items:center;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.form-input{
+  flex:1;
+  border:none;
+  background:transparent;
+  padding:0 20px;
   font-family:'DM Sans',sans-serif;
   font-size:1rem;
   color:var(--c-t1);
   outline:none;
-  transition:border-color .2s,box-shadow .2s,background .2s;
+  height:100%;
+  border-radius:0;
 }
+.form-input::placeholder{ color:var(--c-t3); }
+.form-input.error{ /* handled by wrapper */ }
+.input-wrapper.error{ border-color:var(--c-red); box-shadow:0 0 0 3px rgba(255,61,90,.1); }
 
-.form-input::placeholder{
-  color:var(--c-t3);
-  font-size:.95rem;
+/* CTA button */
+.btn-primary{
+  width:100%;
+  height:56px;
+  border:none;
+  border-radius:100px;
+  background:var(--c-green);
+  color:var(--c-pill);
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:1.15rem;
+  font-weight:900;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  cursor:pointer;
+  box-shadow:none;
+  transition:opacity .2s, transform .15s;
+  margin-top:4px;
 }
+.btn-primary:hover{ opacity:.88; transform:none; }
+.btn-primary:active{ transform:scale(.98); }
+.btn-primary:disabled{ opacity:.5; }
+.btn-primary svg{ display:none; }
 
-.form-input:focus{
-  border-color:var(--c-green);
-  box-shadow:0 0 0 3px var(--c-green-d);
-  background:var(--c-surface);
-}
+/* Hide secondary elements */
+.form-divider,
+.btn-secondary{ display:none !important; }
 
-.form-input.error{
-  border-color:var(--c-red);
-  box-shadow:0 0 0 3px rgba(255,61,90,.1);
+.login-footer{
+  text-align:center;
+  font-size:.88rem;
+  color:var(--c-t2);
+  margin-top:24px;
 }
+.login-footer a{ color:var(--c-green); font-weight:700; text-decoration:none; }
 
 .error-message{
   display:none;
   font-size:.8rem;
   color:var(--c-red);
-  gap:5px;
-  align-items:center;
+  padding-left:16px;
+  margin-top:6px;
   font-weight:500;
 }
-
-.error-message.show{
-  display:flex;
-}
-
-/* Buttons */
-.btn{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  padding:13px 20px;
-  border-radius:var(--r-md);
-  border:none;
-  font-family:'DM Sans',sans-serif;
-  font-size:1rem;
-  font-weight:600;
-  cursor:pointer;
-  outline:none;
-  transition:all .2s;
-  -webkit-tap-highlight-color:transparent;
-}
-
-.btn-primary{
-  background:var(--c-green);
-  color:var(--c-pill);
-  box-shadow:0 4px 16px rgba(0,232,122,.25);
-  font-weight:700;
-  animation:fadeUp .5s var(--ease) .3s backwards;
-}
-
-.btn-primary:hover{
-  box-shadow:0 6px 24px rgba(0,232,122,.35);
-  transform:translateY(-1px);
-}
-
-.btn-primary:active{
-  transform:translateY(0);
-  box-shadow:0 2px 10px rgba(0,232,122,.2);
-}
-
-.btn-primary:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-  box-shadow:none;
-  transform:none;
-}
-
-.btn-secondary{
-  background:var(--c-s2);
-  color:var(--c-t1);
-  border:1px solid var(--c-border2);
-  animation:fadeUp .5s var(--ease) .4s backwards;
-}
-
-.btn-secondary:hover{
-  background:var(--c-s3);
-  border-color:var(--c-border);
-  transform:translateY(-1px);
-}
-
-.btn-secondary:active{
-  transform:translateY(0);
-}
-
-.form-divider{
-  text-align:center;
-  font-size:.85rem;
-  color:var(--c-t3);
-  margin:20px 0;
-  font-weight:500;
-  letter-spacing:0.3px;
-  animation:fadeUp .5s var(--ease) .35s backwards;
-}
-
-.login-footer{
-  text-align:center;
-  font-size:.9rem;
-  color:var(--c-t2);
-  margin-top:24px;
-  animation:fadeUp .5s var(--ease) .45s backwards;
-}
-
-.login-footer a{
-  color:var(--c-green);
-  text-decoration:none;
-  font-weight:700;
-  transition:color .2s;
-}
-
-.login-footer a:hover{
-  color:var(--c-green-d);
-}
-
-/* Animations */
-@keyframes fadeIn{
-  from{opacity:0}
-  to{opacity:1}
-}
-
-@keyframes slideUp{
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1;transform:none}
-}
-
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(12px)}
-  to{opacity:1;transform:none}
-}
-
-/* Mobile Responsive */
-@media(max-width:600px){
-  .login-card{
-    padding:36px 24px;
-  }
-
-  .login-welcome{
-    font-size:1.6rem;
-  }
-
-  .login-subtitle{
-    font-size:.95rem;
-  }
-
-  .login-form{
-    gap:16px;
-  }
-
-  .form-input{
-    padding:11px 14px;
-    font-size:.95rem;
-  }
-
-  .btn{
-    padding:12px 18px;
-    font-size:.95rem;
-  }
-
-  .login-footer{
-    font-size:.85rem;
-  }
-}
-
-@media(max-width:400px){
-  #login-screen{
-    padding:16px;
-  }
-
-  .login-card{
-    padding:28px 20px;
-  }
-
-  .login-welcome{
-    font-size:1.4rem;
-  }
-
-  .login-header{
-    margin-bottom:28px;
-  }
-
-  .login-form{
-    gap:14px;
-  }
-}
-
+.error-message.show{ display:block; }
 /* ── SECTIONS ── */
 .ks{padding:16px}.ks+.ks{padding-top:0}
 .ks-hdr{display:flex;align-items:flex-start;gap:11px;margin-bottom:14px}
@@ -941,18 +795,17 @@ body{
       <form class="login-form" onsubmit="handleLogin(); return false;">
         <div class="form-group">
           <label for="fpl-id-inp" class="form-label">FPL Team ID</label>
-          <div class="input-wrapper">
-            <input 
-              id="fpl-id-inp" 
-              class="form-input" 
-              type="text"
-              placeholder="Enter your Team ID or paste FPL URL"
-              autocomplete="off" 
-              inputmode="numeric"
-              aria-describedby="err-msg">
-          </div>
-          <div id="err-msg" class="error-message" role="alert" aria-live="polite"></div>
-        </div>
+          <div class="input-wrapper" id="inp-wrap">
+  <span class="input-prefix">ID /</span>
+  <input 
+    id="fpl-id-inp" 
+    class="form-input" 
+    type="text"
+    placeholder="Enter Team ID or FPL URL"
+    autocomplete="off" 
+    inputmode="numeric"
+    aria-describedby="err-msg">
+</div>
 
         <button id="login-btn" class="btn btn-primary" type="submit">
           <span>Sign in</span>
@@ -1426,7 +1279,10 @@ async function handleLogin(){
     if(window.KopalaNotify) KopalaNotify.updateTeamId(String(id));
     location.reload();
   }catch{showErr('Team ID not found — check and try again.');btn.disabled=false;btn.innerHTML='<span>Continue</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';}
-  function showErr(m){inp.classList.add('error');err.textContent=m;err.classList.add('show');}
+  function showErr(m){
+  document.getElementById('inp-wrap').classList.add('error');
+  
+}
 }
 
 // Keep this listener
