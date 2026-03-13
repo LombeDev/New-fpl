@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Kopala FPL — Fixtures & Live Scores</title>
 <meta name="theme-color" content="#0a0e1a" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#f0f2f8" media="(prefers-color-scheme: light)">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kopala FPL">
 <link rel="apple-touch-icon" href="/android-chrome-192x192.png">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="manifest.json">
 
 <script>(function(){
   var t=localStorage.getItem('kopala_theme');
@@ -21,26 +21,15 @@
 })();</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdnjs.cloudflare.com">
-<link rel="dns-prefetch" href="https://fantasy.premierleague.com">
-<link rel="dns-prefetch" href="https://draft.premierleague.com">
-<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@700;800&display=swap">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@700;800&display=swap"></noscript>
-<link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"></noscript>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="nav.css">
 <link rel="stylesheet" href="footer.css">
-<noscript>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="nav.css">
-  <link rel="stylesheet" href="footer.css">
-</noscript>
 
 <style>
 [data-theme="light"]{
-  --bg:#ffffff;--surf:#ffffff;--s2:#f8f9fc;--s3:#f0f2f8;--s4:#e8eaf2;
+  --bg:#f0f2f8;--surf:#fff;--s2:#f5f6fa;--s3:#eaecf4;--s4:#dde0ef;
   --b1:rgba(0,0,0,.06);--b2:rgba(0,0,0,.11);--b3:rgba(0,0,0,.18);
   --t1:#0d0f1a;--t2:#4a4f6a;--t3:#9298b5;
   --grn:#00c060;--red:#e8334a;--amb:#e8a020;--blu:#3b7fff;--gld:#c49a00;
@@ -557,63 +546,15 @@ const ESH=`onerror="this.src='https://draft.premierleague.com/img/shirts/standar
 const POS=['','GK','DEF','MID','FWD'];
 const POC=['','pos-gk','pos-def','pos-mid','pos-fwd'];
 
-/* ── IDB BOOTSTRAP CACHE ── */
-const KopalaIDB=(()=>{
-  const DB='kopala-fpl',VER=1,STORE='bootstrap',KEY='static',TTL=60*60*1000;
-  const open=()=>new Promise((res,rej)=>{const r=indexedDB.open(DB,VER);r.onupgradeneeded=e=>{if(!e.target.result.objectStoreNames.contains(STORE))e.target.result.createObjectStore(STORE);};r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);});
-  const iget=(db,k)=>new Promise((res,rej)=>{const r=db.transaction(STORE,'readonly').objectStore(STORE).get(k);r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);});
-  const iset=(db,k,v)=>new Promise((res,rej)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).put(v,k);r.onsuccess=()=>res();r.onerror=e=>rej(e.target.error);});
-  async function getBootstrap(proxy){
-    let db;
-    try{
-      db=await open();const cached=await iget(db,KEY);
-      if(cached&&(Date.now()-cached.ts)<TTL)return cached.data;
-      const r=await fetch(`${proxy}bootstrap-static/`);if(!r.ok)throw new Error('HTTP '+r.status);
-      const data=await r.json();iset(db,KEY,{data,ts:Date.now()}).catch(()=>{});return data;
-    }catch(err){if(db){const s=await iget(db,KEY).catch(()=>null);if(s)return s.data;}throw err;}
-  }
-  return{getBootstrap};
-})();
-
-/* ── WORKER: process bootstrap ── */
-const GW_WORKER_SRC=`
-self.onmessage=function(e){
-  if(e.data.type!=='PROCESS')return;
-  try{
-    const bs=e.data.payload;
-    const players=bs.elements;
-    const teams=bs.teams;
-    const maxGW=bs.events.length;
-    const cur=bs.events.find(e=>e.is_current)||bs.events.find(e=>e.is_next)||bs.events[0];
-    self.postMessage({type:'DONE',payload:{players,teams,maxGW,currentGW:cur.id}});
-  }catch(err){self.postMessage({type:'ERROR',payload:err.message});}
-};
-`;
-function runGamesWorker(data){
-  return new Promise((resolve,reject)=>{
-    try{
-      const blob=new Blob([GW_WORKER_SRC],{type:'application/javascript'});
-      const url=URL.createObjectURL(blob);
-      const w=new Worker(url);
-      w.onmessage=e=>{URL.revokeObjectURL(url);w.terminate();e.data.type==='DONE'?resolve(e.data.payload):reject(new Error(e.data.payload));};
-      w.onerror=err=>{URL.revokeObjectURL(url);w.terminate();reject(err);};
-      w.postMessage({type:'PROCESS',payload:data});
-    }catch(err){
-      const cur=data.events.find(e=>e.is_current)||data.events.find(e=>e.is_next)||data.events[0];
-      resolve({players:data.elements,teams:data.teams,maxGW:data.events.length,currentGW:cur.id});
-    }
-  });
-}
-
 /* ── BOOT ── */
 async function init(){
   showSkel();
   try{
     const id=localStorage.getItem('kopala_id');
-    const raw=await KopalaIDB.getBootstrap(PROXY);
-    const bs=await runGamesWorker(raw);
-    G.players=bs.players; G.teams=bs.teams; G.maxGW=bs.maxGW;
-    G.currentGW=bs.currentGW; G.viewGW=bs.currentGW;
+    const bs=await fetch(`${PROXY}bootstrap-static/`).then(r=>r.json());
+    G.players=bs.elements; G.teams=bs.teams; G.maxGW=bs.events.length;
+    const cur=bs.events.find(e=>e.is_current)||bs.events.find(e=>e.is_next)||bs.events[0];
+    G.currentGW=cur.id; G.viewGW=cur.id;
     if(id){try{const p=await fetch(`${PROXY}entry/${id}/event/${G.currentGW}/picks/`).then(r=>r.json());p.picks.forEach(x=>G.myPicks.add(x.element));}catch{}}
     await Promise.all([cur.id-1,cur.id,cur.id+1].filter(g=>g>=1&&g<=G.maxGW).map(fetchFx));
     renderGW(G.currentGW);
@@ -1108,12 +1049,15 @@ function showSkel(){
 document.addEventListener('DOMContentLoaded',init);
 </script>
 
-<script src="nav.js"           defer></script>
-<script src="live-widget.js"   defer></script>
-<script src="deadline.js"      defer></script>
-<script src="kopala-notify.js" defer></script>
-<script src="footer.js"        defer></script>
-<script src="badge.js"         defer></script>
-<script src="pwa.js"           defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+<script src="/firebase-init.js"></script>
+<script src="/kopala-notify.js"></script>
+<script src="nav.js" defer></script>
+<script src="live-widget.js"></script>
+<script src="weekly-digest.js"></script>
+<script src="pwa.js" defer></script>
+<script src="footer.js" defer></script>
+<script src="sw.js"></script>
 </body>
 </html>
