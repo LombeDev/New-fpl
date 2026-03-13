@@ -123,13 +123,6 @@
   function injectStyles() {
     if (document.getElementById('kfl-nav-v6-styles')) return;
 
-    if (!document.getElementById('kfl-material-symbols')) {
-      const link = document.createElement('link');
-      link.id   = 'kfl-material-symbols';
-      link.rel  = 'stylesheet';
-      link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap';
-      document.head.appendChild(link);
-    }
 
     const s = document.createElement('style');
     s.id = 'kfl-nav-v6-styles';
