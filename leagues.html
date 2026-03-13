@@ -23,11 +23,22 @@
   <!-- Preconnect / DNS hints -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
-
+  <!-- Shirt images come from draft.premierleague.com — preconnect saves TCP+TLS on first squad expand -->
+  <link rel="preconnect" href="https://draft.premierleague.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   <link rel="dns-prefetch" href="https://fantasy.premierleague.com">
-  <link rel="dns-prefetch" href="https://draft.premierleague.com">
+  <link rel="dns-prefetch" href="https://firebaseapp.com">
+  <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com">
+
+  <!-- Preload critical local assets — browser fetches at top priority while still parsing <head> -->
+  <link rel="preload" as="style"  href="nav.css">
+  <link rel="preload" as="style"  href="footer.css">
+  <link rel="preload" as="script" href="nav.js">
+  <link rel="preload" as="script" href="kopala-idb.js">
+
+  <!-- Material Symbols — async so it never blocks first paint -->
+  <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"></noscript>
 
   <!-- Core styles — blocking, SW-cached so instant on repeat visits. Prevents FOUC on direct navigation -->
   <link rel="stylesheet" href="style.css">
@@ -1657,14 +1668,17 @@ async function init() {
       fetch(`${state.PROXY}entry/${state.fplId}/`).then(r => r.json()),
     ]);
 
-    // Process player map off main thread
-        // Process bootstrap off main thread (persistent worker — returns unified shape)
-    const processed = await runLeaguesWorker(staticData);
+    // Process bootstrap off main thread (persistent worker — returns unified shape)
+    // Fire live data fetch in parallel with worker — currentGW is in staticData directly
+    const currentGWEarly = (staticData.events.find(e => e.is_current) || staticData.events.find(e => e.is_next) || staticData.events[0])?.id || 1;
+    const [processed, liveRes] = await Promise.all([
+      runLeaguesWorker(staticData),
+      fetch(`${state.PROXY}event/${currentGWEarly}/live/`),
+    ]);
     // Worker returns playerMap directly (v3 unified shape)
     state.playerMap = processed.playerMap;
     state.currentGW = processed.currentGW || processed.gwNum;
 
-    const liveRes  = await fetch(`${state.PROXY}event/${state.currentGW}/live/`);
     const liveData = await liveRes.json();
     liveData.elements.forEach(el => {
       state.liveData[el.id] = { pts: el.stats.total_points, explain: el.explain || [] };
@@ -1728,8 +1742,9 @@ async function loadStandings(leagueId) {
     renderStatsDashboard(results);
     applySortAndRender();
 
+    // Fire-and-forget — details (cap, OR, transfers) fill in progressively without blocking render
     const top = results.slice(0, 10);
-    await Promise.allSettled(top.map(r => fetchManagerDetails(r.entry)));
+    top.forEach(r => fetchManagerDetails(r.entry));
 
   } catch (err) {
     console.error('[Standings]', err);
@@ -1988,6 +2003,7 @@ async function toggleExpand(entryId, summaryEl) {
           <div class="lg-player__shirt-wrap">
             <div class="lg-player__pos-strip pos-${player.pos}"></div>
             <img class="lg-player__shirt" src="${shirt}" alt="${player.name}"
+              width="32" height="40"
               loading="lazy"
               onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'">
             ${badge}
