@@ -123,7 +123,6 @@
   function injectStyles() {
     if (document.getElementById('kfl-nav-v6-styles')) return;
 
-
     const s = document.createElement('style');
     s.id = 'kfl-nav-v6-styles';
     s.textContent = `
@@ -387,7 +386,7 @@
     /* LEFT: logo on home, empty spacer otherwise */
     const leftSlot = cfg.showLogo
       ? `<a href="index.html" class="kfl-logo" aria-label="Kopala FPL — Home">
-           <img src="/logo.png" alt="Kopala FPL" class="kfl-logo__img">
+           <img src="/logo.png" alt="Kopala FPL" class="kfl-logo__img" width="auto" height="30" fetchpriority="high">
          </a>`
       : `<div style="width:4px"></div>`;
 
@@ -686,6 +685,37 @@
     }, { passive: true });
   }
 
+  /* ── HOVER PREFETCH ── */
+  function setupHoverPrefetch() {
+    // Skip on slow connections — no point prefetching on 2G/slow-2G
+    const conn = navigator.connection;
+    if (conn && (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g')) return;
+
+    const prefetched = new Set();
+
+    function prefetch(href) {
+      if (!href || prefetched.has(href)) return;
+      if (href.startsWith('http') || href.startsWith('//') || href.startsWith('#') || href.startsWith('mailto:')) return;
+      prefetched.add(href);
+      const link = document.createElement('link');
+      link.rel  = 'prefetch';
+      link.href = href;
+      link.as   = 'document';
+      document.head.appendChild(link);
+    }
+
+    function attachTo(el) {
+      const href = el.getAttribute('href');
+      if (!href || isActive(href)) return; // no point prefetching current page
+      // Mouse hover (desktop)
+      el.addEventListener('mouseenter', () => prefetch(href), { passive: true });
+      // Touchstart fires ~80–100ms before click on mobile — enough head start
+      el.addEventListener('touchstart', () => prefetch(href), { passive: true });
+    }
+
+    document.querySelectorAll('.kfl-tab, .kfl-overlay-link').forEach(attachTo);
+  }
+
   /* ── INIT ── */
   function loadNav() {
     injectStyles();
@@ -700,8 +730,15 @@
       document.body.insertAdjacentHTML('afterbegin', buildOverlay() + buildTopbar());
       document.body.insertAdjacentHTML('beforeend',  buildBottomNav());
     }
-    setupTheme(); setupNotifications(); setupSettingsAccordion();
-    setupMenu(); setupBottomNav(); setupScroll(); setupAuthGate(); setupTurboSync();
+    setupTheme();
+    setupNotifications();
+    setupSettingsAccordion();
+    setupMenu();
+    setupBottomNav();
+    setupScroll();
+    setupAuthGate();
+    setupTurboSync();
+    setupHoverPrefetch(); // ← NEW: prefetch pages on hover/touchstart
   }
 
   if (document.readyState === 'loading') {
