@@ -488,13 +488,13 @@
           </div>
 
           <button class="kfl-overlay-link kfl-overlay-link--btn kfl-overlay-link--danger" id="logout-btn" type="button">
-            <span class="kfl-overlay-link__label">Log Out</span>
+            <span class="kfl-overlay-link__label">Sign Out</span>
           </button>
 
           <div class="kfl-overlay-footer">
             <span>Kopala FPL</span><span class="kfl-overlay-footer__dot">·</span>
-            <span>v1.1</span><span class="kfl-overlay-footer__dot">·</span>
-            <span>Built for Zambians 🇿🇲</span>
+            <span>Version: 1.1-Beta</span><span class="kfl-overlay-footer__dot">·</span>
+            <span></span>
           </div>
         </div>
       </div>`;
@@ -528,8 +528,8 @@
     if (!btn) return;
     function applyThemeUI(t) {
       const map = {
-        dark:  { emoji: '🌙', title: 'Dark mode',  badge: 'Dark'  },
-        light: { emoji: '☀️', title: 'Light mode', badge: 'Light' },
+        dark:  { emoji: '🌙', title: 'Dark',  badge: 'Dark'  },
+        light: { emoji: '☀️', title: 'Light', badge: 'Light' },
       };
       const m = map[t];
       const el = id => document.getElementById(id);
