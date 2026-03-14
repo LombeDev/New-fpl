@@ -1404,17 +1404,21 @@ function changeId(){if(confirm('Change your FPL ID? You will be logged out.')){l
 function setUpdated(){const e=document.getElementById('last-upd');if(!e)return;const live=hasLiveMatch();e.textContent=`Updated ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}${live?' · Live — refreshing every 15 min':''}`;}
 function showToast(msg){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 
-/* ═══ STARTUP — PARALLELIZED ════════════════════════════════════════════
-  KEY CHANGE: bootstrap fetch and squad/live/fixtures fetches now fire
-  concurrently instead of sequentially. On a warm IDB cache this cuts
-  time-to-content by ~40% because the FPL API calls don't wait for the
-  bootstrap processing to finish before starting.
+/* ═══ STARTUP — FULLY PARALLELIZED (McMaster pattern) ══════════════════
+  The key insight: bootstrap (playerMap/teamMap) and user data (picks,
+  live, fixtures, entry, transfers) are completely independent. Neither
+  needs the other to START — they only need to meet at render time.
 
-  Flow:
-  1. Start bootstrap fetch immediately (IDB cache hit = ~5ms)
-  2. If logged in, start squad/live/fixtures fetches at the same time
-  3. Await bootstrap result (needed before rendering)
-  4. Render with data that's already arrived
+  Old flow:  bootstrap → fetchAndRender (serial — user data waits for bootstrap)
+  New flow:  bootstrap ┐
+             entry     ├─ all fire at t=0, render when ALL arrive
+             picks     │
+             live      │
+             fixtures  │
+             transfers ┘
+
+  On a warm IDB cache + good connection this eliminates the entire
+  bootstrap processing time (~200–500ms) from the critical path.
 ════════════════════════════════════════════════════════════════════════ */
 async function startApp(){
   if(!S.id){
@@ -1423,33 +1427,86 @@ async function startApp(){
     return;
   }
   try{
-    // Fire bootstrap AND user data fetches simultaneously
-    const bootstrapPromise = initBootstrap();
+    // ── Step 1: Read currentGW from IDB without full bootstrap processing ──
+    // We need GW to build GW-specific URLs. Read raw bootstrap from IDB
+    // (sub-10ms cache hit) to extract GW, then fire everything in parallel.
+    LST('Loading…');
+    const rawBootstrap = await KopalaIDB.getBootstrap(PROXY);
+    const gwEarly = (
+      rawBootstrap.events.find(e => e.is_current) ||
+      rawBootstrap.events.find(e => e.is_next) ||
+      rawBootstrap.events[0]
+    )?.id || 1;
 
-    // Pre-warm the FPL API connections while bootstrap processes
-    // These results are consumed in fetchAndRender() after bootstrap resolves
-    let prefetchedData = null;
-    const prefetchUserData = async () => {
-      try {
-        if (window.KopalaDB) return; // KopalaDB handles its own caching
-        const [eR,pR] = await Promise.all([
-          fetch(`${PROXY}entry/${S.id}/`),
-          // We don't know currentGW yet, but we can start the entry fetch
-          // fetchAndRender will do the GW-specific fetches once bootstrap is done
-        ]);
-        // Store pre-fetched entry for fetchAndRender to reuse
-        // This avoids a duplicate network request
-        window._prefetchedEntry = eR.ok ? await eR.json() : null;
-      } catch {}
-    };
+    // ── Step 2: Fire EVERYTHING simultaneously ──
+    // Bootstrap worker, entry, picks, live, fixtures, transfers — all at t=0.
+    // By the time the worker finishes processing playerMap (~200ms),
+    // all the API responses will have already arrived or be nearly done.
+    const workerPromise = runWorker(rawBootstrap);
 
-    // Start both in parallel — don't await prefetch, it's best-effort
-    prefetchUserData();
-    await bootstrapPromise;
-    await fetchAndRender();
+    // KopalaDB.squad.get returns both entry+picks — call it once, split the promise
+    let entryPromise, picksPromise;
+    if (window.KopalaDB) {
+      const squadPromise = KopalaDB.squad.get(S.id, gwEarly, PROXY);
+      entryPromise = squadPromise.then(sd => sd?.entry || fetch(`${PROXY}entry/${S.id}/`).then(r=>r.json()));
+      picksPromise = squadPromise.then(sd => sd?.picks || fetch(`${PROXY}entry/${S.id}/event/${gwEarly}/picks/`).then(r=>r.json()));
+    } else {
+      entryPromise = fetch(`${PROXY}entry/${S.id}/`).then(r=>r.json());
+      picksPromise = fetch(`${PROXY}entry/${S.id}/event/${gwEarly}/picks/`).then(r=>r.json());
+    }
+    const livePromise      = window.KopalaDB
+      ? KopalaDB.live.get(gwEarly, PROXY)
+      : fetch(`${PROXY}event/${gwEarly}/live/`).then(r=>r.json());
+    const fixturesPromise  = window.KopalaDB
+      ? KopalaDB.fixtures.get(PROXY).then(fd => fd ? {events:fd} : fetch(`${PROXY}fixtures/?event=${gwEarly}`).then(r=>r.json()))
+      : fetch(`${PROXY}fixtures/?event=${gwEarly}`).then(r=>r.json());
+    const transfersPromise = fetch(`${PROXY}entry/${S.id}/transfers/`).then(r=>r.json());
 
-    buildPriceData(S.picks);
-    renderPrices();
+    // ── Step 3: Await worker first (populates playerMap) then grab data ──
+    LST('Processing…');
+    const [result, entry, picks, live, fixtures, transfers] = await Promise.all([
+      workerPromise, entryPromise, picksPromise,
+      livePromise, fixturesPromise, transfersPromise,
+    ]);
+
+    // Populate S from worker result
+    S.playerMap    = result.playerMap;
+    S.teamMap      = result.teamMap;
+    S.elementData  = result.elementData;
+    S.allElements  = result.allElements;
+    S._priceRisers = result.priceRisers;
+    S._priceFallers= result.priceFallers;
+    S._top30       = new Set(result.top30);
+    S.totalPlayers = result.totalPlayers;
+    S.currentGW    = result.currentGW;
+    S.gwAvg        = result.gwAvg;
+    S.gwHigh       = result.gwHigh;
+    if (window.KopalaDB) {
+      KopalaDB.off('bootstrap', _onBootstrapUpdate);
+      KopalaDB.on('bootstrap', _onBootstrapUpdate);
+    }
+
+    // Populate S from user data
+    S.entry=entry; S.picks=picks; S.live=live;
+    S.transfers=transfers; S.fixtures=fixtures;
+
+    live.elements.forEach(el=>{S.ptsMap[el.id]={pts:el.stats.total_points,mins:el.stats.minutes,bps:el.stats.bps||0};});
+    fixtures.forEach(f=>{(f.stats||[]).forEach(s=>{if(s.identifier==='bps'){[...(s.h||[]),...(s.a||[])].forEach(e=>{S.bpsMap[e.element]=(S.bpsMap[e.element]||0)+e.value;});}});});
+    picks.picks.slice(0,11).forEach(p=>{if(S.wiExtras[p.element]===undefined)S.wiExtras[p.element]=0;});
+
+    // ── Step 4: Render everything ──
+    LST('Rendering…');
+    renderHeader(entry);renderChips(picks,entry);renderSquadBar(picks,entry);
+    renderBL(picks,entry);renderQuad(picks);renderEO(picks);
+    renderBonus(fixtures);buildPriceData(picks);renderPrices();
+    renderDiffs(picks);renderMyXfers(transfers);
+    renderGrids(picks);renderWhatIf(picks);renderRankDetails(picks,entry);
+    renderLiveAction(fixtures);renderTransferDecisions(transfers,picks.entry_history.event_transfers_cost||0);
+    S.leagues={classic:entry.leagues?.classic||[],h2h:entry.leagues?.h2h||[]};
+    setUpdated();
+    const lo=document.getElementById('lo');lo.classList.add('hidden');setTimeout(()=>lo.style.display='none',450);
+    document.getElementById('main-content').style.display='block';
+
     scheduleAutoRefresh();
   } catch(err){
     console.error(err);
