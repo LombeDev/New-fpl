@@ -23,20 +23,20 @@
   <!-- Preconnect / DNS hints -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Shirt images come from draft.premierleague.com — preconnect saves TCP+TLS on first squad expand -->
+  <!-- draft.premierleague.com serves every shirt PNG — warm TCP+TLS before first squad expand -->
   <link rel="preconnect" href="https://draft.premierleague.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   <link rel="dns-prefetch" href="https://fantasy.premierleague.com">
   <link rel="dns-prefetch" href="https://firebaseapp.com">
   <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com">
 
-  <!-- Preload critical local assets — browser fetches at top priority while still parsing <head> -->
+  <!-- Preload critical local assets — fetched at top priority while <head> is still parsing -->
   <link rel="preload" as="style"  href="nav.css">
   <link rel="preload" as="style"  href="footer.css">
   <link rel="preload" as="script" href="nav.js">
   <link rel="preload" as="script" href="kopala-idb.js">
 
-  <!-- Material Symbols — async so it never blocks first paint -->
+  <!-- Material Symbols — async, never blocks first paint -->
   <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"></noscript>
 
@@ -1127,7 +1127,9 @@
   <div class="lg-controls">
     <div class="lg-select-wrap">
       <i class="fa-solid fa-trophy"></i>
-      <select id="league-select" onchange="loadStandings(this.value)"></select>
+      <select id="league-select" onchange="loadStandings(this.value)"
+              onmousedown="prefetchStandings(this.value)"
+              ontouchstart="prefetchStandings(this.value)"></select>
     </div>
     <div class="lg-search-wrap">
       <i class="fa-solid fa-magnifying-glass"></i>
@@ -1662,24 +1664,37 @@ async function init() {
   skeletonRows();
 
   try {
-    // Bootstrap from IDB (sub-10ms if cached) + entry in parallel
+    // Fire ALL independent fetches simultaneously the moment fplId is known:
+    // bootstrap, entry, AND the default league standings — none depend on each other
+    const standingsPromise = fetch(`${state.PROXY}leagues-classic/${state.ELITE_LEAGUE}/standings/`);
+
     const [staticData, entryData] = await Promise.all([
       KopalaIDB.getBootstrap(state.PROXY),
       fetch(`${state.PROXY}entry/${state.fplId}/`).then(r => r.json()),
     ]);
 
+    // currentGW can be read from raw bootstrap without waiting for the worker
+    // so we fire the live fetch and worker simultaneously — saves ~100-300ms
+    const currentGWEarly = (
+      staticData.events.find(e => e.is_current) ||
+      staticData.events.find(e => e.is_next) ||
+      staticData.events[0]
+    )?.id || 1;
+
     // Process bootstrap off main thread (persistent worker — returns unified shape)
-    // Fire live data fetch in parallel with worker — currentGW is in staticData directly
-    const currentGWEarly = (staticData.events.find(e => e.is_current) || staticData.events.find(e => e.is_next) || staticData.events[0])?.id || 1;
-    const [processed, liveRes] = await Promise.all([
+    const [processed, liveRes, standingsRes] = await Promise.all([
       runLeaguesWorker(staticData),
       fetch(`${state.PROXY}event/${currentGWEarly}/live/`),
+      standingsPromise,
     ]);
     // Worker returns playerMap directly (v3 unified shape)
     state.playerMap = processed.playerMap;
     state.currentGW = processed.currentGW || processed.gwNum;
 
-    const liveData = await liveRes.json();
+    const [liveData, standingsData] = await Promise.all([
+      liveRes.json(),
+      standingsRes.json(),
+    ]);
     liveData.elements.forEach(el => {
       state.liveData[el.id] = { pts: el.stats.total_points, explain: el.explain || [] };
     });
@@ -1692,7 +1707,9 @@ async function init() {
     select.innerHTML = opts;
 
     state.myEntry = entryData;
-    loadStandings(state.ELITE_LEAGUE);
+
+    // Pass pre-fetched standings data directly — skip the fetch inside loadStandings
+    loadStandings(state.ELITE_LEAGUE, standingsData);
   } catch (err) {
     console.error('[Init]', err);
     document.getElementById('manager-list-container').innerHTML = `
@@ -1704,15 +1721,40 @@ async function init() {
 }
 
 /* ============================================
+   STANDINGS PROMISE CACHE
+   Key: leagueId → Promise<Response> started on hover/mousedown
+   loadStandings reuses it so click costs 0 extra network time
+   ============================================ */
+const standingsCache = {};
+
+function prefetchStandings(leagueId) {
+  const id = String(leagueId);
+  if (!standingsCache[id]) {
+    standingsCache[id] = fetch(`${state.PROXY}leagues-classic/${id}/standings/`)
+      .then(r => r.json());
+  }
+}
+
+/* ============================================
    LOAD STANDINGS
    ============================================ */
-async function loadStandings(leagueId) {
+async function loadStandings(leagueId, preloadedData) {
   skeletonRows();
   resetFilters();
 
   try {
-    const res  = await fetch(`${state.PROXY}leagues-classic/${leagueId}/standings/`);
-    const data = await res.json();
+    // Use pre-fetched data if provided (from init or hover prefetch cache)
+    const id = String(leagueId);
+    let data;
+    if (preloadedData) {
+      data = preloadedData;
+    } else if (standingsCache[id]) {
+      data = await standingsCache[id];
+    } else {
+      // Cold fetch — store in cache so back-navigation reuses it
+      standingsCache[id] = fetch(`${state.PROXY}leagues-classic/${id}/standings/`).then(r => r.json());
+      data = await standingsCache[id];
+    }
     let results = data.standings.results;
 
     if (parseInt(leagueId) === state.ELITE_LEAGUE && state.myEntry) {
@@ -1742,9 +1784,12 @@ async function loadStandings(leagueId) {
     renderStatsDashboard(results);
     applySortAndRender();
 
-    // Fire-and-forget — details (cap, OR, transfers) fill in progressively without blocking render
-    const top = results.slice(0, 10);
-    top.forEach(r => fetchManagerDetails(r.entry));
+    // Fire-and-forget — cap/OR/chip/transfers fill in progressively, don't block render
+    // Batch in two waves: top 5 immediately (above fold), rows 6-20 after 400ms
+    const top5  = results.slice(0, 5);
+    const next15 = results.slice(5, 20);
+    top5.forEach(r => fetchManagerDetails(r.entry));
+    setTimeout(() => next15.forEach(r => fetchManagerDetails(r.entry)), 400);
 
   } catch (err) {
     console.error('[Standings]', err);
@@ -1789,7 +1834,10 @@ function renderList(results) {
            id="entry-${r.entry}"
            style="animation-delay:${i * 0.04}s">
 
-        <div class="lg-row-summary" onclick="toggleExpand(${r.entry}, this)">
+        <div class="lg-row-summary"
+             onclick="toggleExpand(${r.entry}, this)"
+             onmouseenter="fetchManagerDetails(${r.entry})"
+             ontouchstart="fetchManagerDetails(${r.entry})" style="touch-action:manipulation">
 
           <div class="lg-card-header">
             <div class="lg-card-header__rank">
@@ -1849,7 +1897,17 @@ function renderList(results) {
 /* ============================================
    FETCH MANAGER DETAILS
    ============================================ */
+/* In-flight promise map — ensures hover calling fetchManagerDetails multiple times
+   only ever fires one set of network requests per entryId                          */
+const _detailsInFlight = {};
+
 async function fetchManagerDetails(entryId) {
+  // Already cached — nothing to do
+  if (state.managerCache?.[entryId]) return;
+  // Already in-flight — don't fire duplicate requests
+  if (_detailsInFlight[entryId]) return _detailsInFlight[entryId];
+
+  _detailsInFlight[entryId] = (async () => {
   try {
     const [entryRes, transRes, picksRes] = await Promise.all([
       fetch(`${state.PROXY}entry/${entryId}/`),
@@ -1859,6 +1917,10 @@ async function fetchManagerDetails(entryId) {
     const [entryData, transData, picksData] = await Promise.all([
       entryRes.json(), transRes.json(), picksRes.json(),
     ]);
+
+    // Cache on state so toggleExpand can reuse without re-fetching
+    if (!state.managerCache) state.managerCache = {};
+    state.managerCache[entryId] = { entryData, transData, picksData };
 
     const orEl = document.getElementById(`or-${entryId}`);
     if (orEl) {
@@ -1917,6 +1979,8 @@ async function fetchManagerDetails(entryId) {
   } catch (err) {
     console.warn(`[Details] failed for ${entryId}`);
   }
+  })(); // end IIFE
+  return _detailsInFlight[entryId];
 }
 
 /* ============================================
@@ -1942,11 +2006,20 @@ async function toggleExpand(entryId, summaryEl) {
   `;
 
   try {
-    const [picksRes, entryRes] = await Promise.all([
-      fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`),
-      fetch(`${state.PROXY}entry/${entryId}/`),
-    ]);
-    const [picksData, entryData] = await Promise.all([picksRes.json(), entryRes.json()]);
+    let picksData, entryData;
+
+    // Reuse cached data from fetchManagerDetails if available — no extra network calls
+    const cached = state.managerCache?.[entryId];
+    if (cached) {
+      picksData = cached.picksData;
+      entryData = cached.entryData;
+    } else {
+      const [picksRes, entryRes] = await Promise.all([
+        fetch(`${state.PROXY}entry/${entryId}/event/${state.currentGW}/picks/`),
+        fetch(`${state.PROXY}entry/${entryId}/`),
+      ]);
+      [picksData, entryData] = await Promise.all([picksRes.json(), entryRes.json()]);
+    }
 
     const starters      = picksData.picks.slice(0, 11);
     const bench         = picksData.picks.slice(11);
