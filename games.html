@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Kopala FPL">
 <link rel="apple-touch-icon" href="/android-chrome-192x192.png">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="/manifest.json">
 
 <script>(function(){
   var t=localStorage.getItem('kopala_theme');
@@ -69,7 +69,22 @@ body{
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
+<!-- draft.premierleague.com serves every shirt PNG — warm TCP+TLS before first render -->
+<link rel="preconnect" href="https://draft.premierleague.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://fantasy.premierleague.com">
+<link rel="dns-prefetch" href="https://firebaseapp.com">
+<link rel="dns-prefetch" href="https://firebasestorage.googleapis.com">
+
+<!-- Preload critical local assets — fetched at top priority while <head> parses -->
+<link rel="preload" as="style"  href="nav.css">
+<link rel="preload" as="style"  href="footer.css">
+<link rel="preload" as="script" href="nav.js">
+<link rel="preload" as="script" href="kopala-idb.js">
+
+<!-- Material Symbols — async, never blocks first paint -->
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"></noscript>
 
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="nav.css">
@@ -417,15 +432,25 @@ body{
 <div class="page-wrap">
   <!-- GW NAV -->
   <nav class="gw-nav" aria-label="Gameweek navigation">
-    <button class="gw-arr" id="btn-prev" onclick="shiftGW(-1)" aria-label="Previous gameweek" title="Previous gameweek" disabled>
+    <button class="gw-arr" id="btn-prev" onclick="shiftGW(-1)"
+            onmouseenter="prefetchAdjacentGW(-1)" ontouchstart="prefetchAdjacentGW(-1)"
+            aria-label="Previous gameweek" title="Previous gameweek" disabled>
       <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
     </button>
     <div class="gw-tabs" role="tablist" aria-label="Quick GW jump">
-      <button class="gw-tab" id="tab-prev" role="tab" aria-selected="false" onclick="jumpRel(-1)">Prev GW</button>
-      <button class="gw-tab active" id="tab-curr" role="tab" aria-selected="true" onclick="jumpRel(0)">Current</button>
-      <button class="gw-tab" id="tab-next" role="tab" aria-selected="false" onclick="jumpRel(1)">Next GW</button>
+      <button class="gw-tab" id="tab-prev" role="tab" aria-selected="false"
+              onmouseenter="prefetchAdjacentGW(-1)" ontouchstart="prefetchAdjacentGW(-1)"
+              onclick="jumpRel(-1)">Prev GW</button>
+      <button class="gw-tab active" id="tab-curr" role="tab" aria-selected="true"
+              onmouseenter="prefetchAdjacentGW(0)" ontouchstart="prefetchAdjacentGW(0)"
+              onclick="jumpRel(0)">Current</button>
+      <button class="gw-tab" id="tab-next" role="tab" aria-selected="false"
+              onmouseenter="prefetchAdjacentGW(1)" ontouchstart="prefetchAdjacentGW(1)"
+              onclick="jumpRel(1)">Next GW</button>
     </div>
-    <button class="gw-arr" id="btn-next" onclick="shiftGW(1)" aria-label="Next gameweek" title="Next gameweek" disabled>
+    <button class="gw-arr" id="btn-next" onclick="shiftGW(1)"
+            onmouseenter="prefetchAdjacentGW(1)" ontouchstart="prefetchAdjacentGW(1)"
+            aria-label="Next gameweek" title="Next gameweek" disabled>
       <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
     </button>
   </nav>
@@ -457,21 +482,39 @@ const ESH=`onerror="this.src='https://draft.premierleague.com/img/shirts/standar
 const PL=['','GK','DEF','MID','FWD'];
 const PC=['','pos-gk','pos-def','pos-mid','pos-fwd'];
 
+/* ── KopalaIDB shim — serves bootstrap from IndexedDB cache (~5ms on repeat visits) ── */
+const KopalaIDB = {
+  getBootstrap: p => window.KopalaDB ? KopalaDB.bootstrap.get(p) : fetch(p + 'bootstrap-static/').then(r => r.json()),
+};
+
 /* ── INIT ── */
 async function init(){
   showSkel(5);
   try{
-    // Load my picks for ownership highlights
-    const fplId=localStorage.getItem('kopala_id');
-    const [bsRes]=await Promise.all([fetch(`${PROXY}bootstrap-static/`)]);
-    const bs=await bsRes.json();
-    G.players=bs.elements;G.teams=bs.teams;G.maxGW=bs.events.length;
+    const fplId = localStorage.getItem('kopala_id');
+
+    // IDB cache hit (~5ms) — extract GW immediately without waiting for network
+    const bs = await KopalaIDB.getBootstrap(PROXY);
+    G.players=bs.elements; G.teams=bs.teams; G.maxGW=bs.events.length;
     const cur=bs.events.find(e=>e.is_current)||bs.events.find(e=>e.is_next)||bs.events[0];
-    G.currentGW=cur.id;G.viewGW=G.currentGW;
-    // Load my squad if ID available
-    if(fplId){try{const pR=await fetch(`${PROXY}entry/${fplId}/event/${G.currentGW}/picks/`);if(pR.ok){const pd=await pR.json();pd.picks.forEach(p=>G.myPicks.add(p.element));}}catch{}}
-    // Prefetch surrounding GWs
-    await Promise.all([G.currentGW-1,G.currentGW,G.currentGW+1].filter(g=>g>=1&&g<=G.maxGW).map(fetchFixtures));
+    G.currentGW=cur.id; G.viewGW=G.currentGW;
+
+    // Fire picks + surrounding GW fixtures simultaneously — all independent of each other
+    const gwsToFetch = [G.currentGW-1, G.currentGW, G.currentGW+1]
+      .filter(g => g >= 1 && g <= G.maxGW);
+
+    const picksPromise = fplId
+      ? fetch(`${PROXY}entry/${fplId}/event/${G.currentGW}/picks/`)
+          .then(r => r.ok ? r.json() : null)
+          .then(pd => { if(pd) pd.picks.forEach(p => G.myPicks.add(p.element)); })
+          .catch(() => {})
+      : Promise.resolve();
+
+    await Promise.all([
+      picksPromise,
+      ...gwsToFetch.map(fetchFixtures),
+    ]);
+
     renderGW(G.currentGW);
     startAutoRefresh();
   }catch(e){
@@ -481,24 +524,38 @@ async function init(){
 }
 
 /* ── FETCH ── */
+const _fixturesInFlight = {}; // in-flight promise map — prevents duplicate requests
+
 async function fetchFixtures(gw){
-  if(G.cache[gw])return;
-  try{const r=await fetch(`${PROXY}fixtures/?event=${gw}`);G.cache[gw]=await r.json();}
-  catch{G.cache[gw]=[];}
+  if(G.cache[gw]) return;                    // already resolved — instant
+  if(_fixturesInFlight[gw]) return _fixturesInFlight[gw]; // already in-flight — reuse
+  _fixturesInFlight[gw] = fetch(`${PROXY}fixtures/?event=${gw}`)
+    .then(r => r.json())
+    .then(data => { G.cache[gw] = data; delete _fixturesInFlight[gw]; })
+    .catch(() => { G.cache[gw] = []; delete _fixturesInFlight[gw]; });
+  return _fixturesInFlight[gw];
+}
+
+/* Prefetch a GW relative to viewGW on hover — so click renders from cache instantly */
+function prefetchAdjacentGW(dir) {
+  const target = G.viewGW + dir;
+  if (target >= 1 && target <= G.maxGW) fetchFixtures(target);
 }
 
 /* ── NAVIGATION ── */
 async function shiftGW(dir){
   const next=G.viewGW+dir;
   if(next<1||next>G.maxGW)return;
-  G.viewGW=next;showSkel(5);
-  await fetchFixtures(G.viewGW);renderGW(G.viewGW);
+  G.viewGW=next; showSkel(5);
+  // If hover-prefetch already resolved the cache, renderGW is instant
+  // If still in-flight, fetchFixtures returns the existing promise (no duplicate fetch)
+  await fetchFixtures(G.viewGW); renderGW(G.viewGW);
 }
 async function jumpRel(off){
   const target=G.currentGW+off;
   if(target<1||target>G.maxGW)return;
   G.viewGW=target;
-  await fetchFixtures(G.viewGW);renderGW(G.viewGW);
+  await fetchFixtures(G.viewGW); renderGW(G.viewGW);
 }
 function syncNav(){
   const off=G.viewGW-G.currentGW;
@@ -518,8 +575,9 @@ function startAutoRefresh(){
     if(G.viewGW!==G.currentGW)return;
     const fx=G.cache[G.currentGW]||[];
     if(!fx.some(f=>f.started&&!f.finished))return;
+    // Invalidate fixture cache for current GW and re-fetch
     delete G.cache[G.currentGW];
-    await fetchFixtures(G.currentGW);renderGW(G.currentGW);
+    await fetchFixtures(G.currentGW); renderGW(G.currentGW);
   },60000);
 }
 
@@ -772,6 +830,7 @@ function showSkel(n){
 /* ── BOOT ── */
 document.addEventListener('DOMContentLoaded',init);
 </script>
+<script src="kopala-idb.js"></script>
 <script src="haptic.js"></script>
 <script src="deadline-notify.js"></script>
 <script src="nav.js" defer></script>
