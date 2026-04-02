@@ -1,39 +1,61 @@
 /* ============================================================
-   KOPALA FPL — SERVICE WORKER
-   Strategy: Network-first for everything.
-   Falls back to cache when offline.
+   KOPALA FPL — SERVICE WORKER  v12
+   Changes from v11:
+   - Removed non-existent files from PRECACHE_URLS
+     (/nav-bottom.css, /nav-bottom.js, /transfers.js)
+   - Added kopala-worker-client.js to precache
+   - Added kopala-worker.js to precache
+   - HTML pages explicitly excluded from all caching strategies
+   - Turbo-swap friendly: never caches navigations
    ============================================================ */
 
-const CACHE_NAME    = 'kopala-fpl-v11';
-const RUNTIME_CACHE = 'kopala-runtime-v10';
+const CACHE_NAME    = 'kopala-fpl-v12';
+const RUNTIME_CACHE = 'kopala-runtime-v11';
 
-// Static assets only — NO HTML files.
+/* ── Only list files that ACTUALLY exist in your deploy ───── */
 const PRECACHE_URLS = [
   '/style.css',
   '/nav.css',
   '/nav.js',
-  '/nav-bottom.css',
-  '/nav-bottom.js',
   '/footer.css',
   '/footer.js',
+  '/kopala-worker.js',
+  '/kopala-worker-client.js',
+  '/kopala-idb.js',
   '/kopala-notify.js',
-  '/transfers.js',
   '/badge.js',
+  '/pwa.js',
   '/logo.png',
   '/manifest.json',
   '/android-chrome-192x192.png',
   '/android-chrome-512x512.png',
-  'https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&display=swap',
+  /* Self-hosted fonts — add these once you have the woff2 files */
+  /* '/fonts/dm-sans.woff2', */
+  /* '/fonts/barlow-condensed.woff2', */
+  /* '/fonts/space-grotesk.woff2', */
+  /* '/fonts/material-symbols-rounded.woff2', */
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css',
 ];
 
-const BOOTSTRAP_URL = '/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/';
+/* ── Files that are safe to serve stale from cache ─────────
+   (revalidated in the background after serving)
+─────────────────────────────────────────────────────────── */
+const STALE_PATTERNS = [
+  /bootstrap-static/,
+  /fonts\.googleapis\.com/,
+  /fonts\.gstatic\.com/,
+  /cdnjs\.cloudflare\.com/,
+];
 
-const PBS_BOOTSTRAP = 'fpl-bootstrap-sync';
-const PBS_PRICE     = 'fpl-price-sync';
-const PBS_DEADLINE  = 'fpl-deadline-check';
+const BOOTSTRAP_URL     = '/.netlify/functions/fpl-proxy?endpoint=bootstrap-static/';
+const BOOTSTRAP_TTL_MS  = 60 * 60 * 1000; // 1 hour
 
-const BOOTSTRAP_TTL_MS = 60 * 60 * 1000;
+const PBS_BOOTSTRAP      = 'fpl-bootstrap-sync';
+const PBS_PRICE          = 'fpl-price-sync';
+const PBS_DEADLINE       = 'fpl-deadline-check';
+const PBS_MIN_INTERVAL   = 3  * 60 * 60 * 1000;
+const PBS_PRICE_INTERVAL = 12 * 60 * 60 * 1000;
+const PBS_DL_INTERVAL    =  1 * 60 * 60 * 1000;
 
 /* ── INSTALL ─────────────────────────────────────────────── */
 self.addEventListener('install', event => {
@@ -45,15 +67,21 @@ self.addEventListener('install', event => {
             if (!res.ok) throw new Error('HTTP ' + res.status);
             return cache.put(url, res);
           })
-          .catch(err => console.warn('[SW] Skipped:', url, '-', err.message))
+          .catch(err => {
+            // Log but don't abort install — missing optional asset is non-fatal
+            console.warn('[SW v12] Precache skipped:', url, '—', err.message);
+          })
       );
       return Promise.allSettled(attempts);
     })
-    .then(() => self.skipWaiting()) // Activate immediately, don't wait for old tabs
+    .then(() => {
+      console.log('[SW v12] Install complete');
+      return self.skipWaiting();
+    })
   );
 });
 
-/* ── ACTIVATE — delete ALL old caches, claim clients immediately ── */
+/* ── ACTIVATE — purge old caches ─────────────────────────── */
 self.addEventListener('activate', event => {
   const CURRENT = [CACHE_NAME, RUNTIME_CACHE];
   event.waitUntil(
@@ -63,31 +91,28 @@ self.addEventListener('activate', event => {
           names
             .filter(n => !CURRENT.includes(n))
             .map(n => {
-              console.log('[SW] Deleting old cache:', n);
+              console.log('[SW v12] Deleting old cache:', n);
               return caches.delete(n);
             })
         )
       )
       .then(async () => {
-        // Purge any HTML that snuck in from previous SW versions
+        // Purge any HTML pages that leaked into previous caches
         for (const name of [CACHE_NAME, RUNTIME_CACHE]) {
           const cache = await caches.open(name);
           const keys  = await cache.keys();
           await Promise.all(
             keys
-              .filter(req => {
-                const p = new URL(req.url).pathname;
-                return p === '/' || p.endsWith('.html') || p.endsWith('/');
-              })
+              .filter(req => _isHTMLRequest(req))
               .map(req => {
-                console.log('[SW] Purging HTML from cache:', req.url);
+                console.log('[SW v12] Purging stale HTML:', req.url);
                 return cache.delete(req);
               })
           );
         }
       })
       .then(() => self.clients.claim())
-      .then(() => console.log('[SW] Active and controlling all clients'))
+      .then(() => console.log('[SW v12] Active — controlling all clients'))
   );
 });
 
@@ -96,35 +121,53 @@ self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Never intercept sw.js or pwa.js — always fresh
+  // 1. Never intercept the SW or PWA bootstrap files themselves
   if (url.pathname === '/sw.js' || url.pathname === '/pwa.js') return;
 
-  // Let pwa.js manage its own no-store requests
+  // 2. Honour explicit no-store (pwa.js manages these)
   if (request.cache === 'no-store') return;
 
-  // Cache API only supports GET
+  // 3. Only cache GET
   if (request.method !== 'GET') return;
 
-  // HTML documents — NEVER cache, always network
-  if (
-    request.destination === 'document' ||
-    url.pathname === '/' ||
-    url.pathname.endsWith('.html')
-  ) return;
+  // 4. HTML navigations — ALWAYS go to network, never cache
+  //    This keeps Turbo-swap fresh and avoids stale shell bugs
+  if (_isHTMLRequest(request)) return;
 
-  // bootstrap-static: stale-while-revalidate for instant loads
-  if (request.url.includes('bootstrap-static')) {
-    event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE, BOOTSTRAP_TTL_MS));
+  // 5. bootstrap-static — stale-while-revalidate for instant repeat loads
+  if (url.href.includes('bootstrap-static')) {
+    event.respondWith(
+      _staleWhileRevalidate(request, RUNTIME_CACHE, BOOTSTRAP_TTL_MS)
+    );
     return;
   }
 
-  // Everything else: network-first, cache fallback when offline
-  event.respondWith(networkFirst(request, RUNTIME_CACHE));
+  // 6. Known stale-safe external resources (fonts, CDN)
+  if (STALE_PATTERNS.some(p => p.test(url.href))) {
+    event.respondWith(
+      _staleWhileRevalidate(request, RUNTIME_CACHE, 7 * 24 * 60 * 60 * 1000)
+    );
+    return;
+  }
+
+  // 7. Everything else — network-first, cache as offline fallback
+  event.respondWith(_networkFirst(request, RUNTIME_CACHE));
 });
 
-/* ── STRATEGIES ──────────────────────────────────────────── */
+/* ── HELPERS ─────────────────────────────────────────────── */
+function _isHTMLRequest(request) {
+  // Accept header check (navigation requests)
+  if (request.destination === 'document') return true;
+  const url = new URL(request.url);
+  // Pathname patterns
+  return (
+    url.pathname === '/' ||
+    url.pathname.endsWith('.html') ||
+    url.pathname.endsWith('/')
+  );
+}
 
-async function networkFirst(request, cacheName) {
+async function _networkFirst(request, cacheName) {
   try {
     const response = await fetch(request);
     if (response.ok) {
@@ -140,7 +183,7 @@ async function networkFirst(request, cacheName) {
   } catch {
     const cached = await caches.match(request);
     if (cached) {
-      console.log('[SW] Offline fallback served:', request.url);
+      console.log('[SW v12] Offline fallback:', request.url);
       return cached;
     }
     return new Response(JSON.stringify({ error: 'offline' }), {
@@ -150,42 +193,42 @@ async function networkFirst(request, cacheName) {
   }
 }
 
-async function staleWhileRevalidate(request, cacheName, ttlMs) {
+async function _staleWhileRevalidate(request, cacheName, ttlMs) {
   const cache  = await caches.open(cacheName);
   const cached = await cache.match(request);
 
-  const revalidate = fetch(request).then(async res => {
-    if (!res.ok) return res;
-    const headers = new Headers(res.headers);
-    headers.set('sw-cached-at', Date.now().toString());
-    const tagged = new Response(await res.clone().arrayBuffer(), {
-      status: res.status, statusText: res.statusText, headers,
-    });
-    await cache.put(request, tagged);
-    notifyClients({ type: 'BOOTSTRAP_UPDATED', ts: Date.now() });
-    return res;
-  }).catch(() => null);
+  const revalidate = fetch(request)
+    .then(async res => {
+      if (!res.ok) return res;
+      const headers = new Headers(res.headers);
+      headers.set('sw-cached-at', Date.now().toString());
+      const tagged = new Response(await res.clone().arrayBuffer(), {
+        status: res.status, statusText: res.statusText, headers,
+      });
+      await cache.put(request, tagged);
+      if (request.url.includes('bootstrap-static')) {
+        _notifyClients({ type: 'BOOTSTRAP_UPDATED', ts: Date.now() });
+      }
+      return res;
+    })
+    .catch(() => null);
 
-  if (cached) return cached;
-  return revalidate;
+  // Serve stale immediately if we have it; otherwise wait for network
+  return cached || revalidate;
 }
 
-/* ── NOTIFY CLIENTS ──────────────────────────────────────── */
-
-async function notifyClients(message) {
-  const allClients = await self.clients.matchAll({ includeUncontrolled: true });
-  allClients.forEach(client => client.postMessage(message));
+async function _notifyClients(message) {
+  const all = await self.clients.matchAll({ includeUncontrolled: true });
+  all.forEach(c => c.postMessage(message));
 }
 
 /* ── PERIODIC BACKGROUND SYNC ────────────────────────────── */
-
 self.addEventListener('periodicsync', event => {
 
   if (event.tag === PBS_BOOTSTRAP) {
-    console.log('[SW] Bootstrap sync fired');
     event.waitUntil((async () => {
       try {
-        const res = await fetch(BOOTSTRAP_URL);
+        const res     = await fetch(BOOTSTRAP_URL);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const cache   = await caches.open(RUNTIME_CACHE);
         const headers = new Headers(res.headers);
@@ -194,21 +237,20 @@ self.addEventListener('periodicsync', event => {
           status: res.status, statusText: res.statusText, headers,
         });
         await cache.put(BOOTSTRAP_URL, tagged);
-        console.log('[SW] bootstrap-static prefetched at', new Date().toISOString());
-        notifyClients({ type: 'BOOTSTRAP_UPDATED', ts: Date.now() });
+        console.log('[SW v12] Bootstrap prefetched');
+        _notifyClients({ type: 'BOOTSTRAP_UPDATED', ts: Date.now() });
       } catch (err) {
-        console.warn('[SW] Bootstrap sync failed:', err.message);
+        console.warn('[SW v12] Bootstrap sync failed:', err.message);
       }
     })());
     return;
   }
 
   if (event.tag === PBS_PRICE) {
-    console.log('[SW] Price sync fired — waking client');
     event.waitUntil((async () => {
       try {
         const res = await fetch(BOOTSTRAP_URL);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        if (!res.ok) return;
         const cache   = await caches.open(RUNTIME_CACHE);
         const headers = new Headers(res.headers);
         headers.set('sw-cached-at', Date.now().toString());
@@ -216,52 +258,38 @@ self.addEventListener('periodicsync', event => {
           status: res.status, statusText: res.statusText, headers,
         });
         await cache.put(BOOTSTRAP_URL, tagged);
-      } catch (_) { /* carry on regardless */ }
-      notifyClients({ type: 'RUN_PRICE_CHECK', ts: Date.now() });
+      } catch (_) {}
+      _notifyClients({ type: 'RUN_PRICE_CHECK', ts: Date.now() });
     })());
     return;
   }
 
-  /* ── Deadline check — fires every hour via periodic sync ──
-     Fetches bootstrap, finds next deadline, fires a notification
-     if it is within 2 hours and we haven't already notified for
-     this exact GW. Works even when the app is fully closed.    */
   if (event.tag === PBS_DEADLINE) {
-    console.log('[SW] Deadline check fired');
     event.waitUntil((async () => {
       try {
-        const res = await fetch(BOOTSTRAP_URL);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const res  = await fetch(BOOTSTRAP_URL);
+        if (!res.ok) return;
         const data = await res.clone().json();
-
         const now  = Date.now();
         const next = data.events
           .filter(e => new Date(e.deadline_time).getTime() > now)
           .sort((a, b) => new Date(a.deadline_time) - new Date(b.deadline_time))[0];
 
         if (!next) return;
-
-        const deadline   = new Date(next.deadline_time).getTime();
-        const minsToGo   = (deadline - now) / 60000;
-
-        /* Only fire in the 2h window (120 mins → 90 mins before deadline).
-           The 30-min lower bound stops it re-firing on the next sync cycle
-           if the user hasn't dismissed the notification yet. */
+        const deadline  = new Date(next.deadline_time).getTime();
+        const minsToGo  = (deadline - now) / 60000;
         if (minsToGo > 120 || minsToGo < 30) return;
 
-        /* Check we haven't already notified for this GW */
-        const cache      = await caches.open(RUNTIME_CACHE);
-        const sentKey    = `kfl-deadline-sent-gw${next.id}`;
+        const cache       = await caches.open(RUNTIME_CACHE);
+        const sentKey     = `kfl-deadline-sent-gw${next.id}`;
         const alreadySent = await cache.match(new Request(sentKey));
         if (alreadySent) return;
 
-        /* Format deadline string */
         const dlStr = new Intl.DateTimeFormat('en-GB', {
           weekday: 'short', day: 'numeric', month: 'short',
           hour: '2-digit', minute: '2-digit',
         }).format(new Date(deadline));
 
-        /* Fire the notification */
         await self.registration.showNotification(
           '⏰ 2 hours to ' + next.name + ' deadline!',
           {
@@ -272,28 +300,24 @@ self.addEventListener('periodicsync', event => {
             tag:      'kfl-deadline-2h',
             group:    'kfl-deadline',
             renotify: true,
-            silent:   false,
-            data:     { url: '/transfers.html', group: 'kfl-deadline' },
+            data:     { url: '/', group: 'kfl-deadline' },
             actions:  [
-              { action: 'open',    title: '📋 Transfers' },
+              { action: 'open',    title: '📋 Open App' },
               { action: 'dismiss', title: 'Dismiss' },
             ],
           }
         );
 
-        /* Mark as sent so we don't fire again this GW */
         await cache.put(
           new Request(sentKey),
           new Response('sent', { headers: { 'sw-deadline-sent-at': String(now) } })
         );
-
-        console.log('[SW] Deadline notification fired for', next.name);
-
-        /* Also wake any open clients so the in-app banner shows */
-        notifyClients({ type: 'DEADLINE_APPROACHING', gwName: next.name, dlStr, deadline });
-
+        _notifyClients({
+          type: 'DEADLINE_APPROACHING',
+          gwName: next.name, dlStr, deadline,
+        });
       } catch (err) {
-        console.warn('[SW] Deadline check failed:', err.message);
+        console.warn('[SW v12] Deadline check failed:', err.message);
       }
     })());
     return;
@@ -301,36 +325,31 @@ self.addEventListener('periodicsync', event => {
 });
 
 /* ── BACKGROUND SYNC (one-off, for live data) ────────────── */
-
 self.addEventListener('sync', event => {
-  if (event.tag === 'sync-live') event.waitUntil(doBackgroundSync());
+  if (event.tag === 'sync-live') event.waitUntil(_clearLiveCache());
 });
-
-async function doBackgroundSync() {
-  const cache    = await caches.open(RUNTIME_CACHE);
-  const keys     = await cache.keys();
-  const liveKeys = keys.filter(k => k.url.includes('event/') && k.url.includes('/live/'));
-  await Promise.all(liveKeys.map(k => cache.delete(k)));
+async function _clearLiveCache() {
+  const cache = await caches.open(RUNTIME_CACHE);
+  const keys  = await cache.keys();
+  await Promise.all(
+    keys
+      .filter(k => k.url.includes('event/') && k.url.includes('/live/'))
+      .map(k => cache.delete(k))
+  );
 }
 
 /* ── PUSH NOTIFICATIONS ──────────────────────────────────── */
-/* Handles server-sent push payloads (future use).
-   Client-side notifications are fired directly by kopala-notify.js. */
-
 self.addEventListener('push', event => {
   if (!event.data) return;
   let data;
   try { data = event.data.json(); } catch (_) { return; }
 
-  const group = data.group || null;
-
-  /* Route to correct page based on group */
-  const urlMap = {
-    'kfl-deadline': '/transfers.html',
+  const group   = data.group || null;
+  const urlMap  = {
+    'kfl-deadline': '/',
     'kfl-goals':    '/games.html',
     'kfl-prices':   '/prices.html',
   };
-
   const options = {
     body:     data.body    || '',
     icon:     '/android-chrome-192x192.png',
@@ -338,79 +357,25 @@ self.addEventListener('push', event => {
     vibrate:  data.vibrate || [100, 50, 100],
     tag:      data.tag     || 'kfl-push',
     renotify: data.renotify !== false,
-    silent:   false,
     data:     { url: data.url || urlMap[group] || '/', group },
     actions:  data.actions || [],
   };
-
   if (group) options.group = group;
-
-  event.waitUntil((async () => {
-    await self.registration.showNotification(data.title || 'Kopala FPL', options);
-
-    /* Update the group summary so Android/iOS stacks the notifications */
-    if (group) {
-      const existing  = await self.registration.getNotifications({ tag: group + '-summary' });
-      const prevCount = existing.length > 0 ? (existing[0].data?.count || 1) : 0;
-      const count     = prevCount + 1;
-
-      const summaryTitles = {
-        'kfl-deadline': 'FPL Deadline',
-        'kfl-goals':    `${count} goal alert${count > 1 ? 's' : ''}`,
-        'kfl-prices':   `${count} price change${count > 1 ? 's' : ''} in your squad`,
-      };
-
-      await self.registration.showNotification(
-        summaryTitles[group] || `${count} Kopala FPL update${count > 1 ? 's' : ''}`,
-        {
-          body:     'Tap to open Kopala FPL',
-          icon:     '/android-chrome-192x192.png',
-          badge:    '/android-chrome-96x96.png',
-          tag:      group + '-summary',
-          group,
-          silent:   true,
-          renotify: false,
-          data:     { url: urlMap[group] || '/', group, isSummary: true, count },
-        }
-      );
-    }
-  })());
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'Kopala FPL', options)
+  );
 });
 
 /* ── NOTIFICATION CLICK ──────────────────────────────────── */
-
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-
   if (event.action === 'dismiss') return;
-
-  const notifData = event.notification.data || {};
-  const tag       = event.notification.tag  || '';
-  const group     = notifData.group         || null;
-  const isSummary = notifData.isSummary     || false;
-
-  if (isSummary && group) {
-    event.waitUntil((async () => {
-      const grouped = await self.registration.getNotifications({ tag: group });
-      grouped.forEach(n => n.close());
-    })());
-  }
-
-  let url = notifData.url;
-  if (!url) {
-    if (tag.startsWith('kfl-deadline') || group === 'kfl-deadline') url = '/transfers.html';
-    else if (tag.startsWith('kfl-price') || group === 'kfl-prices') url = '/squad.html';
-    else if (tag.startsWith('kfl-goal')  || group === 'kfl-goals')  url = '/games.html';
-    else url = '/';
-  }
-
+  const url = event.notification.data?.url || '/';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
       for (const c of list) {
         try {
-          if (new URL(c.url).pathname === new URL(url, self.location.origin).pathname) {
-            return c.focus();
-          }
+          if (new URL(c.url).origin === self.location.origin) return c.focus();
         } catch (_) {}
       }
       return clients.openWindow(url);
