@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Kopala FPL — Fixtures & Live Scores</title>
+<meta name="description" content="Live Premier League fixture results, bonus points, squad ownership and match stats for every gameweek.">
+<meta name="theme-color" content="#0a0e1a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f0f2f8" media="(prefers-color-scheme: light)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kopala FPL">
+<link rel="apple-touch-icon" href="/android-chrome-192x192.png">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="manifest" href="manifest.json">
+
+<script>(function(){
+  var t=localStorage.getItem('kopala_theme');
+  if(!t)t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  document.documentElement.setAttribute('data-theme',t);
+})();</script>
+
+<style>
+/* ── CRITICAL TOKENS ── */
+[data-theme="light"]{
+  --c-bg:#f0f2f8;--c-surface:#ffffff;--c-s2:#f5f6fa;--c-s3:#eaecf4;--c-s4:#e2e5f0;
+  --c-border:rgba(0,0,0,.06);--c-border2:rgba(0,0,0,.11);--c-border3:rgba(0,0,0,.16);
+  --c-t1:#0d0f1a;--c-t2:#4a4f6a;--c-t3:#9298b5;
+  --c-green:#00c060;--c-green-d:rgba(0,192,96,.1);
+  --c-red:#e8334a;--c-amber:#e8a020;--c-blue:#3b7fff;--c-gold:#d4a000;
+  --c-nav-bg:rgba(240,242,248,.92);
+}
+[data-theme="dark"]{
+  --c-bg:#0a0e1a;--c-surface:#111520;--c-s2:#181d2e;--c-s3:#1f2538;--c-s4:#252b3d;
+  --c-border:rgba(255,255,255,.05);--c-border2:rgba(255,255,255,.09);--c-border3:rgba(255,255,255,.14);
+  --c-t1:#eef0ff;--c-t2:#8890b8;--c-t3:#454d72;
+  --c-green:#00e87a;--c-green-d:rgba(0,232,122,.1);
+  --c-red:#ff3d5a;--c-amber:#ffb020;--c-blue:#5090ff;--c-gold:#ffd54f;
+  --c-nav-bg:rgba(10,14,26,.92);
+}
+:root{
+  --top:56px;--bottom:64px;
+  --r-sm:8px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --snap:cubic-bezier(.22,1,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--c-bg);height:-webkit-fill-available;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:'DM Sans',system-ui,sans-serif;
+  background:var(--c-bg);color:var(--c-t1);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  min-height:-webkit-fill-available;
+  -webkit-tap-highlight-color:transparent;
+  padding-bottom:calc(var(--bottom) + env(safe-area-inset-bottom,0px));
+}
+@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
+@keyframes liveGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,61,90,.4)}70%{box-shadow:0 0 0 6px rgba(255,61,90,0)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes scoreIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes panelSlide{from{opacity:0;transform:translateX(6px)}to{opacity:1;transform:none}}
+</style>
+
+<!-- Fonts are self-hosted — no Google Fonts preconnect needed -->
+<!-- draft.premierleague.com serves every shirt PNG — warm TCP+TLS before first render -->
+<link rel="preconnect" href="https://draft.premierleague.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://fantasy.premierleague.com">
+<link rel="dns-prefetch" href="https://firebaseapp.com">
+<link rel="dns-prefetch" href="https://firebasestorage.googleapis.com">
+
+<!-- Preload critical local assets — fetched at top priority while <head> parses -->
+<link rel="preload" href="/fonts/dm-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/material-symbols-rounded.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="style"  href="nav.css">
+<link rel="preload" as="style"  href="footer.css">
+<link rel="preload" as="script" href="nav.js">
+<link rel="preload" as="script" href="kopala-idb.js">
+
+<!-- SELF-HOSTED FONTS — replaces all Google Fonts requests -->
+<link rel="stylesheet" href="/fonts.css">
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="nav.css">
+<link rel="stylesheet" href="footer.css">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"></noscript>
+
+<style>
+/* ── LAYOUT ── */
+.page-wrap{max-width:700px;margin:0 auto;padding:0 12px 80px}
+
+/* ── STICKY GW NAV ── */
+.gw-nav{
+  position:sticky;
+  top:calc(var(--top) + env(safe-area-inset-top,0px));
+  z-index:200;
+  background:var(--c-nav-bg);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--c-border2);
+  padding:10px 12px;
+  display:flex;align-items:center;gap:9px;
+  transition:background .25s;
+}
+.gw-arr{
+  width:38px;height:38px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--c-s2);border:1px solid var(--c-border2);
+  border-radius:var(--r-sm);color:var(--c-t2);font-size:.75rem;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:all .18s var(--ease);
+}
+.gw-arr:hover:not(:disabled){border-color:var(--c-border3);color:var(--c-t1);background:var(--c-s3)}
+.gw-arr:active:not(:disabled){transform:scale(.93)}
+.gw-arr:disabled{opacity:.3;cursor:not-allowed}
+.gw-tabs{
+  flex:1;display:flex;
+  background:var(--c-s2);border:1px solid var(--c-border2);
+  border-radius:var(--r-md);padding:4px;gap:4px;
+}
+.gw-tab{
+  flex:1;padding:9px 4px;border:none;border-radius:var(--r-sm);
+  background:transparent;
+  font-family:'Barlow Condensed',sans-serif;font-size:.88rem;font-weight:800;
+  color:var(--c-t3);cursor:pointer;
+  transition:all .2s var(--ease);
+  -webkit-tap-highlight-color:transparent;
+  white-space:nowrap;
+}
+.gw-tab:hover:not(.active){color:var(--c-t2)}
+.gw-tab.active{
+  background:var(--c-surface);color:var(--c-t1);
+  box-shadow:0 2px 8px rgba(0,0,0,.12);
+}
+
+/* ── GW HEADER ── */
+.gw-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 4px 8px;
+}
+.gw-hdr-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:1.5rem;font-weight:900;letter-spacing:.3px;color:var(--c-t1);
+}
+.live-badge{
+  display:none;align-items:center;gap:6px;
+  font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:900;
+  letter-spacing:.8px;
+  color:var(--c-red);background:rgba(255,61,90,.12);
+  border:1px solid rgba(255,61,90,.25);
+  border-radius:100px;padding:5px 12px;
+}
+.live-badge.show{display:flex}
+.live-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--c-red);
+  animation:livePulse 1.4s ease-in-out infinite,liveGlow 1.4s ease-in-out infinite;
+}
+
+/* ── DATE LABEL ── */
+.date-lbl{
+  font-size:.65rem;font-weight:800;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--c-t3);
+  padding:14px 4px 7px;
+  display:flex;align-items:center;gap:10px;
+}
+.date-lbl::after{content:'';flex:1;height:1px;background:var(--c-border)}
+
+/* ── MATCH CARD ── */
+.match-card{
+  background:var(--c-surface);
+  border:1px solid var(--c-border2);
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  margin-bottom:10px;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+  animation:cardIn .38s var(--snap) both;
+  box-shadow:0 2px 12px rgba(0,0,0,.07);
+}
+.match-card:hover{border-color:var(--c-border3);box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.match-card.is-live{
+  border-color:rgba(255,61,90,.3);
+  background:linear-gradient(160deg,rgba(255,61,90,.04),var(--c-surface) 60%);
+}
+.match-card.is-live:hover{border-color:rgba(255,61,90,.5)}
+
+/* ── TOP BAR (time + FDR) ── */
+.card-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 14px;
+  background:var(--c-s2);border-bottom:1px solid var(--c-border);
+}
+.card-time{
+  display:flex;align-items:center;gap:7px;
+  font-size:.71rem;font-weight:600;color:var(--c-t2);
+}
+.live-chip{
+  display:flex;align-items:center;gap:4px;
+  font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:900;
+  color:var(--c-red);background:rgba(255,61,90,.12);
+  border-radius:100px;padding:3px 8px;letter-spacing:.5px;
+  animation:livePulse 2s ease-in-out infinite;
+}
+.live-chip-dot{width:6px;height:6px;border-radius:50%;background:var(--c-red)}
+.fdr-row{display:flex;align-items:center;gap:6px}
+.fdr-tag{
+  font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:900;
+  padding:3px 8px;border-radius:var(--r-sm);letter-spacing:.3px;
+}
+.fdr-sep{font-size:.58rem;font-weight:800;color:var(--c-t3);letter-spacing:1px}
+.fdr-1,.fdr-2{background:rgba(0,232,122,.12);color:var(--c-green)}
+.fdr-3{background:rgba(255,176,32,.12);color:var(--c-amber)}
+.fdr-4{background:rgba(255,61,90,.12);color:var(--c-red)}
+.fdr-5{background:rgba(180,0,30,.2);color:#ff6080}
+
+/* ── SCORELINE ── */
+.card-match{
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;gap:8px;padding:16px 12px 14px;
+}
+.team-col{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0}
+.team-shirt{
+  width:46px;filter:drop-shadow(0 3px 8px rgba(0,0,0,.28));
+  transition:transform .25s var(--spring);
+}
+.match-card:hover .team-shirt{transform:scale(1.04) translateY(-2px)}
+.team-name{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.98rem;font-weight:900;letter-spacing:.3px;
+  color:var(--c-t1);text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;
+}
+.team-loc{
+  font-size:.6rem;font-weight:800;letter-spacing:.8px;
+  text-transform:uppercase;color:var(--c-t3);
+}
+.team-loc.home{color:var(--c-green)}
+.score-center{display:flex;flex-direction:column;align-items:center;gap:7px;flex:0 0 108px}
+.status-pill{
+  font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:900;
+  padding:4px 12px;border-radius:100px;letter-spacing:.5px;
+}
+.sft{background:var(--c-s3);color:var(--c-t2)}
+.slive{background:rgba(255,61,90,.15);color:var(--c-red);animation:livePulse 2s ease-in-out infinite}
+.ssched{background:var(--c-s3);color:var(--c-t3)}
+.score-nums{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:2.4rem;font-weight:800;line-height:1;
+  color:var(--c-t1);letter-spacing:2px;
+  animation:scoreIn .35s var(--spring) both;
+}
+.score-sep{color:var(--c-t3);letter-spacing:0;margin:0 2px;font-weight:600}
+.vs-txt{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:1.15rem;font-weight:900;color:var(--c-t3);letter-spacing:.3px;
+}
+
+/* ── MINI EVENTS (card surface) ── */
+.card-events{
+  border-top:1px solid var(--c-border);
+  padding:10px 14px;
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}
+.ev-col{display:flex;flex-direction:column;gap:4px}
+.ev-col.home{border-right:1px solid var(--c-border);padding-right:8px;text-align:right}
+.ev-col.away{padding-left:8px}
+.ev-item{
+  font-size:.7rem;font-weight:600;color:var(--c-t2);
+  display:flex;align-items:center;gap:5px;line-height:1.3;
+}
+.ev-col.home .ev-item{justify-content:flex-end}
+.ev-icon{font-size:.55rem;flex-shrink:0}
+.ic-goal{color:var(--c-t1)}.ic-assist{color:var(--c-blue)}.ic-og{color:var(--c-red)}
+.ic-pen{color:var(--c-amber)}.ic-yellow{color:var(--c-gold)}.ic-red{color:var(--c-red)}
+.ic-save{color:var(--c-green)}
+
+/* ── BONUS ROW ── */
+.card-bonus{
+  border-top:1px solid var(--c-border);
+  padding:10px 14px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.bonus-lbl{
+  font-size:.62rem;font-weight:800;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--c-t3);flex-shrink:0;
+}
+.bonus-list{display:flex;gap:8px;flex-wrap:wrap}
+.bonus-item{
+  display:flex;align-items:center;gap:5px;
+  font-size:.73rem;font-weight:600;color:var(--c-t2);
+}
+.bonus-pts{
+  font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:800;
+  background:var(--c-green);color:#000;
+  padding:1px 6px;border-radius:5px;
+}
+
+/* ── EXPAND TOGGLE ── */
+.card-toggle{
+  width:100%;padding:10px 14px;
+  background:transparent;border:none;border-top:1px solid var(--c-border);
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:'DM Sans',sans-serif;font-size:.73rem;font-weight:700;color:var(--c-t3);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:color .15s,background .15s;
+}
+.card-toggle:hover{background:var(--c-s2);color:var(--c-t2)}
+.card-toggle:active{background:var(--c-s3)}
+.toggle-icon{font-size:.62rem;transition:transform .32s var(--spring)}
+.match-card.open .toggle-icon{transform:rotate(180deg)}
+
+/* ── DRAWER ── */
+.card-drawer{
+  display:none;border-top:1px solid var(--c-border);
+  background:var(--c-s2);
+}
+.match-card.open .card-drawer{display:block}
+
+/* ── DRAWER TABS ── */
+.drawer-tabs{
+  display:flex;border-bottom:1px solid var(--c-border);
+  background:var(--c-surface);
+}
+.dtab{
+  flex:1;padding:11px 6px;
+  font-family:'DM Sans',sans-serif;font-size:.69rem;font-weight:700;
+  color:var(--c-t3);text-align:center;cursor:pointer;
+  border-bottom:2px solid transparent;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  transition:all .2s;-webkit-tap-highlight-color:transparent;
+}
+.dtab:hover{color:var(--c-t2)}
+.dtab.active{color:var(--c-green);border-bottom-color:var(--c-green)}
+.dtab i{font-size:.58rem}
+.dpanel{display:none;padding:14px;animation:panelSlide .25s var(--snap)}
+.dpanel.active{display:block}
+
+/* ── OWNERSHIP TABLE ── */
+.own-table{width:100%;border-collapse:collapse}
+.own-table tr{border-bottom:1px solid var(--c-border);transition:background .15s}
+.own-table tr:hover{background:rgba(255,255,255,.025)}
+.own-table tr:last-child{border-bottom:none}
+.own-table td{padding:9px 5px;font-size:.72rem;vertical-align:middle}
+.own-shirt{width:24px;filter:drop-shadow(0 1px 4px rgba(0,0,0,.2))}
+.own-name{font-weight:700;color:var(--c-t1);font-size:.76rem}
+.own-price{font-size:.62rem;color:var(--c-t3);margin-top:1px}
+.pos-b{font-size:.58rem;font-weight:800;padding:2px 5px;border-radius:4px;text-transform:uppercase;letter-spacing:.3px;display:inline-block}
+.pos-gk{background:rgba(255,176,32,.12);color:var(--c-amber)}
+.pos-def{background:rgba(0,232,122,.12);color:var(--c-green)}
+.pos-mid{background:rgba(80,144,255,.12);color:var(--c-blue)}
+.pos-fwd{background:rgba(255,61,90,.12);color:var(--c-red)}
+.own-bar{width:58px;height:5px;background:var(--c-s4);border-radius:100px;overflow:hidden;margin:0 auto}
+.own-bar-f{height:100%;background:linear-gradient(90deg,var(--c-green),#00c060);border-radius:100px;transition:width .7s var(--snap)}
+.own-pct{font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:800;color:var(--c-t1);text-align:right}
+.my-dot{font-size:.6rem;color:var(--c-amber);margin-left:3px}
+
+/* ── STATS PANEL ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.stat-side{display:flex;flex-direction:column;gap:9px}
+.stat-side:first-child{border-right:1px solid var(--c-border);padding-right:14px}
+.stat-side:last-child{padding-left:14px}
+.stat-team-lbl{
+  font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:900;
+  color:var(--c-t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;
+}
+.stat-row{display:flex;justify-content:space-between;align-items:center}
+.stat-lbl{font-size:.68rem;color:var(--c-t3);font-weight:600}
+.stat-val{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:800;color:var(--c-t1)}
+.stat-pos{color:var(--c-green)}.stat-neg{color:var(--c-red)}
+
+/* ── EVENTS PANEL ── */
+.ep-section{margin-bottom:14px}
+.ep-section:last-child{margin-bottom:0}
+.ep-title{
+  font-size:.62rem;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;
+  color:var(--c-t3);margin-bottom:7px;display:flex;align-items:center;gap:6px;
+}
+.ep-cols{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.ep-side{display:flex;flex-direction:column;gap:4px}
+.ep-side.home{border-right:1px solid var(--c-border);padding-right:12px;text-align:right}
+.ep-side.away{padding-left:12px}
+.ep-entry{
+  font-size:.7rem;font-weight:600;color:var(--c-t2);
+  display:flex;align-items:center;gap:5px;
+}
+.ep-side.home .ep-entry{justify-content:flex-end}
+.ep-empty{font-size:.68rem;color:var(--c-t3)}
+
+/* ── SKELETON ── */
+.sk-card{
+  height:156px;border-radius:var(--r-lg);margin-bottom:10px;
+  background:linear-gradient(90deg,var(--c-s2) 25%,var(--c-s3) 50%,var(--c-s2) 75%);
+  background-size:1200px 100%;animation:shimmer 1.8s ease-in-out infinite;
+}
+.sk-card:nth-child(2){animation-delay:.12s}.sk-card:nth-child(3){animation-delay:.24s}
+.sk-card:nth-child(4){animation-delay:.36s}.sk-card:nth-child(5){animation-delay:.48s}
+
+/* ── EMPTY / ERROR ── */
+.empty-state{
+  text-align:center;padding:60px 20px;color:var(--c-t3);
+}
+.empty-state i{font-size:2.5rem;margin-bottom:14px;display:block;opacity:.4}
+.empty-state p{font-size:.88rem;line-height:1.6;color:var(--c-t2)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:400px){
+  .score-nums{font-size:2rem}
+  .score-center{flex:0 0 90px}
+  .team-shirt{width:40px}
+  .stats-grid{grid-template-columns:1fr}
+  .stat-side:first-child{border-right:none;border-bottom:1px solid var(--c-border);padding-right:0;padding-bottom:12px}
+  .stat-side:last-child{padding-left:0;padding-top:12px}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+
+/* ── VISUALLY HIDDEN ── */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+</style>
+</head>
+<body>
+
+<div id="nav-placeholder"></div>
+
+<div class="page-wrap">
+  <!-- GW NAV -->
+  <nav class="gw-nav" aria-label="Gameweek navigation">
+    <button class="gw-arr" id="btn-prev" onclick="shiftGW(-1)"
+            onmouseenter="prefetchAdjacentGW(-1)" ontouchstart="prefetchAdjacentGW(-1)"
+            aria-label="Previous gameweek" title="Previous gameweek" disabled>
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+    </button>
+    <div class="gw-tabs" role="tablist" aria-label="Quick GW jump">
+      <button class="gw-tab" id="tab-prev" role="tab" aria-selected="false"
+              onmouseenter="prefetchAdjacentGW(-1)" ontouchstart="prefetchAdjacentGW(-1)"
+              onclick="jumpRel(-1)">Prev GW</button>
+      <button class="gw-tab active" id="tab-curr" role="tab" aria-selected="true"
+              onmouseenter="prefetchAdjacentGW(0)" ontouchstart="prefetchAdjacentGW(0)"
+              onclick="jumpRel(0)">Current</button>
+      <button class="gw-tab" id="tab-next" role="tab" aria-selected="false"
+              onmouseenter="prefetchAdjacentGW(1)" ontouchstart="prefetchAdjacentGW(1)"
+              onclick="jumpRel(1)">Next GW</button>
+    </div>
+    <button class="gw-arr" id="btn-next" onclick="shiftGW(1)"
+            onmouseenter="prefetchAdjacentGW(1)" ontouchstart="prefetchAdjacentGW(1)"
+            aria-label="Next gameweek" title="Next gameweek" disabled>
+      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+    </button>
+  </nav>
+
+  <!-- GW HEADER -->
+  <div class="gw-hdr">
+    <h1 class="gw-hdr-title" id="gw-title">Gameweek —</h1>
+    <div class="live-badge" id="live-badge" aria-live="polite">
+      <div class="live-dot" aria-hidden="true"></div>
+      <span>LIVE</span>
+    </div>
+  </div>
+
+  <!-- GAMES LIST -->
+  <div id="games-list" role="list" aria-label="Fixtures"></div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script>
+/* ── STATE ── */
+let G={
+  players:[],teams:[],currentGW:1,maxGW:38,viewGW:1,
+  cache:{},myPicks:new Set(),refreshTimer:null,
+};
+const PROXY='/.netlify/functions/fpl-proxy?endpoint=';
+const SH=(code,gk)=>`https://draft.premierleague.com/img/shirts/standard/shirt_${code}${gk?'_1':''}-66.png`;
+const ESH=`onerror="this.src='https://draft.premierleague.com/img/shirts/standard/shirt_1-66.png'"`;
+const PL=['','GK','DEF','MID','FWD'];
+const PC=['','pos-gk','pos-def','pos-mid','pos-fwd'];
+
+/* ── KopalaIDB shim — serves bootstrap from IndexedDB cache (~5ms on repeat visits) ── */
+const KopalaIDB = {
+  getBootstrap: p => window.KopalaDB ? KopalaDB.bootstrap.get(p) : fetch(p + 'bootstrap-static/').then(r => r.json()),
+};
+
+/* ── INIT ── */
+async function init(){
+  showSkel(5);
+  try{
+    const fplId = localStorage.getItem('kopala_id');
+
+    // IDB cache hit (~5ms) — extract GW immediately without waiting for network
+    const bs = await KopalaIDB.getBootstrap(PROXY);
+    G.players=bs.elements; G.teams=bs.teams; G.maxGW=bs.events.length;
+    const cur=bs.events.find(e=>e.is_current)||bs.events.find(e=>e.is_next)||bs.events[0];
+    G.currentGW=cur.id; G.viewGW=G.currentGW;
+
+    // Fire picks + surrounding GW fixtures simultaneously — all independent of each other
+    const gwsToFetch = [G.currentGW-1, G.currentGW, G.currentGW+1]
+      .filter(g => g >= 1 && g <= G.maxGW);
+
+    const picksPromise = fplId
+      ? fetch(`${PROXY}entry/${fplId}/event/${G.currentGW}/picks/`)
+          .then(r => r.ok ? r.json() : null)
+          .then(pd => { if(pd) pd.picks.forEach(p => G.myPicks.add(p.element)); })
+          .catch(() => {})
+      : Promise.resolve();
+
+    await Promise.all([
+      picksPromise,
+      ...gwsToFetch.map(fetchFixtures),
+    ]);
+
+    renderGW(G.currentGW);
+    startAutoRefresh();
+  }catch(e){
+    console.error(e);
+    document.getElementById('games-list').innerHTML=`<div class="empty-state"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><p>Failed to load fixtures.<br>Check your connection and refresh.</p></div>`;
+  }
+}
+
+/* ── FETCH ── */
+const _fixturesInFlight = {}; // in-flight promise map — prevents duplicate requests
+
+async function fetchFixtures(gw){
+  if(G.cache[gw]) return;                    // already resolved — instant
+  if(_fixturesInFlight[gw]) return _fixturesInFlight[gw]; // already in-flight — reuse
+  _fixturesInFlight[gw] = fetch(`${PROXY}fixtures/?event=${gw}`)
+    .then(r => r.json())
+    .then(data => { G.cache[gw] = data; delete _fixturesInFlight[gw]; })
+    .catch(() => { G.cache[gw] = []; delete _fixturesInFlight[gw]; });
+  return _fixturesInFlight[gw];
+}
+
+/* Prefetch a GW relative to viewGW on hover — so click renders from cache instantly */
+function prefetchAdjacentGW(dir) {
+  const target = G.viewGW + dir;
+  if (target >= 1 && target <= G.maxGW) fetchFixtures(target);
+}
+
+/* ── NAVIGATION ── */
+async function shiftGW(dir){
+  const next=G.viewGW+dir;
+  if(next<1||next>G.maxGW)return;
+  G.viewGW=next; showSkel(5);
+  // If hover-prefetch already resolved the cache, renderGW is instant
+  // If still in-flight, fetchFixtures returns the existing promise (no duplicate fetch)
+  await fetchFixtures(G.viewGW); renderGW(G.viewGW);
+}
+async function jumpRel(off){
+  const target=G.currentGW+off;
+  if(target<1||target>G.maxGW)return;
+  G.viewGW=target;
+  await fetchFixtures(G.viewGW); renderGW(G.viewGW);
+}
+function syncNav(){
+  const off=G.viewGW-G.currentGW;
+  ['prev','curr','next'].forEach((id,i)=>{
+    const t=document.getElementById(`tab-${id}`);
+    const isActive=i-1===off;
+    if(t){t.classList.toggle('active',isActive);t.setAttribute('aria-selected',isActive);}
+  });
+  const bp=document.getElementById('btn-prev'),bn=document.getElementById('btn-next');
+  if(bp)bp.disabled=G.viewGW<=1;if(bn)bn.disabled=G.viewGW>=G.maxGW;
+}
+
+/* ── AUTO REFRESH ── */
+function startAutoRefresh(){
+  clearInterval(G.refreshTimer);
+  G.refreshTimer=setInterval(async()=>{
+    if(G.viewGW!==G.currentGW)return;
+    const fx=G.cache[G.currentGW]||[];
+    if(!fx.some(f=>f.started&&!f.finished))return;
+    // Invalidate fixture cache for current GW and re-fetch
+    delete G.cache[G.currentGW];
+    await fetchFixtures(G.currentGW); renderGW(G.currentGW);
+  },60000);
+}
+
+/* ── RENDER GW ── */
+function renderGW(gw){
+  document.getElementById('gw-title').textContent=`Gameweek ${gw}`;
+  syncNav();
+  const fx=G.cache[gw]||[];
+  const list=document.getElementById('games-list');
+  if(!fx.length){
+    list.innerHTML='<div class="empty-state"><i class="fa-solid fa-calendar-xmark" aria-hidden="true"></i><p>No fixtures found for this gameweek.</p></div>';
+    document.getElementById('live-badge').classList.remove('show');return;
+  }
+  const sorted=[...fx].sort((a,b)=>{
+    const al=a.started&&!a.finished?0:1,bl=b.started&&!b.finished?0:1;
+    if(al!==bl)return al-bl;
+    return new Date(a.kickoff_time)-new Date(b.kickoff_time);
+  });
+  const hasLive=sorted.some(f=>f.started&&!f.finished);
+  document.getElementById('live-badge').classList.toggle('show',hasLive);
+  // Group by date
+  const byDate={};
+  sorted.forEach(f=>{
+    const key=new Date(f.kickoff_time).toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'});
+    if(!byDate[key])byDate[key]=[];byDate[key].push(f);
+  });
+  let html='',idx=0;
+  for(const[date,matches] of Object.entries(byDate)){
+    html+=`<div class="date-lbl" role="heading" aria-level="2">${date}</div>`;
+    matches.forEach(f=>{html+=buildCard(f,idx++);});
+  }
+  list.innerHTML=html;
+}
+
+/* ── BUILD CARD ── */
+function buildCard(f,idx){
+  const hT=G.teams.find(t=>t.id===f.team_h),aT=G.teams.find(t=>t.id===f.team_a);
+  if(!hT||!aT)return'';
+  const isLive=f.started&&!f.finished,isDone=f.finished||f.finished_provisional,isSched=!f.started;
+  const hS=SH(hT.code,false),aS=SH(aT.code,false);
+  const hDiff=f.team_h_difficulty||3,aDiff=f.team_a_difficulty||3;
+
+  // Status
+  let statusTxt=isDone?'FT':isLive?getMin(f):formatTime(f.kickoff_time);
+  let statusCls=isDone?'sft':isLive?'slive':'ssched';
+
+  // Time bar left
+  let timeHtml='';
+  if(isLive)timeHtml=`<div class="live-chip"><div class="live-chip-dot" aria-hidden="true"></div>LIVE</div>`;
+  else if(isDone)timeHtml=`<span>Full Time</span>`;
+  else timeHtml=`<span>${fmtDateTime(f.kickoff_time)}</span>`;
+
+  // Events
+  const {hEv,aEv}=buildEvs(f);
+  const hasEvs=hEv.length||aEv.length;
+  const evsHtml=hasEvs?`<div class="card-events"><div class="ev-col home">${hEv.join('')}</div><div class="ev-col away">${aEv.join('')}</div></div>`:'';
+
+  // Bonus
+  const bonusHtml=buildBonus(f,isDone);
+
+  return`
+<div class="match-card${isLive?' is-live':''}" id="card-${f.id}" role="listitem" style="animation-delay:${idx*.04}s" aria-label="${hT.name} vs ${aT.name}">
+
+  <div class="card-topbar">
+    <div class="card-time">${timeHtml}</div>
+    <div class="fdr-row" aria-label="Fixture difficulty">
+      <span class="fdr-tag fdr-${hDiff}" title="Home FDR">${hT.short_name}</span>
+      <span class="fdr-sep">FDR</span>
+      <span class="fdr-tag fdr-${aDiff}" title="Away FDR">${aT.short_name}</span>
+    </div>
+  </div>
+
+  <div class="card-match">
+    <div class="team-col">
+      <img class="team-shirt" src="${hS}" alt="${hT.name}" loading="lazy" ${ESH}>
+      <div class="team-name">${hT.short_name}</div>
+      <div class="team-loc home">HOME</div>
+    </div>
+    <div class="score-center">
+      <div class="status-pill ${statusCls}" aria-label="Match status">${statusTxt}</div>
+      ${f.started
+        ?`<div class="score-nums" aria-label="Score ${f.team_h_score} to ${f.team_a_score}"><span>${f.team_h_score}</span><span class="score-sep">:</span><span>${f.team_a_score}</span></div>`
+        :`<div class="vs-txt" aria-label="Not started">VS</div>`
+      }
+    </div>
+    <div class="team-col">
+      <img class="team-shirt" src="${aS}" alt="${aT.name}" loading="lazy" ${ESH}>
+      <div class="team-name">${aT.short_name}</div>
+      <div class="team-loc">AWAY</div>
+    </div>
+  </div>
+
+  ${evsHtml}
+  ${bonusHtml}
+
+  <button class="card-toggle" onclick="toggleCard(${f.id})" aria-expanded="false" id="toggle-${f.id}" aria-controls="drawer-${f.id}">
+    <span><i class="fa-solid fa-chart-line" style="margin-right:5px;font-size:.62rem" aria-hidden="true"></i>Squad ownership &amp; stats</span>
+    <i class="fa-solid fa-chevron-down toggle-icon" aria-hidden="true"></i>
+  </button>
+
+  <div class="card-drawer" id="drawer-${f.id}" role="region" aria-labelledby="toggle-${f.id}">
+    <div class="drawer-tabs" role="tablist">
+      <button class="dtab active" id="dtab-own-${f.id}" role="tab" aria-selected="true" onclick="switchTab(${f.id},'own')">
+        <i class="fa-solid fa-users" aria-hidden="true"></i><span>Ownership</span>
+      </button>
+      <button class="dtab" id="dtab-stats-${f.id}" role="tab" aria-selected="false" onclick="switchTab(${f.id},'stats')">
+        <i class="fa-solid fa-chart-bar" aria-hidden="true"></i><span>Stats</span>
+      </button>
+      ${f.started?`
+      <button class="dtab" id="dtab-ev-${f.id}" role="tab" aria-selected="false" onclick="switchTab(${f.id},'ev')">
+        <i class="fa-solid fa-list" aria-hidden="true"></i><span>Events</span>
+      </button>`:''}
+    </div>
+    <div class="dpanel active" id="dpanel-own-${f.id}" role="tabpanel">${buildOwn(f.team_h,f.team_a)}</div>
+    <div class="dpanel" id="dpanel-stats-${f.id}" role="tabpanel">${buildStats(f,hT,aT)}</div>
+    ${f.started?`<div class="dpanel" id="dpanel-ev-${f.id}" role="tabpanel">${buildEvPanel(f)}</div>`:''}
+  </div>
+</div>`;
+}
+
+/* ── HELPERS ── */
+function getMin(f){if(f.finished||f.finished_provisional)return'FT';if(!f.started)return'';if(f.minutes>0)return`${f.minutes}'`;const el=Math.floor((Date.now()-new Date(f.kickoff_time))/60000);if(el>45&&el<60)return'HT';return`${Math.min(90,Math.max(1,el>=60?el-15:el))}'`;}
+function formatTime(iso){return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+function fmtDateTime(iso){const d=new Date(iso);return d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+function pName(id){return G.players.find(p=>p.id===id)?.web_name||'?';}
+function getStat(f,sid){const s=(f.stats||[]).find(s=>s.identifier===sid);return s?{h:s.h||[],a:s.a||[]}:{h:[],a:[]};}
+
+/* ── BUILD EVENTS (surface) ── */
+function buildEvs(f){
+  if(!f.started)return{hEv:[],aEv:[]};
+  const hEv=[],aEv=[];
+  const defs=[
+    {id:'goals_scored',icon:'fa-futbol',cls:'ic-goal'},
+    {id:'assists',icon:'fa-circle-dot',cls:'ic-assist'},
+    {id:'own_goals',icon:'fa-futbol',cls:'ic-og',sfx:' (OG)'},
+    {id:'penalties_scored',icon:'fa-circle',cls:'ic-pen',sfx:' (P)'},
+    {id:'yellow_cards',icon:'fa-square',cls:'ic-yellow'},
+    {id:'red_cards',icon:'fa-square',cls:'ic-red'},
+    {id:'saves',icon:'fa-hand',cls:'ic-save'},
+  ];
+  defs.forEach(({id,icon,cls,sfx=''})=>{
+    const st=getStat(f,id);
+    st.h.forEach(e=>{const cnt=e.value>1?` ×${e.value}`:'';hEv.push(`<div class="ev-item"><i class="fa-solid ${icon} ev-icon ${cls}" aria-hidden="true"></i><span>${pName(e.element)}${cnt}${sfx}</span></div>`);});
+    st.a.forEach(e=>{const cnt=e.value>1?` ×${e.value}`:'';aEv.push(`<div class="ev-item"><i class="fa-solid ${icon} ev-icon ${cls}" aria-hidden="true"></i><span>${pName(e.element)}${cnt}${sfx}</span></div>`);});
+  });
+  return{hEv,aEv};
+}
+
+/* ── BUILD BONUS ── */
+function buildBonus(f,isDone){
+  const sid=isDone?'bonus':'bps';
+  const st=getStat(f,sid);
+  const all=[...st.h,...st.a].sort((a,b)=>b.value-a.value).slice(0,3);
+  if(!all.length)return'';
+  const items=all.map((p,i)=>{
+    const pts=isDone?p.value:3-i;
+    const isMine=G.myPicks.has(p.element);
+    return`<div class="bonus-item"><span>${pName(p.element)}${isMine?'<i class="fa-solid fa-star" style="color:var(--c-amber);font-size:.55rem;margin-left:3px" aria-hidden="true"></i>':''}</span><span class="bonus-pts">${pts}</span></div>`;
+  }).join('');
+  return`<div class="card-bonus"><span class="bonus-lbl">${isDone?'Bonus Pts':'Projected BPS'}</span><div class="bonus-list">${items}</div></div>`;
+}
+
+/* ── BUILD OWNERSHIP TABLE ── */
+function buildOwn(htId,atId){
+  const rel=G.players.filter(p=>p.team===htId||p.team===atId)
+    .sort((a,b)=>parseFloat(b.selected_by_percent)-parseFloat(a.selected_by_percent))
+    .slice(0,12);
+  if(!rel.length)return'<div class="empty-state" style="padding:24px"><p>No player data.</p></div>';
+  const rows=rel.map(p=>{
+    const t=G.teams.find(t=>t.id===p.team);
+    const own=parseFloat(p.selected_by_percent)||0;
+    const s=SH(t?.code||1,p.element_type===1);
+    const isMine=G.myPicks.has(p.id);
+    return`<tr>
+      <td style="width:28px"><img class="own-shirt" src="${s}" alt="" loading="lazy" ${ESH}></td>
+      <td><div class="own-name">${p.web_name}${isMine?'<i class="fa-solid fa-check-circle" style="color:var(--c-green);font-size:.6rem;margin-left:4px" aria-label="In your squad"></i>':''}</div><div class="own-price">£${(p.now_cost/10).toFixed(1)}m · ${t?.short_name||''}</div></td>
+      <td><span class="pos-b ${PC[p.element_type]}">${PL[p.element_type]}</span></td>
+      <td><div class="own-bar"><div class="own-bar-f" style="width:${Math.min(100,own*3.33)}%"></div></div></td>
+      <td class="own-pct">${own}%</td>
+    </tr>`;
+  }).join('');
+  return`<table class="own-table" aria-label="Player ownership">${rows}</table>`;
+}
+
+/* ── BUILD STATS PANEL ── */
+function buildStats(f,hT,aT){
+  const hp=G.players.filter(p=>p.team===f.team_h);
+  const ap=G.players.filter(p=>p.team===f.team_a);
+  const sum=(arr,k)=>arr.reduce((t,p)=>t+(parseFloat(p[k])||0),0);
+  const side=(t,pl,fdr)=>{
+    const xg=sum(pl,'expected_goals_per_90').toFixed(2);
+    const xgc=sum(pl.filter(p=>p.element_type<=2),'expected_goals_conceded_per_90').toFixed(2);
+    const form=sum(pl,'form').toFixed(1);
+    const inT=pl.reduce((t,p)=>t+(parseInt(p.transfers_in_event)||0),0);
+    return`<div class="stat-side">
+      <div class="stat-team-lbl">${t.short_name}</div>
+      <div class="stat-row"><span class="stat-lbl">xG / 90</span><span class="stat-val stat-pos">${xg}</span></div>
+      <div class="stat-row"><span class="stat-lbl">xGC / 90</span><span class="stat-val stat-neg">${xgc}</span></div>
+      <div class="stat-row"><span class="stat-lbl">Form</span><span class="stat-val">${form}</span></div>
+      <div class="stat-row"><span class="stat-lbl">FDR</span><span class="fdr-tag fdr-${fdr}">${fdr}</span></div>
+      <div class="stat-row"><span class="stat-lbl">Transfers In</span><span class="stat-val" style="font-size:.78rem">${inT.toLocaleString()}</span></div>
+    </div>`;
+  };
+  return`<div class="stats-grid">${side(hT,hp,f.team_h_difficulty||3)}${side(aT,ap,f.team_a_difficulty||3)}</div>`;
+}
+
+/* ── BUILD EVENTS PANEL ── */
+function buildEvPanel(f){
+  const defs=[
+    {id:'goals_scored',label:'Goals',icon:'fa-futbol',cls:'ic-goal'},
+    {id:'assists',label:'Assists',icon:'fa-circle-dot',cls:'ic-assist'},
+    {id:'own_goals',label:'Own Goals',icon:'fa-futbol',cls:'ic-og'},
+    {id:'penalties_scored',label:'Penalties',icon:'fa-circle',cls:'ic-pen'},
+    {id:'yellow_cards',label:'Yellow Cards',icon:'fa-square',cls:'ic-yellow'},
+    {id:'red_cards',label:'Red Cards',icon:'fa-square',cls:'ic-red'},
+    {id:'saves',label:'Saves',icon:'fa-hand',cls:'ic-save'},
+    {id:'bonus',label:'Bonus Points',icon:'fa-star',cls:'ic-goal'},
+  ];
+  let html='';
+  defs.forEach(({id,label,icon,cls})=>{
+    const st=getStat(f,id);if(!st.h.length&&!st.a.length)return;
+    const buildSide=arr=>{
+      if(!arr.length)return'<div class="ep-empty">—</div>';
+      return arr.map(e=>`<div class="ep-entry"><i class="fa-solid ${icon} ev-icon ${cls}" aria-hidden="true"></i><span>${pName(e.element)}${e.value>1?` ×${e.value}`:''}</span></div>`).join('');
+    };
+    html+=`<div class="ep-section"><div class="ep-title"><i class="fa-solid ${icon} ${cls}" style="font-size:.6rem" aria-hidden="true"></i>${label}</div><div class="ep-cols"><div class="ep-side home">${buildSide(st.h)}</div><div class="ep-side away">${buildSide(st.a)}</div></div></div>`;
+  });
+  return html||'<div style="text-align:center;padding:20px;font-size:.76rem;color:var(--c-t3)">No events recorded yet.</div>';
+}
+
+/* ── INTERACTIONS ── */
+function toggleCard(fid){
+  const card=document.getElementById(`card-${fid}`),toggle=document.getElementById(`toggle-${fid}`);
+  const wasOpen=card.classList.toggle('open');
+  toggle.setAttribute('aria-expanded',wasOpen);
+}
+function switchTab(fid,panel){
+  ['own','stats','ev'].forEach(p=>{
+    const tab=document.getElementById(`dtab-${p}-${fid}`),pnl=document.getElementById(`dpanel-${p}-${fid}`);
+    if(tab){tab.classList.toggle('active',p===panel);tab.setAttribute('aria-selected',p===panel);}
+    if(pnl)pnl.classList.toggle('active',p===panel);
+  });
+}
+
+/* ── SKELETONS ── */
+function showSkel(n){
+  document.getElementById('games-list').innerHTML=Array.from({length:n},(_,i)=>`<div class="sk-card" aria-hidden="true" style="animation-delay:${i*.08}s"></div>`).join('');
+}
+
+/* ── BOOT ── */
+document.addEventListener('DOMContentLoaded',init);
+</script>
+<script src="kopala-idb.js"></script>
+<script src="haptic.js"></script>
+<script src="deadline-notify.js"></script>
+<script src="nav.js" defer></script>
+<script src="live-widget.js"></script>
+<script src="pwa.js" defer></script>
+<script src="footer.js" defer></script>
+</body>
+</html>
